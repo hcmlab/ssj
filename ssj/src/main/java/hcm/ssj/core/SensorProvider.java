@@ -1,0 +1,217 @@
+/*
+ * SensorProvider.java
+ * Copyright (c) 2015
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * *****************************************************
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+ *
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+package hcm.ssj.core;
+
+import android.util.Log;
+
+import hcm.ssj.core.stream.Stream;
+
+/**
+ * Component handling data stream of a sensor device.
+ * Requires a valid sensor instance (to handle the connection to the physical device)
+ */
+public abstract class SensorProvider extends Provider {
+
+    private float _watchInterval  = Cons.DFLT_WATCH_INTERVAL; //how often should the watchdog check if the sensor is providing data (in seconds)
+    private float _syncInterval = Cons.DFLT_SYNC_INTERVAL; //how often should the watchdog sync the buffer with the framework (in seconds)
+
+    protected TheFramework _frame;
+    protected Timer _timer;
+
+    protected Sensor _sensor;
+
+    public SensorProvider()
+    {
+        _frame = TheFramework.getFramework();
+    }
+
+    void setSensor(Sensor s)
+    {
+        _sensor = s;
+    }
+
+    @Override
+    public void run()
+    {
+        if(!_isSetup) {
+            Log.e(_name, "not initialized");
+            return;
+        }
+
+        //if user did not specify a custom priority, use high priority
+        android.os.Process.setThreadPriority( (threadPriority == Cons.THREAD_PRIORITY_NORMAL) ? Cons.THREAD_PRIORIIY_HIGH : threadPriority );
+
+        WatchDog dog = new WatchDog(_bufferID, _watchInterval, _syncInterval);
+
+        if(_sensor == null)
+        {
+            Log.w(_name, "provider has not been attached to any sensor");
+        }
+        else
+        {
+            _sensor.waitForConnection();
+        }
+
+        try {
+            enter(_stream_out);
+        } catch(Exception e) {
+            Log.e(_name, "exception in enter", e);
+            throw new RuntimeException(e);
+        }
+
+        _timer.reset();
+
+        while(!_terminate)
+        {
+            try {
+                process(_stream_out);
+
+                _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
+                dog.checkIn();
+
+                _timer.sync();
+            } catch(Exception e) {
+                Log.e(_name, "exception in loop", e);
+                throw new RuntimeException(e);
+            }
+        }
+
+        //dog must be closed as soon as sensor stops providing
+        try {
+            dog.close();
+        } catch(Exception e) {
+            Log.e(_name, "exception in closing watch dog", e);
+            throw new RuntimeException(e);
+        }
+
+        try {
+            flush(_stream_out);
+        } catch(Exception e) {
+            Log.e(_name, "exception in flush", e);
+            throw new RuntimeException(e);
+        }
+
+        _safeToKill = true;
+    }
+
+    /**
+     * early initialization specific to implementation (called by framework on instantiation)
+     */
+    protected void init() {}
+
+    /**
+     * initialization specific to sensor implementation (called by local thread after framework start and after sensor connects)
+     */
+    public void enter(Stream stream_out) {}
+
+    /**
+     * main processing method
+     */
+    protected abstract void process(Stream stream_out);
+
+    /**
+     * called once prior to termination
+     */
+    public void flush(Stream stream_out) {}
+
+    /**
+     * general sensor initialization
+     */
+    public void setup()
+    {
+        try {
+            // figure out properties of output signal
+            int bytes_out = getSampleBytes();
+            int dim_out = getSampleDimension();
+            double sr_out = getSampleRate();
+            Cons.Type type_out = getSampleType();
+            int num_out = getSampleNumber();
+
+            _stream_out = Stream.create(num_out, dim_out, bytes_out, sr_out, type_out);
+
+            defineOutputClasses(_stream_out);
+
+            // configure update rate
+            _timer = new Timer((double)num_out / sr_out);
+
+        } catch(Exception e) {
+            Log.e(_name, "error configuring component", e);
+            throw new RuntimeException(e);
+        }
+
+        Log.i(_name, "Sensor Provider " + _name + " (output)" + '\n' +
+                "\tbytes=" +_stream_out.bytes+ '\n' +
+                "\tdim=" +_stream_out.dim+ '\n' +
+                "\ttype=" +_stream_out.type.toString() + '\n' +
+                "\tnum=" +_stream_out.num+ '\n' +
+                "\tsr=" +_stream_out.sr);
+
+        _isSetup = true;
+    }
+
+    @Override
+    public String[] getOutputClasses()
+    {
+        if(!_isSetup) {
+            Log.e(_name, "not initialized");
+            return null;
+        }
+
+        String[] outputClass = new String[_stream_out.dim];
+        System.arraycopy(_stream_out.dataclass, 0, outputClass, 0, _stream_out.dataclass.length);
+
+        return outputClass;
+    }
+
+    protected abstract double getSampleRate();
+    protected abstract int getSampleDimension();
+    protected abstract int getSampleBytes();
+    protected abstract Cons.Type getSampleType();
+
+    /*
+     * By default, every sensor will push their data to the framework asap one sample at a time.
+     * If a specific sensor cannot do this, this function can be overriden
+     */
+    protected int getSampleNumber()
+    {
+        return 1;
+    }
+
+    protected abstract void defineOutputClasses(Stream stream_out);
+
+    //how often should the watchdog check if the sensor is providing data (in seconds)
+    public void setWatchInterval(float watchInterval)
+    {
+        _watchInterval = watchInterval;
+    }
+
+    //how often should the watchdog sync the buffer with the framework (in seconds)
+    public void setSyncInterval(float syncInterval)
+    {
+        _syncInterval = syncInterval;
+    }
+}

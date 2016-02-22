@@ -1,0 +1,390 @@
+/*
+ * CameraSensor.java
+ * Copyright (c) 2015
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * *****************************************************
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+ *
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+package hcm.ssj.camera;
+
+import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
+import android.hardware.Camera;
+import android.os.Build;
+import android.util.Log;
+
+import java.io.IOException;
+import java.util.List;
+
+/**
+ * Camera sensor.<br>
+ * <b>Hint:</b> Heap size problems can be addressed by setting <code>android:largeHeap="true"</code> in the manifest.<br>
+ * Created by Frank Gaibler on 21.12.2015.
+ */
+@SuppressWarnings("deprecation")
+public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewCallback
+{
+    /**
+     * All options for the camera
+     */
+    public class Options
+    {
+        public int cameraInfo = Camera.CameraInfo.CAMERA_FACING_FRONT;
+        //arbitrary but popular values
+        public int width = 640;
+        public int height = 480;
+        public int previewFpsRangeMin = 4 * 1000;
+        public int previewFpsRangeMax = 30 * 1000;
+        public int imageFormat = ImageFormat.NV21;
+    }
+
+    //options
+    public Options options = new Options();
+    //camera
+    private Camera camera;
+    //surface
+    private SurfaceTexture surfaceTexture = null;
+    //camera supported values
+    private int iRealWidth = 0;
+    private int iRealHeight = 0;
+    //buffer to exchange data
+    private byte[] byaSwapBuffer = null;
+
+    /**
+     *
+     */
+    public CameraSensor()
+    {
+        _name = "SSJ_sensor_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     * @return int
+     */
+    protected final int getBufferSize()
+    {
+        int reqBuffSize = iRealWidth * iRealHeight;
+        reqBuffSize += reqBuffSize >> 1;
+        return reqBuffSize;
+    }
+
+    /**
+     * Exchanges data between byte arrays
+     *
+     * @param bytes byte[]
+     * @param write boolean
+     */
+    public final synchronized void swapBuffer(byte[] bytes, boolean write)
+    {
+        if (write)
+        {
+            //write into buffer
+            if (byaSwapBuffer.length < bytes.length)
+            {
+                Log.e(_name, "Buffer write changed from " + byaSwapBuffer.length + " to " + bytes.length);
+                byaSwapBuffer = new byte[bytes.length];
+            }
+            System.arraycopy(bytes, 0, byaSwapBuffer, 0, bytes.length);
+        } else
+        {
+            //get data from buffer
+            if (bytes.length < byaSwapBuffer.length)
+            {
+                Log.e(_name, "Buffer read changed from " + bytes.length + " to " + byaSwapBuffer.length);
+                bytes = new byte[byaSwapBuffer.length];
+            }
+            System.arraycopy(byaSwapBuffer, 0, bytes, 0, byaSwapBuffer.length);
+        }
+    }
+
+    /**
+     * Configures camera for video capture. <br>
+     * Opens a camera and sets parameters. Does not start preview.
+     */
+    private void prepareCamera()
+    {
+        //set camera and frame size
+        Camera.Parameters parameters = prePrepare();
+        parameters.setPreviewFormat(options.imageFormat);
+
+//        List<Integer> formats = parameters.getSupportedPreviewFormats();
+//        Log.i(_name, "formats (n=" + formats.size() + ")");
+//
+//        for(int i = 0; i< formats.size(); i++)
+//        {
+//            Log.i(_name, "format " + formats.get(i));
+//        }
+
+        //set preview fps range
+        choosePreviewFpsRange(parameters, options.previewFpsRangeMin, options.previewFpsRangeMax);
+        //optimizations for more fps
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+        {
+            parameters.setRecordingHint(true);
+        }
+        List<String> FocusModes = parameters.getSupportedFocusModes();
+        if (FocusModes != null && FocusModes.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO))
+        {
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+        }
+        //set camera parameters
+        camera.setParameters(parameters);
+        //display used parameters
+        Camera.Size size = parameters.getPreviewSize();
+        Log.d(_name, "Camera preview size is " + size.width + "x" + size.height);
+        int[] range = new int[2];
+        parameters.getPreviewFpsRange(range);
+        Log.d(_name, "Preview fps range is " + (range[0] / 1000) + " to " + (range[1] / 1000));
+    }
+
+    /**
+     * Sets camera height and width.<br>
+     * Will select different parameters, if the ones in options aren't supported.
+     *
+     * @return Camera.Parameters
+     */
+    protected final Camera.Parameters prePrepare()
+    {
+        if (camera != null)
+        {
+            Log.e(_name, "Camera already initialized");
+            throw new RuntimeException("Camera already initialized");
+        }
+        //set camera
+        chooseCamera();
+        //
+        Camera.Parameters parameters = camera.getParameters();
+        //set preview size
+        choosePreviewSize(parameters, options.width, options.height);
+        return parameters;
+    }
+
+    /**
+     * Tries to access the requested camera.<br>
+     * Will select a different one if the requested one is not supported.
+     */
+    private void chooseCamera()
+    {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        //search for specified camera
+        int numCameras = Camera.getNumberOfCameras();
+        for (int i = 0; i < numCameras; i++)
+        {
+            Camera.getCameraInfo(i, info);
+            if (info.facing == options.cameraInfo)
+            {
+                camera = Camera.open(i);
+                break;
+            }
+        }
+        if (camera == null)
+        {
+            Log.d(_name, "No front-facing camera found; opening default");
+            camera = Camera.open(); //opens first back-facing camera
+        }
+        if (camera == null)
+        {
+            Log.e(_name, "Unable to open camera");
+            throw new RuntimeException("Unable to open camera");
+        }
+    }
+
+    /**
+     * Attempts to find a preview size that matches the provided width and height (which
+     * specify the dimensions of the encoded video). If it fails to find a match it just
+     * uses the default preview size.
+     */
+    private void choosePreviewSize(Camera.Parameters parameters, int width, int height)
+    {
+        //search for requested size
+        for (Camera.Size size : parameters.getSupportedPreviewSizes())
+        {
+            if (size.width == width && size.height == height)
+            {
+                parameters.setPreviewSize(width, height);
+                iRealWidth = width;
+                iRealHeight = height;
+                return;
+            }
+        }
+        Log.w(_name, "Unable to set preview size to " + width + "x" + height);
+        List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+        for (Camera.Size size : sizes)
+        {
+            Log.w(_name, "Supported sizes are: ");
+            Log.w(_name, size.width + "x" + size.height);
+        }
+        //set to preferred size
+        Camera.Size ppsfv = parameters.getPreferredPreviewSizeForVideo();
+        if (ppsfv != null)
+        {
+            parameters.setPreviewSize(ppsfv.width, ppsfv.height);
+            iRealWidth = ppsfv.width;
+            iRealHeight = ppsfv.height;
+        }
+    }
+
+    /**
+     * Attempts to find a preview range that matches the provided min and max.
+     * If it fails to find a match it uses the closest match or the default preview range.
+     */
+    private void choosePreviewFpsRange(Camera.Parameters parameters, int min, int max)
+    {
+        //adjust wrong preview range
+        if (min > max)
+        {
+            Log.w(_name, "Preview range max is too small");
+            max = min;
+        }
+        //preview ranges have to be a multiple of 1000
+        if (min / 1000 <= 0)
+        {
+            min *= 1000;
+        }
+        if (max / 1000 <= 0)
+        {
+            max *= 1000;
+        }
+        //search for requested size
+        List<int[]> ranges = parameters.getSupportedPreviewFpsRange();
+        for (int[] range : ranges)
+        {
+            if (range[0] == min && range[1] == max)
+            {
+                parameters.setPreviewFpsRange(range[0], range[1]);
+                return;
+            }
+        }
+        Log.w(_name, "Unable to set preview fps range from " + (min / 1000) + " to " + (max / 1000));
+        for (int[] range : ranges)
+        {
+            Log.w(_name, "Supported ranges are: ");
+            Log.w(_name, "min: " + range[0] + "\tmax: " + range[1]);
+        }
+        //try to set to minimum
+        for (int[] range : ranges)
+        {
+            if (range[0] == min)
+            {
+                parameters.setPreviewFpsRange(range[0], range[1]);
+                return;
+            }
+        }
+        //leave preview range at default
+    }
+
+    /**
+     * Stops camera preview, and releases the camera to the system.
+     */
+    protected final void releaseCamera()
+    {
+        if (camera != null)
+        {
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+        }
+    }
+
+    /**
+     * Configures surface texture for camera preview
+     */
+    private void prepareSurfaceTexture()
+    {
+        surfaceTexture = new SurfaceTexture(10);
+        try
+        {
+            camera.setPreviewTexture(surfaceTexture);
+        } catch (IOException ex)
+        {
+            Log.e(_name, "Couldn't prepare surface texture: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Set buffer size according to real width and height
+     */
+    private void initBuffer()
+    {
+        try
+        {
+            int reqBuffSize = getBufferSize();
+            camera.addCallbackBuffer(new byte[reqBuffSize]);
+            camera.setPreviewCallbackWithBuffer(this);
+            byaSwapBuffer = new byte[reqBuffSize];
+        } catch (Exception ex)
+        {
+            Log.e(_name, "Couldn't init buffer: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Write data into buffer and return used resources to camera
+     *
+     * @param data byte[]
+     * @param cam  Camera
+     */
+    @Override
+    public void onPreviewFrame(byte[] data, Camera cam)
+    {
+        swapBuffer(data, true);
+        camera.addCallbackBuffer(data);
+    }
+
+    /**
+     * Release the surface texture
+     */
+    private void releaseSurfaceTexture()
+    {
+        if (surfaceTexture != null)
+        {
+            surfaceTexture.release();
+            surfaceTexture = null;
+        }
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void connect()
+    {
+        prepareCamera();
+        prepareSurfaceTexture();
+        initBuffer();
+        camera.startPreview();
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void disconnect()
+    {
+        releaseCamera();
+        releaseSurfaceTexture();
+    }
+}
+

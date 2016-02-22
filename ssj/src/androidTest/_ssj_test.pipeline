@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<pipeline ssi-v="1">
+	
+	<!-- register dlls -->
+	<register>
+		<load name="ssiioput"/>
+		<load name="ssimouse"/>
+		<load name="ssigraphic"/>
+		<load name="ssisignal"/>
+		<load name="ssiaudio"/>
+	</register>
+	
+	<!-- set framework options -->
+	<framework console="true" cpos="400,400,400,400"/>
+	
+	<!-- set painter options -->
+	<painter arrange="true" apos="1,3,400,0,400,400"/>
+	
+	<!-- socket receiver 
+	
+	Reads from a socket port and feeds the received signal into the
+	pipeline. Use this component to receive signals from external applications.
+	Make sure to adjust the options to fit the incoming signal.
+	
+	-->
+	<sensor create="ssi_sensor_SocketReader" type="0" port="34900" host="137.250.171.61" format="0" ssr="16000" sdim="1" sbyte="2" stype="3">		
+		<provider channel="socket" pin="cursor1"/>
+	</sensor>		
+
+	
+	<!-- visualization -->
+	<consumer create="ssi_consumer_AudioPlayer" numBuffers="2">
+		<input pin="cursor1" frame="0.1s" />		
+	</consumer>	
+	<consumer create="ssi_consumer_SignalPainter" name="audio" type="2" size="10.0">
+		<input pin="cursor1" frame="0.1s" />		
+	</consumer>	
+	
+</pipeline>
