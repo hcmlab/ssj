@@ -32,13 +32,9 @@ import android.os.Looper;
 import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.SecondScale;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Consumer;

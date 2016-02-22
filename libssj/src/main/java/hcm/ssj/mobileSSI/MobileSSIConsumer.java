@@ -2,14 +2,8 @@ package hcm.ssj.mobileSSI;
 
 import android.util.Log;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
-import hcm.ssj.core.stream.FloatStream;
 import hcm.ssj.core.stream.Stream;
 
 import static java.lang.System.loadLibrary;

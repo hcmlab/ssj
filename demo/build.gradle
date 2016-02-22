@@ -50,6 +50,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.2.0'
 
-    releaseCompile project(path: ':ssj', configuration: 'release')
-    debugCompile project(path: ':ssj', configuration: 'debug')
+    releaseCompile project(path: ':libssj', configuration: 'release')
+    debugCompile project(path: ':libssj', configuration: 'debug')
 }
