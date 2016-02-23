@@ -50,7 +50,7 @@ public class CameraProvider extends SensorProvider
          * The rate in which the provider samples data from the camera.<br>
          * <b>Attention!</b> The camera sensor will provide new data according to its frame rate and min max preview.
          */
-        public int sampleRate = 20;
+        public double sampleRate = 20;
     }
 
     public Options options = new Options();
