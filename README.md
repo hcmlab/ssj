@@ -12,7 +12,7 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 * Support for most standard android sensors (Camera, Microphone, Acceleration, ...)
 * Support for external sensors via bluetooth (e.g. Myo, Empatica)
 * I/O functionality: local storage, sockets, bluetooth
-* Basic GUI elements: graphs (using [GraphView](https://github.com/jjoe64/GraphView) library), camera painter
+* Basic GUI elements: graphs (using [GraphView](https://github.com/hcmlab/GraphView) library), camera painter
 
 ### License
 This library is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or any later version.
@@ -20,3 +20,7 @@ This library is free software; you can redistribute it and/or modify it under th
 This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this library; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+### External Libraries
+* [GraphView](https://github.com/hcmlab/GraphView) ([License](https://github.com/hcmlab/GraphView/blob/master/license.txt))
+* [TarsosDSP](https://github.com/JorenSix/TarsosDSP) ([License](https://github.com/JorenSix/TarsosDSP/blob/master/license.txt))
