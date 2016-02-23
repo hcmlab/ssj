@@ -1,5 +1,5 @@
-![Logo](/assets/logo_w100.png)
-# Realtime Social Signal Processing for Java/Android
+![Logo](/assets/logo_w100.png) 
+### Realtime Social Signal Processing for Java/Android
 
 Authors: Ionut Damian, Michael Dietz, Frank Gaibler
 
