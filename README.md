@@ -14,6 +14,9 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 * I/O functionality: local storage, sockets, bluetooth
 * Basic GUI elements: graphs (using [GraphView](https://github.com/hcmlab/GraphView) library), camera painter
 
+### Documentation
+* Api (Javadoc): http://hcmlab.github.io/ssj/api
+
 ### License
 This library is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or any later version.
 
