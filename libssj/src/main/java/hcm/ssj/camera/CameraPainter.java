@@ -235,7 +235,7 @@ public class CameraPainter extends Consumer
      */
     private void decodeColor(final byte[] data, int width, int height)
     {
-        //@todo allow for different formats. Current only works for NV21 back camera
+        //@todo implement missing conversions
         switch (colorFormat)
         {
             case DEFAULT:
@@ -248,15 +248,24 @@ public class CameraPainter extends Consumer
             }
             case YV12_PACKED_SEMI:
             {
-                throw new UnsupportedOperationException("Not implemented, yet");
+                decodeYV12PackedSemi(iaRgbData, data, width, height);
+                break;
             }
             case NV21_DEFAULT:
             {
-                throw new UnsupportedOperationException("Not implemented, yet");
+                decodeNV21(iaRgbData, data, width, height, false);
+                break;
             }
             case NV21_UV_SWAPPED:
             {
-                NV21_UV_SWAPPED(iaRgbData, data, width, height);
+//                //perfect conversion, but uses "new"
+//                ByteArrayOutputStream out = new ByteArrayOutputStream();
+//                YuvImage yuv = new YuvImage(data, ImageFormat.NV21, width, height, null);
+//                //data is the byte array of your YUV image, that you want to convert
+//                yuv.compressToJpeg(new Rect(0, 0, width, height), 100, out);
+//                byte[] bytes = out.toByteArray();
+//                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                decodeNV21(iaRgbData, data, width, height, true);
                 break;
             }
             default:
@@ -270,13 +279,60 @@ public class CameraPainter extends Consumer
     /**
      * Decodes YUV frame to a RGB buffer
      *
-     * @param out    the outgoing array of RGB bytes
-     * @param yuv    the incoming frame bytes
-     * @param width  of source frame
-     * @param height of source frame
+     * @param rgba     int[]
+     * @param yuv420sp byte[]
+     * @param width    width
+     * @param height   height
      */
-    private void NV21_UV_SWAPPED(int[] out, byte[] yuv, int width, int height)
+    private void decodeYV12PackedSemi(int[] rgba, byte[] yuv420sp, int width, int height)
     {
+        //@todo untested
+        final int frameSize = width * height;
+        int r, g, b, y1192, y, i, uvp, u, v;
+        for (int j = 0, yp = 0; j < height; j++)
+        {
+            uvp = frameSize + (j >> 1) * width;
+            u = 0;
+            v = 0;
+            for (i = 0; i < width; i++, yp++)
+            {
+                y = (0xff & ((int) yuv420sp[yp])) - 16;
+                if (y < 0)
+                    y = 0;
+                if ((i & 1) == 0)
+                {
+                    v = (0xff & yuv420sp[uvp++]) - 128;
+                    u = (0xff & yuv420sp[uvp++]) - 128;
+                }
+                y1192 = 1192 * y;
+                r = (y1192 + 1634 * v);
+                g = (y1192 - 833 * v - 400 * u);
+                b = (y1192 + 2066 * u);
+                //
+                r = Math.max(0, Math.min(r, 262143));
+                g = Math.max(0, Math.min(g, 262143));
+                b = Math.max(0, Math.min(b, 262143));
+                // rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) &
+                // 0xff00) | ((b >> 10) & 0xff);
+                // rgba, divide 2^10 ( >> 10)
+                rgba[yp] = ((r << 14) & 0xff000000) | ((g << 6) & 0xff0000)
+                        | ((b >> 2) | 0xff00);
+            }
+        }
+    }
+
+    /**
+     * Decodes YUV frame to a RGB buffer
+     *
+     * @param out    int[]
+     * @param yuv    byte[]
+     * @param width  int
+     * @param height int
+     * @param swap   boolean
+     */
+    private void decodeNV21(int[] out, byte[] yuv, int width, int height, boolean swap)
+    {
+        //@todo correct colors
         int sz = width * height;
         int i, j;
         int Y, Cr = 0, Cb = 0;
@@ -292,7 +348,7 @@ public class CameraPainter extends Consumer
                 if ((i & 0x1) != 1)
                 {
                     final int cOff = sz + jDiv2 * width + (i >> 1) * 2;
-                    Cb = yuv[cOff];
+                    Cb = yuv[cOff + (swap ? 0 : 1)];
                     if (Cb < 0)
                     {
                         Cb += 127;
@@ -300,7 +356,7 @@ public class CameraPainter extends Consumer
                     {
                         Cb -= 128;
                     }
-                    Cr = yuv[cOff + 1];
+                    Cr = yuv[cOff + (swap ? 1 : 0)];
                     if (Cr < 0)
                     {
                         Cr += 127;
