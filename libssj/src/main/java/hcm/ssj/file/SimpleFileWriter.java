@@ -33,6 +33,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
@@ -113,9 +117,16 @@ public class SimpleFileWriter extends Consumer
         simpleHeader._byte = String.valueOf(stream.bytes);
         simpleHeader._type = stream.type.name();
         simpleHeader._from = String.valueOf(stream.time);
+        simpleHeader._ms = String.valueOf(_frame.getTimeMs());
+        SimpleDateFormat sdf = new SimpleDateFormat(SimpleHeader.DATE_FORMAT, Locale.getDefault());
+        Date date = new Date();
+        simpleHeader._local = sdf.format(date);
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        simpleHeader._system = sdf.format(date);
         writeLine(simpleHeader.getLine1(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine2(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine3(), fileOutputStreamHeader);
+        writeLine(simpleHeader.getLine4(), fileOutputStreamHeader);
         lineCount = 0;
         fileOutputStream = getFileConnection(fileReal, fileOutputStream);
     }
@@ -263,7 +274,6 @@ public class SimpleFileWriter extends Consumer
         fileOutputStream = closeStream(fileOutputStream);
         simpleHeader._num = String.valueOf(lineCount);
         simpleHeader._to = String.valueOf(stream.time);
-        writeLine(simpleHeader.getLine4(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine5(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine6(), fileOutputStreamHeader);
         fileOutputStreamHeader = closeStream(fileOutputStreamHeader);

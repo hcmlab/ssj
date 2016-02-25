@@ -33,6 +33,7 @@ package hcm.ssj.file;
  */
 class SimpleHeader
 {
+    protected final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss:SSS";
     private final static String _version = "1.0";
     private final static String _ssi_v = "2";
     private final static String _ftype = "ASCII";
@@ -40,9 +41,9 @@ class SimpleHeader
     protected String _dim = "1";
     protected String _byte = "4";
     protected String _type = "FLOAT";
-    private final static String _ms = "0";
-    private final static String _local = "00/00/00 00:00:00:0";
-    private final static String _system = "00/00/00 00:00:00:0";
+    protected String _ms = "0";
+    protected String _local = "00/00/00 00:00:00:0";
+    protected String _system = "00/00/00 00:00:00:0";
     protected String _from = "0.0";
     protected String _to = "0.0";
     private final static String _byte2 = "0";
