@@ -136,7 +136,7 @@ public class CameraWriter extends Mp4Writer
             Log.e(_name, "Stream type not supported");
             return;
         }
-        iFrameRate = (int) stream_in[0].sr;
+        dFrameRate = stream_in[0].sr;
         prepareEncoder(options.width, options.height, options.bitRate);
         bufferInfo = new MediaCodec.BufferInfo();
         int reqBuffSize = options.width * options.height;
@@ -204,7 +204,7 @@ public class CameraWriter extends Mp4Writer
         videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, options.colorFormat <= 0
                 ? CameraUtil.selectColorFormat(mediaCodecInfo, options.mimeType) : options.colorFormat);
         videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
-        videoFormat.setInteger(MediaFormat.KEY_FRAME_RATE, iFrameRate);
+        videoFormat.setFloat(MediaFormat.KEY_FRAME_RATE, (float) dFrameRate);
         videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, options.iFrameInterval);
         //prepare encoder
         super.prepareEncoder(videoFormat, options.mimeType, options.file.getPath());

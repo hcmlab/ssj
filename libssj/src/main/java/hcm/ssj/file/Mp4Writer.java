@@ -57,7 +57,7 @@ public abstract class Mp4Writer extends Consumer
     }
 
     //encoder
-    protected int iFrameRate;
+    protected double dFrameRate;
     protected MediaCodec mediaCodec;
     //muxer
     protected MediaMuxer mediaMuxer;
@@ -268,6 +268,6 @@ public abstract class Mp4Writer extends Consumer
      */
     private long computePresentationTime(int frameIndex)
     {
-        return 132 + frameIndex * 1000000L / iFrameRate;
+        return (long) (132L + frameIndex * 1000000L / dFrameRate);
     }
 }

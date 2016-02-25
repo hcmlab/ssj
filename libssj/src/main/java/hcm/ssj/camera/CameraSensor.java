@@ -56,6 +56,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         public int previewFpsRangeMin = 4 * 1000;
         public int previewFpsRangeMax = 30 * 1000;
         public int imageFormat = ImageFormat.NV21;
+        public boolean showSupportedValues = false; //show supported values in log
     }
 
     //options
@@ -125,16 +126,25 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     {
         //set camera and frame size
         Camera.Parameters parameters = prePrepare();
+        if (options.showSupportedValues)
+        {
+            //list sizes
+            List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+            Log.i(_name, "Preview size: (n=" + sizes.size() + ")");
+            for (Camera.Size size : sizes)
+            {
+                Log.i(_name, "Preview size: " + size.width + "x" + size.height);
+            }
+            //list preview formats
+            List<Integer> formats = parameters.getSupportedPreviewFormats();
+            Log.i(_name, "Preview format (n=" + formats.size() + ")");
+            for (Integer i : formats)
+            {
+                Log.i(_name, "Preview format: " + i);
+            }
+        }
+        //set preview format
         parameters.setPreviewFormat(options.imageFormat);
-
-//        List<Integer> formats = parameters.getSupportedPreviewFormats();
-//        Log.i(_name, "formats (n=" + formats.size() + ")");
-//
-//        for(int i = 0; i< formats.size(); i++)
-//        {
-//            Log.i(_name, "format " + formats.get(i));
-//        }
-
         //set preview fps range
         choosePreviewFpsRange(parameters, options.previewFpsRangeMin, options.previewFpsRangeMax);
         //optimizations for more fps
@@ -228,12 +238,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             }
         }
         Log.w(_name, "Unable to set preview size to " + width + "x" + height);
-        List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
-        for (Camera.Size size : sizes)
-        {
-            Log.w(_name, "Supported sizes are: ");
-            Log.w(_name, size.width + "x" + size.height);
-        }
         //set to preferred size
         Camera.Size ppsfv = parameters.getPreferredPreviewSizeForVideo();
         if (ppsfv != null)
@@ -267,6 +271,14 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         }
         //search for requested size
         List<int[]> ranges = parameters.getSupportedPreviewFpsRange();
+        if (options.showSupportedValues)
+        {
+            Log.i(_name, "Preview fps range: (n=" + ranges.size() + ")");
+            for (int[] range : ranges)
+            {
+                Log.i(_name, "Preview fps range: " + range[0] + "-" + range[1]);
+            }
+        }
         for (int[] range : ranges)
         {
             if (range[0] == min && range[1] == max)
@@ -276,11 +288,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             }
         }
         Log.w(_name, "Unable to set preview fps range from " + (min / 1000) + " to " + (max / 1000));
-        for (int[] range : ranges)
-        {
-            Log.w(_name, "Supported ranges are: ");
-            Log.w(_name, "min: " + range[0] + "\tmax: " + range[1]);
-        }
         //try to set to minimum
         for (int[] range : ranges)
         {
