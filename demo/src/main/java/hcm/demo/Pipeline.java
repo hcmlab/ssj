@@ -27,6 +27,7 @@
 
 package hcm.demo;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
@@ -56,6 +57,8 @@ public class Pipeline extends Thread {
     {
         _ssj = TheFramework.getFramework();
         _ssj.options.bufferSize = 10.0f;
+        _ssj.options.logfile = Environment.getExternalStorageDirectory() + "/logcat.txt";
+        _ssj.options.logtags = new String[]{"SSJ_Framework", "SSJ_Demo"};
 
         //connection to sensor
         Microphone mic = new Microphone();

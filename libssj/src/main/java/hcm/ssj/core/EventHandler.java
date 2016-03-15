@@ -55,8 +55,7 @@ public abstract class EventHandler extends Component {
         try {
             enter();
         } catch(Exception e) {
-            Log.e(_name, "exception in enter", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
         }
 
         //wait for framework
@@ -71,16 +70,14 @@ public abstract class EventHandler extends Component {
             try {
                 process();
             } catch(Exception e) {
-                Log.e(_name, "exception in loop", e);
-                throw new RuntimeException(e);
+                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
             }
         }
 
         try {
             flush();
         } catch(Exception e) {
-            Log.e(_name, "exception in flush", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
         }
 
         _safeToKill = true;

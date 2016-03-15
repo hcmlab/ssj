@@ -46,11 +46,6 @@ public abstract class Provider extends Component {
         return _bufferID;
     }
 
-//    protected abstract double getSampleRate();
-//    protected abstract int getSampleDimension();
-//    protected abstract int getSampleBytes();
-//    protected abstract Cons.Type getSampleType();
-
     protected Stream _stream_out = null;
     public Stream getOutputStream()
     {

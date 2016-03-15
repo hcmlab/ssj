@@ -27,8 +27,6 @@
 
 package hcm.ssj.core;
 
-import android.util.Log;
-
 /**
  * Handles connection to sensor device
  */
@@ -57,8 +55,7 @@ public abstract class Sensor extends Component {
         try {
             connect();
         } catch(Exception e) {
-            Log.e(_name, "failed to connect to sensor", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "failed to connect to sensor", e);
         }
         _isConnected = true;
 
@@ -77,8 +74,7 @@ public abstract class Sensor extends Component {
         try {
             disconnect();
         } catch(Exception e) {
-            Log.e(_name, "failed to disconnect from sensor", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "failed to disconnect from sensor", e);
         }
         _isConnected = false;
         _safeToKill = true;

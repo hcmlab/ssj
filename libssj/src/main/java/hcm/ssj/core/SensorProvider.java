@@ -79,8 +79,7 @@ public abstract class SensorProvider extends Provider {
         try {
             enter(_stream_out);
         } catch(Exception e) {
-            Log.e(_name, "exception in enter", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
         }
 
         _timer.reset();
@@ -95,8 +94,7 @@ public abstract class SensorProvider extends Provider {
 
                 _timer.sync();
             } catch(Exception e) {
-                Log.e(_name, "exception in loop", e);
-                throw new RuntimeException(e);
+                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
             }
         }
 
@@ -104,15 +102,13 @@ public abstract class SensorProvider extends Provider {
         try {
             dog.close();
         } catch(Exception e) {
-            Log.e(_name, "exception in closing watch dog", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception closing watch dog", e);
         }
 
         try {
             flush(_stream_out);
         } catch(Exception e) {
-            Log.e(_name, "exception in flush", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
         }
 
         _safeToKill = true;
@@ -159,8 +155,7 @@ public abstract class SensorProvider extends Provider {
             _timer = new Timer((double)num_out / sr_out);
 
         } catch(Exception e) {
-            Log.e(_name, "error configuring component", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "error configuring component", e);
         }
 
         Log.i(_name, "Sensor Provider " + _name + " (output)" + '\n' +

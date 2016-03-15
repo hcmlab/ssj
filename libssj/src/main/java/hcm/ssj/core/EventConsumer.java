@@ -72,8 +72,7 @@ public abstract class EventConsumer extends Component {
         try {
             enter(_stream_in);
         } catch(Exception e) {
-            Log.e(_name, "exception in enter", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
         }
 
         //wait for framework
@@ -119,16 +118,14 @@ public abstract class EventConsumer extends Component {
                     _timer.sync();
 
             } catch(Exception e) {
-                Log.e(_name, "exception in loop", e);
-                throw new RuntimeException(e);
+                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
             }
         }
 
         try {
             flush(_stream_in);
         } catch(Exception e) {
-            Log.e(_name, "exception in flush", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
         }
 
         _safeToKill = true;
@@ -177,8 +174,7 @@ public abstract class EventConsumer extends Component {
             _timer = new Timer(frame);
 
         } catch(Exception e) {
-            Log.e(_name, "error configuring component", e);
-            throw new RuntimeException(e);
+            _frame.crash(this.getClass().getSimpleName(), "error configuring component", e);
         }
 
         _isSetup = true;

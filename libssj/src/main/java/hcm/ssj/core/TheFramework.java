@@ -29,6 +29,7 @@ package hcm.ssj.core;
 
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -51,6 +52,9 @@ public class TheFramework {
         public boolean netSync = false;
         public boolean netSyncListen = false; //set true if this is not the server pipe
         public int netSyncPort = 55100;
+
+        public String logfile = null;
+        public String[] logtags = null;
     }
     public Options options = new Options();
 
@@ -153,7 +157,6 @@ public class TheFramework {
                 catch (IOException e)
                 {
                     Log.e(_name, "network sync failed", e);
-                    return;
                 }
             }
 
@@ -162,8 +165,7 @@ public class TheFramework {
             Log.i(_name, "pipeline started");
 
         } catch(Exception e) {
-            Log.e(_name, "error starting pipeline", e);
-            throw new RuntimeException(e);
+            crash("framework start", "error starting pipeline", e);
         }
     }
 
@@ -450,6 +452,11 @@ public class TheFramework {
             Log.e(_name, "Exception in closing framework", e);
             throw new RuntimeException(e);
         }
+        finally
+        {
+            log();
+        }
+
         Log.i(_name, "shut down completed");
     }
 
@@ -464,6 +471,51 @@ public class TheFramework {
         _components.clear();
         _buffer.clear();
         _instance = null;
+    }
+
+    private void log()
+    {
+        if(options.logfile != null)
+        {
+            try
+            {
+                //clear old log file
+                File logFile = new File(options.logfile);
+                if(logFile.exists())
+                    logFile.delete();
+
+                //construct logcat command
+                String[] cmd = new String[6 + ((options.logtags != null) ? options.logtags.length : 0)];
+
+                int i = 0;
+                cmd[i++] = "logcat";
+                cmd[i++] =  "-v";
+                cmd[i++] =  "time";
+                cmd[i++] =  "-f";
+                cmd[i++] =  options.logfile;
+
+                if(options.logtags != null)
+                    for (int j = 0; j < options.logtags.length; j++)
+                        cmd[i++] =  options.logtags[j];
+
+                cmd[i] =  "*:E";
+
+                //use logcat to create log file
+                Runtime.getRuntime().exec(cmd);
+            }
+            catch (IOException e)
+            {
+                Log.e(_name, "Exception in creating logfile", e);
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public void crash(String location, String message, Exception e)
+    {
+        Log.e(_name, "crash in " + location + ": " + message, e);
+        log();
+        throw new RuntimeException(e);
     }
 
     public void sync(int bufferID)
