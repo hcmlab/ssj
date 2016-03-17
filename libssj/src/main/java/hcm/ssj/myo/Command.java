@@ -1,7 +1,7 @@
 /*
  * Command.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,19 +21,18 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.myo;
-
-import android.util.Log;
 
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.internal.ble.BleManager;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
+
+import hcm.ssj.core.Log;
 
 /**
  * ParentClass for executing commands
@@ -52,8 +51,8 @@ public class Command {
             field.setAccessible(true);
             mBleManager = (BleManager) field.get(hub);
         }
-        catch (NoSuchFieldException e) {Log.w(_name, "unable to access BleManager", e);}
-        catch (IllegalAccessException e) {Log.w(_name, "unable to access BleManager", e);}
+        catch (NoSuchFieldException e) {Log.w("unable to access BleManager", e);}
+        catch (IllegalAccessException e) {Log.w("unable to access BleManager", e);}
     }
 
     static final UUID CONTROL_SERVICE_UUID = UUID.fromString("d5060001-a904-deb9-4748-2c7f4a124842");

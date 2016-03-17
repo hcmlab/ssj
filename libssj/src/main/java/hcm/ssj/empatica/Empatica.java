@@ -1,7 +1,7 @@
 /*
  * Empatica.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.empatica;
@@ -33,7 +32,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Base64;
-import android.util.Log;
 
 import com.empatica.empalink.ConnectionNotAllowedException;
 import com.empatica.empalink.EmpaDeviceManager;
@@ -60,6 +58,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 
@@ -167,7 +166,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 
 			//save certificate
 			if(jobject.has("empaconf") && jobject.has("empasign")) {
-				Log.d("EmpaDeviceManager", "Empaconf & Empasign ok");
+				Log.d("Empaconf & Empasign ok");
 				String empaconf = jobject.get("empaconf").getAsString();
 				String empasign = jobject.get("empasign").getAsString();
 				byte[] empaconfBytes = Base64.decode(empaconf, 0);
@@ -181,7 +180,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 		catch (IOException e)
 		{
-			Log.w(_name, "unable to connect to empatica server - empatica needs to connect to the server once a month to validate", e);
+			Log.w("unable to connect to empatica server - empatica needs to connect to the server once a month to validate", e);
 		}
 	}
 
@@ -200,7 +199,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			fos.close();
 		} catch(IOException e)
 		{
-			Log.w(_name, "unable to save empatica certificate", e);
+			Log.w("unable to save empatica certificate", e);
 		}
 	}
 
@@ -223,7 +222,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	@Override
 	public void didUpdateStatus(EmpaStatus empaStatus)
 	{
-		Log.i(_name, "Empatica status: " + empaStatus);
+		Log.i("Empatica status: " + empaStatus);
 
 		switch (empaStatus)
 		{
@@ -264,7 +263,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			try
 			{
 				// Connect to the device
-				Log.i(_name, "Connecting to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
+				Log.i("Connecting to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
 
 				deviceManager.connectDevice(bluetoothDevice);
 				// Depending on your configuration profile, you might be unable to connect to a device.
@@ -274,7 +273,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			}
 			catch (ConnectionNotAllowedException e)
 			{
-				Log.e(_name, "Can't connect to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
+				Log.e("Can't connect to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
 			}
 		}
 	}
@@ -282,6 +281,6 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	@Override
 	public void didRequestEnableBluetooth()
 	{
-		Log.e(_name, "Bluetooth not enabled!");
+		Log.e("Bluetooth not enabled!");
 	}
 }

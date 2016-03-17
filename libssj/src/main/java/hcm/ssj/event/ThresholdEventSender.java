@@ -1,7 +1,7 @@
 /*
  * ThresholdEventSender.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,17 +21,14 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.event;
 
-import android.util.Log;
-
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Event;
-import hcm.ssj.core.Util;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
 public class ThresholdEventSender extends Consumer
@@ -84,13 +81,13 @@ public class ThresholdEventSender extends Consumer
 
         if(options.thresin == null || options.thresin.length != totaldim)
         {
-            Log.e(_name, "invalid threshold list. Expecting " + totaldim + " thresholds");
+            Log.e("invalid threshold list. Expecting " + totaldim + " thresholds");
             return;
         }
 
         if(options.thresout == null)
         {
-            Log.w(_name, "thresout undefined, using thresin");
+            Log.w("thresout undefined, using thresin");
             options.thresout = options.thresin;
         }
 
@@ -146,7 +143,7 @@ public class ThresholdEventSender extends Consumer
                             result = stream_in[j].ptrL()[ position ] > (long)threshold[thresId];
                             break;
                         default:
-                            Log.e(_name, "unsupported input type");
+                            Log.e("unsupported input type");
                             break;
                     }
 
@@ -187,7 +184,7 @@ public class ThresholdEventSender extends Consumer
                             _evchannel_out.pushEvent(ev);
                         }
 
-                        Util.LogD (_name, "event started at " + _trigger_start);
+                        Log.ds("event started at " + _trigger_start);
                     }
 
                 } else {
@@ -229,7 +226,7 @@ public class ThresholdEventSender extends Consumer
                         _trigger_on = false;
                         _counter_in = _hangover_in;
 
-                        Util.LogD(_name, "event stopped at " + _trigger_stop);
+                        Log.ds("event stopped at " + _trigger_stop);
                     }
                 } else {
                     // re-init hangin counter
@@ -246,16 +243,16 @@ public class ThresholdEventSender extends Consumer
     boolean update (double time, double dur, Event.State state)
     {
         if (dur < options.mindur || dur <= 0.0) {
-            Util.LogD(_name, "skip event because duration too short " + dur + "@" + time);
+            Log.ds("skip event because duration too short " + dur + "@" + time);
             return false;
         }
 
         if (dur > options.maxdur + 0.000000001) {
             if (_skip_on_max_dur) {
-                Util.LogD(_name, "skip event because duration too long " + dur + "@" + time);
+                Log.ds("skip event because duration too long " + dur + "@" + time);
                 return false;
             }
-            Log.w (_name, "crop duration from " + dur +" to " + options.maxdur);
+            Log.w("crop duration from " + dur +" to " + options.maxdur);
             time += dur - options.maxdur;
             dur = options.maxdur;
         }

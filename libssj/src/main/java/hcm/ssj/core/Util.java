@@ -1,7 +1,7 @@
 /*
  * Util.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.core;
@@ -30,7 +29,6 @@ package hcm.ssj.core;
 import android.content.Context;
 import android.net.DhcpInfo;
 import android.net.wifi.WifiManager;
-import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -48,7 +46,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import hcm.ssj.BuildConfig;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -566,12 +563,6 @@ public class Util
         {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void LogD(String tag, String msg)
-    {
-        if (BuildConfig.DEBUG)
-            Log.d(tag, msg);
     }
 
     public static String xmlToString(XmlPullParser parser) throws XmlPullParserException, IOException

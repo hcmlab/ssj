@@ -1,7 +1,7 @@
 /*
  * InfraredSensor.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,17 +21,16 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.glass;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import hcm.ssj.core.Log;
 
 /**
  * Infrared sensor for google glass.<br>
@@ -103,7 +102,7 @@ public class InfraredSensor extends hcm.ssj.core.Sensor
         if (report)
         {
             report = false;
-            Log.e(_name, "Check permissions on glass");
+            Log.e("Check permissions on glass");
         }
         return ERROR;
     }

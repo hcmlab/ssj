@@ -1,7 +1,7 @@
 /*
  * SignalPainter.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,15 +21,13 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.graphic;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -38,6 +36,7 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -81,7 +80,7 @@ public class SignalPainter extends Consumer
     {
         if(_view == null)
         {
-            Log.e(_name, "graph view not registered");
+            Log.e("graph view not registered");
             return;
         }
 
@@ -267,7 +266,7 @@ public class SignalPainter extends Consumer
             }
 
             default:
-                Log.w(_name, "unsupported data type");
+                Log.w("unsupported data type");
                 return;
         }
 

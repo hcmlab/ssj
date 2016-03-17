@@ -1,7 +1,7 @@
 /*
  * Configuration.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,10 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.myo;
-
-import android.util.Log;
 
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
@@ -38,6 +35,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.UUID;
+
+import hcm.ssj.core.Log;
 
 /**
  * Approach to add a ValueListener to the hub-interface
@@ -101,7 +100,7 @@ public class Configuration extends Command {
                 }
             }
             if (method == null) {
-                Log.e(_name, "Method not found!!");
+                Log.e("Method not found!!");
                 return;
             }
             method.setAccessible(true);
@@ -129,7 +128,7 @@ public class Configuration extends Command {
             });
             Object o = method.invoke(hub, myValueListener);
         } catch (Exception e) {
-            Log.w(_name, "unable to set EMG listener", e);
+            Log.w("unable to set EMG listener", e);
         }
     }
 
@@ -166,10 +165,10 @@ public class Configuration extends Command {
             // Invoke removeValueListener on instance field mGattCallback
             myMethod.invoke(fieldValue, myValueListener);
         }
-        catch (NoSuchFieldException e) { Log.w(_name, "unable to undo config", e); }
-        catch (InvocationTargetException e) { Log.w(_name, "unable to undo config", e); }
-        catch (NoSuchMethodException e) { Log.w(_name, "unable to undo config", e); }
-        catch (IllegalAccessException e) { Log.w(_name, "unable to undo config", e); }
+        catch (NoSuchFieldException e) { Log.w("unable to undo config", e); }
+        catch (InvocationTargetException e) { Log.w("unable to undo config", e); }
+        catch (NoSuchMethodException e) { Log.w("unable to undo config", e); }
+        catch (IllegalAccessException e) { Log.w("unable to undo config", e); }
     }
 
     public void onEMGData(Myo myo, UUID uuid, byte[] data)

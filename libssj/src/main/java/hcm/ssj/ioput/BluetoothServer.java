@@ -1,7 +1,7 @@
 /*
  * BluetoothServer.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
@@ -30,10 +29,11 @@ package hcm.ssj.ioput;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.UUID;
+
+import hcm.ssj.core.Log;
 
 /**
  * Created by Johnny on 07.04.2015.
@@ -55,13 +55,13 @@ public class BluetoothServer implements BluetoothConnection
         _adapter = BluetoothAdapter.getDefaultAdapter();
         if (_adapter == null)
         {
-            Log.e(_name, "Device does not support Bluetooth");
+            Log.e("Device does not support Bluetooth");
             return;
         }
 
         if (!_adapter.isEnabled())
         {
-            Log.e(_name, "Bluetooth not enabled");
+            Log.e("Bluetooth not enabled");
             return;
         }
 
@@ -73,11 +73,11 @@ public class BluetoothServer implements BluetoothConnection
     {
         UUID uuid = UUID.nameUUIDFromBytes(_connectionName.getBytes());
 
-        Log.i(_name, "attempting to set up connection " + _connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress());
+        Log.i("attempting to set up connection " + _connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress());
         _server = _adapter.listenUsingInsecureRfcommWithServiceRecord(_serverName, uuid);
 
-        Log.i(_name, "connection " + _connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress() + " ready");
-        Log.i(_name, "waiting for clients...");
+        Log.i("connection " + _connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress() + " ready");
+        Log.i("waiting for clients...");
 
         _socket = _server.accept();
     }

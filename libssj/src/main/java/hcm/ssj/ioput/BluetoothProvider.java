@@ -1,7 +1,7 @@
 /*
  * BluetoothProvider.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,18 +21,16 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
-
-import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
@@ -70,11 +68,11 @@ public class BluetoothProvider extends SensorProvider
         }
         catch (IOException e)
         {
-            Log.e(_name, "cannot connect to server", e);
+            Log.e("cannot connect to server", e);
         }
 
         if(options.sr == 0 || options.bytes == 0 || options.dim == 0 || options.type == Cons.Type.UNDEF)
-            Log.e(_name, "input channel not configured");
+            Log.e("input channel not configured");
 
         _data = new byte[stream_out.tot];
     }
@@ -93,7 +91,7 @@ public class BluetoothProvider extends SensorProvider
         }
         catch (IOException e)
         {
-            Log.w(_name, "unable to read from data stream", e);
+            Log.w("unable to read from data stream", e);
         }
     }
 
@@ -133,7 +131,7 @@ public class BluetoothProvider extends SensorProvider
         stream_out.dataclass = new String[stream_out.dim];
         if(options.outputClass == null || stream_out.dim != options.outputClass.length)
         {
-            Log.w(_name, "incomplete definition of output classes");
+            Log.w("incomplete definition of output classes");
             for(int i = 0; i < stream_out.dataclass.length; i++)
                 stream_out.dataclass[i] = "BluetoothData";
         }

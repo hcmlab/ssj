@@ -1,7 +1,7 @@
 /*
  * SocketWriter.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,10 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
-
-import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -37,6 +34,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
 
@@ -90,13 +88,13 @@ public class SocketWriter extends Consumer {
         }
         catch (IOException e)
         {
-            Log.e(super._name, "error in setting up connection", e);
+            Log.e("error in setting up connection", e);
             return;
         }
 
         _data = new byte[stream_in[0].tot];
 
-        Log.i(_name, "Streaming data to " + _addr.getHostName() +"@"+ options.port +"("+ protocol +")");
+        Log.i("Streaming data to " + _addr.getHostName() +"@"+ options.port +"("+ protocol +")");
         _connected = true;
     }
 
@@ -120,7 +118,7 @@ public class SocketWriter extends Consumer {
             }
 
         } catch (IOException e) {
-            Log.w(_name, "failed sending data", e);
+            Log.w("failed sending data", e);
         }
     }
 

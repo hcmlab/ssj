@@ -1,7 +1,7 @@
 /*
  * CameraUtil.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,15 +21,15 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.camera;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
-import android.util.Log;
+
+import hcm.ssj.core.Log;
 
 /**
  * Utility class for the camera. <br>
@@ -86,7 +86,7 @@ class CameraUtil
                 return colorFormat;
             }
         }
-        Log.e(CameraUtil.class.getSimpleName(), "couldn't find a good color format for " + codecInfo.getName() + " / " + mimeType);
+        Log.e("couldn't find a good color format for " + codecInfo.getName() + " / " + mimeType);
         return 0;   // not reached
     }
 

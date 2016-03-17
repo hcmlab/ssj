@@ -1,7 +1,7 @@
 /*
  * MyoTest.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj;
@@ -31,12 +30,12 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 import android.test.ApplicationTestCase;
-import android.util.Log;
 
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
+import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.myo.DynAccelerationProvider;
 import hcm.ssj.myo.EMGProvider;
@@ -82,7 +81,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i(_name, "ACC test finished");
+        Log.i("ACC test finished");
     }
 
     public void testEmg() throws Exception {
@@ -113,7 +112,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        Log.i(_name, "emg test finished");
+        Log.i("emg test finished");
     }
 
     /**
@@ -125,16 +124,16 @@ public class MyoTest extends ApplicationTestCase<Application> {
             public void run() {
                 final Hub hub = Hub.getInstance();
                 if (!hub.init(getContext(), getContext().getPackageName())) {
-                    Log.e(_name, "error");
+                    Log.e("error");
                 }
                 hub.setLockingPolicy(Hub.LockingPolicy.NONE);
 
                 // Disable usage data sending
                 hub.setSendUsageData(false);
 
-                Log.i(_name, "attaching...");
+                Log.i("attaching...");
                 hub.attachByMacAddress("F3:41:FA:27:EB:08");
-                Log.i(_name, "attached...");
+                Log.i("attached...");
                 hub.addListener(new AbstractDeviceListener() {
                     @Override
                     public void onConnect(Myo myo, long timestamp) {
@@ -171,45 +170,45 @@ public class MyoTest extends ApplicationTestCase<Application> {
     }
 
     private void startVibrate(Myo myo, Hub hub) {
-        Log.i(_name, "connected");
+        Log.i("connected");
         try {
             Vibrate2Command vibrate2Command = new Vibrate2Command(hub);
 
-            Log.i(_name, "vibrate 1...");
+            Log.i("vibrate 1...");
             myo.vibrate(Myo.VibrationType.MEDIUM);
             Thread.sleep(3000);
 
-            Log.i(_name, "vibrate 2...");
+            Log.i("vibrate 2...");
             //check strength 50
             vibrate2Command.vibrate(myo, 1000, (byte) 50);
             Thread.sleep(3000);
 
-            Log.i(_name, "vibrate 3 ...");
+            Log.i("vibrate 3 ...");
             //check strength 100
             vibrate2Command.vibrate(myo, 1000, (byte) 100);
             Thread.sleep(3000);
 
-            Log.i(_name, "vibrate 4 ...");
+            Log.i("vibrate 4 ...");
             //check strength 100
             vibrate2Command.vibrate(myo, 1000, (byte) 150);
             Thread.sleep(3000);
 
-            Log.i(_name, "vibrate 5...");
+            Log.i("vibrate 5...");
             //check strength 250
             vibrate2Command.vibrate(myo, 1000, (byte) 200);
             Thread.sleep(3000);
 
-            Log.i(_name, "vibrate 6...");
+            Log.i("vibrate 6...");
             //check strength 250
             vibrate2Command.vibrate(myo, 1000, (byte) 250);
             Thread.sleep(3000);
 
-            Log.i(_name, "vibrate pattern...");
+            Log.i("vibrate pattern...");
             //check vibrate pattern
             vibrate2Command.vibrate(myo, new int[]{500, 500, 500, 500, 500, 500}, new byte[]{25, 50, 100, (byte) 150, (byte) 200, (byte) 250});
             Thread.sleep(3000);
         } catch (Exception e) {
-            Log.e(_name, "exception in vibrate test", e);
+            Log.e("exception in vibrate test", e);
         }
     }
 }

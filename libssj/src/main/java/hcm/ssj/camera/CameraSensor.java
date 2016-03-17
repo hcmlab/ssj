@@ -1,7 +1,7 @@
 /*
  * CameraSensor.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.camera;
@@ -31,10 +30,11 @@ import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Build;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.List;
+
+import hcm.ssj.core.Log;
 
 /**
  * Camera sensor.<br>
@@ -102,7 +102,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             //write into buffer
             if (byaSwapBuffer.length < bytes.length)
             {
-                Log.e(_name, "Buffer write changed from " + byaSwapBuffer.length + " to " + bytes.length);
+                Log.e("Buffer write changed from " + byaSwapBuffer.length + " to " + bytes.length);
                 byaSwapBuffer = new byte[bytes.length];
             }
             System.arraycopy(bytes, 0, byaSwapBuffer, 0, bytes.length);
@@ -111,7 +111,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             //get data from buffer
             if (bytes.length < byaSwapBuffer.length)
             {
-                Log.e(_name, "Buffer read changed from " + bytes.length + " to " + byaSwapBuffer.length);
+                Log.e("Buffer read changed from " + bytes.length + " to " + byaSwapBuffer.length);
                 bytes = new byte[byaSwapBuffer.length];
             }
             System.arraycopy(byaSwapBuffer, 0, bytes, 0, byaSwapBuffer.length);
@@ -130,17 +130,17 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         {
             //list sizes
             List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
-            Log.i(_name, "Preview size: (n=" + sizes.size() + ")");
+            Log.i("Preview size: (n=" + sizes.size() + ")");
             for (Camera.Size size : sizes)
             {
-                Log.i(_name, "Preview size: " + size.width + "x" + size.height);
+                Log.i("Preview size: " + size.width + "x" + size.height);
             }
             //list preview formats
             List<Integer> formats = parameters.getSupportedPreviewFormats();
-            Log.i(_name, "Preview format (n=" + formats.size() + ")");
+            Log.i("Preview format (n=" + formats.size() + ")");
             for (Integer i : formats)
             {
-                Log.i(_name, "Preview format: " + i);
+                Log.i("Preview format: " + i);
             }
         }
         //set preview format
@@ -161,10 +161,10 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         camera.setParameters(parameters);
         //display used parameters
         Camera.Size size = parameters.getPreviewSize();
-        Log.d(_name, "Camera preview size is " + size.width + "x" + size.height);
+        Log.d("Camera preview size is " + size.width + "x" + size.height);
         int[] range = new int[2];
         parameters.getPreviewFpsRange(range);
-        Log.d(_name, "Preview fps range is " + (range[0] / 1000) + " to " + (range[1] / 1000));
+        Log.d("Preview fps range is " + (range[0] / 1000) + " to " + (range[1] / 1000));
     }
 
     /**
@@ -177,7 +177,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     {
         if (camera != null)
         {
-            Log.e(_name, "Camera already initialized");
+            Log.e("Camera already initialized");
             throw new RuntimeException("Camera already initialized");
         }
         //set camera
@@ -209,12 +209,12 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         }
         if (camera == null)
         {
-            Log.d(_name, "No front-facing camera found; opening default");
+            Log.d("No front-facing camera found; opening default");
             camera = Camera.open(); //opens first back-facing camera
         }
         if (camera == null)
         {
-            Log.e(_name, "Unable to open camera");
+            Log.e("Unable to open camera");
             throw new RuntimeException("Unable to open camera");
         }
     }
@@ -237,7 +237,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
                 return;
             }
         }
-        Log.w(_name, "Unable to set preview size to " + width + "x" + height);
+        Log.w("Unable to set preview size to " + width + "x" + height);
         //set to preferred size
         Camera.Size ppsfv = parameters.getPreferredPreviewSizeForVideo();
         if (ppsfv != null)
@@ -257,7 +257,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         //adjust wrong preview range
         if (min > max)
         {
-            Log.w(_name, "Preview range max is too small");
+            Log.w("Preview range max is too small");
             max = min;
         }
         //preview ranges have to be a multiple of 1000
@@ -273,10 +273,10 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         List<int[]> ranges = parameters.getSupportedPreviewFpsRange();
         if (options.showSupportedValues)
         {
-            Log.i(_name, "Preview fps range: (n=" + ranges.size() + ")");
+            Log.i("Preview fps range: (n=" + ranges.size() + ")");
             for (int[] range : ranges)
             {
-                Log.i(_name, "Preview fps range: " + range[0] + "-" + range[1]);
+                Log.i("Preview fps range: " + range[0] + "-" + range[1]);
             }
         }
         for (int[] range : ranges)
@@ -287,7 +287,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
                 return;
             }
         }
-        Log.w(_name, "Unable to set preview fps range from " + (min / 1000) + " to " + (max / 1000));
+        Log.w("Unable to set preview fps range from " + (min / 1000) + " to " + (max / 1000));
         //try to set to minimum
         for (int[] range : ranges)
         {
@@ -324,7 +324,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             camera.setPreviewTexture(surfaceTexture);
         } catch (IOException ex)
         {
-            Log.e(_name, "Couldn't prepare surface texture: " + ex.getMessage());
+            Log.e("Couldn't prepare surface texture: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
@@ -342,7 +342,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             byaSwapBuffer = new byte[reqBuffSize];
         } catch (Exception ex)
         {
-            Log.e(_name, "Couldn't init buffer: " + ex.getMessage());
+            Log.e("Couldn't init buffer: " + ex.getMessage());
             ex.printStackTrace();
         }
     }

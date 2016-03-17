@@ -1,7 +1,7 @@
 /*
  * CameraWriter.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.camera;
@@ -32,11 +31,11 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.Mp4Writer;
 
@@ -128,12 +127,12 @@ public class CameraWriter extends Mp4Writer
     {
         if (stream_in.length != 1)
         {
-            Log.e(_name, "Stream count not supported");
+            Log.e("Stream count not supported");
             return;
         }
         if (stream_in[0].type != Cons.Type.BYTE)
         {
-            Log.e(_name, "Stream type not supported");
+            Log.e("Stream type not supported");
             return;
         }
         dFrameRate = stream_in[0].sr;
@@ -196,7 +195,7 @@ public class CameraWriter extends Mp4Writer
         MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType);
         if (mediaCodecInfo == null)
         {
-            Log.e(_name, "Unable to find an appropriate codec for " + options.mimeType);
+            Log.e("Unable to find an appropriate codec for " + options.mimeType);
             return;
         }
         //set format properties
@@ -214,7 +213,7 @@ public class CameraWriter extends Mp4Writer
             mediaMuxer.setOrientationHint(options.orientation);
         } else
         {
-            Log.e(_name, "Orientation is not valid: " + options.orientation);
+            Log.e("Orientation is not valid: " + options.orientation);
         }
     }
 
@@ -255,7 +254,7 @@ public class CameraWriter extends Mp4Writer
                 }
                 default:
                 {
-                    Log.e(_name, "Wrong color switch");
+                    Log.e("Wrong color switch");
                     throw new RuntimeException();
                 }
             }

@@ -1,7 +1,7 @@
 /*
  * SpeechRate.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,10 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.audio;
-
-import android.util.Log;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,6 +32,7 @@ import java.util.LinkedList;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventConsumer;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
 
@@ -94,12 +92,12 @@ public class SpeechRate extends EventConsumer
         if((_intensity == null || _intensity.type != Cons.Type.FLOAT)
         && (_voiced == null || _voiced.type != Cons.Type.FLOAT))
         {
-            Log.e(_name, "invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
+            Log.e("invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
             return;
         }
 
         if(_evchannel_out == null)
-            Log.e(_name, "no outgoing event channel has been registered");
+            Log.e("no outgoing event channel has been registered");
     }
 
     @Override
@@ -108,12 +106,12 @@ public class SpeechRate extends EventConsumer
         float[] intensity = _intensity.select(_intensity_ind).ptrF();
         float[] voiced = _voiced.ptrF();
 
-        Util.LogD(_name, "computing sr for " + _intensity.num + " samples");
+        Log.ds("computing sr for " + _intensity.num + " samples");
 
         //compute peaks
         LinkedList<Integer> peaks = findPeaks(intensity, _intensity.num, options.intensityIgnoranceLevel, options.minDipBetweenPeaks);
 
-        Util.LogD(_name, "peaks (pre-cull) = " + peaks.size());
+        Log.ds("peaks (pre-cull) = " + peaks.size());
 
         //remove non-voiced peaks
         Iterator<Integer> peak = peaks.iterator();
@@ -136,7 +134,7 @@ public class SpeechRate extends EventConsumer
         double duration = stream_in[0].num / stream_in[0].sr;
 
 
-        Util.LogD(_name, "peaks = " + peaks.size() + ", sr = " + peaks.size() / duration);
+        Log.ds("peaks = " + peaks.size() + ", sr = " + peaks.size() / duration);
 
         Event ev = new Event();
         ev.sender = options.sender;
@@ -178,7 +176,7 @@ public class SpeechRate extends EventConsumer
         if(peaks.size() == 0)
             return peaks;
 
-        Util.LogD(_name, "peaks (pre-mindip-cull) = " + peaks.size());
+        Log.ds("peaks (pre-mindip-cull) = " + peaks.size());
 
         Iterator<Integer> i = peaks.iterator();
         int prev = i.next();
@@ -244,7 +242,7 @@ public class SpeechRate extends EventConsumer
 
     boolean overThreshold(float[] data, int length, int index, int width, double threshold, boolean isRelative, double av)
     {
-//        Log.i(_name, index + " : " + data[index] +"\tAv1: " + av);
+//        Log.i(index + " : " + data[index] +"\tAv1: " + av);
 
         if(data[index] < av) {
             return false;
@@ -268,7 +266,7 @@ public class SpeechRate extends EventConsumer
                 sum += data[iStart];
             }
 
-//            Log.i(_name, "\t" + (sum / (double) count) + "\t" + (data[index] - sum / (double) count - threshold));
+//            Log.i("\t" + (sum / (double) count) + "\t" + (data[index] - sum / (double) count - threshold));
             return data[index] > sum / (double)count + threshold;
         }
     }

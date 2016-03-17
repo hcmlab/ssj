@@ -1,7 +1,7 @@
 /*
  * Intensity.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,15 +21,13 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.praat;
 
-import android.util.Log;
-
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.praat.helper.NUM;
@@ -64,7 +62,7 @@ public class Intensity extends Transformer {
                 audio = s;
         }
         if(audio == null || audio.type != Cons.Type.FLOAT) {
-            Log.e(_name, "invalid input stream");
+            Log.e("invalid input stream");
             return;
         }
 
@@ -160,10 +158,10 @@ public class Intensity extends Transformer {
         myDuration = frame + delta;
 
         windowDuration = computeWindowDuration(options.minPitch);
-        if (windowDuration <= 0.0 || windowDuration > myDuration) Log.e(_name, "invalid processing window duration");
+        if (windowDuration <= 0.0 || windowDuration > myDuration) Log.e("invalid processing window duration");
 
         numberOfFrames = computeNumberOfFrames(myDuration, windowDuration, options.timeStep);
-        if (numberOfFrames < 1)  Log.e(_name, "The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch + " Hz), " +
+        if (numberOfFrames < 1)  Log.e("The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch + " Hz), " +
                                                                            "i.e. at least " + 6.4 / options.minPitch + " s, instead of " + myDuration + " s.");
     }
 
@@ -177,7 +175,7 @@ public class Intensity extends Transformer {
     public int getSampleBytes(Stream[] stream_in)
     {
         if(stream_in[0].bytes != 4) //float
-            Log.e(_name, "Unsupported input stream type");
+            Log.e("Unsupported input stream type");
 
         return 4;
     }
@@ -186,7 +184,7 @@ public class Intensity extends Transformer {
     public Cons.Type getSampleType(Stream[] stream_in)
     {
         if(stream_in[0].type != Cons.Type.FLOAT)
-            Log.e(_name, "Unsupported input stream type");
+            Log.e("Unsupported input stream type");
 
         return Cons.Type.FLOAT;
     }

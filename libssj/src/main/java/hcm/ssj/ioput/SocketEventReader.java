@@ -1,7 +1,7 @@
 /*
  * SocketEventReader.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,11 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
 
-import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -43,6 +41,7 @@ import java.net.SocketException;
 
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 
 /**
@@ -83,7 +82,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (SocketException e)
             {
-                Log.e(_name, "unable to determine local IP address", e);
+                Log.e("unable to determine local IP address", e);
             }
         }
 
@@ -98,7 +97,7 @@ public class SocketEventReader extends EventHandler
         }
         catch (IOException e)
         {
-            Log.e(_name, "ERROR: cannot bind socket", e);
+            Log.e("ERROR: cannot bind socket", e);
             return;
         }
 
@@ -113,12 +112,12 @@ public class SocketEventReader extends EventHandler
             }
             catch (XmlPullParserException e)
             {
-                Log.e(_name, "unable to initialize parser", e);
+                Log.e("unable to initialize parser", e);
                 return;
             }
         }
 
-        Log.i(_name, "socket ready ("+options.ip + "@" + options.port+")");
+        Log.i("socket ready ("+options.ip + "@" + options.port+")");
         _connected = true;
     }
 
@@ -136,7 +135,7 @@ public class SocketEventReader extends EventHandler
         }
         catch (IOException e)
         {
-            Log.w(_name, "failed to receive packet", e);
+            Log.w("failed to receive packet", e);
             return;
         }
 
@@ -154,7 +153,7 @@ public class SocketEventReader extends EventHandler
                 _parser.next();
                 if (_parser.getEventType() != XmlPullParser.START_TAG || !_parser.getName().equalsIgnoreCase("events"))
                 {
-                    Log.w(_name, "unknown or malformed socket message");
+                    Log.w("unknown or malformed socket message");
                     return;
                 }
 
@@ -181,7 +180,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (IOException | XmlPullParserException e)
             {
-                Log.w(_name, "failed to receive packet", e);
+                Log.w("failed to receive packet", e);
                 return;
             }
         }

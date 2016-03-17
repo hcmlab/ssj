@@ -1,7 +1,7 @@
 /*
  * BluetoothClient.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
@@ -30,11 +29,12 @@ package hcm.ssj.ioput;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.util.Log;
 
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
+
+import hcm.ssj.core.Log;
 
 /**
  * Created by Johnny on 07.04.2015.
@@ -56,13 +56,13 @@ public class BluetoothClient implements BluetoothConnection
         _adapter = BluetoothAdapter.getDefaultAdapter();
         if (_adapter == null)
         {
-            Log.e(_name, "Device does not support Bluetooth");
+            Log.e("Device does not support Bluetooth");
             return;
         }
 
         if (!_adapter.isEnabled())
         {
-            Log.e(_name, "Bluetooth not enabled");
+            Log.e("Bluetooth not enabled");
             return;
         }
 
@@ -73,7 +73,7 @@ public class BluetoothClient implements BluetoothConnection
 
     public void connect() throws IOException
     {
-        Log.i(_name, "searching for server " + _serverAddr);
+        Log.i("searching for server " + _serverAddr);
 
         BluetoothDevice device = null;
         Set<BluetoothDevice> pairedDevices = _adapter.getBondedDevices();
@@ -94,7 +94,7 @@ public class BluetoothClient implements BluetoothConnection
         if(device == null)
         {
             if (!BluetoothAdapter.checkBluetoothAddress(_serverAddr)) {
-                Log.e(_name, "invalid MAC address: " + _serverAddr);
+                Log.e("invalid MAC address: " + _serverAddr);
                 return;
             }
 
@@ -103,7 +103,7 @@ public class BluetoothClient implements BluetoothConnection
 
         UUID uuid = UUID.nameUUIDFromBytes(_connectionName.getBytes());
 
-        Log.i(_name, "connecting to " + _serverAddr + " using the connection " + _connectionName);
+        Log.i("connecting to " + _serverAddr + " using the connection " + _connectionName);
 
         _socket = device.createRfcommSocketToServiceRecord(uuid);
         _socket.connect();

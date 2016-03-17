@@ -1,7 +1,7 @@
 /*
  * AudioWriter.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 package hcm.ssj.audio;
 
@@ -32,11 +31,11 @@ import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
-import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.Mp4Writer;
 
@@ -102,7 +101,7 @@ public class AudioWriter extends Mp4Writer
     {
         if (stream_in.length != 1)
         {
-            Log.e(_name, "Stream count not supported");
+            Log.e("Stream count not supported");
             return;
         }
         switch (stream_in[0].type)
@@ -127,17 +126,17 @@ public class AudioWriter extends Mp4Writer
                     dataFormat = DataFormat.FLOAT_8;
                 } else
                 {
-                    Log.e(_name, "Audio format not supported");
+                    Log.e("Audio format not supported");
                 }
                 break;
             }
             default:
             {
-                Log.e(_name, "Stream type not supported");
+                Log.e("Stream type not supported");
                 return;
             }
         }
-        Log.d(_name, "Format: " + dataFormat.toString());
+        Log.d("Format: " + dataFormat.toString());
         iSampleRate = (int) stream_in[0].sr;
         iSampleDimension = stream_in[0].dim;
         iSampleNumber = iSampleRate * dataFormat.size * iSampleDimension;
@@ -209,7 +208,7 @@ public class AudioWriter extends Mp4Writer
             }
             default:
             {
-                Log.e(_name, "Data format not supported");
+                Log.e("Data format not supported");
                 break;
             }
         }

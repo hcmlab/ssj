@@ -1,7 +1,7 @@
 /*
  * Mp4Writer.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 package hcm.ssj.file;
 
@@ -31,13 +30,13 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -48,6 +47,9 @@ import hcm.ssj.core.stream.Stream;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public abstract class Mp4Writer extends Consumer
 {
+    private static final int SENDEND_TIMEOUT = 2000;
+    private static final int SENDEND_SLEEP = 100;
+
     /**
      * All options for the mp4 writer
      */
@@ -103,7 +105,7 @@ public abstract class Mp4Writer extends Consumer
             mediaCodec.start();
         } catch (IOException ex)
         {
-            Log.e(_name, "MediaCodec creation failed: " + ex.getMessage());
+            Log.e("MediaCodec creation failed: " + ex.getMessage());
             throw new RuntimeException("MediaCodec creation failed", ex);
         }
         //create muxer
@@ -112,7 +114,7 @@ public abstract class Mp4Writer extends Consumer
             mediaMuxer = new MediaMuxer(filePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException ex)
         {
-            Log.e(_name, "MediaMuxer creation failed: " + ex.getMessage());
+            Log.e("MediaMuxer creation failed: " + ex.getMessage());
             throw new RuntimeException("MediaMuxer creation failed", ex);
         }
         iTrackIndex = -1;
@@ -155,17 +157,19 @@ public abstract class Mp4Writer extends Consumer
             //the buffer should be sized to hold one full frame
             if (inputBuf.capacity() < frameData.length)
             {
-                Log.e(_name, "Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
-                throw new RuntimeException();
+                Log.e("Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
             }
-            inputBuf.clear();
-            fillBuffer(inputBuf, frameData);
-            mediaCodec.queueInputBuffer(inputBufIndex, 0, frameData.length, ptsUsec, 0);
-            iFrameIndex++;
+            else
+            {
+                inputBuf.clear();
+                fillBuffer(inputBuf, frameData);
+                mediaCodec.queueInputBuffer(inputBufIndex, 0, frameData.length, ptsUsec, 0);
+                iFrameIndex++;
+            }
         } else
         {
             //either all in use, time out during initial setup
-            Log.w(_name, "Input buffer not available: " + iFrameIndex);
+            Log.w("Input buffer not available: " + iFrameIndex);
         }
     }
 
@@ -191,7 +195,7 @@ public abstract class Mp4Writer extends Consumer
                         wait(0, 10000);
                     } catch (InterruptedException ex)
                     {
-                        Log.e(_name, ex.getMessage());
+                        Log.e(ex.getMessage());
                         ex.printStackTrace();
                     }
                 } else
@@ -201,33 +205,33 @@ public abstract class Mp4Writer extends Consumer
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED)
             {
                 //not expected for an encoder
-                Log.d(_name, "Encoder output buffers changed: " + iFrameIndex);
+                Log.d("Encoder output buffers changed: " + iFrameIndex);
                 break;
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED)
             {
                 //should happen before receiving buffers and should only happen once
                 if (bMuxerStarted)
                 {
-                    Log.e(_name, "Format changed twice");
+                    Log.e("Format changed twice");
                     throw new RuntimeException("Format changed twice");
                 }
                 MediaFormat newFormat = mediaCodec.getOutputFormat();
-                Log.d(_name, "Encoder output format changed: " + newFormat);
+                Log.d("Encoder output format changed: " + newFormat);
                 //start muxer
                 iTrackIndex = mediaMuxer.addTrack(newFormat);
                 mediaMuxer.start();
                 bMuxerStarted = true;
             } else if (encoderStatus < 0)
             {
-                Log.e(_name, "Unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
-                throw new RuntimeException("Unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
-            } else if (encoderStatus >= 0)
+                Log.e("Unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
+            }
+            else if (encoderStatus >= 0)
             {
                 //get data from encoder and send it to muxer
                 ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
                 if (encodedData == null)
                 {
-                    Log.e(_name, "EncoderOutputBuffer " + encoderStatus + " was null" + ": " + iFrameIndex);
+                    Log.e("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + iFrameIndex);
                     throw new RuntimeException("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + iFrameIndex);
                 }
                 encodedData.position(bufferInfo.offset);
@@ -248,7 +252,21 @@ public abstract class Mp4Writer extends Consumer
      */
     private void sendEnd()
     {
-        int inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
+        int inputBufIndex = -1;
+        double time = _frame.getTime();
+
+        while(inputBufIndex < 0)
+        {
+            inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
+
+            if (_frame.getTime() > time + SENDEND_TIMEOUT)
+                break;
+
+            try{
+                Thread.sleep(SENDEND_SLEEP);
+            } catch (InterruptedException e) {}
+        }
+
         if (inputBufIndex >= 0)
         {
             long ptsUsec = computePresentationTime(iFrameIndex);
@@ -259,7 +277,7 @@ public abstract class Mp4Writer extends Consumer
         } else
         {
             //either all in use, time out during initial setup
-            Log.w(_name, "Input buffer not available on last frame: " + iFrameIndex);
+            Log.w("Input buffer not available on last frame: " + iFrameIndex);
         }
     }
 

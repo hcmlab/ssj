@@ -1,7 +1,7 @@
 /*
  * BluetoothEventReader.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,14 +21,12 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -41,6 +39,7 @@ import java.io.InputStreamReader;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 
 /**
@@ -92,12 +91,12 @@ public class BluetoothEventReader extends EventHandler
             _in = new DataInputStream(_conn.getSocket().getInputStream());
         } catch (Exception e)
         {
-            Log.e(super._name, "error in setting up connection", e);
+            Log.e("error in setting up connection", e);
             return;
         }
 
         BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
-        Log.i(_name, "connected to " + dev.getName() + " @ " + dev.getAddress());
+        Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
 
         if(!options.parseXmlToEvent)
         {
@@ -112,7 +111,7 @@ public class BluetoothEventReader extends EventHandler
             }
             catch (XmlPullParserException e)
             {
-                Log.e(super._name, "unable to initialize parser", e);
+                Log.e("unable to initialize parser", e);
                 return;
             }
         }
@@ -145,7 +144,7 @@ public class BluetoothEventReader extends EventHandler
                 _parser.next();
                 if (_parser.getEventType() != XmlPullParser.START_TAG || !_parser.getName().equalsIgnoreCase("events"))
                 {
-                    Log.w(_name, "unknown or malformed bluetooth message");
+                    Log.w("unknown or malformed bluetooth message");
                     return;
                 }
 
@@ -173,7 +172,7 @@ public class BluetoothEventReader extends EventHandler
         }
         catch(IOException | XmlPullParserException e)
         {
-            Log.w(_name, "failed to receive or parse package", e);
+            Log.w("failed to receive or parse package", e);
             return;
         }
     }
@@ -186,7 +185,7 @@ public class BluetoothEventReader extends EventHandler
         try {
             _conn.disconnect();
         } catch (IOException e) {
-            Log.e(_name, "failed closing connection", e);
+            Log.e("failed closing connection", e);
         }
     }
 
@@ -197,7 +196,7 @@ public class BluetoothEventReader extends EventHandler
             _conn.disconnect();
 
         } catch (Exception e) {
-            Log.e(_name, "error force killing thread", e);
+            Log.e("error force killing thread", e);
         }
 
         super.forcekill();

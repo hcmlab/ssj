@@ -1,7 +1,7 @@
 /*
  * NaiveBayes.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,10 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.evaluator;
-
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,6 +36,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
@@ -96,7 +94,7 @@ public class NaiveBayes extends Transformer
     {
         if (sources.length > 1 || sources.length < 1)
         {
-            Log.e(_name, "sources count not supported");
+            Log.e("sources count not supported");
         }
         loadOption();
         loadModel();
@@ -112,7 +110,7 @@ public class NaiveBayes extends Transformer
     {
         if (stream_in[0].type == Cons.Type.CUSTOM || stream_in[0].type == Cons.Type.UNDEF)
         {
-            Log.e(_name, "stream type not supported");
+            Log.e("stream type not supported");
         }
     }
 
@@ -202,12 +200,12 @@ public class NaiveBayes extends Transformer
     {
         if (class_probs == null || class_probs.length <= 0)
         {
-            Log.w(_name, "not trained");
+            Log.w("not trained");
             return null;
         }
         if (stream.dim != n_features)
         {
-            Log.w(_name, "feature dimension differs");
+            Log.w("feature dimension differs");
             return null;
         }
         double[] probs = new double[n_classes];
@@ -266,7 +264,7 @@ public class NaiveBayes extends Transformer
         //normalisation
         if (sum == 0)
         {
-            Log.w(_name, "sum == 0");
+            Log.w("sum == 0");
             for (int j = 0; j < n_classes; j++)
             {
                 probs[j] = 1.0f / n_classes;
@@ -289,7 +287,7 @@ public class NaiveBayes extends Transformer
         File file = options.fileOption;
         if (file == null)
         {
-            Log.w(_name, "option file not set in options");
+            Log.w("option file not set in options");
             return;
         }
         SimpleXmlParser simpleXmlParser = new SimpleXmlParser();
@@ -314,7 +312,7 @@ public class NaiveBayes extends Transformer
         } catch (Exception e)
         {
             e.printStackTrace();
-            Log.e(_name, "file could not be parsed");
+            Log.e("file could not be parsed");
         }
     }
 
@@ -326,7 +324,7 @@ public class NaiveBayes extends Transformer
         File file = options.fileModel;
         if (file == null)
         {
-            Log.e(_name, "model file not set in options");
+            Log.e("model file not set in options");
             return;
         }
         BufferedReader reader;
@@ -337,7 +335,7 @@ public class NaiveBayes extends Transformer
             reader = new BufferedReader(inputStreamReader);
         } catch (FileNotFoundException e)
         {
-            Log.e(_name, "file not found");
+            Log.e("file not found");
             return;
         }
         String line;
@@ -351,7 +349,7 @@ public class NaiveBayes extends Transformer
             n_classes = Integer.valueOf(token[0]);
         } else
         {
-            Log.w(_name, "can't read number of classes from classifier file " + file.getName() + "!");
+            Log.w("can't read number of classes from classifier file " + file.getName() + "!");
             return;
         }
         if (token.length > 1)
@@ -359,7 +357,7 @@ public class NaiveBayes extends Transformer
             n_features = Integer.valueOf(token[1]);
         } else
         {
-            Log.w(_name, "can't read feature dimension from classifier file " + file.getName() + "'!");
+            Log.w("can't read feature dimension from classifier file " + file.getName() + "'!");
             return;
         }
         class_probs = new double[n_classes];
@@ -399,7 +397,7 @@ public class NaiveBayes extends Transformer
             reader.close();
         } catch (IOException e)
         {
-            Log.e(_name, "could not close reader");
+            Log.e("could not close reader");
         }
     }
 
@@ -417,7 +415,7 @@ public class NaiveBayes extends Transformer
                 line = reader.readLine();
             } catch (IOException e)
             {
-                Log.e(_name, "could not read line");
+                Log.e("could not read line");
             }
         }
         return line;
@@ -485,7 +483,7 @@ public class NaiveBayes extends Transformer
             case DOUBLE:
                 return stream.ptrD();
             default:
-                Log.e(_name, "invalid input stream type");
+                Log.e("invalid input stream type");
                 return new double[stream.num * stream.dim];
         }
     }

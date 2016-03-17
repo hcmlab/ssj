@@ -1,7 +1,7 @@
 /*
  * BluetoothWriter.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,19 +21,18 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
 
@@ -79,7 +78,7 @@ public class BluetoothWriter extends Consumer {
             _out = new DataOutputStream(_conn.getSocket().getOutputStream());
         } catch (Exception e)
         {
-            Log.e(super._name, "error in setting up connection "+ options.connectionName, e);
+            Log.e("error in setting up connection "+ options.connectionName, e);
             return;
         }
 
@@ -87,7 +86,7 @@ public class BluetoothWriter extends Consumer {
 
         _data = new byte[stream_in[0].tot];
 
-        Log.i(_name, "connected to " + dev.getName() + " @ " + dev.getAddress());
+        Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
         _connected = true;
     }
 
@@ -100,7 +99,7 @@ public class BluetoothWriter extends Consumer {
             _out.write(_data);
 
         } catch (IOException e) {
-            Log.w(_name, "failed sending data", e);
+            Log.w("failed sending data", e);
         }
     }
 
@@ -110,7 +109,7 @@ public class BluetoothWriter extends Consumer {
         try {
             _conn.disconnect();
         } catch (IOException e) {
-            Log.e(_name, "failed closing connection", e);
+            Log.e("failed closing connection", e);
         }
     }
 
@@ -120,7 +119,7 @@ public class BluetoothWriter extends Consumer {
         try {
             _conn.disconnect();
         } catch (IOException e) {
-            Log.e(_name, "failed closing connection", e);
+            Log.e("failed closing connection", e);
         }
 
         super.forcekill();

@@ -1,7 +1,7 @@
 /*
  * BluetoothEventWriter.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,14 +21,12 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
-import android.util.Log;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -38,6 +36,7 @@ import java.nio.ByteOrder;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
+import hcm.ssj.core.Log;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -86,12 +85,12 @@ public class BluetoothEventWriter extends EventHandler
             _out = new DataOutputStream(_conn.getSocket().getOutputStream());
         } catch (Exception e)
         {
-            Log.e(super._name, "error in setting up connection", e);
+            Log.e("error in setting up connection", e);
             return;
         }
 
         BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
-        Log.i(_name, "connected to " + dev.getName() + " @ " + dev.getAddress());
+        Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
 
         _buffer = new byte[Cons.MAX_EVENT_SIZE];
         _evID = new int[_evchannel_in.size()];
@@ -146,7 +145,7 @@ public class BluetoothEventWriter extends EventHandler
             }
             catch (IOException e)
             {
-                Log.w(_name, "failed sending data", e);
+                Log.w("failed sending data", e);
             }
         }
     }
@@ -158,7 +157,7 @@ public class BluetoothEventWriter extends EventHandler
         try {
             _conn.disconnect();
         } catch (IOException e) {
-            Log.e(_name, "failed closing connection", e);
+            Log.e("failed closing connection", e);
         }
     }
 
@@ -169,7 +168,7 @@ public class BluetoothEventWriter extends EventHandler
             _conn.disconnect();
 
         } catch (Exception e) {
-            Log.e(_name, "error force killing thread", e);
+            Log.e("error force killing thread", e);
         }
 
         super.forcekill();

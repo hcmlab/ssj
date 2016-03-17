@@ -1,7 +1,7 @@
 /*
  * Cull.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,19 +21,17 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.evaluator;
-
-import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
@@ -82,7 +80,7 @@ public class Cull extends Transformer
     {
         if (sources.length < 1)
         {
-            Log.e(_name, "sources count not supported");
+            Log.e("sources count not supported");
         }
         loadTrainer();
         super.setup(sources, frame, delta);
@@ -98,12 +96,12 @@ public class Cull extends Transformer
         //no check for a specific type to allow for different providers
         if (stream_in.length < 1 || stream_in[0].dim < 1)
         {
-            Log.e(_name, "invalid input stream");
+            Log.e("invalid input stream");
         }
         //sample number should be 1
         if (stream_in[0].num > 1)
         {
-            Log.e(_name, "invalid input stream num");
+            Log.e("invalid input stream num");
         }
     }
 
@@ -188,7 +186,7 @@ public class Cull extends Transformer
                 return;
             } else
             {
-                Log.w(_name, "invalid option outputClass length");
+                Log.w("invalid option outputClass length");
             }
         }
         for (int i = 0; i < overallDimension; i++)
@@ -205,7 +203,7 @@ public class Cull extends Transformer
         File file = options.fileTrainer;
         if (file == null)
         {
-            Log.e(_name, "trainer file not set in options");
+            Log.e("trainer file not set in options");
             return;
         }
         SimpleXmlParser simpleXmlParser = new SimpleXmlParser();
@@ -225,7 +223,7 @@ public class Cull extends Transformer
         } catch (Exception e)
         {
             e.printStackTrace();
-            Log.e(_name, "file could not be parsed");
+            Log.e("file could not be parsed");
         }
     }
 }

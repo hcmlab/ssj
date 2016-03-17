@@ -1,7 +1,7 @@
 /*
  * SimpleFileReader.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,14 +21,11 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.file;
 
-
-import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,6 +35,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 
 /**
@@ -111,7 +109,7 @@ public class SimpleFileReader extends Sensor
             } catch (Exception e)
             {
                 e.printStackTrace();
-                Log.e(_name, "file could not be parsed");
+                Log.e("file could not be parsed");
             }
         }
         return simpleHeader;
@@ -153,7 +151,7 @@ public class SimpleFileReader extends Sensor
                 reader = null;
             } catch (IOException e)
             {
-                Log.e(_name, "could not close reader");
+                Log.e("could not close reader");
             }
         }
         return reader;
@@ -186,7 +184,7 @@ public class SimpleFileReader extends Sensor
             reader = new BufferedReader(inputStreamReader);
         } catch (FileNotFoundException e)
         {
-            Log.e(_name, "fileHeader not found");
+            Log.e("fileHeader not found");
         }
         return reader;
     }
@@ -205,7 +203,7 @@ public class SimpleFileReader extends Sensor
                 line = reader.readLine();
             } catch (IOException e)
             {
-                Log.e(_name, "could not read line");
+                Log.e("could not read line");
             }
         }
         return line;

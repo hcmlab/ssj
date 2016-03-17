@@ -1,7 +1,7 @@
 /*
  * Distance.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,15 +21,13 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.androidSensor.transformer;
 
-import android.util.Log;
-
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
@@ -81,7 +79,7 @@ public class Distance extends Transformer
         //no check for a specific type to allow for different providers
         if (stream_in.length < 1 || stream_in[0].dim < 1)
         {
-            Log.e(_name, "invalid input stream");
+            Log.e("invalid input stream");
         }
         //every stream should have the same sample number.
         //Otherwise the sample number of the transformer will not be correct
@@ -90,7 +88,7 @@ public class Distance extends Transformer
         {
             if (num != stream_in[i].num)
             {
-                Log.e(_name, "invalid input stream num for stream " + i);
+                Log.e("invalid input stream num for stream " + i);
             }
         }
         oldValues = new float[stream_out.dim];
@@ -141,7 +139,7 @@ public class Distance extends Transformer
         if (options.individualDistance != null
                 && overallDimension != options.individualDistance.length)
         {
-            Log.e(_name, "invalid option individualDistance length");
+            Log.e("invalid option individualDistance length");
         }
         return overallDimension;
     }
@@ -193,7 +191,7 @@ public class Distance extends Transformer
                 return;
             } else
             {
-                Log.w(_name, "invalid option outputClass length");
+                Log.w("invalid option outputClass length");
             }
         }
         for (int i = 0, k = 0; i < stream_in.length; i++)

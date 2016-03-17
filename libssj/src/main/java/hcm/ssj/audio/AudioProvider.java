@@ -1,7 +1,7 @@
 /*
  * AudioProvider.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.audio;
@@ -30,9 +29,9 @@ package hcm.ssj.audio;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.stream.Stream;
 
@@ -69,12 +68,12 @@ public class AudioProvider extends SensorProvider
 
         int state = _recorder.getState();
         if(state != 1)
-            Log.w(_name, "unexpected AudioRecord state = " + state);
+            Log.w("unexpected AudioRecord state = " + state);
 
         if(options.scale)
         {
             if(options.audioFormat != AudioFormat.ENCODING_PCM_8BIT && options.audioFormat != AudioFormat.ENCODING_PCM_16BIT)
-                Log.e(_name, "unsupported audio format for normalization");
+                Log.e("unsupported audio format for normalization");
 
             int numBytes = Microphone.audioFormatSampleBytes(options.audioFormat);
             _data = new byte[stream_out.num * stream_out.dim * numBytes];
@@ -82,7 +81,7 @@ public class AudioProvider extends SensorProvider
 
         //startRecording has to be called as close to the first read as possible.
         _recorder.startRecording();
-        Log.i(_name, "Audio capturing started");
+        Log.i("Audio capturing started");
     }
 
     @Override
@@ -102,7 +101,7 @@ public class AudioProvider extends SensorProvider
                     _recorder.read(stream_out.ptrS(), 0, stream_out.num * stream_out.dim);
                     break;
                 default:
-                    Log.w(_name, "unsupported audio format");
+                    Log.w("unsupported audio format");
             }
         }
         else
@@ -127,7 +126,7 @@ public class AudioProvider extends SensorProvider
                         i += 2;
                         break;
                     default:
-                        Log.w(_name, "unsupported audio format");
+                        Log.w("unsupported audio format");
                 }
             }
         }

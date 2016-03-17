@@ -1,7 +1,7 @@
 /*
  * Myo.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,8 +21,7 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.myo;
@@ -30,11 +29,11 @@ package hcm.ssj.myo;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.thalmic.myo.Hub;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 
@@ -86,7 +85,7 @@ public class Myo extends Sensor
 				// Check if hub can be initialized
 				if (!hub.init(SSJApplication.getAppContext()))
 				{
-					Log.e(_name, "Could not initialize the Hub.");
+					Log.e("Could not initialize the Hub.");
 				}
 				else
 				{
@@ -107,12 +106,12 @@ public class Myo extends Sensor
 					// If there is a mac address connect to it, otherwise look for myo nearby
 					if (!options.macAddress.isEmpty())
 					{
-						Log.i(_name, "Connecting to MAC: " + options.macAddress);
+						Log.i("Connecting to MAC: " + options.macAddress);
 						hub.attachByMacAddress(options.macAddress);
 					}
 					else
 					{
-						Log.i(_name, "Connecting to nearest myo");
+						Log.i("Connecting to nearest myo");
 						hub.attachToAdjacentMyo();
 					}
 				}
@@ -142,7 +141,7 @@ public class Myo extends Sensor
 
 		myo.unlock(com.thalmic.myo.Myo.UnlockType.HOLD);
 
-		Log.i(_name, "Myo successfully connected: " + myo.getMacAddress());
+		Log.i("Myo successfully connected: " + myo.getMacAddress());
 	}
 
 	@Override

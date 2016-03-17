@@ -1,7 +1,7 @@
 /*
  * BlinkDetection.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,17 +21,15 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.glass.transformer;
 
-import android.util.Log;
-
 import java.util.LinkedList;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
@@ -98,7 +96,7 @@ public class BlinkDetection extends Transformer
         //no check for a specific type to allow for different providers
         if (stream_in.length < 1 || stream_in[0].dim < DIMENSION)
         {
-            Log.e(_name, "invalid input stream");
+            Log.e("invalid input stream");
         }
         //init values
         count = 0;

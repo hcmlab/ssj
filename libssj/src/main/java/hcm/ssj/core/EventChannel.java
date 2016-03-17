@@ -1,7 +1,7 @@
 /*
  * EventChannel.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,10 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.core;
-
-import android.util.Log;
 
 import java.util.LinkedList;
 
@@ -108,7 +105,7 @@ public class EventChannel
 
             if(eventID < _events.getFirst().id)
             {
-                Log.w(_name, "event "+ eventID +" no longer in queue");
+                Log.w("event "+ eventID +" no longer in queue");
                 return _events.getFirst(); //if event is no longer in queue, return oldest event
             }
 
@@ -130,7 +127,7 @@ public class EventChannel
 
             _events.addLast(ev);
 
-//                Log.d(_name, "E_" + ev.id + "_" + ev.sender + ": name = " +ev.name+  " state = " + ev.state.toString() + " time = " + ev.time + " dur = " + ev.dur + " msg = " + ev.msg);
+//                Log.d("E_" + ev.id + "_" + ev.sender + ": name = " +ev.name+  " state = " + ev.state.toString() + " time = " + ev.time + " dur = " + ev.dur + " msg = " + ev.msg);
 
             if(_events.size() > Cons.MAX_NUM_EVENTS_PER_CHANNEL)
                 _events.removeFirst();
@@ -150,7 +147,7 @@ public class EventChannel
 
     public void close()
     {
-        Log.i(_name, "shutting down");
+        Log.i("shutting down");
 
         _terminate = true;
 
@@ -159,6 +156,6 @@ public class EventChannel
             _lock.notifyAll();
         }
 
-        Log.i(_name, "shut down complete");
+        Log.i("shut down complete");
     }
 }

@@ -1,7 +1,7 @@
 /*
  * TheFramework.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,13 +21,10 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.core;
-
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +51,6 @@ public class TheFramework {
         public int netSyncPort = 55100;
 
         public String logfile = null;
-        public String[] logtags = null;
     }
     public Options options = new Options();
 
@@ -75,8 +71,8 @@ public class TheFramework {
     protected static TheFramework _instance = null;
     private TheFramework()
     {
-        Log.i(_name, "===================================================");
-        Log.i(_name, "Social Signal Interpretation for Java/Android, version "+ Cons.VERSION);
+        Log.i("===================================================");
+        Log.i("Social Signal Interpretation for Java/Android, version "+ Cons.VERSION);
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPoolExecutor(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
@@ -98,20 +94,20 @@ public class TheFramework {
     public void Start()
     {
         try {
-            Log.i(_name, "starting pipeline");
+            Log.i("starting pipeline");
 
-            Log.i(_name, "preparing buffers");
+            Log.i("preparing buffers");
             for (TimeBuffer b : _buffer)
                 b.reset();
 
             for (Component c : _components) {
-                Log.i(_name, "starting " + c.getComponentName());
+                Log.i("starting " + c.getComponentName());
                 c.reset();
                 _threadPool.execute(c);
             }
 
             for (int i = 0; i < options.countdown; i++) {
-                Log.i(_name, "starting pipeline in " + (options.countdown - i));
+                Log.i("starting pipeline in " + (options.countdown - i));
                 Thread.sleep(1000);
             }
 
@@ -124,21 +120,21 @@ public class TheFramework {
                         _syncSocket = new DatagramSocket(options.netSyncPort);
                         _syncSocket.setReuseAddress(true);
 
-                        Log.i(_name, "waiting for master pipeline (port = "+ options.netSyncPort+")");
+                        Log.i("waiting for master pipeline (port = "+ options.netSyncPort+")");
                         while(true)
                         {
                             byte[] data = new byte[4];
                             DatagramPacket packet = new DatagramPacket(data, 4);
                             _syncSocket.receive(packet);
-                            Log.d(_name, "received packet from " + packet.getAddress().toString());
+                            Log.d("received packet from " + packet.getAddress().toString());
 
                             //check data
                             if(packet.getData()[0] == 'S' && packet.getData()[1] == 'S' && packet.getData()[2] == 'J' && packet.getData()[3] == 1)
                             {
-                                Log.d(_name, "packet identified as start ping");
+                                Log.d("packet identified as start ping");
                                 break;
                             }
-                            Log.d(_name, "packet not recognized");
+                            Log.d("packet not recognized");
                         }
                     }
                     else
@@ -151,18 +147,18 @@ public class TheFramework {
                         DatagramPacket packet = new DatagramPacket(data, 4, Util.getBroadcastAddress(), options.netSyncPort);
                         _syncSocket.send(packet);
 
-                        Log.i(_name, "sync ping sent on port " + options.netSyncPort);
+                        Log.i("sync ping sent on port " + options.netSyncPort);
                     }
                 }
                 catch (IOException e)
                 {
-                    Log.e(_name, "network sync failed", e);
+                    Log.e("network sync failed", e);
                 }
             }
 
             _timer = new Timer();
             _isRunning = true;
-            Log.i(_name, "pipeline started");
+            Log.i("pipeline started");
 
         } catch(Exception e) {
             crash("framework start", "error starting pipeline", e);
@@ -290,7 +286,7 @@ public class TheFramework {
         }
 
         if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w(_name, "cannot push to buffer "+buffer_id +". Buffer does not exist.");
+            Log.w("cannot push to buffer "+buffer_id +". Buffer does not exist.");
 
         _buffer.get(buffer_id).push(data, numBytes);
     }
@@ -302,7 +298,7 @@ public class TheFramework {
         }
 
         if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w(_name, "cannot push to buffer "+buffer_id +". Buffer does not exist.");
+            Log.w("cannot push to buffer "+buffer_id +". Buffer does not exist.");
 
         TimeBuffer buf = _buffer.get(buffer_id);
 
@@ -324,7 +320,7 @@ public class TheFramework {
         }
 
         if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w(_name, "cannot push to buffer "+buffer_id +". Buffer does not exist.");
+            Log.w("cannot push to buffer "+buffer_id +". Buffer does not exist.");
 
         _buffer.get(buffer_id).pushZeroes(num);
     }
@@ -336,33 +332,33 @@ public class TheFramework {
         }
 
         if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w(_name, "cannot read from buffer "+buffer_id +". Buffer does not exist.");
+            Log.w("cannot read from buffer "+buffer_id +". Buffer does not exist.");
 
         int res = _buffer.get(buffer_id).get(data, start_time, duration);
 
         switch(res)
         {
             case TimeBuffer.STATUS_INPUT_ARRAY_TOO_SMALL:
-                Log.w(_name, "input buffer too small");
+                Log.w("input buffer too small");
                 return false;
             case TimeBuffer.STATUS_DATA_EXCEEDS_BUFFER_SIZE:
-                Log.w(_name, "data exceeds buffers size");
+                Log.w("data exceeds buffers size");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_YET:
-                Log.w(_name, "data not in buffer yer");
+                Log.w("data not in buffer yer");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_ANYMORE:
-                Log.w(_name, "data not in buffer anymore");
+                Log.w("data not in buffer anymore");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_SMALL:
-                Log.w(_name, "requested duration too small");
+                Log.w("requested duration too small");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_LARGE:
-                Log.w(_name, "requested duration too large");
+                Log.w("requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
                 if(_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
-                    Log.w(_name, "unknown error occurred");
+                    Log.w("unknown error occurred");
                 return false;
         }
 
@@ -376,36 +372,36 @@ public class TheFramework {
         }
 
         if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w(_name, "Invalid buffer");
+            Log.w("Invalid buffer");
 
         int res = _buffer.get(buffer_id).get(data, startSample, numSamples);
 
         switch(res)
         {
             case TimeBuffer.STATUS_INPUT_ARRAY_TOO_SMALL:
-                Log.w(_name, "input buffer too small");
+                Log.w("input buffer too small");
                 return false;
             case TimeBuffer.STATUS_DATA_EXCEEDS_BUFFER_SIZE:
-                Log.w(_name, "data exceeds buffers size");
+                Log.w("data exceeds buffers size");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_YET:
-                Log.w(_name, "data not in buffer yet");
+                Log.w("data not in buffer yet");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_ANYMORE:
-                Log.w(_name, "data range ("+startSample +","+ (startSample + numSamples) +") not in buffer anymore");
+                Log.w("data range ("+startSample +","+ (startSample + numSamples) +") not in buffer anymore");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_SMALL:
-                Log.w(_name, "requested duration too small");
+                Log.w("requested duration too small");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_LARGE:
-                Log.w(_name, "requested duration too large");
+                Log.w("requested duration too large");
                 return false;
             case TimeBuffer.STATUS_UNKNOWN_DATA:
-                Log.w(_name, "requested data is unknown, probably caused by a delayed sensor start");
+                Log.w("requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
                 if(_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
-                    Log.w(_name, "unknown buffer error occurred");
+                    Log.w("unknown buffer error occurred");
                 return false;
         }
 
@@ -416,23 +412,23 @@ public class TheFramework {
     {
         if (!_isRunning)
         {
-            Log.i(_name, "Cannot stop. Framework not active.");
+            Log.i("Cannot stop. Framework not active.");
             return;
         }
 
         _isRunning = false;
 
-        Log.i(_name, "shutting down ...");
+        Log.i("shutting down ...");
         try
         {
-            Log.i(_name, "closing buffer");
+            Log.i("closing buffer");
             for (TimeBuffer b : _buffer)
                 b.close();
 
-            Log.i(_name, "closing components");
+            Log.i("closing components");
             for (Component c : _components)
             {
-                Log.i(_name, "closing " + c.getComponentName());
+                Log.i("closing " + c.getComponentName());
                 //try to close everything individually to free each sensor
                 try
                 {
@@ -440,16 +436,16 @@ public class TheFramework {
                 }
                 catch(Exception e) {
                     e.printStackTrace();
-                    Log.e(_name, "closing " + c.getComponentName() + " failed");
+                    Log.e("closing " + c.getComponentName() + " failed");
                 }
             }
 
-            Log.i(_name, "waiting for components to terminate");
+            Log.i("waiting for components to terminate");
             _threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
         }
         catch (Exception e)
         {
-            Log.e(_name, "Exception in closing framework", e);
+            Log.e("Exception in closing framework", e);
             throw new RuntimeException(e);
         }
         finally
@@ -457,14 +453,14 @@ public class TheFramework {
             log();
         }
 
-        Log.i(_name, "shut down completed");
+        Log.i("shut down completed");
     }
 
     public void clear()
     {
         if(isRunning())
         {
-            Log.w(_name, "Cannot clear. Framework still active.");
+            Log.w("Cannot clear. Framework still active.");
             return;
         }
 
@@ -485,7 +481,7 @@ public class TheFramework {
                     logFile.delete();
 
                 //construct logcat command
-                String[] cmd = new String[6 + ((options.logtags != null) ? options.logtags.length : 0)];
+                String[] cmd = new String[7];
 
                 int i = 0;
                 cmd[i++] = "logcat";
@@ -493,10 +489,7 @@ public class TheFramework {
                 cmd[i++] =  "time";
                 cmd[i++] =  "-f";
                 cmd[i++] =  options.logfile;
-
-                if(options.logtags != null)
-                    for (int j = 0; j < options.logtags.length; j++)
-                        cmd[i++] =  options.logtags[j];
+                cmd[i++] =  Cons.LOGTAG;
 
                 cmd[i] =  "*:E";
 
@@ -505,7 +498,7 @@ public class TheFramework {
             }
             catch (IOException e)
             {
-                Log.e(_name, "Exception in creating logfile", e);
+                Log.e("Exception in creating logfile", e);
                 throw new RuntimeException(e);
             }
         }
@@ -515,7 +508,7 @@ public class TheFramework {
     {
         _isRunning = false;
 
-        Log.e(_name, "crash in " + location + ": " + message, e);
+        Log.e("crash in " + location + ": " + message, e);
         log();
 
         throw new RuntimeException(e);
