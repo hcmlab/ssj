@@ -26,19 +26,25 @@
 
 package hcm.ssj.praat.helper;
 
-/*
- * pb 2002/03/07 GPL
- * pb 2003/06/19 ridders3 replaced with ridders
- * pb 2003/07/09 gsl
- * pb 2003/08/27 NUMfisherQ: underflow and iteration excess should not return NUMundefined
- * pb 2005/07/08 NUMpow
- * pb 2006/08/02 NUMinvSigmoid
- * pb 2007/01/27 use final static doubles for value interpolation
- * pb 2007/08/20 built a "weird value" check into NUMviterbi (bug report by Adam Jacks)
- * pb 2008/01/19 double
- * pb 2008/09/21 NUMshift
- * pb 2008/09/22 NUMscale
- * pb 2011/03/29 C++
+/**
+ * based on PRAAT by Paul Boersma
+ *
+ * PRAAT License:
+ * Copyright (C) 1992-2012,2013,2014,2015 Paul Boersma
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 /**
