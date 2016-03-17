@@ -513,8 +513,11 @@ public class TheFramework {
 
     public void crash(String location, String message, Exception e)
     {
+        _isRunning = false;
+
         Log.e(_name, "crash in " + location + ": " + message, e);
         log();
+
         throw new RuntimeException(e);
     }
 
