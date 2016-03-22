@@ -1,7 +1,7 @@
 /*
  * SimpleFileWriter.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Copyright (c) 2015
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,7 +21,8 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, see <http://www.gnu.org/licenses/>.
+ * with this library; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 package hcm.ssj.file;
@@ -60,6 +61,7 @@ public class SimpleFileWriter extends Consumer
     private FileOutputStream fileOutputStreamHeader = null;
     private int lineCount = 0;
     private SimpleHeader simpleHeader;
+    private StringBuilder stringBuilder = new StringBuilder();
 
     public SimpleFileWriter()
     {
@@ -97,8 +99,7 @@ public class SimpleFileWriter extends Consumer
         if (path.endsWith("." + LoggingConstants.FILE_EXTENSION))
         {
             fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
-        }
-        else if (path.endsWith("." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE))
+        } else if (path.endsWith("." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE))
         {
             fileReal = fileHeader;
             fileHeader = new File(path.substring(0, path.length() - 1));
@@ -135,6 +136,7 @@ public class SimpleFileWriter extends Consumer
     @Override
     protected final void consume(Stream[] stream_in)
     {
+        stringBuilder.delete(0, stringBuilder.length());
         switch (stream_in[0].type)
         {
             case BOOL:
@@ -142,13 +144,15 @@ public class SimpleFileWriter extends Consumer
                 boolean[] in = stream_in[0].ptrBool();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case BYTE:
@@ -156,13 +160,15 @@ public class SimpleFileWriter extends Consumer
                 byte[] in = stream_in[0].ptrB();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case CHAR:
@@ -170,13 +176,15 @@ public class SimpleFileWriter extends Consumer
                 char[] in = stream_in[0].ptrC();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case SHORT:
@@ -184,13 +192,15 @@ public class SimpleFileWriter extends Consumer
                 short[] in = stream_in[0].ptrS();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case INT:
@@ -198,13 +208,15 @@ public class SimpleFileWriter extends Consumer
                 int[] in = stream_in[0].ptrI();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case LONG:
@@ -212,13 +224,15 @@ public class SimpleFileWriter extends Consumer
                 long[] in = stream_in[0].ptrL();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case FLOAT:
@@ -226,13 +240,15 @@ public class SimpleFileWriter extends Consumer
                 float[] in = stream_in[0].ptrF();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             case DOUBLE:
@@ -240,13 +256,15 @@ public class SimpleFileWriter extends Consumer
                 double[] in = stream_in[0].ptrD();
                 for (int i = 0, j = 0; i < stream_in[0].num; i++)
                 {
-                    String line = "";
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
-                        line += in[j] + options.separator;
+                        stringBuilder.append(in[j]);
+                        stringBuilder.append(options.separator);
                     }
-                    writeLine(line, fileOutputStream);
+                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    lineCount++;
                 }
+                write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
             default:
@@ -312,6 +330,24 @@ public class SimpleFileWriter extends Consumer
             Log.e("file not found");
         }
         return stream;
+    }
+
+    /**
+     * @param line   String
+     * @param stream FileOutputStream
+     */
+    private void write(String line, FileOutputStream stream)
+    {
+        if (stream != null)
+        {
+            try
+            {
+                stream.write(line.getBytes());
+            } catch (IOException e)
+            {
+                Log.e("could not write data");
+            }
+        }
     }
 
     /**
