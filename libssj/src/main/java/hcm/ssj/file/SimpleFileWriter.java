@@ -59,7 +59,7 @@ public class SimpleFileWriter extends Consumer
     public Options options = new Options();
     private FileOutputStream fileOutputStream = null;
     private FileOutputStream fileOutputStreamHeader = null;
-    private int lineCount = 0;
+    private int sampleCount = 0;
     private SimpleHeader simpleHeader;
     private StringBuilder stringBuilder = new StringBuilder();
 
@@ -126,7 +126,7 @@ public class SimpleFileWriter extends Consumer
         writeLine(simpleHeader.getLine2(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine3(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine4(), fileOutputStreamHeader);
-        lineCount = 0;
+        sampleCount = 0;
         fileOutputStream = getFileConnection(fileReal, fileOutputStream);
     }
 
@@ -150,8 +150,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -166,8 +166,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -182,8 +182,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -198,8 +198,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -214,8 +214,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -230,8 +230,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -246,8 +246,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -262,8 +262,8 @@ public class SimpleFileWriter extends Consumer
                         stringBuilder.append(options.separator);
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
-                    lineCount++;
                 }
+                sampleCount += stream_in[0].num;
                 write(stringBuilder.toString(), fileOutputStream);
                 break;
             }
@@ -288,7 +288,7 @@ public class SimpleFileWriter extends Consumer
     private void end(Stream stream)
     {
         fileOutputStream = closeStream(fileOutputStream);
-        simpleHeader._num = String.valueOf(lineCount);
+        simpleHeader._num = String.valueOf(sampleCount);
         simpleHeader._to = String.valueOf(stream.time);
         writeLine(simpleHeader.getLine5(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine6(), fileOutputStreamHeader);
@@ -362,7 +362,6 @@ public class SimpleFileWriter extends Consumer
             {
                 line += LoggingConstants.DELIMITER_LINE;
                 stream.write(line.getBytes());
-                lineCount++;
             } catch (IOException e)
             {
                 Log.e("could not write line");

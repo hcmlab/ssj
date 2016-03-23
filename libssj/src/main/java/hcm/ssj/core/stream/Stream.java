@@ -114,6 +114,7 @@ public abstract class Stream {
         step = 0;
         num = 0;
         tot = 0;
+        time = 0;
     }
 
     public void setSource(Provider source)
@@ -147,5 +148,10 @@ public abstract class Stream {
                 return i;
 
         return -1;
+    }
+
+    public void reset()
+    {
+        time = 0;
     }
 }

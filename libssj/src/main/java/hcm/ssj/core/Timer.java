@@ -35,12 +35,13 @@ import java.util.ArrayList;
  */
 public class Timer {
 
-    long _delta;
-    long _next;
-    long _offset = 0;
+    double _delta; //in s
+    double _next; //in s
+    double _offset = 0; //in s
 
-    long _now;
-    long _init;
+    long _now; //in ms
+    long _init; //in ms
+    long _next_ms; //in ms
 
     long _tick_start = 0;
 
@@ -66,12 +67,13 @@ public class Timer {
 
     public void setClockS(double seconds)
     {
-        _delta = (long)(seconds * 1000 + 0.5);
+        _delta = seconds
+        ;
     }
 
     public void setClockMs(long milliseconds)
     {
-        _delta = milliseconds;
+        _delta = milliseconds / 1000.0;
     }
 
     public void setClockHz(double hz)
@@ -88,24 +90,26 @@ public class Timer {
     //offsets the first tick, requires a "reset"
     public void setStartOffset(double seconds)
     {
-        _offset = (long)(seconds * 1000 + 0.5);
+        _offset = seconds;
     }
 
     //offsets the next tick, requires a "reset"
     public void setStartOffset(long milliseconds)
     {
-        _offset = milliseconds;
+        _offset = milliseconds / 1000.0;
     }
 
     //equivalent to SSI's wait()
     public void sync ()
     {
         _now = SystemClock.elapsedRealtime() - _init;
-        while (_now < _next)
+        _next_ms = (long)(_next * 1000 + 0.5);
+
+        while (_now < _next_ms)
         {
             try
             {
-                Thread.sleep (_next - _now);
+                Thread.sleep ( _next_ms - _now );
             }
             catch (InterruptedException e){}
 

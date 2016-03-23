@@ -59,8 +59,12 @@ public abstract class Consumer extends Component {
             return;
         }
 
-        Arrays.fill(_readPos, 0);
         android.os.Process.setThreadPriority(threadPriority);
+
+        //reset data
+        Arrays.fill(_readPos, 0);
+        for(int i = 0; i < _stream_in.length; i++)
+            _stream_in[i].reset();
 
         try {
             enter(_stream_in);
