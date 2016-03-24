@@ -68,7 +68,7 @@ public abstract class Mp4Writer extends Consumer
     protected MediaCodec.BufferInfo bufferInfo;
     //
     protected byte[] byaShuffle;
-    protected int iFrameIndex;
+    protected long iFrameIndex;
     protected final static int TIMEOUT_USEC = 10000;
 
     /**
@@ -224,6 +224,7 @@ public abstract class Mp4Writer extends Consumer
             } else if (encoderStatus < 0)
             {
                 Log.e("Unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
+                break;
             }
             else if (encoderStatus >= 0)
             {
@@ -284,7 +285,7 @@ public abstract class Mp4Writer extends Consumer
     /**
      * Generates the presentation time for frame N, in microseconds
      */
-    private long computePresentationTime(int frameIndex)
+    private long computePresentationTime(long frameIndex)
     {
         return (long) (132L + frameIndex * 1000000L / dFrameRate);
     }

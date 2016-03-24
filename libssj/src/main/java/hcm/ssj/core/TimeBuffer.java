@@ -44,7 +44,7 @@ public class TimeBuffer {
     public final static int STATUS_ERROR = -9; //unknown error, buffer is probably closed
 
     private byte[] _buffer;
-    private int _position;
+    private long _position;
 
     private final Object _lock = new Object();
     private boolean _terminate = false;
@@ -100,7 +100,7 @@ public class TimeBuffer {
     {
         synchronized (_lock) {
             //compute actual position of data within buffer
-            int pos_mod = _position % _buffer.length;
+            int pos_mod = (int)(_position % _buffer.length);
 
             if (pos_mod + numBytes <= _buffer.length) {
                 // end of buffer not reached
@@ -127,7 +127,7 @@ public class TimeBuffer {
 
         synchronized (_lock) {
             //compute actual position of data within buffer
-            int pos_mod = _position % _buffer.length;
+            int pos_mod = (int)(_position % _buffer.length);
 
             if (pos_mod + numBytes <= _buffer.length) {
                 // end of buffer not reached
@@ -188,7 +188,7 @@ public class TimeBuffer {
         //correct position for sync
         startSample -= _offsetSamples;
 
-        int positionSamples = _position/_bytesPerSample;
+        long positionSamples = _position/_bytesPerSample;
 
         // check if requested duration is too small
         if (numSamples == 0) {
@@ -236,7 +236,7 @@ public class TimeBuffer {
 
     public double getReadTime()
     {
-        int positionSamples = _position / _bytesPerSample;
+        long positionSamples = _position / _bytesPerSample;
         return (_offsetSamples + positionSamples) * _sampleDuration;
     }
 
@@ -246,7 +246,7 @@ public class TimeBuffer {
         _offsetSamples -= (int)(delta * _sr + 0.5);
     }
 
-    public int getPosition()
+    public long getPositionAbs()
     {
         return _position;
     }
@@ -254,11 +254,6 @@ public class TimeBuffer {
     public int getCapacity()
     {
         return _buffer.length;
-    }
-
-    public int remaining()
-    {
-        return (_buffer.length - _position);
     }
 
     public double getLastAccessedSampleTime ()
