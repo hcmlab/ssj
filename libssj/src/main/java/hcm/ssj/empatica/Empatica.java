@@ -166,7 +166,6 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 
 			//save certificate
 			if(jobject.has("empaconf") && jobject.has("empasign")) {
-				Log.d("Empaconf & Empasign ok");
 				String empaconf = jobject.get("empaconf").getAsString();
 				String empasign = jobject.get("empasign").getAsString();
 				byte[] empaconfBytes = Base64.decode(empaconf, 0);
@@ -174,8 +173,10 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 
 				saveFile("profile", empaconfBytes);
 				saveFile("signature", empasignBytes);
+
+				Log.i("Successfully retrieved and saved new Empatica certificates");
 			} else {
-				throw new IOException("Empaconf and Empasign missing from http response");
+				throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
 			}
 		}
 		catch (IOException e)
