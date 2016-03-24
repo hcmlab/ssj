@@ -508,7 +508,7 @@ public class TheFramework {
     {
         _isRunning = false;
 
-        Log.e("crash in " + location + ": " + message, e);
+        Log.e("CRASH in " + location + " (t=" + getTime() + ") : " + message, e);
         log();
 
         throw new RuntimeException(e);
