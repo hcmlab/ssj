@@ -68,7 +68,7 @@ public abstract class Mp4Writer extends Consumer
     protected MediaCodec.BufferInfo bufferInfo;
     //
     protected byte[] byaShuffle;
-    protected long iFrameIndex;
+    protected long lFrameIndex;
     protected final static int TIMEOUT_USEC = 10000;
 
     /**
@@ -152,25 +152,24 @@ public abstract class Mp4Writer extends Consumer
         int inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
         if (inputBufIndex >= 0)
         {
-            long ptsUsec = computePresentationTime(iFrameIndex);
+            long ptsUsec = computePresentationTime(lFrameIndex);
             ByteBuffer inputBuf = encoderInputBuffers[inputBufIndex];
             //the buffer should be sized to hold one full frame
             if (inputBuf.capacity() < frameData.length)
             {
                 Log.e("Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
-            }
-            else
+            } else
             {
                 inputBuf.clear();
                 fillBuffer(inputBuf, frameData);
                 mediaCodec.queueInputBuffer(inputBufIndex, 0, frameData.length, ptsUsec, 0);
-                iFrameIndex++;
             }
         } else
         {
             //either all in use, time out during initial setup
-            Log.w("Input buffer not available: " + iFrameIndex);
+            Log.w("Input buffer not available. Skipped frame: " + lFrameIndex);
         }
+        lFrameIndex++;
     }
 
     /**
@@ -205,7 +204,7 @@ public abstract class Mp4Writer extends Consumer
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED)
             {
                 //not expected for an encoder
-                Log.d("Encoder output buffers changed: " + iFrameIndex);
+                Log.d("Encoder output buffers changed: " + lFrameIndex);
                 break;
             } else if (encoderStatus == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED)
             {
@@ -225,15 +224,14 @@ public abstract class Mp4Writer extends Consumer
             {
                 Log.e("Unexpected result from encoder.dequeueOutputBuffer: " + encoderStatus);
                 break;
-            }
-            else if (encoderStatus >= 0)
+            } else if (encoderStatus >= 0)
             {
                 //get data from encoder and send it to muxer
                 ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
                 if (encodedData == null)
                 {
-                    Log.e("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + iFrameIndex);
-                    throw new RuntimeException("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + iFrameIndex);
+                    Log.e("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + lFrameIndex);
+                    throw new RuntimeException("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + lFrameIndex);
                 }
                 encodedData.position(bufferInfo.offset);
                 encodedData.limit(bufferInfo.offset + bufferInfo.size);
@@ -255,22 +253,25 @@ public abstract class Mp4Writer extends Consumer
     {
         int inputBufIndex = -1;
         double time = _frame.getTime();
-
-        while(inputBufIndex < 0)
+        //try to get a valid input buffer to close the writer
+        while (inputBufIndex < 0)
         {
             inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
-
             if (_frame.getTime() > time + SENDEND_TIMEOUT)
+            {
                 break;
-
-            try{
+            }
+            try
+            {
                 Thread.sleep(SENDEND_SLEEP);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ex)
+            {
+                Log.e("Thread interrupted: " + lFrameIndex);
+            }
         }
-
         if (inputBufIndex >= 0)
         {
-            long ptsUsec = computePresentationTime(iFrameIndex);
+            long ptsUsec = computePresentationTime(lFrameIndex);
             //send an empty frame with the end-of-stream flag set
             mediaCodec.queueInputBuffer(inputBufIndex, 0, 0, ptsUsec, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
             //save every frame still unprocessed
@@ -278,7 +279,7 @@ public abstract class Mp4Writer extends Consumer
         } else
         {
             //either all in use, time out during initial setup
-            Log.w("Input buffer not available on last frame: " + iFrameIndex);
+            Log.w("Input buffer not available for last frame: " + lFrameIndex);
         }
     }
 

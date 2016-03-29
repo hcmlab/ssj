@@ -141,7 +141,7 @@ public class CameraWriter extends Mp4Writer
         int reqBuffSize = options.width * options.height;
         reqBuffSize += reqBuffSize >> 1;
         byaShuffle = new byte[reqBuffSize];
-        iFrameIndex = 0;
+        lFrameIndex = 0;
         colorSwitch = ColorSwitch.getColorSwitch(options.colorSwitch);
         switch (colorSwitch)
         {
