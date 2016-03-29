@@ -26,7 +26,6 @@
 
 package hcm.ssj.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -58,7 +57,7 @@ public class TheFramework {
 
     protected String _name = "SSJ_Framework";
     protected boolean _isRunning = false;
-    protected Timer _timer = new Timer();
+    protected Timer _timer = null;
 
     DatagramSocket _syncSocket;
 
@@ -73,11 +72,15 @@ public class TheFramework {
     protected static TheFramework _instance = null;
     private TheFramework()
     {
-        Log.i("===================================================");
-        Log.i("Social Signal Interpretation for Java/Android, version "+ getVersion());
+        //configure logger
+        Log.getInstance().setFramework(this);
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPoolExecutor(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+
+        Log.i("===================================================");
+        Log.i("Social Signal Interpretation for Java/Android v" + getVersion());
+        Log.i("===================================================");
     }
 
     public static TheFramework getFramework()
@@ -475,34 +478,7 @@ public class TheFramework {
     {
         if(options.logfile != null)
         {
-            try
-            {
-                //clear old log file
-                File logFile = new File(options.logfile);
-                if(logFile.exists())
-                    logFile.delete();
-
-                //construct logcat command
-                String[] cmd = new String[7];
-
-                int i = 0;
-                cmd[i++] = "logcat";
-                cmd[i++] =  "-v";
-                cmd[i++] =  "time";
-                cmd[i++] =  "-f";
-                cmd[i++] =  options.logfile;
-                cmd[i++] =  Cons.LOGTAG;
-
-                cmd[i] =  "*:E";
-
-                //use logcat to create log file
-                Runtime.getRuntime().exec(cmd);
-            }
-            catch (IOException e)
-            {
-                Log.e("Exception in creating logfile", e);
-                throw new RuntimeException(e);
-            }
+            Log.getInstance().saveToFile(options.logfile);
         }
     }
 
@@ -518,16 +494,25 @@ public class TheFramework {
 
     public void sync(int bufferID)
     {
+        if(!isRunning())
+            return;
+
         _buffer.get(bufferID).sync(_timer.getElapsed());
     }
 
     public double getTime()
     {
+        if(_timer == null)
+            return 0;
+
         return _timer.getElapsed();
     }
 
     public long getTimeMs()
     {
+        if(_timer == null)
+            return 0;
+
         return _timer.getElapsedMs();
     }
 
