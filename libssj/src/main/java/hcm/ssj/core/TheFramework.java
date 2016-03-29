@@ -35,6 +35,8 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import hcm.ssj.BuildConfig;
+
 /**
  * Created by Johnny on 05.03.2015.
  */
@@ -72,7 +74,7 @@ public class TheFramework {
     private TheFramework()
     {
         Log.i("===================================================");
-        Log.i("Social Signal Interpretation for Java/Android, version "+ Cons.VERSION);
+        Log.i("Social Signal Interpretation for Java/Android, version "+ getVersion());
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPoolExecutor(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
@@ -508,7 +510,7 @@ public class TheFramework {
     {
         _isRunning = false;
 
-        Log.e("crash in " + location + ": " + message, e);
+        Log.e("CRASH in " + location + " (t=" + getTime() + ") : " + message, e);
         log();
 
         throw new RuntimeException(e);
@@ -532,5 +534,10 @@ public class TheFramework {
     public boolean isRunning()
     {
         return _isRunning;
+    }
+
+    public String getVersion()
+    {
+        return BuildConfig.VERSION_NAME;
     }
 }

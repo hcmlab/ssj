@@ -148,7 +148,7 @@ public class TimeBuffer {
         }
     }
 
-    private boolean get_(Object dst, int pos, int len)
+    private boolean get_(Object dst, long pos, int len)
     {
         synchronized (_lock) {
             //wait for requested data to become available
@@ -162,7 +162,7 @@ public class TimeBuffer {
                 return false;
 
             //compute actual position of data within buffer
-            int pos_mod = pos % _buffer.length;
+            int pos_mod = (int)(pos % _buffer.length);
 
             if (pos_mod + len <= _buffer.length) {
                 // end of buffer not reached
@@ -188,8 +188,6 @@ public class TimeBuffer {
         //correct position for sync
         startSample -= _offsetSamples;
 
-        long positionSamples = _position/_bytesPerSample;
-
         // check if requested duration is too small
         if (numSamples == 0) {
             return STATUS_DURATION_TOO_SMALL;
@@ -205,14 +203,11 @@ public class TimeBuffer {
         }
 
         // check if requested data is still available
-        if (startSample + _capacitySamples < positionSamples || startSample < 0) {
+        if (startSample + _capacitySamples < _position / _bytesPerSample || startSample < 0) {
             return STATUS_DATA_NOT_IN_BUFFER_ANYMORE;
         }
 
-        int posBytes = startSample * _bytesPerSample;
-        int numBytes = numSamples * _bytesPerSample;
-
-        boolean ok = get_(dst, posBytes, numBytes);
+        boolean ok = get_(dst, (long)startSample * _bytesPerSample, numSamples * _bytesPerSample);
 
         _lastAccessedSample = startSample + numSamples - 1;
 

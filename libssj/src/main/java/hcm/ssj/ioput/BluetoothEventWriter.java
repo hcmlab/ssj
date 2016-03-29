@@ -129,7 +129,7 @@ public class BluetoothEventWriter extends EventHandler
 
         if(msg != null)
         {
-            msg = "<events fw=\"ssj\" v=\""+ Cons.VERSION +"\">" + msg + "</events>";
+            msg = "<events fw=\"ssj\" v=\""+ _frame.getVersion() +"\">" + msg + "</events>";
 
             ByteBuffer buf = ByteBuffer.wrap(_buffer);
             buf.order(ByteOrder.BIG_ENDIAN);
