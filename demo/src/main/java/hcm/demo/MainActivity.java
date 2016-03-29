@@ -39,19 +39,21 @@ import com.jjoe64.graphview.GraphView;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
-import hcm.ssj.core.Cons;
+import hcm.ssj.core.TheFramework;
 import hcm.ssj.myo.Vibrate2Command;
 
 public class MainActivity extends Activity
 {
     private Pipeline _pipe = null;
-    private String _ssj_version = "SSJ v" + Cons.VERSION;
+    private String _ssj_version = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        _ssj_version = "SSJ v" + TheFramework.getFramework().getVersion();
 
         TextView text = (TextView) findViewById(R.id.txt_ssj);
         text.setText(_ssj_version);

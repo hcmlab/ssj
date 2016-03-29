@@ -31,8 +31,6 @@ package hcm.ssj.core;
  */
 public class Cons
 {
-    public final static String VERSION = "0.3.0";
-
     public final static String LOGTAG = "SSJ";
     public final static float DFLT_SYNC_INTERVAL = 5.0f; //in seconds
     public final static float DFLT_WATCH_INTERVAL = 1.0f; //in seconds
