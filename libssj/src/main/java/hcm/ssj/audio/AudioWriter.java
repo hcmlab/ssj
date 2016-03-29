@@ -143,7 +143,7 @@ public class AudioWriter extends Mp4Writer
         //recalculate frame rate
         dFrameRate = stream_in[0].sr / stream_in[0].num;
         byaShuffle = new byte[(int) (iSampleNumber / dFrameRate + 0.5)];
-        iFrameIndex = 0;
+        lFrameIndex = 0;
         prepareEncoder();
         bufferInfo = new MediaCodec.BufferInfo();
     }
