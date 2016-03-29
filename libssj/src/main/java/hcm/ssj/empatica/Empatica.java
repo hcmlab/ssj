@@ -44,15 +44,16 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.BasicResponseHandler;
-import org.apache.http.impl.client.DefaultHttpClient;
-
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.HashMap;
 import java.util.Map;
@@ -149,34 +150,57 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			String json = (new GsonBuilder()).create().toJson(p, Map.class);
 
 			//execute json
-			HttpPost e = new HttpPost("https://www.empatica.com/connect/empalink/api_login.php");
-			e.setEntity(new StringEntity(json));
-			e.setHeader("Accept", "application/json");
-			e.setHeader("Content-type", "application/json");
-			BasicResponseHandler handler = new BasicResponseHandler();
-			DefaultHttpClient httpClient = new DefaultHttpClient();
-			String response = (String)httpClient.execute(e, handler);
+			URL url = new URL("https://www.empatica.com/connect/empalink/api_login.php");
+			HttpURLConnection urlConn;
+			DataOutputStream printout;
+			DataInputStream input;
 
-			//check status
-			JsonElement jelement = (new JsonParser()).parse(response);
-			JsonObject jobject = jelement.getAsJsonObject();
-			String status = jobject.get("status").getAsString();
-			if(!status.equals("ok"))
-				throw new IOException("status check failed");
+			urlConn = (HttpURLConnection)url.openConnection();
+			urlConn.setDoInput(true);
+			urlConn.setDoOutput(true);
+			urlConn.setUseCaches(false);
+			urlConn.setRequestProperty("Accept","application/json");
+			urlConn.setRequestProperty("Content-Type","application/json");
+			urlConn.connect();
 
-			//save certificate
-			if(jobject.has("empaconf") && jobject.has("empasign")) {
-				String empaconf = jobject.get("empaconf").getAsString();
-				String empasign = jobject.get("empasign").getAsString();
-				byte[] empaconfBytes = Base64.decode(empaconf, 0);
-				byte[] empasignBytes = Base64.decode(empasign, 0);
+			//send request
+			printout = new DataOutputStream(urlConn.getOutputStream ());
+			printout.write(json.getBytes("UTF-8"));
+			printout.flush ();
+			printout.close ();
 
-				saveFile("profile", empaconfBytes);
-				saveFile("signature", empasignBytes);
+			int HttpResult = urlConn.getResponseCode();
+			if(HttpResult == HttpURLConnection.HTTP_OK)
+			{
+				//get response
+				BufferedReader r = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
+				StringBuilder response = new StringBuilder();
+				String line;
+				while ((line = r.readLine()) != null) {
+					response.append(line);
+				}
 
-				Log.i("Successfully retrieved and saved new Empatica certificates");
-			} else {
-				throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
+				//check status
+				JsonElement jelement = (new JsonParser()).parse(response.toString());
+				JsonObject jobject = jelement.getAsJsonObject();
+				String status = jobject.get("status").getAsString();
+				if (!status.equals("ok"))
+					throw new IOException("status check failed");
+
+				//save certificate
+				if (jobject.has("empaconf") && jobject.has("empasign")) {
+					String empaconf = jobject.get("empaconf").getAsString();
+					String empasign = jobject.get("empasign").getAsString();
+					byte[] empaconfBytes = Base64.decode(empaconf, 0);
+					byte[] empasignBytes = Base64.decode(empasign, 0);
+
+					saveFile("profile", empaconfBytes);
+					saveFile("signature", empasignBytes);
+
+					Log.i("Successfully retrieved and saved new Empatica certificates");
+				} else {
+					throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
+				}
 			}
 		}
 		catch (IOException e)

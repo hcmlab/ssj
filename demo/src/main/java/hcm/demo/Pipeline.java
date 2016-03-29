@@ -56,7 +56,7 @@ public class Pipeline extends Thread {
     {
         _ssj = TheFramework.getFramework();
         _ssj.options.bufferSize = 10.0f;
-        _ssj.options.logfile = Environment.getExternalStorageDirectory() + "/logcat.txt";
+        _ssj.options.logfile = Environment.getExternalStorageDirectory() + "/ssjlog.txt";
 
         //connection to sensor
         Microphone mic = new Microphone();

@@ -111,7 +111,7 @@ public class Log
 
     private String getCaller()
     {
-        StackTraceElement element = Thread.currentThread().getStackTrace()[4];
+        StackTraceElement element = Thread.currentThread().getStackTrace()[5];
         return element.getClassName().replace("hcm.ssj.", "");
     }
 
