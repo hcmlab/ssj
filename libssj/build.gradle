@@ -40,7 +40,8 @@ android {
         def (fullVersionTag, versionBuild, shaGit, dirty) = longVersionName.tokenize('-')
         def(versionMajor, versionMinor, versionPatch) = fullVersionTag.tokenize('.')
 
-        versionMajor = versionMajor.substring(1)
+        if(versionMajor.charAt(0) == 'v')
+            versionMajor = versionMajor.substring(1)
 
         // Set the version name
         if (dirty != null)
