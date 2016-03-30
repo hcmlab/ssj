@@ -45,7 +45,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -144,7 +143,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	private void getCertificate()
 	{
 		try {
-			HashMap p = new HashMap();
+			HashMap<String,String> p = new HashMap<>();
 			p.put("api_key", options.apiKey);
 			p.put("api_version", "AND_1.3");
 			String json = (new GsonBuilder()).create().toJson(p, Map.class);
@@ -153,7 +152,6 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			URL url = new URL("https://www.empatica.com/connect/empalink/api_login.php");
 			HttpURLConnection urlConn;
 			DataOutputStream printout;
-			DataInputStream input;
 
 			urlConn = (HttpURLConnection)url.openConnection();
 			urlConn.setDoInput(true);
