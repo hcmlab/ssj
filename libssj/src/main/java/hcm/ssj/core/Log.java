@@ -53,7 +53,6 @@ public class Log
     }
 
     private LinkedList<Entry> buffer = new LinkedList<>();
-    private StringBuilder builder = new StringBuilder();
     private TheFramework frame = null;
     private static Log instance = null;
 
@@ -77,6 +76,12 @@ public class Log
         buffer.clear();
     }
 
+    public void clear()
+    {
+        reset();
+        instance = null;
+    }
+
     public void saveToFile(String filename)
     {
         try
@@ -86,6 +91,8 @@ public class Log
             NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
             nf.setMaximumFractionDigits(3);
             nf.setMinimumFractionDigits(3);
+
+            StringBuilder builder = new StringBuilder();
 
             Iterator<Entry> iter = buffer.iterator();
             while(iter.hasNext())
@@ -111,68 +118,90 @@ public class Log
 
     private String getCaller()
     {
-        StackTraceElement element = Thread.currentThread().getStackTrace()[5];
+        StackTraceElement element = Thread.currentThread().getStackTrace()[6];
         return element.getClassName().replace("hcm.ssj.", "");
     }
 
-    private synchronized String newEntry(String msg)
+    private String buildEntry(String msg, Throwable tr)
     {
-        builder.setLength(0);
+        StringBuilder builder = new StringBuilder();
         builder.append('[').append(getCaller()).append("] ").append(msg);
 
-        String str = builder.toString();
-        buffer.add(new Entry((frame == null) ? 0 : frame.getTime(), str));
+        if(tr != null)
+            builder.append(":\n").append(android.util.Log.getStackTraceString(tr));
 
-        return str;
+        return builder.toString();
+    }
+
+    private void log(int type, String msg, Throwable tr)
+    {
+        String str;
+        double time = (frame == null) ? 0 : frame.getTime();
+
+        str = buildEntry(msg, tr);
+        android.util.Log.println(type, Cons.LOGTAG, str);
+
+        synchronized (this) {
+            buffer.add(new Entry(time, str));
+        }
     }
 
     public static void d(String msg)
     {
-        android.util.Log.d(Cons.LOGTAG, getInstance().newEntry(msg));
+        getInstance().log(android.util.Log.DEBUG, msg, null);
     }
     public static void d(String msg, Exception e)
     {
-        android.util.Log.d(Cons.LOGTAG, getInstance().newEntry(msg), e);
+        getInstance().log(android.util.Log.DEBUG, msg, e);
     }
 
     //selective log variant
     public static void ds(String msg)
     {
         if (BuildConfig.DEBUG)
-            android.util.Log.d(Cons.LOGTAG, getInstance().newEntry(msg));
+            getInstance().log(android.util.Log.DEBUG, msg, null);
     }
     public static void ds(String msg, Exception e)
     {
         if (BuildConfig.DEBUG)
-            android.util.Log.d(Cons.LOGTAG, getInstance().newEntry(msg), e);
+            getInstance().log(android.util.Log.DEBUG, msg, e);
     }
 
     public static void i(String msg)
     {
-        android.util.Log.i(Cons.LOGTAG, getInstance().newEntry(msg));
+        getInstance().log(android.util.Log.INFO, msg, null);
     }
 
     public static void i(String msg, Exception e)
     {
-        android.util.Log.i(Cons.LOGTAG, getInstance().newEntry(msg), e);
+        getInstance().log(android.util.Log.INFO, msg, e);
     }
 
     public static void e(String msg)
     {
-        android.util.Log.e(Cons.LOGTAG, getInstance().newEntry(msg));
+        getInstance().log(android.util.Log.ERROR, msg, null);
     }
 
     public static void e(String msg, Exception e)
     {
-        android.util.Log.e(Cons.LOGTAG, getInstance().newEntry(msg), e);
+        getInstance().log(android.util.Log.ERROR, msg, e);
     }
 
     public static void w(String msg)
     {
-        android.util.Log.w(Cons.LOGTAG, getInstance().newEntry(msg));
+        getInstance().log(android.util.Log.WARN, msg, null);
     }
     public static void w(String msg, Exception e)
     {
-        android.util.Log.w(Cons.LOGTAG, getInstance().newEntry(msg), e);
+        getInstance().log(android.util.Log.WARN, msg, e);
+    }
+
+    public static void v(String msg)
+    {
+        getInstance().log(android.util.Log.VERBOSE, msg, null);
+    }
+    public static void v(String msg, Exception e)
+    {
+        getInstance().log(android.util.Log.VERBOSE, msg, e);
     }
 }

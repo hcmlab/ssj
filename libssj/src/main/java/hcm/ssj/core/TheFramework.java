@@ -99,7 +99,7 @@ public class TheFramework {
     public void Start()
     {
         try {
-            Log.i("starting pipeline");
+            Log.i("starting pipeline (SSJ v" + getVersion() + ")");
 
             Log.i("preparing buffers");
             for (TimeBuffer b : _buffer)
@@ -447,6 +447,8 @@ public class TheFramework {
 
             Log.i("waiting for components to terminate");
             _threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
+
+            Log.i("shut down completed");
         }
         catch (Exception e)
         {
@@ -457,8 +459,6 @@ public class TheFramework {
         {
             log();
         }
-
-        Log.i("shut down completed");
     }
 
     public void clear()
@@ -471,6 +471,8 @@ public class TheFramework {
 
         _components.clear();
         _buffer.clear();
+        Log.getInstance().clear();
+
         _instance = null;
     }
 
@@ -479,6 +481,7 @@ public class TheFramework {
         if(options.logfile != null)
         {
             Log.getInstance().saveToFile(options.logfile);
+            Log.getInstance().reset();
         }
     }
 
@@ -486,7 +489,7 @@ public class TheFramework {
     {
         _isRunning = false;
 
-        Log.e("CRASH in " + location + " (t=" + getTime() + ") : " + message, e);
+        Log.e("CRASH in " + location + " - " + message, e);
         log();
 
         throw new RuntimeException(e);
