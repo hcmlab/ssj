@@ -106,7 +106,7 @@ public class CameraWriter extends Mp4Writer
 
     public Options options = new Options();
     //
-    byte[] byaColorChange;
+    byte[] aByColorChange;
     private int planeSize;
     private int planeSizeCx;
     private ColorSwitch colorSwitch;
@@ -140,7 +140,7 @@ public class CameraWriter extends Mp4Writer
         bufferInfo = new MediaCodec.BufferInfo();
         int reqBuffSize = options.width * options.height;
         reqBuffSize += reqBuffSize >> 1;
-        byaShuffle = new byte[reqBuffSize];
+        aByShuffle = new byte[reqBuffSize];
         lFrameIndex = 0;
         colorSwitch = ColorSwitch.getColorSwitch(options.colorSwitch);
         switch (colorSwitch)
@@ -149,14 +149,14 @@ public class CameraWriter extends Mp4Writer
             {
                 planeSize = options.width * options.height;
                 planeSizeCx = planeSize >> 2;
-                byaColorChange = new byte[planeSizeCx * 2];
+                aByColorChange = new byte[planeSizeCx * 2];
                 break;
             }
             case NV21_UV_SWAPPED:
             {
                 planeSize = options.width * options.height;
                 planeSizeCx = planeSize >> 1;
-                byaColorChange = new byte[planeSizeCx];
+                aByColorChange = new byte[planeSizeCx];
                 break;
             }
         }
@@ -169,10 +169,10 @@ public class CameraWriter extends Mp4Writer
     protected final void consume(Stream[] stream_in)
     {
         byte[] in = stream_in[0].ptrB();
-        for (int i = 0; i < in.length; i += byaShuffle.length)
+        for (int i = 0; i < in.length; i += aByShuffle.length)
         {
-            System.arraycopy(in, i, byaShuffle, 0, byaShuffle.length);
-            encode(byaShuffle);
+            System.arraycopy(in, i, aByShuffle, 0, aByShuffle.length);
+            encode(aByShuffle);
             save(false);
         }
     }
@@ -184,7 +184,7 @@ public class CameraWriter extends Mp4Writer
     public final void flush(Stream stream_in[])
     {
         super.flush(stream_in);
-        byaColorChange = null;
+        aByColorChange = null;
     }
 
     /**
@@ -269,10 +269,10 @@ public class CameraWriter extends Mp4Writer
     {
         for (int i = 0; i < planeSizeCx; i++)
         {
-            byaColorChange[i * 2] = YV12[planeSize + i + planeSizeCx];
-            byaColorChange[i * 2 + 1] = YV12[planeSize + i];
+            aByColorChange[i * 2] = YV12[planeSize + i + planeSizeCx];
+            aByColorChange[i * 2 + 1] = YV12[planeSize + i];
         }
-        return byaColorChange;
+        return aByColorChange;
     }
 
     /**
@@ -285,9 +285,9 @@ public class CameraWriter extends Mp4Writer
     {
         for (int i = 0; i < planeSizeCx; i += 2)
         {
-            byaColorChange[i] = NV21[planeSize + i + 1];
-            byaColorChange[i + 1] = NV21[planeSize + i];
+            aByColorChange[i] = NV21[planeSize + i + 1];
+            aByColorChange[i + 1] = NV21[planeSize + i];
         }
-        return byaColorChange;
+        return aByColorChange;
     }
 }

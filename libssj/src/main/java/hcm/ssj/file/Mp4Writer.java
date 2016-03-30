@@ -67,9 +67,11 @@ public abstract class Mp4Writer extends Consumer
     protected boolean bMuxerStarted;
     protected MediaCodec.BufferInfo bufferInfo;
     //
-    protected byte[] byaShuffle;
+    protected byte[] aByShuffle;
     protected long lFrameIndex;
     protected final static int TIMEOUT_USEC = 10000;
+    //
+    private ByteBuffer[] aByteBufferInput = null;
 
     /**
      * @param inputBuf  ByteBuffer
@@ -84,7 +86,7 @@ public abstract class Mp4Writer extends Consumer
     public void flush(Stream stream_in[])
     {
         releaseEncoder();
-        byaShuffle = null;
+        aByShuffle = null;
         bufferInfo = null;
     }
 
@@ -103,6 +105,7 @@ public abstract class Mp4Writer extends Consumer
             mediaCodec = MediaCodec.createEncoderByType(mimeType);
             mediaCodec.configure(mediaFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
             mediaCodec.start();
+            aByteBufferInput = mediaCodec.getInputBuffers();
         } catch (IOException ex)
         {
             Log.e("MediaCodec creation failed: " + ex.getMessage());
@@ -141,6 +144,7 @@ public abstract class Mp4Writer extends Consumer
             mediaMuxer.release();
             mediaMuxer = null;
         }
+        aByteBufferInput = null;
     }
 
     /**
@@ -148,12 +152,11 @@ public abstract class Mp4Writer extends Consumer
      */
     protected final void encode(byte[] frameData)
     {
-        ByteBuffer[] encoderInputBuffers = mediaCodec.getInputBuffers();
         int inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
         if (inputBufIndex >= 0)
         {
             long ptsUsec = computePresentationTime(lFrameIndex);
-            ByteBuffer inputBuf = encoderInputBuffers[inputBufIndex];
+            ByteBuffer inputBuf = aByteBufferInput[inputBufIndex];
             //the buffer should be sized to hold one full frame
             if (inputBuf.capacity() < frameData.length)
             {

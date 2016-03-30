@@ -142,7 +142,7 @@ public class AudioWriter extends Mp4Writer
         iSampleNumber = iSampleRate * dataFormat.size * iSampleDimension;
         //recalculate frame rate
         dFrameRate = stream_in[0].sr / stream_in[0].num;
-        byaShuffle = new byte[(int) (iSampleNumber / dFrameRate + 0.5)];
+        aByShuffle = new byte[(int) (iSampleNumber / dFrameRate + 0.5)];
         lFrameIndex = 0;
         prepareEncoder();
         bufferInfo = new MediaCodec.BufferInfo();
@@ -159,10 +159,10 @@ public class AudioWriter extends Mp4Writer
             case BYTE:
             {
                 byte[] in = stream_in[0].ptrB();
-                for (int i = 0; i < in.length; i += byaShuffle.length)
+                for (int i = 0; i < in.length; i += aByShuffle.length)
                 {
-                    System.arraycopy(in, i, byaShuffle, 0, byaShuffle.length);
-                    encode(byaShuffle);
+                    System.arraycopy(in, i, aByShuffle, 0, aByShuffle.length);
+                    encode(aByShuffle);
                     save(false);
                 }
                 break;
@@ -170,10 +170,10 @@ public class AudioWriter extends Mp4Writer
             case SHORT:
             {
                 short[] in = stream_in[0].ptrS();
-                for (int i = 0; i < in.length; i += byaShuffle.length)
+                for (int i = 0; i < in.length; i += aByShuffle.length)
                 {
-                    ByteBuffer.wrap(byaShuffle).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(in, i / 2, byaShuffle.length / 2);
-                    encode(byaShuffle);
+                    ByteBuffer.wrap(aByShuffle).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(in, i / 2, aByShuffle.length / 2);
+                    encode(aByShuffle);
                     save(false);
                 }
                 break;
@@ -182,11 +182,11 @@ public class AudioWriter extends Mp4Writer
                 float[] in = stream_in[0].ptrF();
                 for (int i = 0; i < in.length; )
                 {
-                    for (int j = 0; j < byaShuffle.length; j++, i += byaShuffle.length)
+                    for (int j = 0; j < aByShuffle.length; j++, i += aByShuffle.length)
                     {
-                        byaShuffle[j] = (byte) (in[i] * 128);
+                        aByShuffle[j] = (byte) (in[i] * 128);
                     }
-                    encode(byaShuffle);
+                    encode(aByShuffle);
                     save(false);
                 }
                 break;
@@ -195,13 +195,13 @@ public class AudioWriter extends Mp4Writer
                 float[] in16 = stream_in[0].ptrF();
                 for (int i = 0; i < in16.length; )
                 {
-                    for (int j = 0; j < byaShuffle.length; i++, j += 2)
+                    for (int j = 0; j < aByShuffle.length; i++, j += 2)
                     {
                         short value = (short) (in16[i] * 32768);
-                        byaShuffle[j] = (byte) (value & 0xff);
-                        byaShuffle[j + 1] = (byte) ((value >> 8) & 0xff);
+                        aByShuffle[j] = (byte) (value & 0xff);
+                        aByShuffle[j + 1] = (byte) ((value >> 8) & 0xff);
                     }
-                    encode(byaShuffle);
+                    encode(aByShuffle);
                     save(false);
                 }
                 break;
@@ -236,7 +236,7 @@ public class AudioWriter extends Mp4Writer
         audioFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, iSampleRate);
         audioFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, iSampleDimension);
         audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, iSampleNumber);
-        audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, byaShuffle.length);
+        audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, aByShuffle.length);
         //prepare encoder
         super.prepareEncoder(audioFormat, options.mimeType, options.file.getPath());
     }
