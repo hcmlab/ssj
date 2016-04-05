@@ -43,11 +43,16 @@ android {
         if(versionMajor.charAt(0) == 'v')
             versionMajor = versionMajor.substring(1)
 
-        // Set the version name
+        def version = "$versionMajor"
+
+        if(versionPatch != null)
+            version = "$version.$versionMinor.$versionPatch"
+        else if(versionMinor != null)
+            version = "$version.$versionMinor"
         if (dirty != null)
-            versionName "$versionMajor.$versionMinor.$versionPatch.$versionBuild-dirty"
-        else
-            versionName "$versionMajor.$versionMinor.$versionPatch.$versionBuild"
+            version = "$version-dirty"
+
+        versionName version
 
         // Turn the version name into a version code
         versionCode versionMajor.toInteger() * 100000 +
