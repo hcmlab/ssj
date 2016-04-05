@@ -48,8 +48,6 @@ android {
             version = "$version.$versionMinor.$versionPatch.$versionBuild"
         else if(versionPatch != "0")
             version = "$version.$versionMinor.$versionPatch"
-        else if(versionMinor != null)
-            version = "$version.$versionMinor"
         if (dirty != null)
             version = "$version-dirty"
 
