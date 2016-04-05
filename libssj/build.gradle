@@ -42,10 +42,11 @@ android {
 
         if(versionMajor.charAt(0) == 'v')
             versionMajor = versionMajor.substring(1)
-
         def version = "$versionMajor"
 
-        if(versionPatch != null)
+        if(versionBuild != "0")
+            version = "$version.$versionMinor.$versionPatch.$versionBuild"
+        else if(versionPatch != "0")
             version = "$version.$versionMinor.$versionPatch"
         else if(versionMinor != null)
             version = "$version.$versionMinor"
