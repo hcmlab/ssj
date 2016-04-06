@@ -43,8 +43,9 @@ public class Microphone extends Sensor {
     }
 
     @Override
-    public void connect()
+    public boolean connect()
     {
+        return true;
     }
 
     @Override

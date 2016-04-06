@@ -31,7 +31,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 import java.util.concurrent.SynchronousQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import hcm.ssj.BuildConfig;
@@ -57,11 +56,13 @@ public class TheFramework {
 
     protected String _name = "SSJ_Framework";
     protected boolean _isRunning = false;
+    protected boolean _isStopping = false;
     protected Timer _timer = null;
 
     DatagramSocket _syncSocket;
 
-    ThreadPoolExecutor _threadPool;
+    ThreadPool _threadPool;
+    ExceptionHandler _exceptionHandler = null;
 
     //components
     protected ArrayList<Component> _components = new ArrayList<>();
@@ -76,7 +77,7 @@ public class TheFramework {
         Log.getInstance().setFramework(this);
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
-        _threadPool = new ThreadPoolExecutor(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+        _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
         Log.i("===================================================");
         Log.i("Social Signal Interpretation for Java/Android v" + getVersion());
@@ -415,12 +416,10 @@ public class TheFramework {
 
     public void Stop()
     {
-        if (!_isRunning)
-        {
-            Log.i("Cannot stop. Framework not active.");
+        if (_isStopping)
             return;
-        }
 
+        _isStopping = true;
         _isRunning = false;
 
         Log.i("shutting down ...");
@@ -453,11 +452,16 @@ public class TheFramework {
         catch (Exception e)
         {
             Log.e("Exception in closing framework", e);
-            throw new RuntimeException(e);
+
+            if(_exceptionHandler != null)
+                _exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
+            else
+                throw new RuntimeException(e);
         }
         finally
         {
             log();
+            _isStopping = false;
         }
     }
 
@@ -485,14 +489,19 @@ public class TheFramework {
         }
     }
 
-    public void crash(String location, String message, Exception e)
+    public void crash(String location, String message, Throwable e)
     {
         _isRunning = false;
 
-        Log.e("CRASH in " + location + " - " + message, e);
+        Log.e("ERROR in " + location + " - " + message, e);
         log();
 
-        throw new RuntimeException(e);
+        if(_exceptionHandler != null) {
+            _exceptionHandler.handle(location, message, e);
+        }
+        else {
+            throw new RuntimeException(e);
+        }
     }
 
     public void sync(int bufferID)
@@ -527,5 +536,10 @@ public class TheFramework {
     public String getVersion()
     {
         return BuildConfig.VERSION_NAME;
+    }
+
+    public void setExceptionHandler(ExceptionHandler h)
+    {
+        _exceptionHandler = h;
     }
 }

@@ -376,12 +376,13 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      *
      */
     @Override
-    protected void connect()
+    protected boolean connect()
     {
         prepareCamera();
         prepareSurfaceTexture();
         initBuffer();
         camera.startPreview();
+        return true;
     }
 
     /**

@@ -64,9 +64,8 @@ public abstract class Component implements Runnable
 
             if(frame.getTime() > time + frame.options.timeoutThread)
             {
-                forcekill();
-                Thread.sleep(Cons.SLEEP_ON_TERMINATE);
                 Log.w("force-killed thread");
+                forcekill();
                 break;
             }
         }

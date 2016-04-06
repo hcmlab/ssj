@@ -70,7 +70,13 @@ public abstract class SensorProvider extends Provider {
         }
         else
         {
-            _sensor.waitForConnection();
+            // wait for sensor to connect
+            while (!_sensor.isConnected() && !_terminate)
+            {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {}
+            }
         }
 
         try {

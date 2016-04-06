@@ -70,7 +70,7 @@ public class Myo extends Sensor
 	}
 
 	@Override
-	public void connect()
+	public boolean connect()
 	{
         myoInitialized = false;
 		hub = Hub.getInstance();
@@ -130,7 +130,9 @@ public class Myo extends Sensor
 		if(hub.getConnectedDevices().isEmpty())
 		{
 			hub.shutdown();
-			throw new RuntimeException("device not found");
+
+			Log.e("device not found");
+			return false;
 		}
 
         com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
@@ -142,6 +144,7 @@ public class Myo extends Sensor
 		myo.unlock(com.thalmic.myo.Myo.UnlockType.HOLD);
 
 		Log.i("Myo successfully connected: " + myo.getMacAddress());
+		return true;
 	}
 
 	@Override

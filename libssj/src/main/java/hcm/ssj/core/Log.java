@@ -150,7 +150,7 @@ public class Log
     {
         getInstance().log(android.util.Log.DEBUG, msg, null);
     }
-    public static void d(String msg, Exception e)
+    public static void d(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.DEBUG, msg, e);
     }
@@ -161,7 +161,7 @@ public class Log
         if (BuildConfig.DEBUG)
             getInstance().log(android.util.Log.DEBUG, msg, null);
     }
-    public static void ds(String msg, Exception e)
+    public static void ds(String msg, Throwable e)
     {
         if (BuildConfig.DEBUG)
             getInstance().log(android.util.Log.DEBUG, msg, e);
@@ -172,7 +172,7 @@ public class Log
         getInstance().log(android.util.Log.INFO, msg, null);
     }
 
-    public static void i(String msg, Exception e)
+    public static void i(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.INFO, msg, e);
     }
@@ -182,7 +182,7 @@ public class Log
         getInstance().log(android.util.Log.ERROR, msg, null);
     }
 
-    public static void e(String msg, Exception e)
+    public static void e(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.ERROR, msg, e);
     }
@@ -191,7 +191,7 @@ public class Log
     {
         getInstance().log(android.util.Log.WARN, msg, null);
     }
-    public static void w(String msg, Exception e)
+    public static void w(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.WARN, msg, e);
     }
@@ -200,7 +200,7 @@ public class Log
     {
         getInstance().log(android.util.Log.VERBOSE, msg, null);
     }
-    public static void v(String msg, Exception e)
+    public static void v(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.VERBOSE, msg, e);
     }

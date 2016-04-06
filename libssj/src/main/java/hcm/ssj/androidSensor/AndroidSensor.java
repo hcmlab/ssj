@@ -83,12 +83,15 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
      *
      */
     @Override
-    protected void connect()
+    protected boolean connect()
     {
         if (mSensor != null)
         {
             mSensorManager.registerListener(listener, mSensor, options.sensorDelay);
+            return true;
         }
+
+        return false;
     }
 
     /**

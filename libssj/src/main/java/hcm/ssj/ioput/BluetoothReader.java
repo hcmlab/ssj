@@ -54,7 +54,7 @@ public class BluetoothReader extends Sensor {
     }
 
     @Override
-    public void connect() {
+    public boolean connect() {
         try {
             switch(options.connectionType)
             {
@@ -70,11 +70,12 @@ public class BluetoothReader extends Sensor {
 
         } catch (IOException e) {
             Log.e("error in setting up connection "+ options.connectionName, e);
-            throw new RuntimeException(e);
+            return false;
         }
 
         BluetoothDevice dev = conn.getSocket().getRemoteDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
+        return true;
     }
 
     @Override

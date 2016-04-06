@@ -85,7 +85,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public void connect()
+	public boolean connect()
 	{
 		if(options.apiKey == null || options.apiKey.length() == 0)
 			throw new RuntimeException("invalid apiKey - you need to set the apiKey in the sensor options");
@@ -120,8 +120,12 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			} catch (InterruptedException e) {}
 		}
 
-		if(!listener.receivedData)
-			throw new RuntimeException("device not connected");
+		if(!listener.receivedData) {
+			Log.e("unable to connect to empatica");
+			return false;
+		}
+
+		return true;
 	}
 
 	private void applyCertificate()

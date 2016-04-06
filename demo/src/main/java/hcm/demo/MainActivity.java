@@ -34,18 +34,21 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jjoe64.graphview.GraphView;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
+import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.myo.Vibrate2Command;
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements ExceptionHandler
 {
     private Pipeline _pipe = null;
     private String _ssj_version = null;
+    private String _error_msg = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -104,6 +107,8 @@ public class MainActivity extends Activity
             GraphView graphs[] = new GraphView[]{graph, graph2};
 
             _pipe = new Pipeline(this, graphs);
+            _pipe.setExceptionHandler(this);
+            _pipe.start();
         }
         else
         {
@@ -130,6 +135,12 @@ public class MainActivity extends Activity
                 } else
                 {
                     text.setText(_ssj_version + " - not running");
+                    if(_error_msg != null)
+                    {
+                        String str = text.getText() + "\nERROR: " + _error_msg;
+                        text.setText(str);
+                    }
+
                     btn.setText(R.string.start);
                     btn.setEnabled(true);
                     btn.setAlpha(1.0f);
@@ -204,6 +215,22 @@ public class MainActivity extends Activity
         } catch (Exception e) {
             Log.e(_name, "exception in vibrate test", e);
         }
+    }
+
+    @Override
+    public void handle(final String location, final String msg, final Throwable t) {
+
+        _error_msg = msg;
+        _pipe.terminate(); //attempt to shut down framework
+
+        this.runOnUiThread(
+                new Runnable() {
+                   @Override
+                   public void run() {
+                       Toast.makeText(getApplicationContext(), "Exception in Pipeline\n" + msg, Toast.LENGTH_LONG).show();
+                   }
+               });
+
     }
 
 //    @Override

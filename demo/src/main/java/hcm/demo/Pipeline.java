@@ -34,6 +34,7 @@ import com.jjoe64.graphview.GraphView;
 import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
+import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.graphic.SignalPainter;
 
@@ -49,12 +50,22 @@ public class Pipeline extends Thread {
     {
         _act = a;
         _graphs = graphs;
-        start();
+
+        if(TheFramework.isInstanced())
+            TheFramework.getFramework().clear();
+        _ssj = TheFramework.getFramework();
+    }
+
+    public void setExceptionHandler(ExceptionHandler h)
+    {
+        if(_ssj == null)
+            return;
+
+        _ssj.setExceptionHandler(h);
     }
 
     public void run()
     {
-        _ssj = TheFramework.getFramework();
         _ssj.options.bufferSize = 10.0f;
         _ssj.options.logfile = Environment.getExternalStorageDirectory() + "/ssjlog.txt";
 

@@ -72,10 +72,11 @@ public class SimpleFileReader extends Sensor
      *
      */
     @Override
-    protected void connect()
+    protected boolean connect()
     {
         simpleHeader = null;
         bufferedReader = getFileConnection(fileReal, bufferedReader);
+        return true;
     }
 
     /**

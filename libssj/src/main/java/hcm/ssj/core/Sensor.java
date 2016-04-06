@@ -51,12 +51,15 @@ public abstract class Sensor extends Component {
         //if user did not specify a custom priority, use low priority
         android.os.Process.setThreadPriority( (threadPriority == Cons.THREAD_PRIORITY_NORMAL) ? Cons.THREAD_PRIORIIY_LOW : threadPriority );
 
+        _isConnected = false;
         try {
-            connect();
+            _isConnected = connect();
+
+            if(!_isConnected && !_terminate)
+                throw new RuntimeException("unable to connect to device");
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "failed to connect to sensor", e);
+            _frame.crash(this.getComponentName(), "failed to connect to sensor", e);
         }
-        _isConnected = true;
 
         synchronized (this)
         {
@@ -73,7 +76,7 @@ public abstract class Sensor extends Component {
         try {
             disconnect();
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "failed to disconnect from sensor", e);
+            _frame.crash(this.getComponentName(), "failed to disconnect from sensor", e);
         }
         _isConnected = false;
         _safeToKill = true;
@@ -82,7 +85,7 @@ public abstract class Sensor extends Component {
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
      */
-    protected abstract void connect();
+    protected abstract boolean connect();
 
     /**
      * called once before termination
