@@ -17,6 +17,9 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 ### Documentation
 * Api (Javadoc): http://hcmlab.github.io/ssj/api
 
+### Getting started
+We do not yet have an formal tutorial, however you can have a look at the "demo" module which implements a simple but functional SSJ pipeline.
+
 ### License
 This library is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or any later version.
 
