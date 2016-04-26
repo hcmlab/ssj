@@ -26,6 +26,7 @@
 
 package hcm.ssj.core;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 /**
@@ -36,8 +37,9 @@ public class EventChannel
 
     protected String _name = "SSJ_EventChannel";
 
-    private LinkedList<Event> _events = new LinkedList<>();
-    private int _event_id = 0;
+    private ArrayList<EventListener> _listeners = new ArrayList<>();
+    private LinkedList<Event>        _events    = new LinkedList<>();
+    private int                      _event_id  = 0;
 
     final private Object _lock = new Object();
     protected boolean _terminate = false;
@@ -53,6 +55,11 @@ public class EventChannel
     {
         _terminate = false;
         _event_id = 0;
+    }
+
+    public void addEventListener(EventListener listener)
+    {
+        _listeners.add(listener);
     }
 
     public Event getLastEvent(boolean peek, boolean blocking) {
@@ -119,7 +126,7 @@ public class EventChannel
         return null;
     }
 
-    public void pushEvent(Event ev)
+    public void pushEvent(final Event ev)
     {
         synchronized (_lock) {
             //give event a local-unique ID
@@ -131,6 +138,19 @@ public class EventChannel
 
             if(_events.size() > Cons.MAX_NUM_EVENTS_PER_CHANNEL)
                 _events.removeFirst();
+
+            // Notify event listeners
+            for (final EventListener listener : _listeners)
+            {
+                _frame._threadPool.execute(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        listener.notify(ev);
+                    }
+                });
+            }
 
             _lock.notifyAll();
         }
