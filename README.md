@@ -31,3 +31,5 @@ You should have received a copy of the GNU General Public License along with thi
 * [GraphView](https://github.com/hcmlab/GraphView) ([License](https://github.com/hcmlab/GraphView/blob/master/license.txt))
 * [TarsosDSP](https://github.com/JorenSix/TarsosDSP) ([License](https://github.com/JorenSix/TarsosDSP/blob/master/license.txt))
 * [PRAAT](http://www.fon.hum.uva.nl/praat/) ([License](http://www.fon.hum.uva.nl/praat/GNU_General_Public_License.txt))
+* [Android-Async-Http](http://loopj.com/android-async-http/) ([License](https://www.apache.org/licenses/LICENSE-2.0))
+* [Gson](https://github.com/google/gson) ([License](https://github.com/google/gson/blob/master/LICENSE))
