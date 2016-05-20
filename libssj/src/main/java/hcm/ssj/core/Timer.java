@@ -67,8 +67,7 @@ public class Timer {
 
     public void setClockS(double seconds)
     {
-        _delta = seconds
-        ;
+        _delta = seconds;
     }
 
     public void setClockMs(long milliseconds)

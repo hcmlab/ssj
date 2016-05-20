@@ -26,6 +26,9 @@
 
 apply plugin: 'com.android.library'
 
+//this will compile the library to correspond to the LGPL standard by excluding GPL dependencies from the project
+def lesser = true
+
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
@@ -48,6 +51,8 @@ android {
             version = "$version.$versionMinor.$versionPatch.$versionBuild"
         else if(versionPatch != "0")
             version = "$version.$versionMinor.$versionPatch"
+        if (lesser)
+            version = "$version" + "L"
         if (dirty != null)
             version = "$version-dirty"
 
@@ -62,6 +67,7 @@ android {
         printf("\n--------" + "VERSION DATA--------" + "\n" + "- CODE: " + versionCode + "\n" +
                 "- NAME: " + versionName + "\n----------------------------\n")
     }
+
     buildTypes {
         debug {
             debuggable true
@@ -73,10 +79,30 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
     productFlavors {
+    }
+
+    if(lesser) {
+        sourceSets {
+            main {
+                java {
+                    srcDir 'src'
+                    exclude '**/praat/**', '**/SpeechRate.java', '**/Energy.java', '**/Pitch.java'
+                    exclude '**/graphic/**'
+                    exclude '**/AudioTest.java', '**/testEvent.java'
+                }
+            }
+        }
     }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    if(lesser) {
+        compile fileTree(dir: 'libs', include: ['*.jar'], excludes: ['TarsosDSP-Android-2.1.jar', 'GraphView-4.0.1.j1.jar'])
+    }
+    else {
+        compile fileTree(dir: 'libs', include: ['*.jar'])
+    }
 }

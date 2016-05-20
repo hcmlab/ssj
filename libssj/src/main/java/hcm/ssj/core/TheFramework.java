@@ -58,6 +58,7 @@ public class TheFramework {
     protected boolean _isRunning = false;
     protected boolean _isStopping = false;
     protected Timer _timer = null;
+    protected long _startTime = 0;
 
     DatagramSocket _syncSocket;
 
@@ -162,6 +163,7 @@ public class TheFramework {
                 }
             }
 
+            _startTime = System.currentTimeMillis();
             _timer = new Timer();
             _isRunning = true;
             Log.i("pipeline started");
@@ -526,6 +528,11 @@ public class TheFramework {
             return 0;
 
         return _timer.getElapsedMs();
+    }
+
+    public long getStartTimeMs()
+    {
+        return _startTime;
     }
 
     public boolean isRunning()
