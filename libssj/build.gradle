@@ -27,7 +27,7 @@
 apply plugin: 'com.android.library'
 
 //this will compile the library to correspond to the LGPL standard by excluding GPL dependencies from the project
-def lesser = false
+def lesser = true
 
 android {
     compileSdkVersion 23
@@ -53,7 +53,7 @@ android {
             version = "$version.$versionMinor.$versionPatch"
         if (lesser)
             version = "$version" + "L"
-        if (dirty != null)
+        else if (dirty != null) //otherwise lesser will always be dirty
             version = "$version-dirty"
 
         versionName version
