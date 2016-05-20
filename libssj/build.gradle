@@ -27,7 +27,7 @@
 apply plugin: 'com.android.library'
 
 //this will compile the library to correspond to the LGPL standard by excluding GPL dependencies from the project
-def lesser = true
+def lesser = false
 
 android {
     compileSdkVersion 23
