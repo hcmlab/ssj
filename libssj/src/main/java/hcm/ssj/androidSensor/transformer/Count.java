@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -41,23 +43,26 @@ public class Count extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
+        public final Option<Boolean> frameCount = new Option<>("frameCount", true, Cons.Type.BOOL, "Global or frame count");
+        public final Option<Boolean> divideByNumber = new Option<>("divideByNumber", false, Cons.Type.BOOL, "Divide through number of values to be comparable");
+
         /**
-         * Global or frame count
+         *
          */
-        public boolean frameCount = true;
-        /**
-         * Divide through number of values to be comparable
-         */
-        public boolean divideByNumber = false;
+        private Options()
+        {
+            add(frameCount);
+            add(divideByNumber);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //helper variables
     private float[] oldValues;
     private int counter = 0;
@@ -103,7 +108,7 @@ public class Count extends Transformer
     public void transform(Stream[] stream_in, Stream stream_out)
     {
         float[] out = stream_out.ptrF();
-        if (options.frameCount)
+        if (options.frameCount.getValue())
         {
             oldValues = new float[stream_out.dim];
         }
@@ -123,9 +128,9 @@ public class Count extends Transformer
             }
         }
         //write to output
-        if (options.divideByNumber)
+        if (options.divideByNumber.getValue())
         {
-            float divider = options.frameCount ? stream_in[0].num : ++counter * stream_in[0].num;
+            float divider = options.frameCount.getValue() ? stream_in[0].num : ++counter * stream_in[0].num;
             for (int i = 0; i < oldValues.length; i++)
             {
                 out[i] = oldValues[i] / divider;

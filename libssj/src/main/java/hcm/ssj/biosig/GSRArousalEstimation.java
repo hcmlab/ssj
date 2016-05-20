@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.signal.Butfilt;
 import hcm.ssj.signal.MvgAvgVar;
@@ -41,13 +43,21 @@ import hcm.ssj.signal.MvgNorm;
 public class GSRArousalEstimation extends Transformer
 {
 
-	public class Options
+	public class Options extends OptionList
 	{
-		public double windowSizeShortTerm = 5; // Size of short time window in seconds
-		public double windowSizeLongTerm  = 60; // Size of long time window in seconds
-	}
+		public final Option<Double> windowSizeShortTerm = new Option<>("windowSizeShortTerm", 5., Cons.Type.DOUBLE, "Size of short time window in seconds");
+		public final Option<Double> windowSizeLongTerm = new Option<>("windowSizeLongTerm", 60., Cons.Type.DOUBLE, "Size of long time window in seconds");
 
-	public Options options = new Options();
+		/**
+		 *
+		 */
+		private Options()
+		{
+			add(windowSizeShortTerm);
+			add(windowSizeLongTerm);
+		}
+	}
+	public final Options options = new Options();
 
 	MvgNorm _detrend;
 	MvgNorm _detrendNormMinMax;
@@ -84,9 +94,9 @@ public class GSRArousalEstimation extends Transformer
 	{
 		// Detrend: remove y offset
 		_detrend = new MvgNorm();
-		_detrend.options.norm = MvgNorm.Norm.SUB_MIN;
-		_detrend.options.method = MvgNorm.Method.SLIDING;
-		_detrend.options.windowSize = 60;
+		_detrend.options.norm.setValue(MvgNorm.Norm.SUB_MIN);
+		_detrend.options.method.setValue(MvgNorm.Method.SLIDING);
+		_detrend.options.windowSize.setValue(60.f);
 
 		_detrendStream = Stream.create(_detrend.getSampleNumber(stream_in[0].num), _detrend.getSampleDimension(stream_in), _detrend.getSampleBytes(stream_in), Util.calcSampleRate(_detrend, stream_in[0]), _detrend.getSampleType(stream_in));
 		_detrendStreamArray = new Stream[]{_detrendStream};
@@ -94,11 +104,11 @@ public class GSRArousalEstimation extends Transformer
 
 		// Detrend min max: convert to 0..1 range
 		_detrendNormMinMax = new MvgNorm();
-		_detrendNormMinMax.options.norm = MvgNorm.Norm.MIN_MAX;
-		_detrendNormMinMax.options.rangeA = 0;
-		_detrendNormMinMax.options.rangeB = 1;
-		_detrendNormMinMax.options.method = MvgNorm.Method.SLIDING;
-		_detrendNormMinMax.options.windowSize = 60;
+		_detrendNormMinMax.options.norm.setValue(MvgNorm.Norm.MIN_MAX);
+		_detrendNormMinMax.options.rangeA.setValue(0.f);
+		_detrendNormMinMax.options.rangeB.setValue(1.f);
+		_detrendNormMinMax.options.method.setValue(MvgNorm.Method.SLIDING);
+		_detrendNormMinMax.options.windowSize.setValue(60.f);
 
 		_detrendNormMinMaxStream = Stream.create(_detrendNormMinMax.getSampleNumber(_detrendStream.num), _detrendNormMinMax.getSampleDimension(_detrendStreamArray), _detrendNormMinMax.getSampleBytes(_detrendStreamArray), Util.calcSampleRate(_detrendNormMinMax, _detrendStream), _detrendNormMinMax.getSampleType(_detrendStreamArray));
 		_detrendNormMinMaxStreamArray = new Stream[]{_detrendNormMinMaxStream};
@@ -106,29 +116,29 @@ public class GSRArousalEstimation extends Transformer
 
 		// Moving average long term
 		_mvgAvgLongTerm = new MvgAvgVar();
-		_mvgAvgLongTerm.options.format = MvgAvgVar.Format.AVERAGE;
-		_mvgAvgLongTerm.options.method = MvgAvgVar.Method.SLIDING;
-		_mvgAvgLongTerm.options.window = 90;
+		_mvgAvgLongTerm.options.format.setValue(MvgAvgVar.Format.AVERAGE);
+		_mvgAvgLongTerm.options.method.setValue(MvgAvgVar.Method.SLIDING);
+		_mvgAvgLongTerm.options.window.setValue(90.);
 
 		_mvgAvgLongTermStream = Stream.create(_mvgAvgLongTerm.getSampleNumber(_detrendNormMinMaxStream.num), _mvgAvgLongTerm.getSampleDimension(_detrendNormMinMaxStreamArray), _mvgAvgLongTerm.getSampleBytes(_detrendNormMinMaxStreamArray), Util.calcSampleRate(_mvgAvgLongTerm, _detrendNormMinMaxStream), _mvgAvgLongTerm.getSampleType(_detrendNormMinMaxStreamArray));
 		_mvgAvgLongTermStreamArray = new Stream[]{_mvgAvgLongTermStream};
 		_mvgAvgLongTerm.enter(_detrendNormMinMaxStreamArray, _mvgAvgLongTermStream);
 
 		_butfiltLongTerm = new Butfilt();
-		_butfiltLongTerm.options.zero = true;
-		_butfiltLongTerm.options.norm = false;
-		_butfiltLongTerm.options.low = 0.1;
-		_butfiltLongTerm.options.order = 3;
-		_butfiltLongTerm.options.type = Butfilt.Type.LOW;
+		_butfiltLongTerm.options.zero.setValue(true);
+		_butfiltLongTerm.options.norm.setValue(false);
+		_butfiltLongTerm.options.low.setValue(0.1);
+		_butfiltLongTerm.options.order.setValue(3);
+		_butfiltLongTerm.options.type.setValue(Butfilt.Type.LOW);
 
 		_butfiltLongTermStream = Stream.create(_butfiltLongTerm.getSampleNumber(_mvgAvgLongTermStream.num), _butfiltLongTerm.getSampleDimension(_mvgAvgLongTermStreamArray), _butfiltLongTerm.getSampleBytes(_mvgAvgLongTermStreamArray), Util.calcSampleRate(_butfiltLongTerm, _mvgAvgLongTermStream), _butfiltLongTerm.getSampleType(_mvgAvgLongTermStreamArray));
 		_butfiltLongTerm.enter(_mvgAvgLongTermStreamArray, _butfiltLongTermStream);
 
 		// Moving average short term
 		_mvgAvgShortTerm = new MvgAvgVar();
-		_mvgAvgShortTerm.options.format = MvgAvgVar.Format.AVERAGE;
-		_mvgAvgShortTerm.options.method = MvgAvgVar.Method.SLIDING;
-		_mvgAvgShortTerm.options.window = 5;
+		_mvgAvgShortTerm.options.format.setValue(MvgAvgVar.Format.AVERAGE);
+		_mvgAvgShortTerm.options.method.setValue(MvgAvgVar.Method.SLIDING);
+		_mvgAvgShortTerm.options.window.setValue(5.);
 
 		_mvgAvgShortTermStream = Stream.create(_mvgAvgShortTerm.getSampleNumber(_detrendNormMinMaxStream.num), _mvgAvgShortTerm.getSampleDimension(_detrendNormMinMaxStreamArray), _mvgAvgShortTerm.getSampleBytes(_detrendNormMinMaxStreamArray), Util.calcSampleRate(_mvgAvgShortTerm, _detrendNormMinMaxStream), _mvgAvgShortTerm.getSampleType(_detrendNormMinMaxStreamArray));
 		_mvgAvgShortTermStreamArray = new Stream[]{_mvgAvgShortTermStream};
@@ -144,9 +154,9 @@ public class GSRArousalEstimation extends Transformer
 
 		// Moving average combination
 		_mvgAvgCombination = new MvgAvgVar();
-		_mvgAvgCombination.options.format = MvgAvgVar.Format.AVERAGE;
-		_mvgAvgCombination.options.method = MvgAvgVar.Method.SLIDING;
-		_mvgAvgCombination.options.window = 30;
+		_mvgAvgCombination.options.format.setValue(MvgAvgVar.Format.AVERAGE);
+		_mvgAvgCombination.options.method.setValue(MvgAvgVar.Method.SLIDING);
+		_mvgAvgCombination.options.window.setValue(30.);
 
 		_mvgAvgCombinationStream = Stream.create(_mvgAvgCombination.getSampleNumber(_combinationStream.num), _mvgAvgCombination.getSampleDimension(_combinationStreamArray), _mvgAvgCombination.getSampleBytes(_combinationStreamArray), Util.calcSampleRate(_mvgAvgCombination, _combinationStream), _mvgAvgCombination.getSampleType(_combinationStreamArray));
 		_mvgAvgCombination.enter(_combinationStreamArray, _mvgAvgCombinationStream);

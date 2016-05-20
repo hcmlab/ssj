@@ -29,6 +29,8 @@ package hcm.ssj.myo;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -36,11 +38,18 @@ import hcm.ssj.core.stream.Stream;
  */
 public class EMGProvider extends SensorProvider
 {
-	public class Options
-	{
-		public int sampleRate = 50;
-	}
-	public Options options = new Options();
+    public class Options extends OptionList
+    {
+        public final Option<Integer> sampleRate = new Option("sampleRate", 50, Cons.Type.INT, "");
+
+        /**
+         *
+         */
+        private Options() {
+            add(sampleRate);
+        }
+    }
+    public final Options options = new Options();
 
     protected MyoListener _listener;
 
@@ -70,7 +79,7 @@ public class EMGProvider extends SensorProvider
     @Override
     public double getSampleRate()
     {
-        return options.sampleRate;
+        return options.sampleRate.getValue();
     }
 
     @Override

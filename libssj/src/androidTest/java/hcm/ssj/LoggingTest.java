@@ -53,7 +53,7 @@ import hcm.ssj.test.Logger;
 public class LoggingTest extends ApplicationTestCase<Application>
 {
     //test length in milliseconds
-    private final static int TEST_LENGTH = 2 * 60 * 1000;
+    private final static int TEST_LENGTH = 2 * 5 * 1000;
 
     /**
      *
@@ -177,7 +177,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
     {
         //setup
         TheFramework framework = TheFramework.getFramework();
-        framework.options.bufferSize = 10.0f;
+        framework.options.bufferSize.setValue(10.0f);
         if (write)
         {
             Write(framework, file);
@@ -211,14 +211,16 @@ public class LoggingTest extends ApplicationTestCase<Application>
     private void Write(TheFramework frame, File file) throws Exception
     {
         //sensor
-        AndroidSensor sensorConnection = new AndroidSensor(SensorType.ACCELEROMETER);
+        AndroidSensor sensorConnection = new AndroidSensor();
+        sensorConnection.options.sensorType.setValue(SensorType.ACCELEROMETER);
         frame.addSensor(sensorConnection);
         //provider
         AndroidSensorProvider sensorConnectionProvider = new AndroidSensorProvider();
         sensorConnection.addProvider(sensorConnectionProvider);
         //consumer
         SimpleFileWriter simpleFileWriter = new SimpleFileWriter();
-        simpleFileWriter.options.file = file;
+        simpleFileWriter.options.filePath.setValue(file.getParent());
+        simpleFileWriter.options.fileName.setValue(file.getName());
         frame.addConsumer(simpleFileWriter, sensorConnectionProvider, 1, 0);
     }
 
@@ -230,8 +232,10 @@ public class LoggingTest extends ApplicationTestCase<Application>
     private void Read(TheFramework frame, File file) throws Exception
     {
         //sensor
-        SimpleFileReader simpleFileReader = new SimpleFileReader(file);
-        simpleFileReader.options.loop = true;
+        SimpleFileReader simpleFileReader = new SimpleFileReader();
+        simpleFileReader.options.filePath.setValue(file.getParent());
+        simpleFileReader.options.fileName.setValue(file.getName());
+        simpleFileReader.options.loop.setValue(true);
         frame.addSensor(simpleFileReader);
         //provider
         SimpleFileReaderProvider simpleFileReaderProvider = new SimpleFileReaderProvider();

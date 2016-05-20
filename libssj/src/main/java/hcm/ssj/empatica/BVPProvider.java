@@ -28,6 +28,8 @@ package hcm.ssj.empatica;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -35,11 +37,19 @@ import hcm.ssj.core.stream.Stream;
  */
 public class BVPProvider extends SensorProvider
 {
-	public class Options
+	public class Options extends OptionList
 	{
-		public int sampleRate = 64;
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 64, Cons.Type.INT, "");
+
+		/**
+		 *
+		 */
+		private Options()
+		{
+			add(sampleRate);
+		}
 	}
-	public Options options = new Options();
+	public final Options options = new Options();
 
 	protected EmpaticaListener _listener;
 
@@ -65,7 +75,7 @@ public class BVPProvider extends SensorProvider
 	@Override
 	public double getSampleRate()
 	{
-		return options.sampleRate;
+		return options.sampleRate.getValue();
 	}
 
 	@Override

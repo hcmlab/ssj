@@ -34,25 +34,39 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import hcm.ssj.BuildConfig;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Created by Johnny on 05.03.2015.
  */
 public class TheFramework {
 
-    public class Options
+    public class Options extends OptionList
     {
-        public int countdown = 3;
-        public float bufferSize = 2.0f;
-        public float timeoutThread = 5.0f;
+        public final Option<Integer> countdown = new Option<>("countdown", 3, Cons.Type.INT, "");
+        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Cons.Type.FLOAT, "");
+        public final Option<Float> timeoutThread = new Option<>("timeoutThread", 5.f, Cons.Type.FLOAT, "");
+        public final Option<Boolean> netSync = new Option<>("netSync", false, Cons.Type.BOOL, "");
+        public final Option<Boolean> netSyncListen = new Option<>("netSyncListen", false, Cons.Type.BOOL, "set true if this is not the server pipe");
+        public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Cons.Type.INT, "");
+        public final Option<String> logfile = new Option<>("logfile", null, Cons.Type.STRING, "");
 
-        public boolean netSync = false;
-        public boolean netSyncListen = false; //set true if this is not the server pipe
-        public int netSyncPort = 55100;
-
-        public String logfile = null;
+        /**
+         *
+         */
+        private Options()
+        {
+            add(countdown);
+            add(bufferSize);
+            add(timeoutThread);
+            add(netSync);
+            add(netSyncListen);
+            add(netSyncPort);
+            add(logfile);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     protected String _name = "SSJ_Framework";
     protected boolean _isRunning = false;
@@ -112,18 +126,18 @@ public class TheFramework {
                 _threadPool.execute(c);
             }
 
-            for (int i = 0; i < options.countdown; i++) {
-                Log.i("starting pipeline in " + (options.countdown - i));
+            for (int i = 0; i < options.countdown.getValue(); i++) {
+                Log.i("starting pipeline in " + (options.countdown.getValue() - i));
                 Thread.sleep(1000);
             }
 
-            if(options.netSync)
+            if(options.netSync.getValue())
             {
                 try
                 {
-                    if(options.netSyncListen)
+                    if(options.netSyncListen.getValue())
                     {
-                        _syncSocket = new DatagramSocket(options.netSyncPort);
+                        _syncSocket = new DatagramSocket(options.netSyncPort.getValue());
                         _syncSocket.setReuseAddress(true);
 
                         Log.i("waiting for master pipeline (port = "+ options.netSyncPort+")");
@@ -150,10 +164,10 @@ public class TheFramework {
                         _syncSocket.setBroadcast(true);
 
                         byte[] data = {'S', 'S', 'J', 1};
-                        DatagramPacket packet = new DatagramPacket(data, 4, Util.getBroadcastAddress(), options.netSyncPort);
+                        DatagramPacket packet = new DatagramPacket(data, 4, Util.getBroadcastAddress(), options.netSyncPort.getValue());
                         _syncSocket.send(packet);
 
-                        Log.i("sync ping sent on port " + options.netSyncPort);
+                        Log.i("sync ping sent on port " + options.netSyncPort.getValue());
                     }
                 }
                 catch (IOException e)
@@ -192,7 +206,7 @@ public class TheFramework {
         Cons.Type type = p.getSampleType();
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize, sr, dim, bytesPerValue, type);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.getValue(), sr, dim, bytesPerValue, type);
         _buffer.add(buf);
         int buffer_id = _buffer.size() -1;
         p.setBufferID(buffer_id);
@@ -217,7 +231,7 @@ public class TheFramework {
         Cons.Type type = t.getOutputStream().type;
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize, sr, dim, bytesPerValue, type);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.getValue(), sr, dim, bytesPerValue, type);
         _buffer.add(buf);
         int buffer_id = _buffer.size() -1;
         t.setBufferID(buffer_id);
@@ -482,9 +496,9 @@ public class TheFramework {
 
     private void log()
     {
-        if(options.logfile != null)
+        if(options.logfile.getValue() != null)
         {
-            Log.getInstance().saveToFile(options.logfile);
+            Log.getInstance().saveToFile(options.logfile.getValue());
             Log.getInstance().reset();
         }
     }

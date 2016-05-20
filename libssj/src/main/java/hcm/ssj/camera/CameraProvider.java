@@ -31,6 +31,8 @@ import java.util.Arrays;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -42,16 +44,24 @@ public class CameraProvider extends SensorProvider
     /**
      * All options for the camera provider
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * The rate in which the provider samples data from the camera.<br>
          * <b>Attention!</b> The camera sensor will provide new data according to its frame rate and min max preview.
          */
-        public double sampleRate = 20;
+        public final Option<Double> sampleRate = new Option<>("sampleRate", 20., Cons.Type.DOUBLE, "sample rate for camera pictures");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(sampleRate);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     private int sampleDimension = 0;
     private CameraSensor cameraSensor = null;
@@ -59,10 +69,18 @@ public class CameraProvider extends SensorProvider
     /**
      *
      */
+    public CameraProvider()
+    {
+        super();
+        _name = "SSJ_provider_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     *
+     */
     @Override
     protected void init()
     {
-        _name = "SSJ_provider_" + this.getClass().getSimpleName();
         cameraSensor = (CameraSensor) _sensor;
         //get sample dimension from camera
         cameraSensor.prePrepare();
@@ -99,7 +117,7 @@ public class CameraProvider extends SensorProvider
     @Override
     public double getSampleRate()
     {
-        return options.sampleRate;
+        return options.sampleRate.getValue();
     }
 
     /**

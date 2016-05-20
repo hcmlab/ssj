@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -41,27 +43,43 @@ public class AndroidSensorProvider extends SensorProvider
     /**
      * All options for the sensor provider
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * The rate in which the provider samples data from the sensor.<br>
          * <b>Attention!</b> The sensor will provide new data according to its sensor delay.
          */
-        public int sampleRate = 50;
+        public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Cons.Type.INT, "sample rate of sensor to provider");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(sampleRate);
+        }
     }
 
-    public Options options = new Options();
-
+    public final Options options = new Options();
     protected SensorListener _listener;
-
     private SensorType sensorType;
 
+    /**
+     *
+     */
     public AndroidSensorProvider()
-    {}
+    {
+        super();
+        _name = "SSJ_provider_Android";
+    }
 
+    /**
+     *
+     */
     @Override
     public void init()
     {
+        ((AndroidSensor) _sensor).init();
         this.sensorType = ((AndroidSensor) _sensor).getSensorType();
         _name = "SSJ_provider_" + sensorType.getName();
     }
@@ -73,9 +91,10 @@ public class AndroidSensorProvider extends SensorProvider
     public void enter(Stream stream_out)
     {
         _listener = ((AndroidSensor) _sensor).listener;
-
-        if(stream_out.num != 1)
+        if (stream_out.num != 1)
+        {
             Log.w("[" + sensorType.getName() + "] unsupported stream format. sample number = " + stream_out.num);
+        }
     }
 
     /**
@@ -98,7 +117,7 @@ public class AndroidSensorProvider extends SensorProvider
     @Override
     public double getSampleRate()
     {
-        return options.sampleRate;
+        return options.sampleRate.getValue();
     }
 
     /**

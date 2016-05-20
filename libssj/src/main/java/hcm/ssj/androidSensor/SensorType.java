@@ -103,4 +103,26 @@ public enum SensorType
     {
         return output;
     }
+
+    /**
+     * @param name String
+     * @return SensorType
+     */
+    protected static SensorType getSensorType(String name)
+    {
+        try
+        {
+            return SensorType.valueOf(name);
+        } catch (IllegalArgumentException ex)
+        {
+            for (SensorType sensorType : SensorType.values())
+            {
+                if (sensorType.getName().equalsIgnoreCase(name))
+                {
+                    return sensorType;
+                }
+            }
+        }
+        return null;
+    }
 }

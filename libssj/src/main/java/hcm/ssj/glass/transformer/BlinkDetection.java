@@ -32,6 +32,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -47,26 +49,36 @@ public class BlinkDetection extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Peak threshold for blink detection.<br>
          * A lower value will detect more alleged blinks.
          */
-        public float blinkThreshold = 3.5f;
+        public final Option<Float> blinkThreshold = new Option<>("blinkThreshold", 3.5f, Cons.Type.FLOAT, "Peak threshold for blink detection");
         /**
          * Variance between left and right value of the peak value.<br>
          * If the threshold is reached, the blink will not be counted,
          * because it is assumed to be a false blink due to high movement.
          */
-        public float varianceThreshold = 25.f;
+        public final Option<Float> varianceThreshold = new Option<>("varianceThreshold", 25.f, Cons.Type.FLOAT, "Variance between left and right value of the peak value");
         /**
          * Count the blinks and return the additive result instead of giving a high signal when a blink occurs.
          */
-        public boolean countBlink = false;
+        public final Option<Boolean> countBlink = new Option<>("countBlink", false, Cons.Type.BOOL, "Count the blinks and return the additive result instead of giving a high signal when a blink occurs");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(blinkThreshold);
+            add(varianceThreshold);
+            add(countBlink);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //constants
     private static final int DIMENSION = 1;
     //helper variables
@@ -142,24 +154,24 @@ public class BlinkDetection extends Transformer
             {
                 float left_to_right = Math.abs(right - left);
                 //check for high variance which indicates unfeasible sensor data
-                if (left_to_right < options.varianceThreshold)
+                if (left_to_right < options.varianceThreshold.getValue())
                 {
                     float peak_to_left = Math.abs(peak - left);
                     float peak_to_right = Math.abs(peak - right);
                     if (peak_to_left >= left_to_right && peak_to_right >= left_to_right)
                     {
                         float diff = Math.abs(peak - ((left + right) / 2.0f));
-                        if (diff > options.blinkThreshold)
+                        if (diff > options.blinkThreshold.getValue())
                         {
                             timeSave = 0;
-                            return options.countBlink ? ++count : 1;
+                            return options.countBlink.getValue() ? ++count : 1;
                         }
                     }
                 }
             }
         }
         timeSave += 1000 / sampleRate;
-        return options.countBlink ? count : 0;
+        return options.countBlink.getValue() ? count : 0;
     }
 
     /**
@@ -210,7 +222,7 @@ public class BlinkDetection extends Transformer
     protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
     {
         stream_out.dataclass = new String[DIMENSION];
-        stream_out.dataclass[0] = options.countBlink ? "blnkCnt" : "blnk";
+        stream_out.dataclass[0] = options.countBlink.getValue() ? "blnkCnt" : "blnk";
     }
 
     /**

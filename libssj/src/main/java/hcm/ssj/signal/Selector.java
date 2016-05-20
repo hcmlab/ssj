@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -41,29 +43,31 @@ public class Selector extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
-        /**
-         * The output type for which the input stream has to match.
-         */
-        public Cons.Type outputType = Cons.Type.FLOAT;
+        public final Option<Cons.Type> outputType = new Option<>("outputType", Cons.Type.FLOAT, Cons.Type.CUSTOM, "The output type for which the input stream has to match.");
         /**
          * The values to select.<br>
          * The ordering has to follow the order in the <class>Serializer</class>.<br>
          * The selection interval is given by the selection size.
          */
         public int[] values = {0};
+        public final Option<Integer> selectionSize = new Option<>("selectionSize", values.length, Cons.Type.INT, "The size of all values in one sample");
+
         /**
-         * The size of all values in one sample.
+         *
          */
-        public int selectionSize = values.length;
+        private Options() {
+            add(outputType);
+            add(selectionSize);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     /**
      *
@@ -87,12 +91,12 @@ public class Selector extends Transformer
             return;
         }
         //not all types are supported
-        if (options.outputType == Cons.Type.CUSTOM || options.outputType == Cons.Type.UNDEF)
+        if (options.outputType.getValue() == Cons.Type.CUSTOM || options.outputType.getValue() == Cons.Type.UNDEF)
         {
             Log.e("output type is not supported");
         }
         //the streams should have the same type
-        if (options.outputType != stream_in[0].type)
+        if (options.outputType.getValue() != stream_in[0].type)
         {
             Log.e("invalid stream type");
         }
@@ -105,7 +109,7 @@ public class Selector extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        switch (options.outputType)
+        switch (options.outputType.getValue())
         {
             case BOOL:
             {
@@ -114,7 +118,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrBool()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrBool()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -126,7 +130,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrB()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrB()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -138,7 +142,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrC()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrC()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -150,7 +154,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrD()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrD()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -162,7 +166,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrF()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrF()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -174,7 +178,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrI()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrI()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -186,7 +190,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrL()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrL()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -198,7 +202,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values)
                     {
-                        out[z++] = stream_in[0].ptrS()[value + options.selectionSize * i];
+                        out[z++] = stream_in[0].ptrS()[value + options.selectionSize.getValue() * i];
                     }
                 }
                 break;
@@ -223,7 +227,7 @@ public class Selector extends Transformer
     @Override
     public int getSampleBytes(Stream[] stream_in)
     {
-        return Util.sizeOf(options.outputType);
+        return Util.sizeOf(options.outputType.getValue());
     }
 
     /**
@@ -233,7 +237,7 @@ public class Selector extends Transformer
     @Override
     public Cons.Type getSampleType(Stream[] stream_in)
     {
-        return options.outputType;
+        return options.outputType.getValue();
     }
 
     /**

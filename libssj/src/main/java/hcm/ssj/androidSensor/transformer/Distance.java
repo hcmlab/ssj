@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -41,23 +43,28 @@ public class Distance extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
         /**
-         * Standard threshold for the reached distance.
-         */
-        public float standardDistance = 2.0f;
-        /**
          * Individual threshold for each dimension.
          */
         public float[] individualDistance = null;
+        public final Option<Float> standardDistance = new Option<>("standardDistance", 2.f, Cons.Type.FLOAT, " Standard threshold for the reached distance");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(standardDistance);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //helper variable
     private float[] oldValues;
 
@@ -113,7 +120,7 @@ public class Distance extends Transformer
                     float value = aStream_in.ptrF()[i * aStream_in.dim + k];
                     oldValues[t] += Math.abs(value);
                     if ((options.individualDistance != null && options.individualDistance[t] >= oldValues[t])
-                            || (options.individualDistance == null && oldValues[t] >= options.standardDistance))
+                            || (options.individualDistance == null && oldValues[t] >= options.standardDistance.getValue()))
                     {
                         ret = 1;
                         oldValues[t] = 0;

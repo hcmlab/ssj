@@ -35,8 +35,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * File reader for SSJ.<br>
@@ -47,25 +50,65 @@ public class SimpleFileReader extends Sensor
     /**
      *
      */
-    public class Options
+    public class Options extends OptionList
     {
-        public boolean loop = true;
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, Cons.Type.STRING, "file name");
+        public final Option<Boolean> loop = new Option<>("loop", true, Cons.Type.BOOL, "");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(filePath);
+            add(fileName);
+            add(loop);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     private File fileHeader;
     private File fileReal;
     private BufferedReader bufferedReader = null;
     private SimpleHeader simpleHeader = null;
+    private boolean initialized = false;
 
     /**
-     * @param file File
+     *
      */
-    public SimpleFileReader(File file)
+    public SimpleFileReader()
     {
-        this.fileHeader = file;
-        setFiles();
         _name = "SSJ_sensor_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     *
+     */
+    protected final void init()
+    {
+        if (!initialized)
+        {
+            initialized = true;
+            if (options.filePath.getValue() == null)
+            {
+                Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+                options.filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            }
+            File fileDirectory = new File(options.filePath.getValue());
+            if (!fileDirectory.exists())
+            {
+                Log.e("directory \"" + fileDirectory.getName() + "\" does not exist");
+            }
+            if (options.fileName.getValue() == null)
+            {
+                String defaultName = this.getClass().getSimpleName();
+                Log.w("file name not set, setting to " + defaultName);
+                options.fileName.setValue(defaultName);
+            }
+            this.fileHeader = new File(fileDirectory, options.fileName.getValue());
+            setFiles();
+        }
     }
 
     /**
@@ -74,6 +117,7 @@ public class SimpleFileReader extends Sensor
     @Override
     protected boolean connect()
     {
+        init();
         simpleHeader = null;
         bufferedReader = getFileConnection(fileReal, bufferedReader);
         return true;
@@ -122,15 +166,13 @@ public class SimpleFileReader extends Sensor
     private void setFiles()
     {
         String path = fileHeader.getPath();
-
-        if (path.endsWith("." + LoggingConstants.FILE_EXTENSION))
-        {
-            fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
-        }
-        else if (path.endsWith("." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE))
+        if (path.endsWith(LoggingConstants.TAG_DATA_FILE))
         {
             fileReal = fileHeader;
             fileHeader = new File(path.substring(0, path.length() - 1));
+        } else if (fileHeader.getName().contains("."))
+        {
+            fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
         } else
         {
             fileHeader = new File(path + "." + LoggingConstants.FILE_EXTENSION);
@@ -165,6 +207,7 @@ public class SimpleFileReader extends Sensor
     protected void disconnect()
     {
         bufferedReader = closeStream(bufferedReader);
+        initialized = false;
     }
 
     /**
@@ -216,7 +259,7 @@ public class SimpleFileReader extends Sensor
     protected String getData()
     {
         String data = readLine(bufferedReader);
-        if (data == null && options.loop)
+        if (data == null && options.loop.getValue())
         {
             //start anew
             bufferedReader = getFileConnection(fileReal, bufferedReader);

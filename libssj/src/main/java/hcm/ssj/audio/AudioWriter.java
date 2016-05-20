@@ -32,11 +32,15 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.Mp4Writer;
 
 /**
@@ -52,8 +56,18 @@ public class AudioWriter extends Mp4Writer
      */
     public class Options extends Mp4Writer.Options
     {
-        public String mimeType = "audio/mp4a-latm";
-        public int audioFormat = AudioFormat.ENCODING_DEFAULT;
+        public final Option<String> mimeType = new Option<>("mimeType", "audio/mp4a-latm", Cons.Type.STRING, "");
+        public final Option<Integer> audioFormat = new Option<>("audioFormat", AudioFormat.ENCODING_DEFAULT, Cons.Type.INT, "");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            super();
+            add(mimeType);
+            add(audioFormat);
+        }
     }
 
     /**
@@ -77,7 +91,7 @@ public class AudioWriter extends Mp4Writer
         }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //
     private int iSampleRate;
     private int iSampleNumber;
@@ -91,6 +105,30 @@ public class AudioWriter extends Mp4Writer
     public AudioWriter()
     {
         _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     * @param stream_in Stream[]
+     */
+    @Override
+    public final void init(Stream[] stream_in)
+    {
+        if (options.filePath.getValue() == null) {
+            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            options.filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+        }
+        File fileDirectory = new File(options.filePath.getValue());
+        if (!fileDirectory.exists()) {
+            if (!fileDirectory.mkdirs()) {
+                Log.e(fileDirectory.getName() + " could not be created");
+                return;
+            }
+        }
+        if (options.fileName.getValue() == null) {
+            Log.w("file name not set, setting to " + defaultName);
+            options.fileName.setValue(defaultName);
+        }
+        file = new File(fileDirectory, options.fileName.getValue());
     }
 
     /**
@@ -118,10 +156,10 @@ public class AudioWriter extends Mp4Writer
             }
             case FLOAT:
             {
-                if (options.audioFormat == AudioFormat.ENCODING_DEFAULT || options.audioFormat == AudioFormat.ENCODING_PCM_16BIT)
+                if (options.audioFormat.getValue() == AudioFormat.ENCODING_DEFAULT || options.audioFormat.getValue() == AudioFormat.ENCODING_PCM_16BIT)
                 {
                     dataFormat = DataFormat.FLOAT_16;
-                } else if (options.audioFormat == AudioFormat.ENCODING_PCM_8BIT)
+                } else if (options.audioFormat.getValue() == AudioFormat.ENCODING_PCM_8BIT)
                 {
                     dataFormat = DataFormat.FLOAT_8;
                 } else
@@ -231,14 +269,14 @@ public class AudioWriter extends Mp4Writer
     {
         //set format properties
         MediaFormat audioFormat = new MediaFormat();
-        audioFormat.setString(MediaFormat.KEY_MIME, options.mimeType);
+        audioFormat.setString(MediaFormat.KEY_MIME, options.mimeType.getValue());
         audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
         audioFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, iSampleRate);
         audioFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, iSampleDimension);
         audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, iSampleNumber);
         audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, aByShuffle.length);
         //prepare encoder
-        super.prepareEncoder(audioFormat, options.mimeType, options.file.getPath());
+        super.prepareEncoder(audioFormat, options.mimeType.getValue(), file.getPath());
     }
 
     /**

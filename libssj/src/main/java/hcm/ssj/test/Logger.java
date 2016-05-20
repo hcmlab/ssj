@@ -26,8 +26,11 @@
 
 package hcm.ssj.test;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -35,10 +38,18 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Logger extends Consumer
 {
-    public class Options {
-        public boolean reduceNum = true;
+    public class Options extends OptionList
+    {
+        public final Option<Boolean> reduceNum = new Option<>("reduceNum", true, Cons.Type.BOOL, "");
+
+        /**
+         *
+         */
+        private Options() {
+            add(reduceNum);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     public Logger() {
         _name = "SSJ_consumer_Logger";
@@ -50,7 +61,7 @@ public class Logger extends Consumer
 
     protected void consume(Stream[] stream_in) {
 
-        int num = (options.reduceNum) ? 1 : stream_in[0].num;
+        int num = (options.reduceNum.getValue()) ? 1 : stream_in[0].num;
 
         String msg;
         for(int i = 0; i < num; ++i)

@@ -26,6 +26,10 @@
 
 package hcm.ssj.file;
 
+import android.os.Environment;
+
+import java.io.File;
+
 /**
  * Constants used for the logging mechanisms.<br>
  * Created by Frank Gaibler on 31.08.2015.
@@ -36,4 +40,5 @@ public class LoggingConstants
     public static final String DELIMITER_LINE = "\r\n"; //works on android and windows, System.getProperty("line.separator") might not
     public static final String TAG_DATA_FILE = "~";
     public static final String FILE_EXTENSION = "stream";
+    public static final String SSJ_EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory(), "SSJ").getPath();
 }

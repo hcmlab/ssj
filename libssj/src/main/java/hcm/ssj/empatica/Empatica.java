@@ -61,18 +61,27 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Created by Michael Dietz on 15.04.2015.
  */
 public class Empatica extends Sensor implements EmpaStatusDelegate
 {
-	public class Options
+	public class Options extends OptionList
 	{
-		public String apiKey = null;
-	}
+		public final Option<String> apiKey = new Option<>("apiKey", null, Cons.Type.STRING, "");
 
-	public Options options = new Options();
+		/**
+		 *
+		 */
+		private Options()
+		{
+			add(apiKey);
+		}
+	}
+	public final Options options = new Options();
 
 	protected EmpaDeviceManager     deviceManager;
 	protected EmpaticaListener      listener;
@@ -87,7 +96,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	@Override
 	public boolean connect()
 	{
-		if(options.apiKey == null || options.apiKey.length() == 0)
+		if(options.apiKey.getValue() == null || options.apiKey.getValue().length() == 0)
 			throw new RuntimeException("invalid apiKey - you need to set the apiKey in the sensor options");
 
 		// Create data listener
@@ -107,7 +116,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 				deviceManager = new EmpaDeviceManager(SSJApplication.getAppContext(), listener, Empatica.this);
 
 				// Register the device manager using your API key. You need to have Internet access at this point.
-				deviceManager.authenticateWithAPIKey(options.apiKey);
+				deviceManager.authenticateWithAPIKey(options.apiKey.getValue());
 			}
 		}, 1);
 
@@ -148,7 +157,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	{
 		try {
 			HashMap<String,String> p = new HashMap<>();
-			p.put("api_key", options.apiKey);
+			p.put("api_key", options.apiKey.getValue());
 			p.put("api_version", "AND_1.3");
 			String json = (new GsonBuilder()).create().toJson(p, Map.class);
 

@@ -29,6 +29,8 @@ package hcm.ssj.glass;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -40,15 +42,20 @@ public class InfraredProvider extends SensorProvider
     /**
      * All options for the sensor provider
      */
-    public class Options
+    public class Options extends OptionList
     {
+        public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Cons.Type.INT, "The rate in which the provider samples data from the sensor");
+
         /**
-         * The rate in which the provider samples data from the sensor.
+         *
          */
-        public int sampleRate = 50;
+        private Options()
+        {
+            add(sampleRate);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     private static final int DIMENSION = 1;
 
     InfraredSensor _irSensor;
@@ -89,7 +96,7 @@ public class InfraredProvider extends SensorProvider
     @Override
     public double getSampleRate()
     {
-        return options.sampleRate;
+        return options.sampleRate.getValue();
     }
 
     /**

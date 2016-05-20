@@ -32,11 +32,14 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.Mp4Writer;
 
 /**
@@ -52,14 +55,30 @@ public class CameraWriter extends Mp4Writer
      */
     public class Options extends Mp4Writer.Options
     {
-        public int width = 640;                 //should be the same as in camera
-        public int height = 480;                //should be the same as in camera
-        public String mimeType = "video/avc";   //H.264 Advanced Video Coding
-        public int iFrameInterval = 15;
-        public int bitRate = 100000;            //Mbps
-        public int orientation = 270;           //0, 90, 180, 270 (portrait: 90 back, 270 front)
-        public int colorFormat = 0;             //MediaCodecInfo.CodecCapabilities
-        public int colorSwitch = ColorSwitch.DEFAULT.value;
+        public final Option<Integer> width = new Option<>("width", 640, Cons.Type.INT, "should be the same as in camera");
+        //arbitrary but popular values
+        public final Option<Integer> height = new Option<>("height", 480, Cons.Type.INT, "should be the same as in camera");
+        public final Option<String> mimeType = new Option<>("mimeType", "video/avc", Cons.Type.STRING, "H.264 Advanced Video Coding");
+        public final Option<Integer> iFrameInterval = new Option<>("iFrameInterval", 15, Cons.Type.INT, "Interval between complete frames");
+        public final Option<Integer> bitRate = new Option<>("bitRate", 100000, Cons.Type.INT, "Mbps");
+        public final Option<Integer> orientation = new Option<>("imageFormat", 270, Cons.Type.INT, "0, 90, 180, 270 (portrait: 90 back, 270 front)");
+        public final Option<Integer> colorFormat = new Option<>("colorFormat", 0, Cons.Type.INT, "MediaCodecInfo.CodecCapabilities");
+        public final Option<ColorSwitch> colorSwitch = new Option<>("colorSwitch", ColorSwitch.DEFAULT, Cons.Type.CUSTOM, "");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            super();
+            add(width);
+            add(height);
+            add(mimeType);
+            add(iFrameInterval);
+            add(bitRate);
+            add(orientation);
+            add(colorSwitch);
+        }
     }
 
     /**
@@ -67,44 +86,13 @@ public class CameraWriter extends Mp4Writer
      */
     public enum ColorSwitch
     {
-        DEFAULT(0),
-        YV12_PLANAR(1),         //MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar
-        YV12_PACKED_SEMI(2),    //MediaCodecInfo.CodecCapabilities.COLOR_TI_FormatYUV420PackedSemiPlanar
-        NV21_UV_SWAPPED(3);
-
-        public final int value;
-
-        /**
-         * @param i int
-         */
-        ColorSwitch(int i)
-        {
-            value = i;
-        }
-
-        /**
-         * @param value int
-         * @return ColorSwitch
-         */
-        private static ColorSwitch getColorSwitch(int value)
-        {
-            if (value == YV12_PLANAR.value)
-            {
-                return YV12_PLANAR;
-            }
-            if (value == YV12_PACKED_SEMI.value)
-            {
-                return YV12_PACKED_SEMI;
-            }
-            if (value == NV21_UV_SWAPPED.value)
-            {
-                return NV21_UV_SWAPPED;
-            }
-            return DEFAULT;
-        }
+        DEFAULT,
+        YV12_PLANAR,         //MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Planar
+        YV12_PACKED_SEMI,    //MediaCodecInfo.CodecCapabilities.COLOR_TI_FormatYUV420PackedSemiPlanar
+        NV21_UV_SWAPPED
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //
     byte[] aByColorChange;
     private int planeSize;
@@ -117,6 +105,34 @@ public class CameraWriter extends Mp4Writer
     public CameraWriter()
     {
         _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     * @param stream_in Stream[]
+     */
+    @Override
+    public final void init(Stream[] stream_in)
+    {
+        if (options.filePath.getValue() == null)
+        {
+            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            options.filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+        }
+        File fileDirectory = new File(options.filePath.getValue());
+        if (!fileDirectory.exists())
+        {
+            if (!fileDirectory.mkdirs())
+            {
+                Log.e(fileDirectory.getName() + " could not be created");
+                return;
+            }
+        }
+        if (options.fileName.getValue() == null)
+        {
+            Log.w("file name not set, setting to " + defaultName);
+            options.fileName.setValue(defaultName);
+        }
+        file = new File(fileDirectory, options.fileName.getValue());
     }
 
     /**
@@ -136,25 +152,25 @@ public class CameraWriter extends Mp4Writer
             return;
         }
         dFrameRate = stream_in[0].sr;
-        prepareEncoder(options.width, options.height, options.bitRate);
+        prepareEncoder(options.width.getValue(), options.height.getValue(), options.bitRate.getValue());
         bufferInfo = new MediaCodec.BufferInfo();
-        int reqBuffSize = options.width * options.height;
+        int reqBuffSize = options.width.getValue() * options.height.getValue();
         reqBuffSize += reqBuffSize >> 1;
         aByShuffle = new byte[reqBuffSize];
         lFrameIndex = 0;
-        colorSwitch = ColorSwitch.getColorSwitch(options.colorSwitch);
+        colorSwitch = options.colorSwitch.getValue();
         switch (colorSwitch)
         {
             case YV12_PACKED_SEMI:
             {
-                planeSize = options.width * options.height;
+                planeSize = options.width.getValue() * options.height.getValue();
                 planeSizeCx = planeSize >> 2;
                 aByColorChange = new byte[planeSizeCx * 2];
                 break;
             }
             case NV21_UV_SWAPPED:
             {
-                planeSize = options.width * options.height;
+                planeSize = options.width.getValue() * options.height.getValue();
                 planeSizeCx = planeSize >> 1;
                 aByColorChange = new byte[planeSizeCx];
                 break;
@@ -192,28 +208,28 @@ public class CameraWriter extends Mp4Writer
      */
     private void prepareEncoder(int width, int height, int bitRate)
     {
-        MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType);
+        MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType.getValue());
         if (mediaCodecInfo == null)
         {
-            Log.e("Unable to find an appropriate codec for " + options.mimeType);
+            Log.e("Unable to find an appropriate codec for " + options.mimeType.getValue());
             return;
         }
         //set format properties
-        MediaFormat videoFormat = MediaFormat.createVideoFormat(options.mimeType, width, height);
-        videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, options.colorFormat <= 0
-                ? CameraUtil.selectColorFormat(mediaCodecInfo, options.mimeType) : options.colorFormat);
+        MediaFormat videoFormat = MediaFormat.createVideoFormat(options.mimeType.getValue(), width, height);
+        videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, options.colorFormat.getValue() <= 0
+                ? CameraUtil.selectColorFormat(mediaCodecInfo, options.mimeType.getValue()) : options.colorFormat.getValue());
         videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
         videoFormat.setFloat(MediaFormat.KEY_FRAME_RATE, (float) dFrameRate);
-        videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, options.iFrameInterval);
+        videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, options.iFrameInterval.getValue());
         //prepare encoder
-        super.prepareEncoder(videoFormat, options.mimeType, options.file.getPath());
+        super.prepareEncoder(videoFormat, options.mimeType.getValue(), file.getPath());
         //set video orientation
-        if (options.orientation % 90 == 0 || options.orientation % 90 == 90)
+        if (options.orientation.getValue() % 90 == 0 || options.orientation.getValue() % 90 == 90)
         {
-            mediaMuxer.setOrientationHint(options.orientation);
+            mediaMuxer.setOrientationHint(options.orientation.getValue());
         } else
         {
-            Log.e("Orientation is not valid: " + options.orientation);
+            Log.e("Orientation is not valid: " + options.orientation.getValue());
         }
     }
 

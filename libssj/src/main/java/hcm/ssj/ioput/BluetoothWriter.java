@@ -31,9 +31,12 @@ import android.bluetooth.BluetoothDevice;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -41,14 +44,25 @@ import hcm.ssj.core.stream.Stream;
  */
 public class BluetoothWriter extends Consumer {
 
-    public class Options {
-        public String serverName = "SSJ_BLServer";
-        public String serverAddr; //if this is a client
-        public String connectionName = "SSJ"; //must match that of the peer
-        public BluetoothConnection.Type connectionType = BluetoothConnection.Type.CLIENT;
+    public class Options extends OptionList
+    {
+        public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", Cons.Type.STRING, "");
+        public final Option<String> serverAddr = new Option<>("serverAddr", null, Cons.Type.STRING, "if this is a client");
+        public final Option<String> connectionName = new Option<>("connectionName", "SSJ", Cons.Type.STRING, "must match that of the peer");
+        public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.CLIENT, Cons.Type.CUSTOM, "");
+
+        /**
+         *
+         */
+        private Options() {
+            add(serverName);
+            add(serverAddr);
+            add(connectionName);
+            add(connectionType);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     private BluetoothConnection _conn;
     private DataOutputStream _out;
@@ -63,14 +77,14 @@ public class BluetoothWriter extends Consumer {
     @Override
     public void enter(Stream[] stream_in) {
         try {
-            switch(options.connectionType)
+            switch(options.connectionType.getValue())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName, options.serverName);
+                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
                     _conn.connect();
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName, options.serverName, options.serverAddr);
+                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
                     _conn.connect();
                     break;
             }

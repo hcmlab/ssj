@@ -33,6 +33,8 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -42,31 +44,48 @@ import hcm.ssj.core.stream.Stream;
 public class SimpleFileReaderProvider extends SensorProvider
 {
     /**
-     * All options for the sensor provider
+     *
      */
-    public class Options
+    public class Options extends OptionList
     {
         public String[] outputClass = null;
+        public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, Cons.Type.STRING, "Attribute separator of the file");
+
         /**
-         * Attribute separator of the file.
+         *
          */
-        public String separator = LoggingConstants.DELIMITER_ATTRIBUTE;
+        private Options()
+        {
+            add(separator);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     private SimpleFileReader simpleFileReader;
     private double sampleRate;
     private int dimension;
     private Cons.Type type;
 
+    /**
+     *
+     */
     public SimpleFileReaderProvider()
     {
+        super();
+        _name = "SSJ_provider_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     *
+     */
+    protected void init()
+    {
         simpleFileReader = (SimpleFileReader) _sensor;
+        simpleFileReader.init();
         SimpleHeader simpleHeader = simpleFileReader.getSimpleHeader();
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);
         type = Cons.Type.valueOf(simpleHeader._type);
-        _name = "SSJ_provider_" + this.getClass().getSimpleName();
     }
 
     /**
@@ -195,7 +214,7 @@ public class SimpleFileReaderProvider extends SensorProvider
         String data = simpleFileReader.getData();
         if (data != null)
         {
-            return data.split(options.separator);
+            return data.split(options.separator.getValue());
         }
         //notify listeners
         Monitor.notifyMonitor();

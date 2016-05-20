@@ -34,6 +34,8 @@ import hcm.ssj.core.Event;
 import hcm.ssj.core.EventConsumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -44,19 +46,29 @@ import hcm.ssj.core.stream.Stream;
  */
 public class SpeechRate extends EventConsumer
 {
-    public class Options
+    public class Options extends OptionList
     {
-        public String sender = _name;
-        public String event = "SpeechRate";
+        public final Option<String> sender = new Option<>("sender", _name, Cons.Type.STRING, "");
+        public final Option<String> event = new Option<>("event", "SpeechRate", Cons.Type.STRING, "");
+        public final Option<Float> thresholdVoicedProb = new Option<>("thresholdVoicedProb", 0.5f, Cons.Type.FLOAT, "in Hz");
+        public final Option<Float> intensityIgnoranceLevel = new Option<>("intensityIgnoranceLevel", 1.0f, Cons.Type.FLOAT, "in dB");
+        public final Option<Float> minDipBetweenPeaks = new Option<>("minDipBetweenPeaks", 3.0f, Cons.Type.FLOAT, "in dB");
+        public final Option<Integer> width = new Option<>("width", 3, Cons.Type.INT, "");
 
-        public float thresholdVoicedProb = 0.5f; //in Hz
-
-        public float intensityIgnoranceLevel = 1.0f; //in dB
-        public float minDipBetweenPeaks = 3.0f; //in dB
-
-        public int width = 3; //samples
+        /**
+         *
+         */
+        private Options()
+        {
+            add(sender);
+            add(event);
+            add(thresholdVoicedProb);
+            add(intensityIgnoranceLevel);
+            add(minDipBetweenPeaks);
+            add(width);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     private Stream _intensity = null;
     private Stream _voiced = null;
@@ -109,7 +121,7 @@ public class SpeechRate extends EventConsumer
         Log.ds("computing sr for " + _intensity.num + " samples");
 
         //compute peaks
-        LinkedList<Integer> peaks = findPeaks(intensity, _intensity.num, options.intensityIgnoranceLevel, options.minDipBetweenPeaks);
+        LinkedList<Integer> peaks = findPeaks(intensity, _intensity.num, options.intensityIgnoranceLevel.getValue(), options.minDipBetweenPeaks.getValue());
 
         Log.ds("peaks (pre-cull) = " + peaks.size());
 
@@ -127,7 +139,7 @@ public class SpeechRate extends EventConsumer
             if(j >= _voiced.num)
                 j = _voiced.num - 1;
 
-            if (voiced[j * _voiced.dim + _voiced_ind] < options.thresholdVoicedProb)
+            if (voiced[j * _voiced.dim + _voiced_ind] < options.thresholdVoicedProb.getValue())
                 peak.remove();
         }
 
@@ -137,8 +149,8 @@ public class SpeechRate extends EventConsumer
         Log.ds("peaks = " + peaks.size() + ", sr = " + peaks.size() / duration);
 
         Event ev = new Event();
-        ev.sender = options.sender;
-        ev.name = options.event;
+        ev.sender = options.sender.getValue();
+        ev.name = options.event.getValue();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * duration + 0.5);
         ev.state = Event.State.COMPLETED;
@@ -170,7 +182,7 @@ public class SpeechRate extends EventConsumer
         if(threshold  < min)
             threshold = min;
 
-        int width = options.width;
+        int width = options.width.getValue();
         if(width == 0) width = 1;
         LinkedList<Integer> peaks = findPeaks_(data, length, width, threshold);
         if(peaks.size() == 0)

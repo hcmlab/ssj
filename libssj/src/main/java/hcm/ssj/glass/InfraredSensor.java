@@ -63,6 +63,7 @@ public class InfraredSensor extends hcm.ssj.core.Sensor
     @Override
     protected boolean connect()
     {
+        report = true;
         return true;
     }
 

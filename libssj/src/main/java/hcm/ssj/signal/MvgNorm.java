@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -53,17 +55,29 @@ public class MvgNorm extends Transformer
 		SLIDING
 	}
 
-	public class Options
+	public class Options extends OptionList
 	{
-		public Norm   norm           = Norm.AVG_VAR;
-		public float  rangeA         = 0;
-		public float  rangeB         = 1;
-		public float  windowSize     = 10;
-		public Method method         = Method.MOVING;
-		public int    numberOfBlocks = 10;
+		public final Option<Norm>   norm           = new Option<>("norm", Norm.AVG_VAR, Cons.Type.CUSTOM, "");
+		public final Option<Float> rangeA = new Option<>("rangeA", 0.f, Cons.Type.FLOAT, "");
+		public final Option<Float> rangeB = new Option<>("rangeB", 1.f, Cons.Type.FLOAT, "");
+		public final Option<Float> windowSize = new Option<>("windowSize", 10.f, Cons.Type.FLOAT, "");
+		public final Option<Method> method         = new Option<>("method", Method.MOVING, Cons.Type.CUSTOM, "");
+		public final Option<Integer> numberOfBlocks = new Option<>("numberOfBlocks", 10, Cons.Type.INT, "");
+
+		/**
+		 *
+		 */
+		private Options() {
+			add(norm);
+			add(rangeA);
+			add(rangeB);
+			add(windowSize);
+			add(method);
+			add(numberOfBlocks);
+		}
 	}
 
-	public Options options = new Options();
+	public final Options options = new Options();
 
 	float       _rangeA;
 	float       _rangeD;
@@ -79,18 +93,18 @@ public class MvgNorm extends Transformer
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
-		_rangeA = options.rangeA;
-		_rangeD = options.rangeB - options.rangeA;
-		_norm = options.norm;
+		_rangeA = options.rangeA.getValue();
+		_rangeD = options.rangeB.getValue() - options.rangeA.getValue();
+		_norm = options.norm.getValue();
 
 		switch (_norm)
 		{
 			case AVG_VAR:
 			{
 				MvgAvgVar mvgAvgVar = new MvgAvgVar();
-				mvgAvgVar.options.format = MvgAvgVar.Format.AVG_AND_VAR;
-				mvgAvgVar.options.method = options.method == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING;
-				mvgAvgVar.options.window = options.windowSize;
+				mvgAvgVar.options.format.setValue(MvgAvgVar.Format.AVG_AND_VAR);
+				mvgAvgVar.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING);
+				mvgAvgVar.options.window.setValue((double) options.windowSize.getValue());
 
 				_mvg = mvgAvgVar;
 				break;
@@ -98,9 +112,9 @@ public class MvgNorm extends Transformer
 			case MIN_MAX:
 			{
 				MvgMinMax mvgMinMax = new MvgMinMax();
-				mvgMinMax.options.format = MvgMinMax.Format.ALL;
-				mvgMinMax.options.method = options.method == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING;
-				mvgMinMax.options.windowSize = options.windowSize;
+				mvgMinMax.options.format.setValue(MvgMinMax.Format.ALL);
+				mvgMinMax.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING);
+				mvgMinMax.options.windowSize.setValue(options.windowSize.getValue());
 
 				_mvg = mvgMinMax;
 				break;
@@ -108,9 +122,9 @@ public class MvgNorm extends Transformer
 			case SUB_AVG:
 			{
 				MvgAvgVar mvgAvgVar = new MvgAvgVar();
-				mvgAvgVar.options.format = MvgAvgVar.Format.AVERAGE;
-				mvgAvgVar.options.method = options.method == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING;
-				mvgAvgVar.options.window = options.windowSize;
+				mvgAvgVar.options.format.setValue(MvgAvgVar.Format.AVERAGE);
+				mvgAvgVar.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING);
+				mvgAvgVar.options.window.setValue((double) options.windowSize.getValue());
 
 				_mvg = mvgAvgVar;
 				break;
@@ -118,10 +132,10 @@ public class MvgNorm extends Transformer
 			case SUB_MIN:
 			{
 				MvgMinMax mvgMinMax = new MvgMinMax();
-				mvgMinMax.options.format = MvgMinMax.Format.MIN;
-				mvgMinMax.options.method = options.method == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING;
-				mvgMinMax.options.windowSize = options.windowSize;
-				mvgMinMax.options.numberOfBlocks = options.numberOfBlocks;
+				mvgMinMax.options.format.setValue(MvgMinMax.Format.MIN);
+				mvgMinMax.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING);
+				mvgMinMax.options.windowSize.setValue(options.windowSize.getValue());
+				mvgMinMax.options.numberOfBlocks.setValue(options.numberOfBlocks.getValue());
 
 				_mvg = mvgMinMax;
 				break;

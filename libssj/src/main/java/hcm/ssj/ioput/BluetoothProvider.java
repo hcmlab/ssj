@@ -33,6 +33,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -40,16 +42,28 @@ import hcm.ssj.core.stream.Stream;
  */
 public class BluetoothProvider extends SensorProvider
 {
-    public class Options {
-        public int bytes = 0;
-        public int dim = 0;
-        public double sr = 0;
-        public int num = 1; //values >1 make buffer error handling less efficient
-        public Cons.Type type = Cons.Type.UNDEF;
+    public class Options extends OptionList
+    {
+        public final Option<Integer> bytes = new Option<>("bytes", 0, Cons.Type.INT, "");
+        public final Option<Integer> dim = new Option<>("dim", 0, Cons.Type.INT, "");
+        public final Option<Double> sr = new Option<>("sr", 0., Cons.Type.DOUBLE, "");
+        public final Option<Integer> num = new Option<>("num", 1, Cons.Type.INT, "values >1 make buffer error handling less efficient");
+        public final Option<Cons.Type> type = new Option<>("type", Cons.Type.UNDEF, Cons.Type.CUSTOM, "");
         public String[] outputClass = null;
+
+        /**
+         *
+         */
+        private Options() {
+            add(bytes);
+            add(dim);
+            add(sr);
+            add(num);
+            add(type);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     protected DataInputStream _in;
     private byte[] _data;
@@ -71,7 +85,7 @@ public class BluetoothProvider extends SensorProvider
             Log.e("cannot connect to server", e);
         }
 
-        if(options.sr == 0 || options.bytes == 0 || options.dim == 0 || options.type == Cons.Type.UNDEF)
+        if(options.sr.getValue() == 0 || options.bytes.getValue() == 0 || options.dim.getValue() == 0 || options.type.getValue() == Cons.Type.UNDEF)
             Log.e("input channel not configured");
 
         _data = new byte[stream_out.tot];
@@ -98,31 +112,31 @@ public class BluetoothProvider extends SensorProvider
     @Override
     public int getSampleDimension()
     {
-        return options.dim;
+        return options.dim.getValue();
     }
 
     @Override
     public double getSampleRate()
     {
-        return options.sr;
+        return options.sr.getValue();
     }
 
     @Override
     public int getSampleBytes()
     {
-        return options.bytes;
+        return options.bytes.getValue();
     }
 
     @Override
     public int getSampleNumber()
     {
-        return options.num;
+        return options.num.getValue();
     }
 
     @Override
     public Cons.Type getSampleType()
     {
-        return options.type;
+        return options.type.getValue();
     }
 
     @Override

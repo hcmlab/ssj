@@ -37,20 +37,33 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Created by Johnny on 05.03.2015.
  */
 public class BluetoothEventWriter extends EventHandler
 {
-    public class Options {
-        public String serverName = "SSJ_BLServer";
-        public String serverAddr; //we need an address if this is the first time these two devices connect
-        public String connectionName = "SSJ"; //must match that of the peer
-        public BluetoothConnection.Type connectionType = BluetoothConnection.Type.CLIENT;
+    public class Options extends OptionList
+    {
+        public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", Cons.Type.STRING, "");
+        public final Option<String> serverAddr = new Option<>("serverAddr", null, Cons.Type.STRING, "we need an address if this is the first time these two devices connect");
+        public final Option<String> connectionName = new Option<>("connectionName", "SSJ", Cons.Type.STRING, "must match that of the peer");
+        public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.CLIENT, Cons.Type.CUSTOM, "");
+
+        /**
+         *
+         */
+        private Options() {
+            add(serverName);
+            add(serverAddr);
+            add(connectionName);
+            add(connectionType);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     private BluetoothConnection _conn;
     private DataOutputStream _out;
@@ -70,14 +83,14 @@ public class BluetoothEventWriter extends EventHandler
             throw new RuntimeException("no incoming event channels defined");
 
         try {
-            switch(options.connectionType)
+            switch(options.connectionType.getValue())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName, options.serverName);
+                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
                     _conn.connect();
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName, options.serverName, options.serverAddr);
+                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
                     _conn.connect();
                     break;
             }

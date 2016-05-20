@@ -49,19 +49,19 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
-        frame.options.netSync = true;
-        frame.options.netSyncListen = true;
+        frame.options.bufferSize.setValue(10.0f);
+        frame.options.netSync.setValue(true);
+        frame.options.netSyncListen.setValue(true);
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate = 16000;
-        audio.options.scale = true;
+        audio.options.sampleRate.setValue(16000);
+        audio.options.scale.setValue(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
         Logger dummy = new Logger();
-        dummy.options.reduceNum = true;
+        dummy.options.reduceNum.setValue(true);
         frame.addConsumer(dummy, audio, 0.1, 0);
 
 //        BluetoothWriter blw = new BluetoothWriter();

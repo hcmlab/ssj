@@ -33,9 +33,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -46,13 +49,22 @@ public class SocketWriter extends Consumer {
     public final static int SOCKET_TYPE_UDP = 0;
     public final static int SOCKET_TYPE_TCP = 1;
 
-    public class Options
+    public class Options extends OptionList
     {
-        public int port = 34300;
-        public String ip = "127.0.0.1";
-        public int type = SOCKET_TYPE_UDP;
+        public final Option<Integer> port = new Option<>("port", 34300, Cons.Type.INT, "");
+        public final Option<String> ip = new Option<>("ip", "127.0.0.1", Cons.Type.STRING, "");
+        public final Option<Integer> type = new Option<>("type", SOCKET_TYPE_UDP, Cons.Type.INT, "");
+
+        /**
+         *
+         */
+        private Options() {
+            add(port);
+            add(ip);
+            add(type);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     private DatagramSocket _socket_udp;
     private Socket _socket_tcp;
@@ -73,14 +85,14 @@ public class SocketWriter extends Consumer {
         //start client
         String protocol = "";
         try {
-            _addr = InetAddress.getByName(options.ip);
-            switch(options.type) {
+            _addr = InetAddress.getByName(options.ip.getValue());
+            switch(options.type.getValue()) {
                 case SOCKET_TYPE_UDP:
                     _socket_udp = new DatagramSocket();
                     protocol = "UDP";
                     break;
                 case SOCKET_TYPE_TCP:
-                    _socket_tcp = new Socket(_addr, options.port);
+                    _socket_tcp = new Socket(_addr, options.port.getValue());
                     _out = new DataOutputStream(_socket_tcp.getOutputStream());
                     protocol = "TCP";
                     break;
@@ -104,10 +116,10 @@ public class SocketWriter extends Consumer {
             return;
 
         try {
-            switch(options.type) {
+            switch(options.type.getValue()) {
                 case SOCKET_TYPE_UDP:
                     Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
-                    DatagramPacket pack = new DatagramPacket(_data, _data.length, _addr, options.port);
+                    DatagramPacket pack = new DatagramPacket(_data, _data.length, _addr, options.port.getValue());
                     _socket_udp.send(pack);
                     break;
                 case SOCKET_TYPE_TCP:
@@ -127,7 +139,7 @@ public class SocketWriter extends Consumer {
         _connected = false;
 
         try {
-            switch(options.type) {
+            switch(options.type.getValue()) {
                 case SOCKET_TYPE_UDP:
                     _socket_udp.close();
                     _socket_udp = null;

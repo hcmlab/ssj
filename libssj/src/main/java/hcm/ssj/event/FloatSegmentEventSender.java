@@ -29,23 +29,34 @@ package hcm.ssj.event;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventConsumer;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 public class FloatSegmentEventSender extends EventConsumer
 {
-    public class Options
+    public class Options extends OptionList
     {
-        public String sender;
-        public String event = "event";
+        public final Option<String> sender = new Option<>("sender", null, Cons.Type.STRING, "");
+        public final Option<String> event = new Option<>("event", "event", Cons.Type.STRING, "");
+        public final Option<Boolean> mean = new Option<>("mean", true, Cons.Type.BOOL, "send mean values");
 
-        public boolean mean = true; //send mean values
+        /**
+         *
+         */
+        private Options()
+        {
+            add(sender);
+            add(event);
+            add(mean);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     public FloatSegmentEventSender()
     {
         _name = "SSJ_consumer_FloatSegmentEventSender";
-        options.sender = _name;
+        options.sender.setValue(_name);
     }
 
     @Override
@@ -62,14 +73,14 @@ public class FloatSegmentEventSender extends EventConsumer
         float ptr[] = stream_in[0].ptrF();
 
         Event ev = new Event();
-        ev.name = options.event;
-        ev.sender = options.sender;
+        ev.name = options.event.getValue();
+        ev.sender = options.sender.getValue();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * (stream_in[0].num / stream_in[0].sr) + 0.5);
         ev.state = Event.State.COMPLETED;
 
         ev.msg = "";
-        if (options.mean) {
+        if (options.mean.getValue()) {
             float sum;
             for (int j = 0; j < stream_in[0].dim; j++)
             {

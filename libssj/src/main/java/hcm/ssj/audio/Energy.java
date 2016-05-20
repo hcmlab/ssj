@@ -29,6 +29,8 @@ package hcm.ssj.audio;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -37,18 +39,29 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Energy extends Transformer {
 
-    public class Options
+    public class Options extends OptionList
     {
-        public boolean computeRMS = false;
-        public boolean computeSPL = true;
-        public boolean computeSilence = false;
+        public final Option<Boolean> computeRMS = new Option<>("computeRMS", false, Cons.Type.BOOL, "");
+        public final Option<Boolean> computeSPL = new Option<>("computeSPL", true, Cons.Type.BOOL, "");
+        public final Option<Boolean> computeSilence = new Option<>("computeSilence", false, Cons.Type.BOOL, "");
+        public final Option<Double> silenceThreshold = new Option<>("silenceThreshold", -70.0, Cons.Type.DOUBLE, "in DB, default of -70 defined in TarsosDSP: be.tarsos.dsp.SilenceDetector");
+        public final Option<Boolean> inputIsSigned = new Option<>("inputIsSigned", true, Cons.Type.BOOL, "");
+        public final Option<Boolean> inputIsBigEndian = new Option<>("inputIsBigEndian", false, Cons.Type.BOOL, "");
 
-        public double silenceThreshold = -70.0; //in DB, default of -70 defined in TarsosDSP: be.tarsos.dsp.SilenceDetector
-
-        public boolean inputIsSigned = true;
-        public boolean inputIsBigEndian = false;
+        /**
+         *
+         */
+        private Options()
+        {
+            add(computeRMS);
+            add(computeSPL);
+            add(computeSilence);
+            add(silenceThreshold);
+            add(inputIsSigned);
+            add(inputIsBigEndian);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     public Energy()
     {
@@ -76,18 +89,18 @@ public class Energy extends Transformer {
         float[] out = stream_out.ptrF();
 
         int dim = 0;
-        if(options.computeRMS) {
+        if(options.computeRMS.getValue()) {
             out[dim++] = (float)calculateRMS(data);
         }
 
-        if(options.computeSPL || options.computeSilence)
+        if(options.computeSPL.getValue() || options.computeSilence.getValue())
         {
             double SPL = soundPressureLevel(data);
             out[dim++] = (float)SPL;
 
-            if(options.computeSilence)
+            if(options.computeSilence.getValue())
             {
-                float silence = ((SPL < options.silenceThreshold) ? 1 : 0);
+                float silence = ((SPL < options.silenceThreshold.getValue()) ? 1 : 0);
                 out[dim++] = silence;
             }
         }
@@ -102,9 +115,9 @@ public class Energy extends Transformer {
     {
         int dim = 0;
 
-        if(options.computeRMS) dim++;
-        if(options.computeSPL) dim++;
-        if(options.computeSilence) dim++;
+        if(options.computeRMS.getValue()) dim++;
+        if(options.computeSPL.getValue()) dim++;
+        if(options.computeSilence.getValue()) dim++;
 
         return dim;
     }
@@ -139,9 +152,9 @@ public class Energy extends Transformer {
         stream_out.dataclass = new String[stream_out.dim];
 
         int i = 0;
-        if(options.computeRMS) stream_out.dataclass[i++] = "RMS";
-        if(options.computeSPL) stream_out.dataclass[i++] = "SPL";
-        if(options.computeSilence) stream_out.dataclass[i++] = "Silence";
+        if(options.computeRMS.getValue()) stream_out.dataclass[i++] = "RMS";
+        if(options.computeSPL.getValue()) stream_out.dataclass[i++] = "SPL";
+        if(options.computeSilence.getValue()) stream_out.dataclass[i++] = "Silence";
     }
 
     /****************************************************

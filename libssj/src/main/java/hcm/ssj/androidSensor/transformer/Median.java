@@ -32,6 +32,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -43,15 +44,22 @@ public class Median extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
+
+        /**
+         *
+         */
+        private Options()
+        {
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     /**
      *

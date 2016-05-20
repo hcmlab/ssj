@@ -62,7 +62,7 @@ public abstract class Component implements Runnable
         {
             Thread.sleep(Cons.SLEEP_ON_TERMINATE);
 
-            if(frame.getTime() > time + frame.options.timeoutThread)
+            if(frame.getTime() > time + frame.options.timeoutThread.getValue())
             {
                 Log.w("force-killed thread");
                 forcekill();

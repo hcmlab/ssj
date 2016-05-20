@@ -35,6 +35,8 @@ import android.view.SurfaceView;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -46,15 +48,27 @@ public class CameraPainter extends Consumer
     /**
      * All options for the camera painter
      */
-    public class Options
+    public class Options extends OptionList
     {
         //values should be the same as in camera
-        public int width = 640;
-        public int height = 480;
-        public int orientation = 90;
-        public boolean scale = false;
-        public int colorFormat = ColorFormat.NV21_DEFAULT.value;
+        public final Option<Integer> width = new Option<>("width", 640, Cons.Type.INT, "width of input picture");
+        public final Option<Integer> height = new Option<>("height", 480, Cons.Type.INT, "height of input picture");
+        public final Option<Integer> orientation = new Option<>("orientation", 90, Cons.Type.INT, "orientation of input picture");
+        public final Option<Boolean> scale = new Option<>("scale", false, Cons.Type.BOOL, "scale picture to match surface size");
+        public final Option<ColorFormat> colorFormat = new Option<>("colorFormat", ColorFormat.NV21_DEFAULT, Cons.Type.CUSTOM, "change color format");
         public SurfaceView surfaceView = null;
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(width);
+            add(height);
+            add(orientation);
+            add(scale);
+            add(colorFormat);
+        }
     }
 
     /**
@@ -62,49 +76,10 @@ public class CameraPainter extends Consumer
      */
     public enum ColorFormat
     {
-        DEFAULT(0),
-        YV12_PLANAR(1),
-        YV12_PACKED_SEMI(2),
-        NV21_DEFAULT(3),
-        NV21_UV_SWAPPED(4);
-
-        public final int value;
-
-        /**
-         * @param i int
-         */
-        ColorFormat(int i)
-        {
-            value = i;
-        }
-
-        /**
-         * @param value int
-         * @return ColorFormat
-         */
-        private static ColorFormat getColorFormat(int value)
-        {
-            if (value == YV12_PLANAR.value)
-            {
-                return YV12_PLANAR;
-            }
-            if (value == YV12_PACKED_SEMI.value)
-            {
-                return YV12_PACKED_SEMI;
-            }
-            if (value == NV21_DEFAULT.value)
-            {
-                return NV21_DEFAULT;
-            }
-            if (value == NV21_UV_SWAPPED.value)
-            {
-                return NV21_UV_SWAPPED;
-            }
-            return DEFAULT;
-        }
+        DEFAULT, YV12_PLANAR, YV12_PACKED_SEMI, NV21_DEFAULT, NV21_UV_SWAPPED
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //buffers
     private byte[] byaShuffle;
     private int[] iaRgbData;
@@ -138,16 +113,16 @@ public class CameraPainter extends Consumer
             Log.e("Stream type not supported");
             return;
         }
-        int reqBuffSize = options.width * options.height;
+        int reqBuffSize = options.width.getValue() * options.height.getValue();
         reqBuffSize += reqBuffSize >> 1;
         byaShuffle = new byte[reqBuffSize];
         surfaceHolder = options.surfaceView.getHolder();
-        iaRgbData = new int[options.width * options.height];
+        iaRgbData = new int[options.width.getValue() * options.height.getValue()];
         //set bitmap
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        bitmap = Bitmap.createBitmap(options.width, options.height, conf);
+        bitmap = Bitmap.createBitmap(options.width.getValue(), options.height.getValue(), conf);
         //get colorFormat
-        colorFormat = ColorFormat.getColorFormat(options.colorFormat);
+        colorFormat = options.colorFormat.getValue();
     }
 
     /**
@@ -198,12 +173,12 @@ public class CameraPainter extends Consumer
                 int bitmapWidth = bitmap.getWidth();
                 int bitmapHeight = bitmap.getHeight();
                 //rotate canvas
-                canvas.rotate(options.orientation, canvasWidth >> 1, canvasHeight >> 1);
+                canvas.rotate(options.orientation.getValue(), canvasWidth >> 1, canvasHeight >> 1);
                 //decode color format
                 decodeColor(data, bitmapWidth, bitmapHeight);
                 //fill bitmap with picture
                 bitmap.setPixels(iaRgbData, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
-                if (options.scale)
+                if (options.scale.getValue())
                 {
                     //scale picture to surface size
                     canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvasWidth, canvasHeight), null);

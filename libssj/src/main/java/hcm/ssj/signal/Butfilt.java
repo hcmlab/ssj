@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -44,17 +46,29 @@ public class Butfilt extends Transformer
 		BAND
 	}
 
-	public class Options
+	public class Options extends OptionList
 	{
-		public Type    type  = Type.BAND;
-		public int     order = 1; // Filter order
-		public boolean norm  = true; // Frequency values are normalized in interval [0..1], where 1 is the nyquist frequency (=half the sample rate)
-		public double  low   = 0; // Low cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)
-		public double  high  = 1; // High cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)
-		public boolean zero  = false; // Subtract first sample from signal to avoid artifacts at the beginning of the signal
+		public final Option<Type> type  = new Option<>("type", Type.BAND, Cons.Type.CUSTOM, "");
+		public final Option<Integer> order = new Option<>("order", 1, Cons.Type.INT, "Filter order");
+		public final Option<Boolean> norm = new Option<>("norm", true, Cons.Type.BOOL, "Frequency values are normalized in interval [0..1], where 1 is the nyquist frequency (=half the sample rate)");
+		public final Option<Double> low = new Option<>("low", 0., Cons.Type.DOUBLE, "Low cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
+		public final Option<Double> high = new Option<>("high", 1., Cons.Type.DOUBLE, "High cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
+		public final Option<Boolean> zero = new Option<>("zero", false, Cons.Type.BOOL, "Subtract first sample from signal to avoid artifacts at the beginning of the signal");
+
+		/**
+		 *
+		 */
+		private Options() {
+			add(type);
+			add(order);
+			add(norm);
+			add(low);
+			add(high);
+			add(zero);
+		}
 	}
 
-	public Options options = new Options();
+	public final Options options = new Options();
 
 	IIR _iir;
 	Matrix<Float> _coefficients;
@@ -69,10 +83,10 @@ public class Butfilt extends Transformer
 
 	protected Matrix<Float> getCoefficients(double sr)
 	{
-		double low = options.norm ? options.low : 2 * options.low / sr;
-		double high = options.norm ? options.high : 2 * options.high / sr;
+		double low = options.norm.getValue() ? options.low.getValue() : 2 * options.low.getValue() / sr;
+		double high = options.norm.getValue() ? options.high.getValue() : 2 * options.high.getValue() / sr;
 
-		return initCoefficients(options.type, options.order, low, high);
+		return initCoefficients(options.type.getValue(), options.order.getValue(), low, high);
 	}
 
 	protected Matrix<Float> initCoefficients(Type type, int order, double low, double high)
@@ -112,7 +126,7 @@ public class Butfilt extends Transformer
 	{
 		if (_firstCall)
 		{
-			if (options.zero)
+			if (options.zero.getValue())
 			{
 				_firstSample = new float[stream_in[0].dim];
 

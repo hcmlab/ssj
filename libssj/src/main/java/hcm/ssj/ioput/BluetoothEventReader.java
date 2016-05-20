@@ -41,6 +41,8 @@ import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Bluetooth event reader - reads SSJ events from a bluetooth source
@@ -48,15 +50,26 @@ import hcm.ssj.core.Util;
  */
 public class BluetoothEventReader extends EventHandler
 {
-    public class Options
+    public class Options extends OptionList
     {
-        public String serverName = "SSJ_BLServer";
-        public String connectionName = "SSJ"; //must match that of the peer
-        public String serverAddr; //if this is a client
-        public BluetoothConnection.Type connectionType = BluetoothConnection.Type.SERVER;
-        public boolean parseXmlToEvent = true; //attempt to convert the message to an SSJ event format
+        public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", Cons.Type.STRING, "");
+        public final Option<String> connectionName = new Option<>("connectionName", "SSJ", Cons.Type.STRING, "must match that of the peer");
+        public final Option<String> serverAddr = new Option<>("serverAddr", null, Cons.Type.STRING, "if this is a client");
+        public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.SERVER, Cons.Type.CUSTOM, "");
+        public final Option<Boolean> parseXmlToEvent = new Option<>("parseXmlToEvent", true, Cons.Type.BOOL, "attempt to convert the message to an SSJ event format");
+
+        /**
+         *
+         */
+        private Options() {
+            add(serverName);
+            add(connectionName);
+            add(serverAddr);
+            add(connectionType);
+            add(parseXmlToEvent);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     private final int MSG_HEADER_SIZE = 12;
 
@@ -76,14 +89,14 @@ public class BluetoothEventReader extends EventHandler
     public void enter()
     {
         try {
-            switch(options.connectionType)
+            switch(options.connectionType.getValue())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName, options.serverName);
+                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
                     _conn.connect();
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName, options.serverName, options.serverAddr);
+                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
                     _conn.connect();
                     break;
             }
@@ -98,7 +111,7 @@ public class BluetoothEventReader extends EventHandler
         BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
 
-        if(!options.parseXmlToEvent)
+        if(!options.parseXmlToEvent.getValue())
         {
             _buffer = new byte[Cons.MAX_EVENT_SIZE];
         }
@@ -131,7 +144,7 @@ public class BluetoothEventReader extends EventHandler
             if (_in.available() == 0)
                 return;
 
-            if (!options.parseXmlToEvent)
+            if (!options.parseXmlToEvent.getValue())
             {
                 int len = _in.read(_buffer);
                 _evchannel_out.pushEvent(_buffer, 0, len);

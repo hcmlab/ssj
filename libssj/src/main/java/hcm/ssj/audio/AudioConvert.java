@@ -29,6 +29,7 @@ package hcm.ssj.audio;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -37,10 +38,16 @@ import hcm.ssj.core.stream.Stream;
  */
 public class AudioConvert extends Transformer {
 
-    public class Options
+    public class Options extends OptionList
     {
+        /**
+         *
+         */
+        private Options()
+        {
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     public AudioConvert()
     {

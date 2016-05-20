@@ -26,36 +26,57 @@
 
 package hcm.ssj.event;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 public class ThresholdEventSender extends Consumer
 {
-    public class Options
+    public class Options extends OptionList
     {
-        public String sender;
-        public String event = "event";
+        public final Option<String> sender = new Option<>("sender", null, Cons.Type.STRING, "");
+        public final Option<String> event = new Option<>("event", "event", Cons.Type.STRING, "");
 
         public float[] thresin = null;
         public float[] thresout = null;
 
-        public int hangin = 0; //samples
-        public int hangout = 0; //samples
+        public final Option<Integer> hangin = new Option<>("hangin", 0, Cons.Type.INT, "samples");
+        public final Option<Integer> hangout = new Option<>("hangout", 0, Cons.Type.INT, "samples");
 
-        public double loffset = 0.0f; //lower offset in seconds (will be substracted from event start time)
-        public double uoffset = 0.0f; //upper offset in seconds (will be added to event end time)
+        public final Option<Double> loffset = new Option<>("loffset", 0., Cons.Type.DOUBLE, "lower offset in seconds (will be substracted from event start time)");
+        public final Option<Double> uoffset = new Option<>("uoffset", 0., Cons.Type.DOUBLE, "upper offset in seconds (will be added to event end time)");
 
-        public double maxdur = 2.0;
-        public double mindur = 0.0;
+        public final Option<Double> maxdur = new Option<>("maxdur", 2., Cons.Type.DOUBLE, "");
+        public final Option<Double> mindur = new Option<>("mindur", 0., Cons.Type.DOUBLE, "");
 
-        public boolean hard = true; //all dimensions must respect thresholds
-        public boolean skip = false; //skip if max duration is exceeded
-        public boolean eager = false; //send an event when the observation begins
-        public boolean eall = true; //forward incomplete events to event board, otherwise only complete events are sent
+        public final Option<Boolean> hard = new Option<>("hard", true, Cons.Type.BOOL, "all dimensions must respect thresholds");
+        public final Option<Boolean> skip = new Option<>("skip", false, Cons.Type.BOOL, "skip if max duration is exceeded");
+        public final Option<Boolean> eager = new Option<>("eager", false, Cons.Type.BOOL, "send an event when the observation begins");
+        public final Option<Boolean> eall = new Option<>("eall", true, Cons.Type.BOOL, "forward incomplete events to event board, otherwise only complete events are sent");
+        /**
+         *
+         */
+        private Options()
+        {
+            add(sender);
+            add(event);
+            add(hangin);
+            add(hangout);
+            add(loffset);
+            add(uoffset);
+            add(maxdur);
+            add(mindur);
+            add(hard);
+            add(skip);
+            add(eager);
+            add(eall);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     boolean _trigger_on;
     double _trigger_start = 0, _trigger_stop = 0;
@@ -67,7 +88,7 @@ public class ThresholdEventSender extends Consumer
     public ThresholdEventSender()
     {
         _name = "SSJ_consumer_ThresholdEventSender";
-        options.sender = _name;
+        options.sender.setValue(_name);
     }
 
     @Override
@@ -92,14 +113,14 @@ public class ThresholdEventSender extends Consumer
         }
 
         _trigger_on = false;
-        _hangover_in = options.hangin;
-        _hangover_out = options.hangout;
+        _hangover_in = options.hangin.getValue();
+        _hangover_out = options.hangout.getValue();
         _counter_in = _hangover_in;
         _counter_out = _hangover_out;
-        _loffset = options.loffset;
-        _uoffset = options.uoffset;
-        _skip_on_max_dur = options.skip;
-        _samples_max_dur = (int) (options.maxdur * stream_in[0].sr);
+        _loffset = options.loffset.getValue();
+        _uoffset = options.uoffset.getValue();
+        _skip_on_max_dur = options.skip.getValue();
+        _samples_max_dur = (int) (options.maxdur.getValue() * stream_in[0].sr);
     }
 
     @Override
@@ -114,7 +135,7 @@ public class ThresholdEventSender extends Consumer
             //differentiate between onset and offset threshold
             float[] threshold = (!_trigger_on) ? options.thresin : options.thresout;
 
-            found_event = options.hard;
+            found_event = options.hard.getValue();
             int thresId = 0;
             for (int j = 0; j < stream_in.length; j++) {
                 for (int k = 0; k < stream_in[j].dim; k++)
@@ -147,7 +168,7 @@ public class ThresholdEventSender extends Consumer
                             break;
                     }
 
-                    if(options.hard)
+                    if(options.hard.getValue())
                         found_event = found_event && result;
                     else
                         found_event = found_event || result;
@@ -174,10 +195,10 @@ public class ThresholdEventSender extends Consumer
                         _counter_out = _hangover_out;
                         _counter_max_dur = _samples_max_dur - _hangover_in;
 
-                        if (options.eager) {
+                        if (options.eager.getValue()) {
                             Event ev = new Event();
-                            ev.name = options.event;
-                            ev.sender = options.sender;
+                            ev.name = options.event.getValue();
+                            ev.sender = options.sender.getValue();
                             ev.time = (int)(1000 * _trigger_start + 0.5);
                             ev.dur = 0;
                             ev.state = Event.State.CONTINUED;
@@ -242,25 +263,25 @@ public class ThresholdEventSender extends Consumer
 
     boolean update (double time, double dur, Event.State state)
     {
-        if (dur < options.mindur || dur <= 0.0) {
+        if (dur < options.mindur.getValue() || dur <= 0.0) {
             Log.ds("skip event because duration too short " + dur + "@" + time);
             return false;
         }
 
-        if (dur > options.maxdur + 0.000000001) {
+        if (dur > options.maxdur.getValue() + 0.000000001) {
             if (_skip_on_max_dur) {
                 Log.ds("skip event because duration too long " + dur + "@" + time);
                 return false;
             }
-            Log.w("crop duration from " + dur +" to " + options.maxdur);
-            time += dur - options.maxdur;
-            dur = options.maxdur;
+            Log.w("crop duration from " + dur +" to " + options.maxdur.getValue());
+            time += dur - options.maxdur.getValue();
+            dur = options.maxdur.getValue();
         }
 
-        if (options.eall || state == Event.State.COMPLETED) {
+        if (options.eall.getValue() || state == Event.State.COMPLETED) {
             Event ev = new Event();
-            ev.name = options.event;
-            ev.sender = options.sender;
+            ev.name = options.event.getValue();
+            ev.sender = options.sender.getValue();
             ev.time = Math.max (0,  (int)(1000 * (time - _loffset) + 0.5));
             ev.dur = Math.max (0, (int)(1000 * (dur + _uoffset) + 0.5));
             ev.state = state;

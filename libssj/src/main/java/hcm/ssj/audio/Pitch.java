@@ -37,6 +37,8 @@ import be.tarsos.dsp.pitch.Yin;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -53,19 +55,31 @@ public class Pitch extends Transformer {
     public final static int FFT_PITCH = 4;
     public final static int YIN = 5;
 
-    public class Options
+    public class Options extends OptionList
     {
-        public int detector = YIN;
+        public final Option<Integer> detector = new Option<>("detector", YIN, Cons.Type.INT, "");
+        public final Option<Boolean> computePitch = new Option<>("computePitch", true, Cons.Type.BOOL, "");
+        public final Option<Boolean> computePitchEnvelope = new Option<>("computePitchEnvelope", false, Cons.Type.BOOL, "if pitch is invalid, provide old value again");
+        public final Option<Boolean> computeVoicedProb = new Option<>("computeVoicedProb", true, Cons.Type.BOOL, "");
+        public final Option<Boolean> computePitchedState = new Option<>("computePitchedState", false, Cons.Type.BOOL, "");
+        public final Option<Float> minPitch = new Option<>("minPitch", 52.0f, Cons.Type.FLOAT, "");
+        public final Option<Float> maxPitch = new Option<>("maxPitch", 620.0f, Cons.Type.FLOAT, "");
 
-        public boolean computePitch = true;
-        public boolean computePitchEnvelope = false; //if pitch is invalid, provide old value again
-        public boolean computeVoicedProb = true;
-        public boolean computePitchedState = false;
-
-        public float minPitch = 52.0f;
-        public float maxPitch = 620.0f;
+        /**
+         *
+         */
+        private Options()
+        {
+            add(detector);
+            add(computePitch);
+            add(computePitchEnvelope);
+            add(computeVoicedProb);
+            add(computePitchedState);
+            add(minPitch);
+            add(maxPitch);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     protected PitchDetector _detector;
 
@@ -89,7 +103,7 @@ public class Pitch extends Transformer {
             return;
         }
 
-        switch(options.detector)
+        switch(options.detector.getValue())
         {
             case DETECTOR_MPM:
                 _detector = new McLeodPitchMethod((float)audio.sr, audio.num * audio.dim);
@@ -122,15 +136,15 @@ public class Pitch extends Transformer {
         PitchDetectionResult result = _detector.getPitch(data);
 
         float pitch = result.getPitch();
-        if(pitch > options.maxPitch || pitch < options.minPitch)
+        if(pitch > options.maxPitch.getValue() || pitch < options.minPitch.getValue())
             pitch = -1;
 
         int dim = 0;
 
-        if (options.computePitch)
+        if (options.computePitch.getValue())
             out[dim++] = pitch;
 
-        if (options.computePitchEnvelope) {
+        if (options.computePitchEnvelope.getValue()) {
             if (pitch < 0) {
                 out[dim++] = _lastPitch;
             } else {
@@ -139,10 +153,10 @@ public class Pitch extends Transformer {
             }
         }
 
-        if(options.computeVoicedProb)
+        if(options.computeVoicedProb.getValue())
             out[dim++] = result.getProbability();
 
-        if(options.computePitchedState)
+        if(options.computePitchedState.getValue())
             out[dim++] = (result.isPitched() && pitch > 0) ? 1.0f : 0.0f;
     }
 
@@ -155,10 +169,10 @@ public class Pitch extends Transformer {
     {
         int dim = 0;
 
-        if(options.computePitch) dim++;
-        if(options.computePitchEnvelope) dim++;
-        if(options.computeVoicedProb) dim++;
-        if(options.computePitchedState) dim++;
+        if(options.computePitch.getValue()) dim++;
+        if(options.computePitchEnvelope.getValue()) dim++;
+        if(options.computeVoicedProb.getValue()) dim++;
+        if(options.computePitchedState.getValue()) dim++;
 
         return dim;
     }
@@ -193,10 +207,10 @@ public class Pitch extends Transformer {
         stream_out.dataclass = new String[stream_out.dim];
 
         int i = 0;
-        if(options.computePitch) stream_out.dataclass[i++] = "Pitch";
-        if(options.computePitchEnvelope) stream_out.dataclass[i++] = "Pitch";
-        if(options.computeVoicedProb) stream_out.dataclass[i++] = "VoicedProb";
-        if(options.computePitchedState) stream_out.dataclass[i++] = "PitchedState";
+        if(options.computePitch.getValue()) stream_out.dataclass[i++] = "Pitch";
+        if(options.computePitchEnvelope.getValue()) stream_out.dataclass[i++] = "Pitch";
+        if(options.computeVoicedProb.getValue()) stream_out.dataclass[i++] = "VoicedProb";
+        if(options.computePitchedState.getValue()) stream_out.dataclass[i++] = "PitchedState";
     }
 
 }

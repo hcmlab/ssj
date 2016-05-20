@@ -35,8 +35,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -53,9 +56,18 @@ public abstract class Mp4Writer extends Consumer
     /**
      * All options for the mp4 writer
      */
-    public class Options
+    public class Options extends OptionList
     {
-        public File file = null;
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, Cons.Type.STRING, "file name");
+
+        /**
+         *
+         */
+        protected Options() {
+            add(filePath);
+            add(fileName);
+        }
     }
 
     //encoder
@@ -72,6 +84,9 @@ public abstract class Mp4Writer extends Consumer
     protected final static int TIMEOUT_USEC = 10000;
     //
     private ByteBuffer[] aByteBufferInput = null;
+    //
+    protected File file = null;
+    protected final String defaultName = this.getClass().getSimpleName() + ".mp4";
 
     /**
      * @param inputBuf  ByteBuffer

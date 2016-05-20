@@ -29,6 +29,8 @@ package hcm.ssj.myo;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -38,13 +40,22 @@ import hcm.ssj.core.stream.Stream;
  */
 public class DynAccelerationProvider extends SensorProvider
 {
-	public class Options
+	public class Options extends OptionList
 	{
-		public float   	gravity  = 9.814f; //Frankfurt
-		public boolean 	absolute = false; //do measurements relative to the global coordinate system
-		public int 		sampleRate = 50;
+		public final Option<Float> gravity = new Option<>("gravity", 9.814f, Cons.Type.FLOAT, "Frankfurt");
+		public final Option<Boolean> absolute = new Option<>("absolute", false, Cons.Type.BOOL, "do measurements relative to the global coordinate system");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Cons.Type.INT, "");
+
+		/**
+		 *
+		 */
+		private Options() {
+			add(gravity);
+			add(absolute);
+			add(sampleRate);
+		}
 	}
-	public Options options = new Options();
+	public final Options options = new Options();
 
 	public final double GRAVITY = 9.814; //Frankfurt
 
@@ -94,7 +105,7 @@ public class DynAccelerationProvider extends SensorProvider
 		for (int k = 0; k < 3; k++)
             out[k] = _acc[k] - _gravity[k];
 
-		if (options.absolute)
+		if (options.absolute.getValue())
 		{
 			//TODO, need to find proper mat/vec/quat library in java
 			Log.w("not supported yet");
@@ -113,7 +124,7 @@ public class DynAccelerationProvider extends SensorProvider
 	@Override
 	public double getSampleRate()
 	{
-		return options.sampleRate;
+		return options.sampleRate.getValue();
 	}
 
 	@Override

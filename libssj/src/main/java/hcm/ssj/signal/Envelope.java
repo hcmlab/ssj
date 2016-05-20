@@ -29,6 +29,8 @@ package hcm.ssj.signal;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -45,13 +47,20 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Envelope extends Transformer {
 
-    public class Options
+    public class Options extends OptionList
     {
-        public float attackSlope = 0.1f; //increment by which the envelope should increase each sample
-        public float releaseSlope = 0.1f; //increment by which the envelope should decrease each sample
+        public final Option<Float> attackSlope = new Option("attackSlope", 0.1f, Cons.Type.FLOAT, "increment by which the envelope should increase each sample");
+        public final Option<Float> releaseSlope = new Option("releaseSlope", 0.1f, Cons.Type.FLOAT, "increment by which the envelope should decrease each sample");
 
+        /**
+         *
+         */
+        private Options() {
+            add(attackSlope);
+            add(releaseSlope);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     float[] _lastValue;
 
@@ -84,9 +93,9 @@ public class Envelope extends Transformer {
                 valOld = (i > 1) ? out[(i-1) * dim + j] : _lastValue[j];
 
                 if(valNew > valOld)
-                    out[i * dim + j] = (valOld + options.attackSlope > valNew) ? valNew : valOld + options.attackSlope;
+                    out[i * dim + j] = (valOld + options.attackSlope.getValue() > valNew) ? valNew : valOld + options.attackSlope.getValue();
                 else if(valNew < valOld)
-                    out[i * dim + j] = (valOld - options.releaseSlope < valNew) ? valNew : valOld - options.releaseSlope;
+                    out[i * dim + j] = (valOld - options.releaseSlope.getValue() < valNew) ? valNew : valOld - options.releaseSlope.getValue();
                 else if(valNew == valOld)
                     out[i * dim + j] = valOld;
             }

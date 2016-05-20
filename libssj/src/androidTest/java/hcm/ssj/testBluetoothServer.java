@@ -54,15 +54,15 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
+        frame.options.bufferSize.setValue(10.0f);
 
         BluetoothReader blr = new BluetoothReader();
-        blr.options.connectionType = BluetoothConnection.Type.SERVER;
-        blr.options.connectionName = "stream";
+        blr.options.connectionType.setValue(BluetoothConnection.Type.SERVER);
+        blr.options.connectionName.setValue("stream");
         BluetoothProvider data = new BluetoothProvider();
-        data.options.dim = 1;
-        data.options.type = Cons.Type.FLOAT;
-        data.options.sr = 16000;
+        data.options.dim.setValue(1);
+        data.options.type.setValue(Cons.Type.FLOAT);
+        data.options.sr.setValue(16000.);
         frame.addSensor(blr);
         blr.addProvider(data);
 
@@ -70,8 +70,8 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         frame.addConsumer(dummy, data, 0.1, 0);
 
         BluetoothEventReader bler = new BluetoothEventReader();
-        bler.options.connectionType = BluetoothConnection.Type.SERVER;
-        bler.options.connectionName = "event";
+        bler.options.connectionType.setValue(BluetoothConnection.Type.SERVER);
+        bler.options.connectionName.setValue("event");
         frame.addComponent(bler);
         EventChannel ch = frame.registerEventProvider(bler);
 

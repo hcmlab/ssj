@@ -40,6 +40,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.SimpleXmlParser;
 
@@ -52,7 +53,7 @@ public class NaiveBayes extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Contains the SSI options.
@@ -62,9 +63,16 @@ public class NaiveBayes extends Transformer
          * Contains the trained model.
          */
         public File fileModel = null;
+
+        /**
+         *
+         */
+        private Options()
+        {
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //file options
     private boolean userLogNormalDistribution = true;
     private boolean usePriorProbability = false;

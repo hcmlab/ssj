@@ -53,19 +53,19 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
+        frame.options.bufferSize.setValue(10.0f);
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate = 16000;
-        audio.options.scale = true;
+        audio.options.sampleRate.setValue(16000);
+        audio.options.scale.setValue(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
         BluetoothWriter blw = new BluetoothWriter();
-        blw.options.connectionType = BluetoothConnection.Type.CLIENT;
-        blw.options.serverAddr = "60:8F:5C:F2:D0:9D";
-        blw.options.connectionName = "stream";
+        blw.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
+        blw.options.serverAddr.setValue("60:8F:5C:F2:D0:9D");
+        blw.options.connectionName.setValue("stream");
         frame.addConsumer(blw, audio, 0.1, 0);
 
         FloatsEventSender fes = new FloatsEventSender();
@@ -73,9 +73,9 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
         EventChannel ch = frame.registerEventProvider(fes);
 
         BluetoothEventWriter blew = new BluetoothEventWriter();
-        blew.options.connectionType = BluetoothConnection.Type.CLIENT;
-        blew.options.serverAddr = "60:8F:5C:F2:D0:9D";
-        blew.options.connectionName = "event";
+        blew.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
+        blew.options.serverAddr.setValue("60:8F:5C:F2:D0:9D");
+        blew.options.connectionName.setValue("event");
         frame.addComponent(blew);
         frame.registerEventListener(blew, ch);
 

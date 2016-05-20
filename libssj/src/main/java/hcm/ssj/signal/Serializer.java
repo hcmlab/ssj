@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -41,19 +43,21 @@ public class Serializer extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
+        public final Option<Cons.Type> outputType = new Option<>("outputType", Cons.Type.FLOAT, Cons.Type.CUSTOM, "The output type for which the input streams have to match.");
+
         /**
-         * The output type for which the input streams have to match.
+         *
          */
-        public Cons.Type outputType = Cons.Type.FLOAT;
+        private Options() {add(outputType);}
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
 
     /**
      *
@@ -87,14 +91,14 @@ public class Serializer extends Transformer
             }
         }
         //not all types are supported
-        if (options.outputType == Cons.Type.CUSTOM || options.outputType == Cons.Type.UNDEF)
+        if (options.outputType.getValue() == Cons.Type.CUSTOM || options.outputType.getValue() == Cons.Type.UNDEF)
         {
             Log.e("output type is not supported");
         }
         //every stream should have the same type
         for (int i = 0; i < stream_in.length; i++)
         {
-            if (options.outputType != stream_in[i].type)
+            if (options.outputType.getValue() != stream_in[i].type)
             {
                 Log.e("invalid type for stream_in " + i);
                 return;
@@ -109,7 +113,7 @@ public class Serializer extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        switch (options.outputType)
+        switch (options.outputType.getValue())
         {
             case BOOL:
             {
@@ -267,7 +271,7 @@ public class Serializer extends Transformer
     @Override
     public int getSampleBytes(Stream[] stream_in)
     {
-        return Util.sizeOf(options.outputType);
+        return Util.sizeOf(options.outputType.getValue());
     }
 
     /**
@@ -277,7 +281,7 @@ public class Serializer extends Transformer
     @Override
     public Cons.Type getSampleType(Stream[] stream_in)
     {
-        return options.outputType;
+        return options.outputType.getValue();
     }
 
     /**

@@ -27,6 +27,8 @@
 package hcm.ssj;
 
 import android.app.Application;
+import android.content.Context;
+import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
@@ -50,6 +52,8 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
 {
     //test length in milliseconds
     private final static int TEST_LENGTH = 1000 * 10;//2 * 60 * 1000;
+    //
+    private SensorType[] sensorTypes = {SensorType.ACCELEROMETER, SensorType.MAGNETIC_FIELD};
 
     /**
      *
@@ -68,38 +72,45 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         long maxMemory = rt.maxMemory();
         Log.i("maxMemory: " + Long.toString(maxMemory));
 
-
         //test for every sensor type
-//        for (SensorType type : SensorType.values())
+        for (SensorType type : SensorType.values())
         {
-            //setup
-            TheFramework frame = TheFramework.getFramework();
-            frame.options.bufferSize = 10.0f;
-            //sensor
-            AndroidSensor sensor = new AndroidSensor(SensorType.LIGHT);
-            frame.addSensor(sensor);
-            //provider
-            AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-            sensor.addProvider(sensorProvider);
-            //logger
-            Logger log = new Logger();
-            frame.addConsumer(log, sensorProvider, 1, 0);
-            //start framework
-            frame.Start();
-            //run test
-            long end = System.currentTimeMillis() + TEST_LENGTH;
-            try
+            SensorManager mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+            if (mSensorManager.getDefaultSensor(type.getType()) != null)
             {
-                while (System.currentTimeMillis() < end)
+                //setup
+                TheFramework frame = TheFramework.getFramework();
+                frame.options.bufferSize.setValue(10.0f);
+                //sensor
+                AndroidSensor sensor = new AndroidSensor();
+                sensor.options.sensorType.setValue(type);
+                frame.addSensor(sensor);
+                //provider
+                AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+                sensor.addProvider(sensorProvider);
+                //logger
+                Logger log = new Logger();
+                frame.addConsumer(log, sensorProvider, 1, 0);
+                //start framework
+                frame.Start();
+                //run test
+                long end = System.currentTimeMillis() + TEST_LENGTH;
+                try
                 {
-                    Thread.sleep(1);
+                    while (System.currentTimeMillis() < end)
+                    {
+                        Thread.sleep(1);
+                    }
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
                 }
-            } catch (Exception e)
+                frame.Stop();
+                frame.clear();
+            } else
             {
-                e.printStackTrace();
+                Log.i(type.getName() + " not present on device");
             }
-            frame.Stop();
-            frame.clear();
         }
     }
 
@@ -118,25 +129,24 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         {
             //setup
             TheFramework frame = TheFramework.getFramework();
-            frame.options.bufferSize = 10.0f;
+            frame.options.bufferSize.setValue(10.0f);
             //create providers
-            SensorType[] sensorTypes = {SensorType.ACCELEROMETER, SensorType.AMBIENT_TEMPERATURE, SensorType.GYROSCOPE_UNCALIBRATED};
             AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
             for (int i = 0; i < sensorTypes.length; i++)
             {
                 //sensor
-                AndroidSensor sensor = new AndroidSensor(sensorTypes[i]);
+                AndroidSensor sensor = new AndroidSensor();
+                sensor.options.sensorType.setValue(sensorTypes[i]);
                 frame.addSensor(sensor);
                 //provider
                 AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
                 sensor.addProvider(sensorProvider);
                 sensorProviders[i] = sensorProvider;
-
             }
             //transformer
             MinMax transformer = new MinMax();
-            transformer.options.min = option[0];
-            transformer.options.max = option[1];
+            transformer.options.min.setValue(option[0]);
+            transformer.options.max.setValue(option[1]);
             frame.addTransformer(transformer, sensorProviders, 1, 0);
             //logger
             Logger log = new Logger();
@@ -175,25 +185,24 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         {
             //setup
             TheFramework frame = TheFramework.getFramework();
-            frame.options.bufferSize = 10.0f;
+            frame.options.bufferSize.setValue(10.0f);
             //create providers
-            SensorType[] sensorTypes = {SensorType.ACCELEROMETER, SensorType.AMBIENT_TEMPERATURE, SensorType.GYROSCOPE_UNCALIBRATED};
             AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
             for (int i = 0; i < sensorTypes.length; i++)
             {
                 //sensor
-                AndroidSensor sensor = new AndroidSensor(sensorTypes[i]);
+                AndroidSensor sensor = new AndroidSensor();
+                sensor.options.sensorType.setValue(sensorTypes[i]);
                 frame.addSensor(sensor);
                 //provider
                 AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
                 sensor.addProvider(sensorProvider);
                 sensorProviders[i] = sensorProvider;
-
             }
             //transformer
             AvgVar transformer = new AvgVar();
-            transformer.options.avg = option[0];
-            transformer.options.var = option[1];
+            transformer.options.avg.setValue(option[0]);
+            transformer.options.var.setValue(option[1]);
             frame.addTransformer(transformer, sensorProviders, 1, 0);
             //logger
             Logger log = new Logger();
@@ -224,20 +233,19 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
     {
         //setup
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
+        frame.options.bufferSize.setValue(10.0f);
         //create providers
-        SensorType[] sensorTypes = {SensorType.ACCELEROMETER, SensorType.AMBIENT_TEMPERATURE, SensorType.GYROSCOPE_UNCALIBRATED};
         AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
         for (int i = 0; i < sensorTypes.length; i++)
         {
             //sensor
-            AndroidSensor sensor = new AndroidSensor(sensorTypes[i]);
+            AndroidSensor sensor = new AndroidSensor();
+            sensor.options.sensorType.setValue(sensorTypes[i]);
             frame.addSensor(sensor);
             //provider
             AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
             sensor.addProvider(sensorProvider);
             sensorProviders[i] = sensorProvider;
-
         }
         //transformer
         Progress transformer1 = new Progress();
@@ -274,20 +282,19 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
     {
         //setup
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
+        frame.options.bufferSize.setValue(10.0f);
         //create providers
-        SensorType[] sensorTypes = {SensorType.ACCELEROMETER, SensorType.AMBIENT_TEMPERATURE, SensorType.GYROSCOPE_UNCALIBRATED};
         AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
         for (int i = 0; i < sensorTypes.length; i++)
         {
             //sensor
-            AndroidSensor sensor = new AndroidSensor(sensorTypes[i]);
+            AndroidSensor sensor = new AndroidSensor();
+            sensor.options.sensorType.setValue(sensorTypes[i]);
             frame.addSensor(sensor);
             //provider
             AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
             sensor.addProvider(sensorProvider);
             sensorProviders[i] = sensorProvider;
-
         }
         //transformer
         Median transformer = new Median();

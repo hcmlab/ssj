@@ -30,6 +30,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -42,23 +44,26 @@ public class AvgVar extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
+        public final Option<Boolean> avg = new Option<>("avg", true, Cons.Type.BOOL, "Calculate average for each frame");
+        public final Option<Boolean> var = new Option<>("var", true, Cons.Type.BOOL, "Calculate variance for each frame");
+
         /**
-         * Calculate average for each frame.
+         *
          */
-        public boolean avg = true;
-        /**
-         * Calculate variance for each frame.
-         */
-        public boolean var = true;
+        private Options()
+        {
+            add(avg);
+            add(var);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //helper variables
     private int multiplier;
     private int[] streamDimensions;
@@ -126,7 +131,7 @@ public class AvgVar extends Transformer
             {
                 avgValues[i] = avgValues[i] / stream_in[0].num;
             }
-            if (options.var)
+            if (options.var.getValue())
             {
                 float[] varValues = new float[stream_out.dim / multiplier];
                 //add up variance values
@@ -147,7 +152,7 @@ public class AvgVar extends Transformer
                 {
                     varValues[i] = varValues[i] / stream_in[0].num;
                 }
-                if (!options.avg)
+                if (!options.avg.getValue())
                 {
                     System.arraycopy(varValues, 0, out, 0, varValues.length);
                 } else
@@ -172,8 +177,8 @@ public class AvgVar extends Transformer
     public int getSampleDimension(Stream[] stream_in)
     {
         multiplier = 0;
-        multiplier = options.avg ? multiplier + 1 : multiplier;
-        multiplier = options.var ? multiplier + 1 : multiplier;
+        multiplier = options.avg.getValue() ? multiplier + 1 : multiplier;
+        multiplier = options.var.getValue() ? multiplier + 1 : multiplier;
         if (multiplier <= 0)
         {
             Log.e("no option selected");
@@ -242,11 +247,11 @@ public class AvgVar extends Transformer
         {
             for (int j = 0, m = 0; j < streamDimensions[i]; j += multiplier, m++)
             {
-                if (options.avg)
+                if (options.avg.getValue())
                 {
                     stream_out.dataclass[k++] = "avg" + i + "." + m;
                 }
-                if (options.var)
+                if (options.var.getValue())
                 {
                     stream_out.dataclass[k++] = "var" + i + "." + m;
                 }

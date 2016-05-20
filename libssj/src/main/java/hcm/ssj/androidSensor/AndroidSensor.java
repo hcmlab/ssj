@@ -30,8 +30,11 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Standard connection for android sensors.<br>
@@ -42,7 +45,7 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     /**
      * All options for the sensor
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * According to documentation, the sensor will usually sample values
@@ -54,28 +57,58 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
          * <li>SENSOR_DELAY_UI = 2 = 66667µs</li>
          * <li>SENSOR_DELAY_NORMAL = 3 = 200000µs</li>
          */
-        public int sensorDelay = SensorManager.SENSOR_DELAY_FASTEST;
+        public final Option<Integer> sensorDelay = new Option<>("sensorDelay", SensorManager.SENSOR_DELAY_FASTEST, Cons.Type.INT, "see android documentation");
+        public final Option<SensorType> sensorType = new Option<>("sensorType", SensorType.ACCELEROMETER, Cons.Type.CUSTOM, "android sensor type");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(sensorDelay);
+            add(sensorType);
+        }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     private SensorManager mSensorManager;
     private Sensor mSensor;
     protected SensorListener listener;
     private SensorType sensorType;
+    private final SensorType sensorTypeDefault = SensorType.ACCELEROMETER;
+    private boolean initialized = false;
 
     /**
-     * @param sensorType SensorType
+     *
      */
-    public AndroidSensor(SensorType sensorType)
+    public AndroidSensor()
     {
-        this.sensorType = sensorType;
-        _name = "SSJ_sensor_" + this.sensorType.getName();
-        listener = new SensorListener(this.sensorType);
-        mSensorManager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
-        mSensor = mSensorManager.getDefaultSensor(this.sensorType.getType());
-        if (mSensor == null)
+        super();
+        _name = "SSJ_sensor_Android";
+    }
+
+    /**
+     *
+     */
+    protected void init()
+    {
+        if (!initialized)
         {
-            Log.e(this.sensorType.getName() + " not found on device");
+            initialized = true;
+            if (options.sensorType.getValue() == null)
+            {
+                Log.w("sensor type not set, setting to default " + sensorTypeDefault.getName());
+                options.sensorType.setValue(sensorTypeDefault);
+            }
+            sensorType = options.sensorType.getValue();
+            _name = "SSJ_sensor_" + this.sensorType.getName();
+            listener = new SensorListener(this.sensorType);
+            mSensorManager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
+            mSensor = mSensorManager.getDefaultSensor(this.sensorType.getType());
+            if (mSensor == null)
+            {
+                Log.e(this.sensorType.getName() + " not found on device");
+            }
         }
     }
 
@@ -85,12 +118,12 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     @Override
     protected boolean connect()
     {
+        init();
         if (mSensor != null)
         {
-            mSensorManager.registerListener(listener, mSensor, options.sensorDelay);
+            mSensorManager.registerListener(listener, mSensor, options.sensorDelay.getValue());
             return true;
         }
-
         return false;
     }
 
@@ -104,6 +137,7 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
         {
             mSensorManager.unregisterListener(listener);
         }
+        initialized = false;
     }
 
     /**

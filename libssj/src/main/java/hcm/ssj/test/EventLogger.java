@@ -30,16 +30,21 @@ import hcm.ssj.core.Event;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Outputs all incoming events using logcat
  */
 public class EventLogger extends EventHandler
 {
-    public class Options
+    public class Options extends OptionList
     {
+        /**
+         *
+         */
+        private Options() {}
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     public EventLogger()
     {

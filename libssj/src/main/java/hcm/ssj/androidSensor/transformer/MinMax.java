@@ -32,6 +32,8 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -44,20 +46,23 @@ public class MinMax extends Transformer
     /**
      * All options for the transformer
      */
-    public class Options
+    public class Options extends OptionList
     {
         /**
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
+        public final Option<Boolean> min = new Option<>("min", true, Cons.Type.BOOL, "Calculate minimum for each frame");
+        public final Option<Boolean> max = new Option<>("max", true, Cons.Type.BOOL, "Calculate maximum for each frame");
+
         /**
-         * Calculate minimum for each frame.
+         *
          */
-        public boolean min = true;
-        /**
-         * Calculate maximum for each frame.
-         */
-        public boolean max = true;
+        private Options()
+        {
+            add(min);
+            add(max);
+        }
     }
 
     public Options options = new Options();
@@ -110,12 +115,12 @@ public class MinMax extends Transformer
             float[] out = stream_out.ptrF();
             float[] minValues = null;
             float[] maxValues = null;
-            if (options.min)
+            if (options.min.getValue())
             {
                 minValues = new float[stream_out.dim / multiplier];
                 Arrays.fill(minValues, Float.MAX_VALUE);
             }
-            if (options.max)
+            if (options.max.getValue())
             {
                 maxValues = new float[stream_out.dim / multiplier];
                 Arrays.fill(maxValues, -Float.MAX_VALUE); //Float.MIN_VALUE is the value closest to zero and not the lowest float value possible
@@ -130,21 +135,21 @@ public class MinMax extends Transformer
                     for (int k = 0; k < aStream_in.dim; k++, t++)
                     {
                         float value = in[i * aStream_in.dim + k];
-                        if (options.min)
+                        if (options.min.getValue())
                         {
                             minValues[t] = minValues[t] < value ? minValues[t] : value;
                         }
-                        if (options.max)
+                        if (options.max.getValue())
                         {
                             maxValues[t] = maxValues[t] > value ? maxValues[t] : value;
                         }
                     }
                 }
             }
-            if (options.min && !options.max)
+            if (options.min.getValue() && !options.max.getValue())
             {
                 System.arraycopy(minValues, 0, out, 0, minValues.length);
-            } else if (!options.min && options.max)
+            } else if (!options.min.getValue() && options.max.getValue())
             {
                 System.arraycopy(maxValues, 0, out, 0, maxValues.length);
             } else
@@ -166,8 +171,8 @@ public class MinMax extends Transformer
     public int getSampleDimension(Stream[] stream_in)
     {
         multiplier = 0;
-        multiplier = options.min ? multiplier + 1 : multiplier;
-        multiplier = options.max ? multiplier + 1 : multiplier;
+        multiplier = options.min.getValue() ? multiplier + 1 : multiplier;
+        multiplier = options.max.getValue() ? multiplier + 1 : multiplier;
         if (multiplier <= 0)
         {
             Log.e("no option selected");
@@ -236,11 +241,11 @@ public class MinMax extends Transformer
         {
             for (int j = 0, m = 0; j < streamDimensions[i]; j += multiplier, m++)
             {
-                if (options.min)
+                if (options.min.getValue())
                 {
                     stream_out.dataclass[k++] = "min" + i + "." + m;
                 }
-                if (options.max)
+                if (options.max.getValue())
                 {
                     stream_out.dataclass[k++] = "max" + i + "." + m;
                 }

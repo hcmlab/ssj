@@ -36,28 +36,37 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Created by Michael Dietz on 01.04.2015.
  */
 public class Myo extends Sensor
 {
-	public class Options
+	public class Options extends OptionList
 	{
-		public String  macAddress    = "F3:41:FA:27:EB:08";
-
+		public final Option<String> macAddress = new Option<>("macAddress", "F3:41:FA:27:EB:08", Cons.Type.STRING, "");
 		//when locking is enabled, myo is locked by default
 		//and gesture events are not triggered while in this state.
 		//A special gesture is required to "unlock" the device
-		public boolean locking =  false;
+		public final Option<Boolean> locking = new Option<>("locking", false, Cons.Type.BOOL, "A special gesture is required to \"unlock\" the device");
+		public final Option<Boolean> imu = new Option<>("imu", true, Cons.Type.BOOL, "");
+		public final Option<Configuration.EmgMode> emg = new Option<>("emg", Configuration.EmgMode.FILTERED, Cons.Type.CUSTOM, "");
+		public final Option<Boolean> gestures = new Option<>("gestures", false, Cons.Type.BOOL, "disabling the gesture classifier will also disable the \"sync\" mechanism");
 
-        public Configuration.EmgMode emg = Configuration.EmgMode.FILTERED;
-        public boolean imu = true;
-
-		//disabling the gesture classifier will also disable the "sync" mechanism
-        public boolean gestures = false;
+		/**
+		 *
+		 */
+		private Options() {
+			add(macAddress);
+			add(locking);
+			add(imu);
+			add(emg);
+			add(gestures);
+		}
 	}
-	public Options options = new Options();
+	public final Options options = new Options();
 
 	protected Hub              hub;
 	protected MyoListener      listener;
@@ -92,7 +101,7 @@ public class Myo extends Sensor
 					myoInitialized = true;
 				}
 
-				hub.setLockingPolicy(options.locking ? Hub.LockingPolicy.STANDARD : Hub.LockingPolicy.NONE);
+				hub.setLockingPolicy(options.locking.getValue() ? Hub.LockingPolicy.STANDARD : Hub.LockingPolicy.NONE);
 
 				// Disable usage data sending
 				hub.setSendUsageData(false);
@@ -104,10 +113,10 @@ public class Myo extends Sensor
 				if (hub.getConnectedDevices().isEmpty())
 				{
 					// If there is a mac address connect to it, otherwise look for myo nearby
-					if (!options.macAddress.isEmpty())
+					if (!options.macAddress.getValue().isEmpty())
 					{
-						Log.i("Connecting to MAC: " + options.macAddress);
-						hub.attachByMacAddress(options.macAddress);
+						Log.i("Connecting to MAC: " + options.macAddress.getValue());
+						hub.attachByMacAddress(options.macAddress.getValue());
 					}
 					else
 					{
@@ -138,7 +147,7 @@ public class Myo extends Sensor
         com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
 
         //configure myo
-        config = new Configuration(hub, listener, options.emg, options.imu, options.gestures);
+        config = new Configuration(hub, listener, options.emg.getValue(), options.imu.getValue(), options.gestures.getValue());
         config.apply(myo.getMacAddress());
 
 		myo.unlock(com.thalmic.myo.Myo.UnlockType.HOLD);

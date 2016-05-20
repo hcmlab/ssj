@@ -50,18 +50,29 @@ package hcm.ssj.praat;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.praat.helper.NUM;
 
 public class Intensity extends Transformer {
 
-    public class Options
+    public class Options extends OptionList
     {
-        public double minPitch = 50.0;
-        public double timeStep = 0.0;
-        public boolean subtractMeanPressure = true;
+        public final Option<Double> minPitch = new Option("minPitch", 50., Cons.Type.DOUBLE, "");
+        public final Option<Double> timeStep = new Option("timeStep", 0., Cons.Type.DOUBLE, "");
+        public final Option<Boolean> subtractMeanPressure = new Option("subtractMeanPressure", true, Cons.Type.BOOL, "");
+
+        /**
+         *
+         */
+        private Options() {
+            add(minPitch);
+            add(timeStep);
+            add(subtractMeanPressure);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     double myDuration, windowDuration, halfWindowDuration;
     int halfWindowSamples, numberOfFrames;
@@ -90,8 +101,8 @@ public class Intensity extends Transformer {
         /*
          * Preconditions.
          */
-        if (options.timeStep < 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Time step should be zero or positive instead of " + options.timeStep + ".");
-        if (options.minPitch <= 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Minimum pitch should be positive.");
+        if (options.timeStep.getValue() < 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Time step should be zero or positive instead of " + options.timeStep.getValue() + ".");
+        if (options.minPitch.getValue() <= 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Minimum pitch should be positive.");
         if (audio.step <= 0.0) throw new IllegalArgumentException ("(Sound-to-Intensity:) The Sound's time step should be positive.");
 
         /*
@@ -134,7 +145,7 @@ public class Intensity extends Transformer {
                 {
                     amplitude[i - midSample + halfWindowSamples] = data[i * in.dim + channel];
                 }
-                if (options.subtractMeanPressure)
+                if (options.subtractMeanPressure.getValue())
                 {
                     double sum = 0.0;
                     for (int i = leftSample; i <= rightSample; i++)
@@ -173,17 +184,17 @@ public class Intensity extends Transformer {
     @Override
     public void init(double frame, double delta)
     {
-        if(options.timeStep == 0)
-            options.timeStep = 0.8 / options.minPitch; // default: four times oversampling Hanning-wise
+        if(options.timeStep.getValue() == 0)
+            options.timeStep.setValue(0.8 / options.minPitch.getValue()); // default: four times oversampling Hanning-wise
 
         myDuration = frame + delta;
 
-        windowDuration = computeWindowDuration(options.minPitch);
+        windowDuration = computeWindowDuration(options.minPitch.getValue());
         if (windowDuration <= 0.0 || windowDuration > myDuration) Log.e("invalid processing window duration");
 
-        numberOfFrames = computeNumberOfFrames(myDuration, windowDuration, options.timeStep);
-        if (numberOfFrames < 1)  Log.e("The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch + " Hz), " +
-                                                                           "i.e. at least " + 6.4 / options.minPitch + " s, instead of " + myDuration + " s.");
+        numberOfFrames = computeNumberOfFrames(myDuration, windowDuration, options.timeStep.getValue());
+        if (numberOfFrames < 1)  Log.e("The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch.getValue() + " Hz), " +
+                                                                           "i.e. at least " + 6.4 / options.minPitch.getValue() + " s, instead of " + myDuration + " s.");
     }
 
     @Override

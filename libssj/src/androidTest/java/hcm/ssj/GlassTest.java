@@ -59,7 +59,7 @@ public class GlassTest extends ApplicationTestCase<Application>
     {
         //setup
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
+        frame.options.bufferSize.setValue(10.0f);
         //sensor
         InfraredSensor sensor = new InfraredSensor();
         frame.addSensor(sensor);

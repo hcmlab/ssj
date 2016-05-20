@@ -39,10 +39,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Audio Sensor - get data from audio interface and forwards it
@@ -52,13 +55,23 @@ public class SocketEventReader extends EventHandler
 {
     final int MAX_MSG_SIZE = 4096;
 
-    public class Options
+    public class Options extends OptionList
     {
-        public String ip = null;
-        public int port;
-        public boolean parseXmlToEvent = true; //attempt to convert the message to an SSJ event format
+        public Option<String> ip = new Option<>("ip", null, Cons.Type.STRING, "");
+        public Option<Integer> port = new Option<>("port", 0, Cons.Type.INT, "");
+        public Option<Boolean> parseXmlToEvent = new Option<>("parseXmlToEvent", true, Cons.Type.BOOL, "attempt to convert the message to an SSJ event format");
+
+        /**
+         *
+         */
+        private Options()
+        {
+            add(ip);
+            add(port);
+            add(parseXmlToEvent);
+        }
     }
-    public Options options = new Options();
+    public final Options options = new Options();
 
     DatagramSocket _socket;
     boolean _connected = false;
@@ -67,18 +80,17 @@ public class SocketEventReader extends EventHandler
 
     public SocketEventReader()
     {
-        options = new Options();
         _name = "SSJ_ehandler_SocketEventReader";
     }
 
     @Override
     public void enter()
     {
-        if (options.ip == null)
+        if (options.ip.getValue() == null)
         {
             try
             {
-                options.ip = Util.getIPAddress(true);
+                options.ip.setValue(Util.getIPAddress(true));
             }
             catch (SocketException e)
             {
@@ -91,8 +103,8 @@ public class SocketEventReader extends EventHandler
             _socket = new DatagramSocket(null);
             _socket.setReuseAddress(true);
 
-            InetAddress addr = InetAddress.getByName(options.ip);
-            InetSocketAddress saddr = new InetSocketAddress(addr, options.port);
+            InetAddress addr = InetAddress.getByName(options.ip.getValue());
+            InetSocketAddress saddr = new InetSocketAddress(addr, options.port.getValue());
             _socket.bind(saddr);
         }
         catch (IOException e)
@@ -103,7 +115,7 @@ public class SocketEventReader extends EventHandler
 
         _buffer = new byte[MAX_MSG_SIZE];
 
-        if(options.parseXmlToEvent)
+        if(options.parseXmlToEvent.getValue())
         {
             try
             {
@@ -117,7 +129,7 @@ public class SocketEventReader extends EventHandler
             }
         }
 
-        Log.i("socket ready ("+options.ip + "@" + options.port+")");
+        Log.i("socket ready ("+options.ip.getValue() + "@" + options.port.getValue() +")");
         _connected = true;
     }
 
@@ -139,7 +151,7 @@ public class SocketEventReader extends EventHandler
             return;
         }
 
-        if(!options.parseXmlToEvent)
+        if(!options.parseXmlToEvent.getValue())
         {
             _evchannel_out.pushEvent(_buffer, 0, packet.getLength());
         }
