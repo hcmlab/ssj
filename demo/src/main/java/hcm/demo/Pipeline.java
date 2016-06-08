@@ -34,9 +34,15 @@ import com.jjoe64.graphview.GraphView;
 import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
+import hcm.ssj.body.Activity;
 import hcm.ssj.core.ExceptionHandler;
+import hcm.ssj.core.Provider;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.graphic.SignalPainter;
+import hcm.ssj.myo.AccelerationProvider;
+import hcm.ssj.myo.DynAccelerationProvider;
+import hcm.ssj.myo.Myo;
+import hcm.ssj.signal.MvgAvgVar;
 
 public class Pipeline extends Thread {
 
@@ -67,19 +73,24 @@ public class Pipeline extends Thread {
     public void run()
     {
         _ssj.options.bufferSize = 10.0f;
+        _ssj.options.countdown = 10;
         _ssj.options.logfile = Environment.getExternalStorageDirectory() + "/ssjlog.txt";
 
-        //connection to sensor
+        //** connection to sensors
         Microphone mic = new Microphone();
         _ssj.addSensor(mic);
-
-        //data provider for sensor
         AudioProvider audio = new AudioProvider();
         audio.options.sampleRate = 16000;
         audio.options.scale = true;
         mic.addProvider(audio);
 
-        //transform data coming from sensor
+        Myo myo = new Myo();
+        _ssj.addSensor(myo);
+        DynAccelerationProvider acc = new DynAccelerationProvider();
+        myo.addProvider(acc);
+
+
+        //** transform data coming from sensors
         Pitch pitch = new Pitch();
         pitch.options.detector = Pitch.YIN;
         pitch.options.computePitchedState = false;
@@ -88,23 +99,47 @@ public class Pipeline extends Thread {
         pitch.options.computePitchEnvelope = false;
         _ssj.addTransformer(pitch, audio, 0.032, 0);
 
-        //show data in graph 1
+        Activity activity = new Activity();
+        _ssj.addTransformer(activity, acc, 0.1, 5.0);
+
+        MvgAvgVar activityf = new MvgAvgVar();
+        activityf.options.window = 10;
+        _ssj.addTransformer(activityf, activity, 0.1, 0);
+
+
+        //** configure GUI
+        //paint audio
         SignalPainter paint = new SignalPainter();
         paint.options.manualBounds = true;
         paint.options.min = 0;
         paint.options.max = 1;
         paint.options.renderMax = true;
+        paint.options.secondScaleMin = 0;
+        paint.options.secondScaleMax = 500;
         paint.registerGraphView(_graphs[0]);
-        _ssj.addConsumer(paint, audio, 0.1, 0);
+        _ssj.addConsumer(paint, new Provider[]{audio,pitch}, 0.1, 0);
 
-        //show data in graph 2
+        //paint myo activity
         paint = new SignalPainter();
-        paint.options.manualBounds = true;
-        paint.options.min = 0;
-        paint.options.max = 500;
         paint.options.renderMax = true;
+        paint.options.manualBounds = true;
+        paint.options.min = -3;
+        paint.options.max = 3;
         paint.registerGraphView(_graphs[1]);
-        _ssj.addConsumer(paint, pitch, 0.1, 0);
+        _ssj.addConsumer(paint, acc, 0.1, 0);
+
+        paint = new SignalPainter();
+        paint.options.renderMax = false;
+        paint.options.manualBounds = true;
+        paint.options.min = -3;
+        paint.options.colors = new int[]{ 0xff990000, 0xffff00ff, 0xff000000, 0xff339900};;
+        paint.options.max = 3;
+        paint.options.secondScaleStream = 0;
+        paint.options.secondScaleDim = 0;
+        paint.options.secondScaleMin = 0;
+        paint.options.secondScaleMax = 3;
+        paint.registerGraphView(_graphs[1]);
+        _ssj.addConsumer(paint, activityf, 0.1, 0);
 
         Log.i("SSJ_Demo", "starting pipeline");
         _ssj.Start();

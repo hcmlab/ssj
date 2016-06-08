@@ -46,6 +46,8 @@ public class EventLogger extends EventHandler
         _name = "SSJ_econsumer_EventLogger";
     }
 
+    int _lastBehavEventID = 0;
+
     @Override
     public void enter()
     {
@@ -58,10 +60,11 @@ public class EventLogger extends EventHandler
     {
         for(EventChannel ch : _evchannel_in)
         {
-            Event ev = ch.getLastEvent(false, true);
+            Event ev = ch.getEvent(_lastBehavEventID + 1, true);
             if (ev == null)
                 return;
 
+            _lastBehavEventID = ev.id;
             Log.i(ev.sender + "_" + ev.name + "_" + ev.id + " (" + ev.state.toString() + ", " + ev.time + ", " + ev.dur + ") : " + ev.msg);
         }
     }

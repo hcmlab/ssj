@@ -41,12 +41,11 @@ public class DynAccelerationProvider extends SensorProvider
 	public class Options
 	{
 		public float   	gravity  = 9.814f; //Frankfurt
+		public boolean 	meterPerSecond = false;
 		public boolean 	absolute = false; //do measurements relative to the global coordinate system
 		public int 		sampleRate = 50;
 	}
 	public Options options = new Options();
-
-	public final double GRAVITY = 9.814; //Frankfurt
 
 	protected MyoListener _listener;
 
@@ -102,6 +101,12 @@ public class DynAccelerationProvider extends SensorProvider
 //                    Quaternion q(xq.x(), xq.y(), xq.z(), xq.w());
 //                    Matrix mat(q);
 //                    dynacc = mat * dynacc;
+		}
+
+		if (options.meterPerSecond)
+		{
+			for (int k = 0; k < 3; k++)
+				out[k] *= options.gravity;
 		}
 	}
 
