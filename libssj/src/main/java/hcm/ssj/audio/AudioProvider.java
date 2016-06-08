@@ -55,10 +55,7 @@ public class AudioProvider extends SensorProvider
          */
         private Options()
         {
-            add(sampleRate);
-            add(channelConfig);
-            add(audioFormat);
-            add(scale);
+            addOptions();
         }
     }
     public final Options options = new Options();

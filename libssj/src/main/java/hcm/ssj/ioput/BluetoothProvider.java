@@ -55,11 +55,7 @@ public class BluetoothProvider extends SensorProvider
          *
          */
         private Options() {
-            add(bytes);
-            add(dim);
-            add(sr);
-            add(num);
-            add(type);
+            addOptions();
         }
     }
 

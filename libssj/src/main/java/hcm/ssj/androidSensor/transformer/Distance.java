@@ -60,7 +60,7 @@ public class Distance extends Transformer
          */
         private Options()
         {
-            add(standardDistance);
+            addOptions();
         }
     }
 

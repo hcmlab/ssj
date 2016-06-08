@@ -66,13 +66,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
          */
         private Options()
         {
-            add(cameraInfo);
-            add(width);
-            add(height);
-            add(previewFpsRangeMin);
-            add(previewFpsRangeMax);
-            add(imageFormat);
-            add(showSupportedValues);
+            addOptions();
         }
     }
 

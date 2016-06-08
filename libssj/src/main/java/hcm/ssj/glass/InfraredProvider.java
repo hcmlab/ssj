@@ -51,7 +51,7 @@ public class InfraredProvider extends SensorProvider
          */
         private Options()
         {
-            add(sampleRate);
+            addOptions();
         }
     }
 

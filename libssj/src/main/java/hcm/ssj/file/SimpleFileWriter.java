@@ -63,9 +63,7 @@ public class SimpleFileWriter extends Consumer
          */
         private Options()
         {
-            add(filePath);
-            add(fileName);
-            add(separator);
+            addOptions();
         }
     }
 

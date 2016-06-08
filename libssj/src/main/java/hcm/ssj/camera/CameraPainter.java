@@ -63,11 +63,7 @@ public class CameraPainter extends Consumer
          */
         private Options()
         {
-            add(width);
-            add(height);
-            add(orientation);
-            add(scale);
-            add(colorFormat);
+            addOptions();
         }
     }
 

@@ -59,12 +59,7 @@ public class Butfilt extends Transformer
 		 *
 		 */
 		private Options() {
-			add(type);
-			add(order);
-			add(norm);
-			add(low);
-			add(high);
-			add(zero);
+			addOptions();
 		}
 	}
 

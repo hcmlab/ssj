@@ -50,9 +50,7 @@ public class DynAccelerationProvider extends SensorProvider
 		 *
 		 */
 		private Options() {
-			add(gravity);
-			add(absolute);
-			add(sampleRate);
+			addOptions();
 		}
 	}
 	public final Options options = new Options();

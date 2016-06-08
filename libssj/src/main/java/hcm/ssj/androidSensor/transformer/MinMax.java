@@ -60,8 +60,7 @@ public class MinMax extends Transformer
          */
         private Options()
         {
-            add(min);
-            add(max);
+            addOptions();
         }
     }
 

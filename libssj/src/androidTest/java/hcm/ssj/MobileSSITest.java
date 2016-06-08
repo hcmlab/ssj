@@ -133,7 +133,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         }
         stopSSI();
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
 
 
     }

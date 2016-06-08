@@ -62,11 +62,7 @@ public class BluetoothEventReader extends EventHandler
          *
          */
         private Options() {
-            add(serverName);
-            add(connectionName);
-            add(serverAddr);
-            add(connectionType);
-            add(parseXmlToEvent);
+            addOptions();
         }
     }
     public final Options options = new Options();

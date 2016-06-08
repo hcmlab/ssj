@@ -78,7 +78,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		 */
 		private Options()
 		{
-			add(apiKey);
+			addOptions();
 		}
 	}
 	public final Options options = new Options();

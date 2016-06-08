@@ -11,7 +11,6 @@ import android.widget.Button;
 
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.core.option.Option;
 import hcm.ssjclay.creator.Builder;
 import hcm.ssjclay.creator.Linker;
 import hcm.ssjclay.dialogs.AddDialog;
@@ -52,18 +51,8 @@ public class MainActivity extends AppCompatActivity
                 {
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
-                    Option[] optionsOld = Linker.getOptionList(framework);
-                    //prepare framework
+                    //remove old content
                     framework.clear();
-                    framework = TheFramework.getFramework();
-                    Option[] optionsNew = Linker.getOptionList(framework);
-                    if (optionsOld != null && optionsNew != null)
-                    {
-                        for (int i = 0; i < optionsOld.length; i++)
-                        {
-                            optionsNew[i].setValue(optionsOld[i].getValue());
-                        }
-                    }
                     //add components
                     Linker.getInstance().buildPipe();
                     //change button text

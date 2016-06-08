@@ -57,8 +57,7 @@ public class Count extends Transformer
          */
         private Options()
         {
-            add(frameCount);
-            add(divideByNumber);
+            addOptions();
         }
     }
 

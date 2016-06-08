@@ -65,8 +65,7 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
          */
         private Options()
         {
-            add(sensorDelay);
-            add(sensorType);
+            addOptions();
         }
     }
 

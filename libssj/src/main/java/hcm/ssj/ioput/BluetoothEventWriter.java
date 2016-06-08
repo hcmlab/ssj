@@ -56,10 +56,7 @@ public class BluetoothEventWriter extends EventHandler
          *
          */
         private Options() {
-            add(serverName);
-            add(serverAddr);
-            add(connectionName);
-            add(connectionType);
+            addOptions();
         }
     }
 

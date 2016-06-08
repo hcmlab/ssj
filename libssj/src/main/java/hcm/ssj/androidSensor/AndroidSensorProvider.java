@@ -56,7 +56,7 @@ public class AndroidSensorProvider extends SensorProvider
          */
         private Options()
         {
-            add(sampleRate);
+            addOptions();
         }
     }
 

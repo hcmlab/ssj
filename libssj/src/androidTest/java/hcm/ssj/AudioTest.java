@@ -98,7 +98,7 @@ public class AudioTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
         //cleanup
         if (file.exists())
         {

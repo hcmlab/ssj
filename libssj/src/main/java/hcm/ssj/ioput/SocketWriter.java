@@ -59,9 +59,7 @@ public class SocketWriter extends Consumer {
          *
          */
         private Options() {
-            add(port);
-            add(ip);
-            add(type);
+            addOptions();
         }
     }
     public final Options options = new Options();

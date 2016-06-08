@@ -62,18 +62,7 @@ public class ThresholdEventSender extends Consumer
          */
         private Options()
         {
-            add(sender);
-            add(event);
-            add(hangin);
-            add(hangout);
-            add(loffset);
-            add(uoffset);
-            add(maxdur);
-            add(mindur);
-            add(hard);
-            add(skip);
-            add(eager);
-            add(eall);
+            addOptions();
         }
     }
     public final Options options = new Options();

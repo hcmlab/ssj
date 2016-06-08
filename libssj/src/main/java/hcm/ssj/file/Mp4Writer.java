@@ -65,8 +65,7 @@ public abstract class Mp4Writer extends Consumer
          *
          */
         protected Options() {
-            add(filePath);
-            add(fileName);
+            addOptions();
         }
     }
 

@@ -68,12 +68,7 @@ public class MvgNorm extends Transformer
 		 *
 		 */
 		private Options() {
-			add(norm);
-			add(rangeA);
-			add(rangeB);
-			add(windowSize);
-			add(method);
-			add(numberOfBlocks);
+			addOptions();
 		}
 	}
 

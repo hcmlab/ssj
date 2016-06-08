@@ -1,5 +1,6 @@
 package hcm.ssj.core.option;
 
+import java.lang.reflect.Field;
 import java.util.LinkedHashSet;
 
 /**
@@ -60,9 +61,39 @@ public abstract class OptionList
     }
 
     /**
+     *
+     */
+    protected final void addOptions()
+    {
+        //only add on latest subclass
+        if (super.getClass().isAssignableFrom(this.getClass()))
+        {
+            Field[] fields = this.getClass().getFields();
+            for (Field field : fields)
+            {
+                if (field.getType().isAssignableFrom(Option.class))
+                {
+                    try
+                    {
+                        Option option = (Option) field.get(this);
+                        //only add instantiated options
+                        if (option != null)
+                        {
+                            add(option);
+                        }
+                    } catch (IllegalAccessException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * @param option Option
      */
-    protected final void add(Option option)
+    private void add(Option option)
     {
         hashSetOptions.add(option);
     }

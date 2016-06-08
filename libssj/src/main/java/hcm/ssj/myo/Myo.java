@@ -59,11 +59,7 @@ public class Myo extends Sensor
 		 *
 		 */
 		private Options() {
-			add(macAddress);
-			add(locking);
-			add(imu);
-			add(emg);
-			add(gestures);
+			addOptions();
 		}
 	}
 	public final Options options = new Options();

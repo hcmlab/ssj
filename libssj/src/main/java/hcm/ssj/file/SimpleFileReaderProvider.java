@@ -56,7 +56,7 @@ public class SimpleFileReaderProvider extends SensorProvider
          */
         private Options()
         {
-            add(separator);
+            addOptions();
         }
     }
 

@@ -56,8 +56,7 @@ public class Envelope extends Transformer {
          *
          */
         private Options() {
-            add(attackSlope);
-            add(releaseSlope);
+            addOptions();
         }
     }
     public final Options options = new Options();

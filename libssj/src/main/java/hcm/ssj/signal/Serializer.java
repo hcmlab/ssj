@@ -54,7 +54,9 @@ public class Serializer extends Transformer
         /**
          *
          */
-        private Options() {add(outputType);}
+        private Options() {
+            addOptions();
+        }
     }
 
     public final Options options = new Options();

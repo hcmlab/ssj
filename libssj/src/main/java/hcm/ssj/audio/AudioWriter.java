@@ -65,8 +65,7 @@ public class AudioWriter extends Mp4Writer
         private Options()
         {
             super();
-            add(mimeType);
-            add(audioFormat);
+            addOptions();
         }
     }
 

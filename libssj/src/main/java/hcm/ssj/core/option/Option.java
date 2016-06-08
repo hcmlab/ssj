@@ -90,13 +90,13 @@ public class Option<T>
         return help;
     }
 
-    /**
-     * @param o Object
-     * @return boolean
-     */
-    @Override
-    public final boolean equals(Object o)
-    {
-        return o instanceof Option && ((Option) o).getValue().equals(getValue());
-    }
+//    /**
+//     * @param o Object
+//     * @return boolean
+//     */
+//    @Override
+//    public final boolean equals(Object o)
+//    {
+//        return o instanceof Option && ((Option) o).getValue().equals(getValue());
+//    }
 }

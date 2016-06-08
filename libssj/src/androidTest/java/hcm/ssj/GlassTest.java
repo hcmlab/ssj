@@ -87,6 +87,6 @@ public class GlassTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
     }
 }

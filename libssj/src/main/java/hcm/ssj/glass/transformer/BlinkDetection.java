@@ -72,9 +72,7 @@ public class BlinkDetection extends Transformer
          */
         private Options()
         {
-            add(blinkThreshold);
-            add(varianceThreshold);
-            add(countBlink);
+            addOptions();
         }
     }
 

@@ -66,8 +66,8 @@ public class Pipeline extends Thread {
 
     public void run()
     {
-        _ssj.options.bufferSize = 10.0f;
-        _ssj.options.logfile = Environment.getExternalStorageDirectory() + "/ssjlog.txt";
+        _ssj.options.bufferSize.setValue(10.0f);
+        _ssj.options.logfile.setValue(Environment.getExternalStorageDirectory() + "/ssjlog.txt");
 
         //connection to sensor
         Microphone mic = new Microphone();
@@ -75,34 +75,34 @@ public class Pipeline extends Thread {
 
         //data provider for sensor
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate = 16000;
-        audio.options.scale = true;
+        audio.options.sampleRate.setValue(16000);
+        audio.options.scale.setValue(true);
         mic.addProvider(audio);
 
         //transform data coming from sensor
         Pitch pitch = new Pitch();
-        pitch.options.detector = Pitch.YIN;
-        pitch.options.computePitchedState = false;
-        pitch.options.computePitch = true;
-        pitch.options.computeVoicedProb = false;
-        pitch.options.computePitchEnvelope = false;
+        pitch.options.detector.setValue(Pitch.YIN);
+        pitch.options.computePitchedState.setValue(false);
+        pitch.options.computePitch.setValue(true);
+        pitch.options.computeVoicedProb.setValue(false);
+        pitch.options.computePitchEnvelope.setValue(false);
         _ssj.addTransformer(pitch, audio, 0.032, 0);
 
         //show data in graph 1
         SignalPainter paint = new SignalPainter();
-        paint.options.manualBounds = true;
-        paint.options.min = 0;
-        paint.options.max = 1;
-        paint.options.renderMax = true;
+        paint.options.manualBounds.setValue(true);
+        paint.options.min.setValue(0.);
+        paint.options.max.setValue(1.);
+        paint.options.renderMax.setValue(true);
         paint.registerGraphView(_graphs[0]);
         _ssj.addConsumer(paint, audio, 0.1, 0);
 
         //show data in graph 2
         paint = new SignalPainter();
-        paint.options.manualBounds = true;
-        paint.options.min = 0;
-        paint.options.max = 500;
-        paint.options.renderMax = true;
+        paint.options.manualBounds.setValue(true);
+        paint.options.min.setValue(0.);
+        paint.options.max.setValue(500.);
+        paint.options.renderMax.setValue(true);
         paint.registerGraphView(_graphs[1]);
         _ssj.addConsumer(paint, pitch, 0.1, 0);
 

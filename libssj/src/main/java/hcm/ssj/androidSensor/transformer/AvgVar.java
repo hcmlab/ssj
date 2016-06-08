@@ -58,8 +58,7 @@ public class AvgVar extends Transformer
          */
         private Options()
         {
-            add(avg);
-            add(var);
+            addOptions();
         }
     }
 

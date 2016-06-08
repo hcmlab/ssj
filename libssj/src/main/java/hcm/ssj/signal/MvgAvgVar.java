@@ -64,9 +64,7 @@ public class MvgAvgVar extends Transformer
 		 *
 		 */
 		private Options() {
-			add(window);
-			add(method);
-			add(format);
+			addOptions();
 		}
 	}
 	public final Options options = new Options();

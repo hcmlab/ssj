@@ -71,13 +71,7 @@ public class CameraWriter extends Mp4Writer
         private Options()
         {
             super();
-            add(width);
-            add(height);
-            add(mimeType);
-            add(iFrameInterval);
-            add(bitRate);
-            add(orientation);
-            add(colorSwitch);
+            addOptions();
         }
     }
 

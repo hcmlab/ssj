@@ -67,9 +67,7 @@ public class Intensity extends Transformer {
          *
          */
         private Options() {
-            add(minPitch);
-            add(timeStep);
-            add(subtractMeanPressure);
+            addOptions();
         }
     }
     public final Options options = new Options();

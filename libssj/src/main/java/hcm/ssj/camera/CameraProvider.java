@@ -57,7 +57,7 @@ public class CameraProvider extends SensorProvider
          */
         private Options()
         {
-            add(sampleRate);
+            addOptions();
         }
     }
 

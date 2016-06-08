@@ -85,7 +85,7 @@ public class testEvent extends ApplicationTestCase<Application> {
             }
 
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
         catch(Exception e)
         {
@@ -141,7 +141,7 @@ public class testEvent extends ApplicationTestCase<Application> {
             }
 
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
         catch(Exception e)
         {

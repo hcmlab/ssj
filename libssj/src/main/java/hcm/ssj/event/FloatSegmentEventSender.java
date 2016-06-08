@@ -46,9 +46,7 @@ public class FloatSegmentEventSender extends EventConsumer
          */
         private Options()
         {
-            add(sender);
-            add(event);
-            add(mean);
+            addOptions();
         }
     }
     public final Options options = new Options();

@@ -51,7 +51,7 @@ public class testSensor extends ApplicationTestCase<Application>
             frame.options.bufferSize.setValue(10.0f);
             //sensor
             AndroidSensor sensor = new AndroidSensor();
-            sensor.options.sensorType.setValue(type.getName());
+            sensor.options.sensorType.setValue(type);
             frame.addSensor(sensor);
             //provider
             AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
@@ -74,7 +74,7 @@ public class testSensor extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
     }
 
@@ -101,7 +101,7 @@ public class testSensor extends ApplicationTestCase<Application>
             {
                 //sensor
                 AndroidSensor sensor = new AndroidSensor();
-                sensor.options.sensorType.setValue(sensorTypes[i].getName());
+                sensor.options.sensorType.setValue(sensorTypes[i]);
                 frame.addSensor(sensor);
                 //provider
                 AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
@@ -132,7 +132,7 @@ public class testSensor extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
     }
 
@@ -159,7 +159,7 @@ public class testSensor extends ApplicationTestCase<Application>
             {
                 //sensor
                 AndroidSensor sensor = new AndroidSensor();
-                sensor.options.sensorType.setValue(sensorTypes[i].getName());
+                sensor.options.sensorType.setValue(sensorTypes[i]);
                 frame.addSensor(sensor);
                 //provider
                 AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
@@ -190,7 +190,7 @@ public class testSensor extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
     }
 
@@ -209,7 +209,7 @@ public class testSensor extends ApplicationTestCase<Application>
         {
             //sensor
             AndroidSensor sensor = new AndroidSensor();
-            sensor.options.sensorType.setValue(sensorTypes[i].getName());
+            sensor.options.sensorType.setValue(sensorTypes[i]);
             frame.addSensor(sensor);
             //provider
             AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
@@ -242,7 +242,7 @@ public class testSensor extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
     }
 
     /**
@@ -260,7 +260,7 @@ public class testSensor extends ApplicationTestCase<Application>
         {
             //sensor
             AndroidSensor sensor = new AndroidSensor();
-            sensor.options.sensorType.setValue(sensorTypes[i].getName());
+            sensor.options.sensorType.setValue(sensorTypes[i]);
             frame.addSensor(sensor);
             //provider
             AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
@@ -289,6 +289,6 @@ public class testSensor extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
     }
 }

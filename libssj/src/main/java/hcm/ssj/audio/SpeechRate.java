@@ -60,12 +60,7 @@ public class SpeechRate extends EventConsumer
          */
         private Options()
         {
-            add(sender);
-            add(event);
-            add(thresholdVoicedProb);
-            add(intensityIgnoranceLevel);
-            add(minDipBetweenPeaks);
-            add(width);
+            addOptions();
         }
     }
     public final Options options = new Options();

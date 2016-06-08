@@ -106,7 +106,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                     e.printStackTrace();
                 }
                 frame.Stop();
-                frame.clear();
+                frame.invalidateFramework();
             } else
             {
                 Log.i(type.getName() + " not present on device");
@@ -166,7 +166,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
     }
 
@@ -222,7 +222,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.clear();
+            frame.invalidateFramework();
         }
     }
 
@@ -272,7 +272,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
     }
 
     /**
@@ -317,6 +317,6 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.clear();
+        frame.invalidateFramework();
     }
 }

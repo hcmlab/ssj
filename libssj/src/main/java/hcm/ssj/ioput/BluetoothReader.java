@@ -52,10 +52,7 @@ public class BluetoothReader extends Sensor {
          *
          */
         private Options() {
-            add(connectionName);
-            add(serverName);
-            add(serverAddr);
-            add(connectionType);
+            addOptions();
         }
     }
 

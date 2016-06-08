@@ -62,8 +62,7 @@ public class Selector extends Transformer
          *
          */
         private Options() {
-            add(outputType);
-            add(selectionSize);
+            addOptions();
         }
     }
 

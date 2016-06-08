@@ -57,13 +57,7 @@ public class TheFramework {
          */
         private Options()
         {
-            add(countdown);
-            add(bufferSize);
-            add(timeoutThread);
-            add(netSync);
-            add(netSyncListen);
-            add(netSyncPort);
-            add(logfile);
+            addOptions();
         }
     }
     public final Options options = new Options();
@@ -479,11 +473,11 @@ public class TheFramework {
         }
     }
 
-    public void clear()
+    public void invalidateFramework()
     {
         if(isRunning())
         {
-            Log.w("Cannot clear. Framework still active.");
+            Log.w("Cannot invalidateFramework. Framework still active.");
             return;
         }
 
@@ -492,6 +486,18 @@ public class TheFramework {
         Log.getInstance().clear();
 
         _instance = null;
+    }
+
+    public void clear() {
+        if(isRunning())
+        {
+            Log.w("Cannot invalidateFramework. Framework still active.");
+            return;
+        }
+
+        _components.clear();
+        _buffer.clear();
+        Log.getInstance().clear();
     }
 
     private void log()

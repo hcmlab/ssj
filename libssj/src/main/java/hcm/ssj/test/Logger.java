@@ -46,7 +46,7 @@ public class Logger extends Consumer
          *
          */
         private Options() {
-            add(reduceNum);
+            addOptions();
         }
     }
     public final Options options = new Options();

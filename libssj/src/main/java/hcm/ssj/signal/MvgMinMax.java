@@ -67,10 +67,7 @@ public class MvgMinMax extends Transformer
 		 *
 		 */
 		private Options() {
-			add(windowSize);
-			add(method);
-			add(format);
-			add(numberOfBlocks);
+			addOptions();
 		}
 	}
 

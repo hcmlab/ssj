@@ -55,10 +55,7 @@ public class BluetoothWriter extends Consumer {
          *
          */
         private Options() {
-            add(serverName);
-            add(serverAddr);
-            add(connectionName);
-            add(connectionType);
+            addOptions();
         }
     }
 

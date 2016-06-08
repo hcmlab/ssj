@@ -46,7 +46,7 @@ public class IBIProvider extends SensorProvider
 		 */
 		private Options()
 		{
-			add(sampleRate);
+			addOptions();
 		}
 	}
 	public final Options options = new Options();

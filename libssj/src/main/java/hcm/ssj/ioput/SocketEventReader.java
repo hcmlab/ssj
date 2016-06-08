@@ -66,9 +66,7 @@ public class SocketEventReader extends EventHandler
          */
         private Options()
         {
-            add(ip);
-            add(port);
-            add(parseXmlToEvent);
+            addOptions();
         }
     }
     public final Options options = new Options();

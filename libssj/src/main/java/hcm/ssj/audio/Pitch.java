@@ -70,13 +70,7 @@ public class Pitch extends Transformer {
          */
         private Options()
         {
-            add(detector);
-            add(computePitch);
-            add(computePitchEnvelope);
-            add(computeVoicedProb);
-            add(computePitchedState);
-            add(minPitch);
-            add(maxPitch);
+            addOptions();
         }
     }
     public final Options options = new Options();

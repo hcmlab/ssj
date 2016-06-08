@@ -53,12 +53,7 @@ public class Energy extends Transformer {
          */
         private Options()
         {
-            add(computeRMS);
-            add(computeSPL);
-            add(computeSilence);
-            add(silenceThreshold);
-            add(inputIsSigned);
-            add(inputIsBigEndian);
+            addOptions();
         }
     }
     public final Options options = new Options();

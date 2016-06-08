@@ -66,17 +66,7 @@ public class SignalPainter extends Consumer
          *
          */
         private Options() {
-            add(size);
-            add(legend);
-            add(manualBounds);
-            add(min);
-            add(max);
-            add(secondScaleDim);
-            add(secondScaleMin);
-            add(secondScaleMax);
-            add(numVLabels);
-            add(numHLabels);
-            add(renderMax);
+            addOptions();
         }
     }
     public final Options options = new Options();

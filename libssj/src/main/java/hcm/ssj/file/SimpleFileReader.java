@@ -61,9 +61,7 @@ public class SimpleFileReader extends Sensor
          */
         private Options()
         {
-            add(filePath);
-            add(fileName);
-            add(loop);
+            addOptions();
         }
     }
 

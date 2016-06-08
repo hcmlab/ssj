@@ -53,8 +53,7 @@ public class GSRArousalEstimation extends Transformer
 		 */
 		private Options()
 		{
-			add(windowSizeShortTerm);
-			add(windowSizeLongTerm);
+			addOptions();
 		}
 	}
 	public final Options options = new Options();
