@@ -306,30 +306,31 @@ public class PipeView extends ViewGroup
         for (ElementView elementViewSensor : elementViewsSensor)
         {
             int[] hashes = elementViewSensor.getConnectionHashes();
-            connections = checkConnections(hashes, connections, elementViewSensor, elementViewsProvider);
+            connections = checkConnections(hashes, connections, elementViewSensor, elementViewsProvider, false);
         }
         for (ElementView elementViewTransformer : elementViewsTransformer)
         {
             int[] hashes = elementViewTransformer.getConnectionHashes();
-            connections = checkConnections(hashes, connections, elementViewTransformer, elementViewsProvider);
-            connections = checkConnections(hashes, connections, elementViewTransformer, elementViewsTransformer);
+            connections = checkConnections(hashes, connections, elementViewTransformer, elementViewsProvider, true);
+            connections = checkConnections(hashes, connections, elementViewTransformer, elementViewsTransformer, true);
         }
         for (ElementView elementViewConsumer : elementViewsConsumer)
         {
             int[] hashes = elementViewConsumer.getConnectionHashes();
-            connections = checkConnections(hashes, connections, elementViewConsumer, elementViewsProvider);
-            connections = checkConnections(hashes, connections, elementViewConsumer, elementViewsTransformer);
+            connections = checkConnections(hashes, connections, elementViewConsumer, elementViewsProvider, true);
+            connections = checkConnections(hashes, connections, elementViewConsumer, elementViewsTransformer, true);
         }
     }
 
     /**
-     * @param hashes       int[]
-     * @param connections  int
-     * @param destination  View
-     * @param elementViews ArrayList
+     * @param hashes              int[]
+     * @param connections         int
+     * @param destination         View
+     * @param elementViews        ArrayList
+     * @param standardOrientation boolean
      * @return int
      */
-    private int checkConnections(int[] hashes, int connections, View destination, ArrayList<ElementView> elementViews)
+    private int checkConnections(int[] hashes, int connections, View destination, ArrayList<ElementView> elementViews, boolean standardOrientation)
     {
         if (hashes != null)
         {
@@ -340,10 +341,21 @@ public class PipeView extends ViewGroup
                     if (hash == elementView.getElementHash())
                     {
                         ConnectionView connectionView = connectionViews[connections];
-                        connectionView.setLine(
-                                destination.getX(), destination.getY(),
-                                elementView.getX(), elementView.getY());
-                        connectionView.invalidate();
+                        //arrow from child to parent (e.g. transformer to consumer)
+                        if (standardOrientation)
+                        {
+                            connectionView.setLine(
+                                    destination.getX(), destination.getY(),
+                                    elementView.getX(), elementView.getY());
+                            connectionView.invalidate();
+                        } else
+                        //arrow from parent to child (e.g. sensor to sensorProvider)
+                        {
+                            connectionView.setLine(
+                                    elementView.getX(), elementView.getY(),
+                                    destination.getX(), destination.getY());
+                            connectionView.invalidate();
+                        }
                         connections++;
                         break;
                     }

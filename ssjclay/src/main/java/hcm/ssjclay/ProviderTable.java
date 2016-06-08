@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import hcm.ssj.core.Provider;
+import hcm.ssj.core.Sensor;
 import hcm.ssjclay.creator.Linker;
 
 /**
@@ -163,13 +164,17 @@ public class ProviderTable
         //add possible providers
         Object[] sensProvCandidates = Linker.getInstance().getAll(Linker.Type.SensorProvider);
         ArrayList<Object> alCandidates = new ArrayList<>();
-        alCandidates.addAll(Arrays.asList(Linker.getInstance().getAll(Linker.Type.Transformer)));
-        //remove itself
-        for (int i = 0; i < alCandidates.size(); i++)
+        //only add sensorProviders for sensors
+        if (!(mainObject instanceof Sensor))
         {
-            if (mainObject.equals(alCandidates.get(i)))
+            alCandidates.addAll(Arrays.asList(Linker.getInstance().getAll(Linker.Type.Transformer)));
+            //remove itself
+            for (int i = 0; i < alCandidates.size(); i++)
             {
-                alCandidates.remove(i);
+                if (mainObject.equals(alCandidates.get(i)))
+                {
+                    alCandidates.remove(i);
+                }
             }
         }
         alCandidates.addAll(0, Arrays.asList(sensProvCandidates));
