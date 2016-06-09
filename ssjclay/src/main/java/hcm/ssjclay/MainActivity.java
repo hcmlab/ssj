@@ -9,6 +9,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.IOException;
+
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
 import hcm.ssjclay.creator.Builder;
@@ -129,25 +132,25 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_sensors:
             {
                 addDialog.setTitleMessage(R.string.str_sensors);
-                addDialog.setOption(Builder.sensors);
+                addDialog.setOption(Builder.getInstance().sensors);
                 break;
             }
             case R.id.action_providers:
             {
                 addDialog.setTitleMessage(R.string.str_providers);
-                addDialog.setOption(Builder.sensorProviders);
+                addDialog.setOption(Builder.getInstance().sensorProviders);
                 break;
             }
             case R.id.action_transformers:
             {
                 addDialog.setTitleMessage(R.string.str_transformers);
-                addDialog.setOption(Builder.transformers);
+                addDialog.setOption(Builder.getInstance().transformers);
                 break;
             }
             case R.id.action_consumers:
             {
                 addDialog.setTitleMessage(R.string.str_consumers);
-                addDialog.setOption(Builder.consumers);
+                addDialog.setOption(Builder.getInstance().consumers);
                 break;
             }
         }
@@ -216,5 +219,12 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        try {
+            Builder.getInstance().scan(getApplicationContext());
+        } catch (IOException | ClassNotFoundException | NoSuchMethodException e) {
+            Log.e("error scanning for SSJ classes", e);
+        }
+
     }
 }

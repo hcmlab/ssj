@@ -24,7 +24,7 @@ public class AddDialog extends DialogFragment
     private int titleMessage = R.string.app_name;
     private int okMessage = R.string.str_ok;
     private int cancelMessage = R.string.str_cancel;
-    private Class[] clazzes = null;
+    private ArrayList<Class> clazzes = null;
     private ArrayList<Listener> alListeners = new ArrayList<>();
     private ListView listView;
 
@@ -61,7 +61,7 @@ public class AddDialog extends DialogFragment
                             {
                                 if (checked.get(i))
                                 {
-                                    Linker.getInstance().add(Builder.instantiate(clazzes[i]));
+                                    Linker.getInstance().add(Builder.instantiate(clazzes.get(i)));
                                 }
                             }
                             for (Listener listener : alListeners)
@@ -92,12 +92,12 @@ public class AddDialog extends DialogFragment
         // Set up the input
         listView = new ListView(getContext());
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        if (clazzes != null && clazzes.length > 0)
+        if (clazzes != null && clazzes.size() > 0)
         {
-            String[] ids = new String[clazzes.length];
+            String[] ids = new String[clazzes.size()];
             for (int i = 0; i < ids.length; i++)
             {
-                ids[i] = clazzes[i].getSimpleName();
+                ids[i] = clazzes.get(i).getSimpleName();
             }
             listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_multiple_choice, ids));
         } else
@@ -160,7 +160,7 @@ public class AddDialog extends DialogFragment
     /**
      * @param clazzes Class[]
      */
-    public void setOption(Class[] clazzes)
+    public void setOption(ArrayList<Class> clazzes)
     {
         this.clazzes = clazzes;
     }

@@ -33,15 +33,20 @@ public class testLinker extends ApplicationTestCase<Application>
      */
     public void testInfrared() throws Exception
     {
+
+        Builder.getInstance().scan(this.getContext());
+
+        System.out.println(Builder.getInstance().sensors.get(0));
+        System.out.println(Builder.getInstance().sensorProviders.get(0));
+        System.out.println(Builder.getInstance().consumers.get(0));
+
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.setValue(2.0f);
         Linker linker = Linker.getInstance();
-        System.out.println(Builder.sensors[0]);
-        System.out.println(Builder.sensorProviders[0]);
-        System.out.println(Builder.consumers[0]);
-        Sensor sensor = (Sensor) Builder.instantiate(Builder.sensors[0]);
-        SensorProvider sensorProvider = (SensorProvider) Builder.instantiate(Builder.sensorProviders[0]);
-        Consumer consumer = (Consumer) Builder.instantiate(Builder.consumers[0]);
+
+        Sensor sensor = (Sensor) Builder.instantiate(Builder.getInstance().sensors.get(0));
+        SensorProvider sensorProvider = (SensorProvider) Builder.instantiate(Builder.getInstance().sensorProviders.get(0));
+        Consumer consumer = (Consumer) Builder.instantiate(Builder.getInstance().consumers.get(0));
         linker.add(sensor);
         linker.add(sensorProvider);
         linker.add(consumer);
