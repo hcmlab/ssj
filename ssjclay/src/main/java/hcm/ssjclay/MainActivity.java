@@ -1,7 +1,12 @@
 package hcm.ssjclay;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -9,9 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import java.io.IOException;
-
-import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
 import hcm.ssjclay.creator.Builder;
@@ -23,6 +25,30 @@ import hcm.ssjclay.view.PipeView;
 public class MainActivity extends AppCompatActivity
 {
     private static boolean ready = true;
+    private static final int REQUEST_WRITE_STORAGE = 112;
+
+    /**
+     *
+     */
+    private void init()
+    {
+        checkPermissions();
+    }
+
+    /**
+     *
+     */
+    private void checkPermissions()
+    {
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+            }
+        }
+    }
 
     /**
      * @param view View
@@ -219,12 +245,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        try {
-            Builder.getInstance().scan(getApplicationContext());
-        } catch (IOException | ClassNotFoundException | NoSuchMethodException e) {
-            Log.e("error scanning for SSJ classes", e);
-        }
-
+        init();
     }
 }
