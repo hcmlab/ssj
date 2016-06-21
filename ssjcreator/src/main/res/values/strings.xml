@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SSJClay</string>
+    <string name="app_name">SSJCreator</string>
     <!--main buttons-->
     <string name="str_framework">Framework</string>
     <string name="str_providers">Providers</string>
