@@ -132,20 +132,18 @@ public class SimpleFileWriter extends Consumer
         File fileHeader = file;
         File fileReal;
         String path = fileHeader.getPath();
-
-        if (path.endsWith("." + LoggingConstants.FILE_EXTENSION))
-        {
-            fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
-        } else if (path.endsWith("." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE))
+        if (path.endsWith(LoggingConstants.TAG_DATA_FILE))
         {
             fileReal = fileHeader;
             fileHeader = new File(path.substring(0, path.length() - 1));
+        } else if (fileHeader.getName().contains("."))
+        {
+            fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
         } else
         {
             fileHeader = new File(path + "." + LoggingConstants.FILE_EXTENSION);
             fileReal = new File(path + "." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE);
         }
-
         fileOutputStreamHeader = getFileConnection(fileHeader, fileOutputStreamHeader);
         simpleHeader = new SimpleHeader();
         simpleHeader._sr = String.valueOf(stream.sr);

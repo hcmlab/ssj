@@ -49,8 +49,8 @@ public class Envelope extends Transformer {
 
     public class Options extends OptionList
     {
-        public final Option<Float> attackSlope = new Option("attackSlope", 0.1f, Cons.Type.FLOAT, "increment by which the envelope should increase each sample");
-        public final Option<Float> releaseSlope = new Option("releaseSlope", 0.1f, Cons.Type.FLOAT, "increment by which the envelope should decrease each sample");
+        public final Option<Float> attackSlope = new Option<>("attackSlope", 0.1f, Cons.Type.FLOAT, "increment by which the envelope should increase each sample");
+        public final Option<Float> releaseSlope = new Option<>("releaseSlope", 0.1f, Cons.Type.FLOAT, "increment by which the envelope should decrease each sample");
 
         /**
          *

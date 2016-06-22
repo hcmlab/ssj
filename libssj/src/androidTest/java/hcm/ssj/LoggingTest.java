@@ -180,10 +180,10 @@ public class LoggingTest extends ApplicationTestCase<Application>
         framework.options.bufferSize.setValue(10.0f);
         if (write)
         {
-            Write(framework, file);
+            write(framework, file);
         } else
         {
-            Read(framework, file);
+            read(framework, file);
         }
         //start framework
         framework.Start();
@@ -208,7 +208,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
      * @param file  File
      * @throws Exception
      */
-    private void Write(TheFramework frame, File file) throws Exception
+    private void write(TheFramework frame, File file) throws Exception
     {
         //sensor
         AndroidSensor sensorConnection = new AndroidSensor();
@@ -221,7 +221,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
         SimpleFileWriter simpleFileWriter = new SimpleFileWriter();
         simpleFileWriter.options.filePath.setValue(file.getParent());
         simpleFileWriter.options.fileName.setValue(file.getName());
-        frame.addConsumer(simpleFileWriter, sensorConnectionProvider, 1, 0);
+        frame.addConsumer(simpleFileWriter, sensorConnectionProvider, 0.25, 0);
     }
 
     /**
@@ -229,7 +229,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
      * @param file  File
      * @throws Exception
      */
-    private void Read(TheFramework frame, File file) throws Exception
+    private void read(TheFramework frame, File file) throws Exception
     {
         //sensor
         SimpleFileReader simpleFileReader = new SimpleFileReader();
@@ -242,6 +242,6 @@ public class LoggingTest extends ApplicationTestCase<Application>
         simpleFileReader.addProvider(simpleFileReaderProvider);
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, simpleFileReaderProvider, 1, 0);
+        frame.addConsumer(log, simpleFileReaderProvider, 0.25, 0);
     }
 }

@@ -40,8 +40,10 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.SimpleXmlParser;
 
 /**
@@ -55,20 +57,17 @@ public class NaiveBayes extends Transformer
      */
     public class Options extends OptionList
     {
-        /**
-         * Contains the SSI options.
-         */
-        public File fileOption = null;
-        /**
-         * Contains the trained model.
-         */
-        public File fileModel = null;
+        public final Option<String> filePathOption = new Option<>("filePathOption", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
+        public final Option<String> fileNameOption = new Option<>("fileNameOption", null, Cons.Type.STRING, "contains the SSI options");
+        public final Option<String> filePathModel = new Option<>("filePathModel", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
+        public final Option<String> fileNameModel = new Option<>("fileNameModel", null, Cons.Type.STRING, "contains the trained model");
 
         /**
          *
          */
         private Options()
         {
+            addOptions();
         }
     }
 
@@ -288,11 +287,40 @@ public class NaiveBayes extends Transformer
     }
 
     /**
+     * @param filePath Option
+     * @param fileName Option
+     * @return File
+     */
+    protected final File getFile(Option<String> filePath, Option<String> fileName)
+    {
+        if (filePath.getValue() == null)
+        {
+            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+        }
+        File fileDirectory = new File(filePath.getValue());
+        if (!fileDirectory.exists())
+        {
+            if (!fileDirectory.mkdirs())
+            {
+                Log.e(fileDirectory.getName() + " could not be created");
+                return null;
+            }
+        }
+        if (fileName.getValue() == null)
+        {
+            Log.e("file name not set");
+            return null;
+        }
+        return new File(fileDirectory, fileName.getValue());
+    }
+
+    /**
      * Load data from option file
      */
     private void loadOption()
     {
-        File file = options.fileOption;
+        File file = getFile(options.filePathOption, options.fileNameOption);
         if (file == null)
         {
             Log.w("option file not set in options");
@@ -329,7 +357,7 @@ public class NaiveBayes extends Transformer
      */
     private void loadModel()
     {
-        File file = options.fileModel;
+        File file = getFile(options.filePathModel, options.fileNameModel);
         if (file == null)
         {
             Log.e("model file not set in options");

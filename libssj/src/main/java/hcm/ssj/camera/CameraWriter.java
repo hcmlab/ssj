@@ -107,26 +107,7 @@ public class CameraWriter extends Mp4Writer
     @Override
     public final void init(Stream[] stream_in)
     {
-        if (options.filePath.getValue() == null)
-        {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
-        }
-        File fileDirectory = new File(options.filePath.getValue());
-        if (!fileDirectory.exists())
-        {
-            if (!fileDirectory.mkdirs())
-            {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return;
-            }
-        }
-        if (options.fileName.getValue() == null)
-        {
-            Log.w("file name not set, setting to " + defaultName);
-            options.fileName.setValue(defaultName);
-        }
-        file = new File(fileDirectory, options.fileName.getValue());
+        initFiles(options);
     }
 
     /**

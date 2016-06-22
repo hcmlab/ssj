@@ -78,6 +78,7 @@ public class SimpleFileReaderProvider extends SensorProvider
     /**
      *
      */
+    @Override
     protected void init()
     {
         simpleFileReader = (SimpleFileReader) _sensor;
@@ -99,104 +100,80 @@ public class SimpleFileReaderProvider extends SensorProvider
             case BOOL:
             {
                 boolean[] out = stream_out.ptrBool();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Boolean.valueOf(separated[k]);
-                    }
+                    out[k] = Boolean.valueOf(separated[k]);
                 }
                 break;
             }
             case BYTE:
             {
                 byte[] out = stream_out.ptrB();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Byte.valueOf(separated[k]);
-                    }
+                    out[k] = Byte.valueOf(separated[k]);
                 }
                 break;
             }
             case CHAR:
             {
                 char[] out = stream_out.ptrC();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = separated[k].charAt(0);
-                    }
+                    out[k] = separated[k].charAt(0);
                 }
                 break;
             }
             case SHORT:
             {
                 short[] out = stream_out.ptrS();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Short.valueOf(separated[k]);
-                    }
+                    out[k] = Short.valueOf(separated[k]);
                 }
                 break;
             }
             case INT:
             {
                 int[] out = stream_out.ptrI();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Integer.valueOf(separated[k]);
-                    }
+                    out[k] = Integer.valueOf(separated[k]);
                 }
                 break;
             }
             case LONG:
             {
                 long[] out = stream_out.ptrL();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Long.valueOf(separated[k]);
-                    }
+                    out[k] = Long.valueOf(separated[k]);
                 }
                 break;
             }
             case FLOAT:
             {
                 float[] out = stream_out.ptrF();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Float.valueOf(separated[k]);
-                    }
+                    out[k] = Float.valueOf(separated[k]);
                 }
                 break;
             }
             case DOUBLE:
             {
                 double[] out = stream_out.ptrD();
-                for (int i = 0, j = 0; i < sampleRate; i++)
+                String[] separated = getData();
+                for (int k = 0; k < dimension; k++)
                 {
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++)
-                    {
-                        out[j++] = Double.valueOf(separated[k]);
-                    }
+                    out[k] = Double.valueOf(separated[k]);
                 }
                 break;
             }

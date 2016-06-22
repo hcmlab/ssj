@@ -28,6 +28,7 @@ package hcm.ssjclay.creator;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -49,7 +50,6 @@ public class Builder
     public ArrayList<Class> transformers = new ArrayList<>();
     public ArrayList<Class> consumers = new ArrayList<>();
     public ArrayList<Class> eventConsumers = new ArrayList<>();
-    private static boolean ready = true;
     private HashSet<String> hsClassNames = new HashSet<>();
 
     /**
@@ -57,12 +57,7 @@ public class Builder
      */
     private Builder()
     {
-        //to prevent looping on own instantiation
-        if (ready)
-        {
-            ready = false;
-            scan();
-        }
+        scan();
     }
 
     /**
@@ -113,26 +108,30 @@ public class Builder
             try
             {
                 Class<?> aClass = classLoader.loadClass(className);
-                Class<?> parent = aClass.getSuperclass();
-                while (parent != null)
+                //only add valid classes
+                if (!Modifier.isAbstract(aClass.getModifiers()) && !Modifier.isInterface(aClass.getModifiers()) && !Modifier.isPrivate(aClass.getModifiers()))
                 {
-                    if (parent.getSimpleName().compareToIgnoreCase("Sensor") == 0)
+                    Class<?> parent = aClass.getSuperclass();
+                    while (parent != null)
                     {
-                        sensors.add(aClass);
-                    } else if (parent.getSimpleName().compareToIgnoreCase("SensorProvider") == 0)
-                    {
-                        sensorProviders.add(aClass);
-                    } else if (parent.getSimpleName().compareToIgnoreCase("Transformer") == 0)
-                    {
-                        transformers.add(aClass);
-                    } else if (parent.getSimpleName().compareToIgnoreCase("Consumer") == 0)
-                    {
-                        consumers.add(aClass);
-                    } else if (parent.getSimpleName().compareToIgnoreCase("EventConsumer") == 0)
-                    {
-                        eventConsumers.add(aClass);
+                        if (parent.getSimpleName().compareToIgnoreCase("Sensor") == 0)
+                        {
+                            sensors.add(aClass);
+                        } else if (parent.getSimpleName().compareToIgnoreCase("SensorProvider") == 0)
+                        {
+                            sensorProviders.add(aClass);
+                        } else if (parent.getSimpleName().compareToIgnoreCase("Transformer") == 0)
+                        {
+                            transformers.add(aClass);
+                        } else if (parent.getSimpleName().compareToIgnoreCase("Consumer") == 0)
+                        {
+                            consumers.add(aClass);
+                        } else if (parent.getSimpleName().compareToIgnoreCase("EventConsumer") == 0)
+                        {
+                            eventConsumers.add(aClass);
+                        }
+                        parent = parent.getSuperclass();
                     }
-                    parent = parent.getSuperclass();
                 }
             } catch (ClassNotFoundException cnfe)
             {

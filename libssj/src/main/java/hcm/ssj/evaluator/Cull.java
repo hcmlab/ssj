@@ -35,8 +35,10 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.SimpleXmlParser;
 
 /**
@@ -54,16 +56,15 @@ public class Cull extends Transformer
          * Describes the output names for every dimension in e.g. a graph.
          */
         public String[] outputClass = null;
-        /**
-         * Contains the used features.
-         */
-        public File fileTrainer = null;
+        public final Option<String> filePathTrainer = new Option<>("filePathTrainer", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
+        public final Option<String> fileNameTrainer = new Option<>("fileNameTrainer", null, Cons.Type.STRING, "contains the used features");
 
         /**
          *
          */
         private Options()
         {
+            addOptions();
         }
     }
 
@@ -204,11 +205,40 @@ public class Cull extends Transformer
     }
 
     /**
+     * @param filePath Option
+     * @param fileName Option
+     * @return File
+     */
+    protected final File getFile(Option<String> filePath, Option<String> fileName)
+    {
+        if (filePath.getValue() == null)
+        {
+            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+        }
+        File fileDirectory = new File(filePath.getValue());
+        if (!fileDirectory.exists())
+        {
+            if (!fileDirectory.mkdirs())
+            {
+                Log.e(fileDirectory.getName() + " could not be created");
+                return null;
+            }
+        }
+        if (fileName.getValue() == null)
+        {
+            Log.e("file name not set");
+            return null;
+        }
+        return new File(fileDirectory, fileName.getValue());
+    }
+
+    /**
      * Load data from trainer file
      */
     private void loadTrainer()
     {
-        File file = options.fileTrainer;
+        File file = getFile(options.filePathTrainer, options.fileNameTrainer);
         if (file == null)
         {
             Log.e("trainer file not set in options");
