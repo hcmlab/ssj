@@ -46,7 +46,7 @@ public class EventChannel
 
     protected TheFramework _frame;
 
-    EventChannel()
+    public EventChannel()
     {
         _frame = TheFramework.getFramework();
     }

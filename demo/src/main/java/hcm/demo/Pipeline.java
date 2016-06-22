@@ -86,7 +86,7 @@ public class Pipeline extends Thread {
         pitch.options.computePitch = true;
         pitch.options.computeVoicedProb = false;
         pitch.options.computePitchEnvelope = false;
-        _ssj.addTransformer(pitch, audio, 0.032, 0);
+        _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
 
         //** configure GUI
         //paint audio
@@ -98,7 +98,7 @@ public class Pipeline extends Thread {
         paint.options.secondScaleMin = 0;
         paint.options.secondScaleMax = 500;
         paint.registerGraphView(_graphs[0]);
-        _ssj.addConsumer(paint, new Provider[]{audio,pitch}, 0.1, 0);
+        _ssj.addConsumer(paint, new Provider[]{audio,pitch}, 0.032, 0);
 
         Log.i("SSJ_Demo", "starting pipeline");
         _ssj.Start();

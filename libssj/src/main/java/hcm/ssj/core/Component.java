@@ -47,7 +47,7 @@ public abstract class Component implements Runnable
     public void close() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        Log.i("shutting down");
+        Log.i(_name + " shutting down");
 
         _terminate = true;
 
@@ -64,12 +64,12 @@ public abstract class Component implements Runnable
 
             if(frame.getTime() > time + frame.options.timeoutThread)
             {
-                Log.w("force-killed thread");
+                Log.w(_name + "force-killed thread");
                 forcekill();
                 break;
             }
         }
-        Log.i("shut down completed");
+        Log.i(_name + "shut down completed");
     }
 
     public void forcekill()
