@@ -3,8 +3,10 @@ package hcm.ssjclay;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -25,7 +27,8 @@ import hcm.ssjclay.view.PipeView;
 public class MainActivity extends AppCompatActivity
 {
     private static boolean ready = true;
-    private static final int REQUEST_WRITE_STORAGE = 112;
+    private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
+    private static final int REQUEST_SYSTEM_PERMISSIONS = 109;
 
     /**
      *
@@ -42,10 +45,28 @@ public class MainActivity extends AppCompatActivity
     {
         if (Build.VERSION.SDK_INT >= 23)
         {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            //dangerous permissions
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     != PackageManager.PERMISSION_GRANTED)
             {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_WRITE_STORAGE);
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.BODY_SENSORS,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_DANGEROUS_PERMISSIONS);
+            }
+            //system permissions
+            if (!Settings.canDrawOverlays(this))
+            {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, REQUEST_SYSTEM_PERMISSIONS);
             }
         }
     }

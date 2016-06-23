@@ -42,7 +42,7 @@ public class EventLogger extends EventHandler
         /**
          *
          */
-        private Options() {}
+        private Options() {addOptions();}
     }
     public final Options options = new Options();
 

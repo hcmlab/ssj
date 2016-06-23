@@ -129,7 +129,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
                 cameraPainter.options.width.setValue(width);
                 cameraPainter.options.height.setValue(height);
                 cameraPainter.options.colorFormat.setValue(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
-                cameraPainter.options.surfaceView = new SurfaceView(this.getContext());
+                cameraPainter.options.surfaceView.setValue(new SurfaceView(this.getContext()));
                 frame.addConsumer(cameraPainter, cameraProvider, 1 / frameRate, 0);
                 break;
             }

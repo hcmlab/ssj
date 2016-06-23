@@ -41,8 +41,8 @@ public class ThresholdEventSender extends Consumer
         public final Option<String> sender = new Option<>("sender", null, Cons.Type.STRING, "");
         public final Option<String> event = new Option<>("event", "event", Cons.Type.STRING, "");
 
-        public float[] thresin = null;
-        public float[] thresout = null;
+        public final Option<float[]> thresin = new Option<>("thresin", null, Cons.Type.CUSTOM, "");
+        public final Option<float[]> thresout = new Option<>("thresout", null, Cons.Type.CUSTOM, "");
 
         public final Option<Integer> hangin = new Option<>("hangin", 0, Cons.Type.INT, "samples");
         public final Option<Integer> hangout = new Option<>("hangout", 0, Cons.Type.INT, "samples");
@@ -89,16 +89,16 @@ public class ThresholdEventSender extends Consumer
             totaldim += s.dim;
         }
 
-        if(options.thresin == null || options.thresin.length != totaldim)
+        if(options.thresin.getValue() == null || options.thresin.getValue().length != totaldim)
         {
             Log.e("invalid threshold list. Expecting " + totaldim + " thresholds");
             return;
         }
 
-        if(options.thresout == null)
+        if(options.thresout.getValue() == null)
         {
             Log.w("thresout undefined, using thresin");
-            options.thresout = options.thresin;
+            options.thresout.setValue(options.thresin.getValue());
         }
 
         _trigger_on = false;
@@ -122,7 +122,7 @@ public class ThresholdEventSender extends Consumer
         for (int i = 0; i < stream_in[0].num; i++) {
 
             //differentiate between onset and offset threshold
-            float[] threshold = (!_trigger_on) ? options.thresin : options.thresout;
+            float[] threshold = (!_trigger_on) ? options.thresin.getValue() : options.thresout.getValue();
 
             found_event = options.hard.getValue();
             int thresId = 0;

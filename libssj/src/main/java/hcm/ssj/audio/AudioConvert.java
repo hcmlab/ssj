@@ -45,6 +45,7 @@ public class AudioConvert extends Transformer {
          */
         private Options()
         {
+            addOptions();
         }
     }
     public final Options options = new Options();

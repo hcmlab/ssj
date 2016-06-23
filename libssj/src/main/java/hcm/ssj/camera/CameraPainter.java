@@ -26,15 +26,21 @@
 
 package hcm.ssj.camera;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.WindowManager;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -56,7 +62,7 @@ public class CameraPainter extends Consumer
         public final Option<Integer> orientation = new Option<>("orientation", 90, Cons.Type.INT, "orientation of input picture");
         public final Option<Boolean> scale = new Option<>("scale", false, Cons.Type.BOOL, "scale picture to match surface size");
         public final Option<ColorFormat> colorFormat = new Option<>("colorFormat", ColorFormat.NV21_DEFAULT, Cons.Type.CUSTOM, "change color format");
-        public SurfaceView surfaceView = null;
+        public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, Cons.Type.CUSTOM, "the view on which the painter is drawn");
 
         /**
          *
@@ -81,6 +87,7 @@ public class CameraPainter extends Consumer
     private int[] iaRgbData;
     private Bitmap bitmap;
     //
+    private SurfaceView surfaceViewInner = null;
     private SurfaceHolder surfaceHolder;
     //
     private ColorFormat colorFormat;
@@ -91,6 +98,54 @@ public class CameraPainter extends Consumer
     public CameraPainter()
     {
         _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+    }
+
+    /**
+     * @param stream_in Stream[]
+     */
+    @Override
+    protected void init(Stream[] stream_in)
+    {
+        super.init(stream_in);
+        if (options.surfaceView.getValue() == null)
+        {
+            Log.w("surfaceView isn't set");
+            //create system dialog to show painter
+            final Context context = SSJApplication.getAppContext();
+            Handler handler = new Handler(Looper.getMainLooper());
+            Thread thread = new Thread()
+            {
+                /**
+                 *
+                 */
+                @Override
+                public void run()
+                {
+                    surfaceViewInner = new SurfaceView(context);
+                    synchronized (CameraPainter.this)
+                    {
+                        try
+                        {
+                            CameraPainter.this.notify();
+                        } catch (IllegalMonitorStateException ex)
+                        {
+                            ex.printStackTrace();
+                        }
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(CameraPainter.class.getSimpleName());
+                    builder.setView(surfaceViewInner);
+                    //
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                    alertDialog.show();
+                }
+            };
+            handler.post(thread);
+        } else
+        {
+            surfaceViewInner = options.surfaceView.getValue();
+        }
     }
 
     /**
@@ -109,10 +164,24 @@ public class CameraPainter extends Consumer
             Log.e("Stream type not supported");
             return;
         }
+        synchronized (this)
+        {
+            if (surfaceViewInner == null)
+            {
+                //wait for surfaceView creation
+                try
+                {
+                    this.wait();
+                } catch (InterruptedException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
         int reqBuffSize = options.width.getValue() * options.height.getValue();
         reqBuffSize += reqBuffSize >> 1;
         byaShuffle = new byte[reqBuffSize];
-        surfaceHolder = options.surfaceView.getHolder();
+        surfaceHolder = surfaceViewInner.getHolder();
         iaRgbData = new int[options.width.getValue() * options.height.getValue()];
         //set bitmap
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
@@ -142,6 +211,7 @@ public class CameraPainter extends Consumer
     @Override
     public final void flush(Stream stream_in[])
     {
+        surfaceViewInner = null;
         iaRgbData = null;
         byaShuffle = null;
         surfaceHolder = null;
@@ -164,27 +234,30 @@ public class CameraPainter extends Consumer
             synchronized (surfaceHolder)
             {
                 canvas = surfaceHolder.lockCanvas(null);
-                int canvasWidth = canvas.getWidth();
-                int canvasHeight = canvas.getHeight();
-                int bitmapWidth = bitmap.getWidth();
-                int bitmapHeight = bitmap.getHeight();
-                //rotate canvas
-                canvas.rotate(options.orientation.getValue(), canvasWidth >> 1, canvasHeight >> 1);
-                //decode color format
-                decodeColor(data, bitmapWidth, bitmapHeight);
-                //fill bitmap with picture
-                bitmap.setPixels(iaRgbData, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
-                if (options.scale.getValue())
+                if (canvas != null)
                 {
-                    //scale picture to surface size
-                    canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvasWidth, canvasHeight), null);
-                } else
-                {
-                    //center picture on canvas
-                    canvas.drawBitmap(bitmap,
-                            canvasWidth - ((bitmapWidth + canvasWidth) >> 1),
-                            canvasHeight - ((bitmapHeight + canvasHeight) >> 1),
-                            null);
+                    int canvasWidth = canvas.getWidth();
+                    int canvasHeight = canvas.getHeight();
+                    int bitmapWidth = bitmap.getWidth();
+                    int bitmapHeight = bitmap.getHeight();
+                    //rotate canvas
+                    canvas.rotate(options.orientation.getValue(), canvasWidth >> 1, canvasHeight >> 1);
+                    //decode color format
+                    decodeColor(data, bitmapWidth, bitmapHeight);
+                    //fill bitmap with picture
+                    bitmap.setPixels(iaRgbData, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
+                    if (options.scale.getValue())
+                    {
+                        //scale picture to surface size
+                        canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvasWidth, canvasHeight), null);
+                    } else
+                    {
+                        //center picture on canvas
+                        canvas.drawBitmap(bitmap,
+                                canvasWidth - ((bitmapWidth + canvasWidth) >> 1),
+                                canvasHeight - ((bitmapHeight + canvasHeight) >> 1),
+                                null);
+                    }
                 }
             }
         } catch (Exception e)

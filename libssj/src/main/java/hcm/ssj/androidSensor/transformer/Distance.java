@@ -45,14 +45,8 @@ public class Distance extends Transformer
      */
     public class Options extends OptionList
     {
-        /**
-         * Describes the output names for every dimension in e.g. a graph.
-         */
-        public String[] outputClass = null;
-        /**
-         * Individual threshold for each dimension.
-         */
-        public float[] individualDistance = null;
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<float[]> individualDistance = new Option<>("individualDistance", null, Cons.Type.CUSTOM, "Individual threshold for each dimension");
         public final Option<Float> standardDistance = new Option<>("standardDistance", 2.f, Cons.Type.FLOAT, " Standard threshold for the reached distance");
 
         /**
@@ -119,8 +113,8 @@ public class Distance extends Transformer
                     float ret = 0;
                     float value = aStream_in.ptrF()[i * aStream_in.dim + k];
                     oldValues[t] += Math.abs(value);
-                    if ((options.individualDistance != null && options.individualDistance[t] >= oldValues[t])
-                            || (options.individualDistance == null && oldValues[t] >= options.standardDistance.getValue()))
+                    if ((options.individualDistance.getValue() != null && options.individualDistance.getValue()[t] >= oldValues[t])
+                            || (options.individualDistance.getValue() == null && oldValues[t] >= options.standardDistance.getValue()))
                     {
                         ret = 1;
                         oldValues[t] = 0;
@@ -143,8 +137,8 @@ public class Distance extends Transformer
         {
             overallDimension += stream.dim;
         }
-        if (options.individualDistance != null
-                && overallDimension != options.individualDistance.length)
+        if (options.individualDistance.getValue() != null
+                && overallDimension != options.individualDistance.getValue().length)
         {
             Log.e("invalid option individualDistance length");
         }
@@ -190,11 +184,11 @@ public class Distance extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass != null)
+        if (options.outputClass.getValue() != null)
         {
-            if (overallDimension == options.outputClass.length)
+            if (overallDimension == options.outputClass.getValue().length)
             {
-                System.arraycopy(options.outputClass, 0, stream_out.dataclass, 0, options.outputClass.length);
+                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
                 return;
             } else
             {

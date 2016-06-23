@@ -49,7 +49,7 @@ public class BluetoothProvider extends SensorProvider
         public final Option<Double> sr = new Option<>("sr", 0., Cons.Type.DOUBLE, "");
         public final Option<Integer> num = new Option<>("num", 1, Cons.Type.INT, "values >1 make buffer error handling less efficient");
         public final Option<Cons.Type> type = new Option<>("type", Cons.Type.UNDEF, Cons.Type.CUSTOM, "");
-        public String[] outputClass = null;
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
 
         /**
          *
@@ -139,7 +139,7 @@ public class BluetoothProvider extends SensorProvider
     public void defineOutputClasses(Stream stream_out)
     {
         stream_out.dataclass = new String[stream_out.dim];
-        if(options.outputClass == null || stream_out.dim != options.outputClass.length)
+        if(options.outputClass.getValue() == null || stream_out.dim != options.outputClass.getValue().length)
         {
             Log.w("incomplete definition of output classes");
             for(int i = 0; i < stream_out.dataclass.length; i++)
@@ -147,7 +147,7 @@ public class BluetoothProvider extends SensorProvider
         }
         else
         {
-            System.arraycopy(options.outputClass, 0, stream_out.dataclass, 0, options.outputClass.length);
+            System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
         }
     }
 }

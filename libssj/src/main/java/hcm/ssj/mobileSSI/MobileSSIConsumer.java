@@ -50,6 +50,7 @@ public class MobileSSIConsumer extends Consumer
          */
         private Options()
         {
+            addOptions();
         }
     }
 

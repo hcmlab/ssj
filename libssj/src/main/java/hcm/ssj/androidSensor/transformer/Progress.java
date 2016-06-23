@@ -30,6 +30,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
@@ -44,16 +45,14 @@ public class Progress extends Transformer
      */
     public class Options extends OptionList
     {
-        /**
-         * Describes the output names for every dimension in e.g. a graph.
-         */
-        public String[] outputClass = null;
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
 
         /**
          *
          */
         private Options()
         {
+            addOptions();
         }
     }
 
@@ -188,11 +187,11 @@ public class Progress extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass != null)
+        if (options.outputClass.getValue() != null)
         {
-            if (overallDimension == options.outputClass.length)
+            if (overallDimension == options.outputClass.getValue().length)
             {
-                System.arraycopy(options.outputClass, 0, stream_out.dataclass, 0, options.outputClass.length);
+                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
                 return;
             } else
             {

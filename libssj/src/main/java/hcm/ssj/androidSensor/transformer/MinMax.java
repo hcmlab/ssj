@@ -48,10 +48,7 @@ public class MinMax extends Transformer
      */
     public class Options extends OptionList
     {
-        /**
-         * Describes the output names for every dimension in e.g. a graph.
-         */
-        public String[] outputClass = null;
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
         public final Option<Boolean> min = new Option<>("min", true, Cons.Type.BOOL, "Calculate minimum for each frame");
         public final Option<Boolean> max = new Option<>("max", true, Cons.Type.BOOL, "Calculate maximum for each frame");
 
@@ -225,11 +222,11 @@ public class MinMax extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass != null)
+        if (options.outputClass.getValue() != null)
         {
-            if (overallDimension == options.outputClass.length)
+            if (overallDimension == options.outputClass.getValue().length)
             {
-                System.arraycopy(options.outputClass, 0, stream_out.dataclass, 0, options.outputClass.length);
+                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
                 return;
             } else
             {

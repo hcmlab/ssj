@@ -110,7 +110,7 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.addTransformer(energy, audio, 1.0, 0);
 
         ThresholdEventSender vad = new ThresholdEventSender();
-        vad.options.thresin = new float[]{50.0f}; //SPL
+        vad.options.thresin.setValue(new float[]{50.0f}); //SPL
         vad.options.mindur.setValue(1.0);
         vad.options.maxdur.setValue(9.0);
         vad.options.hangin.setValue(3);

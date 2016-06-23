@@ -94,7 +94,7 @@ public class Pipeline extends Thread {
         paint.options.min.setValue(0.);
         paint.options.max.setValue(1.);
         paint.options.renderMax.setValue(true);
-        paint.registerGraphView(_graphs[0]);
+        paint.options.graphView.setValue(_graphs[0]);
         _ssj.addConsumer(paint, audio, 0.1, 0);
 
         //show data in graph 2
@@ -103,7 +103,7 @@ public class Pipeline extends Thread {
         paint.options.min.setValue(0.);
         paint.options.max.setValue(500.);
         paint.options.renderMax.setValue(true);
-        paint.registerGraphView(_graphs[1]);
+        paint.options.graphView.setValue(_graphs[1]);
         _ssj.addConsumer(paint, pitch, 0.1, 0);
 
         Log.i("SSJ_Demo", "starting pipeline");

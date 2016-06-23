@@ -47,6 +47,7 @@ public class Activity extends Transformer {
          */
         private Options()
         {
+            addOptions();
         }
     }
     public final Options options = new Options();

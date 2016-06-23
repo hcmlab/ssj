@@ -44,7 +44,7 @@ public class Avg extends Transformer {
         /**
          *
          */
-        private Options() {}
+        private Options() {addOptions();}
     }
     public final Options options = new Options();
 
