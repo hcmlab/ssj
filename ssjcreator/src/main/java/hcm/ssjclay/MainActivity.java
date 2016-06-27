@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ScrollView;
@@ -23,9 +24,17 @@ import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
+import com.jjoe64.graphview.GraphView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.graphic.SignalPainter;
 import hcm.ssjclay.creator.Builder;
 import hcm.ssjclay.creator.Linker;
 import hcm.ssjclay.dialogs.AddDialog;
@@ -37,10 +46,13 @@ public class MainActivity extends AppCompatActivity
     private static boolean ready = true;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     private static final int REQUEST_SYSTEM_PERMISSIONS = 109;
-    //
-    LocalActivityManager mlam = null;
-    private TabHost tabHost = null;
+    //visual pipe editor
     private PipeView pipeView = null;
+    //tabs
+    private LocalActivityManager mlam = null;
+    private TabHost tabHost = null;
+    private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
+    private final static int FIX_TAB_NUMBER = 2;
     //console
     private TextView textViewConsole = null;
     private String strLogMsg = "";
@@ -67,6 +79,14 @@ public class MainActivity extends AppCompatActivity
             handler.post(runnable);
         }
     };
+    private PipeView.ViewListener viewListener = new PipeView.ViewListener()
+    {
+        @Override
+        public void viewChanged()
+        {
+            checkAdditionalTabs();
+        }
+    };
 
     /**
      *
@@ -76,11 +96,11 @@ public class MainActivity extends AppCompatActivity
         mlam = new LocalActivityManager(this, false);
         mlam.dispatchCreate(savedInstanceState);
         tabHost = (TabHost) findViewById(R.id.id_tabHost);
+        pipeView = new PipeView(MainActivity.this);
         if (tabHost != null)
         {
             tabHost.setup(mlam);
             //pipe
-            pipeView = new PipeView(MainActivity.this);
             pipeView.setWillNotDraw(false);
             addTab(pipeView, getResources().getString(R.string.str_pipe));
             //console
@@ -88,7 +108,9 @@ public class MainActivity extends AppCompatActivity
         }
         //add log listener
         Log.addLogListener(logListener);
-        //
+        //add view listener
+        pipeView.addViewListener(viewListener);
+        //handle permissions
         checkPermissions();
     }
 
@@ -206,7 +228,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     *
+     * Start or stop pipe
      */
     private void handlePipe()
     {
@@ -355,6 +377,49 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
+     * Add or remove additional tabs
+     */
+    private void checkAdditionalTabs()
+    {
+        Object[] consumers = Linker.getInstance().getAll(Linker.Type.Consumer);
+        //add additional tabs
+        for (Object object : consumers)
+        {
+            if (object instanceof SignalPainter)
+            {
+                GraphView graphView = ((SignalPainter) object).options.graphView.getValue();
+                if (graphView == null)
+                {
+                    graphView = new GraphView(MainActivity.this);
+                    ((SignalPainter) object).options.graphView.setValue(graphView);
+                    addTab(graphView, "GraphView");
+                    alAdditionalTabs.add(object);
+                }
+            } else if (object instanceof CameraPainter)
+            {
+                SurfaceView surfaceView = ((CameraPainter) object).options.surfaceView.getValue();
+                if (surfaceView == null)
+                {
+                    surfaceView = new SurfaceView(MainActivity.this);
+                    ((CameraPainter) object).options.surfaceView.setValue(surfaceView);
+                    addTab(surfaceView, "SurfaceView");
+                    alAdditionalTabs.add(object);
+                }
+            }
+        }
+        //remove obsolete tabs
+        List list = Arrays.asList(consumers);
+        for (int i = alAdditionalTabs.size() - 1; i >= 0; i--)
+        {
+            if (!list.contains(alAdditionalTabs.get(i)))
+            {
+                alAdditionalTabs.remove(i);
+                removeTab(i + FIX_TAB_NUMBER);
+            }
+        }
+    }
+
+    /**
      *
      */
     @Override
@@ -382,6 +447,7 @@ public class MainActivity extends AppCompatActivity
     protected void onDestroy()
     {
         Log.removeLogListener(logListener);
+        pipeView.removeViewListener(viewListener);
         TheFramework framework = TheFramework.getFramework();
         if (framework.isRunning())
         {

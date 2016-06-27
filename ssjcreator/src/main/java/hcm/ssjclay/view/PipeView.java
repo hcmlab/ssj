@@ -38,9 +38,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
 import hcm.ssjclay.creator.Linker;
 
 /**
@@ -49,6 +49,14 @@ import hcm.ssjclay.creator.Linker;
  */
 public class PipeView extends ViewGroup
 {
+    /**
+     * Interface to register listeners to
+     */
+    public interface ViewListener
+    {
+        void viewChanged();
+    }
+
     //elements
     private static ArrayList<ElementView> elementViewsSensor;
     private static ArrayList<ElementView> elementViewsProvider;
@@ -67,6 +75,8 @@ public class PipeView extends ViewGroup
     private int gridWPix = 0;
     private int gridHPix = 0;
     private static boolean[][] grid = null;
+    //
+    private HashSet<ViewListener> hsViewListener = new HashSet<>();
 
     /**
      * @param context Context
@@ -218,6 +228,26 @@ public class PipeView extends ViewGroup
         calculateGrid();
         createElements();
         placeElements();
+        for (ViewListener viewListener : hsViewListener)
+        {
+            viewListener.viewChanged();
+        }
+    }
+
+    /**
+     * @param viewListener ViewListener
+     */
+    public final void addViewListener(ViewListener viewListener)
+    {
+        hsViewListener.add(viewListener);
+    }
+
+    /**
+     * @param viewListener ViewListener
+     */
+    public final void removeViewListener(ViewListener viewListener)
+    {
+        hsViewListener.remove(viewListener);
     }
 
     /**
