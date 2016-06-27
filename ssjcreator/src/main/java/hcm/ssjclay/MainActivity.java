@@ -23,11 +23,7 @@ import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
 import hcm.ssjclay.creator.Builder;
@@ -45,28 +41,30 @@ public class MainActivity extends AppCompatActivity
     LocalActivityManager mlam = null;
     private TabHost tabHost = null;
     private PipeView pipeView = null;
-    //test
-    private static int timer = 0;
-    private Handler handlerTest;
-    Runnable threadTest = new Runnable()
+    //console
+    private TextView textViewConsole = null;
+    private String strLogMsg = "";
+    private Log.LogListener logListener = new Log.LogListener()
     {
-        /**
-         *
-         */
-        @Override
-        public void run()
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable runnable = new Runnable()
         {
-            try
+            public void run()
             {
-
-                System.out.println("Test" + (++timer));
-            } finally
-            {
-                if (timer < 200)
+                if (textViewConsole != null)
                 {
-                    handlerTest.postDelayed(threadTest, 1000);
+                    textViewConsole.setText(strLogMsg);
                 }
             }
+        };
+
+        /**
+         * @param msg String
+         */
+        public void send(String msg)
+        {
+            strLogMsg += msg;
+            handler.post(runnable);
         }
     };
 
@@ -88,6 +86,9 @@ public class MainActivity extends AppCompatActivity
             //console
             addTabConsole();
         }
+        //add log listener
+        Log.addLogListener(logListener);
+        //
         checkPermissions();
     }
 
@@ -135,22 +136,11 @@ public class MainActivity extends AppCompatActivity
     private void addTabConsole()
     {
         final ScrollView scrollView = new ScrollView(MainActivity.this);
-        final TextView textView = new TextView(MainActivity.this);
-        System.setOut(new PrintStream(new OutputStream()
-        {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-            @Override
-            public void write(int oneByte) throws IOException
-            {
-                outputStream.write(oneByte);
-                textView.setText(new String(outputStream.toByteArray()));
-            }
-        }));
-        scrollView.addView(textView);
+        textViewConsole = new TextView(MainActivity.this);
+        scrollView.addView(textViewConsole);
         //
         addTab(scrollView, getResources().getString(R.string.str_console));
-        //adjust size
+        //workaround to adjust size retroactively
         Handler handler = new Handler(Looper.getMainLooper());
         Thread thread = new Thread()
         {
@@ -165,9 +155,6 @@ public class MainActivity extends AppCompatActivity
             }
         };
         handler.postDelayed(thread, 200);
-        //testing the System.out stream
-        handlerTest = new Handler(Looper.getMainLooper());
-        handlerTest.postDelayed(threadTest, 1000);
     }
 
     /**
@@ -231,6 +218,9 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
+                    //clear console
+                    strLogMsg = "";
+                    MainActivity.this.logListener.send("");
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
                     //remove old content
@@ -391,6 +381,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
+        Log.removeLogListener(logListener);
         TheFramework framework = TheFramework.getFramework();
         if (framework.isRunning())
         {

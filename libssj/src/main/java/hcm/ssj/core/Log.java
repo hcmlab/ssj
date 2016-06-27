@@ -29,17 +29,26 @@ package hcm.ssj.core;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Locale;
 
 import hcm.ssj.BuildConfig;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 17.03.2016.
  */
 public class Log
 {
+    /**
+     * Interface to register listeners to
+     */
+    public interface LogListener {
+        void send(String msg);
+    }
+
     public class Entry
     {
         double t;
@@ -55,6 +64,9 @@ public class Log
     private LinkedList<Entry> buffer = new LinkedList<>();
     private TheFramework frame = null;
     private static Log instance = null;
+    //
+    private static HashSet<LogListener> hsLogListener = new HashSet<>();
+    private String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
 
     Log() {}
 
@@ -140,10 +152,31 @@ public class Log
 
         str = buildEntry(msg, tr);
         android.util.Log.println(type, Cons.LOGTAG, str);
+        //send message to listeners
+        if (hsLogListener.size() > 0) {
+            String logMessage = (type > 0 && type < tags.length ? tags[type] : type) + "/" +  Cons.LOGTAG + ": " + str + LoggingConstants.DELIMITER_LINE;
+            for (LogListener logListener : hsLogListener) {
+                logListener.send(logMessage);
+            }
+        }
 
         synchronized (this) {
             buffer.add(new Entry(time, str));
         }
+    }
+
+    /**
+     * @param logListener LogListener
+     */
+    public static void addLogListener(LogListener logListener) {
+        hsLogListener.add(logListener);
+    }
+
+    /**
+     * @param logListener LogListener
+     */
+    public static void removeLogListener(LogListener logListener) {
+        hsLogListener.remove(logListener);
     }
 
     public static void d(String msg)
