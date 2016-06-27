@@ -1,11 +1,14 @@
 package hcm.ssjclay;
 
 import android.Manifest;
+import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -15,6 +18,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TabHost;
+import android.widget.TabHost.TabSpec;
+import android.widget.TextView;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
@@ -29,13 +41,133 @@ public class MainActivity extends AppCompatActivity
     private static boolean ready = true;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     private static final int REQUEST_SYSTEM_PERMISSIONS = 109;
+    //
+    LocalActivityManager mlam = null;
+    private TabHost tabHost = null;
+    private PipeView pipeView = null;
+    //test
+    private static int timer = 0;
+    private Handler handlerTest;
+    Runnable threadTest = new Runnable()
+    {
+        /**
+         *
+         */
+        @Override
+        public void run()
+        {
+            try
+            {
+
+                System.out.println("Test" + (++timer));
+            } finally
+            {
+                if (timer < 200)
+                {
+                    handlerTest.postDelayed(threadTest, 1000);
+                }
+            }
+        }
+    };
 
     /**
      *
      */
-    private void init()
+    private void init(Bundle savedInstanceState)
     {
+        mlam = new LocalActivityManager(this, false);
+        mlam.dispatchCreate(savedInstanceState);
+        tabHost = (TabHost) findViewById(R.id.id_tabHost);
+        if (tabHost != null)
+        {
+            tabHost.setup(mlam);
+            //pipe
+            pipeView = new PipeView(MainActivity.this);
+            pipeView.setWillNotDraw(false);
+            addTab(pipeView, getResources().getString(R.string.str_pipe));
+            //console
+            addTabConsole();
+        }
         checkPermissions();
+    }
+
+    /**
+     * @param view    View
+     * @param tabName String
+     */
+    private void addTab(final View view, final String tabName)
+    {
+        final TabSpec tabSpec = tabHost.newTabSpec(tabName);
+        tabSpec.setContent(new TabHost.TabContentFactory()
+        {
+            /**
+             * @param tag String
+             * @return View
+             */
+            public View createTabContent(String tag)
+            {
+                return view;
+            }
+        });
+        tabSpec.setIndicator(tabName);
+        tabHost.addTab(tabSpec);
+        int height = tabHost.getHeight();
+        int width = tabHost.getWidth();
+        //expand to full size
+        if (height > 0 && width > 0)
+        {
+            view.setMinimumHeight(height);
+            view.setMinimumWidth(width);
+        }
+    }
+
+    /**
+     * @param tab int
+     */
+    private void removeTab(int tab)
+    {
+        tabHost.getTabWidget().removeView(tabHost.getTabWidget().getChildTabViewAt(tab));
+    }
+
+    /**
+     *
+     */
+    private void addTabConsole()
+    {
+        final ScrollView scrollView = new ScrollView(MainActivity.this);
+        final TextView textView = new TextView(MainActivity.this);
+        System.setOut(new PrintStream(new OutputStream()
+        {
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+            @Override
+            public void write(int oneByte) throws IOException
+            {
+                outputStream.write(oneByte);
+                textView.setText(new String(outputStream.toByteArray()));
+            }
+        }));
+        scrollView.addView(textView);
+        //
+        addTab(scrollView, getResources().getString(R.string.str_console));
+        //adjust size
+        Handler handler = new Handler(Looper.getMainLooper());
+        Thread thread = new Thread()
+        {
+            /**
+             *
+             */
+            @Override
+            public void run()
+            {
+                scrollView.setMinimumHeight(tabHost.getHeight());
+                scrollView.setMinimumWidth(tabHost.getWidth());
+            }
+        };
+        handler.postDelayed(thread, 200);
+        //testing the System.out stream
+        handlerTest = new Handler(Looper.getMainLooper());
+        handlerTest.postDelayed(threadTest, 1000);
     }
 
     /**
@@ -226,7 +358,6 @@ public class MainActivity extends AppCompatActivity
      */
     private void actualizeContent()
     {
-        final PipeView pipeView = (PipeView) this.findViewById(R.id.id_pipe_view);
         if (pipeView != null)
         {
             pipeView.recalculate();
@@ -240,7 +371,18 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
+        mlam.dispatchResume();
         actualizeContent();
+    }
+
+    /**
+     *
+     */
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        mlam.dispatchPause(isFinishing());
     }
 
     /**
@@ -266,6 +408,6 @@ public class MainActivity extends AppCompatActivity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
+        init(savedInstanceState);
     }
 }

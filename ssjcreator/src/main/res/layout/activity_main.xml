@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -39,24 +39,30 @@
             android:baselineAligned="false"
             android:gravity="center">
 
-            <hcm.ssjclay.view.PipeView
+            <TabHost
+                android:id="@+id/id_tabHost"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/id_pipe_view"
-                android:padding="10dp"
-                android:layout_weight="100"
-                custom:showText="true"
-                custom:labelHeight="20dp"
-                custom:labelWidth="110dp"
-                custom:labelY="85dp"
-                custom:labelPosition="left"
-                custom:highlightStrength="1.12"
-                android:background="@android:color/white"
-                custom:pieRotation="0"
-                custom:labelColor="@android:color/black"
-                custom:autoCenterPointerInSlice="true"
-                custom:pointerRadius="4dp"
-                />
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TabWidget
+                        android:id="@android:id/tabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                    </TabWidget>
+
+                    <FrameLayout
+                        android:id="@android:id/tabcontent"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                    </FrameLayout>
+                </LinearLayout>
+            </TabHost>
 
         </TableRow>
     </TableLayout>
