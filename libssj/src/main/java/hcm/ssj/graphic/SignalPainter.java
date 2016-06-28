@@ -26,8 +26,11 @@
 
 package hcm.ssj.graphic;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.WindowManager;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -35,8 +38,12 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -44,25 +51,30 @@ import hcm.ssj.core.stream.Stream;
  */
 public class SignalPainter extends Consumer
 {
-    public class Options
+    public class Options extends OptionList
     {
-        public int colors[] = {0xff0077cc, 0xffff9900, 0xff009999, 0xff990000, 0xffff00ff, 0xff000000, 0xff339900};
-        public double size = 10.0; //in seconds
-        public boolean legend = true;
+        public final Option<int[]> colors = new Option<>("colors", new int[]{0xff0077cc, 0xffff9900, 0xff009999, 0xff990000, 0xffff00ff, 0xff000000, 0xff339900}, Cons.Type.CUSTOM, "");
+        public final Option<Double> size = new Option<>("size", 10., Cons.Type.DOUBLE, "in seconds");
+        public final Option<Boolean> legend = new Option<>("legend", true, Cons.Type.BOOL, "");
+        public final Option<Boolean> manualBounds = new Option<>("manualBounds", false, Cons.Type.BOOL, "");
+        public final Option<Double> min = new Option<>("min", 0., Cons.Type.DOUBLE, "");
+        public final Option<Double> max = new Option<>("max", 1., Cons.Type.DOUBLE, "");
+        public final Option<Integer> secondScaleStream = new Option<>("secondScaleStream", 1, Cons.Type.INT, "stream id to put on the secondary scale (use -1 to disable)");
+        public final Option<Integer> secondScaleDim = new Option<>("secondScaleDim", 0, Cons.Type.INT, "put a dimension on the secondary scale (use -1 to disable)");
+        public final Option<Double> secondScaleMin = new Option<>("secondScaleMin", 0., Cons.Type.DOUBLE, "");
+        public final Option<Double> secondScaleMax = new Option<>("secondScaleMax", 1., Cons.Type.DOUBLE, "");
+        public final Option<Integer> numVLabels = new Option<>("numVLabels", 2, Cons.Type.INT, "");
+        public final Option<Integer> numHLabels = new Option<>("numHLabels", 2, Cons.Type.INT, "");
+        public final Option<Boolean> renderMax = new Option<>("renderMax", true, Cons.Type.BOOL, "");
+        public final Option<GraphView> graphView = new Option<>("graphView", null, Cons.Type.CUSTOM, "");
 
-        public boolean manualBounds = false;
-        public double min = 0;
-        public double max = 1;
-
-        public int secondScaleStream = 1; //stream id to put on the secondary scale (use -1 to disable)
-        public int secondScaleDim = 0; //stream dimension id to put on the secondary scale (use -1 to disable)
-        public double secondScaleMin = 0;
-        public double secondScaleMax = 1;
-
-        public int numVLabels = 2;
-        public int numHLabels = 2;
-
-        public boolean renderMax = true;
+        /**
+         *
+         */
+        private Options()
+        {
+            addOptions();
+        }
     }
     public Options options = new Options();
 
@@ -76,13 +88,69 @@ public class SignalPainter extends Consumer
         _name = "SSJ_consumer_SignalPainter";
     }
 
+    /**
+     * @param stream_in Stream[]
+     */
+    @Override
+    protected void init(Stream[] stream_in)
+    {
+        super.init(stream_in);
+        if (options.graphView.getValue() == null)
+        {
+            Log.w("graphView isn't set");
+            //create system dialog to show graph
+            final Context context = SSJApplication.getAppContext();
+            Handler handler = new Handler(Looper.getMainLooper());
+            Thread thread = new Thread()
+            {
+                /**
+                 *
+                 */
+                @Override
+                public void run()
+                {
+                    _view = new GraphView(context);
+                    synchronized (SignalPainter.this)
+                    {
+                        try
+                        {
+                            SignalPainter.this.notify();
+                        } catch (IllegalMonitorStateException ex)
+                        {
+                            ex.printStackTrace();
+                        }
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(SignalPainter.class.getSimpleName());
+                    builder.setView(_view);
+                    //
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+                    alertDialog.show();
+                }
+            };
+            handler.post(thread);
+        } else
+        {
+            _view = options.graphView.getValue();
+        }
+    }
     @Override
     public void enter(Stream[] stream_in)
     {
-        if(_view == null)
+        synchronized (this)
         {
-            Log.e("graph view not registered");
-            return;
+            if (_view == null)
+            {
+                //wait for graphView creation
+                try
+                {
+                    this.wait();
+                } catch (InterruptedException ex)
+                {
+                    Log.e("graph view not registered");
+                }
+            }
         }
 
         if(stream_in.length > 2)
@@ -98,16 +166,16 @@ public class SignalPainter extends Consumer
 
         _view.getViewport().setXAxisBoundsManual(true);
         _view.getViewport().setMinX(0);
-        _view.getViewport().setMaxX(options.size);
+        _view.getViewport().setMaxX(options.size.getValue());
 
-        _view.getViewport().setYAxisBoundsManual(options.manualBounds);
-        _view.getViewport().setMaxY(options.max);
-        _view.getViewport().setMinY(options.min);
+        _view.getViewport().setYAxisBoundsManual(options.manualBounds.getValue());
+        _view.getViewport().setMaxY(options.max.getValue());
+        _view.getViewport().setMinY(options.min.getValue());
 
-        _view.getGridLabelRenderer().setNumHorizontalLabels(options.numHLabels);
-        _view.getGridLabelRenderer().setNumVerticalLabels(options.numVLabels);
+        _view.getGridLabelRenderer().setNumHorizontalLabels(options.numHLabels.getValue());
+        _view.getGridLabelRenderer().setNumVerticalLabels(options.numVLabels.getValue());
 
-        _view.getLegendRenderer().setVisible(options.legend);
+        _view.getLegendRenderer().setVisible(options.legend.getValue());
         _view.getLegendRenderer().setFixedPosition(10, 10);
 
         _view.getGridLabelRenderer().setLabelVerticalWidth(100);
@@ -135,14 +203,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax)
+                            if (!options.renderMax.getValue())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax)
+                        if (options.renderMax.getValue())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -157,14 +225,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax)
+                            if (!options.renderMax.getValue())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax)
+                        if (options.renderMax.getValue())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -179,14 +247,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax)
+                            if (!options.renderMax.getValue())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax)
+                        if (options.renderMax.getValue())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -201,14 +269,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax)
+                            if (!options.renderMax.getValue())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax)
+                        if (options.renderMax.getValue())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -223,14 +291,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax)
+                            if (!options.renderMax.getValue())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax)
+                        if (options.renderMax.getValue())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -245,14 +313,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax)
+                            if (!options.renderMax.getValue())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax)
+                        if (options.renderMax.getValue())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -276,6 +344,7 @@ public class SignalPainter extends Consumer
             public void run() {
                 _view.removeAllSeries();
                 _view.clearSecondScale();
+                _view = null;
             }
         }, 1);
     }
@@ -312,20 +381,20 @@ public class SignalPainter extends Consumer
                     {
                         LineGraphSeries<DataPoint> s = new LineGraphSeries<>();
                         s.setTitle(stream_in[i].dataclass[j]);
-                        s.setColor(options.colors[_series.size() % options.colors.length]);
+                        s.setColor(options.colors.getValue()[_series.size() % options.colors.getValue().length]);
 
                         //define scale length
-                        if(!options.renderMax)
-                            _maxPoints[_series.size()] = (int)(options.size * stream_in[i].sr) +1;
+                        if(!options.renderMax.getValue())
+                            _maxPoints[_series.size()] = (int)(options.size.getValue() * stream_in[i].sr) +1;
                         else
-                            _maxPoints[_series.size()] = (int)(options.size * (stream_in[i].sr / (double)stream_in[i].num)) +1;
+                            _maxPoints[_series.size()] = (int)(options.size.getValue() * (stream_in[i].sr / (double)stream_in[i].num)) +1;
 
                         _series.add(s);
 
-                        if (options.secondScaleStream == i && options.secondScaleDim == j)
+                        if (options.secondScaleStream.getValue() == i && options.secondScaleDim.getValue() == j)
                         {
-                            view.getSecondScale().setMinY(options.secondScaleMin);
-                            view.getSecondScale().setMaxY(options.secondScaleMax);
+                            view.getSecondScale().setMinY(options.secondScaleMin.getValue());
+                            view.getSecondScale().setMaxY(options.secondScaleMax.getValue());
                             view.getSecondScale().addSeries(s);
                         } else
                         {
@@ -335,10 +404,5 @@ public class SignalPainter extends Consumer
                 }
             }
         }, 1);
-    }
-
-    public void registerGraphView(GraphView view)
-    {
-        _view = view;
     }
 }

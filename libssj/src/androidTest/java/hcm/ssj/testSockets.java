@@ -49,12 +49,12 @@ public class testSockets extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize = 10.0f;
+        frame.options.bufferSize.setValue(10.0f);
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate = 16000;
-        audio.options.scale = true;
+        audio.options.sampleRate.setValue(16000);
+        audio.options.scale.setValue(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
@@ -62,7 +62,7 @@ public class testSockets extends ApplicationTestCase<Application> {
         frame.addTransformer(energy, audio, 1.0, 0);
 
         FloatsEventSender evs = new FloatsEventSender();
-        evs.options.mean = true;
+        evs.options.mean.setValue(true);
         frame.addConsumer(evs, energy, 1.0, 0);
         EventChannel channel = frame.registerEventProvider(evs);
 
