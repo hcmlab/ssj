@@ -1,5 +1,5 @@
 /*
- * EventLogger.java
+ * EventListener.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
@@ -24,58 +24,12 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.test;
-
-import hcm.ssj.core.Event;
-import hcm.ssj.core.EventChannel;
-import hcm.ssj.core.EventHandler;
-import hcm.ssj.core.Log;
-import hcm.ssj.core.option.OptionList;
+package hcm.ssj.core;
 
 /**
- * Outputs all incoming events using logcat
+ * Created by Michael Dietz on 25.04.2016.
  */
-public class EventLogger extends EventHandler
+public interface EventListener
 {
-    public class Options extends OptionList
-    {
-        /**
-         *
-         */
-        private Options() {addOptions();}
-    }
-    public final Options options = new Options();
-
-    public EventLogger()
-    {
-        _name = "SSJ_econsumer_EventLogger";
-    }
-
-    int _lastBehavEventID = -1;
-
-    @Override
-    public void enter()
-    {
-        if(_evchannel_in == null || _evchannel_in.size() == 0)
-            throw new RuntimeException("no input channels");
-    }
-
-    @Override
-    protected void process()
-    {
-        for(EventChannel ch : _evchannel_in)
-        {
-            Event ev = ch.getEvent(_lastBehavEventID, true);
-            if (ev == null)
-                return;
-
-            _lastBehavEventID = ev.id + 1;
-            Log.i(ev.sender + "_" + ev.name + "_" + ev.id + " (" + ev.state.toString() + ", " + ev.time + ", " + ev.dur + ") : " + ev.msg);
-        }
-    }
-
-
-    @Override
-    public void flush()
-    {}
+	void notify(Event event);
 }

@@ -26,8 +26,3 @@ This library is free software; you can redistribute it and/or modify it under th
 This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with this library; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
-### External Libraries
-* [GraphView](https://github.com/hcmlab/GraphView) ([License](https://github.com/hcmlab/GraphView/blob/master/license.txt))
-* [TarsosDSP](https://github.com/JorenSix/TarsosDSP) ([License](https://github.com/JorenSix/TarsosDSP/blob/master/license.txt))
-* [PRAAT](http://www.fon.hum.uva.nl/praat/) ([License](http://www.fon.hum.uva.nl/praat/GNU_General_Public_License.txt))

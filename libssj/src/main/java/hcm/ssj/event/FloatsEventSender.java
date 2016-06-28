@@ -86,13 +86,21 @@ public class FloatsEventSender extends Consumer
                 for (int i = 0; i < stream_in[0].num; i++)
                     sum += ptr[i * stream_in[0].dim + j];
 
-                ev.msg += String.valueOf(sum / stream_in[0].num) + " ";
+                ev.msg += String.valueOf(sum / stream_in[0].num);
+
+                if(j < stream_in[0].dim -1)
+                    ev.msg += " ";
             }
         }
         else {
             for (int i = 0; i < stream_in[0].num; i++) {
                 for (int j = 0; j < stream_in[0].dim; j++)
-                    ev.msg += String.valueOf(ptr[i * stream_in[0].dim + j]) + " ";
+                {
+                    ev.msg += String.valueOf(ptr[i * stream_in[0].dim + j]);
+
+                    if (j < stream_in[0].dim - 1)
+                        ev.msg += " ";
+                }
             }
         }
 
