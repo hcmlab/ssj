@@ -26,7 +26,6 @@
 
 package hcm.ssj.test;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
@@ -40,7 +39,7 @@ public class Logger extends Consumer
 {
     public class Options extends OptionList
     {
-        public final Option<Boolean> reduceNum = new Option<>("reduceNum", true, Cons.Type.BOOL, "");
+        public final Option<Boolean> reduceNum = new Option<>("reduceNum", true, Boolean.class, "");
 
         /**
          *

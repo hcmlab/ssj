@@ -57,9 +57,9 @@ public class SocketEventReader extends EventHandler
 
     public class Options extends OptionList
     {
-        public Option<String> ip = new Option<>("ip", null, Cons.Type.STRING, "");
-        public Option<Integer> port = new Option<>("port", 0, Cons.Type.INT, "");
-        public Option<Boolean> parseXmlToEvent = new Option<>("parseXmlToEvent", true, Cons.Type.BOOL, "attempt to convert the message to an SSJ event format");
+        public Option<String> ip = new Option<>("ip", null, String.class, "");
+        public Option<Integer> port = new Option<>("port", 0, Integer.class, "");
+        public Option<Boolean> parseXmlToEvent = new Option<>("parseXmlToEvent", true, Boolean.class, "attempt to convert the message to an SSJ event format");
 
         /**
          *

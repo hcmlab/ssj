@@ -56,9 +56,9 @@ public class MvgAvgVar extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Double> window = new Option<>("window", 10., Cons.Type.DOUBLE, "size of moving/sliding window in seconds");
-		public final Option<Method> method = new Option<>("method", Method.MOVING, Cons.Type.CUSTOM, "");
-		public final Option<Format> format = new Option<>("format", Format.AVERAGE, Cons.Type.CUSTOM, "");
+		public final Option<Double> window = new Option<>("window", 10., Double.class, "size of moving/sliding window in seconds");
+		public final Option<Method> method = new Option<>("method", Method.MOVING, Method.class, "");
+		public final Option<Format> format = new Option<>("format", Format.AVERAGE, Format.class, "");
 
 		/**
 		 *

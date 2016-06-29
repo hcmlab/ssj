@@ -44,12 +44,12 @@ public class BluetoothProvider extends SensorProvider
 {
     public class Options extends OptionList
     {
-        public final Option<Integer> bytes = new Option<>("bytes", 0, Cons.Type.INT, "");
-        public final Option<Integer> dim = new Option<>("dim", 0, Cons.Type.INT, "");
-        public final Option<Double> sr = new Option<>("sr", 0., Cons.Type.DOUBLE, "");
-        public final Option<Integer> num = new Option<>("num", 1, Cons.Type.INT, "values >1 make buffer error handling less efficient");
-        public final Option<Cons.Type> type = new Option<>("type", Cons.Type.UNDEF, Cons.Type.CUSTOM, "");
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<Integer> bytes = new Option<>("bytes", 0, Integer.class, "");
+        public final Option<Integer> dim = new Option<>("dim", 0, Integer.class, "");
+        public final Option<Double> sr = new Option<>("sr", 0., Double.class, "");
+        public final Option<Integer> num = new Option<>("num", 1, Integer.class, "values >1 make buffer error handling less efficient");
+        public final Option<Cons.Type> type = new Option<>("type", Cons.Type.UNDEF, Cons.Type.class, "");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
 
         /**
          *

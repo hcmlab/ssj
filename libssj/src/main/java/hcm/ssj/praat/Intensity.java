@@ -59,9 +59,9 @@ public class Intensity extends Transformer {
 
     public class Options extends OptionList
     {
-        public final Option<Double> minPitch = new Option("minPitch", 50., Cons.Type.DOUBLE, "");
-        public final Option<Double> timeStep = new Option("timeStep", 0., Cons.Type.DOUBLE, "");
-        public final Option<Boolean> subtractMeanPressure = new Option("subtractMeanPressure", true, Cons.Type.BOOL, "");
+        public final Option<Double> minPitch = new Option<>("minPitch", 50., Double.class, "");
+        public final Option<Double> timeStep = new Option<>("timeStep", 0., Double.class, "");
+        public final Option<Boolean> subtractMeanPressure = new Option<>("subtractMeanPressure", true, Boolean.class, "");
 
         /**
          *

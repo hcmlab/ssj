@@ -58,10 +58,10 @@ public class MvgMinMax extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Float> windowSize = new Option<>("windowSize", 10.f, Cons.Type.FLOAT, "");
-		public final Option<Method> method         = new Option<>("method", Method.MOVING, Cons.Type.CUSTOM, "");
-		public final Option<Format> format         = new Option<>("format", Format.MIN, Cons.Type.CUSTOM, "");
-		public final Option<Integer> numberOfBlocks = new Option<>("numberOfBlocks", 10, Cons.Type.INT, "");
+		public final Option<Float> windowSize = new Option<>("windowSize", 10.f, Float.class, "");
+		public final Option<Method> method = new Option<>("method", Method.MOVING, Method.class, "");
+		public final Option<Format> format = new Option<>("format", Format.MIN, Format.class, "");
+		public final Option<Integer> numberOfBlocks = new Option<>("numberOfBlocks", 10, Integer.class, "");
 
 		/**
 		 *

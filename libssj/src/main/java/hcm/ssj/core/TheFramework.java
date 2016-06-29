@@ -40,17 +40,18 @@ import hcm.ssj.core.option.OptionList;
 /**
  * Created by Johnny on 05.03.2015.
  */
-public class TheFramework {
+public class TheFramework
+{
 
     public class Options extends OptionList
     {
-        public final Option<Integer> countdown = new Option<>("countdown", 3, Cons.Type.INT, "");
-        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Cons.Type.FLOAT, "");
-        public final Option<Float> timeoutThread = new Option<>("timeoutThread", 5.f, Cons.Type.FLOAT, "");
-        public final Option<Boolean> netSync = new Option<>("netSync", false, Cons.Type.BOOL, "");
-        public final Option<Boolean> netSyncListen = new Option<>("netSyncListen", false, Cons.Type.BOOL, "set true if this is not the server pipe");
-        public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Cons.Type.INT, "");
-        public final Option<String> logfile = new Option<>("logfile", null, Cons.Type.STRING, "");
+        public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "");
+        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "");
+        public final Option<Float> timeoutThread = new Option<>("timeoutThread", 5.f, Float.class, "");
+        public final Option<Boolean> netSync = new Option<>("netSync", false, Boolean.class, "");
+        public final Option<Boolean> netSyncListen = new Option<>("netSyncListen", false, Boolean.class, "set true if this is not the server pipe");
+        public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Integer.class, "");
+        public final Option<String> logfile = new Option<>("logfile", null, String.class, "");
 
         /**
          *
@@ -60,6 +61,7 @@ public class TheFramework {
             addOptions();
         }
     }
+
     public final Options options = new Options();
 
     protected String _name = "SSJ_Framework";
@@ -80,6 +82,7 @@ public class TheFramework {
     protected ArrayList<TimeBuffer> _buffer = new ArrayList<>();
 
     protected static TheFramework _instance = null;
+
     private TheFramework()
     {
         //configure logger
@@ -95,7 +98,7 @@ public class TheFramework {
 
     public static TheFramework getFramework()
     {
-        if(_instance == null)
+        if (_instance == null)
             _instance = new TheFramework();
 
         return _instance;
@@ -108,35 +111,38 @@ public class TheFramework {
 
     public void Start()
     {
-        try {
+        try
+        {
             Log.i("starting pipeline (SSJ v" + getVersion() + ")");
 
             Log.i("preparing buffers");
             for (TimeBuffer b : _buffer)
                 b.reset();
 
-            for (Component c : _components) {
+            for (Component c : _components)
+            {
                 Log.i("starting " + c.getComponentName());
                 c.reset();
                 _threadPool.execute(c);
             }
 
-            for (int i = 0; i < options.countdown.getValue(); i++) {
+            for (int i = 0; i < options.countdown.getValue(); i++)
+            {
                 Log.i("starting pipeline in " + (options.countdown.getValue() - i));
                 Thread.sleep(1000);
             }
 
-            if(options.netSync.getValue())
+            if (options.netSync.getValue())
             {
                 try
                 {
-                    if(options.netSyncListen.getValue())
+                    if (options.netSyncListen.getValue())
                     {
                         _syncSocket = new DatagramSocket(options.netSyncPort.getValue());
                         _syncSocket.setReuseAddress(true);
 
-                        Log.i("waiting for master pipeline (port = "+ options.netSyncPort+")");
-                        while(true)
+                        Log.i("waiting for master pipeline (port = " + options.netSyncPort + ")");
+                        while (true)
                         {
                             byte[] data = new byte[4];
                             DatagramPacket packet = new DatagramPacket(data, 4);
@@ -144,15 +150,14 @@ public class TheFramework {
                             Log.d("received packet from " + packet.getAddress().toString());
 
                             //check data
-                            if(packet.getData()[0] == 'S' && packet.getData()[1] == 'S' && packet.getData()[2] == 'J' && packet.getData()[3] == 1)
+                            if (packet.getData()[0] == 'S' && packet.getData()[1] == 'S' && packet.getData()[2] == 'J' && packet.getData()[3] == 1)
                             {
                                 Log.d("packet identified as start ping");
                                 break;
                             }
                             Log.d("packet not recognized");
                         }
-                    }
-                    else
+                    } else
                     {
                         _syncSocket = new DatagramSocket(null);
                         _syncSocket.setReuseAddress(true);
@@ -164,8 +169,7 @@ public class TheFramework {
 
                         Log.i("sync ping sent on port " + options.netSyncPort.getValue());
                     }
-                }
-                catch (IOException e)
+                } catch (IOException e)
                 {
                     Log.e("network sync failed", e);
                 }
@@ -176,7 +180,8 @@ public class TheFramework {
             _isRunning = true;
             Log.i("pipeline started");
 
-        } catch(Exception e) {
+        } catch (Exception e)
+        {
             crash("framework start", "error starting pipeline", e);
         }
     }
@@ -188,6 +193,7 @@ public class TheFramework {
 
     /**
      * Used by the sensor to initialize each provider
+     *
      * @param s the sensor which owns the provider
      * @param p the provider to be added to the framework
      */
@@ -204,7 +210,7 @@ public class TheFramework {
         //add output buffer
         TimeBuffer buf = new TimeBuffer(options.bufferSize.getValue(), sr, dim, bytesPerValue, type);
         _buffer.add(buf);
-        int buffer_id = _buffer.size() -1;
+        int buffer_id = _buffer.size() - 1;
         p.setBufferID(buffer_id);
 
         p.setup();
@@ -229,7 +235,7 @@ public class TheFramework {
         //add output buffer
         TimeBuffer buf = new TimeBuffer(options.bufferSize.getValue(), sr, dim, bytesPerValue, type);
         _buffer.add(buf);
-        int buffer_id = _buffer.size() -1;
+        int buffer_id = _buffer.size() - 1;
         t.setBufferID(buffer_id);
 
         _components.add(t);
@@ -277,6 +283,7 @@ public class TheFramework {
     /**
      * Adds an unspecific component to the framework.
      * No initialization is performed and no buffers are allocated.
+     *
      * @param c the component to be added
      */
     public void addComponent(Component c)
@@ -290,6 +297,7 @@ public class TheFramework {
         c.setEventChannelOut(channel);
         return channel;
     }
+
     public void registerEventListener(Component c, EventChannel channel)
     {
         c.addEventChannelIn(channel);
@@ -297,62 +305,67 @@ public class TheFramework {
 
     public void pushData(int buffer_id, Object data, int numBytes)
     {
-        if(!isRunning()) {
+        if (!isRunning())
+        {
             return;
         }
 
-        if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w("cannot push to buffer "+buffer_id +". Buffer does not exist.");
+        if (buffer_id < 0 || buffer_id >= _buffer.size())
+            Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
         _buffer.get(buffer_id).push(data, numBytes);
     }
 
     public void pushZeroes(int buffer_id)
     {
-        if(!isRunning()) {
+        if (!isRunning())
+        {
             return;
         }
 
-        if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w("cannot push to buffer "+buffer_id +". Buffer does not exist.");
+        if (buffer_id < 0 || buffer_id >= _buffer.size())
+            Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
         TimeBuffer buf = _buffer.get(buffer_id);
 
         double frame_time = getTime();
         double buffer_time = buf.getLastWrittenSampleTime();
 
-        if (buffer_time < frame_time) {
-            int bytes = (int)((frame_time - buffer_time) * buf.getSampleRate()) * buf.getBytesPerSample();
+        if (buffer_time < frame_time)
+        {
+            int bytes = (int) ((frame_time - buffer_time) * buf.getSampleRate()) * buf.getBytesPerSample();
 
-            if(bytes > 0)
+            if (bytes > 0)
                 buf.pushZeroes(bytes);
         }
     }
 
     public void pushZeroes(int buffer_id, int num)
     {
-        if(!isRunning()) {
+        if (!isRunning())
+        {
             return;
         }
 
-        if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w("cannot push to buffer "+buffer_id +". Buffer does not exist.");
+        if (buffer_id < 0 || buffer_id >= _buffer.size())
+            Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
         _buffer.get(buffer_id).pushZeroes(num);
     }
 
     public boolean getData(int buffer_id, Object data, double start_time, double duration)
     {
-        if(!_isRunning) {
+        if (!_isRunning)
+        {
             return false;
         }
 
-        if(buffer_id < 0 || buffer_id >= _buffer.size())
-            Log.w("cannot read from buffer "+buffer_id +". Buffer does not exist.");
+        if (buffer_id < 0 || buffer_id >= _buffer.size())
+            Log.w("cannot read from buffer " + buffer_id + ". Buffer does not exist.");
 
         int res = _buffer.get(buffer_id).get(data, start_time, duration);
 
-        switch(res)
+        switch (res)
         {
             case TimeBuffer.STATUS_INPUT_ARRAY_TOO_SMALL:
                 Log.w("input buffer too small");
@@ -373,7 +386,7 @@ public class TheFramework {
                 Log.w("requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if(_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w("unknown error occurred");
                 return false;
         }
@@ -383,16 +396,17 @@ public class TheFramework {
 
     public boolean getData(int buffer_id, Object data, int startSample, int numSamples)
     {
-        if(!_isRunning) {
+        if (!_isRunning)
+        {
             return false;
         }
 
-        if(buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= _buffer.size())
             Log.w("Invalid buffer");
 
         int res = _buffer.get(buffer_id).get(data, startSample, numSamples);
 
-        switch(res)
+        switch (res)
         {
             case TimeBuffer.STATUS_INPUT_ARRAY_TOO_SMALL:
                 Log.w("input buffer too small");
@@ -404,7 +418,7 @@ public class TheFramework {
                 Log.w("data not in buffer yet");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_ANYMORE:
-                Log.w("data range ("+startSample +","+ (startSample + numSamples) +") not in buffer anymore");
+                Log.w("data range (" + startSample + "," + (startSample + numSamples) + ") not in buffer anymore");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_SMALL:
                 Log.w("requested duration too small");
@@ -416,7 +430,7 @@ public class TheFramework {
                 Log.w("requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if(_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w("unknown buffer error occurred");
                 return false;
         }
@@ -447,8 +461,8 @@ public class TheFramework {
                 try
                 {
                     c.close();
-                }
-                catch(Exception e) {
+                } catch (Exception e)
+                {
                     e.printStackTrace();
                     Log.e("closing " + c.getComponentName() + " failed");
                 }
@@ -458,17 +472,15 @@ public class TheFramework {
             _threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
 
             Log.i("shut down completed");
-        }
-        catch (Exception e)
+        } catch (Exception e)
         {
             Log.e("Exception in closing framework", e);
 
-            if(_exceptionHandler != null)
+            if (_exceptionHandler != null)
                 _exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
             else
                 throw new RuntimeException(e);
-        }
-        finally
+        } finally
         {
             log();
             _isStopping = false;
@@ -477,7 +489,7 @@ public class TheFramework {
 
     public void invalidateFramework()
     {
-        if(isRunning())
+        if (isRunning())
         {
             Log.w("Cannot invalidateFramework. Framework still active.");
             return;
@@ -490,8 +502,9 @@ public class TheFramework {
         _instance = null;
     }
 
-    public void clear() {
-        if(isRunning())
+    public void clear()
+    {
+        if (isRunning())
         {
             Log.w("Cannot invalidateFramework. Framework still active.");
             return;
@@ -504,7 +517,7 @@ public class TheFramework {
 
     private void log()
     {
-        if(options.logfile.getValue() != null)
+        if (options.logfile.getValue() != null)
         {
             Log.getInstance().saveToFile(options.logfile.getValue());
             Log.getInstance().reset();
@@ -518,17 +531,18 @@ public class TheFramework {
         Log.e("ERROR in " + location + " - " + message, e);
         log();
 
-        if(_exceptionHandler != null) {
+        if (_exceptionHandler != null)
+        {
             _exceptionHandler.handle(location, message, e);
-        }
-        else {
+        } else
+        {
             throw new RuntimeException(e);
         }
     }
 
     public void sync(int bufferID)
     {
-        if(!isRunning())
+        if (!isRunning())
             return;
 
         _buffer.get(bufferID).sync(_timer.getElapsed());
@@ -536,7 +550,7 @@ public class TheFramework {
 
     public double getTime()
     {
-        if(_timer == null)
+        if (_timer == null)
             return 0;
 
         return _timer.getElapsed();
@@ -544,7 +558,7 @@ public class TheFramework {
 
     public long getTimeMs()
     {
-        if(_timer == null)
+        if (_timer == null)
             return 0;
 
         return _timer.getElapsedMs();

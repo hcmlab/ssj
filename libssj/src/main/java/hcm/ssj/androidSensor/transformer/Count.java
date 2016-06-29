@@ -45,9 +45,9 @@ public class Count extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Boolean> frameCount = new Option<>("frameCount", true, Cons.Type.BOOL, "Global or frame count");
-        public final Option<Boolean> divideByNumber = new Option<>("divideByNumber", false, Cons.Type.BOOL, "Divide through number of values to be comparable");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<Boolean> frameCount = new Option<>("frameCount", true, Boolean.class, "Global or frame count");
+        public final Option<Boolean> divideByNumber = new Option<>("divideByNumber", false, Boolean.class, "Divide through number of values to be comparable");
 
         /**
          *

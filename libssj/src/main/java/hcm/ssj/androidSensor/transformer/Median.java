@@ -47,7 +47,7 @@ public class Median extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
 
         /**
          *

@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
@@ -58,8 +57,8 @@ public abstract class Mp4Writer extends Consumer
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, Cons.Type.STRING, "file name");
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
 
         /**
          *

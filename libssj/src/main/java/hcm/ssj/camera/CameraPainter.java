@@ -57,12 +57,12 @@ public class CameraPainter extends Consumer
     public class Options extends OptionList
     {
         //values should be the same as in camera
-        public final Option<Integer> width = new Option<>("width", 640, Cons.Type.INT, "width of input picture");
-        public final Option<Integer> height = new Option<>("height", 480, Cons.Type.INT, "height of input picture");
-        public final Option<Integer> orientation = new Option<>("orientation", 90, Cons.Type.INT, "orientation of input picture");
-        public final Option<Boolean> scale = new Option<>("scale", false, Cons.Type.BOOL, "scale picture to match surface size");
-        public final Option<ColorFormat> colorFormat = new Option<>("colorFormat", ColorFormat.NV21_DEFAULT, Cons.Type.CUSTOM, "change color format");
-        public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, Cons.Type.CUSTOM, "the view on which the painter is drawn");
+        public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width of input picture");
+        public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height of input picture");
+        public final Option<Integer> orientation = new Option<>("orientation", 90, Integer.class, "orientation of input picture");
+        public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "scale picture to match surface size");
+        public final Option<ColorFormat> colorFormat = new Option<>("colorFormat", ColorFormat.NV21_DEFAULT, ColorFormat.class, "change color format");
+        public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, SurfaceView.class, "the view on which the painter is drawn");
 
         /**
          *

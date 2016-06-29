@@ -39,7 +39,7 @@ public class BatteryProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Cons.Type.INT, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
 
 		/**
 		 *

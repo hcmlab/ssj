@@ -54,9 +54,9 @@ public class SimpleFileWriter extends Consumer
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, Cons.Type.STRING, "file name");
-        public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, Cons.Type.STRING, "");
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
+        public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "");
 
         /**
          *

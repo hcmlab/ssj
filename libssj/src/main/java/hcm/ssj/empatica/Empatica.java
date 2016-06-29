@@ -71,7 +71,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 {
 	public class Options extends OptionList
 	{
-		public final Option<String> apiKey = new Option<>("apiKey", null, Cons.Type.STRING, "");
+		public final Option<String> apiKey = new Option<>("apiKey", null, String.class, "");
 
 		/**
 		 *

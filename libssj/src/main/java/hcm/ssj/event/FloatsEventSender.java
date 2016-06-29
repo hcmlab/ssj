@@ -37,9 +37,9 @@ public class FloatsEventSender extends Consumer
 {
     public class Options extends OptionList
     {
-        public final Option<String> sender = new Option<>("sender", null, Cons.Type.STRING, "");
-        public final Option<String> event = new Option<>("event", "event", Cons.Type.STRING, "");
-        public final Option<Boolean> mean = new Option<>("mean", true, Cons.Type.BOOL, "send mean values");
+        public final Option<String> sender = new Option<>("sender", null, String.class, "");
+        public final Option<String> event = new Option<>("event", "event", String.class, "");
+        public final Option<Boolean> mean = new Option<>("mean", true, Boolean.class, "send mean values");
 
         /**
          *

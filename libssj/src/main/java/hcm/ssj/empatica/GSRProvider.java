@@ -39,7 +39,7 @@ public class GSRProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 4, Cons.Type.INT, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 4, Integer.class, "");
 
 		/**
 		 *

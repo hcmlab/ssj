@@ -53,20 +53,20 @@ public class SignalPainter extends Consumer
 {
     public class Options extends OptionList
     {
-        public final Option<int[]> colors = new Option<>("colors", new int[]{0xff0077cc, 0xffff9900, 0xff009999, 0xff990000, 0xffff00ff, 0xff000000, 0xff339900}, Cons.Type.CUSTOM, "");
-        public final Option<Double> size = new Option<>("size", 10., Cons.Type.DOUBLE, "in seconds");
-        public final Option<Boolean> legend = new Option<>("legend", true, Cons.Type.BOOL, "");
-        public final Option<Boolean> manualBounds = new Option<>("manualBounds", false, Cons.Type.BOOL, "");
-        public final Option<Double> min = new Option<>("min", 0., Cons.Type.DOUBLE, "");
-        public final Option<Double> max = new Option<>("max", 1., Cons.Type.DOUBLE, "");
-        public final Option<Integer> secondScaleStream = new Option<>("secondScaleStream", 1, Cons.Type.INT, "stream id to put on the secondary scale (use -1 to disable)");
-        public final Option<Integer> secondScaleDim = new Option<>("secondScaleDim", 0, Cons.Type.INT, "put a dimension on the secondary scale (use -1 to disable)");
-        public final Option<Double> secondScaleMin = new Option<>("secondScaleMin", 0., Cons.Type.DOUBLE, "");
-        public final Option<Double> secondScaleMax = new Option<>("secondScaleMax", 1., Cons.Type.DOUBLE, "");
-        public final Option<Integer> numVLabels = new Option<>("numVLabels", 2, Cons.Type.INT, "");
-        public final Option<Integer> numHLabels = new Option<>("numHLabels", 2, Cons.Type.INT, "");
-        public final Option<Boolean> renderMax = new Option<>("renderMax", true, Cons.Type.BOOL, "");
-        public final Option<GraphView> graphView = new Option<>("graphView", null, Cons.Type.CUSTOM, "");
+        public final Option<int[]> colors = new Option<>("colors", new int[]{0xff0077cc, 0xffff9900, 0xff009999, 0xff990000, 0xffff00ff, 0xff000000, 0xff339900}, int[].class, "");
+        public final Option<Double> size = new Option<>("size", 10., Double.class, "in seconds");
+        public final Option<Boolean> legend = new Option<>("legend", true, Boolean.class, "");
+        public final Option<Boolean> manualBounds = new Option<>("manualBounds", false, Boolean.class, "");
+        public final Option<Double> min = new Option<>("min", 0., Double.class, "");
+        public final Option<Double> max = new Option<>("max", 1., Double.class, "");
+        public final Option<Integer> secondScaleStream = new Option<>("secondScaleStream", 1, Integer.class, "stream id to put on the secondary scale (use -1 to disable)");
+        public final Option<Integer> secondScaleDim = new Option<>("secondScaleDim", 0, Integer.class, "put a dimension on the secondary scale (use -1 to disable)");
+        public final Option<Double> secondScaleMin = new Option<>("secondScaleMin", 0., Double.class, "");
+        public final Option<Double> secondScaleMax = new Option<>("secondScaleMax", 1., Double.class, "");
+        public final Option<Integer> numVLabels = new Option<>("numVLabels", 2, Integer.class, "");
+        public final Option<Integer> numHLabels = new Option<>("numHLabels", 2, Integer.class, "");
+        public final Option<Boolean> renderMax = new Option<>("renderMax", true, Boolean.class, "");
+        public final Option<GraphView> graphView = new Option<>("graphView", null, GraphView.class, "");
 
         /**
          *

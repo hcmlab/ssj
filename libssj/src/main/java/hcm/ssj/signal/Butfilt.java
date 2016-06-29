@@ -48,12 +48,12 @@ public class Butfilt extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Type> type  = new Option<>("type", Type.BAND, Cons.Type.CUSTOM, "");
-		public final Option<Integer> order = new Option<>("order", 1, Cons.Type.INT, "Filter order");
-		public final Option<Boolean> norm = new Option<>("norm", true, Cons.Type.BOOL, "Frequency values are normalized in interval [0..1], where 1 is the nyquist frequency (=half the sample rate)");
-		public final Option<Double> low = new Option<>("low", 0., Cons.Type.DOUBLE, "Low cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
-		public final Option<Double> high = new Option<>("high", 1., Cons.Type.DOUBLE, "High cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
-		public final Option<Boolean> zero = new Option<>("zero", false, Cons.Type.BOOL, "Subtract first sample from signal to avoid artifacts at the beginning of the signal");
+		public final Option<Type> type  = new Option<>("type", Type.BAND, Type.class, "");
+		public final Option<Integer> order = new Option<>("order", 1, Integer.class, "Filter order");
+		public final Option<Boolean> norm = new Option<>("norm", true, Boolean.class, "Frequency values are normalized in interval [0..1], where 1 is the nyquist frequency (=half the sample rate)");
+		public final Option<Double> low = new Option<>("low", 0., Double.class, "Low cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
+		public final Option<Double> high = new Option<>("high", 1., Double.class, "High cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
+		public final Option<Boolean> zero = new Option<>("zero", false, Boolean.class, "Subtract first sample from signal to avoid artifacts at the beginning of the signal");
 
 		/**
 		 *

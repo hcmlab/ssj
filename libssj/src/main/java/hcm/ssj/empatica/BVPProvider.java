@@ -39,7 +39,7 @@ public class BVPProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 64, Cons.Type.INT, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 64, Integer.class, "");
 
 		/**
 		 *

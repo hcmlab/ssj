@@ -48,12 +48,12 @@ public class SpeechRate extends EventConsumer
 {
     public class Options extends OptionList
     {
-        public final Option<String> sender = new Option<>("sender", _name, Cons.Type.STRING, "");
-        public final Option<String> event = new Option<>("event", "SpeechRate", Cons.Type.STRING, "");
-        public final Option<Float> thresholdVoicedProb = new Option<>("thresholdVoicedProb", 0.5f, Cons.Type.FLOAT, "in Hz");
-        public final Option<Float> intensityIgnoranceLevel = new Option<>("intensityIgnoranceLevel", 1.0f, Cons.Type.FLOAT, "in dB");
-        public final Option<Float> minDipBetweenPeaks = new Option<>("minDipBetweenPeaks", 3.0f, Cons.Type.FLOAT, "in dB");
-        public final Option<Integer> width = new Option<>("width", 3, Cons.Type.INT, "");
+        public final Option<String> sender = new Option<>("sender", _name, String.class, "");
+        public final Option<String> event = new Option<>("event", "SpeechRate", String.class, "");
+        public final Option<Float> thresholdVoicedProb = new Option<>("thresholdVoicedProb", 0.5f, Float.class, "in Hz");
+        public final Option<Float> intensityIgnoranceLevel = new Option<>("intensityIgnoranceLevel", 1.0f, Float.class, "in dB");
+        public final Option<Float> minDipBetweenPeaks = new Option<>("minDipBetweenPeaks", 3.0f, Float.class, "in dB");
+        public final Option<Integer> width = new Option<>("width", 3, Integer.class, "");
 
         /**
          *

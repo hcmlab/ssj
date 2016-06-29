@@ -46,14 +46,14 @@ public class Myo extends Sensor
 {
 	public class Options extends OptionList
 	{
-		public final Option<String> macAddress = new Option<>("macAddress", "F3:41:FA:27:EB:08", Cons.Type.STRING, "");
+		public final Option<String> macAddress = new Option<>("macAddress", "F3:41:FA:27:EB:08", String.class, "");
 		//when locking is enabled, myo is locked by default
 		//and gesture events are not triggered while in this state.
 		//A special gesture is required to "unlock" the device
-		public final Option<Boolean> locking = new Option<>("locking", false, Cons.Type.BOOL, "A special gesture is required to \"unlock\" the device");
-		public final Option<Boolean> imu = new Option<>("imu", true, Cons.Type.BOOL, "");
-		public final Option<Configuration.EmgMode> emg = new Option<>("emg", Configuration.EmgMode.FILTERED, Cons.Type.CUSTOM, "");
-		public final Option<Boolean> gestures = new Option<>("gestures", false, Cons.Type.BOOL, "disabling the gesture classifier will also disable the \"sync\" mechanism");
+		public final Option<Boolean> locking = new Option<>("locking", false, Boolean.class, "A special gesture is required to \"unlock\" the device");
+		public final Option<Boolean> imu = new Option<>("imu", true, Boolean.class, "");
+		public final Option<Configuration.EmgMode> emg = new Option<>("emg", Configuration.EmgMode.FILTERED, Configuration.EmgMode.class, "");
+		public final Option<Boolean> gestures = new Option<>("gestures", false, Boolean.class, "disabling the gesture classifier will also disable the \"sync\" mechanism");
 
 		/**
 		 *

@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 
@@ -120,7 +119,7 @@ public class OptionTable
         linearLayout.addView(linearLayoutDescription);
         //edit field
         View inputView;
-        if (option.getType() == Cons.Type.BOOL)
+        if (option.getType() == Boolean.class)
         {
             //checkbox for boolean values
             inputView = new CheckBox(activity);
@@ -169,54 +168,44 @@ public class OptionTable
             ((EditText) inputView).setTextColor(Color.BLACK);
 
             // Specify the expected input type
-            switch (option.getType())
+            Class<?> type = option.getType();
+            if (type == Byte.class || type == Short.class || type == Integer.class || type == Long.class)
             {
-                case UNDEF:
-                    throw new RuntimeException();
-                case BYTE:
-                case SHORT:
-                case INT:
-                case LONG:
-                    ((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
-                    ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
-                    break;
-                case FLOAT:
-                case DOUBLE:
-                    ((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                    ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
-                    break;
-                case BOOL:
-                case CHAR:
-                case CUSTOM:
-                    if (value != null && value.getClass().isArray())
+                ((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
+                ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
+            } else if (type == Float.class || type == Double.class)
+            {
+                ((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
+            } else if (value != null && value.getClass().isArray())
+            {
+                Object[] objects;
+                Class ofArray = value.getClass().getComponentType();
+                if (ofArray.isPrimitive())
+                {
+                    List ar = new ArrayList();
+                    int length = Array.getLength(value);
+                    for (int i = 0; i < length; i++)
                     {
-                        Object[] objects;
-                        Class ofArray = value.getClass().getComponentType();
-                        if (ofArray.isPrimitive())
-                        {
-                            List ar = new ArrayList();
-                            int length = Array.getLength(value);
-                            for (int i = 0; i < length; i++)
-                            {
-                                ar.add(Array.get(value, i));
-                            }
-                            objects = ar.toArray();
-                            ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
-                            ((TextView) inputView).setText(Arrays.toString(objects), TextView.BufferType.NORMAL);
-                            break;
-                        } else if (String.class.isAssignableFrom(ofArray))
-                        {
-                            objects = (Object[]) value;
-                            ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
-                            ((TextView) inputView).setText(Arrays.toString(objects), TextView.BufferType.NORMAL);
-                            break;
-                        }
+                        ar.add(Array.get(value, i));
                     }
-                case STRING:
-                default:
+                    objects = ar.toArray();
                     ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
-                    ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
-                    break;
+                    ((TextView) inputView).setText(Arrays.toString(objects), TextView.BufferType.NORMAL);
+                } else if (String.class.isAssignableFrom(ofArray))
+                {
+                    objects = (Object[]) value;
+                    ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
+                    ((TextView) inputView).setText(Arrays.toString(objects), TextView.BufferType.NORMAL);
+                } else
+                {
+                    ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
+                    ((TextView) inputView).setText(value.toString(), TextView.BufferType.NORMAL);
+                }
+            } else
+            {
+                ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
+                ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
             }
             ((EditText) inputView).addTextChangedListener(new TextWatcher()
             {
@@ -236,118 +225,121 @@ public class OptionTable
                     try
                     {
                         //set value
-                        switch (option.getType())
+                        Class<?> type = option.getType();
+                        //set value
+                        if (type == Byte.class)
                         {
-                            case UNDEF:
-                                throw new RuntimeException();
-                            case BYTE:
-                                option.setValue(Byte.valueOf(s.toString()));
-                                break;
-                            case SHORT:
-                                option.setValue(Short.valueOf(s.toString()));
-                                break;
-                            case INT:
-                                option.setValue(Integer.valueOf(s.toString()));
-                                break;
-                            case LONG:
-                                option.setValue(Long.valueOf(s.toString()));
-                                break;
-                            case FLOAT:
-                                option.setValue(Float.valueOf(s.toString()));
-                                break;
-                            case DOUBLE:
-                                option.setValue(Double.valueOf(s.toString()));
-                                break;
-                            case BOOL:
-                                break;
-                            case CHAR:
-                                option.setValue(s.toString().toCharArray()[0]);
-                                break;
-                            case CUSTOM:
-                                Object value = option.getValue();
-                                if (value != null && value.getClass().isArray())
+                            option.setValue(Byte.valueOf(s.toString()));
+                        } else if (type == Short.class)
+                        {
+                            option.setValue(Short.valueOf(s.toString()));
+                        }
+                        if (type == Integer.class)
+                        {
+                            option.setValue(Integer.valueOf(s.toString()));
+                        }
+                        if (type == Long.class)
+                        {
+                            option.setValue(Long.valueOf(s.toString()));
+                        }
+                        if (type == Float.class)
+                        {
+                            option.setValue(Float.valueOf(s.toString()));
+                        }
+                        if (type == Double.class)
+                        {
+                            option.setValue(Double.valueOf(s.toString()));
+                        }
+                        if (type == Character.class)
+                        {
+                            option.setValue(s.toString().toCharArray()[0]);
+                        }
+                        if (type == String.class)
+                        {
+                            option.setValue(s.toString());
+                        } else
+                        {
+                            Object value = option.getValue();
+                            if (value != null && value.getClass().isArray())
+                            {
+                                String[] strings = s.toString().replace("[", "").replace("]", "").split(", ");
+                                Class<?> componentType;
+                                componentType = value.getClass().getComponentType();
+                                if (componentType.isPrimitive())
                                 {
-                                    String[] strings = s.toString().replace("[", "").replace("]", "").split(", ");
-                                    Class<?> componentType;
-                                    componentType = value.getClass().getComponentType();
-                                    if (componentType.isPrimitive())
+                                    if (boolean.class.isAssignableFrom(componentType))
                                     {
-                                        if (boolean.class.isAssignableFrom(componentType))
+                                        boolean[] ar = new boolean[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
                                         {
-                                            boolean[] ar = new boolean[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Boolean.parseBoolean(strings[i]);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (byte.class.isAssignableFrom(componentType))
-                                        {
-                                            byte[] ar = new byte[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Byte.parseByte(strings[i]);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (char.class.isAssignableFrom(componentType))
-                                        {
-                                            char[] ar = new char[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = strings[i].charAt(0);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (double.class.isAssignableFrom(componentType))
-                                        {
-                                            double[] ar = new double[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Double.parseDouble(strings[i]);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (float.class.isAssignableFrom(componentType))
-                                        {
-                                            float[] ar = new float[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Float.parseFloat(strings[i]);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (int.class.isAssignableFrom(componentType))
-                                        {
-                                            int[] ar = new int[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Integer.parseInt(strings[i]);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (long.class.isAssignableFrom(componentType))
-                                        {
-                                            long[] ar = new long[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Long.parseLong(strings[i]);
-                                            }
-                                            option.setValue(ar);
-                                        } else if (short.class.isAssignableFrom(componentType))
-                                        {
-                                            short[] ar = new short[strings.length];
-                                            for (int i = 0; i < strings.length; i++)
-                                            {
-                                                ar[i] = Short.parseShort(strings[i]);
-                                            }
-                                            option.setValue(ar);
+                                            ar[i] = Boolean.parseBoolean(strings[i]);
                                         }
-                                        break;
-                                    } else if (String.class.isAssignableFrom(componentType))
+                                        option.setValue(ar);
+                                    } else if (byte.class.isAssignableFrom(componentType))
                                     {
-                                        option.setValue(strings);
-                                        break;
+                                        byte[] ar = new byte[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = Byte.parseByte(strings[i]);
+                                        }
+                                        option.setValue(ar);
+                                    } else if (char.class.isAssignableFrom(componentType))
+                                    {
+                                        char[] ar = new char[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = strings[i].charAt(0);
+                                        }
+                                        option.setValue(ar);
+                                    } else if (double.class.isAssignableFrom(componentType))
+                                    {
+                                        double[] ar = new double[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = Double.parseDouble(strings[i]);
+                                        }
+                                        option.setValue(ar);
+                                    } else if (float.class.isAssignableFrom(componentType))
+                                    {
+                                        float[] ar = new float[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = Float.parseFloat(strings[i]);
+                                        }
+                                        option.setValue(ar);
+                                    } else if (int.class.isAssignableFrom(componentType))
+                                    {
+                                        int[] ar = new int[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = Integer.parseInt(strings[i]);
+                                        }
+                                        option.setValue(ar);
+                                    } else if (long.class.isAssignableFrom(componentType))
+                                    {
+                                        long[] ar = new long[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = Long.parseLong(strings[i]);
+                                        }
+                                        option.setValue(ar);
+                                    } else if (short.class.isAssignableFrom(componentType))
+                                    {
+                                        short[] ar = new short[strings.length];
+                                        for (int i = 0; i < strings.length; i++)
+                                        {
+                                            ar[i] = Short.parseShort(strings[i]);
+                                        }
+                                        option.setValue(ar);
                                     }
+                                } else if (String.class.isAssignableFrom(componentType))
+                                {
+                                    option.setValue(strings);
                                 }
-                            case STRING:
-                            default:
+                            } else
+                            {
                                 option.setValue(s.toString());
-                                break;
+                            }
                         }
                     } catch (Exception ex)
                     {

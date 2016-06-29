@@ -34,7 +34,6 @@ import android.os.Build;
 import java.io.IOException;
 import java.util.List;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -52,14 +51,14 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      */
     public class Options extends OptionList
     {
-        public final Option<Integer> cameraInfo = new Option<>("cameraInfo", Camera.CameraInfo.CAMERA_FACING_FRONT, Cons.Type.INT, "chosen camera device");
+        public final Option<Integer> cameraInfo = new Option<>("cameraInfo", Camera.CameraInfo.CAMERA_FACING_FRONT, Integer.class, "chosen camera device");
         //arbitrary but popular values
-        public final Option<Integer> width = new Option<>("width", 640, Cons.Type.INT, "width in pixel");
-        public final Option<Integer> height = new Option<>("height", 480, Cons.Type.INT, "height in pixel");
-        public final Option<Integer> previewFpsRangeMin = new Option<>("previewFpsRangeMin", 30 * 1000, Cons.Type.INT, "min preview rate for camera");
-        public final Option<Integer> previewFpsRangeMax = new Option<>("previewFpsRangeMax", 30 * 1000, Cons.Type.INT, "max preview rate for camera");
-        public final Option<Integer> imageFormat = new Option<>("imageFormat", ImageFormat.NV21, Cons.Type.INT, "image format for camera");
-        public final Option<Boolean> showSupportedValues = new Option<>("showSupportedValues", false, Cons.Type.BOOL, "show supported values in log");
+        public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width in pixel");
+        public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height in pixel");
+        public final Option<Integer> previewFpsRangeMin = new Option<>("previewFpsRangeMin", 30 * 1000, Integer.class, "min preview rate for camera");
+        public final Option<Integer> previewFpsRangeMax = new Option<>("previewFpsRangeMax", 30 * 1000, Integer.class, "max preview rate for camera");
+        public final Option<Integer> imageFormat = new Option<>("imageFormat", ImageFormat.NV21, Integer.class, "image format for camera");
+        public final Option<Boolean> showSupportedValues = new Option<>("showSupportedValues", false, Boolean.class, "show supported values in log");
 
         /**
          *

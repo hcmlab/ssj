@@ -45,10 +45,10 @@ public class AudioProvider extends SensorProvider
 {
     public class Options extends OptionList
     {
-        public final Option<Integer> sampleRate = new Option<>("sampleRate", 8000, Cons.Type.INT, "");
-        public final Option<Integer> channelConfig = new Option<>("channelConfig", AudioFormat.CHANNEL_IN_MONO, Cons.Type.INT, "");
-        public final Option<Integer> audioFormat = new Option<>("audioFormat", AudioFormat.ENCODING_PCM_16BIT, Cons.Type.INT, "orientation of input picture");
-        public final Option<Boolean> scale = new Option<>("scale", false, Cons.Type.BOOL, "");
+        public final Option<Integer> sampleRate = new Option<>("sampleRate", 8000, Integer.class, "");
+        public final Option<Integer> channelConfig = new Option<>("channelConfig", AudioFormat.CHANNEL_IN_MONO, Integer.class, "");
+        public final Option<Integer> audioFormat = new Option<>("audioFormat", AudioFormat.ENCODING_PCM_16BIT, Integer.class, "orientation of input picture");
+        public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "");
 
         /**
          *

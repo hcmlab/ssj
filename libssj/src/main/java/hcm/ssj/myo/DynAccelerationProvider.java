@@ -42,10 +42,10 @@ public class DynAccelerationProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Float> gravity = new Option<>("gravity", 9.814f, Cons.Type.FLOAT, "Frankfurt");
-		public final Option<Boolean> meterPerSecond = new Option<>("meterPerSecond", false, Cons.Type.BOOL, "");
-		public final Option<Boolean> absolute = new Option<>("absolute", false, Cons.Type.BOOL, "do measurements relative to the global coordinate system");
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Cons.Type.INT, "");
+		public final Option<Float> gravity = new Option<>("gravity", 9.814f, Float.class, "Frankfurt");
+		public final Option<Boolean> meterPerSecond = new Option<>("meterPerSecond", false, Boolean.class, "");
+		public final Option<Boolean> absolute = new Option<>("absolute", false, Boolean.class, "do measurements relative to the global coordinate system");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "");
 
 		/**
 		 *

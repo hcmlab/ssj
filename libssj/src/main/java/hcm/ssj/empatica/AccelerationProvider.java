@@ -39,7 +39,7 @@ public class AccelerationProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 32, Cons.Type.INT, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 32, Integer.class, "");
 
 		/**
 		 *

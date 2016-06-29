@@ -44,7 +44,7 @@ public class InfraredProvider extends SensorProvider
      */
     public class Options extends OptionList
     {
-        public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Cons.Type.INT, "The rate in which the provider samples data from the sensor");
+        public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "The rate in which the provider samples data from the sensor");
 
         /**
          *

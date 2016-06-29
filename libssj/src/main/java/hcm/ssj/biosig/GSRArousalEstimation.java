@@ -45,8 +45,8 @@ public class GSRArousalEstimation extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Double> windowSizeShortTerm = new Option<>("windowSizeShortTerm", 5., Cons.Type.DOUBLE, "Size of short time window in seconds");
-		public final Option<Double> windowSizeLongTerm = new Option<>("windowSizeLongTerm", 60., Cons.Type.DOUBLE, "Size of long time window in seconds");
+		public final Option<Double> windowSizeShortTerm = new Option<>("windowSizeShortTerm", 5., Double.class, "Size of short time window in seconds");
+		public final Option<Double> windowSizeLongTerm = new Option<>("windowSizeLongTerm", 60., Double.class, "Size of long time window in seconds");
 
 		/**
 		 *

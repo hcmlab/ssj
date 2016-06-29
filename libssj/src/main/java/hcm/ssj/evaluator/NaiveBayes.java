@@ -57,10 +57,10 @@ public class NaiveBayes extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePathOption = new Option<>("filePathOption", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
-        public final Option<String> fileNameOption = new Option<>("fileNameOption", null, Cons.Type.STRING, "contains the SSI options");
-        public final Option<String> filePathModel = new Option<>("filePathModel", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
-        public final Option<String> fileNameModel = new Option<>("fileNameModel", null, Cons.Type.STRING, "contains the trained model");
+        public final Option<String> filePathOption = new Option<>("filePathOption", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileNameOption = new Option<>("fileNameOption", null, String.class, "contains the SSI options");
+        public final Option<String> filePathModel = new Option<>("filePathModel", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileNameModel = new Option<>("fileNameModel", null, String.class, "contains the trained model");
 
         /**
          *

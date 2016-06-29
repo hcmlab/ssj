@@ -38,25 +38,25 @@ public class ThresholdEventSender extends Consumer
 {
     public class Options extends OptionList
     {
-        public final Option<String> sender = new Option<>("sender", null, Cons.Type.STRING, "");
-        public final Option<String> event = new Option<>("event", "event", Cons.Type.STRING, "");
+        public final Option<String> sender = new Option<>("sender", null, String.class, "");
+        public final Option<String> event = new Option<>("event", "event", String.class, "");
 
-        public final Option<float[]> thresin = new Option<>("thresin", null, Cons.Type.CUSTOM, "");
-        public final Option<float[]> thresout = new Option<>("thresout", null, Cons.Type.CUSTOM, "");
+        public final Option<float[]> thresin = new Option<>("thresin", null, float[].class, "");
+        public final Option<float[]> thresout = new Option<>("thresout", null, float[].class, "");
 
-        public final Option<Integer> hangin = new Option<>("hangin", 0, Cons.Type.INT, "samples");
-        public final Option<Integer> hangout = new Option<>("hangout", 0, Cons.Type.INT, "samples");
+        public final Option<Integer> hangin = new Option<>("hangin", 0, Integer.class, "samples");
+        public final Option<Integer> hangout = new Option<>("hangout", 0, Integer.class, "samples");
 
-        public final Option<Double> loffset = new Option<>("loffset", 0., Cons.Type.DOUBLE, "lower offset in seconds (will be substracted from event start time)");
-        public final Option<Double> uoffset = new Option<>("uoffset", 0., Cons.Type.DOUBLE, "upper offset in seconds (will be added to event end time)");
+        public final Option<Double> loffset = new Option<>("loffset", 0., Double.class, "lower offset in seconds (will be substracted from event start time)");
+        public final Option<Double> uoffset = new Option<>("uoffset", 0., Double.class, "upper offset in seconds (will be added to event end time)");
 
-        public final Option<Double> maxdur = new Option<>("maxdur", 2., Cons.Type.DOUBLE, "");
-        public final Option<Double> mindur = new Option<>("mindur", 0., Cons.Type.DOUBLE, "");
+        public final Option<Double> maxdur = new Option<>("maxdur", 2., Double.class, "");
+        public final Option<Double> mindur = new Option<>("mindur", 0., Double.class, "");
 
-        public final Option<Boolean> hard = new Option<>("hard", true, Cons.Type.BOOL, "all dimensions must respect thresholds");
-        public final Option<Boolean> skip = new Option<>("skip", false, Cons.Type.BOOL, "skip if max duration is exceeded");
-        public final Option<Boolean> eager = new Option<>("eager", false, Cons.Type.BOOL, "send an event when the observation begins");
-        public final Option<Boolean> eall = new Option<>("eall", true, Cons.Type.BOOL, "forward incomplete events to event board, otherwise only complete events are sent");
+        public final Option<Boolean> hard = new Option<>("hard", true, Boolean.class, "all dimensions must respect thresholds");
+        public final Option<Boolean> skip = new Option<>("skip", false, Boolean.class, "skip if max duration is exceeded");
+        public final Option<Boolean> eager = new Option<>("eager", false, Boolean.class, "send an event when the observation begins");
+        public final Option<Boolean> eall = new Option<>("eall", true, Boolean.class, "forward incomplete events to event board, otherwise only complete events are sent");
         /**
          *
          */

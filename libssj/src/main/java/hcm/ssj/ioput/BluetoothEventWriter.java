@@ -47,10 +47,10 @@ public class BluetoothEventWriter extends EventHandler
 {
     public class Options extends OptionList
     {
-        public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", Cons.Type.STRING, "");
-        public final Option<String> serverAddr = new Option<>("serverAddr", null, Cons.Type.STRING, "we need an address if this is the first time these two devices connect");
-        public final Option<String> connectionName = new Option<>("connectionName", "SSJ", Cons.Type.STRING, "must match that of the peer");
-        public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.CLIENT, Cons.Type.CUSTOM, "");
+        public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
+        public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "we need an address if this is the first time these two devices connect");
+        public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
+        public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.CLIENT, BluetoothConnection.Type.class, "");
 
         /**
          *

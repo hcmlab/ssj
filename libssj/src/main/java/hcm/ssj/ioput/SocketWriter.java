@@ -51,9 +51,9 @@ public class SocketWriter extends Consumer {
 
     public class Options extends OptionList
     {
-        public final Option<Integer> port = new Option<>("port", 34300, Cons.Type.INT, "");
-        public final Option<String> ip = new Option<>("ip", "127.0.0.1", Cons.Type.STRING, "");
-        public final Option<Integer> type = new Option<>("type", SOCKET_TYPE_UDP, Cons.Type.INT, "");
+        public final Option<Integer> port = new Option<>("port", 34300, Integer.class, "");
+        public final Option<String> ip = new Option<>("ip", "127.0.0.1", String.class, "");
+        public final Option<Integer> type = new Option<>("type", SOCKET_TYPE_UDP, Integer.class, "");
 
         /**
          *

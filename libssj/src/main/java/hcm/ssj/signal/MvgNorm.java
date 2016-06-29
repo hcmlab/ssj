@@ -57,12 +57,12 @@ public class MvgNorm extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Norm>   norm           = new Option<>("norm", Norm.AVG_VAR, Cons.Type.CUSTOM, "");
-		public final Option<Float> rangeA = new Option<>("rangeA", 0.f, Cons.Type.FLOAT, "");
-		public final Option<Float> rangeB = new Option<>("rangeB", 1.f, Cons.Type.FLOAT, "");
-		public final Option<Float> windowSize = new Option<>("windowSize", 10.f, Cons.Type.FLOAT, "");
-		public final Option<Method> method         = new Option<>("method", Method.MOVING, Cons.Type.CUSTOM, "");
-		public final Option<Integer> numberOfBlocks = new Option<>("numberOfBlocks", 10, Cons.Type.INT, "");
+		public final Option<Norm> norm = new Option<>("norm", Norm.AVG_VAR, Norm.class, "");
+		public final Option<Float> rangeA = new Option<>("rangeA", 0.f, Float.class, "");
+		public final Option<Float> rangeB = new Option<>("rangeB", 1.f, Float.class, "");
+		public final Option<Float> windowSize = new Option<>("windowSize", 10.f, Float.class, "");
+		public final Option<Method> method = new Option<>("method", Method.MOVING, Method.class, "");
+		public final Option<Integer> numberOfBlocks = new Option<>("numberOfBlocks", 10, Integer.class, "");
 
 		/**
 		 *

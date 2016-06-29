@@ -30,7 +30,6 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
@@ -57,8 +56,8 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
          * <li>SENSOR_DELAY_UI = 2 = 66667µs</li>
          * <li>SENSOR_DELAY_NORMAL = 3 = 200000µs</li>
          */
-        public final Option<Integer> sensorDelay = new Option<>("sensorDelay", SensorManager.SENSOR_DELAY_FASTEST, Cons.Type.INT, "see android documentation");
-        public final Option<SensorType> sensorType = new Option<>("sensorType", SensorType.ACCELEROMETER, Cons.Type.CUSTOM, "android sensor type");
+        public final Option<Integer> sensorDelay = new Option<>("sensorDelay", SensorManager.SENSOR_DELAY_FASTEST, Integer.class, "see android documentation");
+        public final Option<SensorType> sensorType = new Option<>("sensorType", SensorType.ACCELEROMETER, SensorType.class, "android sensor type");
 
         /**
          *

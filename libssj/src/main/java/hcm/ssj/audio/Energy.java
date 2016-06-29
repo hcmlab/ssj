@@ -41,12 +41,12 @@ public class Energy extends Transformer {
 
     public class Options extends OptionList
     {
-        public final Option<Boolean> computeRMS = new Option<>("computeRMS", false, Cons.Type.BOOL, "");
-        public final Option<Boolean> computeSPL = new Option<>("computeSPL", true, Cons.Type.BOOL, "");
-        public final Option<Boolean> computeSilence = new Option<>("computeSilence", false, Cons.Type.BOOL, "");
-        public final Option<Double> silenceThreshold = new Option<>("silenceThreshold", -70.0, Cons.Type.DOUBLE, "in DB, default of -70 defined in TarsosDSP: be.tarsos.dsp.SilenceDetector");
-        public final Option<Boolean> inputIsSigned = new Option<>("inputIsSigned", true, Cons.Type.BOOL, "");
-        public final Option<Boolean> inputIsBigEndian = new Option<>("inputIsBigEndian", false, Cons.Type.BOOL, "");
+        public final Option<Boolean> computeRMS = new Option<>("computeRMS", false, Boolean.class, "");
+        public final Option<Boolean> computeSPL = new Option<>("computeSPL", true, Boolean.class, "");
+        public final Option<Boolean> computeSilence = new Option<>("computeSilence", false, Boolean.class, "");
+        public final Option<Double> silenceThreshold = new Option<>("silenceThreshold", -70.0, Double.class, "in DB, default of -70 defined in TarsosDSP: be.tarsos.dsp.SilenceDetector");
+        public final Option<Boolean> inputIsSigned = new Option<>("inputIsSigned", true, Boolean.class, "");
+        public final Option<Boolean> inputIsBigEndian = new Option<>("inputIsBigEndian", false, Boolean.class, "");
 
         /**
          *

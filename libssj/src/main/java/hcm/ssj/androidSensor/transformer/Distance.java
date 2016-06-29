@@ -45,9 +45,9 @@ public class Distance extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<float[]> individualDistance = new Option<>("individualDistance", null, Cons.Type.CUSTOM, "Individual threshold for each dimension");
-        public final Option<Float> standardDistance = new Option<>("standardDistance", 2.f, Cons.Type.FLOAT, " Standard threshold for the reached distance");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<float[]> individualDistance = new Option<>("individualDistance", null, float[].class, "Individual threshold for each dimension");
+        public final Option<Float> standardDistance = new Option<>("standardDistance", 2.f, Float.class, " Standard threshold for the reached distance");
 
         /**
          *

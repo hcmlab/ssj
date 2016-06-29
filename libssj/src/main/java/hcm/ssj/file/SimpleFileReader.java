@@ -52,9 +52,9 @@ public class SimpleFileReader extends Sensor
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, Cons.Type.STRING, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, Cons.Type.STRING, "file name");
-        public final Option<Boolean> loop = new Option<>("loop", true, Cons.Type.BOOL, "");
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
+        public final Option<Boolean> loop = new Option<>("loop", true, Boolean.class, "");
 
         /**
          *

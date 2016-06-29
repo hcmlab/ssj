@@ -48,8 +48,8 @@ public class SimpleFileReaderProvider extends SensorProvider
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, Cons.Type.STRING, "Attribute separator of the file");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "Attribute separator of the file");
 
         /**
          *

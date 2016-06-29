@@ -48,9 +48,9 @@ public class MinMax extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Boolean> min = new Option<>("min", true, Cons.Type.BOOL, "Calculate minimum for each frame");
-        public final Option<Boolean> max = new Option<>("max", true, Cons.Type.BOOL, "Calculate maximum for each frame");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<Boolean> min = new Option<>("min", true, Boolean.class, "Calculate minimum for each frame");
+        public final Option<Boolean> max = new Option<>("max", true, Boolean.class, "Calculate maximum for each frame");
 
         /**
          *

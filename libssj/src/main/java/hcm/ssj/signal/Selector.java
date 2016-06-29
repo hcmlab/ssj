@@ -45,10 +45,10 @@ public class Selector extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Cons.Type> outputType = new Option<>("outputType", Cons.Type.FLOAT, Cons.Type.CUSTOM, "The output type for which the input stream has to match.");
-        public final Option<int[]> values = new Option<>("values", new int[]{0}, Cons.Type.CUSTOM, "The values to select. The selection interval is given by the selection size.");
-        public final Option<Integer> selectionSize = new Option<>("selectionSize", values.getValue().length, Cons.Type.INT, "The size of all values in one sample");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<Cons.Type> outputType = new Option<>("outputType", Cons.Type.FLOAT, Cons.Type.class, "The output type for which the input stream has to match.");
+        public final Option<int[]> values = new Option<>("values", new int[]{0}, int[].class, "The values to select. The selection interval is given by the selection size.");
+        public final Option<Integer> selectionSize = new Option<>("selectionSize", values.getValue().length, Integer.class, "The size of all values in one sample");
 
         /**
          *

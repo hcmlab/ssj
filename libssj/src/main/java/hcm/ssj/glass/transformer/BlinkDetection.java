@@ -55,17 +55,17 @@ public class BlinkDetection extends Transformer
          * Peak threshold for blink detection.<br>
          * A lower value will detect more alleged blinks.
          */
-        public final Option<Float> blinkThreshold = new Option<>("blinkThreshold", 3.5f, Cons.Type.FLOAT, "Peak threshold for blink detection");
+        public final Option<Float> blinkThreshold = new Option<>("blinkThreshold", 3.5f, Float.class, "Peak threshold for blink detection");
         /**
          * Variance between left and right value of the peak value.<br>
          * If the threshold is reached, the blink will not be counted,
          * because it is assumed to be a false blink due to high movement.
          */
-        public final Option<Float> varianceThreshold = new Option<>("varianceThreshold", 25.f, Cons.Type.FLOAT, "Variance between left and right value of the peak value");
+        public final Option<Float> varianceThreshold = new Option<>("varianceThreshold", 25.f, Float.class, "Variance between left and right value of the peak value");
         /**
          * Count the blinks and return the additive result instead of giving a high signal when a blink occurs.
          */
-        public final Option<Boolean> countBlink = new Option<>("countBlink", false, Cons.Type.BOOL, "Count the blinks and return the additive result instead of giving a high signal when a blink occurs");
+        public final Option<Boolean> countBlink = new Option<>("countBlink", false, Boolean.class, "Count the blinks and return the additive result instead of giving a high signal when a blink occurs");
 
         /**
          *

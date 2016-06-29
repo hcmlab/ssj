@@ -46,4 +46,12 @@
         android:id="@+id/action_consumers"
         android:title="@string/str_consumers">
     </item>
+    <item
+        android:id="@+id/action_save"
+        android:title="@string/str_save">
+    </item>
+    <item
+        android:id="@+id/action_load"
+        android:title="@string/str_load">
+    </item>
 </menu>

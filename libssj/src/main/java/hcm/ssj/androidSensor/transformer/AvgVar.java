@@ -46,9 +46,9 @@ public class AvgVar extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, Cons.Type.CUSTOM, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Boolean> avg = new Option<>("avg", true, Cons.Type.BOOL, "Calculate average for each frame");
-        public final Option<Boolean> var = new Option<>("var", true, Cons.Type.BOOL, "Calculate variance for each frame");
+        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<Boolean> avg = new Option<>("avg", true, Boolean.class, "Calculate average for each frame");
+        public final Option<Boolean> var = new Option<>("var", true, Boolean.class, "Calculate variance for each frame");
 
         /**
          *

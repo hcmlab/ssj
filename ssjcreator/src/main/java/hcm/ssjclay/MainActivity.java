@@ -344,6 +344,27 @@ public class MainActivity extends AppCompatActivity
                 addDialog.setOption(Builder.getInstance().consumers);
                 break;
             }
+            case R.id.action_save:
+            {
+                /*
+                File dir = new File(Environment.getExternalStorageDirectory(), "SSJ");
+                if (dir.mkdirs())
+                {
+                    SaveLoad.getInstance().save(new File(dir, "test"));
+                }
+                Class<?> affe = Float.class;
+                float x = 2;
+                Float p = (Float) affe.cast(x);
+                */
+                return true;
+            }
+            case R.id.action_load:
+            {
+                /*
+                SaveLoad.getInstance().load(null);
+                */
+                return true;
+            }
         }
         Listener listener = new Listener()
         {

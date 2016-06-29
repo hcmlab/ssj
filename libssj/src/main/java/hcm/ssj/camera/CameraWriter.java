@@ -32,14 +32,12 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 
-import java.io.File;
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.Mp4Writer;
 
 /**
@@ -55,15 +53,15 @@ public class CameraWriter extends Mp4Writer
      */
     public class Options extends Mp4Writer.Options
     {
-        public final Option<Integer> width = new Option<>("width", 640, Cons.Type.INT, "should be the same as in camera");
+        public final Option<Integer> width = new Option<>("width", 640, Integer.class, "should be the same as in camera");
         //arbitrary but popular values
-        public final Option<Integer> height = new Option<>("height", 480, Cons.Type.INT, "should be the same as in camera");
-        public final Option<String> mimeType = new Option<>("mimeType", "video/avc", Cons.Type.STRING, "H.264 Advanced Video Coding");
-        public final Option<Integer> iFrameInterval = new Option<>("iFrameInterval", 15, Cons.Type.INT, "Interval between complete frames");
-        public final Option<Integer> bitRate = new Option<>("bitRate", 100000, Cons.Type.INT, "Mbps");
-        public final Option<Integer> orientation = new Option<>("imageFormat", 270, Cons.Type.INT, "0, 90, 180, 270 (portrait: 90 back, 270 front)");
-        public final Option<Integer> colorFormat = new Option<>("colorFormat", 0, Cons.Type.INT, "MediaCodecInfo.CodecCapabilities");
-        public final Option<ColorSwitch> colorSwitch = new Option<>("colorSwitch", ColorSwitch.DEFAULT, Cons.Type.CUSTOM, "");
+        public final Option<Integer> height = new Option<>("height", 480, Integer.class, "should be the same as in camera");
+        public final Option<String> mimeType = new Option<>("mimeType", "video/avc", String.class, "H.264 Advanced Video Coding");
+        public final Option<Integer> iFrameInterval = new Option<>("iFrameInterval", 15, Integer.class, "Interval between complete frames");
+        public final Option<Integer> bitRate = new Option<>("bitRate", 100000, Integer.class, "Mbps");
+        public final Option<Integer> orientation = new Option<>("imageFormat", 270, Integer.class, "0, 90, 180, 270 (portrait: 90 back, 270 front)");
+        public final Option<Integer> colorFormat = new Option<>("colorFormat", 0, Integer.class, "MediaCodecInfo.CodecCapabilities");
+        public final Option<ColorSwitch> colorSwitch = new Option<>("colorSwitch", ColorSwitch.DEFAULT, ColorSwitch.class, "");
 
         /**
          *

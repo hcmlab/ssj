@@ -49,7 +49,7 @@ public class AndroidSensorProvider extends SensorProvider
          * The rate in which the provider samples data from the sensor.<br>
          * <b>Attention!</b> The sensor will provide new data according to its sensor delay.
          */
-        public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Cons.Type.INT, "sample rate of sensor to provider");
+        public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "sample rate of sensor to provider");
 
         /**
          *
