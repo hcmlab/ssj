@@ -1,7 +1,7 @@
 /*
  * SocketEventReader.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -39,7 +39,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
