@@ -29,10 +29,10 @@ package hcm.ssj.angelsensor;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.Handler;
-import android.util.Log;
 
 import com.angel.sdk.BleScanner;
 
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 
@@ -50,7 +50,7 @@ public class AngelSensor extends Sensor
 		{
 			if (device.getName() != null)
 			{
-				Log.i(_name, "Bluetooth LE device found: " + device.getName());
+				Log.i("Bluetooth LE device found: " + device.getName());
 				//mBleScanner.stopScan();
 				if (device.getName() != null && device.getName().startsWith("Angel"))
 				{
@@ -60,6 +60,7 @@ public class AngelSensor extends Sensor
 					mBleScanner.stopScan();
 
 					listener.connect(device.getAddress());
+					Log.i("connected to device " + device.getName());
 				}
 			}
 		}
@@ -86,7 +87,7 @@ public class AngelSensor extends Sensor
 		}
 		catch (Exception e)
 		{
-			Log.e("ANGEL ERROR", "Exception:", e);
+			Log.e("Exception:", e);
 		}
 
 		mBleScanner.startScan();
