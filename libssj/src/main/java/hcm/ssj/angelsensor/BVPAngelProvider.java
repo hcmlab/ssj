@@ -27,7 +27,6 @@
 package hcm.ssj.angelsensor;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.stream.Stream;
 
@@ -44,7 +43,7 @@ public class BVPAngelProvider extends SensorProvider
 
 	protected AngelSensorListener _listener;
 
-	public BVPAngelProvider(Sensor s)
+	public BVPAngelProvider()
 	{
 		_name = "SSJ_sensor_Angel_BVP";
 	}
