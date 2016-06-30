@@ -29,8 +29,9 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.audio.AudioProvider;
-import hcm.ssj.audio.Microphone;
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
@@ -55,26 +56,26 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.setValue(10.0f);
 
-        Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.setValue(16000);
-        audio.options.scale.setValue(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        AndroidSensor sensor = new AndroidSensor();
+        sensor.options.sensorType.setValue(SensorType.ACCELEROMETER);
+        frame.addSensor(sensor);
+
+        AndroidSensorProvider acc = new AndroidSensorProvider();
+        sensor.addProvider(acc);
 
         BluetoothWriter blw = new BluetoothWriter();
         blw.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
-        blw.options.serverAddr.setValue("60:8F:5C:F2:D0:9D");
+        blw.options.serverName.setValue("HCM-Johnny-Phone");
         blw.options.connectionName.setValue("stream");
-        frame.addConsumer(blw, audio, 0.1, 0);
+        frame.addConsumer(blw, acc, 1.0, 0);
 
         FloatsEventSender fes = new FloatsEventSender();
-        frame.addConsumer(fes, audio, 1.0, 0);
+        frame.addConsumer(fes, acc, 1.0, 0);
         EventChannel ch = frame.registerEventProvider(fes);
 
         BluetoothEventWriter blew = new BluetoothEventWriter();
         blew.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
-        blew.options.serverAddr.setValue("60:8F:5C:F2:D0:9D");
+        blew.options.serverName.setValue("HCM-Johnny-Phone");
         blew.options.connectionName.setValue("event");
         frame.addComponent(blew);
         frame.registerEventListener(blew, ch);
@@ -85,7 +86,7 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
             long start = System.currentTimeMillis();
             while(true)
             {
-                if(System.currentTimeMillis() > start + 3 * 60 * 1000)
+                if(System.currentTimeMillis() > start + 1 * 60 * 1000)
                     break;
 
                 Thread.sleep(1);

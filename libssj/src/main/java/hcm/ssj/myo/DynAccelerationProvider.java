@@ -77,7 +77,7 @@ public class DynAccelerationProvider extends SensorProvider
 	}
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		float[] out = stream_out.ptrF();
 
@@ -117,6 +117,8 @@ public class DynAccelerationProvider extends SensorProvider
 			for (int k = 0; k < 3; k++)
 				out[k] *= options.gravity.getValue();
 		}
+
+		return true;
 	}
 
 	@Override

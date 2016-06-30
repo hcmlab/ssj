@@ -188,6 +188,7 @@ public class TheFramework
 
     public void addSensor(Sensor s)
     {
+        s.init();
         _components.add(s);
     }
 

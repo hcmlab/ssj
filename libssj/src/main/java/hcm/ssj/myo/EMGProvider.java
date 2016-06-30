@@ -68,12 +68,14 @@ public class EMGProvider extends SensorProvider
     }
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		int[] out = stream_out.ptrI();
 
         for (int j = 0; j < stream_out.dim; j++)
             out[j] = _listener.emg[j];
+
+        return true;
 	}
 
     @Override

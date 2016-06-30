@@ -84,10 +84,12 @@ public class InfraredProvider extends SensorProvider
      * @param stream_out Stream
      */
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         float[] out = stream_out.ptrF();
         out[0] = _irSensor.getData();
+
+        return true;
     }
 
     /**

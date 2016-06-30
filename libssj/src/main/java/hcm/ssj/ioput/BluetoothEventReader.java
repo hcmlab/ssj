@@ -32,7 +32,6 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -70,7 +69,6 @@ public class BluetoothEventReader extends EventHandler
     private final int MSG_HEADER_SIZE = 12;
 
     private BluetoothConnection _conn;
-    private DataInputStream _in;
     boolean _connected = false;
     byte[] _buffer;
 
@@ -96,8 +94,6 @@ public class BluetoothEventReader extends EventHandler
                     _conn.connect();
                     break;
             }
-
-            _in = new DataInputStream(_conn.getSocket().getInputStream());
         } catch (Exception e)
         {
             Log.e("error in setting up connection", e);
@@ -131,23 +127,23 @@ public class BluetoothEventReader extends EventHandler
     @Override
     protected void process()
     {
-        if(!_connected)
+        if(!_connected || !_conn.isConnected())
             return;
 
         try
         {
             //we check whether there is any data as reads are blocking for bluetooth
-            if (_in.available() == 0)
+            if (_conn.input().available() == 0)
                 return;
 
             if (!options.parseXmlToEvent.getValue())
             {
-                int len = _in.read(_buffer);
+                int len = _conn.input().read(_buffer);
                 _evchannel_out.pushEvent(_buffer, 0, len);
             }
             else
             {
-                _parser.setInput(new InputStreamReader(_in));
+                _parser.setInput(new InputStreamReader(_conn.input()));
 
                 //first element must be <events>
                 _parser.next();

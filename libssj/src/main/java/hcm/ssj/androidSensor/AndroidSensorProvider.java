@@ -101,7 +101,7 @@ public class AndroidSensorProvider extends SensorProvider
      * @param stream_out Stream
      */
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         int dimension = getSampleDimension();
         float[] out = stream_out.ptrF();
@@ -109,6 +109,8 @@ public class AndroidSensorProvider extends SensorProvider
         {
             out[k] = _listener.getData().getData(k);
         }
+
+        return true;
     }
 
     /**

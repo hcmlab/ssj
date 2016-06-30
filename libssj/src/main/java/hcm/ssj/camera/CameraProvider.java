@@ -105,10 +105,12 @@ public class CameraProvider extends SensorProvider
      * @param stream_out Stream
      */
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         byte[] out = stream_out.ptrB();
         cameraSensor.swapBuffer(out, false);
+
+        return true;
     }
 
     /**

@@ -28,7 +28,6 @@ package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -63,7 +62,6 @@ public class BluetoothEventWriter extends EventHandler
     public final Options options = new Options();
 
     private BluetoothConnection _conn;
-    private DataOutputStream _out;
 
     private boolean _connected = false;
     byte[] _buffer;
@@ -91,8 +89,6 @@ public class BluetoothEventWriter extends EventHandler
                     _conn.connect();
                     break;
             }
-
-            _out = new DataOutputStream(_conn.getSocket().getOutputStream());
         } catch (Exception e)
         {
             Log.e("error in setting up connection", e);
@@ -111,7 +107,7 @@ public class BluetoothEventWriter extends EventHandler
     @Override
     protected void process()
     {
-        if (!_connected)
+        if (!_connected || !_conn.isConnected())
             return;
 
         String msg = null;
@@ -149,8 +145,8 @@ public class BluetoothEventWriter extends EventHandler
 
             try
             {
-                _out.write(_buffer, 0, buf.position());
-                _out.flush();
+                _conn.output().write(_buffer, 0, buf.position());
+                _conn.output().flush();
 
             }
             catch (IOException e)

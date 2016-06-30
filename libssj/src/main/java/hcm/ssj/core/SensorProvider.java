@@ -90,10 +90,11 @@ public abstract class SensorProvider extends Provider {
         while(!_terminate)
         {
             try {
-                process(_stream_out);
-
-                _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
-                dog.checkIn();
+                if(process(_stream_out))
+                {
+                    _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
+                    dog.checkIn();
+                }
 
                 _timer.sync();
             } catch(Exception e) {
@@ -130,7 +131,7 @@ public abstract class SensorProvider extends Provider {
     /**
      * main processing method
      */
-    protected abstract void process(Stream stream_out);
+    protected abstract boolean process(Stream stream_out);
 
     /**
      * called once prior to termination

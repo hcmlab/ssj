@@ -72,15 +72,6 @@ public class BluetoothProvider extends SensorProvider
     @Override
     public void enter(Stream stream_out) {
 
-        try
-        {
-            _in = new DataInputStream(((BluetoothReader)_sensor).conn.getSocket().getInputStream());
-        }
-        catch (IOException e)
-        {
-            Log.e("cannot connect to server", e);
-        }
-
         if(options.sr.getValue() == 0 || options.bytes.getValue() == 0 || options.dim.getValue() == 0 || options.type.getValue() == Cons.Type.UNDEF)
             Log.e("input channel not configured");
 
@@ -88,21 +79,29 @@ public class BluetoothProvider extends SensorProvider
     }
 
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
+        BluetoothConnection conn = ((BluetoothReader)_sensor).getConnection();
+        if(!conn.isConnected())
+            return false;
+
+        DataInputStream dataStream = conn.input();
+
         try
         {
             //we check whether there is any data as reads are blocking for bluetooth
-            if(_in.available() == 0)
-                return;
+            if(dataStream.available() == 0)
+                return false;
 
-            _in.readFully(_data);
+            dataStream.readFully(_data);
             Util.arraycopy(_data, 0, stream_out.ptr(), 0, _data.length);
         }
         catch (IOException e)
         {
             Log.w("unable to read from data stream", e);
         }
+
+        return true;
     }
 
     @Override

@@ -66,13 +66,15 @@ public class AccelerationProvider extends SensorProvider
 	}
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		float[] out = stream_out.ptrF();
 
 		out[0] = _listener.getX();
 		out[1] = _listener.getY();
 		out[2] = _listener.getZ();
+
+		return true;
 	}
 
 	@Override

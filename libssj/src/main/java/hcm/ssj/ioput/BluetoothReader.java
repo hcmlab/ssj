@@ -57,33 +57,42 @@ public class BluetoothReader extends Sensor {
 
     public final Options options = new Options();
 
-    protected BluetoothConnection conn;
+    protected BluetoothConnection _conn;
 
     public BluetoothReader() {
         _name = "SSJ_consumer_BluetoothReader";
     }
 
     @Override
-    public boolean connect() {
+    public void init()
+    {
         try {
             switch(options.connectionType.getValue())
             {
                 case SERVER:
-                    conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
-                    conn.connect();
+                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
                     break;
                 case CLIENT:
-                    conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
-                    conn.connect();
+                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
                     break;
             }
 
         } catch (IOException e) {
             Log.e("error in setting up connection "+ options.connectionName, e);
+        }
+    }
+
+    @Override
+    public boolean connect()
+    {
+        try {
+            _conn.connect();
+        } catch (IOException e) {
+            Log.e("error connecting over "+ options.connectionName, e);
             return false;
         }
 
-        BluetoothDevice dev = conn.getSocket().getRemoteDevice();
+        BluetoothDevice dev = _conn.getConnectedDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
         return true;
     }
@@ -92,7 +101,7 @@ public class BluetoothReader extends Sensor {
     public void disconnect()
     {
         try {
-            conn.disconnect();
+            _conn.disconnect();
         } catch (IOException e) {
             Log.e("failed closing connection", e);
         }
@@ -102,12 +111,17 @@ public class BluetoothReader extends Sensor {
     public void forcekill()
     {
         try {
-            conn.disconnect();
+            _conn.disconnect();
 
         } catch (Exception e) {
             Log.e("error force killing thread", e);
         }
 
         super.forcekill();
+    }
+
+    public BluetoothConnection getConnection()
+    {
+        return _conn;
     }
 }

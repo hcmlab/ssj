@@ -27,8 +27,6 @@
 
 package hcm.ssj.angelsensor;
 
-import hcm.ssj.angelsensor.AngelSensor;
-import hcm.ssj.angelsensor.AngelSensorListener;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorProvider;
@@ -60,10 +58,11 @@ public class BVPAngelProvider extends SensorProvider
 	}
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		int[] out = stream_out.ptrI();
 		out[0] = _listener.getBvp();
+		return true;
 	}
 
 	@Override

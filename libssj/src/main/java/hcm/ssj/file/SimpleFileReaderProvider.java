@@ -93,7 +93,7 @@ public class SimpleFileReaderProvider extends SensorProvider
      * @param stream_out Stream
      */
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         switch (type)
         {
@@ -179,8 +179,10 @@ public class SimpleFileReaderProvider extends SensorProvider
             }
             default:
                 Log.w("unsupported data type");
-                break;
+                return false;
         }
+
+        return true;
     }
 
     /**

@@ -66,11 +66,13 @@ public class BatteryProvider extends SensorProvider
 	}
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		float[] out = stream_out.ptrF();
 
 		out[0] = _listener.getBattery();
+
+		return true;
 	}
 
 	@Override

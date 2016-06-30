@@ -95,7 +95,7 @@ public class AudioProvider extends SensorProvider
     }
 
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         if(!options.scale.getValue())
         {
@@ -112,6 +112,7 @@ public class AudioProvider extends SensorProvider
                     break;
                 default:
                     Log.w("unsupported audio format");
+                    return false;
             }
         }
         else
@@ -137,9 +138,12 @@ public class AudioProvider extends SensorProvider
                         break;
                     default:
                         Log.w("unsupported audio format");
+                        return false;
                 }
             }
         }
+
+        return true;
     }
 
     @Override
