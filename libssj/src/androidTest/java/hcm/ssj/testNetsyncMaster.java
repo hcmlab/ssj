@@ -49,9 +49,9 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
-        frame.options.netSync.setValue(true);
-        frame.options.netSyncListen.setValue(false);
+        frame.options.bufferSize.set(10.0f);
+        frame.options.netSync.set(true);
+        frame.options.netSyncListen.set(false);
 
 //        BluetoothReader blr = new BluetoothReader();
 //        blr.options.connectionType = BluetoothConnection.Type.SERVER;
@@ -65,13 +65,13 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.setValue(16000);
-        audio.options.scale.setValue(true);
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
         Logger dummy = new Logger();
-        dummy.options.reduceNum.setValue(true);
+        dummy.options.reduceNum.set(true);
         frame.addConsumer(dummy, audio, 0.1, 0);
 
 //        BluetoothEventReader bler = new BluetoothEventReader();

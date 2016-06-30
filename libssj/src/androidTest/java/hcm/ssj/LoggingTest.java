@@ -177,7 +177,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
     {
         //setup
         TheFramework framework = TheFramework.getFramework();
-        framework.options.bufferSize.setValue(10.0f);
+        framework.options.bufferSize.set(10.0f);
         if (write)
         {
             write(framework, file);
@@ -212,15 +212,15 @@ public class LoggingTest extends ApplicationTestCase<Application>
     {
         //sensor
         AndroidSensor sensorConnection = new AndroidSensor();
-        sensorConnection.options.sensorType.setValue(SensorType.ACCELEROMETER);
+        sensorConnection.options.sensorType.set(SensorType.ACCELEROMETER);
         frame.addSensor(sensorConnection);
         //provider
         AndroidSensorProvider sensorConnectionProvider = new AndroidSensorProvider();
         sensorConnection.addProvider(sensorConnectionProvider);
         //consumer
         SimpleFileWriter simpleFileWriter = new SimpleFileWriter();
-        simpleFileWriter.options.filePath.setValue(file.getParent());
-        simpleFileWriter.options.fileName.setValue(file.getName());
+        simpleFileWriter.options.filePath.set(file.getParent());
+        simpleFileWriter.options.fileName.set(file.getName());
         frame.addConsumer(simpleFileWriter, sensorConnectionProvider, 0.25, 0);
     }
 
@@ -233,9 +233,9 @@ public class LoggingTest extends ApplicationTestCase<Application>
     {
         //sensor
         SimpleFileReader simpleFileReader = new SimpleFileReader();
-        simpleFileReader.options.filePath.setValue(file.getParent());
-        simpleFileReader.options.fileName.setValue(file.getName());
-        simpleFileReader.options.loop.setValue(true);
+        simpleFileReader.options.filePath.set(file.getParent());
+        simpleFileReader.options.fileName.set(file.getName());
+        simpleFileReader.options.loop.set(true);
         frame.addSensor(simpleFileReader);
         //provider
         SimpleFileReaderProvider simpleFileReaderProvider = new SimpleFileReaderProvider();

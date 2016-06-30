@@ -93,18 +93,18 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         File file = null;
         //setup
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
         //sensor
         CameraSensor cameraSensor = new CameraSensor();
-        cameraSensor.options.cameraInfo.setValue(Camera.CameraInfo.CAMERA_FACING_BACK);
-        cameraSensor.options.width.setValue(width);
-        cameraSensor.options.height.setValue(height);
-        cameraSensor.options.previewFpsRangeMin.setValue(4 * 1000);
-        cameraSensor.options.previewFpsRangeMax.setValue(16 * 1000);
+        cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraSensor.options.width.set(width);
+        cameraSensor.options.height.set(height);
+        cameraSensor.options.previewFpsRangeMin.set(4 * 1000);
+        cameraSensor.options.previewFpsRangeMax.set(16 * 1000);
         frame.addSensor(cameraSensor);
         //provider
         CameraProvider cameraProvider = new CameraProvider();
-        cameraProvider.options.sampleRate.setValue((double) frameRate);
+        cameraProvider.options.sampleRate.set((double) frameRate);
         cameraSensor.addProvider(cameraProvider);
         //consumer
         switch (type)
@@ -116,20 +116,20 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
                 String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
                 //
                 CameraWriter cameraWriter = new CameraWriter();
-                cameraWriter.options.filePath.setValue(dir.getPath());
-                cameraWriter.options.fileName.setValue(fileName);
-                cameraWriter.options.width.setValue(width);
-                cameraWriter.options.height.setValue(height);
+                cameraWriter.options.filePath.set(dir.getPath());
+                cameraWriter.options.fileName.set(fileName);
+                cameraWriter.options.width.set(width);
+                cameraWriter.options.height.set(height);
                 frame.addConsumer(cameraWriter, cameraProvider, 1.0 / frameRate, 0);
                 break;
             }
             case PAINTER:
             {
                 CameraPainter cameraPainter = new CameraPainter();
-                cameraPainter.options.width.setValue(width);
-                cameraPainter.options.height.setValue(height);
-                cameraPainter.options.colorFormat.setValue(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
-                cameraPainter.options.surfaceView.setValue(new SurfaceView(this.getContext()));
+                cameraPainter.options.width.set(width);
+                cameraPainter.options.height.set(height);
+                cameraPainter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
+                cameraPainter.options.surfaceView.set(new SurfaceView(this.getContext()));
                 frame.addConsumer(cameraPainter, cameraProvider, 1 / frameRate, 0);
                 break;
             }

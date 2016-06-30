@@ -97,7 +97,7 @@ public class Pitch extends Transformer {
             return;
         }
 
-        switch(options.detector.getValue())
+        switch(options.detector.get())
         {
             case DETECTOR_MPM:
                 _detector = new McLeodPitchMethod((float)audio.sr, audio.num * audio.dim);
@@ -130,15 +130,15 @@ public class Pitch extends Transformer {
         PitchDetectionResult result = _detector.getPitch(data);
 
         float pitch = result.getPitch();
-        if(pitch > options.maxPitch.getValue() || pitch < options.minPitch.getValue())
+        if(pitch > options.maxPitch.get() || pitch < options.minPitch.get())
             pitch = -1;
 
         int dim = 0;
 
-        if (options.computePitch.getValue())
+        if (options.computePitch.get())
             out[dim++] = pitch;
 
-        if (options.computePitchEnvelope.getValue()) {
+        if (options.computePitchEnvelope.get()) {
             if (pitch < 0) {
                 out[dim++] = _lastPitch;
             } else {
@@ -147,10 +147,10 @@ public class Pitch extends Transformer {
             }
         }
 
-        if(options.computeVoicedProb.getValue())
+        if(options.computeVoicedProb.get())
             out[dim++] = result.getProbability();
 
-        if(options.computePitchedState.getValue())
+        if(options.computePitchedState.get())
             out[dim++] = (result.isPitched() && pitch > 0) ? 1.0f : 0.0f;
     }
 
@@ -163,10 +163,10 @@ public class Pitch extends Transformer {
     {
         int dim = 0;
 
-        if(options.computePitch.getValue()) dim++;
-        if(options.computePitchEnvelope.getValue()) dim++;
-        if(options.computeVoicedProb.getValue()) dim++;
-        if(options.computePitchedState.getValue()) dim++;
+        if(options.computePitch.get()) dim++;
+        if(options.computePitchEnvelope.get()) dim++;
+        if(options.computeVoicedProb.get()) dim++;
+        if(options.computePitchedState.get()) dim++;
 
         return dim;
     }
@@ -201,10 +201,10 @@ public class Pitch extends Transformer {
         stream_out.dataclass = new String[stream_out.dim];
 
         int i = 0;
-        if(options.computePitch.getValue()) stream_out.dataclass[i++] = "Pitch";
-        if(options.computePitchEnvelope.getValue()) stream_out.dataclass[i++] = "Pitch";
-        if(options.computeVoicedProb.getValue()) stream_out.dataclass[i++] = "VoicedProb";
-        if(options.computePitchedState.getValue()) stream_out.dataclass[i++] = "PitchedState";
+        if(options.computePitch.get()) stream_out.dataclass[i++] = "Pitch";
+        if(options.computePitchEnvelope.get()) stream_out.dataclass[i++] = "Pitch";
+        if(options.computeVoicedProb.get()) stream_out.dataclass[i++] = "VoicedProb";
+        if(options.computePitchedState.get()) stream_out.dataclass[i++] = "PitchedState";
     }
 
 }

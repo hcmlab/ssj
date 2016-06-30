@@ -126,19 +126,19 @@ public class TheFramework
                 _threadPool.execute(c);
             }
 
-            for (int i = 0; i < options.countdown.getValue(); i++)
+            for (int i = 0; i < options.countdown.get(); i++)
             {
-                Log.i("starting pipeline in " + (options.countdown.getValue() - i));
+                Log.i("starting pipeline in " + (options.countdown.get() - i));
                 Thread.sleep(1000);
             }
 
-            if (options.netSync.getValue())
+            if (options.netSync.get())
             {
                 try
                 {
-                    if (options.netSyncListen.getValue())
+                    if (options.netSyncListen.get())
                     {
-                        _syncSocket = new DatagramSocket(options.netSyncPort.getValue());
+                        _syncSocket = new DatagramSocket(options.netSyncPort.get());
                         _syncSocket.setReuseAddress(true);
 
                         Log.i("waiting for master pipeline (port = " + options.netSyncPort + ")");
@@ -164,10 +164,10 @@ public class TheFramework
                         _syncSocket.setBroadcast(true);
 
                         byte[] data = {'S', 'S', 'J', 1};
-                        DatagramPacket packet = new DatagramPacket(data, 4, Util.getBroadcastAddress(), options.netSyncPort.getValue());
+                        DatagramPacket packet = new DatagramPacket(data, 4, Util.getBroadcastAddress(), options.netSyncPort.get());
                         _syncSocket.send(packet);
 
-                        Log.i("sync ping sent on port " + options.netSyncPort.getValue());
+                        Log.i("sync ping sent on port " + options.netSyncPort.get());
                     }
                 } catch (IOException e)
                 {
@@ -208,7 +208,7 @@ public class TheFramework
         Cons.Type type = p.getSampleType();
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize.getValue(), sr, dim, bytesPerValue, type);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type);
         _buffer.add(buf);
         int buffer_id = _buffer.size() - 1;
         p.setBufferID(buffer_id);
@@ -233,7 +233,7 @@ public class TheFramework
         Cons.Type type = t.getOutputStream().type;
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize.getValue(), sr, dim, bytesPerValue, type);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type);
         _buffer.add(buf);
         int buffer_id = _buffer.size() - 1;
         t.setBufferID(buffer_id);
@@ -517,9 +517,9 @@ public class TheFramework
 
     private void log()
     {
-        if (options.logfile.getValue() != null)
+        if (options.logfile.get() != null)
         {
-            Log.getInstance().saveToFile(options.logfile.getValue());
+            Log.getInstance().saveToFile(options.logfile.get());
             Log.getInstance().reset();
         }
     }

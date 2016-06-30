@@ -75,7 +75,7 @@ public class BVPProvider extends SensorProvider
 	@Override
 	public double getSampleRate()
 	{
-		return options.sampleRate.getValue();
+		return options.sampleRate.get();
 	}
 
 	@Override

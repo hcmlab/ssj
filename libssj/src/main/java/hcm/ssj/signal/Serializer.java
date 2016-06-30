@@ -90,14 +90,14 @@ public class Serializer extends Transformer
             }
         }
         //not all types are supported
-        if (options.outputType.getValue() == Cons.Type.CUSTOM || options.outputType.getValue() == Cons.Type.UNDEF)
+        if (options.outputType.get() == Cons.Type.CUSTOM || options.outputType.get() == Cons.Type.UNDEF)
         {
             Log.e("output type is not supported");
         }
         //every stream should have the same type
         for (int i = 0; i < stream_in.length; i++)
         {
-            if (options.outputType.getValue() != stream_in[i].type)
+            if (options.outputType.get() != stream_in[i].type)
             {
                 Log.e("invalid type for stream_in " + i);
                 return;
@@ -112,7 +112,7 @@ public class Serializer extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        switch (options.outputType.getValue())
+        switch (options.outputType.get())
         {
             case BOOL:
             {
@@ -270,7 +270,7 @@ public class Serializer extends Transformer
     @Override
     public int getSampleBytes(Stream[] stream_in)
     {
-        return Util.sizeOf(options.outputType.getValue());
+        return Util.sizeOf(options.outputType.get());
     }
 
     /**
@@ -280,7 +280,7 @@ public class Serializer extends Transformer
     @Override
     public Cons.Type getSampleType(Stream[] stream_in)
     {
-        return options.outputType.getValue();
+        return options.outputType.get();
     }
 
     /**
@@ -302,11 +302,11 @@ public class Serializer extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {

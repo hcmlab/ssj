@@ -85,14 +85,14 @@ public class BluetoothEventReader extends EventHandler
     public void enter()
     {
         try {
-            switch(options.connectionType.getValue())
+            switch(options.connectionType.get())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
+                    _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
                     _conn.connect();
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
+                    _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
                     _conn.connect();
                     break;
             }
@@ -107,7 +107,7 @@ public class BluetoothEventReader extends EventHandler
         BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
 
-        if(!options.parseXmlToEvent.getValue())
+        if(!options.parseXmlToEvent.get())
         {
             _buffer = new byte[Cons.MAX_EVENT_SIZE];
         }
@@ -140,7 +140,7 @@ public class BluetoothEventReader extends EventHandler
             if (_in.available() == 0)
                 return;
 
-            if (!options.parseXmlToEvent.getValue())
+            if (!options.parseXmlToEvent.get())
             {
                 int len = _in.read(_buffer);
                 _evchannel_out.pushEvent(_buffer, 0, len);

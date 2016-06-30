@@ -30,15 +30,6 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
-import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.androidSensor.transformer.AvgVar;
-import hcm.ssj.androidSensor.transformer.Count;
-import hcm.ssj.androidSensor.transformer.Distance;
-import hcm.ssj.androidSensor.transformer.Median;
-import hcm.ssj.androidSensor.transformer.MinMax;
-import hcm.ssj.androidSensor.transformer.Progress;
 import hcm.ssj.angelsensor.AngelSensor;
 import hcm.ssj.angelsensor.BVPAngelProvider;
 import hcm.ssj.core.TheFramework;
@@ -70,7 +61,7 @@ public class AngelSensorTest extends ApplicationTestCase<Application>
 
 		//setup
 		TheFramework frame = TheFramework.getFramework();
-		frame.options.bufferSize.setValue(10.0f);
+		frame.options.bufferSize.set(10.0f);
 		//sensor
 		AngelSensor sensor = new AngelSensor();
 		frame.addSensor(sensor);

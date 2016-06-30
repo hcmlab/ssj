@@ -137,10 +137,10 @@ public class AudioWriter extends Mp4Writer
             }
             case FLOAT:
             {
-                if (options.audioFormat.getValue() == AudioFormat.ENCODING_DEFAULT || options.audioFormat.getValue() == AudioFormat.ENCODING_PCM_16BIT)
+                if (options.audioFormat.get() == AudioFormat.ENCODING_DEFAULT || options.audioFormat.get() == AudioFormat.ENCODING_PCM_16BIT)
                 {
                     dataFormat = DataFormat.FLOAT_16;
-                } else if (options.audioFormat.getValue() == AudioFormat.ENCODING_PCM_8BIT)
+                } else if (options.audioFormat.get() == AudioFormat.ENCODING_PCM_8BIT)
                 {
                     dataFormat = DataFormat.FLOAT_8;
                 } else
@@ -250,14 +250,14 @@ public class AudioWriter extends Mp4Writer
     {
         //set format properties
         MediaFormat audioFormat = new MediaFormat();
-        audioFormat.setString(MediaFormat.KEY_MIME, options.mimeType.getValue());
+        audioFormat.setString(MediaFormat.KEY_MIME, options.mimeType.get());
         audioFormat.setInteger(MediaFormat.KEY_AAC_PROFILE, MediaCodecInfo.CodecProfileLevel.AACObjectLC);
         audioFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, iSampleRate);
         audioFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, iSampleDimension);
         audioFormat.setInteger(MediaFormat.KEY_BIT_RATE, iSampleNumber);
         audioFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, aByShuffle.length);
         //prepare encoder
-        super.prepareEncoder(audioFormat, options.mimeType.getValue(), file.getPath());
+        super.prepareEncoder(audioFormat, options.mimeType.get(), file.getPath());
     }
 
     /**

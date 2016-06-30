@@ -38,7 +38,6 @@ import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.util.ArrayList;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
@@ -95,7 +94,7 @@ public class SignalPainter extends Consumer
     protected void init(Stream[] stream_in)
     {
         super.init(stream_in);
-        if (options.graphView.getValue() == null)
+        if (options.graphView.get() == null)
         {
             Log.w("graphView isn't set");
             //create system dialog to show graph
@@ -132,7 +131,7 @@ public class SignalPainter extends Consumer
             handler.post(thread);
         } else
         {
-            _view = options.graphView.getValue();
+            _view = options.graphView.get();
         }
     }
     @Override
@@ -166,16 +165,16 @@ public class SignalPainter extends Consumer
 
         _view.getViewport().setXAxisBoundsManual(true);
         _view.getViewport().setMinX(0);
-        _view.getViewport().setMaxX(options.size.getValue());
+        _view.getViewport().setMaxX(options.size.get());
 
-        _view.getViewport().setYAxisBoundsManual(options.manualBounds.getValue());
-        _view.getViewport().setMaxY(options.max.getValue());
-        _view.getViewport().setMinY(options.min.getValue());
+        _view.getViewport().setYAxisBoundsManual(options.manualBounds.get());
+        _view.getViewport().setMaxY(options.max.get());
+        _view.getViewport().setMinY(options.min.get());
 
-        _view.getGridLabelRenderer().setNumHorizontalLabels(options.numHLabels.getValue());
-        _view.getGridLabelRenderer().setNumVerticalLabels(options.numVLabels.getValue());
+        _view.getGridLabelRenderer().setNumHorizontalLabels(options.numHLabels.get());
+        _view.getGridLabelRenderer().setNumVerticalLabels(options.numVLabels.get());
 
-        _view.getLegendRenderer().setVisible(options.legend.getValue());
+        _view.getLegendRenderer().setVisible(options.legend.get());
         _view.getLegendRenderer().setFixedPosition(10, 10);
 
         _view.getGridLabelRenderer().setLabelVerticalWidth(100);
@@ -203,14 +202,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax.getValue())
+                            if (!options.renderMax.get())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax.getValue())
+                        if (options.renderMax.get())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -225,14 +224,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax.getValue())
+                            if (!options.renderMax.get())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax.getValue())
+                        if (options.renderMax.get())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -247,14 +246,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax.getValue())
+                            if (!options.renderMax.get())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax.getValue())
+                        if (options.renderMax.get())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -269,14 +268,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax.getValue())
+                            if (!options.renderMax.get())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax.getValue())
+                        if (options.renderMax.get())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -291,14 +290,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax.getValue())
+                            if (!options.renderMax.get())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax.getValue())
+                        if (options.renderMax.get())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -313,14 +312,14 @@ public class SignalPainter extends Consumer
                         {
                             value = in[j * stream_in[k].dim + i];
 
-                            if (!options.renderMax.getValue())
+                            if (!options.renderMax.get())
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
                                 max = value;
                         }
 
-                        if (options.renderMax.getValue())
+                        if (options.renderMax.get())
                             pushData(seriesID, max, stream_in[k].time);
                         break;
                     }
@@ -381,20 +380,20 @@ public class SignalPainter extends Consumer
                     {
                         LineGraphSeries<DataPoint> s = new LineGraphSeries<>();
                         s.setTitle(stream_in[i].dataclass[j]);
-                        s.setColor(options.colors.getValue()[_series.size() % options.colors.getValue().length]);
+                        s.setColor(options.colors.get()[_series.size() % options.colors.get().length]);
 
                         //define scale length
-                        if(!options.renderMax.getValue())
-                            _maxPoints[_series.size()] = (int)(options.size.getValue() * stream_in[i].sr) +1;
+                        if(!options.renderMax.get())
+                            _maxPoints[_series.size()] = (int)(options.size.get() * stream_in[i].sr) +1;
                         else
-                            _maxPoints[_series.size()] = (int)(options.size.getValue() * (stream_in[i].sr / (double)stream_in[i].num)) +1;
+                            _maxPoints[_series.size()] = (int)(options.size.get() * (stream_in[i].sr / (double)stream_in[i].num)) +1;
 
                         _series.add(s);
 
-                        if (options.secondScaleStream.getValue() == i && options.secondScaleDim.getValue() == j)
+                        if (options.secondScaleStream.get() == i && options.secondScaleDim.get() == j)
                         {
-                            view.getSecondScale().setMinY(options.secondScaleMin.getValue());
-                            view.getSecondScale().setMaxY(options.secondScaleMax.getValue());
+                            view.getSecondScale().setMinY(options.secondScaleMin.get());
+                            view.getSecondScale().setMaxY(options.secondScaleMax.get());
                             view.getSecondScale().addSeries(s);
                         } else
                         {

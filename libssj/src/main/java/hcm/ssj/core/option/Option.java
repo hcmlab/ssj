@@ -36,7 +36,7 @@ public class Option<T>
     /**
      * @return T
      */
-    public final T getValue()
+    public final T get()
     {
         return value;
     }
@@ -44,7 +44,7 @@ public class Option<T>
     /**
      * @param value T
      */
-    public final void setValue(T value)
+    public final void set(T value)
     {
         this.value = value;
     }

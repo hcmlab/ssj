@@ -22,10 +22,10 @@ import hcm.ssjclay.creator.container.ContainerElement;
 public class Linker
 {
     private static Linker instance = null;
-    private LinkedHashSet<SensorProvider> hsSensorProviders = new LinkedHashSet<>();
-    private LinkedHashMap<Sensor, SensorProvider> hmSensors = new LinkedHashMap<>();
-    private LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
-    private LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
+    protected LinkedHashSet<SensorProvider> hsSensorProviders = new LinkedHashSet<>();
+    protected LinkedHashMap<Sensor, SensorProvider> hmSensors = new LinkedHashMap<>();
+    protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
+    protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
 //    private LinkedHashSet<Container<EventConsumer>> hsEventConsumers = new LinkedHashSet<>(); //doesn't work yet, because of EventChannel and optional frame size
 
     public enum Type

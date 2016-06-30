@@ -26,7 +26,6 @@
 
 package hcm.ssj.event;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.Log;
@@ -77,7 +76,7 @@ public class ThresholdEventSender extends Consumer
     public ThresholdEventSender()
     {
         _name = "SSJ_consumer_ThresholdEventSender";
-        options.sender.setValue(_name);
+        options.sender.set(_name);
     }
 
     @Override
@@ -89,27 +88,27 @@ public class ThresholdEventSender extends Consumer
             totaldim += s.dim;
         }
 
-        if(options.thresin.getValue() == null || options.thresin.getValue().length != totaldim)
+        if(options.thresin.get() == null || options.thresin.get().length != totaldim)
         {
             Log.e("invalid threshold list. Expecting " + totaldim + " thresholds");
             return;
         }
 
-        if(options.thresout.getValue() == null)
+        if(options.thresout.get() == null)
         {
             Log.w("thresout undefined, using thresin");
-            options.thresout.setValue(options.thresin.getValue());
+            options.thresout.set(options.thresin.get());
         }
 
         _trigger_on = false;
-        _hangover_in = options.hangin.getValue();
-        _hangover_out = options.hangout.getValue();
+        _hangover_in = options.hangin.get();
+        _hangover_out = options.hangout.get();
         _counter_in = _hangover_in;
         _counter_out = _hangover_out;
-        _loffset = options.loffset.getValue();
-        _uoffset = options.uoffset.getValue();
-        _skip_on_max_dur = options.skip.getValue();
-        _samples_max_dur = (int) (options.maxdur.getValue() * stream_in[0].sr);
+        _loffset = options.loffset.get();
+        _uoffset = options.uoffset.get();
+        _skip_on_max_dur = options.skip.get();
+        _samples_max_dur = (int) (options.maxdur.get() * stream_in[0].sr);
     }
 
     @Override
@@ -122,9 +121,9 @@ public class ThresholdEventSender extends Consumer
         for (int i = 0; i < stream_in[0].num; i++) {
 
             //differentiate between onset and offset threshold
-            float[] threshold = (!_trigger_on) ? options.thresin.getValue() : options.thresout.getValue();
+            float[] threshold = (!_trigger_on) ? options.thresin.get() : options.thresout.get();
 
-            found_event = options.hard.getValue();
+            found_event = options.hard.get();
             int thresId = 0;
             for (int j = 0; j < stream_in.length; j++) {
                 for (int k = 0; k < stream_in[j].dim; k++)
@@ -157,7 +156,7 @@ public class ThresholdEventSender extends Consumer
                             break;
                     }
 
-                    if(options.hard.getValue())
+                    if(options.hard.get())
                         found_event = found_event && result;
                     else
                         found_event = found_event || result;
@@ -184,10 +183,10 @@ public class ThresholdEventSender extends Consumer
                         _counter_out = _hangover_out;
                         _counter_max_dur = _samples_max_dur - _hangover_in;
 
-                        if (options.eager.getValue()) {
+                        if (options.eager.get()) {
                             Event ev = new Event();
-                            ev.name = options.event.getValue();
-                            ev.sender = options.sender.getValue();
+                            ev.name = options.event.get();
+                            ev.sender = options.sender.get();
                             ev.time = (int)(1000 * _trigger_start + 0.5);
                             ev.dur = 0;
                             ev.state = Event.State.CONTINUED;
@@ -252,25 +251,25 @@ public class ThresholdEventSender extends Consumer
 
     boolean update (double time, double dur, Event.State state)
     {
-        if (dur < options.mindur.getValue() || dur <= 0.0) {
+        if (dur < options.mindur.get() || dur <= 0.0) {
             Log.ds("skip event because duration too short " + dur + "@" + time);
             return false;
         }
 
-        if (dur > options.maxdur.getValue() + 0.000000001) {
+        if (dur > options.maxdur.get() + 0.000000001) {
             if (_skip_on_max_dur) {
                 Log.ds("skip event because duration too long " + dur + "@" + time);
                 return false;
             }
-            Log.w("crop duration from " + dur +" to " + options.maxdur.getValue());
-            time += dur - options.maxdur.getValue();
-            dur = options.maxdur.getValue();
+            Log.w("crop duration from " + dur +" to " + options.maxdur.get());
+            time += dur - options.maxdur.get();
+            dur = options.maxdur.get();
         }
 
-        if (options.eall.getValue() || state == Event.State.COMPLETED) {
+        if (options.eall.get() || state == Event.State.COMPLETED) {
             Event ev = new Event();
-            ev.name = options.event.getValue();
-            ev.sender = options.sender.getValue();
+            ev.name = options.event.get();
+            ev.sender = options.sender.get();
             ev.time = Math.max (0,  (int)(1000 * (time - _loffset) + 0.5));
             ev.dur = Math.max (0, (int)(1000 * (dur + _uoffset) + 0.5));
             ev.state = state;

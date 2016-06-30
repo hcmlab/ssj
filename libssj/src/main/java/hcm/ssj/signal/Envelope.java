@@ -92,9 +92,9 @@ public class Envelope extends Transformer {
                 valOld = (i > 1) ? out[(i-1) * dim + j] : _lastValue[j];
 
                 if(valNew > valOld)
-                    out[i * dim + j] = (valOld + options.attackSlope.getValue() > valNew) ? valNew : valOld + options.attackSlope.getValue();
+                    out[i * dim + j] = (valOld + options.attackSlope.get() > valNew) ? valNew : valOld + options.attackSlope.get();
                 else if(valNew < valOld)
-                    out[i * dim + j] = (valOld - options.releaseSlope.getValue() < valNew) ? valNew : valOld - options.releaseSlope.getValue();
+                    out[i * dim + j] = (valOld - options.releaseSlope.get() < valNew) ? valNew : valOld - options.releaseSlope.get();
                 else if(valNew == valOld)
                     out[i * dim + j] = valOld;
             }

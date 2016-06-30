@@ -1,5 +1,5 @@
 /*
- * Progress.java
+ * Count.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.androidSensor.transformer;
+package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -35,10 +35,10 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Transformer to calculate progress in android sensor data.<br>
+ * Counts high values.
  * Created by Frank Gaibler on 31.08.2015.
  */
-public class Progress extends Transformer
+public class Count extends Transformer
 {
     /**
      * All options for the transformer
@@ -46,6 +46,8 @@ public class Progress extends Transformer
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        public final Option<Boolean> frameCount = new Option<>("frameCount", true, Boolean.class, "Global or frame count");
+        public final Option<Boolean> divideByNumber = new Option<>("divideByNumber", false, Boolean.class, "Divide through number of values to be comparable");
 
         /**
          *
@@ -56,15 +58,15 @@ public class Progress extends Transformer
         }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //helper variables
-    private boolean initState = true;
     private float[] oldValues;
+    private int counter = 0;
 
     /**
      *
      */
-    public Progress()
+    public Count()
     {
         _name = "SSJ_transformer_" + this.getClass().getSimpleName();
     }
@@ -80,10 +82,8 @@ public class Progress extends Transformer
         if (stream_in.length < 1 || stream_in[0].dim < 1)
         {
             Log.e("invalid input stream");
-            return;
         }
-        //every stream should have the same sample number.
-        //Otherwise the sample number of the transformer will not be correct
+        //every stream should have the same sample number
         int num = stream_in[0].num;
         for (int i = 1; i < stream_in.length; i++)
         {
@@ -92,8 +92,8 @@ public class Progress extends Transformer
                 Log.e("invalid input stream num for stream " + i);
             }
         }
-        initState = true;
         oldValues = new float[stream_out.dim];
+        counter = 0;
     }
 
     /**
@@ -104,32 +104,36 @@ public class Progress extends Transformer
     public void transform(Stream[] stream_in, Stream stream_out)
     {
         float[] out = stream_out.ptrF();
-        if (initState)
+        if (options.frameCount.get())
         {
-            initState = false;
+            oldValues = new float[stream_out.dim];
+        }
+        for (int i = 0; i < stream_in[0].num; i++)
+        {
             int t = 0;
             for (Stream aStream_in : stream_in)
             {
                 for (int k = 0; k < aStream_in.dim; k++, t++)
                 {
-                    oldValues[t] = aStream_in.ptrF()[k];
+                    float value = aStream_in.ptrF()[i * aStream_in.dim + k];
+                    if (value > 0)
+                    {
+                        oldValues[t]++;
+                    }
                 }
             }
         }
-        for (int i = 0, z = 0; i < stream_in[0].num; i++)
+        //write to output
+        if (options.divideByNumber.get())
         {
-            int t = 0;
-            for (Stream aStream_in : stream_in)
+            float divider = options.frameCount.get() ? stream_in[0].num : ++counter * stream_in[0].num;
+            for (int i = 0; i < oldValues.length; i++)
             {
-                for (int k = 0; k < aStream_in.dim; k++, t++, z++)
-                {
-                    float value = aStream_in.ptrF()[i * aStream_in.dim + k];
-                    //write to output
-                    out[z] = value - oldValues[t];
-                    //save old variables
-                    oldValues[t] = value;
-                }
+                out[i] = oldValues[i] / divider;
             }
+        } else
+        {
+            System.arraycopy(oldValues, 0, out, 0, oldValues.length);
         }
     }
 
@@ -175,7 +179,7 @@ public class Progress extends Transformer
     @Override
     public int getSampleNumber(int sampleNumber_in)
     {
-        return sampleNumber_in;
+        return 1;
     }
 
     /**
@@ -187,11 +191,11 @@ public class Progress extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {
@@ -202,7 +206,7 @@ public class Progress extends Transformer
         {
             for (int j = 0; j < stream_in[i].dim; j++, k++)
             {
-                stream_out.dataclass[k] = "prgrss" + i + "." + j;
+                stream_out.dataclass[k] = "cnt" + i + "." + j;
             }
         }
     }

@@ -116,7 +116,7 @@ public class SpeechRate extends EventConsumer
         Log.ds("computing sr for " + _intensity.num + " samples");
 
         //compute peaks
-        LinkedList<Integer> peaks = findPeaks(intensity, _intensity.num, options.intensityIgnoranceLevel.getValue(), options.minDipBetweenPeaks.getValue());
+        LinkedList<Integer> peaks = findPeaks(intensity, _intensity.num, options.intensityIgnoranceLevel.get(), options.minDipBetweenPeaks.get());
 
         Log.ds("peaks (pre-cull) = " + peaks.size());
 
@@ -134,7 +134,7 @@ public class SpeechRate extends EventConsumer
             if(j >= _voiced.num)
                 j = _voiced.num - 1;
 
-            if (voiced[j * _voiced.dim + _voiced_ind] < options.thresholdVoicedProb.getValue())
+            if (voiced[j * _voiced.dim + _voiced_ind] < options.thresholdVoicedProb.get())
                 peak.remove();
         }
 
@@ -144,8 +144,8 @@ public class SpeechRate extends EventConsumer
         Log.ds("peaks = " + peaks.size() + ", sr = " + peaks.size() / duration);
 
         Event ev = new Event();
-        ev.sender = options.sender.getValue();
-        ev.name = options.event.getValue();
+        ev.sender = options.sender.get();
+        ev.name = options.event.get();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * duration + 0.5);
         ev.state = Event.State.COMPLETED;
@@ -177,7 +177,7 @@ public class SpeechRate extends EventConsumer
         if(threshold  < min)
             threshold = min;
 
-        int width = options.width.getValue();
+        int width = options.width.get();
         if(width == 0) width = 1;
         LinkedList<Integer> peaks = findPeaks_(data, length, width, threshold);
         if(peaks.size() == 0)

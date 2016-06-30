@@ -66,22 +66,22 @@ public class AudioTest extends ApplicationTestCase<Application>
         File file = new File(dir, fileName);
         //setup
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
         //sensor
         Microphone microphone = new Microphone();
         frame.addSensor(microphone);
         //provider
         AudioProvider audioProvider = new AudioProvider();
-        audioProvider.options.audioFormat.setValue(AudioFormat.ENCODING_PCM_16BIT);
-        audioProvider.options.channelConfig.setValue(AudioFormat.CHANNEL_IN_STEREO);
-        audioProvider.options.sampleRate.setValue(8000);
-        audioProvider.options.scale.setValue(true);
+        audioProvider.options.audioFormat.set(AudioFormat.ENCODING_PCM_16BIT);
+        audioProvider.options.channelConfig.set(AudioFormat.CHANNEL_IN_STEREO);
+        audioProvider.options.sampleRate.set(8000);
+        audioProvider.options.scale.set(true);
         microphone.addProvider(audioProvider);
         //consumer
         AudioWriter audioWriter = new AudioWriter();
-        audioWriter.options.audioFormat.setValue(AudioFormat.ENCODING_PCM_16BIT);
-        audioWriter.options.filePath.setValue(dir.getPath());
-        audioWriter.options.fileName.setValue(fileName);
+        audioWriter.options.audioFormat.set(AudioFormat.ENCODING_PCM_16BIT);
+        audioWriter.options.filePath.set(dir.getPath());
+        audioWriter.options.fileName.set(fileName);
         frame.addConsumer(audioWriter, audioProvider, 1, 0);
         //start framework
         frame.Start();
@@ -112,17 +112,17 @@ public class AudioTest extends ApplicationTestCase<Application>
     public void testSpeechrate() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.setValue(16000);
-        audio.options.scale.setValue(true);
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
         Pitch pitch = new Pitch();
-        pitch.options.detector.setValue(Pitch.YIN);
+        pitch.options.detector.set(Pitch.YIN);
         frame.addTransformer(pitch, audio, 0.04, 0);
 
         Avg pitch_env = new Avg();
@@ -133,17 +133,17 @@ public class AudioTest extends ApplicationTestCase<Application>
 
         //VAD
         ThresholdEventSender vad = new ThresholdEventSender();
-        vad.options.thresin.setValue(new float[]{50.0f}); //SPL
-        vad.options.mindur.setValue(1.0);
-        vad.options.maxdur.setValue(9.0);
-        vad.options.hangin.setValue(3);
-        vad.options.hangout.setValue(5);
+        vad.options.thresin.set(new float[]{50.0f}); //SPL
+        vad.options.mindur.set(1.0);
+        vad.options.maxdur.set(9.0);
+        vad.options.hangin.set(3);
+        vad.options.hangout.set(5);
         Provider[] vad_in = {energy};
         frame.addConsumer(vad, vad_in, 1.0, 0);
         EventChannel vad_channel = frame.registerEventProvider(vad);
 
         hcm.ssj.audio.SpeechRate sr = new hcm.ssj.audio.SpeechRate();
-        sr.options.thresholdVoicedProb.setValue(0.3f);
+        sr.options.thresholdVoicedProb.set(0.3f);
         Provider[] sr_in = {energy, pitch_env};
         frame.addEventConsumer(sr, sr_in, vad_channel);
         EventChannel sr_channel = frame.registerEventProvider(sr);

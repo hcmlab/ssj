@@ -97,7 +97,7 @@ public class Myo extends Sensor
 					myoInitialized = true;
 				}
 
-				hub.setLockingPolicy(options.locking.getValue() ? Hub.LockingPolicy.STANDARD : Hub.LockingPolicy.NONE);
+				hub.setLockingPolicy(options.locking.get() ? Hub.LockingPolicy.STANDARD : Hub.LockingPolicy.NONE);
 
 				// Disable usage data sending
 				hub.setSendUsageData(false);
@@ -109,10 +109,10 @@ public class Myo extends Sensor
 				if (hub.getConnectedDevices().isEmpty())
 				{
 					// If there is a mac address connect to it, otherwise look for myo nearby
-					if (!options.macAddress.getValue().isEmpty())
+					if (!options.macAddress.get().isEmpty())
 					{
-						Log.i("Connecting to MAC: " + options.macAddress.getValue());
-						hub.attachByMacAddress(options.macAddress.getValue());
+						Log.i("Connecting to MAC: " + options.macAddress.get());
+						hub.attachByMacAddress(options.macAddress.get());
 					}
 					else
 					{
@@ -143,7 +143,7 @@ public class Myo extends Sensor
         com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
 
         //configure myo
-        config = new Configuration(hub, listener, options.emg.getValue(), options.imu.getValue(), options.gestures.getValue());
+        config = new Configuration(hub, listener, options.emg.get(), options.imu.get(), options.gestures.get());
         config.apply(myo.getMacAddress());
 
 		myo.unlock(com.thalmic.myo.Myo.UnlockType.HOLD);

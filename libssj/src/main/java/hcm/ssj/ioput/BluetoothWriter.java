@@ -31,7 +31,6 @@ import android.bluetooth.BluetoothDevice;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
@@ -74,14 +73,14 @@ public class BluetoothWriter extends Consumer {
     @Override
     public void enter(Stream[] stream_in) {
         try {
-            switch(options.connectionType.getValue())
+            switch(options.connectionType.get())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
+                    _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
                     _conn.connect();
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
+                    _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
                     _conn.connect();
                     break;
             }

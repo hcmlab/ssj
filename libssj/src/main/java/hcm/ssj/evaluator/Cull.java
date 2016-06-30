@@ -184,11 +184,11 @@ public class Cull extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {
@@ -208,12 +208,12 @@ public class Cull extends Transformer
      */
     protected final File getFile(Option<String> filePath, Option<String> fileName)
     {
-        if (filePath.getValue() == null)
+        if (filePath.get() == null)
         {
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
-        File fileDirectory = new File(filePath.getValue());
+        File fileDirectory = new File(filePath.get());
         if (!fileDirectory.exists())
         {
             if (!fileDirectory.mkdirs())
@@ -222,12 +222,12 @@ public class Cull extends Transformer
                 return null;
             }
         }
-        if (fileName.getValue() == null)
+        if (fileName.get() == null)
         {
             Log.e("file name not set");
             return null;
         }
-        return new File(fileDirectory, fileName.getValue());
+        return new File(fileDirectory, fileName.get());
     }
 
     /**

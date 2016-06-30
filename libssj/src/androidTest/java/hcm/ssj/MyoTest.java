@@ -58,7 +58,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
 
         hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
         DynAccelerationProvider acc = new DynAccelerationProvider();
-        acc.options.sampleRate.setValue(10);
+        acc.options.sampleRate.set(10);
         frame.addSensor(myo);
         myo.addProvider(acc);
 
@@ -89,7 +89,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
 
         hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
         EMGProvider emg = new EMGProvider();
-        emg.options.sampleRate.setValue(10);
+        emg.options.sampleRate.set(10);
         frame.addSensor(myo);
         myo.addProvider(emg);
 

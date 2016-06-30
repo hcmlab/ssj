@@ -81,12 +81,12 @@ public class MobileSSITest extends ApplicationTestCase<Application>
 
         //setup
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
         //sensor
         AndroidSensor sensor = new AndroidSensor();
-        sensor.options.sensorType.setValue(acc);
+        sensor.options.sensorType.set(acc);
         AndroidSensor s2 = new AndroidSensor();
-        s2.options.sensorType.setValue(mag);
+        s2.options.sensorType.set(mag);
 
         frame.addSensor(sensor);
         frame.addSensor(s2);

@@ -94,7 +94,7 @@ public class OptionTable
      */
     private static LinearLayout addOption(final Activity activity, final Option option)
     {
-        Object value = option.getValue();
+        Object value = option.get();
         // Set up the view
         LinearLayout linearLayout = new LinearLayout(activity);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
@@ -129,7 +129,7 @@ public class OptionTable
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
                 {
-                    option.setValue(isChecked);
+                    option.set(isChecked);
                 }
             });
         } else if (value != null && value.getClass().isEnum())
@@ -153,7 +153,7 @@ public class OptionTable
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
                 {
-                    option.setValue(parent.getItemAtPosition(position));
+                    option.set(parent.getItemAtPosition(position));
                 }
 
                 @Override
@@ -229,37 +229,37 @@ public class OptionTable
                         //set value
                         if (type == Byte.class)
                         {
-                            option.setValue(Byte.valueOf(s.toString()));
+                            option.set(Byte.valueOf(s.toString()));
                         } else if (type == Short.class)
                         {
-                            option.setValue(Short.valueOf(s.toString()));
+                            option.set(Short.valueOf(s.toString()));
                         }
                         if (type == Integer.class)
                         {
-                            option.setValue(Integer.valueOf(s.toString()));
+                            option.set(Integer.valueOf(s.toString()));
                         }
                         if (type == Long.class)
                         {
-                            option.setValue(Long.valueOf(s.toString()));
+                            option.set(Long.valueOf(s.toString()));
                         }
                         if (type == Float.class)
                         {
-                            option.setValue(Float.valueOf(s.toString()));
+                            option.set(Float.valueOf(s.toString()));
                         }
                         if (type == Double.class)
                         {
-                            option.setValue(Double.valueOf(s.toString()));
+                            option.set(Double.valueOf(s.toString()));
                         }
                         if (type == Character.class)
                         {
-                            option.setValue(s.toString().toCharArray()[0]);
+                            option.set(s.toString().toCharArray()[0]);
                         }
                         if (type == String.class)
                         {
-                            option.setValue(s.toString());
+                            option.set(s.toString());
                         } else
                         {
-                            Object value = option.getValue();
+                            Object value = option.get();
                             if (value != null && value.getClass().isArray())
                             {
                                 String[] strings = s.toString().replace("[", "").replace("]", "").split(", ");
@@ -274,7 +274,7 @@ public class OptionTable
                                         {
                                             ar[i] = Boolean.parseBoolean(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (byte.class.isAssignableFrom(componentType))
                                     {
                                         byte[] ar = new byte[strings.length];
@@ -282,7 +282,7 @@ public class OptionTable
                                         {
                                             ar[i] = Byte.parseByte(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (char.class.isAssignableFrom(componentType))
                                     {
                                         char[] ar = new char[strings.length];
@@ -290,7 +290,7 @@ public class OptionTable
                                         {
                                             ar[i] = strings[i].charAt(0);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (double.class.isAssignableFrom(componentType))
                                     {
                                         double[] ar = new double[strings.length];
@@ -298,7 +298,7 @@ public class OptionTable
                                         {
                                             ar[i] = Double.parseDouble(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (float.class.isAssignableFrom(componentType))
                                     {
                                         float[] ar = new float[strings.length];
@@ -306,7 +306,7 @@ public class OptionTable
                                         {
                                             ar[i] = Float.parseFloat(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (int.class.isAssignableFrom(componentType))
                                     {
                                         int[] ar = new int[strings.length];
@@ -314,7 +314,7 @@ public class OptionTable
                                         {
                                             ar[i] = Integer.parseInt(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (long.class.isAssignableFrom(componentType))
                                     {
                                         long[] ar = new long[strings.length];
@@ -322,7 +322,7 @@ public class OptionTable
                                         {
                                             ar[i] = Long.parseLong(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     } else if (short.class.isAssignableFrom(componentType))
                                     {
                                         short[] ar = new short[strings.length];
@@ -330,15 +330,15 @@ public class OptionTable
                                         {
                                             ar[i] = Short.parseShort(strings[i]);
                                         }
-                                        option.setValue(ar);
+                                        option.set(ar);
                                     }
                                 } else if (String.class.isAssignableFrom(componentType))
                                 {
-                                    option.setValue(strings);
+                                    option.set(strings);
                                 }
                             } else
                             {
-                                option.setValue(s.toString());
+                                option.set(s.toString());
                             }
                         }
                     } catch (Exception ex)

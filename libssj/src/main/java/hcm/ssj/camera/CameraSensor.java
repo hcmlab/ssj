@@ -136,7 +136,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     {
         //set camera and frame size
         Camera.Parameters parameters = prePrepare();
-        if (options.showSupportedValues.getValue())
+        if (options.showSupportedValues.get())
         {
             //list sizes
             List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
@@ -154,9 +154,9 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             }
         }
         //set preview format
-        parameters.setPreviewFormat(options.imageFormat.getValue());
+        parameters.setPreviewFormat(options.imageFormat.get());
         //set preview fps range
-        choosePreviewFpsRange(parameters, options.previewFpsRangeMin.getValue(), options.previewFpsRangeMax.getValue());
+        choosePreviewFpsRange(parameters, options.previewFpsRangeMin.get(), options.previewFpsRangeMax.get());
         //optimizations for more fps
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH)
         {
@@ -195,7 +195,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         //
         Camera.Parameters parameters = camera.getParameters();
         //set preview size
-        choosePreviewSize(parameters, options.width.getValue(), options.height.getValue());
+        choosePreviewSize(parameters, options.width.get(), options.height.get());
         return parameters;
     }
 
@@ -211,7 +211,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         for (int i = 0; i < numCameras; i++)
         {
             Camera.getCameraInfo(i, info);
-            if (info.facing == options.cameraInfo.getValue())
+            if (info.facing == options.cameraInfo.get())
             {
                 camera = Camera.open(i);
                 break;
@@ -281,7 +281,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         }
         //search for requested size
         List<int[]> ranges = parameters.getSupportedPreviewFpsRange();
-        if (options.showSupportedValues.getValue())
+        if (options.showSupportedValues.get())
         {
             Log.i("Preview fps range: (n=" + ranges.size() + ")");
             for (int[] range : ranges)

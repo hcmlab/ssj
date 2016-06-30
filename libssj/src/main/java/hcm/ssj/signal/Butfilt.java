@@ -78,10 +78,10 @@ public class Butfilt extends Transformer
 
 	protected Matrix<Float> getCoefficients(double sr)
 	{
-		double low = options.norm.getValue() ? options.low.getValue() : 2 * options.low.getValue() / sr;
-		double high = options.norm.getValue() ? options.high.getValue() : 2 * options.high.getValue() / sr;
+		double low = options.norm.get() ? options.low.get() : 2 * options.low.get() / sr;
+		double high = options.norm.get() ? options.high.get() : 2 * options.high.get() / sr;
 
-		return initCoefficients(options.type.getValue(), options.order.getValue(), low, high);
+		return initCoefficients(options.type.get(), options.order.get(), low, high);
 	}
 
 	protected Matrix<Float> initCoefficients(Type type, int order, double low, double high)
@@ -121,7 +121,7 @@ public class Butfilt extends Transformer
 	{
 		if (_firstCall)
 		{
-			if (options.zero.getValue())
+			if (options.zero.get())
 			{
 				_firstSample = new float[stream_in[0].dim];
 

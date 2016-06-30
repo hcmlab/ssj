@@ -1,5 +1,5 @@
 /*
- * MinMax.java
+ * Distance.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
@@ -24,9 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.androidSensor.transformer;
-
-import java.util.Arrays;
+package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -37,11 +35,10 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * A general transformer to calculate min and/or max for every dimension in the provided streams.<br>
- * The output is ordered for every dimension as min than max.
+ * A general transformer to provide a high value if some distance is reached for a dimension.<br>
  * Created by Frank Gaibler on 27.08.2015.
  */
-public class MinMax extends Transformer
+public class Distance extends Transformer
 {
     /**
      * All options for the transformer
@@ -49,8 +46,8 @@ public class MinMax extends Transformer
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Boolean> min = new Option<>("min", true, Boolean.class, "Calculate minimum for each frame");
-        public final Option<Boolean> max = new Option<>("max", true, Boolean.class, "Calculate maximum for each frame");
+        public final Option<float[]> individualDistance = new Option<>("individualDistance", null, float[].class, "Individual threshold for each dimension");
+        public final Option<Float> standardDistance = new Option<>("standardDistance", 2.f, Float.class, " Standard threshold for the reached distance");
 
         /**
          *
@@ -61,15 +58,14 @@ public class MinMax extends Transformer
         }
     }
 
-    public Options options = new Options();
-    //helper variables
-    private int multiplier;
-    private int[] streamDimensions;
+    public final Options options = new Options();
+    //helper variable
+    private float[] oldValues;
 
     /**
      *
      */
-    public MinMax()
+    public Distance()
     {
         _name = "SSJ_transformer_" + this.getClass().getSimpleName();
     }
@@ -85,18 +81,18 @@ public class MinMax extends Transformer
         if (stream_in.length < 1 || stream_in[0].dim < 1)
         {
             Log.e("invalid input stream");
-            return;
         }
-        //every stream should have the same sample number
+        //every stream should have the same sample number.
+        //Otherwise the sample number of the transformer will not be correct
         int num = stream_in[0].num;
         for (int i = 1; i < stream_in.length; i++)
         {
             if (num != stream_in[i].num)
             {
                 Log.e("invalid input stream num for stream " + i);
-                return;
             }
         }
+        oldValues = new float[stream_out.dim];
     }
 
     /**
@@ -106,79 +102,45 @@ public class MinMax extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        if (multiplier > 0)
+        float[] out = stream_out.ptrF();
+        for (int i = 0, z = 0; i < stream_in[0].num; i++)
         {
-            float[] out = stream_out.ptrF();
-            float[] minValues = null;
-            float[] maxValues = null;
-            if (options.min.getValue())
+            int t = 0;
+            for (Stream aStream_in : stream_in)
             {
-                minValues = new float[stream_out.dim / multiplier];
-                Arrays.fill(minValues, Float.MAX_VALUE);
-            }
-            if (options.max.getValue())
-            {
-                maxValues = new float[stream_out.dim / multiplier];
-                Arrays.fill(maxValues, -Float.MAX_VALUE); //Float.MIN_VALUE is the value closest to zero and not the lowest float value possible
-            }
-            //calculate values for each stream
-            for (int i = 0; i < stream_in[0].num; i++)
-            {
-                int t = 0;
-                for (Stream aStream_in : stream_in)
+                for (int k = 0; k < aStream_in.dim; k++, t++, z++)
                 {
-                    float[] in = UtilAsTrans.getValuesAsFloat(aStream_in, _name);
-                    for (int k = 0; k < aStream_in.dim; k++, t++)
+                    float ret = 0;
+                    float value = aStream_in.ptrF()[i * aStream_in.dim + k];
+                    oldValues[t] += Math.abs(value);
+                    if ((options.individualDistance.get() != null && options.individualDistance.get()[t] >= oldValues[t])
+                            || (options.individualDistance.get() == null && oldValues[t] >= options.standardDistance.get()))
                     {
-                        float value = in[i * aStream_in.dim + k];
-                        if (options.min.getValue())
-                        {
-                            minValues[t] = minValues[t] < value ? minValues[t] : value;
-                        }
-                        if (options.max.getValue())
-                        {
-                            maxValues[t] = maxValues[t] > value ? maxValues[t] : value;
-                        }
+                        ret = 1;
+                        oldValues[t] = 0;
                     }
-                }
-            }
-            if (options.min.getValue() && !options.max.getValue())
-            {
-                System.arraycopy(minValues, 0, out, 0, minValues.length);
-            } else if (!options.min.getValue() && options.max.getValue())
-            {
-                System.arraycopy(maxValues, 0, out, 0, maxValues.length);
-            } else
-            {
-                for (int i = 0, j = 0; i < maxValues.length; i++)
-                {
-                    out[j++] = minValues[i];
-                    out[j++] = maxValues[i];
+                    //write to output
+                    out[z] = ret;
                 }
             }
         }
     }
 
     /**
-     * @param stream_in Stream[]
      * @return int
      */
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        multiplier = 0;
-        multiplier = options.min.getValue() ? multiplier + 1 : multiplier;
-        multiplier = options.max.getValue() ? multiplier + 1 : multiplier;
-        if (multiplier <= 0)
-        {
-            Log.e("no option selected");
-        }
         int overallDimension = 0;
-        streamDimensions = new int[stream_in.length];
-        for (int i = 0; i < streamDimensions.length; i++)
+        for (Stream stream : stream_in)
         {
-            streamDimensions[i] = stream_in[i].dim * multiplier;
-            overallDimension += streamDimensions[i];
+            overallDimension += stream.dim;
+        }
+        if (options.individualDistance.get() != null
+                && overallDimension != options.individualDistance.get().length)
+        {
+            Log.e("invalid option individualDistance length");
         }
         return overallDimension;
     }
@@ -210,7 +172,7 @@ public class MinMax extends Transformer
     @Override
     public int getSampleNumber(int sampleNumber_in)
     {
-        return 1;
+        return sampleNumber_in;
     }
 
     /**
@@ -222,29 +184,22 @@ public class MinMax extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {
                 Log.w("invalid option outputClass length");
             }
         }
-        for (int i = 0, k = 0; i < streamDimensions.length; i++)
+        for (int i = 0, k = 0; i < stream_in.length; i++)
         {
-            for (int j = 0, m = 0; j < streamDimensions[i]; j += multiplier, m++)
+            for (int j = 0; j < stream_in[i].dim; j++, k++)
             {
-                if (options.min.getValue())
-                {
-                    stream_out.dataclass[k++] = "min" + i + "." + m;
-                }
-                if (options.max.getValue())
-                {
-                    stream_out.dataclass[k++] = "max" + i + "." + m;
-                }
+                stream_out.dataclass[k] = "dstnc" + i + "." + j;
             }
         }
     }

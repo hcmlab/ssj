@@ -37,7 +37,7 @@ public abstract class OptionList
         {
             if (option.getName().equals(name))
             {
-                option.setValue(value);
+                option.set(value);
                 return true;
             }
         }
@@ -54,7 +54,7 @@ public abstract class OptionList
         {
             if (option.getName().equals(name))
             {
-                return option.getValue();
+                return option.get();
             }
         }
         return null;

@@ -60,7 +60,7 @@ public class Logger extends Consumer
 
     protected void consume(Stream[] stream_in) {
 
-        int num = (options.reduceNum.getValue()) ? 1 : stream_in[0].num;
+        int num = (options.reduceNum.get()) ? 1 : stream_in[0].num;
 
         String msg;
         for(int i = 0; i < num; ++i)

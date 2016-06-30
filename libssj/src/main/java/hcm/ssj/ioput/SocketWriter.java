@@ -33,7 +33,6 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
@@ -83,14 +82,14 @@ public class SocketWriter extends Consumer {
         //start client
         String protocol = "";
         try {
-            _addr = InetAddress.getByName(options.ip.getValue());
-            switch(options.type.getValue()) {
+            _addr = InetAddress.getByName(options.ip.get());
+            switch(options.type.get()) {
                 case SOCKET_TYPE_UDP:
                     _socket_udp = new DatagramSocket();
                     protocol = "UDP";
                     break;
                 case SOCKET_TYPE_TCP:
-                    _socket_tcp = new Socket(_addr, options.port.getValue());
+                    _socket_tcp = new Socket(_addr, options.port.get());
                     _out = new DataOutputStream(_socket_tcp.getOutputStream());
                     protocol = "TCP";
                     break;
@@ -114,10 +113,10 @@ public class SocketWriter extends Consumer {
             return;
 
         try {
-            switch(options.type.getValue()) {
+            switch(options.type.get()) {
                 case SOCKET_TYPE_UDP:
                     Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
-                    DatagramPacket pack = new DatagramPacket(_data, _data.length, _addr, options.port.getValue());
+                    DatagramPacket pack = new DatagramPacket(_data, _data.length, _addr, options.port.get());
                     _socket_udp.send(pack);
                     break;
                 case SOCKET_TYPE_TCP:
@@ -137,7 +136,7 @@ public class SocketWriter extends Consumer {
         _connected = false;
 
         try {
-            switch(options.type.getValue()) {
+            switch(options.type.get()) {
                 case SOCKET_TYPE_UDP:
                     _socket_udp.close();
                     _socket_udp = null;

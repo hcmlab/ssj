@@ -96,7 +96,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	@Override
 	public boolean connect()
 	{
-		if(options.apiKey.getValue() == null || options.apiKey.getValue().length() == 0)
+		if(options.apiKey.get() == null || options.apiKey.get().length() == 0)
 			throw new RuntimeException("invalid apiKey - you need to set the apiKey in the sensor options");
 
 		// Create data listener
@@ -116,7 +116,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 				deviceManager = new EmpaDeviceManager(SSJApplication.getAppContext(), listener, Empatica.this);
 
 				// Register the device manager using your API key. You need to have Internet access at this point.
-				deviceManager.authenticateWithAPIKey(options.apiKey.getValue());
+				deviceManager.authenticateWithAPIKey(options.apiKey.get());
 			}
 		}, 1);
 
@@ -157,7 +157,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	{
 		try {
 			HashMap<String,String> p = new HashMap<>();
-			p.put("api_key", options.apiKey.getValue());
+			p.put("api_key", options.apiKey.get());
 			p.put("api_version", "AND_1.3");
 			String json = (new GsonBuilder()).create().toJson(p, Map.class);
 

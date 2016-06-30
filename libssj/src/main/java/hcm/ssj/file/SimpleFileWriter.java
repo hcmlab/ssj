@@ -86,23 +86,23 @@ public class SimpleFileWriter extends Consumer
     @Override
     public final void init(Stream[] stream_in)
     {
-        if (options.filePath.getValue() == null) {
+        if (options.filePath.get() == null) {
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
-        File fileDirectory = new File(options.filePath.getValue());
+        File fileDirectory = new File(options.filePath.get());
         if (!fileDirectory.exists()) {
             if (!fileDirectory.mkdirs()) {
                 Log.e(fileDirectory.getName() + " could not be created");
                 return;
             }
         }
-        if (options.fileName.getValue() == null) {
+        if (options.fileName.get() == null) {
             String defaultName = this.getClass().getSimpleName();
             Log.w("file name not set, setting to " + defaultName);
-            options.fileName.setValue(defaultName);
+            options.fileName.set(defaultName);
         }
-        file = new File(fileDirectory, options.fileName.getValue());
+        file = new File(fileDirectory, options.fileName.get());
     }
 
     /**
@@ -182,7 +182,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -198,7 +198,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -214,7 +214,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -230,7 +230,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -246,7 +246,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -262,7 +262,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -278,7 +278,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }
@@ -294,7 +294,7 @@ public class SimpleFileWriter extends Consumer
                     for (int k = 0; k < stream_in[0].dim; k++, j++)
                     {
                         stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.getValue());
+                        stringBuilder.append(options.separator.get());
                     }
                     stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                 }

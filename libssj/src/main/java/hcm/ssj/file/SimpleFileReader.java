@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
@@ -88,23 +87,23 @@ public class SimpleFileReader extends Sensor
         if (!initialized)
         {
             initialized = true;
-            if (options.filePath.getValue() == null)
+            if (options.filePath.get() == null)
             {
                 Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-                options.filePath.setValue(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+                options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
             }
-            File fileDirectory = new File(options.filePath.getValue());
+            File fileDirectory = new File(options.filePath.get());
             if (!fileDirectory.exists())
             {
                 Log.e("directory \"" + fileDirectory.getName() + "\" does not exist");
             }
-            if (options.fileName.getValue() == null)
+            if (options.fileName.get() == null)
             {
                 String defaultName = this.getClass().getSimpleName();
                 Log.w("file name not set, setting to " + defaultName);
-                options.fileName.setValue(defaultName);
+                options.fileName.set(defaultName);
             }
-            this.fileHeader = new File(fileDirectory, options.fileName.getValue());
+            this.fileHeader = new File(fileDirectory, options.fileName.get());
             setFiles();
         }
     }
@@ -257,7 +256,7 @@ public class SimpleFileReader extends Sensor
     protected String getData()
     {
         String data = readLine(bufferedReader);
-        if (data == null && options.loop.getValue())
+        if (data == null && options.loop.get())
         {
             //start anew
             bufferedReader = getFileConnection(fileReal, bufferedReader);

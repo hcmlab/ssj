@@ -1,5 +1,5 @@
 /*
- * AvgVar.java
+ * MinMax.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
@@ -24,7 +24,9 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.androidSensor.transformer;
+package hcm.ssj.signal;
+
+import java.util.Arrays;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -35,11 +37,11 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * A general transformer to calculate average and/or variance for every dimension in the provided streams.<br>
- * The output is ordered for every dimension average than variance.<br>
- * Created by Frank Gaibler on 02.09.2015.
+ * A general transformer to calculate min and/or max for every dimension in the provided streams.<br>
+ * The output is ordered for every dimension as min than max.
+ * Created by Frank Gaibler on 27.08.2015.
  */
-public class AvgVar extends Transformer
+public class MinMax extends Transformer
 {
     /**
      * All options for the transformer
@@ -47,8 +49,8 @@ public class AvgVar extends Transformer
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Boolean> avg = new Option<>("avg", true, Boolean.class, "Calculate average for each frame");
-        public final Option<Boolean> var = new Option<>("var", true, Boolean.class, "Calculate variance for each frame");
+        public final Option<Boolean> min = new Option<>("min", true, Boolean.class, "Calculate minimum for each frame");
+        public final Option<Boolean> max = new Option<>("max", true, Boolean.class, "Calculate maximum for each frame");
 
         /**
          *
@@ -59,15 +61,18 @@ public class AvgVar extends Transformer
         }
     }
 
-    public final Options options = new Options();
+    public Options options = new Options();
     //helper variables
+    private float[][] floats;
     private int multiplier;
     private int[] streamDimensions;
+    float[] minValues;
+    float[] maxValues;
 
     /**
      *
      */
-    public AvgVar()
+    public MinMax()
     {
         _name = "SSJ_transformer_" + this.getClass().getSimpleName();
     }
@@ -95,6 +100,29 @@ public class AvgVar extends Transformer
                 return;
             }
         }
+        floats = new float[stream_in.length][];
+        for (int i = 0; i < floats.length; i++)
+        {
+            floats[i] = new float[stream_in[i].num * stream_in[i].dim];
+        }
+        if (multiplier > 0)
+        {
+            minValues = new float[stream_out.dim / multiplier];
+            maxValues = new float[stream_out.dim / multiplier];
+        }
+    }
+
+    /**
+     * @param stream_in  Stream[]
+     * @param stream_out Stream
+     */
+    @Override
+    public void flush(Stream[] stream_in, Stream stream_out)
+    {
+        super.flush(stream_in, stream_out);
+        floats = null;
+        minValues = null;
+        maxValues = null;
     }
 
     /**
@@ -107,61 +135,49 @@ public class AvgVar extends Transformer
         if (multiplier > 0)
         {
             float[] out = stream_out.ptrF();
-            float[] avgValues = new float[stream_out.dim / multiplier];
-            //add up average values
+            if (options.min.get())
+            {
+                Arrays.fill(minValues, Float.MAX_VALUE);
+            }
+            if (options.max.get())
+            {
+                Arrays.fill(maxValues, -Float.MAX_VALUE); //Float.MIN_VALUE is the value closest to zero and not the lowest float value possible
+            }
+            //calculate values for each stream
             for (int i = 0; i < stream_in[0].num; i++)
             {
                 int t = 0;
-                for (Stream aStream_in : stream_in)
+                for (int j = 0; j < stream_in.length; j++)
                 {
-                    float[] in = UtilAsTrans.getValuesAsFloat(aStream_in, _name);
-                    for (int k = 0; k < aStream_in.dim; k++, t++)
+                    Util.castStreamPointerToFloat(stream_in[j], floats[j]);
+                    for (int k = 0; k < stream_in[j].dim; k++, t++)
                     {
-                        float value = in[i * aStream_in.dim + k];
-                        avgValues[t] += value;
-                    }
-                }
-            }
-            //calculate average
-            for (int i = 0; i < avgValues.length; i++)
-            {
-                avgValues[i] = avgValues[i] / stream_in[0].num;
-            }
-            if (options.var.getValue())
-            {
-                float[] varValues = new float[stream_out.dim / multiplier];
-                //add up variance values
-                for (int i = 0; i < stream_in[0].num; i++)
-                {
-                    int t = 0;
-                    for (Stream aStream_in : stream_in)
-                    {
-                        for (int k = 0; k < aStream_in.dim; k++, t++)
+                        float value = floats[j][i * stream_in[j].dim + k];
+                        if (options.min.get())
                         {
-                            float value = aStream_in.ptrF()[i * aStream_in.dim + k];
-                            varValues[t] += (value - avgValues[t]) * (value - avgValues[t]);
+                            minValues[t] = minValues[t] < value ? minValues[t] : value;
+                        }
+                        if (options.max.get())
+                        {
+                            maxValues[t] = maxValues[t] > value ? maxValues[t] : value;
                         }
                     }
                 }
-                //calculate variance
-                for (int i = 0; i < varValues.length; i++)
-                {
-                    varValues[i] = varValues[i] / stream_in[0].num;
-                }
-                if (!options.avg.getValue())
-                {
-                    System.arraycopy(varValues, 0, out, 0, varValues.length);
-                } else
-                {
-                    for (int i = 0, j = 0; i < varValues.length; i++)
-                    {
-                        out[j++] = avgValues[i];
-                        out[j++] = varValues[i];
-                    }
-                }
-                return;
             }
-            System.arraycopy(avgValues, 0, out, 0, avgValues.length);
+            if (options.min.get() && !options.max.get())
+            {
+                System.arraycopy(minValues, 0, out, 0, minValues.length);
+            } else if (!options.min.get() && options.max.get())
+            {
+                System.arraycopy(maxValues, 0, out, 0, maxValues.length);
+            } else
+            {
+                for (int i = 0, j = 0; i < maxValues.length; i++)
+                {
+                    out[j++] = minValues[i];
+                    out[j++] = maxValues[i];
+                }
+            }
         }
     }
 
@@ -173,8 +189,8 @@ public class AvgVar extends Transformer
     public int getSampleDimension(Stream[] stream_in)
     {
         multiplier = 0;
-        multiplier = options.avg.getValue() ? multiplier + 1 : multiplier;
-        multiplier = options.var.getValue() ? multiplier + 1 : multiplier;
+        multiplier = options.min.get() ? multiplier + 1 : multiplier;
+        multiplier = options.max.get() ? multiplier + 1 : multiplier;
         if (multiplier <= 0)
         {
             Log.e("no option selected");
@@ -228,11 +244,11 @@ public class AvgVar extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {
@@ -243,13 +259,13 @@ public class AvgVar extends Transformer
         {
             for (int j = 0, m = 0; j < streamDimensions[i]; j += multiplier, m++)
             {
-                if (options.avg.getValue())
+                if (options.min.get())
                 {
-                    stream_out.dataclass[k++] = "avg" + i + "." + m;
+                    stream_out.dataclass[k++] = "min" + i + "." + m;
                 }
-                if (options.var.getValue())
+                if (options.max.get())
                 {
-                    stream_out.dataclass[k++] = "var" + i + "." + m;
+                    stream_out.dataclass[k++] = "max" + i + "." + m;
                 }
             }
         }

@@ -39,7 +39,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
@@ -84,11 +83,11 @@ public class SocketEventReader extends EventHandler
     @Override
     public void enter()
     {
-        if (options.ip.getValue() == null)
+        if (options.ip.get() == null)
         {
             try
             {
-                options.ip.setValue(Util.getIPAddress(true));
+                options.ip.set(Util.getIPAddress(true));
             }
             catch (SocketException e)
             {
@@ -101,8 +100,8 @@ public class SocketEventReader extends EventHandler
             _socket = new DatagramSocket(null);
             _socket.setReuseAddress(true);
 
-            InetAddress addr = InetAddress.getByName(options.ip.getValue());
-            InetSocketAddress saddr = new InetSocketAddress(addr, options.port.getValue());
+            InetAddress addr = InetAddress.getByName(options.ip.get());
+            InetSocketAddress saddr = new InetSocketAddress(addr, options.port.get());
             _socket.bind(saddr);
         }
         catch (IOException e)
@@ -113,7 +112,7 @@ public class SocketEventReader extends EventHandler
 
         _buffer = new byte[MAX_MSG_SIZE];
 
-        if(options.parseXmlToEvent.getValue())
+        if(options.parseXmlToEvent.get())
         {
             try
             {
@@ -127,7 +126,7 @@ public class SocketEventReader extends EventHandler
             }
         }
 
-        Log.i("socket ready ("+options.ip.getValue() + "@" + options.port.getValue() +")");
+        Log.i("socket ready ("+options.ip.get() + "@" + options.port.get() +")");
         _connected = true;
     }
 
@@ -149,7 +148,7 @@ public class SocketEventReader extends EventHandler
             return;
         }
 
-        if(!options.parseXmlToEvent.getValue())
+        if(!options.parseXmlToEvent.get())
         {
             _evchannel_out.pushEvent(_buffer, 0, packet.getLength());
         }

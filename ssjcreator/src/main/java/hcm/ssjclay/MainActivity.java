@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -26,6 +27,7 @@ import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -37,6 +39,7 @@ import hcm.ssj.core.TheFramework;
 import hcm.ssj.graphic.SignalPainter;
 import hcm.ssjclay.creator.Builder;
 import hcm.ssjclay.creator.Linker;
+import hcm.ssjclay.creator.SaveLoad;
 import hcm.ssjclay.dialogs.AddDialog;
 import hcm.ssjclay.dialogs.Listener;
 import hcm.ssjclay.view.PipeView;
@@ -346,23 +349,28 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_save:
             {
-                /*
                 File dir = new File(Environment.getExternalStorageDirectory(), "SSJ");
-                if (dir.mkdirs())
+                if (dir.exists() || dir.mkdirs())
                 {
-                    SaveLoad.getInstance().save(new File(dir, "test"));
+                    SaveLoad.save(new File(dir, "test.xml"));
                 }
-                Class<?> affe = Float.class;
-                float x = 2;
-                Float p = (Float) affe.cast(x);
-                */
                 return true;
             }
             case R.id.action_load:
             {
-                /*
-                SaveLoad.getInstance().load(null);
-                */
+                File dir = new File(Environment.getExternalStorageDirectory(), "SSJ");
+                File file = new File(dir, "test.xml");
+                if (file.exists())
+                {
+                    boolean result = SaveLoad.load(file);
+                    if (result)
+                    {
+                        Log.e("loaded file");
+                    } else
+                    {
+                        Log.e("couldn't load file");
+                    }
+                }
                 return true;
             }
         }
@@ -408,21 +416,21 @@ public class MainActivity extends AppCompatActivity
         {
             if (object instanceof SignalPainter)
             {
-                GraphView graphView = ((SignalPainter) object).options.graphView.getValue();
+                GraphView graphView = ((SignalPainter) object).options.graphView.get();
                 if (graphView == null)
                 {
                     graphView = new GraphView(MainActivity.this);
-                    ((SignalPainter) object).options.graphView.setValue(graphView);
+                    ((SignalPainter) object).options.graphView.set(graphView);
                     addTab(graphView, "GraphView");
                     alAdditionalTabs.add(object);
                 }
             } else if (object instanceof CameraPainter)
             {
-                SurfaceView surfaceView = ((CameraPainter) object).options.surfaceView.getValue();
+                SurfaceView surfaceView = ((CameraPainter) object).options.surfaceView.get();
                 if (surfaceView == null)
                 {
                     surfaceView = new SurfaceView(MainActivity.this);
-                    ((CameraPainter) object).options.surfaceView.setValue(surfaceView);
+                    ((CameraPainter) object).options.surfaceView.set(surfaceView);
                     addTab(surfaceView, "SurfaceView");
                     alAdditionalTabs.add(object);
                 }

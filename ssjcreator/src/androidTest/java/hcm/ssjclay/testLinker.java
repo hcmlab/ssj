@@ -42,7 +42,7 @@ public class testLinker extends ApplicationTestCase<Application>
         System.out.println(builder.consumers.get(0));
         //
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(2.0f);
+        frame.options.bufferSize.set(2.0f);
         Linker linker = Linker.getInstance();
         //select classes
         Sensor sensor = null;

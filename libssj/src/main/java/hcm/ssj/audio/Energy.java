@@ -84,18 +84,18 @@ public class Energy extends Transformer {
         float[] out = stream_out.ptrF();
 
         int dim = 0;
-        if(options.computeRMS.getValue()) {
+        if(options.computeRMS.get()) {
             out[dim++] = (float)calculateRMS(data);
         }
 
-        if(options.computeSPL.getValue() || options.computeSilence.getValue())
+        if(options.computeSPL.get() || options.computeSilence.get())
         {
             double SPL = soundPressureLevel(data);
             out[dim++] = (float)SPL;
 
-            if(options.computeSilence.getValue())
+            if(options.computeSilence.get())
             {
-                float silence = ((SPL < options.silenceThreshold.getValue()) ? 1 : 0);
+                float silence = ((SPL < options.silenceThreshold.get()) ? 1 : 0);
                 out[dim++] = silence;
             }
         }
@@ -110,9 +110,9 @@ public class Energy extends Transformer {
     {
         int dim = 0;
 
-        if(options.computeRMS.getValue()) dim++;
-        if(options.computeSPL.getValue()) dim++;
-        if(options.computeSilence.getValue()) dim++;
+        if(options.computeRMS.get()) dim++;
+        if(options.computeSPL.get()) dim++;
+        if(options.computeSilence.get()) dim++;
 
         return dim;
     }
@@ -147,9 +147,9 @@ public class Energy extends Transformer {
         stream_out.dataclass = new String[stream_out.dim];
 
         int i = 0;
-        if(options.computeRMS.getValue()) stream_out.dataclass[i++] = "RMS";
-        if(options.computeSPL.getValue()) stream_out.dataclass[i++] = "SPL";
-        if(options.computeSilence.getValue()) stream_out.dataclass[i++] = "Silence";
+        if(options.computeRMS.get()) stream_out.dataclass[i++] = "RMS";
+        if(options.computeSPL.get()) stream_out.dataclass[i++] = "SPL";
+        if(options.computeSilence.get()) stream_out.dataclass[i++] = "Silence";
     }
 
     /****************************************************

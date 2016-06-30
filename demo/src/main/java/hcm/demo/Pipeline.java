@@ -67,37 +67,37 @@ public class Pipeline extends Thread {
 
     public void run()
     {
-        _ssj.options.bufferSize.setValue(10.0f);
-        _ssj.options.countdown.setValue(10);
-        _ssj.options.logfile.setValue(Environment.getExternalStorageDirectory() + "/ssjlog.txt");
+        _ssj.options.bufferSize.set(10.0f);
+        _ssj.options.countdown.set(10);
+        _ssj.options.logfile.set(Environment.getExternalStorageDirectory() + "/ssjlog.txt");
 
         //** connection to sensors
         Microphone mic = new Microphone();
         _ssj.addSensor(mic);
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.setValue(16000);
-        audio.options.scale.setValue(true);
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(true);
         mic.addProvider(audio);
 
         //** transform data coming from sensors
         Pitch pitch = new Pitch();
-        pitch.options.detector.setValue(Pitch.YIN);
-        pitch.options.computePitchedState.setValue(false);
-        pitch.options.computePitch.setValue(true);
-        pitch.options.computeVoicedProb.setValue(false);
-        pitch.options.computePitchEnvelope.setValue(false);
+        pitch.options.detector.set(Pitch.YIN);
+        pitch.options.computePitchedState.set(false);
+        pitch.options.computePitch.set(true);
+        pitch.options.computeVoicedProb.set(false);
+        pitch.options.computePitchEnvelope.set(false);
         _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
 
         //** configure GUI
         //paint audio
         SignalPainter paint = new SignalPainter();
-        paint.options.manualBounds.setValue(true);
-        paint.options.min.setValue(0.);
-        paint.options.max.setValue(1.);
-        paint.options.renderMax.setValue(true);
-        paint.options.secondScaleMin.setValue(0.);
-        paint.options.secondScaleMax.setValue(500.);
-        paint.options.graphView.setValue(_graphs[0]);
+        paint.options.manualBounds.set(true);
+        paint.options.min.set(0.);
+        paint.options.max.set(1.);
+        paint.options.renderMax.set(true);
+        paint.options.secondScaleMin.set(0.);
+        paint.options.secondScaleMax.set(500.);
+        paint.options.graphView.set(_graphs[0]);
         _ssj.addConsumer(paint, new Provider[]{audio,pitch}, 0.032, 0);
 
         Log.i("SSJ_Demo", "starting pipeline");

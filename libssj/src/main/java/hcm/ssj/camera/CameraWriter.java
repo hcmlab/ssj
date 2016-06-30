@@ -125,25 +125,25 @@ public class CameraWriter extends Mp4Writer
             return;
         }
         dFrameRate = stream_in[0].sr;
-        prepareEncoder(options.width.getValue(), options.height.getValue(), options.bitRate.getValue());
+        prepareEncoder(options.width.get(), options.height.get(), options.bitRate.get());
         bufferInfo = new MediaCodec.BufferInfo();
-        int reqBuffSize = options.width.getValue() * options.height.getValue();
+        int reqBuffSize = options.width.get() * options.height.get();
         reqBuffSize += reqBuffSize >> 1;
         aByShuffle = new byte[reqBuffSize];
         lFrameIndex = 0;
-        colorSwitch = options.colorSwitch.getValue();
+        colorSwitch = options.colorSwitch.get();
         switch (colorSwitch)
         {
             case YV12_PACKED_SEMI:
             {
-                planeSize = options.width.getValue() * options.height.getValue();
+                planeSize = options.width.get() * options.height.get();
                 planeSizeCx = planeSize >> 2;
                 aByColorChange = new byte[planeSizeCx * 2];
                 break;
             }
             case NV21_UV_SWAPPED:
             {
-                planeSize = options.width.getValue() * options.height.getValue();
+                planeSize = options.width.get() * options.height.get();
                 planeSizeCx = planeSize >> 1;
                 aByColorChange = new byte[planeSizeCx];
                 break;
@@ -181,28 +181,28 @@ public class CameraWriter extends Mp4Writer
      */
     private void prepareEncoder(int width, int height, int bitRate)
     {
-        MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType.getValue());
+        MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType.get());
         if (mediaCodecInfo == null)
         {
-            Log.e("Unable to find an appropriate codec for " + options.mimeType.getValue());
+            Log.e("Unable to find an appropriate codec for " + options.mimeType.get());
             return;
         }
         //set format properties
-        MediaFormat videoFormat = MediaFormat.createVideoFormat(options.mimeType.getValue(), width, height);
-        videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, options.colorFormat.getValue() <= 0
-                ? CameraUtil.selectColorFormat(mediaCodecInfo, options.mimeType.getValue()) : options.colorFormat.getValue());
+        MediaFormat videoFormat = MediaFormat.createVideoFormat(options.mimeType.get(), width, height);
+        videoFormat.setInteger(MediaFormat.KEY_COLOR_FORMAT, options.colorFormat.get() <= 0
+                ? CameraUtil.selectColorFormat(mediaCodecInfo, options.mimeType.get()) : options.colorFormat.get());
         videoFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
         videoFormat.setFloat(MediaFormat.KEY_FRAME_RATE, (float) dFrameRate);
-        videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, options.iFrameInterval.getValue());
+        videoFormat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, options.iFrameInterval.get());
         //prepare encoder
-        super.prepareEncoder(videoFormat, options.mimeType.getValue(), file.getPath());
+        super.prepareEncoder(videoFormat, options.mimeType.get(), file.getPath());
         //set video orientation
-        if (options.orientation.getValue() % 90 == 0 || options.orientation.getValue() % 90 == 90)
+        if (options.orientation.get() % 90 == 0 || options.orientation.get() % 90 == 90)
         {
-            mediaMuxer.setOrientationHint(options.orientation.getValue());
+            mediaMuxer.setOrientationHint(options.orientation.get());
         } else
         {
-            Log.e("Orientation is not valid: " + options.orientation.getValue());
+            Log.e("Orientation is not valid: " + options.orientation.get());
         }
     }
 

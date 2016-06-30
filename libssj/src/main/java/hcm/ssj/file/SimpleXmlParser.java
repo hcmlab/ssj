@@ -130,7 +130,6 @@ public class SimpleXmlParser
                 parser.nextTag();
             }
         }
-        parser.require(XmlPullParser.END_TAG, namespace, name);
     }
 
     /**

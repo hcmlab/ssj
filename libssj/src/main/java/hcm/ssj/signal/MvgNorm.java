@@ -88,18 +88,18 @@ public class MvgNorm extends Transformer
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
-		_rangeA = options.rangeA.getValue();
-		_rangeD = options.rangeB.getValue() - options.rangeA.getValue();
-		_norm = options.norm.getValue();
+		_rangeA = options.rangeA.get();
+		_rangeD = options.rangeB.get() - options.rangeA.get();
+		_norm = options.norm.get();
 
 		switch (_norm)
 		{
 			case AVG_VAR:
 			{
 				MvgAvgVar mvgAvgVar = new MvgAvgVar();
-				mvgAvgVar.options.format.setValue(MvgAvgVar.Format.AVG_AND_VAR);
-				mvgAvgVar.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING);
-				mvgAvgVar.options.window.setValue((double) options.windowSize.getValue());
+				mvgAvgVar.options.format.set(MvgAvgVar.Format.AVG_AND_VAR);
+				mvgAvgVar.options.method.set(options.method.get() == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING);
+				mvgAvgVar.options.window.set((double) options.windowSize.get());
 
 				_mvg = mvgAvgVar;
 				break;
@@ -107,9 +107,9 @@ public class MvgNorm extends Transformer
 			case MIN_MAX:
 			{
 				MvgMinMax mvgMinMax = new MvgMinMax();
-				mvgMinMax.options.format.setValue(MvgMinMax.Format.ALL);
-				mvgMinMax.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING);
-				mvgMinMax.options.windowSize.setValue(options.windowSize.getValue());
+				mvgMinMax.options.format.set(MvgMinMax.Format.ALL);
+				mvgMinMax.options.method.set(options.method.get() == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING);
+				mvgMinMax.options.windowSize.set(options.windowSize.get());
 
 				_mvg = mvgMinMax;
 				break;
@@ -117,9 +117,9 @@ public class MvgNorm extends Transformer
 			case SUB_AVG:
 			{
 				MvgAvgVar mvgAvgVar = new MvgAvgVar();
-				mvgAvgVar.options.format.setValue(MvgAvgVar.Format.AVERAGE);
-				mvgAvgVar.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING);
-				mvgAvgVar.options.window.setValue((double) options.windowSize.getValue());
+				mvgAvgVar.options.format.set(MvgAvgVar.Format.AVERAGE);
+				mvgAvgVar.options.method.set(options.method.get() == Method.MOVING ? MvgAvgVar.Method.MOVING : MvgAvgVar.Method.SLIDING);
+				mvgAvgVar.options.window.set((double) options.windowSize.get());
 
 				_mvg = mvgAvgVar;
 				break;
@@ -127,10 +127,10 @@ public class MvgNorm extends Transformer
 			case SUB_MIN:
 			{
 				MvgMinMax mvgMinMax = new MvgMinMax();
-				mvgMinMax.options.format.setValue(MvgMinMax.Format.MIN);
-				mvgMinMax.options.method.setValue(options.method.getValue() == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING);
-				mvgMinMax.options.windowSize.setValue(options.windowSize.getValue());
-				mvgMinMax.options.numberOfBlocks.setValue(options.numberOfBlocks.getValue());
+				mvgMinMax.options.format.set(MvgMinMax.Format.MIN);
+				mvgMinMax.options.method.set(options.method.get() == Method.MOVING ? MvgMinMax.Method.MOVING : MvgMinMax.Method.SLIDING);
+				mvgMinMax.options.windowSize.set(options.windowSize.get());
+				mvgMinMax.options.numberOfBlocks.set(options.numberOfBlocks.get());
 
 				_mvg = mvgMinMax;
 				break;

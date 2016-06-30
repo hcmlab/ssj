@@ -102,7 +102,7 @@ public class DynAccelerationProvider extends SensorProvider
 		for (int k = 0; k < 3; k++)
             out[k] = _acc[k] - _gravity[k];
 
-		if (options.absolute.getValue())
+		if (options.absolute.get())
 		{
 			//TODO, need to find proper mat/vec/quat library in java
 			Log.w("not supported yet");
@@ -112,10 +112,10 @@ public class DynAccelerationProvider extends SensorProvider
 //                    dynacc = mat * dynacc;
 		}
 
-		if (options.meterPerSecond.getValue())
+		if (options.meterPerSecond.get())
 		{
 			for (int k = 0; k < 3; k++)
-				out[k] *= options.gravity.getValue();
+				out[k] *= options.gravity.get();
 		}
 	}
 
@@ -127,7 +127,7 @@ public class DynAccelerationProvider extends SensorProvider
 	@Override
 	public double getSampleRate()
 	{
-		return options.sampleRate.getValue();
+		return options.sampleRate.get();
 	}
 
 	@Override

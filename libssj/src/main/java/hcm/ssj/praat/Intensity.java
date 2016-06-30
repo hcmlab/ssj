@@ -99,8 +99,8 @@ public class Intensity extends Transformer {
         /*
          * Preconditions.
          */
-        if (options.timeStep.getValue() < 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Time step should be zero or positive instead of " + options.timeStep.getValue() + ".");
-        if (options.minPitch.getValue() <= 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Minimum pitch should be positive.");
+        if (options.timeStep.get() < 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Time step should be zero or positive instead of " + options.timeStep.get() + ".");
+        if (options.minPitch.get() <= 0.0) throw new IllegalArgumentException("(Sound-to-Intensity:) Minimum pitch should be positive.");
         if (audio.step <= 0.0) throw new IllegalArgumentException ("(Sound-to-Intensity:) The Sound's time step should be positive.");
 
         /*
@@ -143,7 +143,7 @@ public class Intensity extends Transformer {
                 {
                     amplitude[i - midSample + halfWindowSamples] = data[i * in.dim + channel];
                 }
-                if (options.subtractMeanPressure.getValue())
+                if (options.subtractMeanPressure.get())
                 {
                     double sum = 0.0;
                     for (int i = leftSample; i <= rightSample; i++)
@@ -182,17 +182,17 @@ public class Intensity extends Transformer {
     @Override
     public void init(double frame, double delta)
     {
-        if(options.timeStep.getValue() == 0)
-            options.timeStep.setValue(0.8 / options.minPitch.getValue()); // default: four times oversampling Hanning-wise
+        if(options.timeStep.get() == 0)
+            options.timeStep.set(0.8 / options.minPitch.get()); // default: four times oversampling Hanning-wise
 
         myDuration = frame + delta;
 
-        windowDuration = computeWindowDuration(options.minPitch.getValue());
+        windowDuration = computeWindowDuration(options.minPitch.get());
         if (windowDuration <= 0.0 || windowDuration > myDuration) Log.e("invalid processing window duration");
 
-        numberOfFrames = computeNumberOfFrames(myDuration, windowDuration, options.timeStep.getValue());
-        if (numberOfFrames < 1)  Log.e("The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch.getValue() + " Hz), " +
-                                                                           "i.e. at least " + 6.4 / options.minPitch.getValue() + " s, instead of " + myDuration + " s.");
+        numberOfFrames = computeNumberOfFrames(myDuration, windowDuration, options.timeStep.get());
+        if (numberOfFrames < 1)  Log.e("The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch.get() + " Hz), " +
+                                                                           "i.e. at least " + 6.4 / options.minPitch.get() + " s, instead of " + myDuration + " s.");
     }
 
     @Override

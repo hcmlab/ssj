@@ -48,7 +48,7 @@ public class Selector extends Transformer
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
         public final Option<Cons.Type> outputType = new Option<>("outputType", Cons.Type.FLOAT, Cons.Type.class, "The output type for which the input stream has to match.");
         public final Option<int[]> values = new Option<>("values", new int[]{0}, int[].class, "The values to select. The selection interval is given by the selection size.");
-        public final Option<Integer> selectionSize = new Option<>("selectionSize", values.getValue().length, Integer.class, "The size of all values in one sample");
+        public final Option<Integer> selectionSize = new Option<>("selectionSize", values.get().length, Integer.class, "The size of all values in one sample");
 
         /**
          *
@@ -83,12 +83,12 @@ public class Selector extends Transformer
             return;
         }
         //not all types are supported
-        if (options.outputType.getValue() == Cons.Type.CUSTOM || options.outputType.getValue() == Cons.Type.UNDEF)
+        if (options.outputType.get() == Cons.Type.CUSTOM || options.outputType.get() == Cons.Type.UNDEF)
         {
             Log.e("output type is not supported");
         }
         //the streams should have the same type
-        if (options.outputType.getValue() != stream_in[0].type)
+        if (options.outputType.get() != stream_in[0].type)
         {
             Log.e("invalid stream type");
         }
@@ -101,16 +101,16 @@ public class Selector extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        switch (options.outputType.getValue())
+        switch (options.outputType.get())
         {
             case BOOL:
             {
                 boolean[] out = stream_out.ptrBool();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrBool()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrBool()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -120,9 +120,9 @@ public class Selector extends Transformer
                 byte[] out = stream_out.ptrB();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrB()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrB()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -132,9 +132,9 @@ public class Selector extends Transformer
                 char[] out = stream_out.ptrC();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrC()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrC()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -144,9 +144,9 @@ public class Selector extends Transformer
                 double[] out = stream_out.ptrD();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrD()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrD()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -156,9 +156,9 @@ public class Selector extends Transformer
                 float[] out = stream_out.ptrF();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrF()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrF()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -168,9 +168,9 @@ public class Selector extends Transformer
                 int[] out = stream_out.ptrI();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrI()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrI()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -180,9 +180,9 @@ public class Selector extends Transformer
                 long[] out = stream_out.ptrL();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrL()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrL()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -192,9 +192,9 @@ public class Selector extends Transformer
                 short[] out = stream_out.ptrS();
                 for (int i = 0, z = 0; i < stream_in[0].num; i++)
                 {
-                    for (int value : options.values.getValue())
+                    for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrS()[value + options.selectionSize.getValue() * i];
+                        out[z++] = stream_in[0].ptrS()[value + options.selectionSize.get() * i];
                     }
                 }
                 break;
@@ -209,7 +209,7 @@ public class Selector extends Transformer
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        return options.values.getValue().length;
+        return options.values.get().length;
     }
 
     /**
@@ -219,7 +219,7 @@ public class Selector extends Transformer
     @Override
     public int getSampleBytes(Stream[] stream_in)
     {
-        return Util.sizeOf(options.outputType.getValue());
+        return Util.sizeOf(options.outputType.get());
     }
 
     /**
@@ -229,7 +229,7 @@ public class Selector extends Transformer
     @Override
     public Cons.Type getSampleType(Stream[] stream_in)
     {
-        return options.outputType.getValue();
+        return options.outputType.get();
     }
 
     /**
@@ -251,11 +251,11 @@ public class Selector extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {

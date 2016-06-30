@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.androidSensor.transformer;
+package hcm.ssj.signal;
 
 import java.util.Arrays;
 
@@ -59,6 +59,8 @@ public class Median extends Transformer
     }
 
     public final Options options = new Options();
+    //helper variables
+    private float[][] floats;
 
     /**
      *
@@ -80,6 +82,22 @@ public class Median extends Transformer
         {
             Log.e("invalid input stream");
         }
+        floats = new float[stream_in.length][];
+        for (int i = 0; i < floats.length; i++)
+        {
+            floats[i] = new float[stream_in[i].num * stream_in[i].dim];
+        }
+    }
+
+    /**
+     * @param stream_in  Stream[]
+     * @param stream_out Stream
+     */
+    @Override
+    public void flush(Stream[] stream_in, Stream stream_out)
+    {
+        super.flush(stream_in, stream_out);
+        floats = null;
     }
 
     /**
@@ -92,7 +110,7 @@ public class Median extends Transformer
         float[] out = stream_out.ptrF();
         for (int i = 0, t = 0; i < stream_in.length; i++)
         {
-            float[] in = UtilAsTrans.getValuesAsFloat(stream_in[i], _name);
+            Util.castStreamPointerToFloat(stream_in[i], floats[i]);
             if (stream_in[i].dim > 1)
             {
                 int size = stream_in[i].num * stream_in[i].dim;
@@ -101,13 +119,13 @@ public class Median extends Transformer
                     float[] dim = new float[stream_in[i].num];
                     for (int k = j, l = 0; k < size; k += stream_in[i].dim, l++)
                     {
-                        dim[l] = in[k];
+                        dim[l] = floats[i][k];
                     }
                     out[t++] = getMedian(dim);
                 }
             } else
             {
-                out[t++] = getMedian(in);
+                out[t++] = getMedian(floats[i]);
             }
         }
     }
@@ -183,11 +201,11 @@ public class Median extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {

@@ -54,7 +54,7 @@ public class FloatsEventSender extends Consumer
     public FloatsEventSender()
     {
         _name = "SSJ_consumer_FloatsEventSender";
-        options.sender.setValue(_name);
+        options.sender.set(_name);
     }
 
     @Override
@@ -71,14 +71,14 @@ public class FloatsEventSender extends Consumer
         float ptr[] = stream_in[0].ptrF();
 
         Event ev = new Event();
-        ev.name = options.event.getValue();
-        ev.sender = options.sender.getValue();
+        ev.name = options.event.get();
+        ev.sender = options.sender.get();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * (stream_in[0].num / stream_in[0].sr) + 0.5);
         ev.state = Event.State.COMPLETED;
 
         ev.msg = "";
-        if (options.mean.getValue()) {
+        if (options.mean.get()) {
             float sum;
             for (int j = 0; j < stream_in[0].dim; j++)
             {

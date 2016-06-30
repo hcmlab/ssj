@@ -107,7 +107,7 @@ public class CameraPainter extends Consumer
     protected void init(Stream[] stream_in)
     {
         super.init(stream_in);
-        if (options.surfaceView.getValue() == null)
+        if (options.surfaceView.get() == null)
         {
             Log.w("surfaceView isn't set");
             //create system dialog to show painter
@@ -144,7 +144,7 @@ public class CameraPainter extends Consumer
             handler.post(thread);
         } else
         {
-            surfaceViewInner = options.surfaceView.getValue();
+            surfaceViewInner = options.surfaceView.get();
         }
     }
 
@@ -178,16 +178,16 @@ public class CameraPainter extends Consumer
                 }
             }
         }
-        int reqBuffSize = options.width.getValue() * options.height.getValue();
+        int reqBuffSize = options.width.get() * options.height.get();
         reqBuffSize += reqBuffSize >> 1;
         byaShuffle = new byte[reqBuffSize];
         surfaceHolder = surfaceViewInner.getHolder();
-        iaRgbData = new int[options.width.getValue() * options.height.getValue()];
+        iaRgbData = new int[options.width.get() * options.height.get()];
         //set bitmap
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        bitmap = Bitmap.createBitmap(options.width.getValue(), options.height.getValue(), conf);
+        bitmap = Bitmap.createBitmap(options.width.get(), options.height.get(), conf);
         //get colorFormat
-        colorFormat = options.colorFormat.getValue();
+        colorFormat = options.colorFormat.get();
     }
 
     /**
@@ -241,12 +241,12 @@ public class CameraPainter extends Consumer
                     int bitmapWidth = bitmap.getWidth();
                     int bitmapHeight = bitmap.getHeight();
                     //rotate canvas
-                    canvas.rotate(options.orientation.getValue(), canvasWidth >> 1, canvasHeight >> 1);
+                    canvas.rotate(options.orientation.get(), canvasWidth >> 1, canvasHeight >> 1);
                     //decode color format
                     decodeColor(data, bitmapWidth, bitmapHeight);
                     //fill bitmap with picture
                     bitmap.setPixels(iaRgbData, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
-                    if (options.scale.getValue())
+                    if (options.scale.get())
                     {
                         //scale picture to surface size
                         canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvasWidth, canvasHeight), null);

@@ -80,14 +80,14 @@ public class BluetoothEventWriter extends EventHandler
             throw new RuntimeException("no incoming event channels defined");
 
         try {
-            switch(options.connectionType.getValue())
+            switch(options.connectionType.get())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
+                    _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
                     _conn.connect();
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
+                    _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
                     _conn.connect();
                     break;
             }

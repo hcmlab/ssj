@@ -1,5 +1,5 @@
 /*
- * Distance.java
+ * Progress.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
  * *****************************************************
@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.androidSensor.transformer;
+package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -35,10 +35,10 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * A general transformer to provide a high value if some distance is reached for a dimension.<br>
- * Created by Frank Gaibler on 27.08.2015.
+ * Transformer to calculate progress in android sensor data.<br>
+ * Created by Frank Gaibler on 31.08.2015.
  */
-public class Distance extends Transformer
+public class Progress extends Transformer
 {
     /**
      * All options for the transformer
@@ -46,8 +46,6 @@ public class Distance extends Transformer
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<float[]> individualDistance = new Option<>("individualDistance", null, float[].class, "Individual threshold for each dimension");
-        public final Option<Float> standardDistance = new Option<>("standardDistance", 2.f, Float.class, " Standard threshold for the reached distance");
 
         /**
          *
@@ -58,14 +56,15 @@ public class Distance extends Transformer
         }
     }
 
-    public final Options options = new Options();
-    //helper variable
+    public Options options = new Options();
+    //helper variables
+    private boolean initState = true;
     private float[] oldValues;
 
     /**
      *
      */
-    public Distance()
+    public Progress()
     {
         _name = "SSJ_transformer_" + this.getClass().getSimpleName();
     }
@@ -81,6 +80,7 @@ public class Distance extends Transformer
         if (stream_in.length < 1 || stream_in[0].dim < 1)
         {
             Log.e("invalid input stream");
+            return;
         }
         //every stream should have the same sample number.
         //Otherwise the sample number of the transformer will not be correct
@@ -92,6 +92,7 @@ public class Distance extends Transformer
                 Log.e("invalid input stream num for stream " + i);
             }
         }
+        initState = true;
         oldValues = new float[stream_out.dim];
     }
 
@@ -103,6 +104,18 @@ public class Distance extends Transformer
     public void transform(Stream[] stream_in, Stream stream_out)
     {
         float[] out = stream_out.ptrF();
+        if (initState)
+        {
+            initState = false;
+            int t = 0;
+            for (Stream aStream_in : stream_in)
+            {
+                for (int k = 0; k < aStream_in.dim; k++, t++)
+                {
+                    oldValues[t] = aStream_in.ptrF()[k];
+                }
+            }
+        }
         for (int i = 0, z = 0; i < stream_in[0].num; i++)
         {
             int t = 0;
@@ -110,23 +123,18 @@ public class Distance extends Transformer
             {
                 for (int k = 0; k < aStream_in.dim; k++, t++, z++)
                 {
-                    float ret = 0;
                     float value = aStream_in.ptrF()[i * aStream_in.dim + k];
-                    oldValues[t] += Math.abs(value);
-                    if ((options.individualDistance.getValue() != null && options.individualDistance.getValue()[t] >= oldValues[t])
-                            || (options.individualDistance.getValue() == null && oldValues[t] >= options.standardDistance.getValue()))
-                    {
-                        ret = 1;
-                        oldValues[t] = 0;
-                    }
                     //write to output
-                    out[z] = ret;
+                    out[z] = value - oldValues[t];
+                    //save old variables
+                    oldValues[t] = value;
                 }
             }
         }
     }
 
     /**
+     * @param stream_in Stream[]
      * @return int
      */
     @Override
@@ -136,11 +144,6 @@ public class Distance extends Transformer
         for (Stream stream : stream_in)
         {
             overallDimension += stream.dim;
-        }
-        if (options.individualDistance.getValue() != null
-                && overallDimension != options.individualDistance.getValue().length)
-        {
-            Log.e("invalid option individualDistance length");
         }
         return overallDimension;
     }
@@ -184,11 +187,11 @@ public class Distance extends Transformer
     {
         int overallDimension = getSampleDimension(stream_in);
         stream_out.dataclass = new String[overallDimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (overallDimension == options.outputClass.getValue().length)
+            if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {
@@ -199,7 +202,7 @@ public class Distance extends Transformer
         {
             for (int j = 0; j < stream_in[i].dim; j++, k++)
             {
-                stream_out.dataclass[k] = "dstnc" + i + "." + j;
+                stream_out.dataclass[k] = "prgrss" + i + "." + j;
             }
         }
     }

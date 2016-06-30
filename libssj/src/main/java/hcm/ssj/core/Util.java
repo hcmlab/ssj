@@ -657,4 +657,58 @@ public class Util
             quads[k] = (byte) ((broadcast >> k * 8) & 0xFF);
         return InetAddress.getByAddress(quads);
     }
+
+    /**
+     * Casts values from a stream array to a float array.
+     *
+     * @param stream Stream
+     * @param floats float[]
+     */
+    public static void castStreamPointerToFloat(Stream stream, float[] floats)
+    {
+        switch (stream.type)
+        {
+            case CHAR:
+                char[] chars = stream.ptrC();
+                for (int i = 0; i < floats.length; i++)
+                {
+                    floats[i] = (float) chars[i];
+                }
+                break;
+            case SHORT:
+                short[] shorts = stream.ptrS();
+                for (int i = 0; i < floats.length; i++)
+                {
+                    floats[i] = (float) shorts[i];
+                }
+                break;
+            case INT:
+                int[] ints = stream.ptrI();
+                for (int i = 0; i < floats.length; i++)
+                {
+                    floats[i] = (float) ints[i];
+                }
+                break;
+            case LONG:
+                long[] longs = stream.ptrL();
+                for (int i = 0; i < floats.length; i++)
+                {
+                    floats[i] = (float) longs[i];
+                }
+                break;
+            case FLOAT:
+                System.arraycopy(stream.ptrF(), 0, floats, 0, floats.length);
+                break;
+            case DOUBLE:
+                double[] doubles = stream.ptrD();
+                for (int i = 0; i < floats.length; i++)
+                {
+                    floats[i] = (float) doubles[i];
+                }
+                break;
+            default:
+                Log.e("invalid input stream type");
+                break;
+        }
+    }
 }

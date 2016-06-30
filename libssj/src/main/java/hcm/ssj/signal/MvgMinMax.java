@@ -83,7 +83,7 @@ public class MvgMinMax extends Transformer
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
-		if (options.method.getValue() == Method.MOVING)
+		if (options.method.get() == Method.MOVING)
 		{
 			_impl = new Moving(options);
 		}
@@ -112,12 +112,12 @@ public class MvgMinMax extends Transformer
 	{
 		int bits = 0;
 
-		if (EnumSet.of(Format.MIN, Format.ALL).contains(options.format.getValue()))
+		if (EnumSet.of(Format.MIN, Format.ALL).contains(options.format.get()))
 		{
 			bits++;
 		}
 
-		if (EnumSet.of(Format.MAX, Format.ALL).contains(options.format.getValue()))
+		if (EnumSet.of(Format.MAX, Format.ALL).contains(options.format.get()))
 		{
 			bits++;
 		}
@@ -188,19 +188,19 @@ public class MvgMinMax extends Transformer
 			int sampleDimension = stream_in.dim;
 			double sampleRate = stream_in.sr;
 
-			double exactWindowSizeInSamples = options.windowSize.getValue() * sampleRate;
-			double exactBlockLengthInSamples = exactWindowSizeInSamples / options.numberOfBlocks.getValue();
+			double exactWindowSizeInSamples = options.windowSize.get() * sampleRate;
+			double exactBlockLengthInSamples = exactWindowSizeInSamples / options.numberOfBlocks.get();
 			int newBlockLengthInSamples = (int) (exactBlockLengthInSamples + 0.5); // Round
-			int newWindowSizeInSamples = newBlockLengthInSamples * options.numberOfBlocks.getValue();
+			int newWindowSizeInSamples = newBlockLengthInSamples * options.numberOfBlocks.get();
 
 			_windowSizeInSamples = newWindowSizeInSamples;
 			_blockLengthInSamples = newBlockLengthInSamples;
 
-			_history = new float[(options.numberOfBlocks.getValue() << 1) * sampleDimension];
+			_history = new float[(options.numberOfBlocks.get() << 1) * sampleDimension];
 			_minMax = new float[sampleDimension << 1];
 
 			int historyIterator = 0;
-			for (int i = 0; i < options.numberOfBlocks.getValue(); i++)
+			for (int i = 0; i < options.numberOfBlocks.get(); i++)
 			{
 				for (int j = 0; j < sampleDimension; j++)
 				{
@@ -217,7 +217,7 @@ public class MvgMinMax extends Transformer
 			}
 
 			_currentSampleIndex = _blockLengthInSamples - 1;
-			_currentBlockIndex = options.numberOfBlocks.getValue() - 1;
+			_currentBlockIndex = options.numberOfBlocks.get() - 1;
 		}
 
 		@Override
@@ -240,7 +240,7 @@ public class MvgMinMax extends Transformer
 				{
 					_currentSampleIndex = 0;
 
-					if (++_currentBlockIndex >= options.numberOfBlocks.getValue())
+					if (++_currentBlockIndex >= options.numberOfBlocks.get())
 					{
 						_currentBlockIndex = 0;
 					}
@@ -285,7 +285,7 @@ public class MvgMinMax extends Transformer
 
 				historyIndex = 0;
 
-				for (int forEachBlock = 0; forEachBlock < options.numberOfBlocks.getValue(); forEachBlock++)
+				for (int forEachBlock = 0; forEachBlock < options.numberOfBlocks.get(); forEachBlock++)
 				{
 					minMaxIndex = 0;
 
@@ -315,14 +315,14 @@ public class MvgMinMax extends Transformer
 
 				for (int forEachDimension = 0; forEachDimension < sampleDimension; forEachDimension++)
 				{
-					if (EnumSet.of(Format.MIN, Format.ALL).contains(options.format.getValue()))
+					if (EnumSet.of(Format.MIN, Format.ALL).contains(options.format.get()))
 					{
 						dstPtr[dstIndex++] = _minMax[minMaxIndex];
 					}
 
 					minMaxIndex++;
 
-					if (EnumSet.of(Format.MAX, Format.ALL).contains(options.format.getValue()))
+					if (EnumSet.of(Format.MAX, Format.ALL).contains(options.format.get()))
 					{
 						dstPtr[dstIndex++] = _minMax[minMaxIndex];
 					}
@@ -368,7 +368,7 @@ public class MvgMinMax extends Transformer
 			_maxHistory = new float[sampleDimension];
 
 			// Allocate and initialize alpha array
-			_alpha = (float) (1.0 - (2.0 * Math.sqrt(3.0)) / (options.windowSize.getValue() * sampleRate));
+			_alpha = (float) (1.0 - (2.0 * Math.sqrt(3.0)) / (options.windowSize.get() * sampleRate));
 			_1_alpha = 1 - _alpha;
 
 			// Set first call to true
@@ -409,7 +409,7 @@ public class MvgMinMax extends Transformer
 				{
 					x = srcPtr[srcIndex++];
 
-					if (EnumSet.of(Format.MIN, Format.ALL).contains(options.format.getValue()))
+					if (EnumSet.of(Format.MIN, Format.ALL).contains(options.format.get()))
 					{
 						minVal = _minHistory[j];
 						minVal = Math.min(x, _alpha * minVal + _1_alpha * x);
@@ -419,7 +419,7 @@ public class MvgMinMax extends Transformer
 					}
 
 
-					if (EnumSet.of(Format.MAX, Format.ALL).contains(options.format.getValue()))
+					if (EnumSet.of(Format.MAX, Format.ALL).contains(options.format.get()))
 					{
 						maxVal = _maxHistory[j];
 						maxVal = Math.max(x, _alpha * maxVal + _1_alpha * x);

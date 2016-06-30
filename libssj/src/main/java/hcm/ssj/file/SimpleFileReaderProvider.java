@@ -191,7 +191,7 @@ public class SimpleFileReaderProvider extends SensorProvider
         String data = simpleFileReader.getData();
         if (data != null)
         {
-            return data.split(options.separator.getValue());
+            return data.split(options.separator.get());
         }
         //notify listeners
         Monitor.notifyMonitor();
@@ -243,11 +243,11 @@ public class SimpleFileReaderProvider extends SensorProvider
     protected void defineOutputClasses(Stream stream_out)
     {
         stream_out.dataclass = new String[dimension];
-        if (options.outputClass.getValue() != null)
+        if (options.outputClass.get() != null)
         {
-            if (dimension == options.outputClass.getValue().length)
+            if (dimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
                 return;
             } else
             {

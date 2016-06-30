@@ -81,7 +81,7 @@ public class BluetoothProvider extends SensorProvider
             Log.e("cannot connect to server", e);
         }
 
-        if(options.sr.getValue() == 0 || options.bytes.getValue() == 0 || options.dim.getValue() == 0 || options.type.getValue() == Cons.Type.UNDEF)
+        if(options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
             Log.e("input channel not configured");
 
         _data = new byte[stream_out.tot];
@@ -108,38 +108,38 @@ public class BluetoothProvider extends SensorProvider
     @Override
     public int getSampleDimension()
     {
-        return options.dim.getValue();
+        return options.dim.get();
     }
 
     @Override
     public double getSampleRate()
     {
-        return options.sr.getValue();
+        return options.sr.get();
     }
 
     @Override
     public int getSampleBytes()
     {
-        return options.bytes.getValue();
+        return options.bytes.get();
     }
 
     @Override
     public int getSampleNumber()
     {
-        return options.num.getValue();
+        return options.num.get();
     }
 
     @Override
     public Cons.Type getSampleType()
     {
-        return options.type.getValue();
+        return options.type.get();
     }
 
     @Override
     public void defineOutputClasses(Stream stream_out)
     {
         stream_out.dataclass = new String[stream_out.dim];
-        if(options.outputClass.getValue() == null || stream_out.dim != options.outputClass.getValue().length)
+        if(options.outputClass.get() == null || stream_out.dim != options.outputClass.get().length)
         {
             Log.w("incomplete definition of output classes");
             for(int i = 0; i < stream_out.dataclass.length; i++)
@@ -147,7 +147,7 @@ public class BluetoothProvider extends SensorProvider
         }
         else
         {
-            System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
+            System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
         }
     }
 }

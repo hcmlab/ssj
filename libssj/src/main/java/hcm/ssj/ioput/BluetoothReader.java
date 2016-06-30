@@ -66,14 +66,14 @@ public class BluetoothReader extends Sensor {
     @Override
     public boolean connect() {
         try {
-            switch(options.connectionType.getValue())
+            switch(options.connectionType.get())
             {
                 case SERVER:
-                    conn = new BluetoothServer(options.connectionName.getValue(), options.serverName.getValue());
+                    conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
                     conn.connect();
                     break;
                 case CLIENT:
-                    conn = new BluetoothClient(options.connectionName.getValue(), options.serverName.getValue(), options.serverAddr.getValue());
+                    conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
                     conn.connect();
                     break;
             }

@@ -79,7 +79,7 @@ public class MvgAvgVar extends Transformer
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
-		if (options.method.getValue() == Method.MOVING)
+		if (options.method.get() == Method.MOVING)
 		{
 			_impl = new Moving(options);
 		}
@@ -106,7 +106,7 @@ public class MvgAvgVar extends Transformer
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
 	{
-		if (options.format.getValue() == Format.AVG_AND_VAR)
+		if (options.format.get() == Format.AVG_AND_VAR)
 		{
 			return stream_in[0].dim * 2;
 		}
@@ -177,7 +177,7 @@ public class MvgAvgVar extends Transformer
 		public void enter(Stream stream_in, Stream stream_out)
 		{
 			// calculate history size
-			_window_size_N = (int) (options.window.getValue() * stream_in.sr + 0.5);
+			_window_size_N = (int) (options.window.get() * stream_in.sr + 0.5);
 			_history_size = _window_size_N + 1;
 
 			// allocate history array
@@ -257,11 +257,11 @@ public class MvgAvgVar extends Transformer
 					sum_2 = sum_2 - x_N * x_N + x_0 * x_0;
 
 					// calculate avg and var
-					if (options.format.getValue() == Format.AVERAGE || options.format.getValue() == Format.AVG_AND_VAR)
+					if (options.format.get() == Format.AVERAGE || options.format.get() == Format.AVG_AND_VAR)
 					{
 						dstptr[dst_iter++] = sum / _window_size_N;
 					}
-					if (options.format.getValue() == Format.VARIANCE || options.format.getValue() == Format.AVG_AND_VAR)
+					if (options.format.get() == Format.VARIANCE || options.format.get() == Format.AVG_AND_VAR)
 					{
 						var = (_window_size_N * sum_2 - sum * sum) / (_window_size_N * (_window_size_N - 1));
 						dstptr[dst_iter++] = var > 0 ? var : Float.MIN_VALUE;
@@ -306,7 +306,7 @@ public class MvgAvgVar extends Transformer
 			_var_hist = new float[sample_dimension];
 
 			// allocate and initialize alpha array
-			_alpha = (float) (1.0 - (2.0 * Math.sqrt(3.0)) / (options.window.getValue() * sample_rate));
+			_alpha = (float) (1.0 - (2.0 * Math.sqrt(3.0)) / (options.window.get() * sample_rate));
 			_1_alpha = 1 - _alpha;
 
 			// set first call to true
@@ -339,7 +339,7 @@ public class MvgAvgVar extends Transformer
 			}
 
 			// do transformation
-			switch (options.format.getValue())
+			switch (options.format.get())
 			{
 
 				case AVERAGE:
@@ -370,7 +370,7 @@ public class MvgAvgVar extends Transformer
 				case AVG_AND_VAR:
 				{
 
-					boolean store_all = options.format.getValue() == Format.AVG_AND_VAR;
+					boolean store_all = options.format.get() == Format.AVG_AND_VAR;
 
 					for (int i = 0; i < sample_number; ++i)
 					{

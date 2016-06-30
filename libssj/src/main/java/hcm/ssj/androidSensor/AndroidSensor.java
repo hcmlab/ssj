@@ -93,12 +93,12 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
         if (!initialized)
         {
             initialized = true;
-            if (options.sensorType.getValue() == null)
+            if (options.sensorType.get() == null)
             {
                 Log.w("sensor type not set, setting to default " + sensorTypeDefault.getName());
-                options.sensorType.setValue(sensorTypeDefault);
+                options.sensorType.set(sensorTypeDefault);
             }
-            sensorType = options.sensorType.getValue();
+            sensorType = options.sensorType.get();
             _name = "SSJ_sensor_" + this.sensorType.getName();
             listener = new SensorListener(this.sensorType);
             mSensorManager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
@@ -119,7 +119,7 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
         init();
         if (mSensor != null)
         {
-            mSensorManager.registerListener(listener, mSensor, options.sensorDelay.getValue());
+            mSensorManager.registerListener(listener, mSensor, options.sensorDelay.get());
             return true;
         }
         return false;

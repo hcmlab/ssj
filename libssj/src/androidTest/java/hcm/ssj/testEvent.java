@@ -51,12 +51,12 @@ public class testEvent extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.setValue(16000);
-        audio.options.scale.setValue(true);
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
@@ -64,7 +64,7 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.addTransformer(energy, audio, 1.0, 0);
 
         FloatsEventSender evs = new FloatsEventSender();
-        evs.options.mean.setValue(false);
+        evs.options.mean.set(false);
         frame.addConsumer(evs, energy, 1.0, 0);
         EventChannel channel = frame.registerEventProvider(evs);
 
@@ -97,12 +97,12 @@ public class testEvent extends ApplicationTestCase<Application> {
     public void test2() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
 
         Microphone mic = new Microphone();
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.setValue(16000);
-        audio.options.scale.setValue(true);
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(true);
         mic.addProvider(audio);
         frame.addSensor(mic);
 
@@ -110,17 +110,17 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.addTransformer(energy, audio, 1.0, 0);
 
         ThresholdEventSender vad = new ThresholdEventSender();
-        vad.options.thresin.setValue(new float[]{50.0f}); //SPL
-        vad.options.mindur.setValue(1.0);
-        vad.options.maxdur.setValue(9.0);
-        vad.options.hangin.setValue(3);
-        vad.options.hangout.setValue(5);
+        vad.options.thresin.set(new float[]{50.0f}); //SPL
+        vad.options.mindur.set(1.0);
+        vad.options.maxdur.set(9.0);
+        vad.options.hangin.set(3);
+        vad.options.hangout.set(5);
         Provider[] vad_in = {energy};
         frame.addConsumer(vad, vad_in, 1.0, 0);
         EventChannel vad_channel = frame.registerEventProvider(vad);
 
         FloatSegmentEventSender evs = new FloatSegmentEventSender();
-        evs.options.mean.setValue(true);
+        evs.options.mean.set(true);
         frame.addEventConsumer(evs, energy, vad_channel);
         EventChannel channel = frame.registerEventProvider(evs);
 

@@ -152,24 +152,24 @@ public class BlinkDetection extends Transformer
             {
                 float left_to_right = Math.abs(right - left);
                 //check for high variance which indicates unfeasible sensor data
-                if (left_to_right < options.varianceThreshold.getValue())
+                if (left_to_right < options.varianceThreshold.get())
                 {
                     float peak_to_left = Math.abs(peak - left);
                     float peak_to_right = Math.abs(peak - right);
                     if (peak_to_left >= left_to_right && peak_to_right >= left_to_right)
                     {
                         float diff = Math.abs(peak - ((left + right) / 2.0f));
-                        if (diff > options.blinkThreshold.getValue())
+                        if (diff > options.blinkThreshold.get())
                         {
                             timeSave = 0;
-                            return options.countBlink.getValue() ? ++count : 1;
+                            return options.countBlink.get() ? ++count : 1;
                         }
                     }
                 }
             }
         }
         timeSave += 1000 / sampleRate;
-        return options.countBlink.getValue() ? count : 0;
+        return options.countBlink.get() ? count : 0;
     }
 
     /**
@@ -220,7 +220,7 @@ public class BlinkDetection extends Transformer
     protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
     {
         stream_out.dataclass = new String[DIMENSION];
-        stream_out.dataclass[0] = options.countBlink.getValue() ? "blnkCnt" : "blnk";
+        stream_out.dataclass[0] = options.countBlink.get() ? "blnkCnt" : "blnk";
     }
 
     /**
