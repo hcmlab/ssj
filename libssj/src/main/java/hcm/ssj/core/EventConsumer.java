@@ -1,7 +1,7 @@
 /*
  * EventConsumer.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -40,8 +40,6 @@ public abstract class EventConsumer extends Component {
 
     private Timer _timer;
     private boolean localUpdateRate = false;
-
-    private int _eventID = 0;
 
     protected TheFramework _frame;
 
@@ -82,11 +80,13 @@ public abstract class EventConsumer extends Component {
         //maintain update rate starting from now
         _timer.reset();
 
+        int eventID = 0;
+
         while(!_terminate && _frame.isRunning())
         {
             try {
                 //wait for event
-                Event ev = _evchannel_in.get(0).getEvent(_eventID++, !localUpdateRate);
+                Event ev = _evchannel_in.get(0).getEvent(eventID++, !localUpdateRate);
 
                 if (ev != null && ev.dur > 0)
                 {

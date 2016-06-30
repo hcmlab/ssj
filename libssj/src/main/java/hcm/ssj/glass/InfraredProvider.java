@@ -1,7 +1,7 @@
 /*
  * InfraredProvider.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -84,10 +84,12 @@ public class InfraredProvider extends SensorProvider
      * @param stream_out Stream
      */
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         float[] out = stream_out.ptrF();
         out[0] = _irSensor.getData();
+
+        return true;
     }
 
     /**

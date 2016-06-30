@@ -1,7 +1,7 @@
 /*
  * testBluetoothServer.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -54,24 +54,27 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.set(10.0f);
+        frame.options.bufferSize.setValue(10.0f);
 
         BluetoothReader blr = new BluetoothReader();
-        blr.options.connectionType.set(BluetoothConnection.Type.SERVER);
-        blr.options.connectionName.set("stream");
+        blr.options.connectionType.setValue(BluetoothConnection.Type.SERVER);
+        blr.options.connectionName.setValue("stream");
+
         BluetoothProvider data = new BluetoothProvider();
-        data.options.dim.set(1);
-        data.options.type.set(Cons.Type.FLOAT);
-        data.options.sr.set(16000.);
+        data.options.dim.setValue(3);
+        data.options.bytes.setValue(4);
+        data.options.type.setValue(Cons.Type.FLOAT);
+        data.options.sr.setValue(50.0);
         frame.addSensor(blr);
         blr.addProvider(data);
 
         Logger dummy = new Logger();
-        frame.addConsumer(dummy, data, 0.1, 0);
+        dummy.options.reduceNum.setValue(true);
+        frame.addConsumer(dummy, data, 1.0, 0);
 
         BluetoothEventReader bler = new BluetoothEventReader();
-        bler.options.connectionType.set(BluetoothConnection.Type.SERVER);
-        bler.options.connectionName.set("event");
+        bler.options.connectionType.setValue(BluetoothConnection.Type.SERVER);
+        bler.options.connectionName.setValue("event");
         frame.addComponent(bler);
         EventChannel ch = frame.registerEventProvider(bler);
 
@@ -85,7 +88,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
             long start = System.currentTimeMillis();
             while(true)
             {
-                if(System.currentTimeMillis() > start + 3 * 60 * 1000)
+                if(System.currentTimeMillis() > start + 5 * 60 * 1000)
                     break;
 
                 Thread.sleep(1);

@@ -1,7 +1,7 @@
 /*
- * BVPProvider.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * BVPAngelProvider.java
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,16 +21,12 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.angelsensor;
 
-import hcm.ssj.angelsensor.AngelSensor;
-import hcm.ssj.angelsensor.AngelSensorListener;
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.stream.Stream;
 
@@ -47,7 +43,7 @@ public class BVPAngelProvider extends SensorProvider
 
 	protected AngelSensorListener _listener;
 
-	public BVPAngelProvider(Sensor s)
+	public BVPAngelProvider()
 	{
 		_name = "SSJ_sensor_Angel_BVP";
 	}
@@ -60,10 +56,11 @@ public class BVPAngelProvider extends SensorProvider
 	}
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		int[] out = stream_out.ptrI();
 		out[0] = _listener.getBvp();
+		return true;
 	}
 
 	@Override

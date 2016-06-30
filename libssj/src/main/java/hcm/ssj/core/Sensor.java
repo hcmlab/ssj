@@ -1,7 +1,7 @@
 /*
  * Sensor.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -31,7 +31,7 @@ package hcm.ssj.core;
  */
 public abstract class Sensor extends Component {
 
-    protected boolean _isConnected = false;
+    private boolean _isConnected = false;
     protected TheFramework _frame;
 
     public Sensor()
@@ -50,27 +50,36 @@ public abstract class Sensor extends Component {
     {
         //if user did not specify a custom priority, use low priority
         android.os.Process.setThreadPriority( (threadPriority == Cons.THREAD_PRIORITY_NORMAL) ? Cons.THREAD_PRIORIIY_LOW : threadPriority );
-
         _isConnected = false;
-        try {
-            _isConnected = connect();
-
-            if(!_isConnected && !_terminate)
-                throw new RuntimeException("unable to connect to device");
-        } catch(Exception e) {
-            _frame.crash(this.getComponentName(), "failed to connect to sensor", e);
-        }
-
-        synchronized (this)
-        {
-            this.notifyAll();
-        }
 
         while(!_terminate)
         {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {}
+            if(!_isConnected)
+            {
+                try
+                {
+                    _isConnected = connect();
+
+                    if (!_isConnected && !_terminate)
+                        throw new RuntimeException("unable to connect to device");
+
+                    synchronized (this)
+                    {
+                        this.notifyAll();
+                    }
+                }
+                catch (Exception e)
+                {
+                    _frame.crash(this.getComponentName(), "failed to connect to sensor", e);
+                }
+            }
+
+            try{
+                Thread.sleep(Cons.WAIT_SENSOR_CHECK_CONNECT);
+            }
+            catch(InterruptedException e) {}
+
+            _isConnected = checkConnection();
         }
 
         try {
@@ -83,9 +92,15 @@ public abstract class Sensor extends Component {
     }
 
     /**
+     * early initialization specific to implementation (called by framework on instantiation)
+     */
+    protected void init() {}
+
+    /**
      * initialization specific to sensor implementation (called by local thread after framework start)
      */
     protected abstract boolean connect();
+    protected boolean checkConnection() {return true;}
 
     /**
      * called once before termination
@@ -99,15 +114,14 @@ public abstract class Sensor extends Component {
 
     public void waitForConnection()
     {
-        synchronized (this)
-        {
             while (!isConnected() && !_terminate)
             {
                 try {
-                    this.wait();
+                    synchronized (this)
+                    {
+                        this.wait();
+                    }
                 } catch (InterruptedException e) {}
             }
-        }
     }
-
 }

@@ -1,7 +1,7 @@
 /*
  * BluetoothConnection.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -26,24 +26,139 @@
 
 package hcm.ssj.ioput;
 
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+
+import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 
 /**
  * Created by Johnny on 07.04.2015.
  */
-public interface BluetoothConnection
+public abstract class BluetoothConnection extends BroadcastReceiver
 {
-    enum Type
+    public enum Type
     {
         CLIENT,
         SERVER
     }
 
-    String _name = "Bluetooth";
+    protected BluetoothDevice _connectedDevice = null;
 
-    void connect() throws IOException;;
-    void disconnect() throws IOException;
-    BluetoothSocket getSocket();
+    Thread _thread;
+    protected boolean _terminate = false;
+    protected boolean _isConnected = false;
+
+    protected final Object _newConnection = new Object();
+    protected final Object _newDisconnection = new Object();
+
+    protected DataInputStream _in;
+    protected DataOutputStream _out;
+
+    public DataInputStream input() {return _in;}
+    public DataOutputStream output() {return _out;}
+
+    public BluetoothConnection()
+    {
+        //register listener for BL status changes
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        SSJApplication.getAppContext().registerReceiver(this, filter);
+    }
+
+    abstract void connect() throws IOException;
+    abstract void disconnect() throws IOException;
+    abstract BluetoothSocket getSocket();
+
+    public BluetoothDevice getConnectedDevice()
+    {
+        return _connectedDevice;
+    }
+
+    public void onReceive(Context ctx, Intent intent) {
+
+        final BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
+        String action = intent.getAction();
+
+        if (BluetoothDevice.ACTION_ACL_CONNECTED.equalsIgnoreCase( action ) )   {
+            if (!device.equals(_connectedDevice))
+            {
+                Log.v("received ACTION_ACL_CONNECTED with " + device.getName() );
+                _connectedDevice = device;
+            }
+        }
+
+        if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equalsIgnoreCase(action ) )    {
+            if (device.equals(_connectedDevice))
+            {
+                Log.w("disconnected from " + device.getName() );
+                _connectedDevice = null;
+                setConnectionStatus(false);
+            }
+        }
+    }
+
+    public void waitForConnection()
+    {
+        while(!isConnected())
+        {
+            try
+            {
+                synchronized (_newConnection)
+                {
+                    _newConnection.wait();
+                }
+            }
+            catch (InterruptedException e) {}
+        }
+    }
+
+    public void waitForDisconnection()
+    {
+        while(isConnected())
+        {
+            try
+            {
+                synchronized (_newDisconnection)
+                {
+                    _newDisconnection.wait();
+                }
+            }
+            catch (InterruptedException e) {}
+        }
+    }
+
+    public boolean isConnected()
+    {
+        return _connectedDevice != null && _isConnected;
+    }
+
+    protected void setConnectionStatus(boolean connected)
+    {
+        if(connected)
+        {
+            _isConnected = true;
+            synchronized (_newConnection)
+            {
+                _newConnection.notifyAll();
+            }
+        }
+        else
+        {
+            _isConnected = false;
+            synchronized (_newDisconnection)
+            {
+                _newDisconnection.notifyAll();
+            }
+        }
+    }
 }

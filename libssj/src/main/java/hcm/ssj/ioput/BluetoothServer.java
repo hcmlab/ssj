@@ -1,7 +1,7 @@
 /*
  * BluetoothServer.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -30,6 +30,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.UUID;
 
@@ -38,19 +40,19 @@ import hcm.ssj.core.Log;
 /**
  * Created by Johnny on 07.04.2015.
  */
-public class BluetoothServer implements BluetoothConnection
+public class BluetoothServer extends BluetoothConnection implements Runnable
 {
     private String _name = "SSJ_BluetoothServer";
 
     private BluetoothServerSocket _server = null;
     private BluetoothSocket _socket = null;
 
-    private String _connectionName;
+    private UUID _uuid;
     private String _serverName;
 
     BluetoothAdapter _adapter = null;
 
-    public BluetoothServer(String connectionName, String serverName)
+    public BluetoothServer(String connectionName, String serverName) throws IOException
     {
         _adapter = BluetoothAdapter.getDefaultAdapter();
         if (_adapter == null)
@@ -65,33 +67,75 @@ public class BluetoothServer implements BluetoothConnection
             return;
         }
 
-        _connectionName = connectionName;
         _serverName = serverName;
+        _uuid = UUID.nameUUIDFromBytes(connectionName.getBytes());
+        Log.i("server connection " + connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress() + " initialized");
     }
 
-    public void connect() throws IOException
+    public void connect()
     {
-        UUID uuid = UUID.nameUUIDFromBytes(_connectionName.getBytes());
+        _isConnected = false;
+        _terminate = false;
+        _thread = new Thread(this);
+        _thread.start();
 
-        Log.i("attempting to set up connection " + _connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress());
-        _server = _adapter.listenUsingInsecureRfcommWithServiceRecord(_serverName, uuid);
+        waitForConnection();
+    }
 
-        Log.i("connection " + _connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress() + " ready");
-        Log.i("waiting for clients...");
+    public void run()
+    {
+        _adapter.cancelDiscovery();
 
-        _socket = _server.accept();
+        while(!_terminate)
+        {
+            try
+            {
+                Log.i("setting up server on " + _adapter.getName() + " @ " + _adapter.getAddress());
+                _server = _adapter.listenUsingInsecureRfcommWithServiceRecord(_serverName, _uuid);
+
+                Log.i("waiting for clients...");
+                _socket = _server.accept();
+
+                _in = new DataInputStream(_socket.getInputStream());
+                _out = new DataOutputStream(_socket.getOutputStream());
+            }
+            catch (IOException e)
+            {
+                Log.w("failed to connect to client", e);
+            }
+
+            if(_socket.isConnected())
+            {
+                Log.i("connected to client " + _socket.getRemoteDevice().getName());
+                setConnectionStatus(true);
+
+                //wait as long as there is an active connection
+                waitForDisconnection();
+            }
+
+            try
+            {
+                _server.close();
+                _socket.close();
+            }
+            catch (IOException e)
+            {
+                Log.e("failed to close sockets", e);
+            }
+        }
     }
 
     public void disconnect() throws IOException
     {
+        _terminate = true;
+
+        _newConnection.notifyAll();
+        _newDisconnection.notifyAll();
+
         if(_server != null)
         {
             _server.close();
             _server = null;
-        }
-        else
-        {
-            _adapter.cancelDiscovery();
         }
 
         if(_socket != null)

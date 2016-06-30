@@ -1,7 +1,7 @@
 /*
  * SimpleFileReaderProvider.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -93,7 +93,7 @@ public class SimpleFileReaderProvider extends SensorProvider
      * @param stream_out Stream
      */
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
         switch (type)
         {
@@ -179,8 +179,10 @@ public class SimpleFileReaderProvider extends SensorProvider
             }
             default:
                 Log.w("unsupported data type");
-                break;
+                return false;
         }
+
+        return true;
     }
 
     /**

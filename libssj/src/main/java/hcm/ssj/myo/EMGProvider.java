@@ -1,7 +1,7 @@
 /*
  * EMGProvider.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -68,12 +68,14 @@ public class EMGProvider extends SensorProvider
     }
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		int[] out = stream_out.ptrI();
 
         for (int j = 0; j < stream_out.dim; j++)
             out[j] = _listener.emg[j];
+
+        return true;
 	}
 
     @Override

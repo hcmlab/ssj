@@ -1,7 +1,7 @@
 /*
  * DynAccelerationProvider.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -77,7 +77,7 @@ public class DynAccelerationProvider extends SensorProvider
 	}
 
 	@Override
-	protected void process(Stream stream_out)
+	protected boolean process(Stream stream_out)
 	{
 		float[] out = stream_out.ptrF();
 
@@ -117,6 +117,8 @@ public class DynAccelerationProvider extends SensorProvider
 			for (int k = 0; k < 3; k++)
 				out[k] *= options.gravity.get();
 		}
+
+		return true;
 	}
 
 	@Override

@@ -1,7 +1,7 @@
 /*
  * EventLogger.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -65,11 +65,11 @@ public class EventLogger extends EventHandler
     {
         for(EventChannel ch : _evchannel_in)
         {
-            Event ev = ch.getEvent(_lastBehavEventID, true);
+            Event ev = ch.getEvent(_lastBehavEventID + 1, true);
             if (ev == null)
                 return;
 
-            _lastBehavEventID = ev.id + 1;
+            _lastBehavEventID = ev.id;
             Log.i(ev.sender + "_" + ev.name + "_" + ev.id + " (" + ev.state.toString() + ", " + ev.time + ", " + ev.dur + ") : " + ev.msg);
         }
     }

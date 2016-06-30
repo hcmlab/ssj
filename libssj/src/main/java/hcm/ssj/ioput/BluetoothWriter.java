@@ -1,7 +1,7 @@
 /*
  * BluetoothWriter.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -28,7 +28,6 @@ package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 import hcm.ssj.core.Consumer;
@@ -61,7 +60,6 @@ public class BluetoothWriter extends Consumer {
     public final Options options = new Options();
 
     private BluetoothConnection _conn;
-    private DataOutputStream _out;
     private byte[] _data;
 
     private boolean _connected = false;
@@ -84,8 +82,6 @@ public class BluetoothWriter extends Consumer {
                     _conn.connect();
                     break;
             }
-
-            _out = new DataOutputStream(_conn.getSocket().getOutputStream());
         } catch (Exception e)
         {
             Log.e("error in setting up connection "+ options.connectionName, e);
@@ -101,12 +97,12 @@ public class BluetoothWriter extends Consumer {
     }
 
     protected void consume(Stream[] stream_in) {
-        if (!_connected)
+        if (!_connected || !_conn.isConnected())
             return;
 
         try {
             Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
-            _out.write(_data);
+            _conn.output().write(_data);
 
         } catch (IOException e) {
             Log.w("failed sending data", e);

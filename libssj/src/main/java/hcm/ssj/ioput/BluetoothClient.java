@@ -1,7 +1,7 @@
 /*
  * BluetoothClient.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -30,6 +30,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
@@ -39,17 +41,15 @@ import hcm.ssj.core.Log;
 /**
  * Created by Johnny on 07.04.2015.
  */
-public class BluetoothClient implements BluetoothConnection
+public class BluetoothClient extends BluetoothConnection implements Runnable
 {
     private String _name = "SSJ_BluetoothClient";
 
     private BluetoothSocket _socket = null;
-
-    private String _connectionName;
-    private String _serverName;
-    private String _serverAddr;
+    private UUID _uuid;
 
     BluetoothAdapter _adapter = null;
+    BluetoothDevice _server = null;
 
     public BluetoothClient(String connectionName, String serverName, String serverAddr) throws IOException
     {
@@ -66,16 +66,8 @@ public class BluetoothClient implements BluetoothConnection
             return;
         }
 
-        _connectionName = connectionName;
-        _serverAddr = serverAddr;
-        _serverName = serverName;
-    }
+        Log.i("searching for server " + serverName);
 
-    public void connect() throws IOException
-    {
-        Log.i("searching for server " + _serverAddr);
-
-        BluetoothDevice device = null;
         Set<BluetoothDevice> pairedDevices = _adapter.getBondedDevices();
         // If there are paired devices
         if (pairedDevices.size() > 0)
@@ -83,34 +75,89 @@ public class BluetoothClient implements BluetoothConnection
             // Loop through paired devices
             for (BluetoothDevice d : pairedDevices)
             {
-                if (d.getName().equalsIgnoreCase(_serverName))
+                if (d.getName().equalsIgnoreCase(serverName))
                 {
-                    _serverAddr = d.getAddress();
-                    device = d;
+                    serverAddr = d.getAddress();
+                    _server = d;
                 }
             }
         }
         //if we haven't found it
-        if(device == null)
+        if(_server == null)
         {
-            if (!BluetoothAdapter.checkBluetoothAddress(_serverAddr)) {
-                Log.e("invalid MAC address: " + _serverAddr);
+            Log.i("not found, searching for server " + serverAddr);
+
+            if (!BluetoothAdapter.checkBluetoothAddress(serverAddr)) {
+                Log.e("invalid MAC address: " + serverAddr);
                 return;
             }
 
-            device = _adapter.getRemoteDevice(_serverAddr);
+            _server = _adapter.getRemoteDevice(serverAddr);
         }
 
-        UUID uuid = UUID.nameUUIDFromBytes(_connectionName.getBytes());
+        _uuid = UUID.nameUUIDFromBytes(connectionName.getBytes());
+        Log.i("client connection " + connectionName + " to " + _server.getName() + " initialized");
+    }
 
-        Log.i("connecting to " + _serverAddr + " using the connection " + _connectionName);
+    public void connect()
+    {
+        _isConnected = false;
+        _terminate = false;
+        _thread = new Thread(this);
+        _thread.start();
 
-        _socket = device.createRfcommSocketToServiceRecord(uuid);
-        _socket.connect();
+        waitForConnection();
+    }
+
+    public void run()
+    {
+        _adapter.cancelDiscovery();
+
+        while(!_terminate)
+        {
+            try
+            {
+                Log.i("setting up connection to " + _server.getName());
+                _socket = _server.createRfcommSocketToServiceRecord(_uuid);
+
+                Log.i("waiting for server ...");
+                _socket.connect();
+
+                _in = new DataInputStream(_socket.getInputStream());
+                _out = new DataOutputStream(_socket.getOutputStream());
+            }
+            catch (IOException e)
+            {
+                Log.w("failed to connect to server", e);
+            }
+
+            if(_socket.isConnected())
+            {
+                Log.i("connected to server");
+                setConnectionStatus(true);
+
+                //wait as long as there is an active connection
+                waitForDisconnection();
+            }
+
+            try
+            {
+                _socket.close();
+            }
+            catch (IOException e)
+            {
+                Log.e("failed to close socket", e);
+            }
+        }
     }
 
     public void disconnect() throws IOException
     {
+        _terminate = true;
+
+        _newConnection.notifyAll();
+        _newDisconnection.notifyAll();
+
         if(_socket != null)
         {
             _socket.close();

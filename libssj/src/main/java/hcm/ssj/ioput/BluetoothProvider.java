@@ -1,7 +1,7 @@
 /*
  * BluetoothProvider.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -72,74 +72,73 @@ public class BluetoothProvider extends SensorProvider
     @Override
     public void enter(Stream stream_out) {
 
-        try
-        {
-            _in = new DataInputStream(((BluetoothReader)_sensor).conn.getSocket().getInputStream());
-        }
-        catch (IOException e)
-        {
-            Log.e("cannot connect to server", e);
-        }
-
-        if(options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
+        if(options.sr.getValue() == 0 || options.bytes.getValue() == 0 || options.dim.getValue() == 0 || options.type.getValue() == Cons.Type.UNDEF)
             Log.e("input channel not configured");
 
         _data = new byte[stream_out.tot];
     }
 
     @Override
-    protected void process(Stream stream_out)
+    protected boolean process(Stream stream_out)
     {
+        BluetoothConnection conn = ((BluetoothReader)_sensor).getConnection();
+        if(!conn.isConnected())
+            return false;
+
+        DataInputStream dataStream = conn.input();
+
         try
         {
             //we check whether there is any data as reads are blocking for bluetooth
-            if(_in.available() == 0)
-                return;
+            if(dataStream.available() == 0)
+                return false;
 
-            _in.readFully(_data);
+            dataStream.readFully(_data);
             Util.arraycopy(_data, 0, stream_out.ptr(), 0, _data.length);
         }
         catch (IOException e)
         {
             Log.w("unable to read from data stream", e);
         }
+
+        return true;
     }
 
     @Override
     public int getSampleDimension()
     {
-        return options.dim.get();
+        return options.dim.getValue();
     }
 
     @Override
     public double getSampleRate()
     {
-        return options.sr.get();
+        return options.sr.getValue();
     }
 
     @Override
     public int getSampleBytes()
     {
-        return options.bytes.get();
+        return options.bytes.getValue();
     }
 
     @Override
     public int getSampleNumber()
     {
-        return options.num.get();
+        return options.num.getValue();
     }
 
     @Override
     public Cons.Type getSampleType()
     {
-        return options.type.get();
+        return options.type.getValue();
     }
 
     @Override
     public void defineOutputClasses(Stream stream_out)
     {
         stream_out.dataclass = new String[stream_out.dim];
-        if(options.outputClass.get() == null || stream_out.dim != options.outputClass.get().length)
+        if(options.outputClass.getValue() == null || stream_out.dim != options.outputClass.getValue().length)
         {
             Log.w("incomplete definition of output classes");
             for(int i = 0; i < stream_out.dataclass.length; i++)
@@ -147,7 +146,7 @@ public class BluetoothProvider extends SensorProvider
         }
         else
         {
-            System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
+            System.arraycopy(options.outputClass.getValue(), 0, stream_out.dataclass, 0, options.outputClass.getValue().length);
         }
     }
 }

@@ -1,7 +1,7 @@
 /*
- * Empatica.java
- * Copyright (c) 2015
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler
+ * AngelSensor.java
+ * Copyright (c) 2016
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -21,33 +21,20 @@
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.angelsensor;
 
-import android.app.Activity;
-import android.bluetooth.BluetoothDevice;
-import android.content.Intent;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
+import android.bluetooth.BluetoothDevice;
+import android.os.Handler;
 
 import com.angel.sdk.BleScanner;
-import com.angel.sdk.BluetoothInaccessibleException;
-import com.angel.sdk.SrvActivityMonitoring;
-import com.angel.sdk.SrvBattery;
-import com.angel.sdk.SrvHealthThermometer;
-import com.angel.sdk.SrvHeartRate;
-import com.thalmic.myo.internal.ble.BleManager;
 
-import junit.framework.Assert;
-
-import hcm.ssj.core.Sensor;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.Sensor;
 
 public class AngelSensor extends Sensor
 {
@@ -63,7 +50,7 @@ public class AngelSensor extends Sensor
 		{
 			if (device.getName() != null)
 			{
-				Log.i(_name, "Bluetooth LE device found: " + device.getName());
+				Log.i("Bluetooth LE device found: " + device.getName());
 				//mBleScanner.stopScan();
 				if (device.getName() != null && device.getName().startsWith("Angel"))
 				{
@@ -73,6 +60,7 @@ public class AngelSensor extends Sensor
 					mBleScanner.stopScan();
 
 					listener.connect(device.getAddress());
+					Log.i("connected to device " + device.getName());
 				}
 			}
 		}
@@ -99,7 +87,7 @@ public class AngelSensor extends Sensor
 		}
 		catch (Exception e)
 		{
-			Log.e("ANGEL ERROR", "Exception:", e);
+			Log.e("Exception:", e);
 		}
 
 		mBleScanner.startScan();

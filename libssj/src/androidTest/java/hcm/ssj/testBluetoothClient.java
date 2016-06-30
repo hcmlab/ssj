@@ -1,7 +1,7 @@
 /*
  * testBluetoothClient.java
  * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -29,8 +29,9 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.audio.AudioProvider;
-import hcm.ssj.audio.Microphone;
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
@@ -53,29 +54,29 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.set(10.0f);
+        frame.options.bufferSize.setValue(10.0f);
 
-        Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        AndroidSensor sensor = new AndroidSensor();
+        sensor.options.sensorType.setValue(SensorType.ACCELEROMETER);
+        frame.addSensor(sensor);
+
+        AndroidSensorProvider acc = new AndroidSensorProvider();
+        sensor.addProvider(acc);
 
         BluetoothWriter blw = new BluetoothWriter();
-        blw.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-        blw.options.serverAddr.set("60:8F:5C:F2:D0:9D");
-        blw.options.connectionName.set("stream");
-        frame.addConsumer(blw, audio, 0.1, 0);
+        blw.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
+        blw.options.serverName.setValue("HCM-Johnny-Phone");
+        blw.options.connectionName.setValue("stream");
+        frame.addConsumer(blw, acc, 1.0, 0);
 
         FloatsEventSender fes = new FloatsEventSender();
-        frame.addConsumer(fes, audio, 1.0, 0);
+        frame.addConsumer(fes, acc, 1.0, 0);
         EventChannel ch = frame.registerEventProvider(fes);
 
         BluetoothEventWriter blew = new BluetoothEventWriter();
-        blew.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-        blew.options.serverAddr.set("60:8F:5C:F2:D0:9D");
-        blew.options.connectionName.set("event");
+        blew.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
+        blew.options.serverName.setValue("HCM-Johnny-Phone");
+        blew.options.connectionName.setValue("event");
         frame.addComponent(blew);
         frame.registerEventListener(blew, ch);
 
@@ -85,7 +86,7 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
             long start = System.currentTimeMillis();
             while(true)
             {
-                if(System.currentTimeMillis() > start + 3 * 60 * 1000)
+                if(System.currentTimeMillis() > start + 1 * 60 * 1000)
                     break;
 
                 Thread.sleep(1);
