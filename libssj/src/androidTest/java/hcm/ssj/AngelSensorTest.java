@@ -65,7 +65,7 @@ public class AngelSensorTest extends ApplicationTestCase<Application>
 		AngelSensor sensor = new AngelSensor();
 		frame.addSensor(sensor);
 		//provider
-		BVPAngelProvider sensorProvider = new BVPAngelProvider(sensor);
+		BVPAngelProvider sensorProvider = new BVPAngelProvider();
 		sensor.addProvider(sensorProvider);
 		//logger
 		Logger log = new Logger();

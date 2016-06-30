@@ -54,19 +54,19 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
     public void test() throws Exception
     {
         TheFramework frame = TheFramework.getFramework();
-        frame.options.bufferSize.setValue(10.0f);
+        frame.options.bufferSize.set(10.0f);
 
         AndroidSensor sensor = new AndroidSensor();
-        sensor.options.sensorType.setValue(SensorType.ACCELEROMETER);
+        sensor.options.sensorType.set(SensorType.ACCELEROMETER);
         frame.addSensor(sensor);
 
         AndroidSensorProvider acc = new AndroidSensorProvider();
         sensor.addProvider(acc);
 
         BluetoothWriter blw = new BluetoothWriter();
-        blw.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
-        blw.options.serverName.setValue("HCM-Johnny-Phone");
-        blw.options.connectionName.setValue("stream");
+        blw.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+        blw.options.serverName.set("HCM-Johnny-Phone");
+        blw.options.connectionName.set("stream");
         frame.addConsumer(blw, acc, 1.0, 0);
 
         FloatsEventSender fes = new FloatsEventSender();
@@ -74,9 +74,9 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
         EventChannel ch = frame.registerEventProvider(fes);
 
         BluetoothEventWriter blew = new BluetoothEventWriter();
-        blew.options.connectionType.setValue(BluetoothConnection.Type.CLIENT);
-        blew.options.serverName.setValue("HCM-Johnny-Phone");
-        blew.options.connectionName.setValue("event");
+        blew.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+        blew.options.serverName.set("HCM-Johnny-Phone");
+        blew.options.connectionName.set("event");
         frame.addComponent(blew);
         frame.registerEventListener(blew, ch);
 
