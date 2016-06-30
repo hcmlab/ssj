@@ -65,11 +65,11 @@ public class EventLogger extends EventHandler
     {
         for(EventChannel ch : _evchannel_in)
         {
-            Event ev = ch.getEvent(_lastBehavEventID, true);
+            Event ev = ch.getEvent(_lastBehavEventID + 1, true);
             if (ev == null)
                 return;
 
-            _lastBehavEventID = ev.id + 1;
+            _lastBehavEventID = ev.id;
             Log.i(ev.sender + "_" + ev.name + "_" + ev.id + " (" + ev.state.toString() + ", " + ev.time + ", " + ev.dur + ") : " + ev.msg);
         }
     }
