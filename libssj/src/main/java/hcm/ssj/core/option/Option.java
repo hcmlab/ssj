@@ -90,4 +90,161 @@ public class Option<T>
     {
         return help;
     }
+
+    /**
+     * Tries to set the value by parsing the String parameter. <br>
+     * This method will only work with primitives, strings, arrays and enums.
+     *
+     * @param value String
+     * @return boolean
+     */
+    public final boolean setValue(String value)
+    {
+        if (type == Byte.class)
+        {
+            set((T) Byte.valueOf(value));
+            return true;
+        } else if (type == Short.class)
+        {
+            set((T) Short.valueOf(value));
+            return true;
+        } else if (type == Integer.class)
+        {
+            set((T) Integer.valueOf(value));
+            return true;
+        } else if (type == Long.class)
+        {
+            set((T) Long.valueOf(value));
+            return true;
+        } else if (type == Float.class)
+        {
+            set((T) Float.valueOf(value));
+            return true;
+        } else if (type == Double.class)
+        {
+            set((T) Double.valueOf(value));
+            return true;
+        } else if (type == Character.class)
+        {
+            set((T) (Character) value.charAt(0));
+            return true;
+        } else if (type == String.class)
+        {
+            set((T) value);
+            return true;
+        } else if (type == Boolean.class)
+        {
+            set((T) Boolean.valueOf(value));
+            return true;
+        } else if (type.isArray())
+        {
+            String[] strings = value.replace("[", "").replace("]", "").split(", ");
+            Class<?> componentType = type.getComponentType();
+            if (componentType.isPrimitive())
+            {
+                if (boolean.class.isAssignableFrom(componentType))
+                {
+                    boolean[] ar = new boolean[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Boolean.parseBoolean(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (byte.class.isAssignableFrom(componentType))
+                {
+                    byte[] ar = new byte[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Byte.parseByte(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (char.class.isAssignableFrom(componentType))
+                {
+                    char[] ar = new char[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = strings[i].charAt(0);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (double.class.isAssignableFrom(componentType))
+                {
+                    double[] ar = new double[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Double.parseDouble(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (float.class.isAssignableFrom(componentType))
+                {
+                    float[] ar = new float[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Float.parseFloat(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (int.class.isAssignableFrom(componentType))
+                {
+                    int[] ar = new int[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Integer.parseInt(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (long.class.isAssignableFrom(componentType))
+                {
+                    long[] ar = new long[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Long.parseLong(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                } else if (short.class.isAssignableFrom(componentType))
+                {
+                    short[] ar = new short[strings.length];
+                    for (int i = 0; i < strings.length; i++)
+                    {
+                        ar[i] = Short.parseShort(strings[i]);
+                    }
+                    set((T) ar);
+                    return true;
+                }
+            } else if (String.class.isAssignableFrom(componentType))
+            {
+                set((T) strings);
+                return true;
+            }
+        } else if (type.isEnum())
+        {
+            set((T) Enum.valueOf((Class<Enum>) type, value));
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Verifies if the option is assignable by {@link #setValue(String) setValue}
+     *
+     * @return boolean
+     */
+    public boolean isAssignableByString()
+    {
+        return (type.isEnum()
+                || type.isArray()
+                || type == Boolean.class
+                || type == Character.class
+                || type == Byte.class
+                || type == Short.class
+                || type == Integer.class
+                || type == Long.class
+                || type == Float.class
+                || type == Double.class
+                || type == String.class);
+    }
 }

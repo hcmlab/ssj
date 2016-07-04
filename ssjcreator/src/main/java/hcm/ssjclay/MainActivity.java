@@ -33,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
@@ -53,7 +52,6 @@ import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -65,8 +63,8 @@ import hcm.ssj.core.TheFramework;
 import hcm.ssj.graphic.SignalPainter;
 import hcm.ssjclay.creator.Builder;
 import hcm.ssjclay.creator.Linker;
-import hcm.ssjclay.creator.SaveLoad;
 import hcm.ssjclay.dialogs.AddDialog;
+import hcm.ssjclay.dialogs.FileDialog;
 import hcm.ssjclay.dialogs.Listener;
 import hcm.ssjclay.view.PipeView;
 
@@ -375,28 +373,34 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_save:
             {
-                File dir = new File(Environment.getExternalStorageDirectory(), "SSJ");
-                if (dir.exists() || dir.mkdirs())
-                {
-                    SaveLoad.save(new File(dir, "test.xml"));
-                }
+                FileDialog fileDialog = new FileDialog();
+                fileDialog.setTitleMessage(R.string.str_save);
+                fileDialog.setType(FileDialog.Type.SAVE);
+                fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
                 return true;
             }
             case R.id.action_load:
             {
-                File dir = new File(Environment.getExternalStorageDirectory(), "SSJ");
-                File file = new File(dir, "test.xml");
-                if (file.exists())
+                final FileDialog fileDialog = new FileDialog();
+                fileDialog.setTitleMessage(R.string.str_load);
+                fileDialog.setType(FileDialog.Type.LOAD);
+                fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
+                Listener listener = new Listener()
                 {
-                    boolean result = SaveLoad.load(file);
-                    if (result)
+                    @Override
+                    public void onPositiveEvent(Object[] o)
                     {
-                        Log.e("loaded file");
-                    } else
-                    {
-                        Log.e("couldn't load file");
+                        fileDialog.removeListener(this);
+                        actualizeContent();
                     }
-                }
+
+                    @Override
+                    public void onNegativeEvent(Object[] o)
+                    {
+                        addDialog.removeListener(this);
+                    }
+                };
+                fileDialog.addListener(listener);
                 return true;
             }
         }
@@ -405,8 +409,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onPositiveEvent(Object[] o)
             {
-                actualizeContent();
                 addDialog.removeListener(this);
+                actualizeContent();
             }
 
             @Override

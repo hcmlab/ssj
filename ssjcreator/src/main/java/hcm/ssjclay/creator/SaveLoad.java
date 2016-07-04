@@ -28,6 +28,7 @@ package hcm.ssjclay.creator;
 
 import android.util.Xml;
 
+import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -36,10 +37,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.core.Consumer;
@@ -50,7 +54,6 @@ import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.file.SimpleXmlParser;
 import hcm.ssjclay.creator.container.ContainerElement;
 
 /**
@@ -61,7 +64,7 @@ public abstract class SaveLoad
 {
     private final static String ROOT = "ssjSaveFile";
     private final static String VERSION = "version";
-    private final static String VERSION_NUMBER = "1.0";
+    private final static String VERSION_NUMBER = "1.1";
     private final static String FRAMEWORK = "framework";
     private final static String SENSOR_PROVIDER_LIST = "sensorProviderList";
     private final static String SENSOR_LIST = "sensorList";
@@ -185,55 +188,147 @@ public abstract class SaveLoad
      */
     public static boolean load(File file)
     {
+        //open stream
+        FileInputStream fileInputStream;
         try
         {
-            //check document version
-            SimpleXmlParser xmlParser = new SimpleXmlParser();
-            SimpleXmlParser.XmlValues xmlValues = xmlParser.parse(new FileInputStream(file),
-                    new String[]{ROOT},
-                    new String[]{VERSION}
-            );
-            ArrayList<String[]> foundAttributes = xmlValues.foundAttributes;
-            if (foundAttributes.isEmpty() || Double.valueOf(foundAttributes.get(0)[0]) > Double.valueOf(VERSION_NUMBER))
+            fileInputStream = new FileInputStream(file);
+
+        } catch (FileNotFoundException e)
+        {
+            Log.e("file not found");
+            return false;
+        }
+        try
+        {
+            //check file version
+            XmlPullParser parser = Xml.newPullParser();
+            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+            parser.setInput(fileInputStream, null);
+            parser.nextTag();
+            if (parser.getName().equals(ROOT))
             {
-                Log.e("wrong file version");
+                String value = parser.getAttributeValue(null, VERSION);
+                if (Double.valueOf(VERSION_NUMBER) < Double.valueOf(value))
+                {
+                    return false;
+                }
+            } else
+            {
                 return false;
             }
-            //framework
-            xmlValues = xmlParser.parse(new FileInputStream(file),
-                    new String[]{ROOT, FRAMEWORK, OPTIONS, OPTION},
-                    new String[]{NAME, VALUE, CLASS}
-            );
-            foundAttributes = xmlValues.foundAttributes;
-            Option[] options = Linker.getOptionList(TheFramework.getFramework());
-            for (String[] strings : foundAttributes)
+            //load classes
+            parser.nextTag();
+            String tag;
+            Object context = null;
+            Option[] options = null;
+            HashMap<Object, LinkContainer> map = new HashMap<>();
+            while (!(tag = parser.getName()).equals(ROOT))
             {
-                String name = strings[0], value = strings[1];
-                for (Option option : options)
+                if (parser.getEventType() == XmlPullParser.START_TAG)
                 {
-                    if (option.getName().equals(name))
+                    switch (tag)
                     {
-                        setValue(option, value);
-                        break;
+                        case FRAMEWORK:
+                        {
+                            context = TheFramework.getFramework();
+                            break;
+                        }
+                        case OPTIONS:
+                        {
+                            options = Linker.getOptionList(context);
+                            break;
+                        }
+                        case OPTION:
+                        {
+                            if (options != null)
+                            {
+                                String name = parser.getAttributeValue(null, NAME);
+                                String value = parser.getAttributeValue(null, VALUE);
+                                for (Option option : options)
+                                {
+                                    if (option.getName().equals(name))
+                                    {
+                                        option.setValue(value);
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                        case SENSOR_PROVIDER:
+                        case SENSOR:
+                        {
+                            String clazz = parser.getAttributeValue(null, CLASS);
+                            context = Class.forName(clazz).newInstance();
+                            Linker.getInstance().add(context);
+                            String hash = parser.getAttributeValue(null, HASH);
+                            LinkContainer container = new LinkContainer();
+                            container.hash = Integer.parseInt(hash);
+                            map.put(context, container);
+                            break;
+                        }
+                        case TRANSFORMER:
+                        case CONSUMER:
+                        {
+                            String clazz = parser.getAttributeValue(null, CLASS);
+                            context = Class.forName(clazz).newInstance();
+                            Linker.getInstance().add(context);
+                            Linker.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
+                            Linker.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
+                            String hash = parser.getAttributeValue(null, HASH);
+                            LinkContainer container = new LinkContainer();
+                            container.hash = Integer.parseInt(hash);
+                            map.put(context, container);
+                            break;
+                        }
+                        case PROVIDER_HASH:
+                        {
+                            String hash = parser.getAttributeValue(null, HASH);
+                            map.get(context).hashes.add(Integer.parseInt(hash));
+                            break;
+                        }
+                    }
+                }
+                parser.nextTag();
+            }
+            //set connections
+            for (Map.Entry<Object, LinkContainer> entry : map.entrySet())
+            {
+                Object key = entry.getKey();
+                LinkContainer value = entry.getValue();
+                for (int provider : value.hashes)
+                {
+                    for (Map.Entry<Object, LinkContainer> candidate : map.entrySet())
+                    {
+                        Object candidateKey = candidate.getKey();
+                        LinkContainer candidateValue = candidate.getValue();
+                        if (candidateValue.hash == provider)
+                        {
+                            Linker.getInstance().addProvider(key, (Provider) candidateKey);
+                        }
                     }
                 }
             }
-            //@todo implement rest
-            //sensorProviders
-            //sensors
-            //transformers
-            //consumers
-            //close document
-        } catch (IOException ex)
-        {
-            Log.e("could not load file");
-            return false;
-        } catch (XmlPullParserException ex)
+            return true;
+        } catch (IOException | XmlPullParserException ex)
         {
             Log.e("could not parse file");
             return false;
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex)
+        {
+            Log.e("could not create class");
+            return false;
+        } finally
+        {
+            try
+            {
+                fileInputStream.close();
+            } catch (IOException ex)
+            {
+                Log.e("could not close stream");
+            }
         }
-        return true;
     }
 
     /**
@@ -258,15 +353,29 @@ public abstract class SaveLoad
         Option[] options = Linker.getOptionList(object);
         if (options != null)
         {
-            //@todo only handle primitives, arrays and strings
-            //@todo handle arrays and remove objects
             for (Option option : options)
             {
-                serializer.startTag(null, OPTION);
-                serializer.attribute(null, NAME, option.getName());
-                serializer.attribute(null, VALUE, String.valueOf(option.get()));
-                serializer.attribute(null, CLASS, option.getType().getName());
-                serializer.endTag(null, OPTION);
+                if (option.isAssignableByString() && option.get() != null)
+                {
+                    serializer.startTag(null, OPTION);
+                    serializer.attribute(null, NAME, option.getName());
+                    if (option.getType().isArray())
+                    {
+                        Object value = option.get();
+                        List ar = new ArrayList();
+                        int length = Array.getLength(value);
+                        for (int i = 0; i < length; i++)
+                        {
+                            ar.add(Array.get(value, i));
+                        }
+                        Object[] objects = ar.toArray();
+                        serializer.attribute(null, VALUE, Arrays.toString(objects));
+                    } else
+                    {
+                        serializer.attribute(null, VALUE, String.valueOf(option.get()));
+                    }
+                    serializer.endTag(null, OPTION);
+                }
             }
         }
         serializer.endTag(null, OPTIONS);
@@ -297,40 +406,11 @@ public abstract class SaveLoad
     }
 
     /**
-     * @param option Option
-     * @param value  String
+     * Used to add connections.
      */
-    private static void setValue(Option option, String value)
+    private static class LinkContainer
     {
-        //@todo handle arrays
-        Class<?> type = option.getType();
-        if (type == Byte.class)
-        {
-            option.set(Byte.valueOf(value));
-        } else if (type == Short.class)
-        {
-            option.set(Short.valueOf(value));
-        } else if (type == Integer.class)
-        {
-            option.set(Integer.valueOf(value));
-        } else if (type == Long.class)
-        {
-            option.set(Long.valueOf(value));
-        } else if (type == Float.class)
-        {
-            option.set(Float.valueOf(value));
-        } else if (type == Double.class)
-        {
-            option.set(Double.valueOf(value));
-        } else if (type == Character.class)
-        {
-            option.set(value.charAt(0));
-        } else if (type == String.class)
-        {
-            option.set(value);
-        } else if (type == Boolean.class)
-        {
-            option.set(Boolean.valueOf(value));
-        }
+        int hash;
+        ArrayList<Integer> hashes = new ArrayList<>();
     }
 }

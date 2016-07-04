@@ -29,6 +29,7 @@ package hcm.ssjclay.dialogs;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.util.SparseBooleanArray;
@@ -48,8 +49,6 @@ import hcm.ssjclay.creator.Linker;
 public class AddDialog extends DialogFragment
 {
     private int titleMessage = R.string.app_name;
-    private int okMessage = R.string.str_ok;
-    private int cancelMessage = R.string.str_cancel;
     private ArrayList<Class> clazzes = null;
     private ArrayList<Listener> alListeners = new ArrayList<>();
     private ListView listView;
@@ -59,6 +58,7 @@ public class AddDialog extends DialogFragment
      * @return Dialog
      */
     @Override
+    @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         if (clazzes == null)
@@ -68,7 +68,7 @@ public class AddDialog extends DialogFragment
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(titleMessage);
-        builder.setPositiveButton(okMessage, new DialogInterface.OnClickListener()
+        builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int id)
                     {
@@ -104,7 +104,7 @@ public class AddDialog extends DialogFragment
                     }
                 }
         );
-        builder.setNegativeButton(cancelMessage, new DialogInterface.OnClickListener()
+        builder.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int id)
                     {
@@ -136,51 +136,11 @@ public class AddDialog extends DialogFragment
     }
 
     /**
-     * @return int
-     */
-    public int getTitleMessage()
-    {
-        return titleMessage;
-    }
-
-    /**
      * @param title int
      */
     public void setTitleMessage(int title)
     {
         this.titleMessage = title;
-    }
-
-    /**
-     * @return int
-     */
-    public int getOkMessage()
-    {
-        return okMessage;
-    }
-
-    /**
-     * @param okMessage int
-     */
-    public void setOkMessage(int okMessage)
-    {
-        this.okMessage = okMessage;
-    }
-
-    /**
-     * @return int
-     */
-    public int getCancelMessage()
-    {
-        return cancelMessage;
-    }
-
-    /**
-     * @param cancel int
-     */
-    public void setCancelMessage(int cancel)
-    {
-        this.cancelMessage = cancel;
     }
 
     /**
