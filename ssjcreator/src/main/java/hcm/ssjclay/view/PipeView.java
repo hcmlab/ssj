@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Provider;
 import hcm.ssjclay.creator.Linker;
 
 /**
@@ -135,12 +136,32 @@ public class PipeView extends ViewGroup
                     {
                         int x = getGridCoordinate(xCoord);
                         int y = getGridCoordinate(yCoord);
-                        if (dropped && isGridFree(x, y))
+                        if (dropped)
                         {
-                            setGridValue(view.getGridX(), view.getGridY(), false);
-                            view.setGridX(x);
-                            view.setGridY(y);
-                            placeElementView(view);
+                            if (isGridFree(x, y))
+                            {
+                                //change position
+                                setGridValue(view.getGridX(), view.getGridY(), false);
+                                view.setGridX(x);
+                                view.setGridY(y);
+                                placeElementView(view);
+                            } else
+                            {
+                                //check for collision to add a connection
+                                Object object = view.getElement();
+                                if (object instanceof Provider)
+                                {
+                                    boolean found = addCollisionConnection(object, x, y, elementViewsSensor);
+                                    if (!found)
+                                    {
+                                        found = addCollisionConnection(object, x, y, elementViewsTransformer);
+                                    }
+                                    if (!found)
+                                    {
+                                        addCollisionConnection(object, x, y, elementViewsConsumer);
+                                    }
+                                }
+                            }
                         }
                         PipeView.this.addView(view);
                     }
@@ -155,6 +176,8 @@ public class PipeView extends ViewGroup
                     imageView.invalidate();
                     imageView = null;
                     view.invalidate();
+                    createElements();
+                    placeElements();
                 }
             }
 
@@ -528,13 +551,35 @@ public class PipeView extends ViewGroup
     }
 
     /**
+     * @param object       Object
+     * @param x            int
+     * @param y            int
+     * @param elementViews ArrayList
+     * @return boolean
+     */
+    private boolean addCollisionConnection(Object object, int x, int y, ArrayList<ElementView> elementViews)
+    {
+        for (ElementView elementView : elementViews)
+        {
+            int colX = elementView.getGridX();
+            int colY = elementView.getGridY();
+            boolean miss = (colX != x && colX != x + 1 && colY != y && colY != y + 1);
+            if (!miss)
+            {
+                Linker.getInstance().addProvider(elementView.getElement(), (Provider) object);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @param canvas Canvas
      */
     @Override
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        //@todo remove grid draw
         int left = 0;
         int right = gridWPix;
         int top = 0;
