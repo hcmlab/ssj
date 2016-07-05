@@ -26,29 +26,26 @@
 
 <resources>
     <string name="app_name">SSJCreator</string>
-    <!--main buttons-->
+    <!--creator menu-->
+    <string name="str_creatorMenu">Creator menu</string>
     <string name="str_framework">Framework</string>
     <string name="str_providers">Providers</string>
     <string name="str_sensors">Sensors</string>
     <string name="str_transformers">Transformers</string>
     <string name="str_consumers">Consumers</string>
+    <!--file menu-->
+    <string name="str_fileMenu">File menu</string>
     <string name="str_save">Save</string>
     <string name="str_load">Load</string>
+    <string name="str_delete">Delete</string>
+    <string name="str_clear">Clear</string>
+    <!--pipe button-->
     <string name="str_start">Start</string>
     <string name="str_stop">Stop</string>
-    <!--option dialog-->
-    <string name="str_option">Option</string>
+    <!--dialogs-->
     <string name="str_ok">OK</string>
     <string name="str_cancel">Cancel</string>
-    <!--component buttons-->
-    <string name="str_add">Add</string>
-    <string name="str_modify">Modify</string>
-    <string name="str_delete">Delete</string>
-    <!--sensor option-->
-    <string name="str_setProvider">Set provider</string>
-    <!--provider option-->
-    <string name="str_addProvider">Add provider</string>
-    <string name="str_removeProvider">Remove provider</string>
+    <!--provider options-->
     <string name="str_frameSize">Frame size</string>
     <string name="str_delta">Delta</string>
     <!--tabs-->

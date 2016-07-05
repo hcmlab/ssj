@@ -58,7 +58,7 @@ public class FileDialog extends DialogFragment
 
     public enum Type
     {
-        SAVE, LOAD
+        SAVE, LOAD, DELETE
     }
 
     private Type type = Type.SAVE;
@@ -125,18 +125,30 @@ public class FileDialog extends DialogFragment
                                 {
                                     if (checked.get(i))
                                     {
-                                        if (SaveLoad.load(xmlFiles[i]))
+                                        if (type == Type.LOAD)
                                         {
-                                            for (Listener listener : alListeners)
+                                            if (SaveLoad.load(xmlFiles[i]))
                                             {
-                                                listener.onPositiveEvent(null);
+                                                for (Listener listener : alListeners)
+                                                {
+                                                    listener.onPositiveEvent(null);
+                                                }
+                                                break;
                                             }
-                                        } else
+                                        } else if (type == Type.DELETE)
                                         {
-                                            for (Listener listener : alListeners)
+                                            if (xmlFiles[i].delete())
                                             {
-                                                listener.onNegativeEvent(null);
+                                                for (Listener listener : alListeners)
+                                                {
+                                                    listener.onPositiveEvent(null);
+                                                }
+                                                break;
                                             }
+                                        }
+                                        for (Listener listener : alListeners)
+                                        {
+                                            listener.onNegativeEvent(null);
                                         }
                                         break;
                                     }
@@ -164,39 +176,45 @@ public class FileDialog extends DialogFragment
                 }
         );
         // Set up the input
-        if (type == Type.SAVE)
+        switch (type)
         {
-            editText = new EditText(getContext());
-            editText.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
-            editText.setInputType(InputType.TYPE_CLASS_TEXT);
-            builder.setView(editText);
-        } else
-        {
-            listView = new ListView(getContext());
-            listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-            File dir1 = new File(Environment.getExternalStorageDirectory(), DIR_1);
-            File dir2 = new File(dir1.getPath(), DIR_2);
-            xmlFiles = dir2.listFiles(new FilenameFilter()
+            case SAVE:
             {
-                @Override
-                public boolean accept(File folder, String name)
-                {
-                    return name.toLowerCase().endsWith(SUFFIX);
-                }
-            });
-            if (xmlFiles != null && xmlFiles.length > 0)
-            {
-                String[] ids = new String[xmlFiles.length];
-                for (int i = 0; i < ids.length; i++)
-                {
-                    ids[i] = xmlFiles[i].getName();
-                }
-                listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, ids));
-            } else
-            {
-                listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice));
+                editText = new EditText(getContext());
+                editText.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+                editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(editText);
+                break;
             }
-            builder.setView(listView);
+            case LOAD:
+            case DELETE:
+            {
+                listView = new ListView(getContext());
+                listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+                File dir1 = new File(Environment.getExternalStorageDirectory(), DIR_1);
+                File dir2 = new File(dir1.getPath(), DIR_2);
+                xmlFiles = dir2.listFiles(new FilenameFilter()
+                {
+                    @Override
+                    public boolean accept(File folder, String name)
+                    {
+                        return name.toLowerCase().endsWith(SUFFIX);
+                    }
+                });
+                if (xmlFiles != null && xmlFiles.length > 0)
+                {
+                    String[] ids = new String[xmlFiles.length];
+                    for (int i = 0; i < ids.length; i++)
+                    {
+                        ids[i] = xmlFiles[i].getName();
+                    }
+                    listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, ids));
+                } else
+                {
+                    listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice));
+                }
+                builder.setView(listView);
+            }
         }
         // Create the AlertDialog object and return it
         return builder.create();

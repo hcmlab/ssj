@@ -309,23 +309,23 @@ public class PipeView extends ViewGroup
         }
         Object[] objects = Linker.getInstance().getAll(type);
         ArrayList<ElementView> alInterim = new ArrayList<>();
-        for (int i = 0; i < objects.length; i++)
+        for (Object object : objects)
         {
             boolean found = false;
             for (ElementView v : alView)
             {
-                if (v.getElement().equals(objects[i]))
+                if (v.getElement().equals(object))
                 {
                     found = true;
-                    v.setConnectionHashes(Linker.getInstance().getConnectionHashes(objects[i]));
+                    v.setConnectionHashes(Linker.getInstance().getConnectionHashes(object));
                     alInterim.add(v);
                     break;
                 }
             }
             if (!found)
             {
-                ElementView view = new ElementView(getContext(), objects[i]);
-                view.setConnectionHashes(Linker.getInstance().getConnectionHashes(objects[i]));
+                ElementView view = new ElementView(getContext(), object);
+                view.setConnectionHashes(Linker.getInstance().getConnectionHashes(object));
                 alInterim.add(view);
             }
         }
@@ -463,7 +463,6 @@ public class PipeView extends ViewGroup
                 }
                 if (!placed)
                 {
-                    //@todo show dialog
                     Log.e("Too many elements in view. Could not place all.");
                 }
             }
@@ -537,16 +536,12 @@ public class PipeView extends ViewGroup
         //
         int width = gridWPix / GRID_SIZE;
         int height = gridHPix / GRID_SIZE;
-        if (width != gridWidth || height != gridHeight)
+        gridWidth = width;
+        gridHeight = height;
+        grid = new boolean[gridWidth][];
+        for (int i = 0; i < grid.length; i++)
         {
-            //@todo recalculate every placement
-            gridWidth = width;
-            gridHeight = height;
-            grid = new boolean[gridWidth][];
-            for (int i = 0; i < grid.length; i++)
-            {
-                grid[i] = new boolean[gridHeight];
-            }
+            grid[i] = new boolean[gridHeight];
         }
     }
 

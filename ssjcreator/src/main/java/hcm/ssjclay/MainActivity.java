@@ -45,6 +45,7 @@ import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -129,7 +130,7 @@ public class MainActivity extends AppCompatActivity
             tabHost.setup(mlam);
             //pipe
             pipeView.setWillNotDraw(false);
-            addTab(pipeView, getResources().getString(R.string.str_pipe));
+            addTab(pipeView, getResources().getString(R.string.str_pipe), android.R.drawable.ic_menu_edit);
             //console
             addTabConsole();
         }
@@ -144,10 +145,13 @@ public class MainActivity extends AppCompatActivity
     /**
      * @param view    View
      * @param tabName String
+     * @param image   int
      */
-    private void addTab(final View view, final String tabName)
+    private void addTab(final View view, final String tabName, int image)
     {
         final TabSpec tabSpec = tabHost.newTabSpec(tabName);
+        ImageView imageView = new ImageView(MainActivity.this);
+        imageView.setImageResource(image);
         tabSpec.setContent(new TabHost.TabContentFactory()
         {
             /**
@@ -159,7 +163,7 @@ public class MainActivity extends AppCompatActivity
                 return view;
             }
         });
-        tabSpec.setIndicator(tabName);
+        tabSpec.setIndicator(imageView);
         tabHost.addTab(tabSpec);
         int height = tabHost.getHeight();
         int width = tabHost.getWidth();
@@ -188,7 +192,7 @@ public class MainActivity extends AppCompatActivity
         textViewConsole = new TextView(MainActivity.this);
         scrollView.addView(textViewConsole);
         //
-        addTab(scrollView, getResources().getString(R.string.str_console));
+        addTab(scrollView, getResources().getString(R.string.str_console), android.R.drawable.ic_menu_info_details);
         //workaround to adjust size retroactively
         Handler handler = new Handler(Looper.getMainLooper());
         Thread thread = new Thread()
@@ -403,6 +407,24 @@ public class MainActivity extends AppCompatActivity
                 fileDialog.addListener(listener);
                 return true;
             }
+            case R.id.action_delete:
+            {
+                FileDialog fileDialog = new FileDialog();
+                fileDialog.setTitleMessage(R.string.str_delete);
+                fileDialog.setType(FileDialog.Type.DELETE);
+                fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
+                return true;
+            }
+            case R.id.action_clear:
+            {
+                Linker.getInstance().clear();
+                actualizeContent();
+                return true;
+            }
+            default:
+            {
+                return true;
+            }
         }
         Listener listener = new Listener()
         {
@@ -451,7 +473,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     graphView = new GraphView(MainActivity.this);
                     ((SignalPainter) object).options.graphView.set(graphView);
-                    addTab(graphView, "GraphView");
+                    addTab(graphView, "GraphView", android.R.drawable.ic_menu_view);
                     alAdditionalTabs.add(object);
                 }
             } else if (object instanceof CameraPainter)
@@ -461,7 +483,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     surfaceView = new SurfaceView(MainActivity.this);
                     ((CameraPainter) object).options.surfaceView.set(surfaceView);
-                    addTab(surfaceView, "SurfaceView");
+                    addTab(surfaceView, "SurfaceView", android.R.drawable.ic_menu_camera);
                     alAdditionalTabs.add(object);
                 }
             }
