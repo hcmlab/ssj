@@ -27,6 +27,7 @@
 package hcm.ssjclay.view;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -44,6 +45,7 @@ import java.util.HashSet;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 import hcm.ssjclay.creator.Linker;
 
@@ -354,12 +356,14 @@ public class PipeView extends ViewGroup
     {
         //elements
         int initHeight = 0;
+        int orientation = SSJApplication.getAppContext().getResources().getConfiguration().orientation;
+        int divider = orientation == Configuration.ORIENTATION_PORTRAIT ? 4 : 3;
         setLayouts(elementViewsSensor, initHeight);
-        initHeight += gridHeight / 4;
+        initHeight += gridHeight / divider;
         setLayouts(elementViewsProvider, initHeight);
-        initHeight += gridHeight / 4;
+        initHeight += gridHeight / divider;
         setLayouts(elementViewsTransformer, initHeight);
-        initHeight += gridHeight / 4;
+        initHeight += gridHeight / divider;
         setLayouts(elementViewsConsumer, initHeight);
         //connections
         for (ConnectionView connectionView : connectionViews)
@@ -546,6 +550,30 @@ public class PipeView extends ViewGroup
         //
         int width = gridWPix / GRID_SIZE;
         int height = gridHPix / GRID_SIZE;
+        if (gridWidth != width || gridHeight != height)
+        {
+            //clear element placements
+            for (ElementView view : elementViewsSensor)
+            {
+                view.setGridX(-1);
+                view.setGridY(-1);
+            }
+            for (ElementView view : elementViewsProvider)
+            {
+                view.setGridX(-1);
+                view.setGridY(-1);
+            }
+            for (ElementView view : elementViewsTransformer)
+            {
+                view.setGridX(-1);
+                view.setGridY(-1);
+            }
+            for (ElementView view : elementViewsConsumer)
+            {
+                view.setGridX(-1);
+                view.setGridY(-1);
+            }
+        }
         gridWidth = width;
         gridHeight = height;
         grid = new boolean[gridWidth][];

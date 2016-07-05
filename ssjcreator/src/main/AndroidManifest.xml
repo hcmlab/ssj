@@ -32,9 +32,9 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:screenOrientation="sensorPortrait"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
-        android:screenOrientation="sensorPortrait">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|screenSize">
@@ -44,11 +44,17 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".OptionsActivity">
+        <activity
+            android:name=".OptionsActivity"
+            android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".SensorOptionsActivity">
+        <activity
+            android:name=".SensorOptionsActivity"
+            android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".ComponentOptionsActivity">
+        <activity
+            android:name=".ComponentOptionsActivity"
+            android:configChanges="orientation|screenSize">
         </activity>
     </application>
 
