@@ -188,8 +188,12 @@ public abstract class SensorProvider extends Provider {
 
     protected abstract double getSampleRate();
     protected abstract int getSampleDimension();
-    protected abstract int getSampleBytes();
     protected abstract Cons.Type getSampleType();
+
+    protected int getSampleBytes()
+    {
+        return Util.sizeOf(getSampleType());
+    }
 
     /*
      * By default, every sensor will push their data to the framework asap one sample at a time.
