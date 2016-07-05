@@ -31,6 +31,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.DragEvent;
 import android.view.View;
@@ -176,8 +178,16 @@ public class PipeView extends ViewGroup
                     imageView.invalidate();
                     imageView = null;
                     view.invalidate();
-                    createElements();
-                    placeElements();
+                    //recalculate view after delay to fix shadow behaviour
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    Runnable runnable = new Runnable()
+                    {
+                        public void run()
+                        {
+                            recalculate();
+                        }
+                    };
+                    handler.postDelayed(runnable, 50);
                 }
             }
 
