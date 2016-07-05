@@ -45,6 +45,9 @@
     <!--dialogs-->
     <string name="str_ok">OK</string>
     <string name="str_cancel">Cancel</string>
+    <string name="str_saveError">Could not save file</string>
+    <string name="str_loadError">Could not load file</string>
+    <string name="str_deleteError">Could not delete file</string>
     <!--provider options-->
     <string name="str_frameSize">Frame size</string>
     <string name="str_delta">Delta</string>

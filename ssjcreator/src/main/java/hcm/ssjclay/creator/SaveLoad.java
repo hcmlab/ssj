@@ -64,7 +64,7 @@ public abstract class SaveLoad
 {
     private final static String ROOT = "ssjSaveFile";
     private final static String VERSION = "version";
-    private final static String VERSION_NUMBER = "1.1";
+    private final static String VERSION_NUMBER = "0.1";
     private final static String FRAMEWORK = "framework";
     private final static String SENSOR_PROVIDER_LIST = "sensorProviderList";
     private final static String SENSOR_LIST = "sensorList";
@@ -75,12 +75,12 @@ public abstract class SaveLoad
     private final static String TRANSFORMER = "transformer";
     private final static String CONSUMER = "consumer";
     private final static String CLASS = "class";
-    private final static String HASH = "hash";
+    private final static String ID = "id";
     private final static String OPTIONS = "options";
     private final static String OPTION = "option";
     private final static String NAME = "name";
     private final static String VALUE = "value";
-    private final static String PROVIDER_HASH = "providerHash";
+    private final static String PROVIDER_ID = "providerId";
     private final static String PROVIDER_LIST = "providerList";
     private final static String FRAME_SIZE = "frameSize";
     private final static String DELTA = "delta";
@@ -140,9 +140,9 @@ public abstract class SaveLoad
                 SensorProvider sensorProvider = element.getValue();
                 if (sensorProvider != null)
                 {
-                    serializer.startTag(null, PROVIDER_HASH);
-                    serializer.attribute(null, HASH, String.valueOf(sensorProvider.hashCode()));
-                    serializer.endTag(null, PROVIDER_HASH);
+                    serializer.startTag(null, PROVIDER_ID);
+                    serializer.attribute(null, ID, String.valueOf(sensorProvider.hashCode()));
+                    serializer.endTag(null, PROVIDER_ID);
                 }
                 serializer.endTag(null, SENSOR);
             }
@@ -262,7 +262,7 @@ public abstract class SaveLoad
                             String clazz = parser.getAttributeValue(null, CLASS);
                             context = Class.forName(clazz).newInstance();
                             Linker.getInstance().add(context);
-                            String hash = parser.getAttributeValue(null, HASH);
+                            String hash = parser.getAttributeValue(null, ID);
                             LinkContainer container = new LinkContainer();
                             container.hash = Integer.parseInt(hash);
                             map.put(context, container);
@@ -276,15 +276,15 @@ public abstract class SaveLoad
                             Linker.getInstance().add(context);
                             Linker.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
                             Linker.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
-                            String hash = parser.getAttributeValue(null, HASH);
+                            String hash = parser.getAttributeValue(null, ID);
                             LinkContainer container = new LinkContainer();
                             container.hash = Integer.parseInt(hash);
                             map.put(context, container);
                             break;
                         }
-                        case PROVIDER_HASH:
+                        case PROVIDER_ID:
                         {
-                            String hash = parser.getAttributeValue(null, HASH);
+                            String hash = parser.getAttributeValue(null, ID);
                             map.get(context).hashes.add(Integer.parseInt(hash));
                             break;
                         }
@@ -339,7 +339,7 @@ public abstract class SaveLoad
     private static void addStandard(XmlSerializer serializer, Object object) throws IOException
     {
         serializer.attribute(null, CLASS, object.getClass().getName());
-        serializer.attribute(null, HASH, String.valueOf(object.hashCode()));
+        serializer.attribute(null, ID, String.valueOf(object.hashCode()));
     }
 
     /**
@@ -397,9 +397,9 @@ public abstract class SaveLoad
         serializer.startTag(null, PROVIDER_LIST);
         for (Map.Entry<Provider, Boolean> element : hashMap.entrySet())
         {
-            serializer.startTag(null, PROVIDER_HASH);
-            serializer.attribute(null, HASH, String.valueOf(element.getKey().hashCode()));
-            serializer.endTag(null, PROVIDER_HASH);
+            serializer.startTag(null, PROVIDER_ID);
+            serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+            serializer.endTag(null, PROVIDER_ID);
         }
         serializer.endTag(null, PROVIDER_LIST);
         serializer.endTag(null, tag);

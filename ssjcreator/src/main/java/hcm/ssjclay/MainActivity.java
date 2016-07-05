@@ -38,6 +38,7 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -173,14 +174,23 @@ public class MainActivity extends AppCompatActivity
             view.setMinimumHeight(height);
             view.setMinimumWidth(width);
         }
+        //necessary to reset tab strip
+        tabHost.getTabWidget().setStripEnabled(true);
+        int tab = tabHost.getCurrentTab();
+        tabHost.setCurrentTab(tabHost.getTabWidget().getTabCount() - 1);
+        tabHost.setCurrentTab(tab);
     }
 
     /**
      * @param tab int
      */
-    private void removeTab(int tab)
+    private void removeTab(final int tab)
     {
+        //necessary to reset tab strip
+        int current = tabHost.getCurrentTab();
+        tabHost.setCurrentTab(current == 1 ? 0 : 1);
         tabHost.getTabWidget().removeView(tabHost.getTabWidget().getChildTabViewAt(tab));
+        tabHost.setCurrentTab(current == 1 ? 1 : 0);
     }
 
     /**
@@ -342,7 +352,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        final AddDialog addDialog = new AddDialog();
         switch (item.getItemId())
         {
             case R.id.action_framework:
@@ -353,66 +362,37 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_sensors:
             {
-                addDialog.setTitleMessage(R.string.str_sensors);
-                addDialog.setOption(Builder.getInstance().sensors);
-                break;
+                showAddDialog(R.string.str_sensors, Builder.getInstance().sensors);
+                return true;
             }
             case R.id.action_providers:
             {
-                addDialog.setTitleMessage(R.string.str_providers);
-                addDialog.setOption(Builder.getInstance().sensorProviders);
-                break;
+                showAddDialog(R.string.str_providers, Builder.getInstance().sensorProviders);
+                return true;
             }
             case R.id.action_transformers:
             {
-                addDialog.setTitleMessage(R.string.str_transformers);
-                addDialog.setOption(Builder.getInstance().transformers);
-                break;
+                showAddDialog(R.string.str_transformers, Builder.getInstance().transformers);
+                return true;
             }
             case R.id.action_consumers:
             {
-                addDialog.setTitleMessage(R.string.str_consumers);
-                addDialog.setOption(Builder.getInstance().consumers);
-                break;
+                showAddDialog(R.string.str_consumers, Builder.getInstance().consumers);
+                return true;
             }
             case R.id.action_save:
             {
-                FileDialog fileDialog = new FileDialog();
-                fileDialog.setTitleMessage(R.string.str_save);
-                fileDialog.setType(FileDialog.Type.SAVE);
-                fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
+                showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
                 return true;
             }
             case R.id.action_load:
             {
-                final FileDialog fileDialog = new FileDialog();
-                fileDialog.setTitleMessage(R.string.str_load);
-                fileDialog.setType(FileDialog.Type.LOAD);
-                fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
-                Listener listener = new Listener()
-                {
-                    @Override
-                    public void onPositiveEvent(Object[] o)
-                    {
-                        fileDialog.removeListener(this);
-                        actualizeContent();
-                    }
-
-                    @Override
-                    public void onNegativeEvent(Object[] o)
-                    {
-                        addDialog.removeListener(this);
-                    }
-                };
-                fileDialog.addListener(listener);
+                showFileDialog(R.string.str_load, FileDialog.Type.LOAD, R.string.str_loadError);
                 return true;
             }
             case R.id.action_delete:
             {
-                FileDialog fileDialog = new FileDialog();
-                fileDialog.setTitleMessage(R.string.str_delete);
-                fileDialog.setType(FileDialog.Type.DELETE);
-                fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
+                showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
                 return true;
             }
             case R.id.action_clear:
@@ -421,11 +401,19 @@ public class MainActivity extends AppCompatActivity
                 actualizeContent();
                 return true;
             }
-            default:
-            {
-                return true;
-            }
         }
+        return true;
+    }
+
+    /**
+     * @param resource int
+     * @param list     ArrayList
+     */
+    private void showAddDialog(int resource, ArrayList<Class> list)
+    {
+        final AddDialog addDialog = new AddDialog();
+        addDialog.setTitleMessage(resource);
+        addDialog.setOption(list);
         Listener listener = new Listener()
         {
             @Override
@@ -443,7 +431,44 @@ public class MainActivity extends AppCompatActivity
         };
         addDialog.addListener(listener);
         addDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
-        return true;
+    }
+
+    /**
+     * @param title   int
+     * @param type    FileDialog.Type
+     * @param message int
+     */
+    private void showFileDialog(final int title, FileDialog.Type type, final int message)
+    {
+        final FileDialog fileDialog = new FileDialog();
+        fileDialog.setTitleMessage(title);
+        fileDialog.setType(type);
+        fileDialog.show(getSupportFragmentManager(), MainActivity.this.getClass().getSimpleName());
+        Listener listener = new Listener()
+        {
+            @Override
+            public void onPositiveEvent(Object[] o)
+            {
+                fileDialog.removeListener(this);
+                actualizeContent();
+            }
+
+            @Override
+            public void onNegativeEvent(Object[] o)
+            {
+                if (o != null)
+                {
+                    Log.e(getResources().getString(message));
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle(message)
+                            .setPositiveButton(R.string.str_ok, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }
+                fileDialog.removeListener(this);
+            }
+        };
+        fileDialog.addListener(listener);
     }
 
     /**

@@ -42,8 +42,10 @@ import android.widget.ListView;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 
+import hcm.ssj.core.Log;
 import hcm.ssjclay.R;
 import hcm.ssjclay.creator.SaveLoad;
 
@@ -53,7 +55,6 @@ import hcm.ssjclay.creator.SaveLoad;
  */
 public class FileDialog extends DialogFragment
 {
-    private final static int MAX_LENGTH = 50;
     private final static String DIR_1 = "SSJ", DIR_2 = "Creator", SUFFIX = ".xml";
 
     public enum Type
@@ -94,7 +95,8 @@ public class FileDialog extends DialogFragment
                                 {
                                     fileName += SUFFIX;
                                 }
-                                if (isValidFileName(fileName) && SaveLoad.save(new File(dir2, fileName)))
+                                File file = new File(dir2, fileName);
+                                if (isValidFileName(file) && SaveLoad.save(file))
                                 {
                                     for (Listener listener : alListeners)
                                     {
@@ -104,7 +106,7 @@ public class FileDialog extends DialogFragment
                                 {
                                     for (Listener listener : alListeners)
                                     {
-                                        listener.onNegativeEvent(null);
+                                        listener.onNegativeEvent(new Boolean[]{false});
                                     }
                                 }
                             }
@@ -148,7 +150,7 @@ public class FileDialog extends DialogFragment
                                         }
                                         for (Listener listener : alListeners)
                                         {
-                                            listener.onNegativeEvent(null);
+                                            listener.onNegativeEvent(new Boolean[]{false});
                                         }
                                         break;
                                     }
@@ -253,11 +255,19 @@ public class FileDialog extends DialogFragment
     }
 
     /**
-     * @param file String
+     * @param file File
      * @return boolean
      */
-    private boolean isValidFileName(String file)
+    private boolean isValidFileName(File file)
     {
-        return file.matches("^.*[^a-zA-Z0-9._-].*$") && file.length() <= MAX_LENGTH;
+        try
+        {
+            file.createNewFile();
+        } catch (IOException ex)
+        {
+            Log.e("could not create file");
+            return false;
+        }
+        return true;
     }
 }

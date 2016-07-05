@@ -42,6 +42,7 @@ import java.util.HashSet;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
+import hcm.ssj.core.Sensor;
 import hcm.ssjclay.creator.Linker;
 
 /**
@@ -149,16 +150,15 @@ public class PipeView extends ViewGroup
                             {
                                 //check for collision to add a connection
                                 Object object = view.getElement();
-                                if (object instanceof Provider)
+                                if (object instanceof Sensor)
                                 {
-                                    boolean found = addCollisionConnection(object, x, y, elementViewsSensor);
+                                    addCollisionConnection(object, x, y, elementViewsProvider, false);
+                                } else if (object instanceof Provider)
+                                {
+                                    boolean found = addCollisionConnection(object, x, y, elementViewsTransformer, true);
                                     if (!found)
                                     {
-                                        found = addCollisionConnection(object, x, y, elementViewsTransformer);
-                                    }
-                                    if (!found)
-                                    {
-                                        addCollisionConnection(object, x, y, elementViewsConsumer);
+                                        addCollisionConnection(object, x, y, elementViewsConsumer, true);
                                     }
                                 }
                             }
@@ -550,18 +550,24 @@ public class PipeView extends ViewGroup
      * @param x            int
      * @param y            int
      * @param elementViews ArrayList
+     * @param standard     boolean
      * @return boolean
      */
-    private boolean addCollisionConnection(Object object, int x, int y, ArrayList<ElementView> elementViews)
+    private boolean addCollisionConnection(Object object, int x, int y, ArrayList<ElementView> elementViews, boolean standard)
     {
         for (ElementView elementView : elementViews)
         {
             int colX = elementView.getGridX();
             int colY = elementView.getGridY();
-            boolean miss = (colX != x && colX != x + 1 && colY != y && colY != y + 1);
-            if (!miss)
+            if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
             {
-                Linker.getInstance().addProvider(elementView.getElement(), (Provider) object);
+                if (standard)
+                {
+                    Linker.getInstance().addProvider(elementView.getElement(), (Provider) object);
+                } else
+                {
+                    Linker.getInstance().addProvider(object, (Provider) elementView.getElement());
+                }
                 return true;
             }
         }
