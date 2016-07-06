@@ -25,7 +25,7 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<RelativeLayout
+<TableLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -36,64 +36,60 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="hcm.ssjclay.MainActivity">
 
-    <TableLayout
+    <TableRow
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:gravity="center">
 
-        <TableRow
+        <TabHost
+            android:id="@+id/id_tabHost"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="0.85"
-            android:baselineAligned="false"
-            android:gravity="center">
+            android:layout_weight="1">
 
-            <TabHost
-                android:id="@+id/id_tabHost"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:weightSum="1">
 
-                <LinearLayout
+                <TabWidget
+                    android:id="@android:id/tabs"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:weightSum="1">
+                    android:layout_height="wrap_content"
+                    android:showDividers="middle"
+                    android:tabStripEnabled="true">
+                </TabWidget>
 
-                    <TabWidget
-                        android:id="@android:id/tabs"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:showDividers="middle"
-                        android:tabStripEnabled="true">
-                    </TabWidget>
+                <FrameLayout
+                    android:id="@android:id/tabcontent"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
 
-                    <FrameLayout
-                        android:id="@android:id/tabcontent"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1">
+                </FrameLayout>
+            </LinearLayout>
+        </TabHost>
 
-                    </FrameLayout>
-                </LinearLayout>
-            </TabHost>
+    </TableRow>
 
-        </TableRow>
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:weightSum="1">
 
-        <TableRow
+        <ImageButton
+            android:id="@+id/id_imageButton"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="0.15"
-            android:baselineAligned="false"
-            android:gravity="center"
-            android:weightSum="1">
-
-            <Button
-                android:id="@+id/id_button_start"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:onClick="buttonPressed"
-                android:text="@string/str_start"/>
-        </TableRow>
-    </TableLayout>
-</RelativeLayout>
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:contentDescription="@string/str_pipe"
+            android:onClick="buttonPressed"
+            android:src="@android:drawable/ic_media_play"/>
+    </TableRow>
+</TableLayout>

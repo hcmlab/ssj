@@ -39,9 +39,6 @@
     <string name="str_load">Load</string>
     <string name="str_delete">Delete</string>
     <string name="str_clear">Clear</string>
-    <!--pipe button-->
-    <string name="str_start">Start</string>
-    <string name="str_stop">Stop</string>
     <!--dialogs-->
     <string name="str_ok">OK</string>
     <string name="str_cancel">Cancel</string>

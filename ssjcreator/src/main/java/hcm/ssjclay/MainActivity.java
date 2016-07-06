@@ -45,7 +45,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TabHost;
@@ -167,14 +167,6 @@ public class MainActivity extends AppCompatActivity
         });
         tabSpec.setIndicator(imageView);
         tabHost.addTab(tabSpec);
-        int height = tabHost.getHeight();
-        int width = tabHost.getWidth();
-        //expand to full size
-        if (height > 0 && width > 0)
-        {
-            view.setMinimumHeight(height);
-            view.setMinimumWidth(width);
-        }
         //necessary to reset tab strip
         tabHost.getTabWidget().setStripEnabled(true);
         int tab = tabHost.getCurrentTab();
@@ -204,24 +196,6 @@ public class MainActivity extends AppCompatActivity
         scrollViewConsole.addView(textViewConsole);
         //
         addTab(scrollViewConsole, getResources().getString(R.string.str_console), android.R.drawable.ic_menu_info_details);
-        //workaround to adjust size retroactively
-        Handler handler = new Handler(Looper.getMainLooper());
-        Thread thread = new Thread()
-        {
-            /**
-             *
-             */
-            @Override
-            public void run()
-            {
-                if (tabHost != null && scrollViewConsole != null)
-                {
-                    scrollViewConsole.setMinimumHeight(tabHost.getHeight());
-                    scrollViewConsole.setMinimumWidth(tabHost.getWidth());
-                }
-            }
-        };
-        handler.postDelayed(thread, 200);
     }
 
     /**
@@ -267,7 +241,7 @@ public class MainActivity extends AppCompatActivity
     {
         switch (view.getId())
         {
-            case R.id.id_button_start:
+            case R.id.id_imageButton:
             {
                 handlePipe();
                 break;
@@ -298,7 +272,7 @@ public class MainActivity extends AppCompatActivity
                     //add components
                     Linker.getInstance().buildPipe();
                     //change button text
-                    changeButtonText(R.string.str_stop);
+                    changeImageButton(android.R.drawable.ic_media_pause);
                     //start framework
                     framework.Start();
                     //run
@@ -313,7 +287,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     ready = true;
                     //change button text
-                    changeButtonText(R.string.str_start);
+                    changeImageButton(android.R.drawable.ic_media_play);
                 }
             }.start();
         } else
@@ -323,18 +297,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * @param idText int
+     * @param idImage int
      */
-    private void changeButtonText(final int idText)
+    private void changeImageButton(final int idImage)
     {
-        final Button button = (Button) findViewById(R.id.id_button_start);
-        if (button != null)
+        final ImageButton imageButton = (ImageButton) findViewById(R.id.id_imageButton);
+        if (imageButton != null)
         {
-            button.post(new Runnable()
+            imageButton.post(new Runnable()
             {
                 public void run()
                 {
-                    button.setText(idText);
+                    imageButton.setImageResource(idImage);
                 }
             });
         }
@@ -541,6 +515,10 @@ public class MainActivity extends AppCompatActivity
         super.onResume();
         mlam.dispatchResume();
         actualizeContent();
+        if (!ready)
+        {
+            changeImageButton(android.R.drawable.ic_media_pause);
+        }
     }
 
     /**
