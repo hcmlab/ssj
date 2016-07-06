@@ -367,7 +367,10 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     public void onPreviewFrame(byte[] data, Camera cam)
     {
         swapBuffer(data, true);
-        camera.addCallbackBuffer(data);
+        if (camera != null)
+        {
+            camera.addCallbackBuffer(data);
+        }
     }
 
     /**

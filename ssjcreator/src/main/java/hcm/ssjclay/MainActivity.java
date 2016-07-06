@@ -46,7 +46,6 @@ import android.view.MenuItem;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TabHost.TabSpec;
@@ -59,6 +58,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import hcm.ssj.camera.CameraPainter;
+import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
@@ -142,6 +142,38 @@ public class MainActivity extends AppCompatActivity
         pipeView.addViewListener(viewListener);
         //handle permissions
         checkPermissions();
+        //set exception handler
+        setExceptionHandler();
+    }
+
+    /**
+     *
+     */
+    private void setExceptionHandler()
+    {
+        ExceptionHandler exceptionHandler = new ExceptionHandler()
+        {
+            @Override
+            public void handle(final String location, final String msg, final Throwable t)
+            {
+                Monitor.notifyMonitor();
+                Handler handler = new Handler(Looper.getMainLooper());
+                Runnable runnable = new Runnable()
+                {
+                    public void run()
+                    {
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle(R.string.str_error)
+                                .setMessage(location + ": " + msg)
+                                .setPositiveButton(R.string.str_ok, null)
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+                };
+                handler.post(runnable);
+            }
+        };
+        TheFramework.getFramework().setExceptionHandler(exceptionHandler);
     }
 
     /**
@@ -152,8 +184,6 @@ public class MainActivity extends AppCompatActivity
     private void addTab(final View view, final String tabName, int image)
     {
         final TabSpec tabSpec = tabHost.newTabSpec(tabName);
-        ImageView imageView = new ImageView(MainActivity.this);
-        imageView.setImageResource(image);
         tabSpec.setContent(new TabHost.TabContentFactory()
         {
             /**
@@ -165,7 +195,7 @@ public class MainActivity extends AppCompatActivity
                 return view;
             }
         });
-        tabSpec.setIndicator(imageView);
+        tabSpec.setIndicator("", getResources().getDrawable(image));
         tabHost.addTab(tabSpec);
         //necessary to reset tab strip
         tabHost.getTabWidget().setStripEnabled(true);
