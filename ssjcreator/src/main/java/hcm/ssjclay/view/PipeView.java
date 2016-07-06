@@ -27,7 +27,6 @@
 package hcm.ssjclay.view;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -45,7 +44,6 @@ import java.util.HashSet;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 import hcm.ssjclay.creator.Linker;
 
@@ -356,8 +354,7 @@ public class PipeView extends ViewGroup
     {
         //elements
         int initHeight = 0;
-        int orientation = SSJApplication.getAppContext().getResources().getConfiguration().orientation;
-        int divider = orientation == Configuration.ORIENTATION_PORTRAIT ? 4 : 3;
+        int divider = 4;
         setLayouts(elementViewsSensor, initHeight);
         initHeight += gridHeight / divider;
         setLayouts(elementViewsProvider, initHeight);
