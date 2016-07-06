@@ -226,9 +226,13 @@ public class OptionTable
                 @Override
                 public void afterTextChanged(Editable s)
                 {
-                    if (!option.setValue(s.toString()))
+                    String input = s.toString();
+                    if (!input.isEmpty())
                     {
-                        Log.w("Invalid input for option value: " + s.toString());
+                        if (!option.setValue(input))
+                        {
+                            Log.w("Invalid input for option value: " + s.toString());
+                        }
                     }
                 }
             });

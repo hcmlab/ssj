@@ -83,6 +83,7 @@ public class MainActivity extends AppCompatActivity
     private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
     private final static int FIX_TAB_NUMBER = 2;
     //console
+    private ScrollView scrollViewConsole = null;
     private TextView textViewConsole = null;
     private String strLogMsg = "";
     private Log.LogListener logListener = new Log.LogListener()
@@ -198,11 +199,11 @@ public class MainActivity extends AppCompatActivity
      */
     private void addTabConsole()
     {
-        final ScrollView scrollView = new ScrollView(MainActivity.this);
+        scrollViewConsole = new ScrollView(MainActivity.this);
         textViewConsole = new TextView(MainActivity.this);
-        scrollView.addView(textViewConsole);
+        scrollViewConsole.addView(textViewConsole);
         //
-        addTab(scrollView, getResources().getString(R.string.str_console), android.R.drawable.ic_menu_info_details);
+        addTab(scrollViewConsole, getResources().getString(R.string.str_console), android.R.drawable.ic_menu_info_details);
         //workaround to adjust size retroactively
         Handler handler = new Handler(Looper.getMainLooper());
         Thread thread = new Thread()
@@ -213,8 +214,11 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run()
             {
-                scrollView.setMinimumHeight(tabHost.getHeight());
-                scrollView.setMinimumWidth(tabHost.getWidth());
+                if (tabHost != null && scrollViewConsole != null)
+                {
+                    scrollViewConsole.setMinimumHeight(tabHost.getHeight());
+                    scrollViewConsole.setMinimumWidth(tabHost.getWidth());
+                }
             }
         };
         handler.postDelayed(thread, 200);
@@ -228,7 +232,9 @@ public class MainActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= 23)
         {
             //dangerous permissions
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS)
                     != PackageManager.PERMISSION_GRANTED
                     || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
                     != PackageManager.PERMISSION_GRANTED
@@ -238,6 +244,7 @@ public class MainActivity extends AppCompatActivity
                     != PackageManager.PERMISSION_GRANTED)
             {
                 ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.BODY_SENSORS,
                         Manifest.permission.CAMERA,
                         Manifest.permission.RECORD_AUDIO,
