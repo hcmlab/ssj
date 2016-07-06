@@ -114,7 +114,6 @@ public class PipeView extends ViewGroup
             private ImageView imageView;
             private boolean dropped;
             private float xCoord, yCoord;
-            private final int binSize = 128;
 
             /**
              * @param event DragEvent
@@ -213,10 +212,10 @@ public class PipeView extends ViewGroup
                             imageView = null;
                         }
                         imageView = new ImageView(getContext());
-                        imageView.setImageResource(hcm.ssjclay.R.drawable.ic_delete);
+                        imageView.setImageResource(android.R.drawable.ic_menu_delete);
                         int width = gridWPix;
                         int height = gridHPix;
-                        imageView.layout(width - binSize, height - binSize, width, height);
+                        imageView.layout(width - (GRID_SIZE * 3), height - (GRID_SIZE * 3), width, height);
                         addView(imageView);
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
