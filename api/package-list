@@ -1,10 +1,11 @@
 hcm.ssj.androidSensor
-hcm.ssj.androidSensor.transformer
+hcm.ssj.angelsensor
 hcm.ssj.audio
 hcm.ssj.biosig
 hcm.ssj.body
 hcm.ssj.camera
 hcm.ssj.core
+hcm.ssj.core.option
 hcm.ssj.core.stream
 hcm.ssj.empatica
 hcm.ssj.evaluator
@@ -12,9 +13,11 @@ hcm.ssj.event
 hcm.ssj.file
 hcm.ssj.glass
 hcm.ssj.glass.transformer
+hcm.ssj.gps
 hcm.ssj.graphic
 hcm.ssj.ioput
 hcm.ssj.mobileSSI
+hcm.ssj.msband
 hcm.ssj.myo
 hcm.ssj.praat
 hcm.ssj.praat.helper
