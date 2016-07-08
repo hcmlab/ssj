@@ -26,6 +26,7 @@
 
 package hcm.ssj.msband;
 
+import android.content.SharedPreferences;
 import android.os.SystemClock;
 
 import com.microsoft.band.BandClient;
@@ -68,15 +69,12 @@ public class MSBand extends Sensor implements HeartRateConsentListener
 			{
 				if (ConnectionState.CONNECTED == client.connect().await())
 				{
-					//HR
-//					if(client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
-//						client.getSensorManager().registerHeartRateEventListener(listener);
-//						client.getSensorManager().registerRRIntervalEventListener(listener);
-//					} else {
-//						client.getSensorManager().requestHeartRateConsent(SSJApplication.getAppContext(), this);
-//					}
+					SharedPreferences pref = SSJApplication.getAppContext().getSharedPreferences("p7", 0);
+					pref.edit().putInt("c3", 1).commit();
 
 					// Register listeners
+					client.getSensorManager().registerHeartRateEventListener(listener);
+					client.getSensorManager().registerRRIntervalEventListener(listener);
 					client.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.MS200);
 					client.getSensorManager().registerSkinTemperatureEventListener(listener);
 					client.getSensorManager().registerAccelerometerEventListener(listener, SampleRate.MS16);
