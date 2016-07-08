@@ -69,6 +69,19 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	private double airPressure;
 	private double temperature;
 	private long calories;
+	private long distance;
+	private float speed;
+	private float pace;
+	private long steps;
+	private double interBeatInterval; // time between two heart beats
+	private long flightsAscended;
+	private long flightsDescended;
+	private long steppingGain;
+	private long steppingLoss;
+	private long stepsAscended;
+	private long stepsDescended;
+	private long altimeterGain;
+	private long altimeterLoss;
 
 	public boolean receivedData;
 
@@ -92,6 +105,13 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		airPressure = 0;
 		temperature = 0;
 		calories = 0;
+		distance = 0;
+		speed = 0;
+		pace = 0;
+		steps = 0;
+		interBeatInterval = 0;
+		flightsAscended = 0;
+		flightsDescended = 0;
 
 		receivedData = false;
 	}
@@ -164,28 +184,38 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	@Override
 	public void onBandDistanceChanged(BandDistanceEvent bandDistanceEvent)
 	{
-		bandDistanceEvent.getTotalDistance();
-		bandDistanceEvent.getSpeed();
-		bandDistanceEvent.getPace();
-		bandDistanceEvent.getMotionType();
+		receivedData = true;
+		distance = bandDistanceEvent.getTotalDistance();
+		speed = bandDistanceEvent.getSpeed();
+		pace = bandDistanceEvent.getPace();
 	}
 
 	@Override
 	public void onBandPedometerChanged(BandPedometerEvent bandPedometerEvent)
 	{
-		bandPedometerEvent.getTotalSteps();
+		receivedData = true;
+		steps = bandPedometerEvent.getTotalSteps();
 	}
 
 	@Override
 	public void onBandRRIntervalChanged(BandRRIntervalEvent bandRRIntervalEvent)
 	{
-		bandRRIntervalEvent.getInterval();
+		receivedData = true;
+		interBeatInterval = bandRRIntervalEvent.getInterval();
 	}
 
 	@Override
 	public void onBandAltimeterChanged(BandAltimeterEvent bandAltimeterEvent)
 	{
-
+		receivedData = true;
+		flightsAscended = bandAltimeterEvent.getFlightsAscended();
+		flightsDescended = bandAltimeterEvent.getFlightsDescended();
+		steppingGain = bandAltimeterEvent.getSteppingGain();
+		steppingLoss = bandAltimeterEvent.getSteppingLoss();
+		stepsAscended = bandAltimeterEvent.getStepsAscended();
+		stepsDescended = bandAltimeterEvent.getStepsDescended();
+		altimeterGain = bandAltimeterEvent.getTotalGain();
+		altimeterLoss = bandAltimeterEvent.getTotalLoss();
 	}
 
 	public int getGsr()
@@ -251,5 +281,70 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	public long getCalories()
 	{
 		return calories;
+	}
+
+	public long getDistance()
+	{
+		return distance;
+	}
+
+	public float getSpeed()
+	{
+		return speed;
+	}
+
+	public float getPace()
+	{
+		return pace;
+	}
+
+	public long getSteps()
+	{
+		return steps;
+	}
+
+	public double getInterBeatInterval()
+	{
+		return interBeatInterval;
+	}
+
+	public long getFlightsAscended()
+	{
+		return flightsAscended;
+	}
+
+	public long getFlightsDescended()
+	{
+		return flightsDescended;
+	}
+
+	public long getSteppingGain()
+	{
+		return steppingGain;
+	}
+
+	public long getSteppingLoss()
+	{
+		return steppingLoss;
+	}
+
+	public long getStepsAscended()
+	{
+		return stepsAscended;
+	}
+
+	public long getStepsDescended()
+	{
+		return stepsDescended;
+	}
+
+	public long getAltimeterGain()
+	{
+		return altimeterGain;
+	}
+
+	public long getAltimeterLoss()
+	{
+		return altimeterLoss;
 	}
 }

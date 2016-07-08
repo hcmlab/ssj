@@ -47,9 +47,9 @@ import hcm.ssj.core.Sensor;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class MSBand extends Sensor implements HeartRateConsentListener
+public class MSBand extends Sensor
 {
-	protected BandClient client;
+	protected BandClient   client;
 	protected BandListener listener;
 
 	@Override
@@ -109,7 +109,7 @@ public class MSBand extends Sensor implements HeartRateConsentListener
 					}
 				}
 			}
-			catch (InterruptedException|BandException e)
+			catch (InterruptedException | BandException e)
 			{
 				Log.e("Error while connection to ms band", e);
 			}
@@ -132,23 +132,10 @@ public class MSBand extends Sensor implements HeartRateConsentListener
 				client.getSensorManager().unregisterAllListeners();
 				client.disconnect().await();
 			}
-			catch (InterruptedException|BandException e)
+			catch (InterruptedException | BandException e)
 			{
 				Log.e("Error while disconnecting from ms band", e);
 			}
-		}
-	}
-
-	@Override
-	public void userAccepted(boolean b)
-	{
-		try
-		{
-			client.getSensorManager().registerHeartRateEventListener(listener);
-		}
-		catch (BandException e)
-		{
-			Log.w("did not get consent for HR sensor", e);
 		}
 	}
 }

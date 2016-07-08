@@ -1,5 +1,5 @@
 /*
- * SkinTempProvider.java
+ * PedometerProvider.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -35,7 +35,7 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class SkinTempProvider extends SensorProvider
+public class PedometerProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
@@ -51,9 +51,9 @@ public class SkinTempProvider extends SensorProvider
 
 	protected BandListener _listener;
 
-	public SkinTempProvider()
+	public PedometerProvider()
 	{
-		_name = "SSJ_sensor_MSBand_SkinTemp";
+		_name = "SSJ_sensor_MSBand_Pedometer";
 	}
 
 	@Override
@@ -65,8 +65,8 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
-		float[] out = stream_out.ptrF();
-		out[0] = _listener.getSkinTemperature();
+		long[] out = stream_out.ptrL();
+		out[0] = _listener.getSteps();
 
 		return true;
 	}
@@ -86,13 +86,13 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.FLOAT;
+		return Cons.Type.LONG;
 	}
 
 	@Override
 	protected void defineOutputClasses(Stream stream_out)
 	{
 		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "SkinTemperature";
+		stream_out.dataclass[0] = "Steps";
 	}
 }

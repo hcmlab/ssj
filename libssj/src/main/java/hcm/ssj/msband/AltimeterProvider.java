@@ -1,5 +1,5 @@
 /*
- * SkinTempProvider.java
+ * AltimeterProvider.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -35,7 +35,7 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class SkinTempProvider extends SensorProvider
+public class AltimeterProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
@@ -51,9 +51,9 @@ public class SkinTempProvider extends SensorProvider
 
 	protected BandListener _listener;
 
-	public SkinTempProvider()
+	public AltimeterProvider()
 	{
-		_name = "SSJ_sensor_MSBand_SkinTemp";
+		_name = "SSJ_sensor_MSBand_Altimeter";
 	}
 
 	@Override
@@ -65,8 +65,15 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
-		float[] out = stream_out.ptrF();
-		out[0] = _listener.getSkinTemperature();
+		long[] out = stream_out.ptrL();
+		out[0] = _listener.getFlightsAscended();
+		out[1] = _listener.getFlightsDescended();
+		out[2] = _listener.getSteppingGain();
+		out[3] = _listener.getSteppingLoss();
+		out[4] = _listener.getStepsAscended();
+		out[5] = _listener.getStepsDescended();
+		out[6] = _listener.getAltimeterGain();
+		out[7] = _listener.getAltimeterLoss();
 
 		return true;
 	}
@@ -80,19 +87,26 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected int getSampleDimension()
 	{
-		return 1;
+		return 8;
 	}
 
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.FLOAT;
+		return Cons.Type.LONG;
 	}
 
 	@Override
 	protected void defineOutputClasses(Stream stream_out)
 	{
 		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "SkinTemperature";
+		stream_out.dataclass[0] = "FlightsAscended";
+		stream_out.dataclass[1] = "FlightsDescended";
+		stream_out.dataclass[2] = "SteppingGain";
+		stream_out.dataclass[3] = "SteppingLoss";
+		stream_out.dataclass[4] = "StepsAscended";
+		stream_out.dataclass[5] = "StepsDescended";
+		stream_out.dataclass[6] = "AltimeterGain";
+		stream_out.dataclass[7] = "AltimeterLoss";
 	}
 }

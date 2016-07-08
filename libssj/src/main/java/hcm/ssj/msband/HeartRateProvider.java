@@ -39,7 +39,7 @@ public class HeartRateProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 5, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
 
 		private Options()
 		{

@@ -1,5 +1,5 @@
 /*
- * SkinTempProvider.java
+ * IBIProvider.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -35,11 +35,11 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class SkinTempProvider extends SensorProvider
+public class IBIProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 30, Integer.class, "");
 
 		private Options()
 		{
@@ -51,9 +51,9 @@ public class SkinTempProvider extends SensorProvider
 
 	protected BandListener _listener;
 
-	public SkinTempProvider()
+	public IBIProvider()
 	{
-		_name = "SSJ_sensor_MSBand_SkinTemp";
+		_name = "SSJ_sensor_MSBand_IBI";
 	}
 
 	@Override
@@ -65,8 +65,8 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
-		float[] out = stream_out.ptrF();
-		out[0] = _listener.getSkinTemperature();
+		double[] out = stream_out.ptrD();
+		out[0] = _listener.getInterBeatInterval();
 
 		return true;
 	}
@@ -86,13 +86,13 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.FLOAT;
+		return Cons.Type.DOUBLE;
 	}
 
 	@Override
 	protected void defineOutputClasses(Stream stream_out)
 	{
 		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "SkinTemperature";
+		stream_out.dataclass[0] = "IBI";
 	}
 }

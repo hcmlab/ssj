@@ -1,5 +1,5 @@
 /*
- * SkinTempProvider.java
+ * AccelerationProvider.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -35,11 +35,11 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class SkinTempProvider extends SensorProvider
+public class AccelerationProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 62, Integer.class, "");
 
 		private Options()
 		{
@@ -51,9 +51,9 @@ public class SkinTempProvider extends SensorProvider
 
 	protected BandListener _listener;
 
-	public SkinTempProvider()
+	public AccelerationProvider()
 	{
-		_name = "SSJ_sensor_MSBand_SkinTemp";
+		_name = "SSJ_sensor_MSBand_Acceleration";
 	}
 
 	@Override
@@ -66,7 +66,9 @@ public class SkinTempProvider extends SensorProvider
 	protected boolean process(Stream stream_out)
 	{
 		float[] out = stream_out.ptrF();
-		out[0] = _listener.getSkinTemperature();
+		out[0] = _listener.getAccelerationX();
+		out[1] = _listener.getAccelerationY();
+		out[2] = _listener.getAccelerationZ();
 
 		return true;
 	}
@@ -80,7 +82,7 @@ public class SkinTempProvider extends SensorProvider
 	@Override
 	protected int getSampleDimension()
 	{
-		return 1;
+		return 3;
 	}
 
 	@Override
@@ -93,6 +95,8 @@ public class SkinTempProvider extends SensorProvider
 	protected void defineOutputClasses(Stream stream_out)
 	{
 		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "SkinTemperature";
+		stream_out.dataclass[0] = "AccX";
+		stream_out.dataclass[1] = "AccY";
+		stream_out.dataclass[2] = "AccZ";
 	}
 }

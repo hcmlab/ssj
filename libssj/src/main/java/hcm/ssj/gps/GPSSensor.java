@@ -46,8 +46,9 @@ public class GPSSensor extends Sensor
 {
 	public class Options extends OptionList
 	{
-		public final Option<Long>  minTime     = new Option<>("minTime", 200L, Long.class, "Minimum time interval between location updates, in milliseconds");
-		public final Option<Float> minDistance = new Option<>("minDistance", 1f, Float.class, "Minimum distance between location updates, in meters");
+		public final Option<Long>    minTime     = new Option<>("minTime", 200L, Long.class, "Minimum time interval between location updates, in milliseconds");
+		public final Option<Float>   minDistance = new Option<>("minDistance", 1f, Float.class, "Minimum distance between location updates, in meters");
+		public final Option<Boolean> ignoreData  = new Option<>("ignoreData", false, Boolean.class, "Set to 'true' if no error should occur when no data is received from gps");
 
 		private Options()
 		{
@@ -99,7 +100,7 @@ public class GPSSensor extends Sensor
 				}
 			}
 
-			if (listener.receivedData)
+			if (listener.receivedData || options.ignoreData.get())
 			{
 				connected = true;
 			}
