@@ -35,10 +35,8 @@ import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.InvalidBandVersionException;
 import com.microsoft.band.sensors.GsrSampleRate;
+import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.SampleRate;
-
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -48,7 +46,7 @@ import hcm.ssj.core.Sensor;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class MSBand extends Sensor
+public class MSBand extends Sensor implements HeartRateConsentListener
 {
 	protected BandClient client;
 	protected BandListener listener;
@@ -68,20 +66,26 @@ public class MSBand extends Sensor
 
 			try
 			{
-				if (ConnectionState.CONNECTED == client.connect().await(Cons.WAIT_SENSOR_CONNECT, TimeUnit.MILLISECONDS))
+				if (ConnectionState.CONNECTED == client.connect().await())
 				{
+					//HR
+//					if(client.getSensorManager().getCurrentHeartRateConsent() == UserConsent.GRANTED) {
+//						client.getSensorManager().registerHeartRateEventListener(listener);
+//						client.getSensorManager().registerRRIntervalEventListener(listener);
+//					} else {
+//						client.getSensorManager().requestHeartRateConsent(SSJApplication.getAppContext(), this);
+//					}
+
 					// Register listeners
-					client.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.MS5000);
+					client.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.MS200);
 					client.getSensorManager().registerSkinTemperatureEventListener(listener);
-					client.getSensorManager().registerHeartRateEventListener(listener);
-					client.getSensorManager().registerAccelerometerEventListener(listener, SampleRate.MS128);
-					client.getSensorManager().registerGyroscopeEventListener(listener, SampleRate.MS128);
+					client.getSensorManager().registerAccelerometerEventListener(listener, SampleRate.MS16);
+					client.getSensorManager().registerGyroscopeEventListener(listener, SampleRate.MS16);
 					client.getSensorManager().registerAmbientLightEventListener(listener);
 					client.getSensorManager().registerBarometerEventListener(listener);
 					client.getSensorManager().registerCaloriesEventListener(listener);
 					client.getSensorManager().registerDistanceEventListener(listener);
 					client.getSensorManager().registerPedometerEventListener(listener);
-					client.getSensorManager().registerRRIntervalEventListener(listener);
 					client.getSensorManager().registerAltimeterEventListener(listener);
 
 					// Wait for values
@@ -107,7 +111,7 @@ public class MSBand extends Sensor
 					}
 				}
 			}
-			catch (InterruptedException|BandException|TimeoutException e)
+			catch (InterruptedException|BandException e)
 			{
 				Log.e("Error while connection to ms band", e);
 			}
@@ -134,6 +138,19 @@ public class MSBand extends Sensor
 			{
 				Log.e("Error while disconnecting from ms band", e);
 			}
+		}
+	}
+
+	@Override
+	public void userAccepted(boolean b)
+	{
+		try
+		{
+			client.getSensorManager().registerHeartRateEventListener(listener);
+		}
+		catch (BandException e)
+		{
+			Log.w("did not get consent for HR sensor", e);
 		}
 	}
 }
