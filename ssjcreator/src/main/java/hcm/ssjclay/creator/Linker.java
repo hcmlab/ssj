@@ -27,7 +27,7 @@
 package hcm.ssjclay.creator;
 
 import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
@@ -49,7 +49,7 @@ public class Linker
 {
     private static Linker instance = null;
     protected LinkedHashSet<SensorProvider> hsSensorProviders = new LinkedHashSet<>();
-    protected LinkedHashMap<Sensor, SensorProvider> hmSensors = new LinkedHashMap<>();
+    protected LinkedHashSet<ContainerElement<Sensor>> hsSensorElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
 //    private LinkedHashSet<Container<EventConsumer>> hsEventConsumers = new LinkedHashSet<>(); //doesn't work yet, because of EventChannel and optional frame size
@@ -84,7 +84,7 @@ public class Linker
     public void clear()
     {
         hsSensorProviders.clear();
-        hmSensors.clear();
+        hsSensorElements.clear();
         hsTransformerElements.clear();
         hsConsumerElements.clear();
     }
@@ -97,7 +97,13 @@ public class Linker
     {
         if (o instanceof Sensor)
         {
-            return new Provider[]{hmSensors.get(o)};
+            for (ContainerElement element : hsSensorElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    return element.getHmProviders().keySet().toArray();
+                }
+            }
         } else if (o instanceof Transformer)
         {
             for (ContainerElement element : hsTransformerElements)
@@ -128,27 +134,40 @@ public class Linker
         switch (type)
         {
             case Sensor:
-                return hmSensors.keySet().toArray();
+            {
+                Object[] objects = new Object[hsSensorElements.size()];
+                int i = 0;
+                for (ContainerElement element : hsSensorElements)
+                {
+                    objects[i] = element.getElement();
+                    i++;
+                }
+                return objects;
+            }
             case SensorProvider:
                 return hsSensorProviders.toArray();
             case Transformer:
-                Object[] ots = new Object[hsTransformerElements.size()];
+            {
+                Object[] objects = new Object[hsTransformerElements.size()];
                 int i = 0;
                 for (ContainerElement element : hsTransformerElements)
                 {
-                    ots[i] = element.getElement();
+                    objects[i] = element.getElement();
                     i++;
                 }
-                return ots;
+                return objects;
+            }
             case Consumer:
-                Object[] ocs = new Object[hsConsumerElements.size()];
-                int j = 0;
+            {
+                Object[] objects = new Object[hsConsumerElements.size()];
+                int i = 0;
                 for (ContainerElement element : hsConsumerElements)
                 {
-                    ocs[j] = element.getElement();
-                    j++;
+                    objects[i] = element.getElement();
+                    i++;
                 }
-                return ocs;
+                return objects;
+            }
             default:
                 throw new RuntimeException();
         }
@@ -162,23 +181,27 @@ public class Linker
         TheFramework framework = TheFramework.getFramework();
         //add to framework
         //sensors and sensorProviders
-        for (Map.Entry<Sensor, SensorProvider> element : hmSensors.entrySet())
+        for (ContainerElement<Sensor> element : hsSensorElements)
         {
-            Sensor sensor = element.getKey();
-            SensorProvider sensorProvider = element.getValue();
-            if (sensorProvider != null)
+            Sensor sensor = element.getElement();
+            HashMap<Provider, Boolean> hmProviders = element.getHmProviders();
+            if (hmProviders.size() > 0)
             {
                 framework.addSensor(sensor);
-                sensor.addProvider(sensorProvider);
-                //activate in transformer
-                for (ContainerElement<Transformer> element2 : hsTransformerElements)
+                for (Map.Entry<Provider, Boolean> entry : hmProviders.entrySet())
                 {
-                    element2.setAdded(sensorProvider);
-                }
-                //activate in consumer
-                for (ContainerElement<Consumer> element2 : hsConsumerElements)
-                {
-                    element2.setAdded(sensorProvider);
+                    SensorProvider sensorProvider = (SensorProvider) entry.getKey();
+                    sensor.addProvider(sensorProvider);
+                    //activate in transformer
+                    for (ContainerElement<Transformer> element2 : hsTransformerElements)
+                    {
+                        element2.setAdded(sensorProvider);
+                    }
+                    //activate in consumer
+                    for (ContainerElement<Consumer> element2 : hsConsumerElements)
+                    {
+                        element2.setAdded(sensorProvider);
+                    }
                 }
             }
         }
@@ -241,7 +264,14 @@ public class Linker
         //sensor
         else if (o instanceof Sensor)
         {
-            return !hmSensors.containsKey(o) && hmSensors.put((Sensor) o, null) == null;
+            for (ContainerElement<Sensor> element : hsSensorElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    return false;
+                }
+            }
+            return hsSensorElements.add(new ContainerElement<>((Sensor) o));
         }
         //transformer
         else if (o instanceof Transformer)
@@ -279,20 +309,22 @@ public class Linker
         //sensor
         if (o instanceof Sensor)
         {
-            return hmSensors.remove(o) != null;
+            for (ContainerElement<Sensor> element : hsSensorElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    return hsSensorElements.remove(element);
+                }
+            }
         }
         //sensorProvider
         else if (o instanceof SensorProvider)
         {
             SensorProvider sensorProvider = (SensorProvider) o;
             //also remove in sensors
-            for (Map.Entry<Sensor, SensorProvider> entry : hmSensors.entrySet())
+            for (ContainerElement<Sensor> element : hsSensorElements)
             {
-                SensorProvider value = entry.getValue();
-                if (value != null && value.equals(sensorProvider))
-                {
-                    hmSensors.put(entry.getKey(), null);
-                }
+                element.removeProvider(sensorProvider);
             }
             //also remove in transformers
             for (ContainerElement<Transformer> element : hsTransformerElements)
@@ -376,9 +408,12 @@ public class Linker
         //add to sensor
         if (o instanceof Sensor && provider instanceof SensorProvider)
         {
-            if (hmSensors.containsKey(o))
+            for (ContainerElement<Sensor> element : hsSensorElements)
             {
-                return hmSensors.put((Sensor) o, (SensorProvider) provider) == null;
+                if (element.getElement().equals(o))
+                {
+                    return element.addProvider(provider);
+                }
             }
         }
         //add to transformer
@@ -442,7 +477,13 @@ public class Linker
         //remove from sensor
         if (o instanceof Sensor && provider instanceof SensorProvider)
         {
-            return hmSensors.put((Sensor) o, null) != null;
+            for (ContainerElement<Sensor> element : hsSensorElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    return element.removeProvider(provider);
+                }
+            }
         }
         //remove from transformer
         if (o instanceof Transformer)
@@ -593,12 +634,9 @@ public class Linker
     public int getNumberOfConnections()
     {
         int number = 0;
-        for (Map.Entry<Sensor, SensorProvider> element : hmSensors.entrySet())
+        for (ContainerElement<Sensor> element : hsSensorElements)
         {
-            if (element.getValue() != null)
-            {
-                number++;
-            }
+            number += element.getHmProviders().size();
         }
         for (ContainerElement<Transformer> element : hsTransformerElements)
         {
@@ -620,8 +658,23 @@ public class Linker
         //sensor
         if (o instanceof Sensor)
         {
-            SensorProvider sensorProvider = hmSensors.get(o);
-            return sensorProvider != null ? new int[]{sensorProvider.hashCode()} : null;
+            for (ContainerElement<Sensor> element : hsSensorElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    Object[] objects = element.getHmProviders().keySet().toArray();
+                    if (objects.length > 0)
+                    {
+                        int[] hashes = new int[objects.length];
+                        for (int i = 0; i < objects.length; i++)
+                        {
+                            hashes[i] = objects[i].hashCode();
+                        }
+                        return hashes;
+                    }
+                    return null;
+                }
+            }
         }
         //transformer
         else if (o instanceof Transformer)

@@ -41,7 +41,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +63,7 @@ public abstract class SaveLoad
 {
     private final static String ROOT = "ssjSaveFile";
     private final static String VERSION = "version";
-    private final static String VERSION_NUMBER = "0.1";
+    private final static String VERSION_NUMBER = "0.2";
     private final static String FRAMEWORK = "framework";
     private final static String SENSOR_PROVIDER_LIST = "sensorProviderList";
     private final static String SENSOR_LIST = "sensorList";
@@ -130,35 +129,23 @@ public abstract class SaveLoad
             serializer.endTag(null, SENSOR_PROVIDER_LIST);
             //sensors
             serializer.startTag(null, SENSOR_LIST);
-            LinkedHashMap<Sensor, SensorProvider> hmSensors = Linker.getInstance().hmSensors;
-            for (Map.Entry<Sensor, SensorProvider> element : hmSensors.entrySet())
+            for (ContainerElement<Sensor> containerElement : Linker.getInstance().hsSensorElements)
             {
-                Sensor sensor = element.getKey();
-                serializer.startTag(null, SENSOR);
-                addStandard(serializer, sensor);
-                addOptions(serializer, sensor);
-                SensorProvider sensorProvider = element.getValue();
-                if (sensorProvider != null)
-                {
-                    serializer.startTag(null, PROVIDER_ID);
-                    serializer.attribute(null, ID, String.valueOf(sensorProvider.hashCode()));
-                    serializer.endTag(null, PROVIDER_ID);
-                }
-                serializer.endTag(null, SENSOR);
+                addContainerElement(serializer, SENSOR, containerElement, false);
             }
             serializer.endTag(null, SENSOR_LIST);
             //transformers
             serializer.startTag(null, TRANSFORMER_LIST);
             for (ContainerElement<Transformer> containerElement : Linker.getInstance().hsTransformerElements)
             {
-                addContainerElement(serializer, TRANSFORMER, containerElement);
+                addContainerElement(serializer, TRANSFORMER, containerElement, true);
             }
             serializer.endTag(null, TRANSFORMER_LIST);
             //consumers
             serializer.startTag(null, CONSUMER_LIST);
             for (ContainerElement<Consumer> containerElement : Linker.getInstance().hsConsumerElements)
             {
-                addContainerElement(serializer, CONSUMER, containerElement);
+                addContainerElement(serializer, CONSUMER, containerElement, true);
             }
             serializer.endTag(null, CONSUMER_LIST);
             //finish document
@@ -385,13 +372,17 @@ public abstract class SaveLoad
      * @param serializer       XmlSerializer
      * @param tag              String
      * @param containerElement ContainerElement
+     * @param withAttributes   boolean
      */
-    private static void addContainerElement(XmlSerializer serializer, String tag, ContainerElement<?> containerElement) throws IOException
+    private static void addContainerElement(XmlSerializer serializer, String tag, ContainerElement<?> containerElement, boolean withAttributes) throws IOException
     {
         serializer.startTag(null, tag);
         addStandard(serializer, containerElement.getElement());
-        serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
-        serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
+        if (withAttributes)
+        {
+            serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
+            serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
+        }
         addOptions(serializer, containerElement.getElement());
         HashMap<Provider, Boolean> hashMap = containerElement.getHmProviders();
         serializer.startTag(null, PROVIDER_LIST);

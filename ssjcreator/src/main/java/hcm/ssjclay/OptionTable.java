@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 
 /**
@@ -226,14 +225,7 @@ public class OptionTable
                 @Override
                 public void afterTextChanged(Editable s)
                 {
-                    String input = s.toString();
-                    if (!input.isEmpty())
-                    {
-                        if (!option.setValue(input))
-                        {
-                            Log.w("Invalid input for option value: " + s.toString());
-                        }
-                    }
+                    option.setValue(s.toString());
                 }
             });
         }

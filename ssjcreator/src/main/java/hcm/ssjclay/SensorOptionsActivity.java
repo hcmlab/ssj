@@ -60,7 +60,7 @@ public class SensorOptionsActivity extends AppCompatActivity
             TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
             tableLayout.setStretchAllColumns(true);
             //add possible providers
-            tableLayout.addView(ProviderTable.createTable(this, ListView.CHOICE_MODE_SINGLE, innerObject, false, true));
+            tableLayout.addView(ProviderTable.createTable(this, ListView.CHOICE_MODE_MULTIPLE, innerObject, true, true));
             //add options
             if (options != null && options.length > 0)
             {

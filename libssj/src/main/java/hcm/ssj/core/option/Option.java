@@ -100,137 +100,187 @@ public class Option<T>
      */
     public final boolean setValue(String value)
     {
-        if (!value.isEmpty())
+        if (value != null)
         {
-            if (type == Byte.class)
+            if (!value.isEmpty())
             {
-                set((T) Byte.valueOf(value));
-                return true;
-            } else if (type == Short.class)
-            {
-                set((T) Short.valueOf(value));
-                return true;
-            } else if (type == Integer.class)
-            {
-                set((T) Integer.valueOf(value));
-                return true;
-            } else if (type == Long.class)
-            {
-                set((T) Long.valueOf(value));
-                return true;
-            } else if (type == Float.class)
-            {
-                set((T) Float.valueOf(value));
-                return true;
-            } else if (type == Double.class)
-            {
-                set((T) Double.valueOf(value));
-                return true;
-            } else if (type == Character.class)
-            {
-                set((T) (Character) value.charAt(0));
-                return true;
-            } else if (type == String.class)
+                if (!value.equals("-"))
+                {
+                    //number primitives
+                    if (type == Byte.class)
+                    {
+                        set((T) Byte.valueOf(value));
+                        return true;
+                    }
+                    if (type == Short.class)
+                    {
+                        set((T) Short.valueOf(value));
+                        return true;
+                    }
+                    if (type == Integer.class)
+                    {
+                        set((T) Integer.valueOf(value));
+                        return true;
+                    }
+                    if (type == Long.class)
+                    {
+                        set((T) Long.valueOf(value));
+                        return true;
+                    }
+                    if (type == Float.class)
+                    {
+                        set((T) Float.valueOf(value));
+                        return true;
+                    }
+                    if (type == Double.class)
+                    {
+                        set((T) Double.valueOf(value));
+                        return true;
+                    }
+                    //arrays
+                    if (type.isArray())
+                    {
+                        String[] strings = value.replace("[", "").replace("]", "").split(", ");
+                        //check strings for plausibility
+                        if (strings.length <= 0)
+                        {
+                            return false;
+                        }
+                        Class<?> componentType = type.getComponentType();
+                        if (componentType.isPrimitive())
+                        {
+                            //check strings for plausibility
+                            for (String string : strings)
+                            {
+                                if (string.isEmpty())
+                                {
+                                    return false;
+                                }
+                            }
+                            if (char.class.isAssignableFrom(componentType))
+                            {
+                                char[] ar = new char[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = strings[i].charAt(0);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            //check strings for plausibility
+                            for (String string : strings)
+                            {
+                                if (string.equals("-"))
+                                {
+                                    return false;
+                                }
+                            }
+                            if (boolean.class.isAssignableFrom(componentType))
+                            {
+                                boolean[] ar = new boolean[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Boolean.parseBoolean(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            if (byte.class.isAssignableFrom(componentType))
+                            {
+                                byte[] ar = new byte[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Byte.parseByte(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            if (double.class.isAssignableFrom(componentType))
+                            {
+                                double[] ar = new double[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Double.parseDouble(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            if (float.class.isAssignableFrom(componentType))
+                            {
+                                float[] ar = new float[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Float.parseFloat(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            if (int.class.isAssignableFrom(componentType))
+                            {
+                                int[] ar = new int[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Integer.parseInt(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            if (long.class.isAssignableFrom(componentType))
+                            {
+                                long[] ar = new long[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Long.parseLong(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                            if (short.class.isAssignableFrom(componentType))
+                            {
+                                short[] ar = new short[strings.length];
+                                for (int i = 0; i < strings.length; i++)
+                                {
+                                    ar[i] = Short.parseShort(strings[i]);
+                                }
+                                set((T) ar);
+                                return true;
+                            }
+                        }
+                        if (String.class.isAssignableFrom(componentType))
+                        {
+                            set((T) strings);
+                            return true;
+                        }
+                    }
+                }
+                //enums
+                if (type.isEnum())
+                {
+                    set((T) Enum.valueOf((Class<Enum>) type, value));
+                    return true;
+                }
+                //other primitives
+                if (type == Character.class)
+                {
+                    set((T) (Character) value.charAt(0));
+                    return true;
+                }
+                if (type == String.class)
+                {
+                    set((T) value);
+                    return true;
+                }
+                if (type == Boolean.class)
+                {
+                    set((T) Boolean.valueOf(value));
+                    return true;
+                }
+            }
+            if (type == String.class)
             {
                 set((T) value);
                 return true;
-            } else if (type == Boolean.class)
-            {
-                set((T) Boolean.valueOf(value));
-                return true;
-            } else if (type.isArray())
-            {
-                String[] strings = value.replace("[", "").replace("]", "").split(", ");
-                Class<?> componentType = type.getComponentType();
-                if (componentType.isPrimitive())
-                {
-                    if (boolean.class.isAssignableFrom(componentType))
-                    {
-                        boolean[] ar = new boolean[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Boolean.parseBoolean(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (byte.class.isAssignableFrom(componentType))
-                    {
-                        byte[] ar = new byte[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Byte.parseByte(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (char.class.isAssignableFrom(componentType))
-                    {
-                        char[] ar = new char[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = strings[i].charAt(0);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (double.class.isAssignableFrom(componentType))
-                    {
-                        double[] ar = new double[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Double.parseDouble(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (float.class.isAssignableFrom(componentType))
-                    {
-                        float[] ar = new float[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Float.parseFloat(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (int.class.isAssignableFrom(componentType))
-                    {
-                        int[] ar = new int[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Integer.parseInt(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (long.class.isAssignableFrom(componentType))
-                    {
-                        long[] ar = new long[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Long.parseLong(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    } else if (short.class.isAssignableFrom(componentType))
-                    {
-                        short[] ar = new short[strings.length];
-                        for (int i = 0; i < strings.length; i++)
-                        {
-                            ar[i] = Short.parseShort(strings[i]);
-                        }
-                        set((T) ar);
-                        return true;
-                    }
-                } else if (String.class.isAssignableFrom(componentType))
-                {
-                    set((T) strings);
-                    return true;
-                }
-            } else if (type.isEnum())
-            {
-                set((T) Enum.valueOf((Class<Enum>) type, value));
-                return true;
             }
-        } else if (type == String.class)
-        {
-            set((T) value);
-            return true;
         }
         return false;
     }
