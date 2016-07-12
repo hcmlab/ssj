@@ -101,7 +101,7 @@ android {
 dependencies {
 
     if(lesser) {
-        compile fileTree(dir: 'libs', include: ['*.jar'], excludes: ['TarsosDSP-Android-2.1.jar', 'GraphView-4.1.0.j1.jar'])
+        compile fileTree(dir: 'libs', include: ['*.jar'], excludes: ['TarsosDSP-Android-2.1.jar', 'GraphView.jar'])
     }
     else {
         compile fileTree(dir: 'libs', include: ['*.jar'])
