@@ -177,8 +177,6 @@ public class SignalPainter extends Consumer
         _view.getLegendRenderer().setVisible(options.legend.get());
         _view.getLegendRenderer().setFixedPosition(10, 10);
 
-        _view.getGridLabelRenderer().setLabelVerticalWidth(100);
-
         createSeries(_view, stream_in);
     }
 

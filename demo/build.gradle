@@ -46,9 +46,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.2.1'
-
     releaseCompile project(path: ':libssj', configuration: 'release')
     debugCompile project(path: ':libssj', configuration: 'debug')
 }
