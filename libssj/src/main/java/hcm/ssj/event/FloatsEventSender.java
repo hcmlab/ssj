@@ -101,6 +101,11 @@ public class FloatsEventSender extends Consumer
                     if (j < stream_in[0].dim - 1)
                         ev.msg += " ";
                 }
+
+                if (i < stream_in[0].num - 1)
+                {
+                    ev.msg += " ";
+                }
             }
         }
 

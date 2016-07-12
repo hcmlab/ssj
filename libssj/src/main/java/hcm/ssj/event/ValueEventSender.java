@@ -119,6 +119,11 @@ public class ValueEventSender extends Consumer
 					ev.msg += " ";
 				}
 			}
+
+			if (i < stream_in[0].num - 1)
+			{
+				ev.msg += " ";
+			}
 		}
 
 		_evchannel_out.pushEvent(ev);
