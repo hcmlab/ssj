@@ -37,6 +37,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import hcm.ssjclay.R;
 import hcm.ssjclay.creator.Builder;
@@ -149,6 +151,14 @@ public class AddDialog extends DialogFragment
     public void setOption(ArrayList<Class> clazzes)
     {
         this.clazzes = clazzes;
+        Collections.sort(this.clazzes, new Comparator<Class>()
+        {
+            @Override
+            public int compare(Class lhs, Class rhs)
+            {
+                return lhs.getSimpleName().compareTo(rhs.getSimpleName());
+            }
+        });
     }
 
     /**
