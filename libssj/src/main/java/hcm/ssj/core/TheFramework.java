@@ -52,6 +52,7 @@ public class TheFramework
         public final Option<Boolean> netSyncListen = new Option<>("netSyncListen", false, Boolean.class, "set true if this is not the server pipe");
         public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Integer.class, "");
         public final Option<String> logfile = new Option<>("logfile", null, String.class, "");
+        public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
 
         /**
          *
@@ -498,7 +499,7 @@ public class TheFramework
 
         _components.clear();
         _buffer.clear();
-        Log.getInstance().clear();
+        Log.getInstance().invalidate();
 
         _instance = null;
     }
@@ -521,7 +522,7 @@ public class TheFramework
         if (options.logfile.get() != null)
         {
             Log.getInstance().saveToFile(options.logfile.get());
-            Log.getInstance().reset();
+            Log.getInstance().clear();
         }
     }
 

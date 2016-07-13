@@ -42,6 +42,14 @@ import hcm.ssj.file.LoggingConstants;
  */
 public class Log
 {
+    public enum Level
+    {
+        VERBOSE(2), DEBUG(3), INFO(4), WARNING(5), ERROR(6);
+
+        Level(int i) {val = i;}
+        public final int val;
+    }
+
     /**
      * Interface to register listeners to
      */
@@ -83,14 +91,14 @@ public class Log
         return instance;
     }
 
-    public void reset()
+    public void clear()
     {
         buffer.clear();
     }
 
-    public void clear()
+    public void invalidate()
     {
-        reset();
+        clear();
         instance = null;
     }
 
@@ -147,6 +155,9 @@ public class Log
 
     private void log(int type, String msg, Throwable tr)
     {
+        if(type < frame.options.loglevel.get().val)
+            return;
+
         String str;
         double time = (frame == null) ? 0 : frame.getTime();
 
