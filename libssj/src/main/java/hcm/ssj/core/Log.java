@@ -93,7 +93,10 @@ public class Log
 
     public void clear()
     {
-        buffer.clear();
+        synchronized (this)
+        {
+            buffer.clear();
+        }
     }
 
     public void invalidate()
@@ -114,18 +117,21 @@ public class Log
 
             StringBuilder builder = new StringBuilder();
 
-            Iterator<Entry> iter = buffer.iterator();
-            while(iter.hasNext())
+            synchronized (this)
             {
-                Entry e = iter.next();
+                Iterator<Entry> iter = buffer.iterator();
+                while (iter.hasNext())
+                {
+                    Entry e = iter.next();
 
-                builder.setLength(0);
-                builder.append(nf.format(e.t));
-                builder.append("\t");
-                builder.append(e.msg);
-                builder.append("\r\n");
+                    builder.setLength(0);
+                    builder.append(nf.format(e.t));
+                    builder.append("\t");
+                    builder.append(e.msg);
+                    builder.append("\r\n");
 
-                fos.write(builder.toString().getBytes());
+                    fos.write(builder.toString().getBytes());
+                }
             }
 
             fos.close();
@@ -155,7 +161,7 @@ public class Log
 
     private void log(int type, String msg, Throwable tr)
     {
-        if(type < frame.options.loglevel.get().val)
+        if(frame != null && type < frame.options.loglevel.get().val)
             return;
 
         String str;
