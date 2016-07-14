@@ -44,7 +44,7 @@ public class Log
 {
     public enum Level
     {
-        VERBOSE(2), DEBUG(3), INFO(4), WARNING(5), ERROR(6);
+        VERBOSE(2), DEBUG(3), INFO(4), WARNING(5), ERROR(6), NONE(99);
 
         Level(int i) {val = i;}
         public final int val;
