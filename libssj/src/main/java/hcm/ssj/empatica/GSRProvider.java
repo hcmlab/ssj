@@ -55,7 +55,7 @@ public class GSRProvider extends SensorProvider
 
 	public GSRProvider()
 	{
-		_name = "SSJ_sensor_Empatica_GSR";
+		_name = "Empatica_GSR";
 	}
 
 	@Override

@@ -60,7 +60,7 @@ public class BluetoothReader extends Sensor {
     protected BluetoothConnection _conn;
 
     public BluetoothReader() {
-        _name = "SSJ_consumer_BluetoothReader";
+        _name = "BluetoothReader";
     }
 
     @Override

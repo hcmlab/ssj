@@ -53,7 +53,7 @@ public class AltimeterProvider extends SensorProvider
 
 	public AltimeterProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Altimeter";
+		_name = "MSBand_Altimeter";
 	}
 
 	@Override

@@ -45,7 +45,7 @@ import hcm.ssj.test.Logger;
  */
 public class testBluetoothServer extends ApplicationTestCase<Application> {
 
-    String _name = "SSJ_test_BLServer";
+    String _name = "BLServer";
 
     public testBluetoothServer() {
         super(Application.class);

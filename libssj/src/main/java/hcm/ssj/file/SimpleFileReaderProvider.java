@@ -72,7 +72,7 @@ public class SimpleFileReaderProvider extends SensorProvider
     public SimpleFileReaderProvider()
     {
         super();
-        _name = "SSJ_provider_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

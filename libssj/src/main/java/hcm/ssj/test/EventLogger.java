@@ -48,7 +48,7 @@ public class EventLogger extends EventHandler
 
     public EventLogger()
     {
-        _name = "SSJ_econsumer_EventLogger";
+        _name = "EventLogger";
     }
 
     int _lastBehavEventID = -1;

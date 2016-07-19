@@ -74,7 +74,7 @@ public class AvgVar extends Transformer
      */
     public AvgVar()
     {
-        _name = "SSJ_transformer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

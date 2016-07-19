@@ -77,7 +77,7 @@ public class MvgMinMax extends Transformer
 
 	public MvgMinMax()
 	{
-		_name = "SSJ_transformer_MvgMinMax";
+		_name = "MvgMinMax";
 	}
 
 	@Override

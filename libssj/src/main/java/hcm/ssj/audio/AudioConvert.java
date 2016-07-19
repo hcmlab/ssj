@@ -52,7 +52,7 @@ public class AudioConvert extends Transformer {
 
     public AudioConvert()
     {
-        _name = "SSJ_transformer_AudioConvert";
+        _name = "AudioConvert";
     }
 
     @Override

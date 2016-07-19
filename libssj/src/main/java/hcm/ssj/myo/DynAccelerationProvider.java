@@ -64,7 +64,7 @@ public class DynAccelerationProvider extends SensorProvider
 
 	public DynAccelerationProvider()
 	{
-		_name = "SSJ_sensor_Myo_DynAcceleration";
+		_name = "Myo_DynAcceleration";
 	}
 
 	@Override

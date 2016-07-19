@@ -84,7 +84,7 @@ public class SignalPainter extends Consumer
 
     public SignalPainter()
     {
-        _name = "SSJ_consumer_SignalPainter";
+        _name = "SignalPainter";
     }
 
     /**

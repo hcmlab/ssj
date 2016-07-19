@@ -60,7 +60,7 @@ public class Energy extends Transformer {
 
     public Energy()
     {
-        _name = "SSJ_transformer_Energy";
+        _name = "Energy";
     }
 
     @Override

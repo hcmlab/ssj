@@ -55,7 +55,7 @@ public class EMGProvider extends SensorProvider
 
 	public EMGProvider()
 	{
-        _name = "SSJ_sensor_Myo_EMG";
+        _name = "Myo_EMG";
 	}
 
     @Override

@@ -96,7 +96,7 @@ public class CameraWriter extends Mp4Writer
      */
     public CameraWriter()
     {
-        _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

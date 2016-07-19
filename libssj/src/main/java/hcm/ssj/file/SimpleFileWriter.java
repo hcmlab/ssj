@@ -76,7 +76,7 @@ public class SimpleFileWriter extends Consumer
 
     public SimpleFileWriter()
     {
-        _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

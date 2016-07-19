@@ -63,7 +63,7 @@ public class GPSSensor extends Sensor
 
 	public GPSSensor()
 	{
-		_name = "SSJ_sensor_GPS";
+		_name = "GPS";
 	}
 
 	@Override

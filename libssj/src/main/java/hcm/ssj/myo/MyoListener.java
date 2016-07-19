@@ -65,7 +65,7 @@ public class MyoListener implements DeviceListener
 
 	int emg[] = new int[16];
 
-	private static final String TAG = "SSJ_sensor_MyoListener";
+	private static final String TAG = "MyoListener";
 
 	public MyoListener()
 	{

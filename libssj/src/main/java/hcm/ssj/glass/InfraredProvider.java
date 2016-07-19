@@ -62,7 +62,7 @@ public class InfraredProvider extends SensorProvider
 
     public InfraredProvider()
     {
-        _name = "SSJ_provider_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

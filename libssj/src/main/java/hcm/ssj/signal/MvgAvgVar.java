@@ -73,7 +73,7 @@ public class MvgAvgVar extends Transformer
 
 	public MvgAvgVar()
 	{
-		_name = "SSJ_transformer_MvgAvgVar";
+		_name = "MvgAvgVar";
 	}
 
 	@Override

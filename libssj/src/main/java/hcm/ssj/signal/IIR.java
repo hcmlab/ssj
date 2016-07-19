@@ -45,7 +45,7 @@ public class IIR extends Transformer
 
 	public IIR()
 	{
-		_name = "SSJ_transformer_IIR";
+		_name = "IIR";
 	}
 
 	public void setCoefficients(Matrix<Float> coefficients)

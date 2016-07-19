@@ -71,7 +71,7 @@ public class Myo extends Sensor
 
 	public Myo()
 	{
-		_name = "SSJ_sensor_Myo";
+		_name = "Myo";
 	}
 
 	@Override

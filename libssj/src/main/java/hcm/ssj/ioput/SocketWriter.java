@@ -73,7 +73,7 @@ public class SocketWriter extends Consumer {
 
     public SocketWriter()
     {
-        _name = "SSJ_consumer_SocketWriter";
+        _name = "SocketWriter";
     }
 
     @Override

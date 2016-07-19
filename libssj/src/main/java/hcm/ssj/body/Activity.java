@@ -54,7 +54,7 @@ public class Activity extends Transformer {
 
     public Activity()
     {
-        _name = "SSJ_transformer_Activity";
+        _name = "Activity";
     }
 
     float _vel[];

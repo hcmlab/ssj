@@ -55,7 +55,7 @@ public class TemperatureProvider extends SensorProvider
 
 	public TemperatureProvider()
 	{
-		_name = "SSJ_sensor_Empatica_Temp";
+		_name = "Empatica_Temp";
 	}
 
 	@Override

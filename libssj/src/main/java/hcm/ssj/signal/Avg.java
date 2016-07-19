@@ -51,7 +51,7 @@ public class Avg extends Transformer {
 
     public Avg()
     {
-        _name = "SSJ_transformer_Avg";
+        _name = "Avg";
     }
 
     @Override

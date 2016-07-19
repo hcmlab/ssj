@@ -82,7 +82,7 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     public AndroidSensor()
     {
         super();
-        _name = "SSJ_sensor_Android";
+        _name = "Android";
     }
 
     /**
@@ -99,7 +99,7 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
                 options.sensorType.set(sensorTypeDefault);
             }
             sensorType = options.sensorType.get();
-            _name = "SSJ_sensor_" + this.sensorType.getName();
+            _name = this.sensorType.getName();
             listener = new SensorListener(this.sensorType);
             mSensorManager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
             mSensor = mSensorManager.getDefaultSensor(this.sensorType.getType());

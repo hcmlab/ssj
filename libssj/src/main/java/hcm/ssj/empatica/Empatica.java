@@ -89,7 +89,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 
 	public Empatica()
 	{
-		_name = "SSJ_sensor_Empatica";
+		_name = "Empatica";
 		empaticaInitialized = false;
 	}
 

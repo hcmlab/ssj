@@ -56,7 +56,7 @@ public class BatteryProvider extends SensorProvider
 	public BatteryProvider()
 	{
 
-		_name = "SSJ_sensor_Empatica_Battery";
+		_name = "Empatica_Battery";
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public class BluetoothEventWriter extends EventHandler
     int _evID[];
 
     public BluetoothEventWriter() {
-        _name = "SSJ_consumer_BluetoothEventWriter";
+        _name = "BluetoothEventWriter";
     }
 
     @Override

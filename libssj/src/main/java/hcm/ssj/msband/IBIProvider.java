@@ -53,7 +53,7 @@ public class IBIProvider extends SensorProvider
 
 	public IBIProvider()
 	{
-		_name = "SSJ_sensor_MSBand_IBI";
+		_name = "MSBand_IBI";
 	}
 
 	@Override

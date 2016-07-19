@@ -59,7 +59,7 @@ public class Intensity extends Transformer {
 
     public Intensity()
     {
-        _name = "SSJ_transformer_IntensityPraat";
+        _name = "IntensityPraat";
     }
 
     @Override

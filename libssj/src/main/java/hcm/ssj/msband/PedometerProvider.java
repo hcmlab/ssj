@@ -53,7 +53,7 @@ public class PedometerProvider extends SensorProvider
 
 	public PedometerProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Pedometer";
+		_name = "MSBand_Pedometer";
 	}
 
 	@Override

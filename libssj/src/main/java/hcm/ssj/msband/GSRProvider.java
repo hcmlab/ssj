@@ -53,7 +53,7 @@ public class GSRProvider extends SensorProvider
 
 	public GSRProvider()
 	{
-		_name = "SSJ_sensor_MSBand_GSR";
+		_name = "MSBand_GSR";
 	}
 
 	@Override

@@ -73,7 +73,7 @@ public class Butfilt extends Transformer
 
 	public Butfilt()
 	{
-		_name = "SSJ_transformer_Butfilt";
+		_name = "Butfilt";
 	}
 
 	protected Matrix<Float> getCoefficients(double sr)

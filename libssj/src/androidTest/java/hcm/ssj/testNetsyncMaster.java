@@ -40,7 +40,7 @@ import hcm.ssj.test.Logger;
  */
 public class testNetsyncMaster extends ApplicationTestCase<Application> {
 
-    String _name = "SSJ_test_NetyncMaster";
+    String _name = "NetyncMaster";
 
     public testNetsyncMaster() {
         super(Application.class);

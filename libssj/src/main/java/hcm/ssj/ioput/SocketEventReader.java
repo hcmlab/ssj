@@ -77,7 +77,7 @@ public class SocketEventReader extends EventHandler
 
     public SocketEventReader()
     {
-        _name = "SSJ_ehandler_SocketEventReader";
+        _name = "SocketEventReader";
     }
 
     @Override

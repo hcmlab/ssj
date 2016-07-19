@@ -76,7 +76,7 @@ public class BluetoothEventReader extends EventHandler
 
     public BluetoothEventReader()
     {
-        _name = "SSJ_ehandler_BluetoothEventReader";
+        _name = "BluetoothEventReader";
     }
 
     @Override

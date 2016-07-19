@@ -76,7 +76,7 @@ public class SimpleFileReader extends Sensor
      */
     public SimpleFileReader()
     {
-        _name = "SSJ_sensor_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

@@ -66,7 +66,7 @@ public class BluetoothProvider extends SensorProvider
 
     public BluetoothProvider()
     {
-        _name = "SSJ_consumer_BluetoothReader_Data";
+        _name = "BluetoothReader_Data";
     }
 
     @Override

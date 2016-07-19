@@ -82,7 +82,7 @@ public class MvgNorm extends Transformer
 
 	public MvgNorm()
 	{
-		_name = "SSJ_transformer_MvgNorm";
+		_name = "MvgNorm";
 	}
 
 	@Override

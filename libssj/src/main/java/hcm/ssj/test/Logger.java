@@ -51,7 +51,7 @@ public class Logger extends Consumer
     public final Options options = new Options();
 
     public Logger() {
-        _name = "SSJ_consumer_Logger";
+        _name = "Logger";
     }
 
     @Override
