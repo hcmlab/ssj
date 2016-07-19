@@ -210,7 +210,7 @@ public class TheFramework
         Cons.Type type = p.getSampleType();
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, p);
         _buffer.add(buf);
         int buffer_id = _buffer.size() - 1;
         p.setBufferID(buffer_id);
@@ -235,7 +235,7 @@ public class TheFramework
         Cons.Type type = t.getOutputStream().type;
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, t);
         _buffer.add(buf);
         int buffer_id = _buffer.size() - 1;
         t.setBufferID(buffer_id);
@@ -365,31 +365,32 @@ public class TheFramework
         if (buffer_id < 0 || buffer_id >= _buffer.size())
             Log.w("cannot read from buffer " + buffer_id + ". Buffer does not exist.");
 
-        int res = _buffer.get(buffer_id).get(data, start_time, duration);
+        TimeBuffer buf = _buffer.get(buffer_id);
+        int res = buf.get(data, start_time, duration);
 
         switch (res)
         {
             case TimeBuffer.STATUS_INPUT_ARRAY_TOO_SMALL:
-                Log.w("input buffer too small");
+                Log.w(buf.getOwner().getComponentName(), "input buffer too small");
                 return false;
             case TimeBuffer.STATUS_DATA_EXCEEDS_BUFFER_SIZE:
-                Log.w("data exceeds buffers size");
+                Log.w(buf.getOwner().getComponentName(), "data exceeds buffers size");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_YET:
-                Log.w("data not in buffer yer");
+                Log.w(buf.getOwner().getComponentName(), "data not in buffer yer");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_ANYMORE:
-                Log.w("data not in buffer anymore");
+                Log.w(buf.getOwner().getComponentName(), "data not in buffer anymore");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_SMALL:
-                Log.w("requested duration too small");
+                Log.w(buf.getOwner().getComponentName(), "requested duration too small");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_LARGE:
-                Log.w("requested duration too large");
+                Log.w(buf.getOwner().getComponentName(), "requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
                 if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
-                    Log.w("unknown error occurred");
+                    Log.w(buf.getOwner().getComponentName(), "unknown error occurred");
                 return false;
         }
 
@@ -406,34 +407,35 @@ public class TheFramework
         if (buffer_id < 0 || buffer_id >= _buffer.size())
             Log.w("Invalid buffer");
 
-        int res = _buffer.get(buffer_id).get(data, startSample, numSamples);
+        TimeBuffer buf = _buffer.get(buffer_id);
+        int res = buf.get(data, startSample, numSamples);
 
         switch (res)
         {
             case TimeBuffer.STATUS_INPUT_ARRAY_TOO_SMALL:
-                Log.w("input buffer too small");
+                Log.w(buf.getOwner().getComponentName(), "input buffer too small");
                 return false;
             case TimeBuffer.STATUS_DATA_EXCEEDS_BUFFER_SIZE:
-                Log.w("data exceeds buffers size");
+                Log.w(buf.getOwner().getComponentName(), "data exceeds buffers size");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_YET:
-                Log.w("data not in buffer yet");
+                Log.w(buf.getOwner().getComponentName(), "data not in buffer yet");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_ANYMORE:
-                Log.w("data range (" + startSample + "," + (startSample + numSamples) + ") not in buffer anymore");
+                Log.w(buf.getOwner().getComponentName(), "data range (" + startSample + "," + (startSample + numSamples) + ") not in buffer anymore");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_SMALL:
-                Log.w("requested duration too small");
+                Log.w(buf.getOwner().getComponentName(), "requested duration too small");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_LARGE:
-                Log.w("requested duration too large");
+                Log.w(buf.getOwner().getComponentName(), "requested duration too large");
                 return false;
             case TimeBuffer.STATUS_UNKNOWN_DATA:
-                Log.w("requested data is unknown, probably caused by a delayed sensor start");
+                Log.w(buf.getOwner().getComponentName(), "requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
                 if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
-                    Log.w("unknown buffer error occurred");
+                    Log.w(buf.getOwner().getComponentName(), "unknown buffer error occurred");
                 return false;
         }
 
@@ -530,7 +532,7 @@ public class TheFramework
     {
         _isRunning = false;
 
-        Log.e("ERROR in " + location + " - " + message, e);
+        Log.e(location, message, e);
         log();
 
         if (_exceptionHandler != null)

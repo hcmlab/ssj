@@ -156,6 +156,9 @@ public abstract class Transformer extends Provider {
             frame = (double)_num_frame[0] / sources[0].getOutputStream().sr;
             delta = (double)_num_delta[0] / sources[0].getOutputStream().sr;
 
+            if(frame == 0)
+                throw new IllegalArgumentException("frame size too small");
+
             //give implementation a chance to react to window size
             init(frame, delta);
 
