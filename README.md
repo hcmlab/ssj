@@ -1,9 +1,9 @@
 ![Logo](/assets/logo_w100.png) 
-### Social Signal Interpretation for Java/Android
+### Social Signal Processing for Android
 
 Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken
 
-The Social Signal Interpretation for Java/Android (SSJ) framework is beeing developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+The Social Signal Processing for Java/Android (SSJ) framework is beeing developed at the Lab for Human Centered Multimedia of the University of Augsburg.
 SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a one-to-one port of SSI to Java, it is an approximation. Nevertheless, it borrows a lot of programming patterns from SSI and preserves the same vision for signal processing which makes SSI great. It than packages everything in a flexible, mobile friendly Java library which can be easily integrated into Android Apps.
 
 ### Features
