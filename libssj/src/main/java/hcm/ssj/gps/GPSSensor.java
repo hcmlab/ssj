@@ -100,7 +100,7 @@ public class GPSSensor extends Sensor
 				}
 			}
 
-			if (listener.receivedData || options.ignoreData.get())
+			if (listener.receivedData)
 			{
 				connected = true;
 			}
@@ -108,6 +108,11 @@ public class GPSSensor extends Sensor
 			{
 				Log.e("unable to connect to gps");
 			}
+		}
+
+		if (options.ignoreData.get() && connected == false)
+		{
+			connected = true;
 		}
 
 		return connected;
