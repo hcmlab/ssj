@@ -75,7 +75,7 @@ public class Configuration extends Command {
     public Configuration(Hub hub, final MyoListener listener, EmgMode emg, boolean imu, boolean gestures)
     {
         super(hub);
-        _name = "SSJ_sensor_Myo_Config";
+        _name = "Myo_Config";
 
         this.hub = hub;
         mListener = listener;

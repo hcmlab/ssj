@@ -67,7 +67,7 @@ public class Distance extends Transformer
      */
     public Distance()
     {
-        _name = "SSJ_transformer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

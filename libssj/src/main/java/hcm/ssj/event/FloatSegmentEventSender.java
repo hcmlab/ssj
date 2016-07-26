@@ -53,7 +53,7 @@ public class FloatSegmentEventSender extends EventConsumer
 
     public FloatSegmentEventSender()
     {
-        _name = "SSJ_consumer_FloatSegmentEventSender";
+        _name = "FloatSegmentEventSender";
         options.sender.set(_name);
     }
 

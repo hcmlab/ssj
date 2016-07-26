@@ -39,7 +39,7 @@ public class Microphone extends Sensor {
 
     public Microphone()
     {
-        _name = "SSJ_sensor_Microphone";
+        _name = "Microphone";
     }
 
     @Override

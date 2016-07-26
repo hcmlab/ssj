@@ -58,7 +58,7 @@ public class MobileSSIConsumer extends Consumer
 
     public MobileSSIConsumer()
     {
-        _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

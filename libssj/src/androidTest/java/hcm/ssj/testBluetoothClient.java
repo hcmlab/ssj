@@ -45,7 +45,7 @@ import hcm.ssj.ioput.BluetoothWriter;
  */
 public class testBluetoothClient extends ApplicationTestCase<Application> {
 
-    String _name = "SSJ_test_BLClient";
+    String _name = "BLClient";
 
     public testBluetoothClient() {
         super(Application.class);

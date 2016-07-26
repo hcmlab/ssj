@@ -55,7 +55,7 @@ public class ValueEventSender extends Consumer
 
 	public ValueEventSender()
 	{
-		_name = "SSJ_consumer_ValueEventSender";
+		_name = "ValueEventSender";
 		options.sender.set(_name);
 	}
 

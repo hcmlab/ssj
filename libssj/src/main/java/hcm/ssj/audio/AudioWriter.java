@@ -100,7 +100,7 @@ public class AudioWriter extends Mp4Writer
      */
     public AudioWriter()
     {
-        _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

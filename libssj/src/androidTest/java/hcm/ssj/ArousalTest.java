@@ -41,7 +41,7 @@ import hcm.ssj.test.Logger;
  */
 public class ArousalTest extends ApplicationTestCase<Application>
 {
-	String _name = "SSJ_test_Arousal";
+	String _name = "Arousal";
 
 	public ArousalTest()
 	{

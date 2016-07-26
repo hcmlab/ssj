@@ -38,7 +38,7 @@ public class GSRArousalCombination extends Transformer
 {
 	public GSRArousalCombination()
 	{
-		_name = "SSJ_transformer_GSRArousalCombination";
+		_name = "GSRArousalCombination";
 	}
 
 	@Override

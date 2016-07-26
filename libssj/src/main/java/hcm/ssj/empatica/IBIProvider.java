@@ -55,7 +55,7 @@ public class IBIProvider extends SensorProvider
 
 	public IBIProvider()
 	{
-		_name = "SSJ_sensor_Empatica_IBI";
+		_name = "Empatica_IBI";
 	}
 
 	@Override

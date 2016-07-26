@@ -54,7 +54,7 @@ public class InfraredSensor extends hcm.ssj.core.Sensor
      */
     public InfraredSensor()
     {
-        _name = "SSJ_sensor_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

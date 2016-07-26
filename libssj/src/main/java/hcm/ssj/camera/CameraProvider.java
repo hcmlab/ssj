@@ -72,7 +72,7 @@ public class CameraProvider extends SensorProvider
     public CameraProvider()
     {
         super();
-        _name = "SSJ_provider_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

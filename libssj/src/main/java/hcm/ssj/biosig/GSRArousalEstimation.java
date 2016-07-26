@@ -85,7 +85,7 @@ public class GSRArousalEstimation extends Transformer
 
 	public GSRArousalEstimation()
 	{
-		_name = "SSJ_transformer_GSRArousalEstimation";
+		_name = "GSRArousalEstimation";
 	}
 
 	@Override

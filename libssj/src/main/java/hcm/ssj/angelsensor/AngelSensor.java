@@ -68,7 +68,7 @@ public class AngelSensor extends Sensor
 
 	public AngelSensor()
 	{
-		_name = "SSJ_sensor_AngelSensor";
+		_name = "AngelSensor";
 		angelInitialized = false;
 	}
 

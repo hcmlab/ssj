@@ -53,7 +53,7 @@ public class BarometerProvider extends SensorProvider
 
 	public BarometerProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Barometer";
+		_name = "MSBand_Barometer";
 	}
 
 	@Override

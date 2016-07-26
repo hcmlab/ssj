@@ -63,7 +63,7 @@ public class Serializer extends Transformer
      */
     public Serializer()
     {
-        _name = "SSJ_transformer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

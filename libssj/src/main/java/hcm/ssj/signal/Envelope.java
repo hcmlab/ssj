@@ -65,7 +65,7 @@ public class Envelope extends Transformer {
 
     public Envelope()
     {
-        _name = "SSJ_transformer_Envelope";
+        _name = "Envelope";
     }
 
     @Override

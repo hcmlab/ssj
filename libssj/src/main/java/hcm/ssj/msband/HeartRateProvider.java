@@ -53,7 +53,7 @@ public class HeartRateProvider extends SensorProvider
 
 	public HeartRateProvider()
 	{
-		_name = "SSJ_sensor_MSBand_HeartRate";
+		_name = "MSBand_HeartRate";
 	}
 
 	@Override

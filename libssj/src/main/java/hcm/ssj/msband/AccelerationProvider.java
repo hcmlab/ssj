@@ -53,7 +53,7 @@ public class AccelerationProvider extends SensorProvider
 
 	public AccelerationProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Acceleration";
+		_name = "MSBand_Acceleration";
 	}
 
 	@Override

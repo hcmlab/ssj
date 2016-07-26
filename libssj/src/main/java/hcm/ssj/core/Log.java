@@ -42,6 +42,14 @@ import hcm.ssj.file.LoggingConstants;
  */
 public class Log
 {
+    public enum Level
+    {
+        VERBOSE(2), DEBUG(3), INFO(4), WARNING(5), ERROR(6), NONE(99);
+
+        Level(int i) {val = i;}
+        public final int val;
+    }
+
     /**
      * Interface to register listeners to
      */
@@ -83,14 +91,17 @@ public class Log
         return instance;
     }
 
-    public void reset()
-    {
-        buffer.clear();
-    }
-
     public void clear()
     {
-        reset();
+        synchronized (this)
+        {
+            buffer.clear();
+        }
+    }
+
+    public void invalidate()
+    {
+        clear();
         instance = null;
     }
 
@@ -106,18 +117,21 @@ public class Log
 
             StringBuilder builder = new StringBuilder();
 
-            Iterator<Entry> iter = buffer.iterator();
-            while(iter.hasNext())
+            synchronized (this)
             {
-                Entry e = iter.next();
+                Iterator<Entry> iter = buffer.iterator();
+                while (iter.hasNext())
+                {
+                    Entry e = iter.next();
 
-                builder.setLength(0);
-                builder.append(nf.format(e.t));
-                builder.append("\t");
-                builder.append(e.msg);
-                builder.append("\r\n");
+                    builder.setLength(0);
+                    builder.append(nf.format(e.t));
+                    builder.append("\t");
+                    builder.append(e.msg);
+                    builder.append("\r\n");
 
-                fos.write(builder.toString().getBytes());
+                    fos.write(builder.toString().getBytes());
+                }
             }
 
             fos.close();
@@ -130,14 +144,14 @@ public class Log
 
     private String getCaller()
     {
-        StackTraceElement element = Thread.currentThread().getStackTrace()[6];
+        StackTraceElement element = Thread.currentThread().getStackTrace()[5];
         return element.getClassName().replace("hcm.ssj.", "");
     }
 
-    private String buildEntry(String msg, Throwable tr)
+    private String buildEntry(String caller, String msg, Throwable tr)
     {
         StringBuilder builder = new StringBuilder();
-        builder.append('[').append(getCaller()).append("] ").append(msg);
+        builder.append('[').append(caller).append("] ").append(msg);
 
         if(tr != null)
             builder.append(":\n").append(android.util.Log.getStackTraceString(tr));
@@ -145,12 +159,15 @@ public class Log
         return builder.toString();
     }
 
-    private void log(int type, String msg, Throwable tr)
+    private void log(int type, String caller, String msg, Throwable tr)
     {
+        if(frame != null && type < frame.options.loglevel.get().val)
+            return;
+
         String str;
         double time = (frame == null) ? 0 : frame.getTime();
 
-        str = buildEntry(msg, tr);
+        str = buildEntry(caller, msg, tr);
         android.util.Log.println(type, Cons.LOGTAG, str);
         //send message to listeners
         if (hsLogListener.size() > 0) {
@@ -163,6 +180,11 @@ public class Log
         synchronized (this) {
             buffer.add(new Entry(time, str));
         }
+    }
+
+    private void log(int type, String msg, Throwable tr)
+    {
+        log(type, getCaller(), msg, tr);
     }
 
     /**
@@ -187,6 +209,14 @@ public class Log
     {
         getInstance().log(android.util.Log.DEBUG, msg, e);
     }
+    public static void d(String tag, String msg)
+    {
+        getInstance().log(android.util.Log.DEBUG, tag, msg, null);
+    }
+    public static void d(String tag, String msg, Throwable e)
+    {
+        getInstance().log(android.util.Log.DEBUG, tag, msg, e);
+    }
 
     //selective log variant
     public static void ds(String msg)
@@ -199,6 +229,16 @@ public class Log
         if (BuildConfig.DEBUG)
             getInstance().log(android.util.Log.DEBUG, msg, e);
     }
+    public static void ds(String tag, String msg)
+    {
+        if (BuildConfig.DEBUG)
+            getInstance().log(android.util.Log.DEBUG, tag, msg, null);
+    }
+    public static void ds(String tag, String msg, Throwable e)
+    {
+        if (BuildConfig.DEBUG)
+            getInstance().log(android.util.Log.DEBUG, tag, msg, e);
+    }
 
     public static void i(String msg)
     {
@@ -208,6 +248,14 @@ public class Log
     public static void i(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.INFO, msg, e);
+    }
+    public static void i(String tag, String msg)
+    {
+        getInstance().log(android.util.Log.INFO, tag, msg, null);
+    }
+    public static void i(String tag, String msg, Throwable e)
+    {
+        getInstance().log(android.util.Log.INFO, tag, msg, e);
     }
 
     public static void e(String msg)
@@ -219,6 +267,14 @@ public class Log
     {
         getInstance().log(android.util.Log.ERROR, msg, e);
     }
+    public static void e(String tag, String msg)
+    {
+        getInstance().log(android.util.Log.ERROR, tag, msg, null);
+    }
+    public static void e(String tag, String msg, Throwable e)
+    {
+        getInstance().log(android.util.Log.ERROR, tag, msg, e);
+    }
 
     public static void w(String msg)
     {
@@ -228,6 +284,14 @@ public class Log
     {
         getInstance().log(android.util.Log.WARN, msg, e);
     }
+    public static void w(String tag, String msg)
+    {
+        getInstance().log(android.util.Log.WARN, tag, msg, null);
+    }
+    public static void w(String tag, String msg, Throwable e)
+    {
+        getInstance().log(android.util.Log.WARN, tag, msg, e);
+    }
 
     public static void v(String msg)
     {
@@ -236,5 +300,13 @@ public class Log
     public static void v(String msg, Throwable e)
     {
         getInstance().log(android.util.Log.VERBOSE, msg, e);
+    }
+    public static void v(String tag, String msg)
+    {
+        getInstance().log(android.util.Log.VERBOSE, tag, msg, null);
+    }
+    public static void v(String tag, String msg, Throwable e)
+    {
+        getInstance().log(android.util.Log.VERBOSE, tag, msg, e);
     }
 }

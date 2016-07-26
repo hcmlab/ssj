@@ -61,8 +61,12 @@ public class TimeBuffer {
     private int _offsetSamples;
     private int _lastAccessedSample;
 
-    public TimeBuffer(double capacity, double sr, int dim, int bytesPerValue, Cons.Type type)
+    private Provider _owner;
+
+    public TimeBuffer(double capacity, double sr, int dim, int bytesPerValue, Cons.Type type, Provider owner)
     {
+        _owner = owner;
+
         _sr = sr;
         _dim = dim;
         _bytesPerValue = bytesPerValue;
@@ -123,7 +127,7 @@ public class TimeBuffer {
 
     public void pushZeroes(int numBytes)
     {
-        Log.w("pushing " + numBytes + " bytes of zeroes");
+        Log.w(_owner.getComponentName(), "pushing " + numBytes + " bytes of zeroes");
 
         synchronized (_lock) {
             //compute actual position of data within buffer
@@ -272,5 +276,10 @@ public class TimeBuffer {
     public int getBytesPerValue ()
     {
         return _bytesPerValue;
+    }
+
+    public Provider getOwner()
+    {
+        return _owner;
     }
 }

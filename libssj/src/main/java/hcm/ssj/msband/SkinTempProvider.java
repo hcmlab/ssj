@@ -53,7 +53,7 @@ public class SkinTempProvider extends SensorProvider
 
 	public SkinTempProvider()
 	{
-		_name = "SSJ_sensor_MSBand_SkinTemp";
+		_name = "MSBand_SkinTemp";
 	}
 
 	@Override

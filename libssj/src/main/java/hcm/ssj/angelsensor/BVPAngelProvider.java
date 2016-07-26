@@ -45,7 +45,7 @@ public class BVPAngelProvider extends SensorProvider
 
 	public BVPAngelProvider()
 	{
-		_name = "SSJ_sensor_Angel_BVP";
+		_name = "Angel_BVP";
 	}
 
 	@Override

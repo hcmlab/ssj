@@ -53,7 +53,7 @@ public class GPSProvider extends SensorProvider
 
 	public GPSProvider()
 	{
-		_name = "SSJ_sensor_GPS_Provider";
+		_name = "GPS_Provider";
 	}
 
 	@Override

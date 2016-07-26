@@ -44,7 +44,7 @@ import hcm.ssj.test.Logger;
  */
 public class EmpaticaTest extends ApplicationTestCase<Application>
 {
-	String _name = "SSJ_test_Empatica";
+	String _name = "Empatica";
 
 	public EmpaticaTest()
 	{

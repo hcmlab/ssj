@@ -47,7 +47,7 @@ import hcm.ssj.test.Logger;
  */
 public class MyoTest extends ApplicationTestCase<Application> {
 
-    String _name = "SSJ_test_Myo";
+    String _name = "Myo";
 
     public MyoTest() {
         super(Application.class);

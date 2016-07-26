@@ -67,7 +67,7 @@ public class Median extends Transformer
      */
     public Median()
     {
-        _name = "SSJ_transformer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

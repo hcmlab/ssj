@@ -53,7 +53,7 @@ public class VelocityProvider extends SensorProvider
 
 	public VelocityProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Velocity";
+		_name = "MSBand_Velocity";
 	}
 
 	@Override

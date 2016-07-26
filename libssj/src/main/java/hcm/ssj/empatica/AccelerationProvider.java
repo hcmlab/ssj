@@ -56,7 +56,7 @@ public class AccelerationProvider extends SensorProvider
 	public AccelerationProvider()
 	{
 
-		_name = "SSJ_sensor_Empatica_Acc";
+		_name = "Empatica_Acc";
 	}
 
 	@Override

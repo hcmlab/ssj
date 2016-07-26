@@ -53,7 +53,7 @@ public class DistanceProvider extends SensorProvider
 
 	public DistanceProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Distance";
+		_name = "MSBand_Distance";
 	}
 
 	@Override

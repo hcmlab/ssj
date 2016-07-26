@@ -53,7 +53,7 @@ public class FloatsEventSender extends Consumer
 
     public FloatsEventSender()
     {
-        _name = "SSJ_consumer_FloatsEventSender";
+        _name = "FloatsEventSender";
         options.sender.set(_name);
     }
 

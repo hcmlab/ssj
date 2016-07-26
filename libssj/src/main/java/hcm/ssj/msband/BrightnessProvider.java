@@ -53,7 +53,7 @@ public class BrightnessProvider extends SensorProvider
 
 	public BrightnessProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Brightness";
+		_name = "MSBand_Brightness";
 	}
 
 	@Override

@@ -81,7 +81,7 @@ public class Pitch extends Transformer {
 
     public Pitch()
     {
-        _name = "SSJ_transformer_Pitch";
+        _name = "Pitch";
     }
 
     @Override

@@ -53,7 +53,7 @@ public class CaloriesProvider extends SensorProvider
 
 	public CaloriesProvider()
 	{
-		_name = "SSJ_sensor_MSBand_Calories";
+		_name = "MSBand_Calories";
 	}
 
 	@Override

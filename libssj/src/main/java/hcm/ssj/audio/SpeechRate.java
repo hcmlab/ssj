@@ -74,7 +74,7 @@ public class SpeechRate extends EventConsumer
 
     public SpeechRate()
     {
-        _name = "SSJ_econsumer_SpeechRate";
+        _name = "SpeechRate";
     }
 
     @Override

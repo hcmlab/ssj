@@ -66,8 +66,7 @@ public class AudioProvider extends SensorProvider
 
     public AudioProvider()
     {
-
-        _name = "SSJ_sensor_Microphone_Audio";
+        _name = "Microphone_Audio";
     }
 
     @Override

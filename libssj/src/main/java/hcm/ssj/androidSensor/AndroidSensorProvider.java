@@ -70,7 +70,7 @@ public class AndroidSensorProvider extends SensorProvider
     public AndroidSensorProvider()
     {
         super();
-        _name = "SSJ_provider_Android";
+        _name = "Android";
     }
 
     /**
@@ -81,7 +81,7 @@ public class AndroidSensorProvider extends SensorProvider
     {
         ((AndroidSensor) _sensor).init();
         this.sensorType = ((AndroidSensor) _sensor).getSensorType();
-        _name = "SSJ_provider_" + sensorType.getName();
+        _name = sensorType.getName();
     }
 
     /**

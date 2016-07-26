@@ -75,7 +75,7 @@ public class ThresholdEventSender extends Consumer
 
     public ThresholdEventSender()
     {
-        _name = "SSJ_consumer_ThresholdEventSender";
+        _name = "ThresholdEventSender";
         options.sender.set(_name);
     }
 

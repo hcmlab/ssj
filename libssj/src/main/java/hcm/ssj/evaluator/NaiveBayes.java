@@ -88,7 +88,7 @@ public class NaiveBayes extends Transformer
      */
     public NaiveBayes()
     {
-        _name = "SSJ_transformer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

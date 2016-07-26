@@ -97,7 +97,7 @@ public class CameraPainter extends Consumer
      */
     public CameraPainter()
     {
-        _name = "SSJ_consumer_" + this.getClass().getSimpleName();
+        _name = this.getClass().getSimpleName();
     }
 
     /**

@@ -56,7 +56,7 @@ public class BVPProvider extends SensorProvider
 	public BVPProvider()
 	{
 
-		_name = "SSJ_sensor_Empatica_BVP";
+		_name = "Empatica_BVP";
 	}
 
 	@Override

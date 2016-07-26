@@ -65,7 +65,7 @@ public class BluetoothWriter extends Consumer {
     private boolean _connected = false;
 
     public BluetoothWriter() {
-        _name = "SSJ_consumer_BluetoothWriter";
+        _name = "BluetoothWriter";
     }
 
     @Override

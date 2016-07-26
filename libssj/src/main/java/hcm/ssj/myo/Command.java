@@ -39,7 +39,7 @@ import hcm.ssj.core.Log;
  */
 public class Command {
 
-    String _name = "SSJ_sensor_Myo_Cmd";
+    String _name = "Myo_Cmd";
     BleManager mBleManager;
 
     public Command(Hub hub) {

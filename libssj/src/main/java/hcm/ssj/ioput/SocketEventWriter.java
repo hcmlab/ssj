@@ -68,7 +68,7 @@ public class SocketEventWriter extends EventHandler
 
     public SocketEventWriter()
     {
-        _name = "SSJ_consumer_SocketEventWriter";
+        _name = "SocketEventWriter";
     }
 
     @Override
