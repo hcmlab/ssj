@@ -81,9 +81,9 @@ public class MainActivity extends AppCompatActivity
     private LocalActivityManager mlam = null;
     private TabHost tabHost = null;
     private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
+    private ArrayList<TabSpec> alTabSpecs = new ArrayList<>();
     private final static int FIX_TAB_NUMBER = 2;
     //console
-    private ScrollView scrollViewConsole = null;
     private TextView textViewConsole = null;
     private String strLogMsg = "";
     private Log.LogListener logListener = new Log.LogListener()
@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity
         int tab = tabHost.getCurrentTab();
         tabHost.setCurrentTab(tabHost.getTabWidget().getTabCount() - 1);
         tabHost.setCurrentTab(tab);
+        alTabSpecs.add(tabSpec);
     }
 
     /**
@@ -209,10 +210,14 @@ public class MainActivity extends AppCompatActivity
      */
     private void removeTab(final int tab)
     {
-        //necessary to reset tab strip
         int current = tabHost.getCurrentTab();
-        tabHost.setCurrentTab(current == 1 ? 0 : 1);
-        tabHost.getTabWidget().removeView(tabHost.getTabWidget().getChildTabViewAt(tab));
+        alTabSpecs.remove(tab);
+        tabHost.setCurrentTab(0);
+        tabHost.clearAllTabs();
+        for (TabSpec tabSpec : alTabSpecs)
+        {
+            tabHost.addTab(tabSpec);
+        }
         tabHost.setCurrentTab(current == 1 ? 1 : 0);
     }
 
@@ -221,7 +226,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void addTabConsole()
     {
-        scrollViewConsole = new ScrollView(MainActivity.this);
+        ScrollView scrollViewConsole = new ScrollView(MainActivity.this);
         textViewConsole = new TextView(MainActivity.this);
         scrollViewConsole.addView(textViewConsole);
         //

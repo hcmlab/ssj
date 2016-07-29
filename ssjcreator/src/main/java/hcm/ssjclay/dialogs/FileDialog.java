@@ -84,83 +84,67 @@ public class FileDialog extends DialogFragment
                 {
                     public void onClick(DialogInterface dialog, int id)
                     {
-                        if (type == Type.SAVE)
+                        switch (type)
                         {
-                            String fileName = editText.getText().toString().trim();
-                            File dir1 = new File(Environment.getExternalStorageDirectory(), DIR_1);
-                            File dir2 = new File(dir1.getPath(), DIR_2);
-                            if (dir2.exists() || dir2.mkdirs())
+                            case SAVE:
                             {
-                                if (!fileName.endsWith(SUFFIX))
+                                String fileName = editText.getText().toString().trim();
+                                File dir1 = new File(Environment.getExternalStorageDirectory(), DIR_1);
+                                File dir2 = new File(dir1.getPath(), DIR_2);
+                                if (!fileName.isEmpty() && (dir2.exists() || dir2.mkdirs()))
                                 {
-                                    fileName += SUFFIX;
-                                }
-                                File file = new File(dir2, fileName);
-                                if (isValidFileName(file) && SaveLoad.save(file))
-                                {
-                                    for (Listener listener : alListeners)
+                                    if (!fileName.endsWith(SUFFIX))
                                     {
-                                        listener.onPositiveEvent(null);
+                                        fileName += SUFFIX;
                                     }
-                                } else
-                                {
-                                    for (Listener listener : alListeners)
+                                    File file = new File(dir2, fileName);
+                                    if (isValidFileName(file) && SaveLoad.save(file))
                                     {
-                                        listener.onNegativeEvent(new Boolean[]{false});
-                                    }
-                                }
-                            }
-                        } else
-                        {
-                            SparseBooleanArray checked = listView.getCheckedItemPositions();
-                            int selected = 0;
-                            for (int i = 0; i < listView.getAdapter().getCount(); i++)
-                            {
-                                if (checked.get(i))
-                                {
-                                    selected++;
-                                }
-                            }
-                            if (xmlFiles != null && selected > 0)
-                            {
-                                for (int i = 0; i < listView.getAdapter().getCount(); i++)
-                                {
-                                    if (checked.get(i))
-                                    {
-                                        if (type == Type.LOAD)
-                                        {
-                                            if (SaveLoad.load(xmlFiles[i]))
-                                            {
-                                                for (Listener listener : alListeners)
-                                                {
-                                                    listener.onPositiveEvent(null);
-                                                }
-                                                break;
-                                            }
-                                        } else if (type == Type.DELETE)
-                                        {
-                                            if (xmlFiles[i].delete())
-                                            {
-                                                for (Listener listener : alListeners)
-                                                {
-                                                    listener.onPositiveEvent(null);
-                                                }
-                                                break;
-                                            }
-                                        }
                                         for (Listener listener : alListeners)
                                         {
-                                            listener.onNegativeEvent(new Boolean[]{false});
+                                            listener.onPositiveEvent(null);
                                         }
-                                        break;
+                                        return;
                                     }
                                 }
-                            } else
+                                for (Listener listener : alListeners)
+                                {
+                                    listener.onNegativeEvent(new Boolean[]{false});
+                                }
+                                return;
+                            }
+                            case LOAD:
+                            case DELETE:
                             {
+                                if (xmlFiles != null && xmlFiles.length > 0)
+                                {
+                                    SparseBooleanArray checked = listView.getCheckedItemPositions();
+                                    for (int i = 0; i < listView.getAdapter().getCount(); i++)
+                                    {
+                                        if (checked.get(i))
+                                        {
+                                            if ((type == Type.LOAD && SaveLoad.load(xmlFiles[i]))
+                                                    || (type == Type.DELETE && xmlFiles[i].delete()))
+                                            {
+                                                for (Listener listener : alListeners)
+                                                {
+                                                    listener.onPositiveEvent(null);
+                                                }
+                                                return;
+                                            }
+                                            for (Listener listener : alListeners)
+                                            {
+                                                listener.onNegativeEvent(new Boolean[]{false});
+                                            }
+                                            return;
+                                        }
+                                    }
+                                }
                                 for (Listener listener : alListeners)
                                 {
                                     listener.onNegativeEvent(null);
                                 }
+                                break;
                             }
                         }
                     }
@@ -216,6 +200,7 @@ public class FileDialog extends DialogFragment
                     listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice));
                 }
                 builder.setView(listView);
+                break;
             }
         }
         // Create the AlertDialog object and return it
