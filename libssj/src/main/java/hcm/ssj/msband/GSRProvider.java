@@ -65,6 +65,9 @@ public class GSRProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
+		if(!_listener.connected)
+			return false;
+
 		int[] out = stream_out.ptrI();
 		out[0] = _listener.getGsr();
 

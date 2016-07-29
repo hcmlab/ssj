@@ -65,6 +65,9 @@ public class DistanceProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
+		if(!_listener.connected)
+			return false;
+
 		double[] out = stream_out.ptrD();
 		out[0] = _listener.getDistance();
 		out[1] = _listener.getSpeed();

@@ -65,6 +65,9 @@ public class VelocityProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
+		if(!_listener.connected)
+			return false;
+
 		float[] out = stream_out.ptrF();
 		out[0] = _listener.getAngularVelocityX();
 		out[1] = _listener.getAngularVelocityY();

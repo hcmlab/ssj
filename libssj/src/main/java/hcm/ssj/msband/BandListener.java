@@ -26,6 +26,8 @@
 
 package hcm.ssj.msband;
 
+import com.microsoft.band.BandConnectionCallback;
+import com.microsoft.band.ConnectionState;
 import com.microsoft.band.sensors.BandAccelerometerEvent;
 import com.microsoft.band.sensors.BandAccelerometerEventListener;
 import com.microsoft.band.sensors.BandAltimeterEvent;
@@ -51,10 +53,12 @@ import com.microsoft.band.sensors.BandRRIntervalEventListener;
 import com.microsoft.band.sensors.BandSkinTemperatureEvent;
 import com.microsoft.band.sensors.BandSkinTemperatureEventListener;
 
+import hcm.ssj.core.Log;
+
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class BandListener implements BandGsrEventListener, BandSkinTemperatureEventListener, BandHeartRateEventListener, BandAccelerometerEventListener, BandGyroscopeEventListener, BandAmbientLightEventListener, BandBarometerEventListener, BandCaloriesEventListener, BandDistanceEventListener, BandPedometerEventListener, BandRRIntervalEventListener, BandAltimeterEventListener
+public class BandListener implements BandGsrEventListener, BandSkinTemperatureEventListener, BandHeartRateEventListener, BandAccelerometerEventListener, BandGyroscopeEventListener, BandAmbientLightEventListener, BandBarometerEventListener, BandCaloriesEventListener, BandDistanceEventListener, BandPedometerEventListener, BandRRIntervalEventListener, BandAltimeterEventListener, BandConnectionCallback
 {
 	private int   gsr; // Resistance in ohm
 	private float skinTemperature;
@@ -84,6 +88,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	private long altimeterLoss;
 
 	public boolean receivedData;
+	public boolean connected;
 
 	public BandListener()
 	{
@@ -114,6 +119,14 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		flightsDescended = 0;
 
 		receivedData = false;
+		connected = false;
+	}
+
+	@Override
+	public void onStateChanged(ConnectionState connectionState)
+	{
+		connected = (connectionState == ConnectionState.CONNECTED);
+		Log.i("MSBand connection status: " + connectionState.toString());
 	}
 
 	@Override

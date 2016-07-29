@@ -65,6 +65,9 @@ public class PedometerProvider extends SensorProvider
 	@Override
 	protected boolean process(Stream stream_out)
 	{
+		if(!_listener.connected)
+			return false;
+
 		long[] out = stream_out.ptrL();
 		out[0] = _listener.getSteps();
 

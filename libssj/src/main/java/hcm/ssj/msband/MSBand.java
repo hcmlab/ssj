@@ -36,7 +36,6 @@ import com.microsoft.band.BandInfo;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.InvalidBandVersionException;
 import com.microsoft.band.sensors.GsrSampleRate;
-import com.microsoft.band.sensors.HeartRateConsentListener;
 import com.microsoft.band.sensors.SampleRate;
 
 import hcm.ssj.core.Cons;
@@ -64,6 +63,7 @@ public class MSBand extends Sensor
 		if (devices.length > 0)
 		{
 			client = BandClientManager.getInstance().create(SSJApplication.getAppContext(), devices[0]);
+			client.registerConnectionCallback(listener);
 
 			try
 			{
