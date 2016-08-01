@@ -28,6 +28,7 @@ package hcm.ssj.ioput;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -85,20 +86,21 @@ public class BluetoothProvider extends SensorProvider
         if(!conn.isConnected())
             return false;
 
-        DataInputStream dataStream = conn.input();
+        ObjectInputStream dataStream = conn.input();
 
         try
         {
             //we check whether there is any data as reads are blocking for bluetooth
-            if(dataStream.available() == 0)
-                return false;
+//            if(dataStream.available() == 0)
+//                return false;
 
-            dataStream.readFully(_data);
-            Util.arraycopy(_data, 0, stream_out.ptr(), 0, _data.length);
+            Stream recv = (Stream)dataStream.readObject();
+//            Log.i("recv num" + recv.num);
+            Util.arraycopy(recv.ptr(), 0, stream_out.ptr(), 0, stream_out.tot);
         }
-        catch (IOException e)
+        catch (IOException | ClassNotFoundException e)
         {
-            Log.w("unable to read from data stream", e);
+//            Log.w("unable to read from data stream", e);
         }
 
         return true;

@@ -30,9 +30,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Set;
 import java.util.UUID;
 
@@ -123,8 +123,8 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
                 Log.i("waiting for server ...");
                 _socket.connect();
 
-                _in = new DataInputStream(_socket.getInputStream());
-                _out = new DataOutputStream(_socket.getOutputStream());
+                _out = new ObjectOutputStream(_socket.getOutputStream());
+                _in = new ObjectInputStream(_socket.getInputStream());
             }
             catch (IOException e)
             {

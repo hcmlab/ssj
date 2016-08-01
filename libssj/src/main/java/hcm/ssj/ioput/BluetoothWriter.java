@@ -32,7 +32,6 @@ import java.io.IOException;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -101,8 +100,9 @@ public class BluetoothWriter extends Consumer {
             return;
 
         try {
-            Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
-            _conn.output().write(_data);
+//            Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
+            _conn.output().reset();
+            _conn.output().writeObject(stream_in[0]);
 
         } catch (IOException e) {
             Log.w("failed sending data", e);

@@ -33,9 +33,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
@@ -60,11 +60,11 @@ public abstract class BluetoothConnection extends BroadcastReceiver
     protected final Object _newConnection = new Object();
     protected final Object _newDisconnection = new Object();
 
-    protected DataInputStream _in;
-    protected DataOutputStream _out;
+    protected ObjectInputStream _in;
+    protected ObjectOutputStream _out;
 
-    public DataInputStream input() {return _in;}
-    public DataOutputStream output() {return _out;}
+    public ObjectInputStream input() {return _in;}
+    public ObjectOutputStream output() {return _out;}
 
     public BluetoothConnection()
     {

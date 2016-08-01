@@ -26,14 +26,16 @@
 
 package hcm.ssj.core.stream;
 
+import java.io.Serializable;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Provider;
 
 /**
  * Created by Johnny on 17.03.2015.
  */
-public abstract class Stream {
-
+public abstract class Stream implements Serializable
+{
     public int dim;
     public int num;
     public int bytes;
@@ -42,7 +44,7 @@ public abstract class Stream {
     public double time;
     public double step;
     public Cons.Type type;
-    public Provider source;
+    public transient Provider source;
     public String[] dataclass = null;
 
     public static Stream create(int num, int dim, double sr, Cons.Type type)
