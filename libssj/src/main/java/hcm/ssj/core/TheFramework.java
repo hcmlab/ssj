@@ -145,13 +145,14 @@ public class TheFramework
                         Log.i("waiting for master pipeline (port = " + options.netSyncPort + ")");
                         while (true)
                         {
-                            byte[] data = new byte[4];
-                            DatagramPacket packet = new DatagramPacket(data, 4);
+                            byte[] data = new byte[32];
+                            DatagramPacket packet = new DatagramPacket(data, 32);
                             _syncSocket.receive(packet);
                             Log.d("received packet from " + packet.getAddress().toString());
 
                             //check data
-                            if (packet.getData()[0] == 'S' && packet.getData()[1] == 'S' && packet.getData()[2] == 'J' && packet.getData()[3] == 1)
+                            String str =  new String(packet.getData(), "ASCII");
+                            if (str.startsWith("SSI:STRT:RUN")) //SSI format for compatibility
                             {
                                 Log.d("packet identified as start ping");
                                 break;
@@ -164,8 +165,9 @@ public class TheFramework
                         _syncSocket.setReuseAddress(true);
                         _syncSocket.setBroadcast(true);
 
-                        byte[] data = {'S', 'S', 'J', 1};
-                        DatagramPacket packet = new DatagramPacket(data, 4, Util.getBroadcastAddress(), options.netSyncPort.get());
+                        String msg = "SSI:STRT:RUN1"; //send in SSI format for compatibility
+                        byte[] data = msg.getBytes("ASCII");
+                        DatagramPacket packet = new DatagramPacket(data, data.length, Util.getBroadcastAddress(), options.netSyncPort.get());
                         _syncSocket.send(packet);
 
                         Log.i("sync ping sent on port " + options.netSyncPort.get());
