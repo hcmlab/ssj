@@ -34,11 +34,13 @@ import hcm.ssj.androidSensor.AndroidSensorProvider;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Provider;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventWriter;
 import hcm.ssj.ioput.BluetoothWriter;
+import hcm.ssj.test.Logger;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -59,15 +61,30 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
         AndroidSensor sensor = new AndroidSensor();
         sensor.options.sensorType.set(SensorType.ACCELEROMETER);
         frame.addSensor(sensor);
-
         AndroidSensorProvider acc = new AndroidSensorProvider();
+        acc.options.sampleRate.set(50);
         sensor.addProvider(acc);
+
+        AndroidSensor sensor2 = new AndroidSensor();
+        sensor2.options.sensorType.set(SensorType.GRAVITY);
+        frame.addSensor(sensor2);
+        AndroidSensorProvider gyr = new AndroidSensorProvider();
+        gyr.options.sampleRate.set(50);
+        sensor2.addProvider(gyr);
+
+        Logger dummy = new Logger();
+        dummy.options.reduceNum.set(true);
+        frame.addConsumer(dummy, acc, 1.0, 0);
+
+        Logger dummy2 = new Logger();
+        dummy2.options.reduceNum.set(true);
+        frame.addConsumer(dummy2, gyr, 1.0, 0);
 
         BluetoothWriter blw = new BluetoothWriter();
         blw.options.connectionType.set(BluetoothConnection.Type.CLIENT);
         blw.options.serverName.set("HCM-Johnny-Phone");
         blw.options.connectionName.set("stream");
-        frame.addConsumer(blw, acc, 1.0, 0);
+        frame.addConsumer(blw, new Provider[]{acc, gyr}, 1.0, 0);
 
         FloatsEventSender fes = new FloatsEventSender();
         frame.addConsumer(fes, acc, 1.0, 0);

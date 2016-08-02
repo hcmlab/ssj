@@ -29,9 +29,11 @@ package hcm.ssj.ioput;
 import android.bluetooth.BluetoothDevice;
 
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -74,11 +76,11 @@ public class BluetoothWriter extends Consumer {
             {
                 case SERVER:
                     _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
-                    _conn.connect();
+                    _conn.connect(stream_in.length > 1); //use object output streams if we are sending more than one stream
                     break;
                 case CLIENT:
                     _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
-                    _conn.connect();
+                    _conn.connect(stream_in.length > 1); //use object output streams if we are sending more than one stream
                     break;
             }
         } catch (Exception e)
@@ -89,27 +91,37 @@ public class BluetoothWriter extends Consumer {
 
         BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
 
-        _data = new byte[stream_in[0].tot];
+        if(stream_in.length == 1)
+            _data = new byte[stream_in[0].tot];
 
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
         _connected = true;
     }
 
-    protected void consume(Stream[] stream_in) {
+    protected void consume(Stream[] stream_in)
+    {
         if (!_connected || !_conn.isConnected())
             return;
 
         try {
-//            Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
-            _conn.output().reset();
-            _conn.output().writeObject(stream_in[0]);
+            if(stream_in.length == 1)
+            {
+                Util.arraycopy(stream_in[0].ptr(), 0, _data, 0, _data.length);
+                _conn.output().write(_data);
+            }
+            else if(stream_in.length > 1)
+            {
+                ((ObjectOutputStream)_conn.output()).reset();
+                ((ObjectOutputStream)_conn.output()).writeObject(stream_in);
+            }
 
         } catch (IOException e) {
             Log.w("failed sending data", e);
         }
     }
 
-    public void flush(Stream[] stream_in) {
+    public void flush(Stream[] stream_in)
+    {
         _connected = false;
 
         try {
@@ -120,8 +132,8 @@ public class BluetoothWriter extends Consumer {
     }
 
     @Override
-    public void forcekill() {
-
+    public void forcekill()
+    {
         try {
             _conn.disconnect();
         } catch (IOException e) {

@@ -59,18 +59,33 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         BluetoothReader blr = new BluetoothReader();
         blr.options.connectionType.set(BluetoothConnection.Type.SERVER);
         blr.options.connectionName.set("stream");
-
-        BluetoothProvider data = new BluetoothProvider();
-        data.options.dim.set(3);
-        data.options.bytes.set(4);
-        data.options.type.set(Cons.Type.FLOAT);
-        data.options.sr.set(50.0);
         frame.addSensor(blr);
-        blr.addProvider(data);
+
+        BluetoothProvider acc = new BluetoothProvider();
+        acc.options.channel_id.set(0);
+        acc.options.dim.set(3);
+        acc.options.bytes.set(4);
+        acc.options.type.set(Cons.Type.FLOAT);
+        acc.options.sr.set(50.);
+        acc.options.num.set(50);
+        blr.addProvider(acc);
+
+        BluetoothProvider gyr = new BluetoothProvider();
+        gyr.options.channel_id.set(1);
+        gyr.options.dim.set(3);
+        gyr.options.bytes.set(4);
+        gyr.options.type.set(Cons.Type.FLOAT);
+        gyr.options.sr.set(50.);
+        gyr.options.num.set(50);
+        blr.addProvider(gyr);
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);
-        frame.addConsumer(dummy, data, 1.0, 0);
+        frame.addConsumer(dummy, acc, 1.0, 0);
+
+        Logger dummy2 = new Logger();
+        dummy2.options.reduceNum.set(true);
+        frame.addConsumer(dummy2, gyr, 1.0, 0);
 
         BluetoothEventReader bler = new BluetoothEventReader();
         bler.options.connectionType.set(BluetoothConnection.Type.SERVER);

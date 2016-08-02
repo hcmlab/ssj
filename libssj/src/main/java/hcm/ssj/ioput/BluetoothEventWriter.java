@@ -82,11 +82,11 @@ public class BluetoothEventWriter extends EventHandler
             {
                 case SERVER:
                     _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
-                    _conn.connect();
+                    _conn.connect(false);
                     break;
                 case CLIENT:
                     _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
-                    _conn.connect();
+                    _conn.connect(false);
                     break;
             }
         } catch (Exception e)
