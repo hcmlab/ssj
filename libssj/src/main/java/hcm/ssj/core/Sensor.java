@@ -26,6 +26,8 @@
 
 package hcm.ssj.core;
 
+import java.util.ArrayList;
+
 /**
  * Handles connection to sensor device
  */
@@ -33,6 +35,7 @@ public abstract class Sensor extends Component {
 
     private boolean _isConnected = false;
     protected TheFramework _frame;
+    protected ArrayList<Provider> _provider = new ArrayList<>();
 
     public Sensor()
     {
@@ -42,6 +45,7 @@ public abstract class Sensor extends Component {
     public SensorProvider addProvider(SensorProvider p)
     {
         _frame.addSensorProvider(this, p);
+        _provider.add(p);
         return p;
     }
 
@@ -74,10 +78,11 @@ public abstract class Sensor extends Component {
                 }
             }
 
-            try{
-                Thread.sleep(Cons.WAIT_SENSOR_CHECK_CONNECT);
+            try {
+                update();
+            } catch(Exception e) {
+                _frame.crash(this.getComponentName(), "exception in sensor update", e);
             }
-            catch(InterruptedException e) {}
 
             _isConnected = checkConnection();
         }
@@ -101,6 +106,17 @@ public abstract class Sensor extends Component {
      */
     protected abstract boolean connect();
     protected boolean checkConnection() {return true;}
+
+    /**
+     * called once per frame, can be overwritten
+     */
+    protected void update()
+    {
+        try{
+            Thread.sleep(Cons.WAIT_SENSOR_CHECK_CONNECT);
+        }
+        catch(InterruptedException e) {}
+    }
 
     /**
      * called once before termination

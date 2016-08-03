@@ -33,6 +33,8 @@ import android.bluetooth.BluetoothSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.Set;
 import java.util.UUID;
 
@@ -47,6 +49,7 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
 
     private BluetoothSocket _socket = null;
     private UUID _uuid;
+    boolean _useObjectStreams = false;
 
     BluetoothAdapter _adapter = null;
     BluetoothDevice _server = null;
@@ -99,8 +102,10 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
         Log.i("client connection " + connectionName + " to " + _server.getName() + " initialized");
     }
 
-    public void connect()
+    public void connect(boolean useObjectStreams)
     {
+        _useObjectStreams = useObjectStreams;
+
         _isConnected = false;
         _terminate = false;
         _thread = new Thread(this);
@@ -123,8 +128,16 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
                 Log.i("waiting for server ...");
                 _socket.connect();
 
-                _in = new DataInputStream(_socket.getInputStream());
-                _out = new DataOutputStream(_socket.getOutputStream());
+                if(_useObjectStreams)
+                {
+                    _out = new ObjectOutputStream(_socket.getOutputStream());
+                    _in = new ObjectInputStream(_socket.getInputStream());
+                }
+                else
+                {
+                    _out = new DataOutputStream(_socket.getOutputStream());
+                    _in = new DataInputStream(_socket.getInputStream());
+                }
             }
             catch (IOException e)
             {

@@ -57,7 +57,7 @@ public class Activity extends Transformer {
         _name = "Activity";
     }
 
-    float _vel[];
+    float _displacement[];
 
     @Override
     public void enter(Stream[] stream_in, Stream stream_out)
@@ -71,7 +71,7 @@ public class Activity extends Transformer {
             Log.w("non-standard input stream");
         }
 
-        _vel = new float[stream_in[0].dim];
+        _displacement = new float[stream_in[0].dim];
     }
 
     @Override
@@ -84,29 +84,39 @@ public class Activity extends Transformer {
     public float computeOA(Stream stream)
     {
         float ptr[] = stream.ptrF();
-        Arrays.fill(_vel, 0);
+        Arrays.fill(_displacement, 0);
 
 		/*
-		 * compute new velocity
+		 * compute displacement for each dimension
 		 */
         float a;
         for (int i = 0; i < stream.dim; ++i)
         {
+            float velOld = 0;
+            float velNew = 0;
+
             for (int j = 0; j < stream.num; ++j)
             {
                 a = (Math.abs(ptr[j * stream.dim + i]) < 0.1) ? 0 : ptr[j * stream.dim + i];
-                _vel[i] += (float) (a * stream.step);
+
+                // v1 = a * t + v0
+                velNew = (float) (a * stream.step) + velOld;
+
+                // d = v0 * t + 0.5 * a * t²  or  d = v0 * t + 0.5 * (v1 - v0) * t
+                _displacement[i] += velOld * stream.step + 0.5 * (velNew - velOld) * stream.step;
+
+                // Update v0
+                velOld = velNew;
             }
         }
 
 		/*
 		 * compute displacement by summing up the displacement of all dimensions
 		 */
-        double t = stream.num / stream.sr;
         float displacement = 0;
         for (int i = 0; i < stream.dim; ++i)
         {
-            displacement += (float) (_vel[i] * t * 0.5); // x = ((0+v) * t) / 2
+            displacement += _displacement[i];
         }
 
         return Math.abs(displacement);

@@ -26,9 +26,6 @@
 
 package hcm.ssj.ioput;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
@@ -44,6 +41,7 @@ public class BluetoothProvider extends SensorProvider
 {
     public class Options extends OptionList
     {
+        public final Option<Integer> channel_id = new Option<>("channel_id", 0, Integer.class, "the channel index as defined by the order in which the streams were sent");
         public final Option<Integer> bytes = new Option<>("bytes", 0, Integer.class, "");
         public final Option<Integer> dim = new Option<>("dim", 0, Integer.class, "");
         public final Option<Double> sr = new Option<>("sr", 0., Double.class, "");
@@ -61,9 +59,6 @@ public class BluetoothProvider extends SensorProvider
 
     public final Options options = new Options();
 
-    protected DataInputStream _in;
-    private byte[] _data;
-
     public BluetoothProvider()
     {
         _name = "BluetoothReader_Data";
@@ -74,33 +69,20 @@ public class BluetoothProvider extends SensorProvider
 
         if(options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
             Log.e("input channel not configured");
-
-        _data = new byte[stream_out.tot];
     }
 
     @Override
     protected boolean process(Stream stream_out)
     {
-        BluetoothConnection conn = ((BluetoothReader)_sensor).getConnection();
-        if(!conn.isConnected())
+        byte[] data = ((BluetoothReader)_sensor).getData(options.channel_id.get());
+
+        if(data.length != stream_out.tot)
+        {
+            Log.w("data mismatch");
             return false;
-
-        DataInputStream dataStream = conn.input();
-
-        try
-        {
-            //we check whether there is any data as reads are blocking for bluetooth
-            if(dataStream.available() == 0)
-                return false;
-
-            dataStream.readFully(_data);
-            Util.arraycopy(_data, 0, stream_out.ptr(), 0, _data.length);
-        }
-        catch (IOException e)
-        {
-            Log.w("unable to read from data stream", e);
         }
 
+        Util.arraycopy(data, 0, stream_out.ptr(), 0, stream_out.tot);
         return true;
     }
 
@@ -142,7 +124,7 @@ public class BluetoothProvider extends SensorProvider
         {
             Log.w("incomplete definition of output classes");
             for(int i = 0; i < stream_out.dataclass.length; i++)
-                stream_out.dataclass[i] = "BluetoothData";
+                stream_out.dataclass[i] = "BluetoothData" + options.channel_id.get();
         }
         else
         {

@@ -33,6 +33,8 @@ import android.bluetooth.BluetoothSocket;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.UUID;
 
 import hcm.ssj.core.Log;
@@ -44,13 +46,13 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
 {
     private String _name = "SSJ_BluetoothServer";
 
+    BluetoothAdapter _adapter = null;
     private BluetoothServerSocket _server = null;
     private BluetoothSocket _socket = null;
 
     private UUID _uuid;
     private String _serverName;
-
-    BluetoothAdapter _adapter = null;
+    boolean _useObjectStreams = false;
 
     public BluetoothServer(String connectionName, String serverName) throws IOException
     {
@@ -72,8 +74,10 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
         Log.i("server connection " + connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress() + " initialized");
     }
 
-    public void connect()
+    public void connect(boolean useObjectStreams)
     {
+        _useObjectStreams = useObjectStreams;
+
         _isConnected = false;
         _terminate = false;
         _thread = new Thread(this);
@@ -96,8 +100,16 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
                 Log.i("waiting for clients...");
                 _socket = _server.accept();
 
-                _in = new DataInputStream(_socket.getInputStream());
-                _out = new DataOutputStream(_socket.getOutputStream());
+                if(_useObjectStreams)
+                {
+                    _out = new ObjectOutputStream(_socket.getOutputStream());
+                    _in = new ObjectInputStream(_socket.getInputStream());
+                }
+                else
+                {
+                    _out = new DataOutputStream(_socket.getOutputStream());
+                    _in = new DataInputStream(_socket.getInputStream());
+                }
             }
             catch (IOException e)
             {

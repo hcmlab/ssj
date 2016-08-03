@@ -28,12 +28,16 @@ package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
 
+import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.core.stream.Stream;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -46,6 +50,7 @@ public class BluetoothReader extends Sensor {
         public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
         public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "if this is a client");
         public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.SERVER, BluetoothConnection.Type.class, "");
+//        public final Option<Integer> numStreams = new Option<>("numStreams", 1, Integer.class, "specify the number of streams the sensors should expect");
 
         /**
          *
@@ -58,6 +63,7 @@ public class BluetoothReader extends Sensor {
     public final Options options = new Options();
 
     protected BluetoothConnection _conn;
+    protected byte[][] _recvData;
 
     public BluetoothReader() {
         _name = "BluetoothReader";
@@ -85,9 +91,16 @@ public class BluetoothReader extends Sensor {
     @Override
     public boolean connect()
     {
+        Log.i("setting up sensor to receive " + _provider.size() + " streams");
+        _recvData = new byte[_provider.size()][];
+        for(int i=0; i< _provider.size(); ++i)
+            _recvData[i] = new byte[_provider.get(i).getOutputStream().tot];
+
         try {
-            _conn.connect();
-        } catch (IOException e) {
+            //use object input streams if we expect more than one input
+            _conn.connect(_provider.size() > 1);
+        }
+        catch (IOException e) {
             Log.e("error connecting over "+ options.connectionName, e);
             return false;
         }
@@ -95,6 +108,31 @@ public class BluetoothReader extends Sensor {
         BluetoothDevice dev = _conn.getConnectedDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
         return true;
+    }
+
+    public void update()
+    {
+        if(!_conn.isConnected())
+            return;
+
+        try
+        {
+            if(_provider.size() == 1)
+            {
+                ((DataInputStream)_conn.input()).readFully(_recvData[0]);
+            }
+            else if(_provider.size() > 1)
+            {
+                Stream recvStreams[] = (Stream[]) ((ObjectInputStream)_conn.input()).readObject();
+
+                for(int i = 0; i< recvStreams.length && i < _recvData.length; ++i)
+                    Util.arraycopy(recvStreams[i].ptr(), 0, _recvData[i], 0, _recvData[i].length);
+            }
+        }
+        catch (IOException | ClassNotFoundException e)
+        {
+            Log.w("unable to read from data stream", e);
+        }
     }
 
     @Override
@@ -123,5 +161,10 @@ public class BluetoothReader extends Sensor {
     public BluetoothConnection getConnection()
     {
         return _conn;
+    }
+
+    public byte[] getData(int channel_id)
+    {
+        return _recvData[channel_id];
     }
 }
