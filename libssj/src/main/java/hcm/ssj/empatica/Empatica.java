@@ -141,10 +141,10 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	{
 		try
 		{
-			copyFile(new File(Environment.getExternalStorageDirectory(), "empatica/profile"),
+			copyFile(new File(Environment.getExternalStorageDirectory(), "SSJ/empatica/profile"),
 					 new File(SSJApplication.getAppContext().getFilesDir(), "profile"));
 
-			copyFile(new File(Environment.getExternalStorageDirectory(), "empatica/signature"),
+			copyFile(new File(Environment.getExternalStorageDirectory(), "SSJ/empatica/signature"),
 					 new File(SSJApplication.getAppContext().getFilesDir(), "signature"));
 		}
 		catch (IOException e)
@@ -222,7 +222,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 
 	private void saveFile(String name, byte[] data)
 	{
-		File dir = new File(Environment.getExternalStorageDirectory(), "empatica");
+		File dir = new File(Environment.getExternalStorageDirectory(), "SSJ/empatica");
 		if (!dir.exists())
 		{
 			dir.mkdirs();

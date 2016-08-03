@@ -50,7 +50,6 @@ public class BluetoothReader extends Sensor {
         public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
         public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "if this is a client");
         public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.SERVER, BluetoothConnection.Type.class, "");
-//        public final Option<Integer> numStreams = new Option<>("numStreams", 1, Integer.class, "specify the number of streams the sensors should expect");
 
         /**
          *
