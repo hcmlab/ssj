@@ -92,9 +92,7 @@ public class TheFramework
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
-        Log.i("===================================================");
-        Log.i("Social Signal Interpretation for Java/Android v" + getVersion());
-        Log.i("===================================================");
+        Log.i("\nSocial Signal Interpretation for Java/Android v" + getVersion() + "\n\n");
     }
 
     public static TheFramework getFramework()
