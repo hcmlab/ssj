@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.glass.transformer;
+package hcm.ssj.glass;
 
 import java.util.LinkedList;
 

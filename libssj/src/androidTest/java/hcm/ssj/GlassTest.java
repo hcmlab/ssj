@@ -32,7 +32,7 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.glass.InfraredProvider;
 import hcm.ssj.glass.InfraredSensor;
-import hcm.ssj.glass.transformer.BlinkDetection;
+import hcm.ssj.glass.BlinkDetection;
 import hcm.ssj.test.Logger;
 
 /**

@@ -29,7 +29,9 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
-
+    aaptOptions {
+        noCompress "demo"
+    }
     defaultConfig {
         applicationId "hcm.ssjclay"
         minSdkVersion 19

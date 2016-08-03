@@ -32,13 +32,18 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
-import android.util.SparseBooleanArray;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import hcm.ssjclay.R;
 import hcm.ssjclay.creator.Builder;
@@ -51,9 +56,12 @@ import hcm.ssjclay.creator.Linker;
 public class AddDialog extends DialogFragment
 {
     private int titleMessage = R.string.app_name;
-    private ArrayList<Class> clazzes = null;
+    private LinkedHashMap<String, ArrayList<Class>> hashMap = null;
     private ArrayList<Listener> alListeners = new ArrayList<>();
-    private ListView listView;
+    private ExpandableListView listView;
+    //ExpandableListView doesn't track selected items correctly, so it is done manually
+    private boolean[][] itemState = null;
+    private int allItems = 0;
 
     /**
      * @param savedInstanceState Bundle
@@ -63,42 +71,42 @@ public class AddDialog extends DialogFragment
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        if (clazzes == null)
+        if (hashMap == null)
         {
             throw new RuntimeException();
         }
-        // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(titleMessage);
         builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int id)
                     {
-                        SparseBooleanArray checked = listView.getCheckedItemPositions();
-                        int selected = 0;
-                        for (int i = 0; i < listView.getAdapter().getCount(); i++)
+                        boolean written = false;
+                        if (hashMap != null)
                         {
-                            if (checked.get(i))
+                            int x = 0;
+                            for (Map.Entry<String, ArrayList<Class>> entry : hashMap.entrySet())
                             {
-                                selected++;
+                                int y = 0;
+                                ArrayList<Class> arrayList = entry.getValue();
+                                for (Class clazz : arrayList)
+                                {
+                                    if (itemState[x][y])
+                                    {
+                                        written = true;
+                                        Linker.getInstance().add(Builder.instantiate(clazz));
+                                    }
+                                    y++;
+                                }
+                                x++;
                             }
                         }
-                        if (clazzes != null && selected > 0)
+                        for (Listener listener : alListeners)
                         {
-                            for (int i = 0; i < listView.getAdapter().getCount(); i++)
-                            {
-                                if (checked.get(i))
-                                {
-                                    Linker.getInstance().add(Builder.instantiate(clazzes.get(i)));
-                                }
-                            }
-                            for (Listener listener : alListeners)
+                            if (written)
                             {
                                 listener.onPositiveEvent(null);
-                            }
-                        } else
-                        {
-                            for (Listener listener : alListeners)
+                            } else
                             {
                                 listener.onNegativeEvent(null);
                             }
@@ -117,24 +125,77 @@ public class AddDialog extends DialogFragment
                     }
                 }
         );
-        // Set up the input
-        listView = new ListView(getContext());
+        //set up input
+        listView = new ExpandableListView(getContext());
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-        if (clazzes != null && clazzes.size() > 0)
+        setListListeners();
+        if (hashMap != null && hashMap.size() > 0)
         {
-            String[] ids = new String[clazzes.size()];
-            for (int i = 0; i < ids.length; i++)
-            {
-                ids[i] = clazzes.get(i).getSimpleName();
-            }
-            listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_multiple_choice, ids));
+            ListAdapter listAdapter = new ListAdapter(getContext(), hashMap);
+            listView.setAdapter(listAdapter);
         } else
         {
             listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_multiple_choice));
         }
         builder.setView(listView);
-        // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    /**
+     * ExpandableListView doesn't track selected items correctly, so it is done manually
+     */
+    private void setListListeners()
+    {
+        listView.setOnChildClickListener(new ExpandableListView.OnChildClickListener()
+        {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+            {
+                int index = parent.getFlatListPosition(ExpandableListView.getPackedPositionForChild(groupPosition, childPosition));
+                parent.setItemChecked(index, !parent.isItemChecked(index));
+                itemState[groupPosition][childPosition] = !itemState[groupPosition][childPosition];
+                return true;
+            }
+        });
+        listView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener()
+        {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
+            {
+                //get current position
+                int currentPosition = 1;
+                for (int i = 0; i < groupPosition; i++, currentPosition++)
+                {
+                    if (listView.isGroupExpanded(i))
+                    {
+                        currentPosition += listView.getExpandableListAdapter().getChildrenCount(i);
+                    }
+                }
+                //shift values as needed
+                int children = listView.getExpandableListAdapter().getChildrenCount(groupPosition);
+                if (listView.isGroupExpanded(groupPosition))
+                {
+                    //currently closing
+                    for (int i = currentPosition; i < allItems; i++)
+                    {
+                        listView.setItemChecked(i, listView.isItemChecked(i + children));
+                    }
+                } else
+                {
+                    //currently expanding
+                    for (int i = allItems + 1; i > currentPosition; i--)
+                    {
+                        listView.setItemChecked(i, listView.isItemChecked(i - children));
+                    }
+                    //set values for expanded group from memory
+                    for (int i = currentPosition, j = 0; j < children; i++, j++)
+                    {
+                        listView.setItemChecked(i, itemState[groupPosition][j]);
+                    }
+                }
+                return false;
+            }
+        });
     }
 
     /**
@@ -150,8 +211,29 @@ public class AddDialog extends DialogFragment
      */
     public void setOption(ArrayList<Class> clazzes)
     {
-        this.clazzes = clazzes;
-        Collections.sort(this.clazzes, new Comparator<Class>()
+        hashMap = new LinkedHashMap<>();
+        //get each package once
+        HashSet<Package> hashSet = new HashSet<>();
+        for (Class clazz : clazzes)
+        {
+            hashSet.add(clazz.getPackage());
+        }
+        //only show last part of the package name
+        String[] packages = new String[hashSet.size()];
+        int count = 0;
+        for (Package pack : hashSet)
+        {
+            String name = pack.getName();
+            packages[count++] = name.substring(name.lastIndexOf(".") + 1);
+        }
+        //sort packages by name and add them to map
+        Arrays.sort(packages);
+        for (String name : packages)
+        {
+            hashMap.put(name, new ArrayList<Class>());
+        }
+        //sort classes by name
+        Collections.sort(clazzes, new Comparator<Class>()
         {
             @Override
             public int compare(Class lhs, Class rhs)
@@ -159,6 +241,22 @@ public class AddDialog extends DialogFragment
                 return lhs.getSimpleName().compareTo(rhs.getSimpleName());
             }
         });
+        //add every class to its corresponding package
+        for (Class clazz : clazzes)
+        {
+            String name = clazz.getPackage().getName();
+            hashMap.get(name.substring(name.lastIndexOf(".") + 1)).add(clazz);
+        }
+        //create internal variables to save the state of the list
+        itemState = new boolean[hashMap.size()][];
+        count = 0;
+        allItems = 0;
+        allItems += hashMap.size();
+        for (Map.Entry<String, ArrayList<Class>> entry : hashMap.entrySet())
+        {
+            itemState[count++] = new boolean[entry.getValue().size()];
+            allItems += entry.getValue().size();
+        }
     }
 
     /**

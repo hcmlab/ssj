@@ -38,7 +38,7 @@ public abstract class OptionList
     protected LinkedHashSet<Option> hashSetOptions = new LinkedHashSet<>();
 
     /**
-     * Used to add all options.
+     *
      */
     protected OptionList()
     {

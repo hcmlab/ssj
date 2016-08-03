@@ -34,13 +34,14 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
-import android.util.SparseBooleanArray;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -55,7 +56,8 @@ import hcm.ssjclay.creator.SaveLoad;
  */
 public class FileDialog extends DialogFragment
 {
-    private final static String DIR_1 = "SSJ", DIR_2 = "Creator", SUFFIX = ".xml";
+    private final static String DIR_1 = "SSJ", DIR_2 = "Creator", SUFFIX = ".xml",
+            DEMO = "demo", DEMO_SUFFIX = ".demo";
 
     public enum Type
     {
@@ -77,7 +79,6 @@ public class FileDialog extends DialogFragment
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
-        // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(titleMessage);
         builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener()
@@ -118,26 +119,59 @@ public class FileDialog extends DialogFragment
                             {
                                 if (xmlFiles != null && xmlFiles.length > 0)
                                 {
-                                    SparseBooleanArray checked = listView.getCheckedItemPositions();
-                                    for (int i = 0; i < listView.getAdapter().getCount(); i++)
+                                    int pos = listView.getCheckedItemPosition();
+                                    if (pos > AbsListView.INVALID_POSITION)
                                     {
-                                        if (checked.get(i))
+                                        if (type == Type.DELETE && xmlFiles[pos].delete())
                                         {
-                                            if ((type == Type.LOAD && SaveLoad.load(xmlFiles[i]))
-                                                    || (type == Type.DELETE && xmlFiles[i].delete()))
-                                            {
-                                                for (Listener listener : alListeners)
-                                                {
-                                                    listener.onPositiveEvent(null);
-                                                }
-                                                return;
-                                            }
                                             for (Listener listener : alListeners)
                                             {
-                                                listener.onNegativeEvent(new Boolean[]{false});
+                                                listener.onPositiveEvent(null);
                                             }
                                             return;
+                                        } else if (type == Type.LOAD)
+                                        {
+                                            //use different load with demo files
+                                            if (xmlFiles[pos].getName().endsWith(DEMO_SUFFIX))
+                                            {
+                                                try
+                                                {
+                                                    String path = DEMO + "/" + xmlFiles[pos].getName();
+                                                    FileInputStream fileInputStream = getContext().getAssets().openFd(path).createInputStream();
+                                                    if (SaveLoad.load(fileInputStream))
+                                                    {
+                                                        for (Listener listener : alListeners)
+                                                        {
+                                                            listener.onPositiveEvent(null);
+                                                        }
+                                                        return;
+                                                    }
+                                                } catch (IOException ex)
+                                                {
+                                                    ex.printStackTrace();
+                                                    for (Listener listener : alListeners)
+                                                    {
+                                                        listener.onNegativeEvent(new Boolean[]{false});
+                                                    }
+                                                    return;
+                                                }
+                                            } else
+                                            {
+                                                if (SaveLoad.load(xmlFiles[pos]))
+                                                {
+                                                    for (Listener listener : alListeners)
+                                                    {
+                                                        listener.onPositiveEvent(null);
+                                                    }
+                                                    return;
+                                                }
+                                            }
                                         }
+                                        for (Listener listener : alListeners)
+                                        {
+                                            listener.onNegativeEvent(new Boolean[]{false});
+                                        }
+                                        return;
                                     }
                                 }
                                 for (Listener listener : alListeners)
@@ -161,7 +195,7 @@ public class FileDialog extends DialogFragment
                     }
                 }
         );
-        // Set up the input
+        //set up the input
         switch (type)
         {
             case SAVE:
@@ -187,6 +221,23 @@ public class FileDialog extends DialogFragment
                         return name.toLowerCase().endsWith(SUFFIX);
                     }
                 });
+                if (type == Type.LOAD)
+                {
+                    //add demo files
+                    try
+                    {
+                        String[] demoFileNames = getContext().getAssets().list(DEMO);
+                        File[] demoFiles = new File[demoFileNames.length];
+                        for (int i = 0; i < demoFiles.length; i++)
+                        {
+                            demoFiles[i] = new File(demoFileNames[i]);
+                        }
+                        xmlFiles = concat(xmlFiles, demoFiles);
+                    } catch (IOException ex)
+                    {
+                        ex.printStackTrace();
+                    }
+                }
                 if (xmlFiles != null && xmlFiles.length > 0)
                 {
                     String[] ids = new String[xmlFiles.length];
@@ -203,8 +254,22 @@ public class FileDialog extends DialogFragment
                 break;
             }
         }
-        // Create the AlertDialog object and return it
         return builder.create();
+    }
+
+    /**
+     * @param a File[]
+     * @param b File[]
+     * @return File[]
+     */
+    private File[] concat(File[] a, File[] b)
+    {
+        int aLen = a.length;
+        int bLen = b.length;
+        File[] c = new File[aLen + bLen];
+        System.arraycopy(a, 0, c, 0, aLen);
+        System.arraycopy(b, 0, c, aLen, bLen);
+        return c;
     }
 
     /**

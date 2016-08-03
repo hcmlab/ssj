@@ -175,7 +175,6 @@ public abstract class SaveLoad
      */
     public static boolean load(File file)
     {
-        //open stream
         FileInputStream fileInputStream;
         try
         {
@@ -186,6 +185,15 @@ public abstract class SaveLoad
             Log.e("file not found");
             return false;
         }
+        return load(fileInputStream);
+    }
+
+    /**
+     * @param fileInputStream FileInputStream
+     * @return boolean
+     */
+    public static boolean load(FileInputStream fileInputStream)
+    {
         try
         {
             //check file version
