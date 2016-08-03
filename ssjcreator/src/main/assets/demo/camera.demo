@@ -36,11 +36,11 @@
   </sensorList>
   <transformerList />
   <consumerList>
-    <consumer class="hcm.ssj.camera.CameraPainter" id="40213498" frameSize="1.0" delta="0.0">
+    <consumer class="hcm.ssj.camera.CameraPainter" id="40213498" frameSize="0.1" delta="0.0">
       <options>
         <option name="colorFormat" value="NV21_DEFAULT" />
         <option name="height" value="480" />
-        <option name="orientation" value="90" />
+        <option name="orientation" value="270" />
         <option name="scale" value="false" />
         <option name="width" value="640" />
       </options>
