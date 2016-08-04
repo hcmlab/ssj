@@ -103,15 +103,6 @@ public class CameraWriter extends Mp4Writer
      * @param stream_in Stream[]
      */
     @Override
-    public final void init(Stream[] stream_in)
-    {
-        initFiles(options);
-    }
-
-    /**
-     * @param stream_in Stream[]
-     */
-    @Override
     public final void enter(Stream[] stream_in)
     {
         if (stream_in.length != 1)
@@ -125,6 +116,7 @@ public class CameraWriter extends Mp4Writer
             return;
         }
         dFrameRate = stream_in[0].sr;
+        initFiles(options);
         prepareEncoder(options.width.get(), options.height.get(), options.bitRate.get());
         bufferInfo = new MediaCodec.BufferInfo();
         int reqBuffSize = options.width.get() * options.height.get();

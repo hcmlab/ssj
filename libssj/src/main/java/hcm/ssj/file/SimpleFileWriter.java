@@ -83,31 +83,6 @@ public class SimpleFileWriter extends Consumer
      * @param stream_in Stream[]
      */
     @Override
-    public final void init(Stream[] stream_in)
-    {
-        if (options.filePath.get() == null) {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
-        }
-        File fileDirectory = new File(options.filePath.get());
-        if (!fileDirectory.exists()) {
-            if (!fileDirectory.mkdirs()) {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return;
-            }
-        }
-        if (options.fileName.get() == null) {
-            String defaultName = this.getClass().getSimpleName();
-            Log.w("file name not set, setting to " + defaultName);
-            options.fileName.set(defaultName);
-        }
-        file = new File(fileDirectory, options.fileName.get());
-    }
-
-    /**
-     * @param stream_in Stream[]
-     */
-    @Override
     public final void enter(Stream[] stream_in)
     {
         if (stream_in.length > 1 || stream_in.length < 1)
@@ -120,6 +95,28 @@ public class SimpleFileWriter extends Consumer
             Log.e("stream type not supported");
             return;
         }
+        //create file
+        if (options.filePath.get() == null)
+        {
+            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+        }
+        File fileDirectory = new File(options.filePath.get());
+        if (!fileDirectory.exists())
+        {
+            if (!fileDirectory.mkdirs())
+            {
+                Log.e(fileDirectory.getName() + " could not be created");
+                return;
+            }
+        }
+        if (options.fileName.get() == null)
+        {
+            String defaultName = this.getClass().getSimpleName();
+            Log.w("file name not set, setting to " + defaultName);
+            options.fileName.set(defaultName);
+        }
+        file = new File(fileDirectory, options.fileName.get());
         start(stream_in[0]);
     }
 

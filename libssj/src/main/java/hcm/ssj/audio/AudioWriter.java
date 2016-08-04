@@ -107,15 +107,6 @@ public class AudioWriter extends Mp4Writer
      * @param stream_in Stream[]
      */
     @Override
-    public final void init(Stream[] stream_in)
-    {
-        initFiles(options);
-    }
-
-    /**
-     * @param stream_in Stream[]
-     */
-    @Override
     public final void enter(Stream[] stream_in)
     {
         if (stream_in.length != 1)
@@ -155,6 +146,7 @@ public class AudioWriter extends Mp4Writer
                 return;
             }
         }
+        initFiles(options);
         Log.d("Format: " + dataFormat.toString());
         iSampleRate = (int) stream_in[0].sr;
         iSampleDimension = stream_in[0].dim;

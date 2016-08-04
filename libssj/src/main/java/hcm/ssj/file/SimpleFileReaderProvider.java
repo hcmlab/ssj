@@ -82,7 +82,7 @@ public class SimpleFileReaderProvider extends SensorProvider
     protected void init()
     {
         simpleFileReader = (SimpleFileReader) _sensor;
-        simpleFileReader.init();
+        simpleFileReader.readerInit();
         SimpleHeader simpleHeader = simpleFileReader.getSimpleHeader();
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);

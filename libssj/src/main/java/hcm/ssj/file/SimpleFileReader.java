@@ -82,7 +82,7 @@ public class SimpleFileReader extends Sensor
     /**
      *
      */
-    protected final void init()
+    protected final void readerInit()
     {
         if (!initialized)
         {
@@ -114,7 +114,7 @@ public class SimpleFileReader extends Sensor
     @Override
     protected boolean connect()
     {
-        init();
+        readerInit();
         simpleHeader = null;
         bufferedReader = getFileConnection(fileReal, bufferedReader);
         return true;
