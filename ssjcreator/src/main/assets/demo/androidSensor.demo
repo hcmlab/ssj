@@ -1,110 +1,72 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <ssjSaveFile version="0.2">
+  
   <framework>
     <options>
-      <option name="bufferSize" value="2.0" />
-      <option name="countdown" value="3" />
-      <option name="loglevel" value="VERBOSE" />
-      <option name="netSync" value="false" />
-      <option name="netSyncListen" value="false" />
-      <option name="netSyncPort" value="55100" />
-      <option name="timeoutThread" value="5.0" />
+      <option name="countdown" value="2" />
     </options>
   </framework>
+  
   <sensorProviderList>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorProvider" id="91321354">
+    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorProvider" id="1">
       <options>
         <option name="sampleRate" value="50" />
       </options>
     </sensorProvider>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorProvider" id="262524284">
+    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorProvider" id="2">
       <options>
         <option name="sampleRate" value="50" />
       </options>
     </sensorProvider>
   </sensorProviderList>
+
   <sensorList>
-    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="127067653">
-      <options>
-        <option name="sensorDelay" value="0" />
-        <option name="sensorType" value="ACCELEROMETER" />
-      </options>
+    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="3">
       <providerList>
-        <providerId id="91321354" />
+        <providerId id="1" />
       </providerList>
     </sensor>
-    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="142583386">
+    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="4">
       <options>
-        <option name="sensorDelay" value="0" />
         <option name="sensorType" value="MAGNETIC_FIELD" />
       </options>
       <providerList>
-        <providerId id="262524284" />
+        <providerId id="2" />
       </providerList>
     </sensor>
   </sensorList>
+
   <transformerList>
-    <transformer class="hcm.ssj.signal.AvgVar" id="151878159" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.signal.AvgVar" id="5" frameSize="0.5" delta="0.0">
       <options>
-        <option name="avg" value="true" />
         <option name="outputClass" value="[avgX, avgY, avgZ]" />
         <option name="var" value="false" />
       </options>
       <providerList>
-        <providerId id="91321354" />
+        <providerId id="1" />
       </providerList>
     </transformer>
-    <transformer class="hcm.ssj.signal.MinMax" id="210221724" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.signal.MinMax" id="6" frameSize="1.0" delta="0.0">
       <options>
-        <option name="max" value="true" />
-        <option name="min" value="true" />
         <option name="outputClass" value="[minX, maxX, minY, maxY, minZ, maxZ]" />
       </options>
       <providerList>
-        <providerId id="262524284" />
+        <providerId id="2" />
       </providerList>
     </transformer>
   </transformerList>
+
   <consumerList>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="111505547" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="colors" value="[-16746548, -26368, -16737895, -6750208, -65281, -16777216, -13395712]" />
-        <option name="legend" value="true" />
-        <option name="manualBounds" value="false" />
-        <option name="max" value="1.0" />
-        <option name="min" value="0.0" />
-        <option name="numHLabels" value="2" />
-        <option name="numVLabels" value="2" />
-        <option name="renderMax" value="true" />
-        <option name="secondScaleDim" value="0" />
-        <option name="secondScaleMax" value="1.0" />
-        <option name="secondScaleMin" value="0.0" />
-        <option name="secondScaleStream" value="1" />
-        <option name="size" value="10.0" />
-      </options>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="7" frameSize="0.5" delta="0.0">
       <providerList>
-        <providerId id="151878159" />
+        <providerId id="5" />
       </providerList>
     </consumer>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="54359400" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="colors" value="[-16746548, -26368, -16737895, -6750208, -65281, -16777216, -13395712]" />
-        <option name="legend" value="true" />
-        <option name="manualBounds" value="false" />
-        <option name="max" value="1.0" />
-        <option name="min" value="0.0" />
-        <option name="numHLabels" value="2" />
-        <option name="numVLabels" value="2" />
-        <option name="renderMax" value="true" />
-        <option name="secondScaleDim" value="0" />
-        <option name="secondScaleMax" value="1.0" />
-        <option name="secondScaleMin" value="0.0" />
-        <option name="secondScaleStream" value="1" />
-        <option name="size" value="10.0" />
-      </options>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="8" frameSize="1.0" delta="0.0">
       <providerList>
-        <providerId id="210221724" />
+        <providerId id="6" />
       </providerList>
     </consumer>
   </consumerList>
+
 </ssjSaveFile>

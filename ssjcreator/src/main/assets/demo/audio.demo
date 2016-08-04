@@ -1,103 +1,50 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <ssjSaveFile version="0.2">
-  <framework>
-    <options>
-      <option name="bufferSize" value="2.0" />
-      <option name="countdown" value="3" />
-      <option name="loglevel" value="VERBOSE" />
-      <option name="netSync" value="false" />
-      <option name="netSyncListen" value="false" />
-      <option name="netSyncPort" value="55100" />
-      <option name="timeoutThread" value="5.0" />
-    </options>
-  </framework>
+  
+  <framework/>
+  
   <sensorProviderList>
-    <sensorProvider class="hcm.ssj.audio.AudioProvider" id="110203249">
+    <sensorProvider class="hcm.ssj.audio.AudioProvider" id="1">
       <options>
         <option name="audioFormat" value="2" />
         <option name="channelConfig" value="12" />
-        <option name="sampleRate" value="8000" />
         <option name="scale" value="true" />
       </options>
     </sensorProvider>
   </sensorProviderList>
+  
   <sensorList>
-    <sensor class="hcm.ssj.audio.Microphone" id="43038679">
-      <options />
+    <sensor class="hcm.ssj.audio.Microphone" id="2">
       <providerList>
-        <providerId id="110203249" />
+        <providerId id="1" />
       </providerList>
     </sensor>
   </sensorList>
+  
   <transformerList>
-    <transformer class="hcm.ssj.audio.Energy" id="199921722" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="computeRMS" value="false" />
-        <option name="computeSPL" value="true" />
-        <option name="computeSilence" value="false" />
-        <option name="inputIsBigEndian" value="false" />
-        <option name="inputIsSigned" value="true" />
-        <option name="silenceThreshold" value="-70.0" />
-      </options>
+    <transformer class="hcm.ssj.audio.Energy" id="3" frameSize="1.0" delta="0.0">
       <providerList>
-        <providerId id="110203249" />
+        <providerId id="1" />
       </providerList>
     </transformer>
-    <transformer class="hcm.ssj.audio.Pitch" id="200895670" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="computePitch" value="true" />
-        <option name="computePitchEnvelope" value="false" />
-        <option name="computePitchedState" value="false" />
-        <option name="computeVoicedProb" value="true" />
-        <option name="detector" value="5" />
-        <option name="maxPitch" value="620.0" />
-        <option name="minPitch" value="52.0" />
-      </options>
+    <transformer class="hcm.ssj.audio.Pitch" id="4" frameSize="1.0" delta="0.0">
       <providerList>
-        <providerId id="110203249" />
+        <providerId id="1" />
       </providerList>
     </transformer>
   </transformerList>
+  
   <consumerList>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="47810796" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="colors" value="[-16746548, -26368, -16737895, -6750208, -65281, -16777216, -13395712]" />
-        <option name="legend" value="true" />
-        <option name="manualBounds" value="false" />
-        <option name="max" value="1.0" />
-        <option name="min" value="0.0" />
-        <option name="numHLabels" value="2" />
-        <option name="numVLabels" value="2" />
-        <option name="renderMax" value="true" />
-        <option name="secondScaleDim" value="0" />
-        <option name="secondScaleMax" value="1.0" />
-        <option name="secondScaleMin" value="0.0" />
-        <option name="secondScaleStream" value="1" />
-        <option name="size" value="10.0" />
-      </options>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="5" frameSize="1.0" delta="0.0">
       <providerList>
-        <providerId id="199921722" />
+        <providerId id="3" />
       </providerList>
     </consumer>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="80151836" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="colors" value="[-16746548, -26368, -16737895, -6750208, -65281, -16777216, -13395712]" />
-        <option name="legend" value="true" />
-        <option name="manualBounds" value="false" />
-        <option name="max" value="1.0" />
-        <option name="min" value="0.0" />
-        <option name="numHLabels" value="2" />
-        <option name="numVLabels" value="2" />
-        <option name="renderMax" value="true" />
-        <option name="secondScaleDim" value="0" />
-        <option name="secondScaleMax" value="1.0" />
-        <option name="secondScaleMin" value="0.0" />
-        <option name="secondScaleStream" value="1" />
-        <option name="size" value="10.0" />
-      </options>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="6" frameSize="1.0" delta="0.0">
       <providerList>
-        <providerId id="200895670" />
+        <providerId id="4" />
       </providerList>
     </consumer>
   </consumerList>
+  
 </ssjSaveFile>

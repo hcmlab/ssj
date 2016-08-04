@@ -1,52 +1,30 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <ssjSaveFile version="0.2">
-  <framework>
-    <options>
-      <option name="bufferSize" value="2.0" />
-      <option name="countdown" value="3" />
-      <option name="loglevel" value="VERBOSE" />
-      <option name="netSync" value="false" />
-      <option name="netSyncListen" value="false" />
-      <option name="netSyncPort" value="55100" />
-      <option name="timeoutThread" value="5.0" />
-    </options>
-  </framework>
+
+  <framework/>
+
   <sensorProviderList>
-    <sensorProvider class="hcm.ssj.camera.CameraProvider" id="59035890">
-      <options>
-        <option name="sampleRate" value="20.0" />
-      </options>
+    <sensorProvider class="hcm.ssj.camera.CameraProvider" id="1">
     </sensorProvider>
   </sensorProviderList>
+
   <sensorList>
-    <sensor class="hcm.ssj.camera.CameraSensor" id="226239254">
-      <options>
-        <option name="cameraInfo" value="1" />
-        <option name="height" value="480" />
-        <option name="imageFormat" value="17" />
-        <option name="previewFpsRangeMax" value="30000" />
-        <option name="previewFpsRangeMin" value="30000" />
-        <option name="showSupportedValues" value="false" />
-        <option name="width" value="640" />
-      </options>
+    <sensor class="hcm.ssj.camera.CameraSensor" id="2">
       <providerList>
-        <providerId id="59035890" />
+        <providerId id="1" />
       </providerList>
     </sensor>
   </sensorList>
-  <transformerList />
+
   <consumerList>
-    <consumer class="hcm.ssj.camera.CameraPainter" id="40213498" frameSize="0.1" delta="0.0">
+    <consumer class="hcm.ssj.camera.CameraPainter" id="3" frameSize="0.1" delta="0.0">
       <options>
-        <option name="colorFormat" value="NV21_DEFAULT" />
-        <option name="height" value="480" />
         <option name="orientation" value="270" />
-        <option name="scale" value="false" />
-        <option name="width" value="640" />
       </options>
       <providerList>
-        <providerId id="59035890" />
+        <providerId id="1" />
       </providerList>
     </consumer>
   </consumerList>
+
 </ssjSaveFile>
