@@ -232,7 +232,11 @@ public class FileDialog extends DialogFragment
                         {
                             demoFiles[i] = new File(demoFileNames[i]);
                         }
-                        xmlFiles = concat(xmlFiles, demoFiles);
+
+                        if(xmlFiles == null)
+                            xmlFiles = demoFiles;
+                        else
+                            xmlFiles = concat(xmlFiles, demoFiles);
                     } catch (IOException ex)
                     {
                         ex.printStackTrace();

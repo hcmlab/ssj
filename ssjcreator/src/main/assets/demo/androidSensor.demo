@@ -22,6 +22,9 @@
 
   <sensorList>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="3">
+      <options>
+        <option name="sensorType" value="ACCELEROMETER" />
+      </options>
       <providerList>
         <providerId id="1" />
       </providerList>
@@ -37,7 +40,7 @@
   </sensorList>
 
   <transformerList>
-    <transformer class="hcm.ssj.signal.AvgVar" id="5" frameSize="0.5" delta="0.0">
+    <transformer class="hcm.ssj.signal.AvgVar" id="5" frameSize="0.1" delta="1.0">
       <options>
         <option name="outputClass" value="[avgX, avgY, avgZ]" />
         <option name="var" value="false" />
@@ -46,7 +49,7 @@
         <providerId id="1" />
       </providerList>
     </transformer>
-    <transformer class="hcm.ssj.signal.MinMax" id="6" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.signal.MinMax" id="6" frameSize="0.1" delta="1.0">
       <options>
         <option name="outputClass" value="[minX, maxX, minY, maxY, minZ, maxZ]" />
       </options>
@@ -57,12 +60,12 @@
   </transformerList>
 
   <consumerList>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="7" frameSize="0.5" delta="0.0">
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="7" frameSize="0.1" delta="0.0">
       <providerList>
         <providerId id="5" />
       </providerList>
     </consumer>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="8" frameSize="1.0" delta="0.0">
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="8" frameSize="0.1" delta="0.0">
       <providerList>
         <providerId id="6" />
       </providerList>

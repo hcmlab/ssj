@@ -35,6 +35,7 @@ import android.os.Build;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
@@ -54,7 +55,7 @@ public class AudioWriter extends Mp4Writer
     public class Options extends Mp4Writer.Options
     {
         public final Option<String> mimeType = new Option<>("mimeType", "audio/mp4a-latm", String.class, "");
-        public final Option<Integer> audioFormat = new Option<>("audioFormat", AudioFormat.ENCODING_DEFAULT, Integer.class, "");
+        public final Option<Cons.AudioFormat> audioFormat = new Option<>("audioFormat", Cons.AudioFormat.ENCODING_DEFAULT, Cons.AudioFormat.class, "");
 
         /**
          *
@@ -128,10 +129,10 @@ public class AudioWriter extends Mp4Writer
             }
             case FLOAT:
             {
-                if (options.audioFormat.get() == AudioFormat.ENCODING_DEFAULT || options.audioFormat.get() == AudioFormat.ENCODING_PCM_16BIT)
+                if (options.audioFormat.get().val == AudioFormat.ENCODING_DEFAULT || options.audioFormat.get().val == AudioFormat.ENCODING_PCM_16BIT)
                 {
                     dataFormat = DataFormat.FLOAT_16;
-                } else if (options.audioFormat.get() == AudioFormat.ENCODING_PCM_8BIT)
+                } else if (options.audioFormat.get().val == AudioFormat.ENCODING_PCM_8BIT)
                 {
                     dataFormat = DataFormat.FLOAT_8;
                 } else

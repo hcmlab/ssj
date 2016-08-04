@@ -27,6 +27,7 @@
 package hcm.ssjclay.creator.container;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import hcm.ssj.core.Provider;
 
@@ -39,7 +40,7 @@ public class ContainerElement<T>
     private T element;
     private double frameSize = 1;
     private double delta = 0;
-    private HashMap<Provider, Boolean> hmProviders = new HashMap<>();
+    private LinkedHashMap<Provider, Boolean> hmProviders = new LinkedHashMap<>();
 
     /**
      * @param element T

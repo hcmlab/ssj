@@ -6,8 +6,8 @@
   <sensorProviderList>
     <sensorProvider class="hcm.ssj.audio.AudioProvider" id="1">
       <options>
-        <option name="audioFormat" value="2" />
-        <option name="channelConfig" value="12" />
+        <option name="audioFormat" value="ENCODING_PCM_16BIT" />
+        <option name="channelConfig" value="CHANNEL_IN_MONO" />
         <option name="scale" value="true" />
       </options>
     </sensorProvider>
@@ -22,12 +22,15 @@
   </sensorList>
   
   <transformerList>
-    <transformer class="hcm.ssj.audio.Energy" id="3" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.audio.Energy" id="3" frameSize="0.2" delta="0.0">
       <providerList>
         <providerId id="1" />
       </providerList>
     </transformer>
-    <transformer class="hcm.ssj.audio.Pitch" id="4" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.audio.Pitch" id="4" frameSize="0.04" delta="0">
+      <options>
+        <option name="computeVoicedProb" value="false" />
+      </options>
       <providerList>
         <providerId id="1" />
       </providerList>
@@ -35,13 +38,13 @@
   </transformerList>
   
   <consumerList>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="5" frameSize="1.0" delta="0.0">
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="5" frameSize="0.2" delta="0.0">
+      <options>
+        <option name="secondScaleMin" value="0" />
+        <option name="secondScaleMax" value="500" />
+      </options>
       <providerList>
         <providerId id="3" />
-      </providerList>
-    </consumer>
-    <consumer class="hcm.ssj.graphic.SignalPainter" id="6" frameSize="1.0" delta="0.0">
-      <providerList>
         <providerId id="4" />
       </providerList>
     </consumer>

@@ -27,7 +27,6 @@
 package hcm.ssj;
 
 import android.app.Application;
-import android.media.AudioFormat;
 import android.test.ApplicationTestCase;
 
 import java.io.File;
@@ -36,6 +35,7 @@ import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.AudioWriter;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.TheFramework;
@@ -72,14 +72,14 @@ public class AudioTest extends ApplicationTestCase<Application>
         frame.addSensor(microphone);
         //provider
         AudioProvider audioProvider = new AudioProvider();
-        audioProvider.options.audioFormat.set(AudioFormat.ENCODING_PCM_16BIT);
-        audioProvider.options.channelConfig.set(AudioFormat.CHANNEL_IN_STEREO);
+        audioProvider.options.audioFormat.set(Cons.AudioFormat.ENCODING_PCM_16BIT);
+        audioProvider.options.channelConfig.set(Cons.ChannelFormat.CHANNEL_IN_STEREO);
         audioProvider.options.sampleRate.set(8000);
         audioProvider.options.scale.set(true);
         microphone.addProvider(audioProvider);
         //consumer
         AudioWriter audioWriter = new AudioWriter();
-        audioWriter.options.audioFormat.set(AudioFormat.ENCODING_PCM_16BIT);
+        audioWriter.options.audioFormat.set(Cons.AudioFormat.ENCODING_PCM_16BIT);
         audioWriter.options.filePath.set(dir.getPath());
         audioWriter.options.fileName.set(fileName);
         frame.addConsumer(audioWriter, audioProvider, 1, 0);

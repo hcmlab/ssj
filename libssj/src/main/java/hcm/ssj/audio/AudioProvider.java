@@ -46,8 +46,8 @@ public class AudioProvider extends SensorProvider
     public class Options extends OptionList
     {
         public final Option<Integer> sampleRate = new Option<>("sampleRate", 8000, Integer.class, "");
-        public final Option<Integer> channelConfig = new Option<>("channelConfig", AudioFormat.CHANNEL_IN_MONO, Integer.class, "");
-        public final Option<Integer> audioFormat = new Option<>("audioFormat", AudioFormat.ENCODING_PCM_16BIT, Integer.class, "orientation of input picture");
+        public final Option<Cons.ChannelFormat> channelConfig = new Option<>("channelConfig", Cons.ChannelFormat.CHANNEL_IN_MONO, Cons.ChannelFormat.class, "");
+        public final Option<Cons.AudioFormat> audioFormat = new Option<>("audioFormat", Cons.AudioFormat.ENCODING_PCM_16BIT, Cons.AudioFormat.class, "");
         public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "");
 
         /**
@@ -73,7 +73,7 @@ public class AudioProvider extends SensorProvider
     public void enter(Stream stream_out)
     {
         //setup android audio middleware
-        _recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, options.sampleRate.get(), options.channelConfig.get(), options.audioFormat.get(), stream_out.tot*10);
+        _recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, options.sampleRate.get(), options.channelConfig.get().val, options.audioFormat.get().val, stream_out.tot*10);
 
         int state = _recorder.getState();
         if(state != 1)
@@ -81,10 +81,10 @@ public class AudioProvider extends SensorProvider
 
         if(options.scale.get())
         {
-            if(options.audioFormat.get() != AudioFormat.ENCODING_PCM_8BIT && options.audioFormat.get() != AudioFormat.ENCODING_PCM_16BIT)
+            if(options.audioFormat.get() != Cons.AudioFormat.ENCODING_PCM_8BIT && options.audioFormat.get() != Cons.AudioFormat.ENCODING_PCM_16BIT)
                 Log.e("unsupported audio format for normalization");
 
-            int numBytes = Microphone.audioFormatSampleBytes(options.audioFormat.get());
+            int numBytes = Microphone.audioFormatSampleBytes(options.audioFormat.get().val);
             _data = new byte[stream_out.num * stream_out.dim * numBytes];
         }
 
@@ -100,7 +100,7 @@ public class AudioProvider extends SensorProvider
         {
             //read data
             // this is blocking and thus defines the update rate
-            switch (options.audioFormat.get())
+            switch (options.audioFormat.get().val)
             {
                 case AudioFormat.ENCODING_PCM_8BIT:
                     _recorder.read(stream_out.ptrB(), 0, stream_out.num * stream_out.dim);
@@ -125,7 +125,7 @@ public class AudioProvider extends SensorProvider
             int i = 0, j = 0;
             while (i < _data.length)
             {
-                switch (options.audioFormat.get())
+                switch (options.audioFormat.get().val)
                 {
                     case AudioFormat.ENCODING_PCM_8BIT:
                         outf[j++] = _data[i++] / 128.0f;
@@ -155,7 +155,7 @@ public class AudioProvider extends SensorProvider
     @Override
     public int getSampleDimension()
     {
-        switch(options.channelConfig.get())
+        switch(options.channelConfig.get().val)
         {
             case AudioFormat.CHANNEL_IN_MONO:
                 return 1;
@@ -176,8 +176,8 @@ public class AudioProvider extends SensorProvider
     @Override
     public int getSampleNumber()
     {
-        int minBufSize = AudioRecord.getMinBufferSize(options.sampleRate.get(), options.channelConfig.get(), options.audioFormat.get());
-        int bytesPerSample = Microphone.audioFormatSampleBytes(options.audioFormat.get());
+        int minBufSize = AudioRecord.getMinBufferSize(options.sampleRate.get(), options.channelConfig.get().val, options.audioFormat.get().val);
+        int bytesPerSample = Microphone.audioFormatSampleBytes(options.audioFormat.get().val);
         int dim = getSampleDimension();
 
         return minBufSize / (bytesPerSample * dim);
@@ -189,7 +189,7 @@ public class AudioProvider extends SensorProvider
        if(options.scale.get())
             return 4;
         else
-            return Microphone.audioFormatSampleBytes(options.audioFormat.get());
+            return Microphone.audioFormatSampleBytes(options.audioFormat.get().val);
     }
 
     @Override
@@ -198,7 +198,7 @@ public class AudioProvider extends SensorProvider
         if(options.scale.get())
             return Cons.Type.FLOAT;
         else
-            return Microphone.audioFormatSampleType(options.audioFormat.get());
+            return Microphone.audioFormatSampleType(options.audioFormat.get().val);
     }
 
     @Override
