@@ -66,9 +66,12 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	private float accelerationX;
 	private float accelerationY;
 	private float accelerationZ;
-	private float angularVelocityX;
-	private float angularVelocityY;
-	private float angularVelocityZ;
+	private float gyrVelocityX;
+	private float gyrVelocityY;
+	private float gyrVelocityZ;
+	private float gyrAccelerationX;
+	private float gyrAccelerationY;
+	private float gyrAccelerationZ;
 	private int brightness;
 	private double airPressure;
 	private double temperature;
@@ -103,9 +106,12 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		accelerationX = 0;
 		accelerationY = 0;
 		accelerationZ = 0;
-		angularVelocityX = 0;
-		angularVelocityY = 0;
-		angularVelocityZ = 0;
+		gyrVelocityX = 0;
+		gyrVelocityY = 0;
+		gyrVelocityZ = 0;
+		gyrAccelerationX = 0;
+		gyrAccelerationY = 0;
+		gyrAccelerationZ = 0;
 		brightness = 0;
 		airPressure = 0;
 		temperature = 0;
@@ -163,13 +169,12 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	public void onBandGyroscopeChanged(BandGyroscopeEvent bandGyroscopeEvent)
 	{
 		receivedData = true;
-		angularVelocityX = bandGyroscopeEvent.getAngularVelocityX();
-		angularVelocityY = bandGyroscopeEvent.getAngularVelocityY();
-		angularVelocityZ = bandGyroscopeEvent.getAngularVelocityZ();
-
-		// accelerationX = bandGyroscopeEvent.getAccelerationX();
-		// accelerationY = bandGyroscopeEvent.getAccelerationY();
-		// accelerationZ = bandGyroscopeEvent.getAccelerationZ();
+		gyrVelocityX = bandGyroscopeEvent.getAngularVelocityX();
+		gyrVelocityY = bandGyroscopeEvent.getAngularVelocityY();
+		gyrVelocityZ = bandGyroscopeEvent.getAngularVelocityZ();
+		gyrAccelerationX = bandGyroscopeEvent.getAccelerationX();
+		gyrAccelerationY = bandGyroscopeEvent.getAccelerationY();
+		gyrAccelerationZ = bandGyroscopeEvent.getAccelerationZ();
 	}
 
 	@Override
@@ -263,17 +268,32 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 
 	public float getAngularVelocityX()
 	{
-		return angularVelocityX;
+		return gyrVelocityX;
 	}
 
 	public float getAngularVelocityY()
 	{
-		return angularVelocityY;
+		return gyrVelocityY;
 	}
 
 	public float getAngularVelocityZ()
 	{
-		return angularVelocityZ;
+		return gyrVelocityZ;
+	}
+
+	public float getAngularAccelerationX()
+	{
+		return gyrAccelerationX;
+	}
+
+	public float getAngularAccelerationY()
+	{
+		return gyrAccelerationY;
+	}
+
+	public float getAngularAccelerationZ()
+	{
+		return gyrAccelerationZ;
 	}
 
 	public int getBrightness()

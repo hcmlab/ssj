@@ -54,6 +54,7 @@ public class MSBand extends Sensor
 	@Override
 	protected boolean connect()
 	{
+		Log.i("connecting to ms band ...");
 		boolean connected = false;
 
 		listener = new BandListener();
@@ -120,6 +121,11 @@ public class MSBand extends Sensor
 		}
 
 		return connected;
+	}
+
+	protected boolean checkConnection()
+	{
+		return listener.connected;
 	}
 
 	@Override

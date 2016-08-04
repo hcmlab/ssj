@@ -35,7 +35,7 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 06.07.2016.
  */
-public class VelocityProvider extends SensorProvider
+public class GyroscopeProvider extends SensorProvider
 {
 	public class Options extends OptionList
 	{
@@ -51,9 +51,9 @@ public class VelocityProvider extends SensorProvider
 
 	protected BandListener _listener;
 
-	public VelocityProvider()
+	public GyroscopeProvider()
 	{
-		_name = "MSBand_Velocity";
+		_name = "MSBand_Gyroscope";
 	}
 
 	@Override
@@ -72,6 +72,9 @@ public class VelocityProvider extends SensorProvider
 		out[0] = _listener.getAngularVelocityX();
 		out[1] = _listener.getAngularVelocityY();
 		out[2] = _listener.getAngularVelocityZ();
+		out[3] = _listener.getAngularAccelerationX();
+		out[4] = _listener.getAngularAccelerationY();
+		out[5] = _listener.getAngularAccelerationZ();
 
 		return true;
 	}
@@ -85,7 +88,7 @@ public class VelocityProvider extends SensorProvider
 	@Override
 	protected int getSampleDimension()
 	{
-		return 3;
+		return 6;
 	}
 
 	@Override
@@ -98,8 +101,11 @@ public class VelocityProvider extends SensorProvider
 	protected void defineOutputClasses(Stream stream_out)
 	{
 		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "VelocityX";
-		stream_out.dataclass[1] = "VelocityY";
-		stream_out.dataclass[2] = "VelocityZ";
+		stream_out.dataclass[0] = "AngularVelX";
+		stream_out.dataclass[1] = "AngularVelY";
+		stream_out.dataclass[2] = "AngularVelZ";
+		stream_out.dataclass[3] = "AngularAccX";
+		stream_out.dataclass[4] = "AngularAccY";
+		stream_out.dataclass[5] = "AngularAccZ";
 	}
 }

@@ -64,12 +64,12 @@ public abstract class Component implements Runnable
 
             if(frame.getTime() > time + frame.options.timeoutThread.get())
             {
-                Log.w(_name + "force-killed thread");
+                Log.w(_name + " force-killed thread");
                 forcekill();
                 break;
             }
         }
-        Log.i(_name + "shut down completed");
+        Log.i(_name + " shut down completed");
     }
 
     public void forcekill()
