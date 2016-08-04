@@ -32,7 +32,6 @@ import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebSettings;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.CheckedTextView;
 import android.widget.TextView;
@@ -49,6 +48,7 @@ class ListAdapter extends BaseExpandableListAdapter
     private Context context;
     private String[] listDataHeader;
     private LinkedHashMap<String, ArrayList<Class>> mapDataChild;
+    private static final int PADDING = 25;
 
     /**
      * @param context      Context
@@ -102,6 +102,7 @@ class ListAdapter extends BaseExpandableListAdapter
             convertView = inflater.inflate(android.R.layout.simple_list_item_multiple_choice, null);
         }
         CheckedTextView txtListChild = (CheckedTextView) convertView;
+        txtListChild.setPadding(PADDING, PADDING, PADDING, PADDING);
         txtListChild.setText(childText);
         return convertView;
     }
@@ -163,6 +164,8 @@ class ListAdapter extends BaseExpandableListAdapter
             convertView = inflater.inflate(android.R.layout.simple_expandable_list_item_1, null);
         }
         TextView lblListHeader = (TextView) convertView;
+        lblListHeader.setPadding(lblListHeader.getPaddingLeft(), PADDING,
+                lblListHeader.getPaddingRight(), PADDING);
         lblListHeader.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
         lblListHeader.setTypeface(null, Typeface.ITALIC);
         lblListHeader.setText(headerTitle);
