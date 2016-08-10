@@ -126,7 +126,6 @@ public class MainActivity extends AppCompatActivity
         private final int max = 100000;
         private final int interim = 100000 / 2;
 
-
         /**
          * @param msg String
          */
