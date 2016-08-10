@@ -35,7 +35,6 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 import hcm.ssj.BuildConfig;
-import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 17.03.2016.
@@ -54,7 +53,7 @@ public class Log
      * Interface to register listeners to
      */
     public interface LogListener {
-        void send(String msg);
+        void msg(int type, String msg);
     }
 
     public class Entry
@@ -74,7 +73,6 @@ public class Log
     private static Log instance = null;
     //
     private static HashSet<LogListener> hsLogListener = new HashSet<>();
-    private String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
 
     Log() {}
 
@@ -169,11 +167,11 @@ public class Log
 
         str = buildEntry(caller, msg, tr);
         android.util.Log.println(type, Cons.LOGTAG, str);
+
         //send message to listeners
         if (hsLogListener.size() > 0) {
-            String logMessage = (type > 0 && type < tags.length ? tags[type] : type) + "/" +  Cons.LOGTAG + ": " + str + LoggingConstants.DELIMITER_LINE;
             for (LogListener logListener : hsLogListener) {
-                logListener.send(logMessage);
+                logListener.msg(type, str);
             }
         }
 

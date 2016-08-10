@@ -58,10 +58,12 @@ import java.util.Arrays;
 import java.util.List;
 
 import hcm.ssj.camera.CameraPainter;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.graphic.SignalPainter;
 import hcm.ssjclay.creator.Builder;
 import hcm.ssjclay.creator.Linker;
@@ -103,9 +105,12 @@ public class MainActivity extends AppCompatActivity
         /**
          * @param msg String
          */
-        public void send(String msg)
+        public void msg(int type, String msg)
         {
-            strLogMsg += msg;
+            String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
+            String logMessage = (type > 0 && type < tags.length ? tags[type] : type) + "/" +  Cons.LOGTAG + ": " + msg + LoggingConstants.DELIMITER_LINE;
+
+            strLogMsg += logMessage;
             handler.post(runnable);
         }
     };
@@ -299,7 +304,7 @@ public class MainActivity extends AppCompatActivity
                 {
                     //clear console
                     strLogMsg = "";
-                    MainActivity.this.logListener.send("");
+//                    MainActivity.this.logListener.msg(0, "");
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
                     //remove old content
