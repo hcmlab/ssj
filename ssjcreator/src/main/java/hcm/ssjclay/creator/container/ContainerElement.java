@@ -26,7 +26,6 @@
 
 package hcm.ssjclay.creator.container;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import hcm.ssj.core.Provider;
@@ -91,9 +90,9 @@ public class ContainerElement<T>
     }
 
     /**
-     * @return HashMap
+     * @return LinkedHashMap
      */
-    public HashMap<Provider, Boolean> getHmProviders()
+    public LinkedHashMap<Provider, Boolean> getHmProviders()
     {
         return hmProviders;
     }

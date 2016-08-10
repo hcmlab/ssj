@@ -100,13 +100,13 @@ public class AudioProvider extends SensorProvider
         {
             //read data
             // this is blocking and thus defines the update rate
-            switch (options.audioFormat.get().val)
+            switch (options.audioFormat.get())
             {
-                case AudioFormat.ENCODING_PCM_8BIT:
+                case ENCODING_PCM_8BIT:
                     _recorder.read(stream_out.ptrB(), 0, stream_out.num * stream_out.dim);
                     break;
-                case AudioFormat.ENCODING_PCM_16BIT:
-                case AudioFormat.ENCODING_DEFAULT:
+                case ENCODING_PCM_16BIT:
+                case ENCODING_DEFAULT:
                     _recorder.read(stream_out.ptrS(), 0, stream_out.num * stream_out.dim);
                     break;
                 default:
@@ -125,13 +125,13 @@ public class AudioProvider extends SensorProvider
             int i = 0, j = 0;
             while (i < _data.length)
             {
-                switch (options.audioFormat.get().val)
+                switch (options.audioFormat.get())
                 {
-                    case AudioFormat.ENCODING_PCM_8BIT:
+                    case ENCODING_PCM_8BIT:
                         outf[j++] = _data[i++] / 128.0f;
                         break;
-                    case AudioFormat.ENCODING_PCM_16BIT:
-                    case AudioFormat.ENCODING_DEFAULT:
+                    case ENCODING_PCM_16BIT:
+                    case ENCODING_DEFAULT:
                         outf[j++] = (short) ((_data[i+1] & 0xFF) << 8 | (_data[i+0] & 0xFF)) / 32768.0f;
                         i += 2;
                         break;
@@ -155,12 +155,12 @@ public class AudioProvider extends SensorProvider
     @Override
     public int getSampleDimension()
     {
-        switch(options.channelConfig.get().val)
+        switch(options.channelConfig.get())
         {
-            case AudioFormat.CHANNEL_IN_MONO:
+            case CHANNEL_IN_MONO:
                 return 1;
 
-            case AudioFormat.CHANNEL_IN_STEREO:
+            case CHANNEL_IN_STEREO:
                 return 2;
         }
 

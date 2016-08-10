@@ -88,10 +88,12 @@ public class MainActivity extends AppCompatActivity
     //console
     private TextView textViewConsole = null;
     private String strLogMsg = "";
-    private Log.LogListener logListener = new Log.LogListener()
+    private boolean handleLogMessages = false;
+    private Thread threadLog = new Thread()
     {
-        Handler handler = new Handler(Looper.getMainLooper());
-        Runnable runnable = new Runnable()
+        private final int sleepTime = 100;
+        private Handler handlerLog = new Handler(Looper.getMainLooper());
+        private Runnable runnableLog = new Runnable()
         {
             public void run()
             {
@@ -102,16 +104,41 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
+        @Override
+        public void run()
+        {
+            while (handleLogMessages)
+            {
+                try
+                {
+                    handlerLog.post(runnableLog);
+                    Thread.sleep(sleepTime);
+                } catch (InterruptedException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    };
+    private Log.LogListener logListener = new Log.LogListener()
+    {
+        private String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
+        private final int max = 100000;
+        private final int interim = 100000 / 2;
+
+
         /**
          * @param msg String
          */
         public void msg(int type, String msg)
         {
-            String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
-            String logMessage = (type > 0 && type < tags.length ? tags[type] : type) + "/" +  Cons.LOGTAG + ": " + msg + LoggingConstants.DELIMITER_LINE;
-
-            strLogMsg += logMessage;
-            handler.post(runnable);
+            strLogMsg += (type > 0 && type < tags.length ? tags[type] : type) + "/" + Cons.LOGTAG + ": " + msg + LoggingConstants.DELIMITER_LINE;
+            int length = strLogMsg.length();
+            if (length > max)
+            {
+                strLogMsg = strLogMsg.substring(length - interim);
+                strLogMsg = strLogMsg.substring(strLogMsg.indexOf(LoggingConstants.DELIMITER_LINE) + LoggingConstants.DELIMITER_LINE.length());
+            }
         }
     };
     private PipeView.ViewListener viewListener = new PipeView.ViewListener()
@@ -143,6 +170,8 @@ public class MainActivity extends AppCompatActivity
         }
         //add log listener
         Log.addLogListener(logListener);
+        handleLogMessages = true;
+        threadLog.start();
         //add view listener
         pipeView.addViewListener(viewListener);
         //handle permissions
@@ -304,7 +333,6 @@ public class MainActivity extends AppCompatActivity
                 {
                     //clear console
                     strLogMsg = "";
-//                    MainActivity.this.logListener.msg(0, "");
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
                     //remove old content
@@ -577,6 +605,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
+        handleLogMessages = false;
         Log.removeLogListener(logListener);
         pipeView.removeViewListener(viewListener);
         TheFramework framework = TheFramework.getFramework();

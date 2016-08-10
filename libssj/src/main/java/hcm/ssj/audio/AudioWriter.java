@@ -129,10 +129,10 @@ public class AudioWriter extends Mp4Writer
             }
             case FLOAT:
             {
-                if (options.audioFormat.get().val == AudioFormat.ENCODING_DEFAULT || options.audioFormat.get().val == AudioFormat.ENCODING_PCM_16BIT)
+                if (options.audioFormat.get() == Cons.AudioFormat.ENCODING_DEFAULT || options.audioFormat.get() == Cons.AudioFormat.ENCODING_PCM_16BIT)
                 {
                     dataFormat = DataFormat.FLOAT_16;
-                } else if (options.audioFormat.get().val == AudioFormat.ENCODING_PCM_8BIT)
+                } else if (options.audioFormat.get() == Cons.AudioFormat.ENCODING_PCM_8BIT)
                 {
                     dataFormat = DataFormat.FLOAT_8;
                 } else
