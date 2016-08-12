@@ -31,8 +31,8 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 
 If you use SSJ for a research project, please consider referencing the following paper:
 <ul>
-  <li>I. Damian, E. André, <i>Exploring the Potential of Realtime Haptic Feedback during Social Interactions</i>, In Proceedings of Tangible, Embedded and Embodied Interaction (TEI), ACM, 2016<br/>
-  <a href="http://dl.acm.org/citation.cfm?id=2856519">dl.acm.org</a> / <a href="http://dl.acm.org/downformats.cfm?id=2856519&parent_id=2839462&expformat=bibtex">BibTex</a></li>
+  <li>I. Damian, C.S.S. Tan, T. Baur, J. Schöning, K. Luyten, E. André, <i>Augmenting Social Interactions: Realtime Behavioural Feedback using Social Signal Processing Techniques</i>, In Proceedings of Human Factors in Computing Systems (CHI), ACM, 2015<br/>
+  <a href="http://dl.acm.org/citation.cfm?id=2702123.2702314&coll=DL&dl=ACM">dl.acm.org</a> / <a href="http://dl.acm.org/downformats.cfm?id=2702314&parent_id=2702123&expformat=bibtex">BibTex</a></li>
 </ul>
 
 ### License
