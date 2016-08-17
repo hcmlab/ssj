@@ -28,6 +28,7 @@ package hcm.ssj.gps;
 
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 
 /**
@@ -38,12 +39,15 @@ public class GPSListener implements LocationListener
 	private double latitude;
 	private double longitude;
 	private long   time;
+	private long   updateTime;
 
 	public boolean receivedData;
 
-	public GPSListener()
+	public GPSListener(long updateTime)
 	{
 		reset();
+
+		this.updateTime = updateTime;
 	}
 
 	public void reset()
@@ -58,11 +62,22 @@ public class GPSListener implements LocationListener
 	@Override
 	public void onLocationChanged(Location location)
 	{
-		receivedData = true;
+		if (location.getProvider().equals(LocationManager.NETWORK_PROVIDER) && location.getTime() - time > updateTime * 2)
+		{
+			receivedData = true;
 
-		latitude = location.getLatitude();
-		longitude = location.getLongitude();
-		time = location.getTime();
+			latitude = location.getLatitude();
+			longitude = location.getLongitude();
+		}
+
+		if (location.getProvider().equals(LocationManager.GPS_PROVIDER))
+		{
+			receivedData = true;
+
+			latitude = location.getLatitude();
+			longitude = location.getLongitude();
+			time = location.getTime();
+		}
 	}
 
 	public double getLatitude()

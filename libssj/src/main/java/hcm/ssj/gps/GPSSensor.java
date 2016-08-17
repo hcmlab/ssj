@@ -49,6 +49,7 @@ public class GPSSensor extends Sensor
 		public final Option<Long>    minTime     = new Option<>("minTime", 200L, Long.class, "Minimum time interval between location updates, in milliseconds");
 		public final Option<Float>   minDistance = new Option<>("minDistance", 1f, Float.class, "Minimum distance between location updates, in meters");
 		public final Option<Boolean> ignoreData  = new Option<>("ignoreData", false, Boolean.class, "Set to 'true' if no error should occur when no data is received from gps");
+		public final Option<Boolean> useNetwork  = new Option<>("useNetwork", true, Boolean.class, "Set to 'false' if NETWORK_PROVIDER should not be used as fallback");
 
 		private Options()
 		{
@@ -71,7 +72,7 @@ public class GPSSensor extends Sensor
 	{
 		boolean connected = false;
 
-		listener = new GPSListener();
+		listener = new GPSListener(options.minTime.get());
 
 		locationManager = (LocationManager) SSJApplication.getAppContext().getSystemService(Context.LOCATION_SERVICE);
 
@@ -84,6 +85,11 @@ public class GPSSensor extends Sensor
 				{
 					// Register listener
 					locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, options.minTime.get(), options.minDistance.get(), listener);
+
+					if (options.useNetwork.get())
+					{
+						locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, options.minTime.get(), options.minDistance.get(), listener);
+					}
 				}
 			}, 1);
 
