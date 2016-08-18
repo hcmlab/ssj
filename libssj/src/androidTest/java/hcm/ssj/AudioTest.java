@@ -140,17 +140,16 @@ public class AudioTest extends ApplicationTestCase<Application>
         vad.options.hangout.set(5);
         Provider[] vad_in = {energy};
         frame.addConsumer(vad, vad_in, 1.0, 0);
-        EventChannel vad_channel = frame.registerEventProvider(vad);
+        EventChannel vad_channel = vad.getEventChannelOut();
 
         hcm.ssj.audio.SpeechRate sr = new hcm.ssj.audio.SpeechRate();
         sr.options.thresholdVoicedProb.set(0.3f);
         Provider[] sr_in = {energy, pitch_env};
         frame.addEventConsumer(sr, sr_in, vad_channel);
-        EventChannel sr_channel = frame.registerEventProvider(sr);
+        EventChannel sr_channel = sr.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addComponent(log);
-        frame.registerEventListener(log, sr_channel);
+        frame.addEventListener(log, sr_channel);
 
         try
         {

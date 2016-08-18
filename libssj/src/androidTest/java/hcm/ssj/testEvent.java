@@ -66,11 +66,10 @@ public class testEvent extends ApplicationTestCase<Application> {
         FloatsEventSender evs = new FloatsEventSender();
         evs.options.mean.set(false);
         frame.addConsumer(evs, energy, 1.0, 0);
-        EventChannel channel = frame.registerEventProvider(evs);
+        EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addComponent(log);
-        frame.registerEventListener(log, channel);
+        frame.addEventListener(log, channel);
 
         try {
             frame.Start();
@@ -117,16 +116,15 @@ public class testEvent extends ApplicationTestCase<Application> {
         vad.options.hangout.set(5);
         Provider[] vad_in = {energy};
         frame.addConsumer(vad, vad_in, 1.0, 0);
-        EventChannel vad_channel = frame.registerEventProvider(vad);
+        EventChannel vad_channel = vad.getEventChannelOut();
 
         FloatSegmentEventSender evs = new FloatSegmentEventSender();
         evs.options.mean.set(true);
         frame.addEventConsumer(evs, energy, vad_channel);
-        EventChannel channel = frame.registerEventProvider(evs);
+        EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addComponent(log);
-        frame.registerEventListener(log, channel);
+        frame.addEventListener(log, channel);
 
         try {
             frame.Start();

@@ -64,17 +64,15 @@ public class testSockets extends ApplicationTestCase<Application> {
         FloatsEventSender evs = new FloatsEventSender();
         evs.options.mean.set(true);
         frame.addConsumer(evs, energy, 1.0, 0);
-        EventChannel channel = frame.registerEventProvider(evs);
+        EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addComponent(log);
-        frame.registerEventListener(log, channel);
+        frame.addEventListener(log, channel);
 
         SocketEventWriter sock = new SocketEventWriter();
         sock.options.port = 34300;
         sock.options.ip = "192.168.0.101";
-        frame.addComponent(sock);
-        frame.registerEventListener(sock, channel);
+        frame.addEventListener(sock, channel);
 
         try {
             frame.Start();

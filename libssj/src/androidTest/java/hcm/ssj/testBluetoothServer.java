@@ -90,12 +90,10 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         BluetoothEventReader bler = new BluetoothEventReader();
         bler.options.connectionType.set(BluetoothConnection.Type.SERVER);
         bler.options.connectionName.set("event");
-        frame.addComponent(bler);
-        EventChannel ch = frame.registerEventProvider(bler);
+        EventChannel ch = frame.addEventProvider(bler);
 
         EventLogger evlog = new EventLogger();
-        frame.addComponent(evlog);
-        frame.registerEventListener(evlog, ch);
+        frame.addEventListener(evlog, ch);
 
         try {
             frame.Start();

@@ -282,17 +282,52 @@ public class TheFramework
         _components.add(c);
     }
 
+    public void addEventListener(Component c, EventChannel channel)
+    {
+        _components.add(c);
+        c.addEventChannelIn(channel);
+    }
+
+    public void addEventListener(Component c, EventChannel[] channels)
+    {
+        _components.add(c);
+
+        for(EventChannel ch : channels)
+            c.addEventChannelIn(ch);
+    }
+
+    /**
+     * Adds a component ONLY as an event provider to the framework
+     * This means that no stream buffer are assigned and no component setup is performed
+     * If the component is more than a event provider, use the appropriate method
+     * and than call c.getEventChannelOut() to "transform" the component into an event provider
+     *
+     * @param c the component to be registered as an event provider (only possible for EventHandler)
+     * @return the assigned output event channel
+     */
+    public EventChannel addEventProvider(EventHandler c)
+    {
+        _components.add(c);
+        return c.getEventChannelOut();
+    }
+
     /**
      * Adds an unspecific component to the framework.
      * No initialization is performed and no buffers are allocated.
      *
      * @param c the component to be added
+     * @deprecated use addEventProvider() or addEventListener() instead
      */
+    @Deprecated
     public void addComponent(Component c)
     {
         _components.add(c);
     }
 
+    /**
+     * @deprecated use component.getEventChannelOut() or addEventProvider() instead
+     */
+    @Deprecated
     public EventChannel registerEventProvider(Component c)
     {
         EventChannel channel = new EventChannel();
@@ -300,6 +335,10 @@ public class TheFramework
         return channel;
     }
 
+    /**
+     * @deprecated use addEventListener() instead
+     */
+    @Deprecated
     public void registerEventListener(Component c, EventChannel channel)
     {
         c.addEventChannelIn(channel);

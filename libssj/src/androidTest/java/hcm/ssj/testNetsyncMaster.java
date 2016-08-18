@@ -77,11 +77,11 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
 //        BluetoothEventReader bler = new BluetoothEventReader();
 //        bler.options.connectionType = BluetoothConnection.Type.SERVER;
 //        bler.options.connectionName = "event";
-//        frame.addComponent(bler);
+//        frame.addEventListener(bler);
 //        EventChannel ch = frame.registerEventProvider(bler);
 //
 //        EventLogger evlog = new EventLogger();
-//        frame.addComponent(evlog);
+//        frame.addEventListener(evlog);
 //        frame.registerEventListener(evlog, ch);
 
         try {

@@ -94,6 +94,14 @@ public abstract class Component implements Runnable
         _evchannel_out = channel;
     }
 
+    public EventChannel getEventChannelOut()
+    {
+        if(_evchannel_out == null)
+            _evchannel_out = new EventChannel();
+
+        return _evchannel_out;
+    }
+
     public void reset()
     {
         _terminate = false;

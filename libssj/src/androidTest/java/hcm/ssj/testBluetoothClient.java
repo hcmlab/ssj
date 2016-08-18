@@ -88,14 +88,13 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
 
         FloatsEventSender fes = new FloatsEventSender();
         frame.addConsumer(fes, acc, 1.0, 0);
-        EventChannel ch = frame.registerEventProvider(fes);
+        EventChannel ch = fes.getEventChannelOut();
 
         BluetoothEventWriter blew = new BluetoothEventWriter();
         blew.options.connectionType.set(BluetoothConnection.Type.CLIENT);
         blew.options.serverName.set("HCM-Johnny-Phone");
         blew.options.connectionName.set("event");
-        frame.addComponent(blew);
-        frame.registerEventListener(blew, ch);
+        frame.addEventListener(blew, ch);
 
         try {
             frame.Start();

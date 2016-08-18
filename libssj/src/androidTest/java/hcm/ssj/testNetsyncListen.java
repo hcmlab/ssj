@@ -78,7 +78,7 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
 //        blew.options.connectionType = BluetoothConnection.Type.CLIENT;
 //        blew.options.serverAddr = "60:8F:5C:F2:D0:9D";
 //        blew.options.connectionName = "event";
-//        frame.addComponent(blew);
+//        frame.addEventListener(blew);
 //        frame.registerEventListener(blew, ch);
 
         try {
