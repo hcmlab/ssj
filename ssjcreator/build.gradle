@@ -47,8 +47,13 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compile 'com.android.support:appcompat-v7:23.3.0'
     releaseCompile project(path: ':libssj', configuration: 'release')
     debugCompile project(path: ':libssj', configuration: 'debug')
+    compile 'com.github.paolorotolo:appintro:4.0.0'
 }
