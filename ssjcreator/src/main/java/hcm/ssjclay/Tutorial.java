@@ -46,12 +46,11 @@ public class Tutorial extends AppIntro
 
         // Instead of fragments, you can also use our default slide
         // Just set a title, description, background and image. AppIntro will do the rest.
-        addSlide(AppIntroFragment.newInstance("Welcome", "SSJ Creator allows you to perform signal processing activities by creating, editing and executing SSJ pipelines", R.drawable.logo, Color.parseColor("#0099CC")));
-        addSlide(AppIntroFragment.newInstance("Load Standard Pipeline", "To start, simply load one of the standard pipelines from the file menu", R.drawable.file, Color.parseColor("#BB8930")));
-        addSlide(AppIntroFragment.newInstance("Create Your Own Pipeline", "You can also create your own pipeline form scratch (or edit existing ones) by adding components from the paint menu", R.drawable.edit, Color.parseColor("#979797")));
-        addSlide(AppIntroFragment.newInstance("Start the Pipeline", "Once you have a pipeline, press the play button to start it", R.drawable.start, Color.parseColor("#4A82AE")));
-        addSlide(AppIntroFragment.newInstance("Enjoy", "Now check out your pipeline in action using the different views", R.drawable.tabs, Color.parseColor("#4CAF50")));
-//        addSlide(AppIntroFragment.newInstance("Enjoy", "Now, you just need to allow SSJ Creator to access your Phones various sensors and than you are all set", R.drawable.ic_done_white_24px, Color.parseColor("#4CAF50")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide1_title), getResources().getString(R.string.slide1_text), R.drawable.logo, Color.parseColor("#0099CC")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide2_title), getResources().getString(R.string.slide2_text), R.drawable.file, Color.parseColor("#BB8930")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide3_title), getResources().getString(R.string.slide3_text), R.drawable.edit, Color.parseColor("#979797")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide4_title), getResources().getString(R.string.slide4_text), R.drawable.start, Color.parseColor("#4A82AE")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide5_title), getResources().getString(R.string.slide5_text), R.drawable.tabs, Color.parseColor("#4CAF50")));
 
         // OPTIONAL METHODS
         // Override bar/separator color.
