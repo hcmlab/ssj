@@ -26,11 +26,8 @@
 
 package hcm.ssj.graphic;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.WindowManager;
 
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -40,7 +37,6 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -97,39 +93,8 @@ public class SignalPainter extends Consumer
         if (options.graphView.get() == null)
         {
             Log.w("graphView isn't set");
-            //create system dialog to show graph
-            final Context context = SSJApplication.getAppContext();
-            Handler handler = new Handler(Looper.getMainLooper());
-            Thread thread = new Thread()
-            {
-                /**
-                 *
-                 */
-                @Override
-                public void run()
-                {
-                    _view = new GraphView(context);
-                    synchronized (SignalPainter.this)
-                    {
-                        try
-                        {
-                            SignalPainter.this.notify();
-                        } catch (IllegalMonitorStateException ex)
-                        {
-                            ex.printStackTrace();
-                        }
-                    }
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle(SignalPainter.class.getSimpleName());
-                    builder.setView(_view);
-                    //
-                    AlertDialog alertDialog = builder.create();
-                    alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-                    alertDialog.show();
-                }
-            };
-            handler.post(thread);
-        } else
+        }
+        else
         {
             _view = options.graphView.get();
         }

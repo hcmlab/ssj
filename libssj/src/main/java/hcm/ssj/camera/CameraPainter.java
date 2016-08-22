@@ -26,21 +26,15 @@
 
 package hcm.ssj.camera;
 
-import android.app.AlertDialog;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.WindowManager;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -110,39 +104,8 @@ public class CameraPainter extends Consumer
         if (options.surfaceView.get() == null)
         {
             Log.w("surfaceView isn't set");
-            //create system dialog to show painter
-            final Context context = SSJApplication.getAppContext();
-            Handler handler = new Handler(Looper.getMainLooper());
-            Thread thread = new Thread()
-            {
-                /**
-                 *
-                 */
-                @Override
-                public void run()
-                {
-                    surfaceViewInner = new SurfaceView(context);
-                    synchronized (CameraPainter.this)
-                    {
-                        try
-                        {
-                            CameraPainter.this.notify();
-                        } catch (IllegalMonitorStateException ex)
-                        {
-                            ex.printStackTrace();
-                        }
-                    }
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle(CameraPainter.class.getSimpleName());
-                    builder.setView(surfaceViewInner);
-                    //
-                    AlertDialog alertDialog = builder.create();
-                    alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-                    alertDialog.show();
-                }
-            };
-            handler.post(thread);
-        } else
+        }
+        else
         {
             surfaceViewInner = options.surfaceView.get();
         }
