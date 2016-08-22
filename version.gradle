@@ -1,0 +1,32 @@
+// Fetch the version according to git latest tag and "how far are we from last tag"
+def longVersionName = "git -C \"${rootDir}\" describe --tags --long --dirty".execute().text.trim()
+def (fullVersionTag, versionBuild, shaGit, dirty) = longVersionName.tokenize('-')
+def(versionMajor, versionMinor, versionPatch) = fullVersionTag.tokenize('.')
+
+if(versionMajor.charAt(0) == 'v')
+    versionMajor = versionMajor.substring(1)
+def version = "$versionMajor.$versionMinor"
+
+if(versionBuild != "0")
+    version = "$version.$versionPatch.$versionBuild"
+else if(versionPatch != "0")
+    version = "$version.$versionPatch"
+
+ext.getVerName = { lesser ->
+
+    if (lesser)
+        version = "$version" + "L"
+    else if (dirty != null) //otherwise lesser will always be dirty
+        version = "$version-dirty"
+
+    return version
+}
+
+ext.getVerCode = { ->
+
+    // Turn the version name into a version code
+    return versionMajor.toInteger() * 100000 +
+            versionMinor.toInteger() * 10000 +
+            versionPatch.toInteger() * 1000 +
+            versionBuild.toInteger()
+}

@@ -25,6 +25,7 @@
  */
 
 apply plugin: 'com.android.application'
+apply from: '../version.gradle'
 
 android {
     compileSdkVersion 23
@@ -36,8 +37,8 @@ android {
         applicationId "hcm.ssjclay"
         minSdkVersion 19
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionName getVerName(false)
+        versionCode getVerCode()
     }
     buildTypes {
         release {
