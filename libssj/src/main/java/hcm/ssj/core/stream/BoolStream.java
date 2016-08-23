@@ -35,11 +35,11 @@ public class BoolStream extends Stream
 {
     private boolean[] _ptr;
 
-    public BoolStream(int num, int dim, int bytes, double sr)
+    public BoolStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 1;
         this.type = Cons.Type.BOOL;
         this.sr = sr;
         this.step = 1.0 / sr;
@@ -78,7 +78,7 @@ public class BoolStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        BoolStream slice = new BoolStream(num, new_dims.length, bytes, sr);
+        BoolStream slice = new BoolStream(num, new_dims.length, sr);
         slice.source = source;
 
         boolean[] src = this.ptr();
@@ -100,7 +100,7 @@ public class BoolStream extends Stream
         if(dim == 1)
             return this;
 
-        BoolStream slice = new BoolStream(num, 1, bytes, sr);
+        BoolStream slice = new BoolStream(num, 1, sr);
         slice.source = source;
 
         boolean[] src = this.ptr();
@@ -118,7 +118,7 @@ public class BoolStream extends Stream
     @Override
     public Stream clone()
     {
-        BoolStream copy = new BoolStream(num, dim, bytes, sr);
+        BoolStream copy = new BoolStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

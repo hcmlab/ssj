@@ -35,11 +35,11 @@ public class FloatStream extends Stream
 {
     public float[] _ptr;
 
-    public FloatStream(int num, int dim, int bytes, double sr)
+    public FloatStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 4;
         this.type = Cons.Type.FLOAT;
         this.sr = sr;
         this.step = 1.0 / sr;
@@ -78,7 +78,7 @@ public class FloatStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        FloatStream slice = new FloatStream(num, new_dims.length, bytes, sr);
+        FloatStream slice = new FloatStream(num, new_dims.length, sr);
         slice.source = source;
 
         float[] src = this.ptr();
@@ -100,7 +100,7 @@ public class FloatStream extends Stream
         if(dim == 1)
             return this;
 
-        FloatStream slice = new FloatStream(num, 1, bytes, sr);
+        FloatStream slice = new FloatStream(num, 1, sr);
         slice.source = source;
 
         float[] src = this.ptr();
@@ -118,7 +118,7 @@ public class FloatStream extends Stream
     @Override
     public Stream clone()
     {
-        FloatStream copy = new FloatStream(num, dim, bytes, sr);
+        FloatStream copy = new FloatStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

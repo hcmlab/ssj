@@ -26,9 +26,11 @@
 
 package hcm.ssj.event;
 
+import java.util.Arrays;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
-import hcm.ssj.core.Event;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -70,43 +72,27 @@ public class FloatsEventSender extends Consumer
     {
         float ptr[] = stream_in[0].ptrF();
 
-        Event ev = new Event();
+        Event ev = Event.create(Cons.Type.FLOAT);
         ev.name = options.event.get();
         ev.sender = options.sender.get();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * (stream_in[0].num / stream_in[0].sr) + 0.5);
         ev.state = Event.State.COMPLETED;
 
-        ev.msg = "";
         if (options.mean.get()) {
-            float sum;
-            for (int j = 0; j < stream_in[0].dim; j++)
-            {
-                sum = 0;
-                for (int i = 0; i < stream_in[0].num; i++)
-                    sum += ptr[i * stream_in[0].dim + j];
-
-                ev.msg += String.valueOf(sum / stream_in[0].num);
-
-                if(j < stream_in[0].dim -1)
-                    ev.msg += " ";
+            float[] avg = new float[stream_in[0].dim];
+            Arrays.fill(avg, 0);
+            for (int j = 0; j < stream_in[0].dim; j++) {
+                for (int i = 0; i < stream_in[0].num; i++) {
+                    avg[j] += ptr[i * stream_in[0].dim + j];
+                }
+                avg[j] /= stream_in[0].num;
             }
+
+            ev.setData(avg);
         }
         else {
-            for (int i = 0; i < stream_in[0].num; i++) {
-                for (int j = 0; j < stream_in[0].dim; j++)
-                {
-                    ev.msg += String.valueOf(ptr[i * stream_in[0].dim + j]);
-
-                    if (j < stream_in[0].dim - 1)
-                        ev.msg += " ";
-                }
-
-                if (i < stream_in[0].num - 1)
-                {
-                    ev.msg += " ";
-                }
-            }
+            ev.setData(ptr);
         }
 
         _evchannel_out.pushEvent(ev);

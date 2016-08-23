@@ -1,5 +1,5 @@
 /*
- * EventListener.java
+ * FloatEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,14 +24,39 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
+package hcm.ssj.core.event;
 
-import hcm.ssj.core.event.Event;
+import hcm.ssj.core.Cons;
 
 /**
- * Created by Michael Dietz on 25.04.2016.
+ * Created by Johnny on 19.03.2015.
  */
-public interface EventListener
-{
-	void notify(Event event);
+public class FloatEvent extends Event {
+
+    public float[] data;
+
+    public FloatEvent() {
+        type = Cons.Type.FLOAT;
+        data = null;
+    }
+
+    public FloatEvent(float[] data) {
+        type = Cons.Type.FLOAT;
+        this.data = data;
+    }
+
+    public float[] ptr() {
+        return data;
+    }
+
+    public float[] ptrF() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = (float[])data;
+    }
+    public void setData(float[] data) {
+        this.data = data;
+    }
 }

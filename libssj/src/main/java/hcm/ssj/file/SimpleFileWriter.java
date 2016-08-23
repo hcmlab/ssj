@@ -90,7 +90,7 @@ public class SimpleFileWriter extends Consumer
             Log.e("stream count not supported");
             return;
         }
-        if (stream_in[0].type == Cons.Type.CUSTOM || stream_in[0].type == Cons.Type.UNDEF)
+        if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
             Log.e("stream type not supported");
             return;

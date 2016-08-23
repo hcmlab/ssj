@@ -30,10 +30,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Event;
 import hcm.ssj.core.EventConsumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -143,13 +143,13 @@ public class SpeechRate extends EventConsumer
 
         Log.ds("peaks = " + peaks.size() + ", sr = " + peaks.size() / duration);
 
-        Event ev = new Event();
+        Event ev = Event.create(Cons.Type.STRING);
         ev.sender = options.sender.get();
         ev.name = options.event.get();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * duration + 0.5);
         ev.state = Event.State.COMPLETED;
-        ev.msg = "<tuple string=\"Speechrate (syllables/sec)\" value=\""+ (peaks.size() / duration) +"\" />";
+        ev.setData("<tuple string=\"Speechrate (syllables/sec)\" value=\""+ (peaks.size() / duration) +"\" />");
         _evchannel_out.pushEvent(ev);
     }
 

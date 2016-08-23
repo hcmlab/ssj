@@ -151,7 +151,7 @@ public abstract class SensorProvider extends Provider {
             Cons.Type type_out = getSampleType();
             int num_out = getSampleNumber();
 
-            _stream_out = Stream.create(num_out, dim_out, bytes_out, sr_out, type_out);
+            _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
 
             defineOutputClasses(_stream_out);
 

@@ -256,19 +256,6 @@ public class TheFramework
         _components.add(c);
     }
 
-    public void addEventConsumer(EventConsumer c, Provider source, double frameSize, EventChannel channel)
-    {
-        Provider[] sources = {source};
-        addEventConsumer(c, sources, frameSize, channel);
-    }
-
-    public void addEventConsumer(EventConsumer c, Provider[] sources, double frameSize, EventChannel channel)
-    {
-        c.setup(sources, frameSize);
-        c.addEventChannelIn(channel);
-        _components.add(c);
-    }
-
     public void addEventConsumer(EventConsumer c, Provider source, EventChannel channel)
     {
         Provider[] sources = {source};
@@ -277,7 +264,7 @@ public class TheFramework
 
     public void addEventConsumer(EventConsumer c, Provider[] sources, EventChannel channel)
     {
-        c.setup(sources, 0);
+        c.setup(sources);
         c.addEventChannelIn(channel);
         _components.add(c);
     }

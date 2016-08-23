@@ -35,11 +35,11 @@ public class DoubleStream extends Stream
 {
     private double[] _ptr;
 
-    public DoubleStream(int num, int dim, int bytes, double sr)
+    public DoubleStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 8;
         this.type = Cons.Type.DOUBLE;
         this.sr = sr;
         this.step = 1.0 / sr;
@@ -78,7 +78,7 @@ public class DoubleStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        DoubleStream slice = new DoubleStream(num, new_dims.length, bytes, sr);
+        DoubleStream slice = new DoubleStream(num, new_dims.length, sr);
         slice.source = source;
 
         double[] src = this.ptr();
@@ -100,7 +100,7 @@ public class DoubleStream extends Stream
         if(dim == 1)
             return this;
 
-        DoubleStream slice = new DoubleStream(num, 1, bytes, sr);
+        DoubleStream slice = new DoubleStream(num, 1, sr);
         slice.source = source;
 
         double[] src = this.ptr();
@@ -118,7 +118,7 @@ public class DoubleStream extends Stream
     @Override
     public Stream clone()
     {
-        DoubleStream copy = new DoubleStream(num, dim, bytes, sr);
+        DoubleStream copy = new DoubleStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

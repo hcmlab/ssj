@@ -1,5 +1,5 @@
 /*
- * EventListener.java
+ * ByteEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,14 +24,39 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
+package hcm.ssj.core.event;
 
-import hcm.ssj.core.event.Event;
+import hcm.ssj.core.Cons;
 
 /**
- * Created by Michael Dietz on 25.04.2016.
+ * Created by Johnny on 19.03.2015.
  */
-public interface EventListener
-{
-	void notify(Event event);
+public class ByteEvent extends Event {
+
+    public byte[] data;
+
+    public ByteEvent() {
+        type = Cons.Type.BYTE;
+        data = null;
+    }
+
+    public ByteEvent(byte[] data) {
+        type = Cons.Type.BYTE;
+        this.data = data;
+    }
+
+    public byte[] ptr() {
+        return data;
+    }
+
+    public byte[] ptrB() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = (byte[])data;
+    }
+    public void setData(byte[] data) {
+        this.data = data;
+    }
 }

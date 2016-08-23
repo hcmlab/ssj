@@ -26,9 +26,10 @@
 
 package hcm.ssj.event;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
-import hcm.ssj.core.Event;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -184,7 +185,7 @@ public class ThresholdEventSender extends Consumer
                         _counter_max_dur = _samples_max_dur - _hangover_in;
 
                         if (options.eager.get()) {
-                            Event ev = new Event();
+                            Event ev = Event.create(Cons.Type.EMPTY); //empty event
                             ev.name = options.event.get();
                             ev.sender = options.sender.get();
                             ev.time = (int)(1000 * _trigger_start + 0.5);
@@ -267,7 +268,7 @@ public class ThresholdEventSender extends Consumer
         }
 
         if (options.eall.get() || state == Event.State.COMPLETED) {
-            Event ev = new Event();
+            Event ev = Event.create(Cons.Type.EMPTY); //empty event
             ev.name = options.event.get();
             ev.sender = options.sender.get();
             ev.time = Math.max (0,  (int)(1000 * (time - _loffset) + 0.5));

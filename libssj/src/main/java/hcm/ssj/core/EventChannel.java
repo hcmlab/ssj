@@ -29,36 +29,34 @@ package hcm.ssj.core;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+import hcm.ssj.core.event.Event;
+
 /**
  * Created by Johnny on 05.03.2015.
  */
-public class EventChannel
-{
+public class EventChannel {
 
     protected String _name = "SSJ_EventChannel";
 
     private ArrayList<EventListener> _listeners = new ArrayList<>();
-    private LinkedList<Event>        _events    = new LinkedList<>();
-    private int                      _event_id  = 0;
+    private LinkedList<Event> _events = new LinkedList<>();
+    private int _event_id = 0;
 
     final private Object _lock = new Object();
     protected boolean _terminate = false;
 
     protected TheFramework _frame;
 
-    public EventChannel()
-    {
+    public EventChannel() {
         _frame = TheFramework.getFramework();
     }
-    
-    public void reset()
-    {
+
+    public void reset() {
         _terminate = false;
         _event_id = 0;
     }
 
-    public void addEventListener(EventListener listener)
-    {
+    public void addEventListener(EventListener listener) {
         _listeners.add(listener);
     }
 
@@ -67,24 +65,26 @@ public class EventChannel
         Event ev = null;
 
         synchronized (_lock) {
-            while (!_terminate && _events.size() == 0)
-            {
-                if(blocking)
-                {
-                    try { _lock.wait(); }
-                    catch (InterruptedException e) {}
-                }
-                else
+            while (!_terminate && _events.size() == 0) {
+                if (blocking) {
+                    try {
+                        _lock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                } else {
                     return null;
+                }
             }
 
-            if(_terminate)
+            if (_terminate) {
                 return null;
+            }
 
             ev = _events.getLast();
 
-            if (!peek)
+            if (!peek) {
                 _events.removeLast();
+            }
         }
 
         return ev;
@@ -93,60 +93,55 @@ public class EventChannel
     public Event getEvent(int eventID, boolean blocking) {
 
         synchronized (_lock) {
-            while (!_terminate && (_events.size() == 0 || eventID > _events.getLast().id))
-            {
-                if(blocking)
-                {
-                    try { _lock.wait(); }
-                    catch (InterruptedException e) {}
-                }
-                else
+            while (!_terminate && (_events.size() == 0 || eventID > _events.getLast().id)) {
+                if (blocking) {
+                    try {
+                        _lock.wait();
+                    } catch (InterruptedException e) {
+                    }
+                } else {
                     return null;
+                }
             }
 
-            if(_terminate)
+            if (_terminate) {
                 return null;
+            }
 
-            if(eventID == _events.getFirst().id)
+            if (eventID == _events.getFirst().id) {
                 return _events.getFirst();
+            }
 
-            if(eventID < _events.getFirst().id)
-            {
-                Log.w("event "+ eventID +" no longer in queue");
+            if (eventID < _events.getFirst().id) {
+                Log.w("event " + eventID + " no longer in queue");
                 return _events.getFirst(); //if event is no longer in queue, return oldest event
             }
 
             //search for event
-            for (Event ev : _events)
-            {
-                if (ev.id == eventID)
+            for (Event ev : _events) {
+                if (ev.id == eventID) {
                     return ev;
+                }
             }
         }
         return null;
     }
 
-    public void pushEvent(final Event ev)
-    {
+    public void pushEvent(final Event ev) {
         synchronized (_lock) {
             //give event a local-unique ID
             ev.id = _event_id++;
 
             _events.addLast(ev);
-
-//                Log.d("E_" + ev.id + "_" + ev.sender + ": name = " +ev.name+  " state = " + ev.state.toString() + " time = " + ev.time + " dur = " + ev.dur + " msg = " + ev.msg);
-
-            if(_events.size() > Cons.MAX_NUM_EVENTS_PER_CHANNEL)
+            if (_events.size() > Cons.MAX_NUM_EVENTS_PER_CHANNEL) {
                 _events.removeFirst();
+            }
 
             // Notify event listeners
-            for (final EventListener listener : _listeners)
-            {
-                _frame._threadPool.execute(new Runnable()
-                {
+            for (final EventListener listener : _listeners) {
+                _frame._threadPool.execute(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         listener.notify(ev);
                     }
                 });
@@ -156,23 +151,12 @@ public class EventChannel
         }
     }
 
-    public void pushEvent(String msg) {
-        pushEvent(new Event(msg));
-    }
-
-    public void pushEvent(byte[] msg, int pos, int len) {
-        pushEvent(new Event(msg, pos, len));
-    }
-
-
-    public void close()
-    {
+    public void close() {
         Log.i("shutting down");
 
         _terminate = true;
 
-        synchronized (_lock)
-        {
+        synchronized (_lock) {
             _lock.notifyAll();
         }
 

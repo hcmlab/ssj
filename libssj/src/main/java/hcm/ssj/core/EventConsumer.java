@@ -26,6 +26,7 @@
 
 package hcm.ssj.core;
 
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -37,9 +38,6 @@ public abstract class EventConsumer extends Component {
 
     private Stream[] _stream_in;
     private int[] _bufferID_in;
-
-    private Timer _timer;
-    private boolean localUpdateRate = false;
 
     protected TheFramework _frame;
 
@@ -77,16 +75,13 @@ public abstract class EventConsumer extends Component {
             } catch (InterruptedException e) {}
         }
 
-        //maintain update rate starting from now
-        _timer.reset();
-
         int eventID = 0;
 
         while(!_terminate && _frame.isRunning())
         {
             try {
                 //wait for event
-                Event ev = _evchannel_in.get(0).getEvent(eventID++, !localUpdateRate);
+                Event ev = _evchannel_in.get(0).getEvent(eventID++, true);
 
                 if (ev != null && ev.dur > 0)
                 {
@@ -109,10 +104,6 @@ public abstract class EventConsumer extends Component {
                     if (ok)
                         consume(_stream_in);
                 }
-
-                //maintain update rate
-                if (localUpdateRate)
-                    _timer.sync();
 
             } catch(Exception e) {
                 _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
@@ -146,29 +137,18 @@ public abstract class EventConsumer extends Component {
     /**
      * general transformer initialization
      */
-    public void setup(Provider[] sources, double frame)
+    public void setup(Provider[] sources)
     {
         try {
             _bufferID_in = new int[sources.length];
             _stream_in = new Stream[sources.length];
-            int num_frame[] = new int[sources.length];
 
             for(int i = 0; i < sources.length; i++) {
                 _bufferID_in[i] = sources[i].getBufferID();
 
-                num_frame[i] = (int)(frame * sources[i].getOutputStream().sr + 0.5);
-
-                //allocate local input buffer
-                _stream_in[i] = Stream.create(sources[i], num_frame[i]);
+                //allocate local input buffer and make it one second large too avoid memory allocation at runtime
+                _stream_in[i] = Stream.create(sources[i], (int)sources[i].getOutputStream().sr);
             }
-
-            // configure update rate
-            if(frame != 0)
-            {
-                frame = num_frame[0] * _stream_in[0].step;
-                localUpdateRate = true;
-            }
-            _timer = new Timer(frame);
 
         } catch(Exception e) {
             _frame.crash(this.getClass().getSimpleName(), "error configuring component", e);

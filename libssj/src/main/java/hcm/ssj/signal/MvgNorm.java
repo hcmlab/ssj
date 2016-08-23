@@ -137,7 +137,7 @@ public class MvgNorm extends Transformer
 			}
 		}
 
-		_dataTmp = Stream.create(stream_in[0].num, _mvg.getSampleDimension(stream_in), _mvg.getSampleBytes(stream_in), Util.calcSampleRate(_mvg, stream_in[0]), _mvg.getSampleType(stream_in));
+		_dataTmp = Stream.create(stream_in[0].num, _mvg.getSampleDimension(stream_in), Util.calcSampleRate(_mvg, stream_in[0]), _mvg.getSampleType(stream_in));
 
 		_mvg.enter(stream_in, _dataTmp);
 	}

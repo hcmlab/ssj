@@ -1,5 +1,5 @@
 /*
- * Event.java
+ * StringEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,44 +24,47 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
+package hcm.ssj.core.event;
+
+import hcm.ssj.core.Cons;
 
 /**
  * Created by Johnny on 19.03.2015.
  */
-public class Event {
+public class StringEvent extends Event {
 
-    public enum State
-    {
-        COMPLETED,
-        CONTINUED
+    public String data;
+
+    public StringEvent() {
+        type = Cons.Type.STRING;
+        data = null;
     }
 
-    public String name;
-    public String sender;
-    public String msg;
-    public int time;
-    public int dur;
-    public State state;
-
-    public int id;
-
-    public Event()
-    {}
-
-    public Event(String msg)
-    {
-        this.msg = msg;
-        this.name = "event";
-        this.sender = "unknown";
-        this.time = 0;
-        this.dur = 0;
-        this.state = State.COMPLETED;
+    public StringEvent(String data) {
+        this.data = data;
     }
 
-    public Event(byte[] msg, int pos, int len)
-    {
-        this(new String(msg, pos, len));
+    public String ptr() {
+        return data;
     }
 
+    public String ptrStr() {
+        return data;
+    }
+
+    public char[] ptrC() {
+        return data.toCharArray();
+    }
+
+    public void setData(Object data) {
+        this.data = (String)data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public void setData(char[] data) {
+        this.data = new String(data);
+    }
 }

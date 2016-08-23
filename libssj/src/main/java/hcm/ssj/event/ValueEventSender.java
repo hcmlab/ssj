@@ -30,7 +30,7 @@ import java.util.EnumSet;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
-import hcm.ssj.core.Event;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -71,61 +71,14 @@ public class ValueEventSender extends Consumer
 	@Override
 	protected void consume(Stream[] stream_in)
 	{
-		Object ptr = stream_in[0].ptr();
-
-		Event ev = new Event();
+		Event ev = Event.create(stream_in[0].type);
 		ev.name = options.event.get();
 		ev.sender = options.sender.get();
 		ev.time = (int) (1000 * stream_in[0].time + 0.5);
 		ev.dur = (int) (1000 * (stream_in[0].num / stream_in[0].sr) + 0.5);
 		ev.state = Event.State.COMPLETED;
 
-		ev.msg = "";
-
-		for (int i = 0; i < stream_in[0].num; i++)
-		{
-			for (int j = 0; j < stream_in[0].dim; j++)
-			{
-				switch (stream_in[0].type)
-				{
-					case BYTE:
-						ev.msg += String.valueOf(((byte[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case CHAR:
-						ev.msg += String.valueOf(((char[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case SHORT:
-						ev.msg += String.valueOf(((short[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case INT:
-						ev.msg += String.valueOf(((int[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case LONG:
-						ev.msg += String.valueOf(((long[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case FLOAT:
-						ev.msg += String.valueOf(((float[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case DOUBLE:
-						ev.msg += String.valueOf(((double[])ptr)[i * stream_in[0].dim + j]);
-						break;
-					case BOOL:
-						ev.msg += String.valueOf(((boolean[])ptr)[i * stream_in[0].dim + j]);
-						break;
-				}
-
-				if (j < stream_in[0].dim - 1)
-				{
-					ev.msg += " ";
-				}
-			}
-
-			if (i < stream_in[0].num - 1)
-			{
-				ev.msg += " ";
-			}
-		}
-
+		ev.setData(stream_in[0].ptr());
 		_evchannel_out.pushEvent(ev);
 	}
 }

@@ -83,7 +83,7 @@ public class Selector extends Transformer
             return;
         }
         //not all types are supported
-        if (options.outputType.get() == Cons.Type.CUSTOM || options.outputType.get() == Cons.Type.UNDEF)
+        if (options.outputType.get() == Cons.Type.EMPTY || options.outputType.get() == Cons.Type.UNDEF)
         {
             Log.e("output type is not supported");
         }

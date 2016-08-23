@@ -1,5 +1,5 @@
 /*
- * EventListener.java
+ * BoolEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,14 +24,39 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
+package hcm.ssj.core.event;
 
-import hcm.ssj.core.event.Event;
+import hcm.ssj.core.Cons;
 
 /**
- * Created by Michael Dietz on 25.04.2016.
+ * Created by Johnny on 19.03.2015.
  */
-public interface EventListener
-{
-	void notify(Event event);
+public class BoolEvent extends Event {
+
+    public boolean[] data;
+
+    public BoolEvent() {
+        type = Cons.Type.BOOL;
+        data = null;
+    }
+
+    public BoolEvent(boolean[] data) {
+        type = Cons.Type.BOOL;
+        this.data = data;
+    }
+
+    public boolean[] ptr() {
+        return data;
+    }
+
+    public boolean[] ptrBool() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = (boolean[])data;
+    }
+    public void setData(boolean[] data) {
+        this.data = data;
+    }
 }
