@@ -27,7 +27,6 @@
 package hcm.ssjclay;
 
 import android.Manifest;
-import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -76,11 +75,9 @@ public class MainActivity extends AppCompatActivity
 {
     private static boolean ready = true;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
-    private static final int REQUEST_SYSTEM_PERMISSIONS = 109;
     //visual pipe editor
     private PipeView pipeView = null;
     //tabs
-    private LocalActivityManager mlam = null;
     private TabHost tabHost = null;
     private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
     private ArrayList<TabSpec> alTabSpecs = new ArrayList<>();
@@ -152,27 +149,25 @@ public class MainActivity extends AppCompatActivity
     /**
      *
      */
-    private void init(Bundle savedInstanceState)
+    private void init()
     {
-        mlam = new LocalActivityManager(this, false);
-        mlam.dispatchCreate(savedInstanceState);
         tabHost = (TabHost) findViewById(R.id.id_tabHost);
-        pipeView = new PipeView(MainActivity.this);
         if (tabHost != null)
         {
-            tabHost.setup(mlam);
+            tabHost.setup();
             //pipe
+            pipeView = new PipeView(MainActivity.this);
             pipeView.setWillNotDraw(false);
             addTab(pipeView, getResources().getString(R.string.str_pipe), android.R.drawable.ic_menu_edit);
             //console
             addTabConsole();
+            //add log listener
+            Log.addLogListener(logListener);
+            handleLogMessages = true;
+            threadLog.start();
+            //add view listener
+            pipeView.addViewListener(viewListener);
         }
-        //add log listener
-        Log.addLogListener(logListener);
-        handleLogMessages = true;
-        threadLog.start();
-        //add view listener
-        pipeView.addViewListener(viewListener);
         //handle permissions
         checkPermissions();
         //set exception handler
@@ -231,7 +226,6 @@ public class MainActivity extends AppCompatActivity
         tabSpec.setIndicator("", getResources().getDrawable(image));
         tabHost.addTab(tabSpec);
         //necessary to reset tab strip
-        tabHost.getTabWidget().setStripEnabled(true);
         int tab = tabHost.getCurrentTab();
         tabHost.setCurrentTab(tabHost.getTabWidget().getTabCount() - 1);
         tabHost.setCurrentTab(tab);
@@ -573,7 +567,6 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
-        mlam.dispatchResume();
         actualizeContent();
         if (!ready)
         {
@@ -588,7 +581,6 @@ public class MainActivity extends AppCompatActivity
     protected void onPause()
     {
         super.onPause();
-        mlam.dispatchPause(isFinishing());
     }
 
     /**
@@ -599,7 +591,10 @@ public class MainActivity extends AppCompatActivity
     {
         handleLogMessages = false;
         Log.removeLogListener(logListener);
-        pipeView.removeViewListener(viewListener);
+        if (pipeView != null)
+        {
+            pipeView.removeViewListener(viewListener);
+        }
         TheFramework framework = TheFramework.getFramework();
         if (framework.isRunning())
         {
@@ -616,46 +611,44 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         startTutorial();
-
         setContentView(R.layout.activity_main);
-        init(savedInstanceState);
+        init();
     }
 
+    /**
+     *
+     */
     private void startTutorial()
     {
-        //  Declare a new thread to do a preference check
-        Thread t = new Thread(new Runnable() {
+        //declare a new thread to do a preference check
+        Thread t = new Thread(new Runnable()
+        {
             @Override
-            public void run() {
-                //  Initialize SharedPreferences
+            public void run()
+            {
+                String preference = "firstStart";
+                //initialize SharedPreferences
                 SharedPreferences getPrefs = PreferenceManager
                         .getDefaultSharedPreferences(getBaseContext());
-
-                //  Create a new boolean and preference and set it to true
-                boolean isFirstStart = getPrefs.getBoolean("firstStart", true);
-
+                //create a new boolean and preference and set it to true
+                boolean isFirstStart = getPrefs.getBoolean(preference, true);
                 //  If the activity has never started before...
-                if (isFirstStart) {
-
-                    //  Launch app intro
+                if (isFirstStart)
+                {
+                    //launch app intro
                     Intent i = new Intent(MainActivity.this, Tutorial.class);
                     startActivity(i);
-
-                    //  Make a new preferences editor
+                    //make a new preferences editor
                     SharedPreferences.Editor e = getPrefs.edit();
-
-                    //  Edit preference to make it false because we don't want this to run again
-                    e.putBoolean("firstStart", false);
-
-                    //  Apply changes
+                    //edit preference to make it false because we don't want this to run again
+                    e.putBoolean(preference, false);
+                    //apply changes
                     e.apply();
                 }
             }
         });
-
-        // Start the thread
+        //start the thread
         t.start();
     }
 }
