@@ -35,11 +35,11 @@ public class LongStream extends Stream
 {
     private long[] _ptr;
 
-    public LongStream(int num, int dim, int bytes, double sr)
+    public LongStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 8;
         this.type = Cons.Type.LONG;
         this.sr = sr;
         this.step = 1.0 / sr;
@@ -78,7 +78,7 @@ public class LongStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        LongStream slice = new LongStream(num, new_dims.length, bytes, sr);
+        LongStream slice = new LongStream(num, new_dims.length, sr);
         slice.source = source;
 
         long[] src = this.ptr();
@@ -100,7 +100,7 @@ public class LongStream extends Stream
         if(dim == 1)
             return this;
 
-        LongStream slice = new LongStream(num, 1, bytes, sr);
+        LongStream slice = new LongStream(num, 1, sr);
         slice.source = source;
 
         long[] src = this.ptr();
@@ -118,7 +118,7 @@ public class LongStream extends Stream
     @Override
     public Stream clone()
     {
-        LongStream copy = new LongStream(num, dim, bytes, sr);
+        LongStream copy = new LongStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

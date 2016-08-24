@@ -35,9 +35,9 @@ import java.net.Socket;
 import java.util.Arrays;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.event.Event;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -138,7 +138,7 @@ public class SocketEventWriter extends EventHandler
             _builder.append(" type=\"STRING\"");
             _builder.append(" type=\"").append(ev.state).append("\"");
             _builder.append(" glue=\"0\">");
-            _builder.append(ev.msg);
+            _builder.append(ev.ptr());
             _builder.append( "</event>");
         }
 

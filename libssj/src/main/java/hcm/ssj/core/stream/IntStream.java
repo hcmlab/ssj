@@ -35,11 +35,11 @@ public class IntStream extends Stream
 {
     private int[] _ptr;
 
-    public IntStream(int num, int dim, int bytes, double sr)
+    public IntStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 4;
         this.type = Cons.Type.INT;
         this.sr = sr;
         this.step = 1.0 / sr;
@@ -78,7 +78,7 @@ public class IntStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        IntStream slice = new IntStream(num, new_dims.length, bytes, sr);
+        IntStream slice = new IntStream(num, new_dims.length, sr);
         slice.source = source;
 
         int[] src = this.ptr();
@@ -100,7 +100,7 @@ public class IntStream extends Stream
         if(dim == 1)
             return this;
 
-        IntStream slice = new IntStream(num, 1, bytes, sr);
+        IntStream slice = new IntStream(num, 1, sr);
         slice.source = source;
 
         int[] src = this.ptr();
@@ -118,7 +118,7 @@ public class IntStream extends Stream
     @Override
     public Stream clone()
     {
-        IntStream copy = new IntStream(num, dim, bytes, sr);
+        IntStream copy = new IntStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

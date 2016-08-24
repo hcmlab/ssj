@@ -1,5 +1,5 @@
 /*
- * EventListener.java
+ * ShortEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,14 +24,39 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
+package hcm.ssj.core.event;
 
-import hcm.ssj.core.event.Event;
+import hcm.ssj.core.Cons;
 
 /**
- * Created by Michael Dietz on 25.04.2016.
+ * Created by Johnny on 19.03.2015.
  */
-public interface EventListener
-{
-	void notify(Event event);
+public class ShortEvent extends Event {
+
+    public short[] data;
+
+    public ShortEvent() {
+        type = Cons.Type.SHORT;
+        data = null;
+    }
+
+    public ShortEvent(short[] data) {
+        type = Cons.Type.SHORT;
+        this.data = data;
+    }
+
+    public short[] ptr() {
+        return data;
+    }
+
+    public short[] ptrShort() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = (short[])data;
+    }
+    public void setData(short[] data) {
+        this.data = data;
+    }
 }

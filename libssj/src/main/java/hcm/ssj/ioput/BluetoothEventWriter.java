@@ -33,9 +33,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -129,7 +129,7 @@ public class BluetoothEventWriter extends EventHandler
                     + " type=\"STRING\""
                     + " state=\"" + ev.state + "\""
                     + " glue=\"0\">"
-                    + ev.msg
+                    + ev.ptr()
                     + "</event>";
         }
 

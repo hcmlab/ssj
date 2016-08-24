@@ -26,10 +26,12 @@
 
 package hcm.ssj.test;
 
-import hcm.ssj.core.Event;
+import java.util.Arrays;
+
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.OptionList;
 
 /**
@@ -70,7 +72,40 @@ public class EventLogger extends EventHandler
                 return;
 
             _lastBehavEventID = ev.id;
-            Log.i(ev.sender + "_" + ev.name + "_" + ev.id + " (" + ev.state.toString() + ", " + ev.time + ", " + ev.dur + ") : " + ev.msg);
+
+            String msg = "";
+            switch(ev.type)
+            {
+                case BYTE:
+                    msg = Arrays.toString(ev.ptrB());
+                    break;
+                case CHAR:
+                    msg = ev.ptrStr();
+                    break;
+                case STRING:
+                    msg = ev.ptrStr();
+                    break;
+                case SHORT:
+                    msg = Arrays.toString(ev.ptrShort());
+                    break;
+                case INT:
+                    msg = Arrays.toString(ev.ptrI());
+                    break;
+                case LONG:
+                    msg = Arrays.toString(ev.ptrL());
+                    break;
+                case FLOAT:
+                    msg = Arrays.toString(ev.ptrF());
+                    break;
+                case DOUBLE:
+                    msg = Arrays.toString(ev.ptrD());
+                    break;
+                case BOOL:
+                    msg = Arrays.toString(ev.ptrBool());
+                    break;
+            }
+
+            Log.i(ev.sender + "_" + ev.name + "_" + ev.id + " (" + ev.state.toString() + ", " + ev.time + ", " + ev.dur + ") : " + msg);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * EventListener.java
+ * EmptyEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,14 +24,15 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
-
-import hcm.ssj.core.event.Event;
+package hcm.ssj.core.event;
 
 /**
- * Created by Michael Dietz on 25.04.2016.
+ * Created by Johnny on 19.03.2015.
  */
-public interface EventListener
-{
-	void notify(Event event);
+public class EmptyEvent extends Event {
+
+    public void setData(Object data) { throw new UnsupportedOperationException(); }
+    public boolean[] ptr() {
+        return null;
+    }
 }

@@ -35,17 +35,17 @@ public class ByteStream extends Stream
 {
     private byte[] _ptr;
 
-    public ByteStream(int num, int dim, int bytes, double sr)
+    public ByteStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 1;
         this.type = Cons.Type.BYTE;
         this.sr = sr;
         this.step = 1.0 / sr;
 
         tot = num * dim * bytes;
-        _ptr = new byte[num * dim];
+        _ptr = new byte[tot];
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ByteStream extends Stream
         {
             this.num = num;
             this.tot = num * dim * bytes;
-            _ptr = new byte[num * dim];
+            _ptr = new byte[tot];
         }
     }
 
@@ -78,7 +78,7 @@ public class ByteStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        ByteStream slice = new ByteStream(num, new_dims.length, bytes, sr);
+        ByteStream slice = new ByteStream(num, new_dims.length, sr);
         slice.source = source;
 
         byte[] src = this.ptr();
@@ -100,7 +100,7 @@ public class ByteStream extends Stream
         if(dim == 1)
             return this;
 
-        ByteStream slice = new ByteStream(num, 1, bytes, sr);
+        ByteStream slice = new ByteStream(num, 1, sr);
         slice.source = source;
 
         byte[] src = this.ptr();
@@ -118,7 +118,7 @@ public class ByteStream extends Stream
     @Override
     public Stream clone()
     {
-        ByteStream copy = new ByteStream(num, dim, bytes, sr);
+        ByteStream copy = new ByteStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

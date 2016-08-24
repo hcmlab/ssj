@@ -97,7 +97,7 @@ public class GSRArousalEstimation extends Transformer
 		_detrend.options.method.set(MvgNorm.Method.SLIDING);
 		_detrend.options.windowSize.set(60.f);
 
-		_detrendStream = Stream.create(_detrend.getSampleNumber(stream_in[0].num), _detrend.getSampleDimension(stream_in), _detrend.getSampleBytes(stream_in), Util.calcSampleRate(_detrend, stream_in[0]), _detrend.getSampleType(stream_in));
+		_detrendStream = Stream.create(_detrend.getSampleNumber(stream_in[0].num), _detrend.getSampleDimension(stream_in), Util.calcSampleRate(_detrend, stream_in[0]), _detrend.getSampleType(stream_in));
 		_detrendStreamArray = new Stream[]{_detrendStream};
 		_detrend.enter(stream_in, _detrendStream);
 
@@ -109,7 +109,7 @@ public class GSRArousalEstimation extends Transformer
 		_detrendNormMinMax.options.method.set(MvgNorm.Method.SLIDING);
 		_detrendNormMinMax.options.windowSize.set(60.f);
 
-		_detrendNormMinMaxStream = Stream.create(_detrendNormMinMax.getSampleNumber(_detrendStream.num), _detrendNormMinMax.getSampleDimension(_detrendStreamArray), _detrendNormMinMax.getSampleBytes(_detrendStreamArray), Util.calcSampleRate(_detrendNormMinMax, _detrendStream), _detrendNormMinMax.getSampleType(_detrendStreamArray));
+		_detrendNormMinMaxStream = Stream.create(_detrendNormMinMax.getSampleNumber(_detrendStream.num), _detrendNormMinMax.getSampleDimension(_detrendStreamArray), Util.calcSampleRate(_detrendNormMinMax, _detrendStream), _detrendNormMinMax.getSampleType(_detrendStreamArray));
 		_detrendNormMinMaxStreamArray = new Stream[]{_detrendNormMinMaxStream};
 		_detrendNormMinMax.enter(_detrendStreamArray, _detrendNormMinMaxStream);
 
@@ -119,7 +119,7 @@ public class GSRArousalEstimation extends Transformer
 		_mvgAvgLongTerm.options.method.set(MvgAvgVar.Method.SLIDING);
 		_mvgAvgLongTerm.options.window.set(90.);
 
-		_mvgAvgLongTermStream = Stream.create(_mvgAvgLongTerm.getSampleNumber(_detrendNormMinMaxStream.num), _mvgAvgLongTerm.getSampleDimension(_detrendNormMinMaxStreamArray), _mvgAvgLongTerm.getSampleBytes(_detrendNormMinMaxStreamArray), Util.calcSampleRate(_mvgAvgLongTerm, _detrendNormMinMaxStream), _mvgAvgLongTerm.getSampleType(_detrendNormMinMaxStreamArray));
+		_mvgAvgLongTermStream = Stream.create(_mvgAvgLongTerm.getSampleNumber(_detrendNormMinMaxStream.num), _mvgAvgLongTerm.getSampleDimension(_detrendNormMinMaxStreamArray), Util.calcSampleRate(_mvgAvgLongTerm, _detrendNormMinMaxStream), _mvgAvgLongTerm.getSampleType(_detrendNormMinMaxStreamArray));
 		_mvgAvgLongTermStreamArray = new Stream[]{_mvgAvgLongTermStream};
 		_mvgAvgLongTerm.enter(_detrendNormMinMaxStreamArray, _mvgAvgLongTermStream);
 
@@ -130,7 +130,7 @@ public class GSRArousalEstimation extends Transformer
 		_butfiltLongTerm.options.order.set(3);
 		_butfiltLongTerm.options.type.set(Butfilt.Type.LOW);
 
-		_butfiltLongTermStream = Stream.create(_butfiltLongTerm.getSampleNumber(_mvgAvgLongTermStream.num), _butfiltLongTerm.getSampleDimension(_mvgAvgLongTermStreamArray), _butfiltLongTerm.getSampleBytes(_mvgAvgLongTermStreamArray), Util.calcSampleRate(_butfiltLongTerm, _mvgAvgLongTermStream), _butfiltLongTerm.getSampleType(_mvgAvgLongTermStreamArray));
+		_butfiltLongTermStream = Stream.create(_butfiltLongTerm.getSampleNumber(_mvgAvgLongTermStream.num), _butfiltLongTerm.getSampleDimension(_mvgAvgLongTermStreamArray), Util.calcSampleRate(_butfiltLongTerm, _mvgAvgLongTermStream), _butfiltLongTerm.getSampleType(_mvgAvgLongTermStreamArray));
 		_butfiltLongTerm.enter(_mvgAvgLongTermStreamArray, _butfiltLongTermStream);
 
 		// Moving average short term
@@ -139,14 +139,14 @@ public class GSRArousalEstimation extends Transformer
 		_mvgAvgShortTerm.options.method.set(MvgAvgVar.Method.SLIDING);
 		_mvgAvgShortTerm.options.window.set(5.);
 
-		_mvgAvgShortTermStream = Stream.create(_mvgAvgShortTerm.getSampleNumber(_detrendNormMinMaxStream.num), _mvgAvgShortTerm.getSampleDimension(_detrendNormMinMaxStreamArray), _mvgAvgShortTerm.getSampleBytes(_detrendNormMinMaxStreamArray), Util.calcSampleRate(_mvgAvgShortTerm, _detrendNormMinMaxStream), _mvgAvgShortTerm.getSampleType(_detrendNormMinMaxStreamArray));
+		_mvgAvgShortTermStream = Stream.create(_mvgAvgShortTerm.getSampleNumber(_detrendNormMinMaxStream.num), _mvgAvgShortTerm.getSampleDimension(_detrendNormMinMaxStreamArray), Util.calcSampleRate(_mvgAvgShortTerm, _detrendNormMinMaxStream), _mvgAvgShortTerm.getSampleType(_detrendNormMinMaxStreamArray));
 		_mvgAvgShortTermStreamArray = new Stream[]{_mvgAvgShortTermStream};
 		_mvgAvgShortTerm.enter(_detrendNormMinMaxStreamArray, _mvgAvgShortTermStream);
 
 		// GSR Arousal Combination
 		_combination = new GSRArousalCombination();
 
-		_combinationStream = Stream.create(_combination.getSampleNumber(_mvgAvgShortTermStream.num), _combination.getSampleDimension(_mvgAvgShortTermStreamArray), _combination.getSampleBytes(_mvgAvgShortTermStreamArray), Util.calcSampleRate(_combination, _mvgAvgShortTermStream), _combination.getSampleType(_mvgAvgShortTermStreamArray));
+		_combinationStream = Stream.create(_combination.getSampleNumber(_mvgAvgShortTermStream.num), _combination.getSampleDimension(_mvgAvgShortTermStreamArray), Util.calcSampleRate(_combination, _mvgAvgShortTermStream), _combination.getSampleType(_mvgAvgShortTermStreamArray));
 		_combinationStreamArray = new Stream[]{_combinationStream};
 		_combinationInput = new Stream[]{_butfiltLongTermStream, _mvgAvgShortTermStream};
 		_combination.enter(_combinationInput, _combinationStream);
@@ -157,7 +157,7 @@ public class GSRArousalEstimation extends Transformer
 		_mvgAvgCombination.options.method.set(MvgAvgVar.Method.SLIDING);
 		_mvgAvgCombination.options.window.set(30.);
 
-		_mvgAvgCombinationStream = Stream.create(_mvgAvgCombination.getSampleNumber(_combinationStream.num), _mvgAvgCombination.getSampleDimension(_combinationStreamArray), _mvgAvgCombination.getSampleBytes(_combinationStreamArray), Util.calcSampleRate(_mvgAvgCombination, _combinationStream), _mvgAvgCombination.getSampleType(_combinationStreamArray));
+		_mvgAvgCombinationStream = Stream.create(_mvgAvgCombination.getSampleNumber(_combinationStream.num), _mvgAvgCombination.getSampleDimension(_combinationStreamArray), Util.calcSampleRate(_mvgAvgCombination, _combinationStream), _mvgAvgCombination.getSampleType(_combinationStreamArray));
 		_mvgAvgCombination.enter(_combinationStreamArray, _mvgAvgCombinationStream);
 	}
 

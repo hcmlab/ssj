@@ -52,56 +52,29 @@ public abstract class Stream implements Serializable
         switch(type)
         {
             case BYTE:
-                return new ByteStream(num, dim, 1, sr);
+                return new ByteStream(num, dim, sr);
             case CHAR:
-                return new CharStream(num, dim, 2, sr);
+                return new CharStream(num, dim, sr);
             case SHORT:
-                return new ShortStream(num, dim, 2, sr);
+                return new ShortStream(num, dim, sr);
             case INT:
-                return new IntStream(num, dim, 4, sr);
+                return new IntStream(num, dim, sr);
             case LONG:
-                return new LongStream(num, dim, 8, sr);
+                return new LongStream(num, dim, sr);
             case FLOAT:
-                return new FloatStream(num, dim, 4, sr);
+                return new FloatStream(num, dim, sr);
             case DOUBLE:
-                return new DoubleStream(num, dim, 8, sr);
+                return new DoubleStream(num, dim, sr);
             case BOOL:
-                return new BoolStream(num, dim, 1, sr);
+                return new BoolStream(num, dim, sr);
             default:
-                throw new UnsupportedOperationException("Use other create implementation for custom stream");
-        }
-    }
-
-    public static Stream create(int num, int dim, int bytes, double sr, Cons.Type type)
-    {
-        switch(type)
-        {
-            case BYTE:
-                return new ByteStream(num, dim, bytes, sr);
-            case CHAR:
-                return new CharStream(num, dim, bytes, sr);
-            case SHORT:
-                return new ShortStream(num, dim, bytes, sr);
-            case INT:
-                return new IntStream(num, dim, bytes, sr);
-            case LONG:
-                return new LongStream(num, dim, bytes, sr);
-            case FLOAT:
-                return new FloatStream(num, dim, bytes, sr);
-            case DOUBLE:
-                return new DoubleStream(num, dim, bytes, sr);
-            case BOOL:
-                return new BoolStream(num, dim, bytes, sr);
-            case CUSTOM:
-                return new CustomStream(num, dim, bytes, sr);
-            default:
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("Stream type not supported");
         }
     }
 
     public static Stream create(Provider source, int num)
     {
-        Stream s = create(num, source.getOutputStream().dim, source.getOutputStream().bytes, source.getOutputStream().sr, source.getOutputStream().type);
+        Stream s = create(num, source.getOutputStream().dim, source.getOutputStream().sr, source.getOutputStream().type);
         s.source = source;
         s.dataclass = source.getOutputClasses();
         return s;

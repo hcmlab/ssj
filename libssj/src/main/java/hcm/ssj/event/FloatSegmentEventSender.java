@@ -27,8 +27,8 @@
 package hcm.ssj.event;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Event;
 import hcm.ssj.core.EventConsumer;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -70,14 +70,14 @@ public class FloatSegmentEventSender extends EventConsumer
     {
         float ptr[] = stream_in[0].ptrF();
 
-        Event ev = new Event();
+        Event ev = Event.create(Cons.Type.STRING);
         ev.name = options.event.get();
         ev.sender = options.sender.get();
         ev.time = (int)(1000 * stream_in[0].time + 0.5);
         ev.dur = (int)(1000 * (stream_in[0].num / stream_in[0].sr) + 0.5);
         ev.state = Event.State.COMPLETED;
 
-        ev.msg = "";
+        String msg = "";
         if (options.mean.get()) {
             float sum;
             for (int j = 0; j < stream_in[0].dim; j++)
@@ -86,16 +86,17 @@ public class FloatSegmentEventSender extends EventConsumer
                 for (int i = 0; i < stream_in[0].num; i++)
                     sum += ptr[i * stream_in[0].dim + j];
 
-                ev.msg += String.valueOf(sum / stream_in[0].num) + " ";
+                msg += String.valueOf(sum / stream_in[0].num) + " ";
             }
         }
         else {
             for (int i = 0; i < stream_in[0].num; i++) {
                 for (int j = 0; j < stream_in[0].dim; j++)
-                    ev.msg += String.valueOf(ptr[i * stream_in[0].dim + j]) + " ";
+                    msg += String.valueOf(ptr[i * stream_in[0].dim + j]) + " ";
             }
         }
 
+        ev.setData(msg);
         _evchannel_out.pushEvent(ev);
     }
 

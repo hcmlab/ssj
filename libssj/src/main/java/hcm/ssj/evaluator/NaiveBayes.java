@@ -115,7 +115,7 @@ public class NaiveBayes extends Transformer
     @Override
     public void enter(Stream[] stream_in, Stream stream_out)
     {
-        if (stream_in[0].type == Cons.Type.CUSTOM || stream_in[0].type == Cons.Type.UNDEF)
+        if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
             Log.e("stream type not supported");
         }

@@ -36,10 +36,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Event;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -139,7 +139,10 @@ public class BluetoothEventReader extends EventHandler
             if (!options.parseXmlToEvent.get())
             {
                 int len = _conn.input().read(_buffer);
-                _evchannel_out.pushEvent(_buffer, 0, len);
+
+                Event ev = Event.create(Cons.Type.STRING);
+                ev.setData(new String(_buffer, 0, len));
+                _evchannel_out.pushEvent(ev);
             }
             else
             {
@@ -157,7 +160,7 @@ public class BluetoothEventReader extends EventHandler
                 {
                     if (_parser.getEventType() == XmlPullParser.START_TAG && _parser.getName().equalsIgnoreCase("event"))
                     {
-                        Event ev = new Event();
+                        Event ev = Event.create(Cons.Type.STRING);
 
                         ev.name = _parser.getAttributeValue(null, "event");
                         ev.sender = _parser.getAttributeValue(null, "sender");
@@ -166,7 +169,7 @@ public class BluetoothEventReader extends EventHandler
                         ev.state = Event.State.valueOf(_parser.getAttributeValue(null, "state"));
 
                         _parser.next();
-                        ev.msg = Util.xmlToString(_parser);
+                        ev.setData(Util.xmlToString(_parser));
 
                         _evchannel_out.pushEvent(ev);
                     }

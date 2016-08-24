@@ -35,11 +35,11 @@ public class CharStream extends Stream
 {
     private char[] _ptr;
 
-    public CharStream(int num, int dim, int bytes, double sr)
+    public CharStream(int num, int dim, double sr)
     {
         this.num = num;
         this.dim = dim;
-        this.bytes = bytes;
+        this.bytes = 2;
         this.type = Cons.Type.CHAR;
         this.sr = sr;
         this.step = 1.0 / sr;
@@ -78,7 +78,7 @@ public class CharStream extends Stream
         if(dim == new_dims.length)
             return this;
 
-        CharStream slice = new CharStream(num, new_dims.length, bytes, sr);
+        CharStream slice = new CharStream(num, new_dims.length, sr);
         slice.source = source;
 
         char[] src = this.ptr();
@@ -100,7 +100,7 @@ public class CharStream extends Stream
         if(dim == 1)
             return this;
 
-        CharStream slice = new CharStream(num, 1, bytes, sr);
+        CharStream slice = new CharStream(num, 1, sr);
         slice.source = source;
 
         char[] src = this.ptr();
@@ -118,7 +118,7 @@ public class CharStream extends Stream
     @Override
     public Stream clone()
     {
-        CharStream copy = new CharStream(num, dim, bytes, sr);
+        CharStream copy = new CharStream(num, dim, sr);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

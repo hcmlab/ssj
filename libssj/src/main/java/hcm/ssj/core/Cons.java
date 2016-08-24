@@ -56,8 +56,8 @@ public class Cons
         FLOAT,
         DOUBLE,
         BOOL,
-        CUSTOM,
-        STRING
+        STRING,
+        EMPTY //only used for events
     }
 
     public enum AudioFormat {
