@@ -550,7 +550,6 @@ public class TheFramework
         if (options.logfile.get() != null)
         {
             Log.getInstance().saveToFile(options.logfile.get());
-            Log.getInstance().clear();
         }
     }
 
