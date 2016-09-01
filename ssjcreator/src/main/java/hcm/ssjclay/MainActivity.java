@@ -223,7 +223,7 @@ public class MainActivity extends AppCompatActivity
                 return view;
             }
         });
-        tabSpec.setIndicator("", getResources().getDrawable(image));
+        tabSpec.setIndicator("", ContextCompat.getDrawable(MainActivity.this, image));
         tabHost.addTab(tabSpec);
         //necessary to reset tab strip
         int tab = tabHost.getCurrentTab();
@@ -614,6 +614,15 @@ public class MainActivity extends AppCompatActivity
         startTutorial();
         setContentView(R.layout.activity_main);
         init();
+    }
+
+    /**
+     * Override back-button to function like home-button
+     */
+    @Override
+    public void onBackPressed()
+    {
+        moveTaskToBack(true);
     }
 
     /**
