@@ -112,4 +112,10 @@ public class Cons
             val = value;
         }
     }
+
+    public enum SocketType
+    {
+        UDP,
+        TCP
+    }
 }

@@ -31,12 +31,16 @@ import android.test.ApplicationTestCase;
 
 import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.ioput.SocketEventWriter;
+import hcm.ssj.ioput.SocketProvider;
+import hcm.ssj.ioput.SocketReader;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
+import hcm.ssj.test.Logger;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -81,6 +85,50 @@ public class testSockets extends ApplicationTestCase<Application> {
             while(true)
             {
                 if(System.currentTimeMillis() > start + 1 * 10 * 1000)
+                    break;
+
+                Thread.sleep(1);
+            }
+
+            frame.Stop();
+            frame.clear();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public void test2() throws Exception
+    {
+        TheFramework frame = TheFramework.getFramework();
+        frame.options.bufferSize.set(10.0f);
+
+        SocketReader sock = new SocketReader();
+        sock.options.port.set(7777);
+        sock.options.ip.set("192.168.0.104");
+        sock.options.type.set(Cons.SocketType.TCP);
+        frame.addSensor(sock);
+
+        SocketProvider data = new SocketProvider();
+        data.options.dim.set(2);
+        data.options.bytes.set(4);
+        data.options.type.set(Cons.Type.FLOAT);
+        data.options.sr.set(50.);
+        data.options.num.set(10);
+        sock.addProvider(data);
+
+        Logger log = new Logger();
+        frame.addConsumer(log, data, 0.2, 0);
+
+
+        try {
+            frame.Start();
+
+            long start = System.currentTimeMillis();
+            while(true)
+            {
+                if(System.currentTimeMillis() > start + 10 * 60 * 1000)
                     break;
 
                 Thread.sleep(1);
