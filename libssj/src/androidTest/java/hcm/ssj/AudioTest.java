@@ -145,11 +145,11 @@ public class AudioTest extends ApplicationTestCase<Application>
         hcm.ssj.audio.SpeechRate sr = new hcm.ssj.audio.SpeechRate();
         sr.options.thresholdVoicedProb.set(0.3f);
         Provider[] sr_in = {energy, pitch_env};
-        frame.addEventConsumer(sr, sr_in, vad_channel);
-        EventChannel sr_channel = sr.getEventChannelOut();
+        frame.addConsumer(sr, sr_in, vad_channel);
+        EventChannel sr_channel = frame.registerEventProvider(sr);
 
         EventLogger log = new EventLogger();
-        frame.addEventListener(log, sr_channel);
+        frame.registerEventListener(log, sr_channel);
 
         try
         {

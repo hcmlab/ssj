@@ -69,7 +69,7 @@ public class testEvent extends ApplicationTestCase<Application> {
         EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addEventListener(log, channel);
+        frame.registerEventListener(log, channel);
 
         try {
             frame.Start();
@@ -120,11 +120,11 @@ public class testEvent extends ApplicationTestCase<Application> {
 
         FloatSegmentEventSender evs = new FloatSegmentEventSender();
         evs.options.mean.set(true);
-        frame.addEventConsumer(evs, energy, vad_channel);
+        frame.addConsumer(evs, energy, vad_channel);
         EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addEventListener(log, channel);
+        frame.registerEventListener(log, channel);
 
         try {
             frame.Start();

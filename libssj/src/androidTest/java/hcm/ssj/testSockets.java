@@ -71,12 +71,12 @@ public class testSockets extends ApplicationTestCase<Application> {
         EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
-        frame.addEventListener(log, channel);
+        frame.registerEventListener(log, channel);
 
         SocketEventWriter sock = new SocketEventWriter();
         sock.options.port = 34300;
         sock.options.ip = "192.168.0.101";
-        frame.addEventListener(sock, channel);
+        frame.registerEventListener(sock, channel);
 
         try {
             frame.Start();

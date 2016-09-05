@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -77,7 +78,7 @@ public class TheFramework
     ExceptionHandler _exceptionHandler = null;
 
     //components
-    protected ArrayList<Component> _components = new ArrayList<>();
+    protected HashSet<Component> _components = new HashSet<>();
 
     //buffers
     protected ArrayList<TimeBuffer> _buffer = new ArrayList<>();
@@ -256,43 +257,38 @@ public class TheFramework
         _components.add(c);
     }
 
-    public void addEventConsumer(EventConsumer c, Provider source, EventChannel channel)
+    public void addConsumer(EventConsumer c, Provider source, EventChannel channel)
     {
         Provider[] sources = {source};
-        addEventConsumer(c, sources, channel);
+        addConsumer(c, sources, channel);
     }
 
-    public void addEventConsumer(EventConsumer c, Provider[] sources, EventChannel channel)
+    public void addConsumer(EventConsumer c, Provider[] sources, EventChannel channel)
     {
         c.setup(sources);
         c.addEventChannelIn(channel);
         _components.add(c);
     }
 
-    public void addEventListener(Component c, EventChannel channel)
+    public void registerEventListener(Component c, Component source)
+    {
+        registerEventListener(c, source.getEventChannelOut());
+    }
+
+    public void registerEventListener(Component c, EventChannel channel)
     {
         _components.add(c);
         c.addEventChannelIn(channel);
     }
 
-    public void addEventListener(Component c, EventChannel[] channels)
+    public void registerEventListener(Component c, EventChannel[] channels)
     {
         _components.add(c);
-
         for(EventChannel ch : channels)
             c.addEventChannelIn(ch);
     }
 
-    /**
-     * Adds a component ONLY as an event provider to the framework
-     * This means that no stream buffer are assigned and no component setup is performed
-     * If the component is more than a event provider, use the appropriate method
-     * and than call c.getEventChannelOut() to "transform" the component into an event provider
-     *
-     * @param c the component to be registered as an event provider (only possible for EventHandler)
-     * @return the assigned output event channel
-     */
-    public EventChannel addEventProvider(EventHandler c)
+    public EventChannel registerEventProvider(Component c)
     {
         _components.add(c);
         return c.getEventChannelOut();
@@ -303,32 +299,12 @@ public class TheFramework
      * No initialization is performed and no buffers are allocated.
      *
      * @param c the component to be added
-     * @deprecated use addEventProvider() or addEventListener() instead
+     * @deprecated use registerEventProvider() or registerEventListener() instead
      */
     @Deprecated
     public void addComponent(Component c)
     {
         _components.add(c);
-    }
-
-    /**
-     * @deprecated use component.getEventChannelOut() or addEventProvider() instead
-     */
-    @Deprecated
-    public EventChannel registerEventProvider(Component c)
-    {
-        EventChannel channel = new EventChannel();
-        c.setEventChannelOut(channel);
-        return channel;
-    }
-
-    /**
-     * @deprecated use addEventListener() instead
-     */
-    @Deprecated
-    public void registerEventListener(Component c, EventChannel channel)
-    {
-        c.addEventChannelIn(channel);
     }
 
     public void pushData(int buffer_id, Object data, int numBytes)

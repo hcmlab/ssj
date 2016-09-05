@@ -94,7 +94,7 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
         blew.options.connectionType.set(BluetoothConnection.Type.CLIENT);
         blew.options.serverName.set("HCM-Johnny-Phone");
         blew.options.connectionName.set("event");
-        frame.addEventListener(blew, ch);
+        frame.registerEventListener(blew, ch);
 
         try {
             frame.Start();
