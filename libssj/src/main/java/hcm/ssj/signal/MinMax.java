@@ -61,7 +61,7 @@ public class MinMax extends Transformer
         }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //helper variables
     private float[][] floats;
     private int multiplier;

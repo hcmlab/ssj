@@ -56,7 +56,7 @@ public class Progress extends Transformer
         }
     }
 
-    public Options options = new Options();
+    public final Options options = new Options();
     //helper variables
     private boolean initState = true;
     private float[] oldValues;

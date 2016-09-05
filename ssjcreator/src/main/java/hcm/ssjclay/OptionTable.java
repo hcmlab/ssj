@@ -169,17 +169,16 @@ public class OptionTable
             //normal text view for everything else
             inputView = new EditText(activity);
             ((EditText) inputView).setTextColor(Color.BLACK);
-
-            // Specify the expected input type
+            //specify the expected input type
             Class<?> type = option.getType();
             if (type == Byte.class || type == Short.class || type == Integer.class || type == Long.class)
             {
                 ((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
-                ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
+                ((TextView) inputView).setText(value != null ? value.toString() : "", TextView.BufferType.NORMAL);
             } else if (type == Float.class || type == Double.class)
             {
                 ((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-                ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
+                ((TextView) inputView).setText(value != null ? value.toString() : "", TextView.BufferType.NORMAL);
             } else if (value != null && value.getClass().isArray())
             {
                 Object[] objects;
@@ -208,7 +207,7 @@ public class OptionTable
             } else
             {
                 ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
-                ((TextView) inputView).setText(value != null ? value.toString() : "null", TextView.BufferType.NORMAL);
+                ((TextView) inputView).setText(value != null ? value.toString() : "", TextView.BufferType.NORMAL);
             }
             ((EditText) inputView).addTextChangedListener(new TextWatcher()
             {
