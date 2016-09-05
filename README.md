@@ -1,16 +1,14 @@
 ![Logo](/assets/logo_w100.png) 
 ### Social Signal Processing for Android
 
-SSJ is an extensible android framework for social signal processing in an ouț of lab envirnoment. It packages common signal processing tools in a flexible, mobile friendly Java library which can be easily integrated into Android Apps.
+SSJ is an extensible android framework for social signal processing in an out of lab envirnoment. It packages common signal processing tools in a flexible, mobile friendly Java library which can be easily integrated into Android Apps.
 
 <img align="right" src="/assets/screen_ssj_vsmall.png"/>
 ### Features
 * Realtime signal processing using independent components as processing steps in a pipeline
 * Synchornized data streams
-* Support for most standard android sensors 
-  * e.g. Camera, Microphone, Acceleration, GPS
-* Support for external sensors via bluetooth 
-  * e.g. Microsoft Band 2, Myo, Angel Sensor, Empatica
+* Support for most standard android sensors e.g. Camera, Microphone, Acceleration, GPS
+* Support for external sensors via bluetooth e.g. Microsoft Band 2, Myo, Angel Sensor, Empatica
 * I/O functionality: local storage, sockets, bluetooth
 * Basic GUI elements: graphs (using [GraphView](https://github.com/hcmlab/GraphView) library), camera painter
 * <b>[NEW]</b> SSJ Creator: Android App for building, editing and runnning SSJ pipelines without writing a single line of code

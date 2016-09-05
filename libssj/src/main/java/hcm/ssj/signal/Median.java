@@ -61,6 +61,7 @@ public class Median extends Transformer
     public final Options options = new Options();
     //helper variables
     private float[][] floats;
+    private float[][] dimensions;
 
     /**
      *
@@ -81,11 +82,17 @@ public class Median extends Transformer
         if (stream_in.length < 1 || stream_in[0].dim < 1)
         {
             Log.e("invalid input stream");
+            return;
         }
         floats = new float[stream_in.length][];
         for (int i = 0; i < floats.length; i++)
         {
             floats[i] = new float[stream_in[i].num * stream_in[i].dim];
+        }
+        dimensions = new float[stream_in.length][];
+        for (int i = 0; i < dimensions.length; i++)
+        {
+            dimensions[i] = new float[stream_in[i].num];
         }
     }
 
@@ -98,6 +105,7 @@ public class Median extends Transformer
     {
         super.flush(stream_in, stream_out);
         floats = null;
+        dimensions = null;
     }
 
     /**
@@ -116,12 +124,11 @@ public class Median extends Transformer
                 int size = stream_in[i].num * stream_in[i].dim;
                 for (int j = 0; j < stream_in[i].dim; j++)
                 {
-                    float[] dim = new float[stream_in[i].num];
                     for (int k = j, l = 0; k < size; k += stream_in[i].dim, l++)
                     {
-                        dim[l] = floats[i][k];
+                        dimensions[i][l] = floats[i][k];
                     }
-                    out[t++] = getMedian(dim);
+                    out[t++] = getMedian(dimensions[i]);
                 }
             } else
             {
