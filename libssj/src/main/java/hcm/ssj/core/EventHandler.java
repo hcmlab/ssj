@@ -26,13 +26,15 @@
 
 package hcm.ssj.core;
 
+import hcm.ssj.core.event.Event;
+
 /**
  * An EventHandler is a general component with no regulated inputs or outputs
  * Its only means of communication are events
  *
  * Created by Johnny on 30.03.2015.
  */
-public abstract class EventHandler extends Component {
+public abstract class EventHandler extends Component implements EventListener {
 
     protected TheFramework _frame;
     public EventHandler()
@@ -48,6 +50,11 @@ public abstract class EventHandler extends Component {
             Log.e("no event channel has been registered");
             return;
         }
+
+        //register listener
+        if(_evchannel_in != null && _evchannel_in.size() != 0)
+            for(EventChannel ch : _evchannel_in)
+                ch.addEventListener(this);
 
         try {
             enter();
@@ -86,9 +93,18 @@ public abstract class EventHandler extends Component {
     protected abstract void enter();
 
     /**
-     * main processing method
+     * thread processing method, alternative to notify(), called in loop
      */
-    protected abstract void process();
+    protected void process() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {}
+    }
+
+    /**
+     * alternative to process(), called once per received event
+     */
+    public void notify(Event event) {}
 
     /**
      * called once before termination
