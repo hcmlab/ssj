@@ -26,7 +26,6 @@
 
 package hcm.ssj.audio;
 
-import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 
@@ -48,7 +47,7 @@ public class AudioProvider extends SensorProvider
         public final Option<Integer> sampleRate = new Option<>("sampleRate", 8000, Integer.class, "");
         public final Option<Cons.ChannelFormat> channelConfig = new Option<>("channelConfig", Cons.ChannelFormat.CHANNEL_IN_MONO, Cons.ChannelFormat.class, "");
         public final Option<Cons.AudioFormat> audioFormat = new Option<>("audioFormat", Cons.AudioFormat.ENCODING_PCM_16BIT, Cons.AudioFormat.class, "");
-        public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "");
+        public final Option<Boolean> scale = new Option<>("scale", true, Boolean.class, "");
 
         /**
          *
