@@ -132,7 +132,6 @@ public class PipeView extends ViewGroup
                     {
                         setGridValue(view.getGridX(), view.getGridY(), false);
                         Linker.getInstance().remove(view.getElement());
-                        recalculate();
                     } //reposition
                     else
                     {
@@ -208,7 +207,12 @@ public class PipeView extends ViewGroup
                         //create recycle bin
                         if (imageView != null)
                         {
-                            ((ViewGroup) imageView.getParent()).removeView(imageView);
+                            ViewGroup parent = ((ViewGroup) imageView.getParent());
+                            if (parent != null)
+                            {
+                                parent.removeView(imageView);
+                            }
+                            imageView.invalidate();
                             imageView = null;
                         }
                         imageView = new ImageView(getContext());
