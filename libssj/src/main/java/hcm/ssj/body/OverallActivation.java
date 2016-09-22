@@ -35,10 +35,10 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Audio energy algorithms extracted from TarsosDSP
+ * Computes the expressivity feature Overall Activation as defined by Hartmann et al. 2005 and Baur et al. 2015
  * Created by Johnny on 05.03.2015.
  */
-public class Activity extends Transformer {
+public class OverallActivation extends Transformer {
 
     public class Options extends OptionList
     {
@@ -52,9 +52,9 @@ public class Activity extends Transformer {
     }
     public final Options options = new Options();
 
-    public Activity()
+    public OverallActivation()
     {
-        _name = "Activity";
+        _name = "OverallActivation";
     }
 
     float _displacement[];

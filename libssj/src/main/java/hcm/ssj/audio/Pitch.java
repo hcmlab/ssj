@@ -60,7 +60,7 @@ public class Pitch extends Transformer {
         public final Option<Integer> detector = new Option<>("detector", YIN, Integer.class, "");
         public final Option<Boolean> computePitch = new Option<>("computePitch", true, Boolean.class, "");
         public final Option<Boolean> computePitchEnvelope = new Option<>("computePitchEnvelope", false, Boolean.class, "if pitch is invalid, provide old value again");
-        public final Option<Boolean> computeVoicedProb = new Option<>("computeVoicedProb", true, Boolean.class, "");
+        public final Option<Boolean> computeVoicedProb = new Option<>("computeVoicedProb", false, Boolean.class, "");
         public final Option<Boolean> computePitchedState = new Option<>("computePitchedState", false, Boolean.class, "");
         public final Option<Float> minPitch = new Option<>("minPitch", 52.0f, Float.class, "");
         public final Option<Float> maxPitch = new Option<>("maxPitch", 620.0f, Float.class, "");

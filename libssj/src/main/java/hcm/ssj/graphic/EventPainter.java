@@ -48,9 +48,8 @@ public class EventPainter extends EventHandler
 {
     public class Options extends OptionList
     {
-        public final Option<String> title = new Option<>("title", "Event", String.class, "");
+        public final Option<String> title = new Option<>("title", "events", String.class, "");
         public final Option<Integer> color = new Option<>("color", 0xff0077cc, Integer.class, "");
-        public final Option<Boolean> legend = new Option<>("legend", true, Boolean.class, "");
         public final Option<Integer> numBars = new Option<>("numBars", 2, Integer.class, "");
         public final Option<Integer> spacing = new Option<>("spacing", 50, Integer.class, "space between bars");
         public final Option<GraphView> graphView = new Option<>("graphView", null, GraphView.class, "");        public final Option<Boolean> manualBounds = new Option<>("manualBounds", false, Boolean.class, "");
@@ -111,13 +110,13 @@ public class EventPainter extends EventHandler
         _view.getViewport().setMinY(options.min.get());
 
         _view.getGridLabelRenderer().setHorizontalLabelsVisible(false);
+        _view.getGridLabelRenderer().setHorizontalAxisTitle(options.title.get());
         _view.getGridLabelRenderer().setNumVerticalLabels(2);
         _view.getGridLabelRenderer().setGridStyle(GridLabelRenderer.GridStyle.HORIZONTAL);
 
-        _view.getLegendRenderer().setVisible(options.legend.get());
-        _view.getLegendRenderer().setFixedPosition(10, 10);
+        _view.getLegendRenderer().setVisible(false);
 
-        createSeries(_view, options.title.get(), options.spacing.get());
+        createSeries(_view, options.spacing.get());
     }
 
     @Override
@@ -183,7 +182,7 @@ public class EventPainter extends EventHandler
         }, 1);
     }
 
-    private void createSeries(final GraphView view, final String title, final int spacing)
+    private void createSeries(final GraphView view, final int spacing)
     {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable()
@@ -191,7 +190,6 @@ public class EventPainter extends EventHandler
             public void run()
             {
                 _series = new BarGraphSeries<>();
-                _series.setTitle(title);
                 _series.setColor(options.color.get());
                 _series.setDrawValuesOnTop(true);
                 _series.setValuesOnTopColor(Color.BLACK);
