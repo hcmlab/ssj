@@ -41,13 +41,13 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
 import hcm.ssjclay.R;
+import hcm.ssjclay.Util;
 import hcm.ssjclay.creator.SaveLoad;
 
 /**
@@ -56,9 +56,6 @@ import hcm.ssjclay.creator.SaveLoad;
  */
 public class FileDialog extends DialogFragment
 {
-    private final static String DIR_1 = "SSJ", DIR_2 = "Creator", SUFFIX = ".xml",
-            DEMO = "demo", DEMO_SUFFIX = ".demo";
-
     public enum Type
     {
         SAVE, LOAD, DELETE
@@ -90,13 +87,13 @@ public class FileDialog extends DialogFragment
                             case SAVE:
                             {
                                 String fileName = editText.getText().toString().trim();
-                                File dir1 = new File(Environment.getExternalStorageDirectory(), DIR_1);
-                                File dir2 = new File(dir1.getPath(), DIR_2);
+                                File dir1 = new File(Environment.getExternalStorageDirectory(), Util.DIR_1);
+                                File dir2 = new File(dir1.getPath(), Util.DIR_2);
                                 if (!fileName.isEmpty() && (dir2.exists() || dir2.mkdirs()))
                                 {
-                                    if (!fileName.endsWith(SUFFIX))
+                                    if (!fileName.endsWith(Util.SUFFIX))
                                     {
-                                        fileName += SUFFIX;
+                                        fileName += Util.SUFFIX;
                                     }
                                     File file = new File(dir2, fileName);
                                     if (isValidFileName(file) && SaveLoad.save(file))
@@ -131,40 +128,13 @@ public class FileDialog extends DialogFragment
                                             return;
                                         } else if (type == Type.LOAD)
                                         {
-                                            //use different load with demo files
-                                            if (xmlFiles[pos].getName().endsWith(DEMO_SUFFIX))
+                                            if (SaveLoad.load(xmlFiles[pos]))
                                             {
-                                                try
+                                                for (Listener listener : alListeners)
                                                 {
-                                                    String path = DEMO + "/" + xmlFiles[pos].getName();
-                                                    FileInputStream fileInputStream = getContext().getAssets().openFd(path).createInputStream();
-                                                    if (SaveLoad.load(fileInputStream))
-                                                    {
-                                                        for (Listener listener : alListeners)
-                                                        {
-                                                            listener.onPositiveEvent(null);
-                                                        }
-                                                        return;
-                                                    }
-                                                } catch (IOException ex)
-                                                {
-                                                    ex.printStackTrace();
-                                                    for (Listener listener : alListeners)
-                                                    {
-                                                        listener.onNegativeEvent(new Boolean[]{false});
-                                                    }
-                                                    return;
+                                                    listener.onPositiveEvent(null);
                                                 }
-                                            } else
-                                            {
-                                                if (SaveLoad.load(xmlFiles[pos]))
-                                                {
-                                                    for (Listener listener : alListeners)
-                                                    {
-                                                        listener.onPositiveEvent(null);
-                                                    }
-                                                    return;
-                                                }
+                                                return;
                                             }
                                         }
                                         for (Listener listener : alListeners)
@@ -211,33 +181,16 @@ public class FileDialog extends DialogFragment
             {
                 listView = new ListView(getContext());
                 listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-                File dir1 = new File(Environment.getExternalStorageDirectory(), DIR_1);
-                File dir2 = new File(dir1.getPath(), DIR_2);
+                File dir1 = new File(Environment.getExternalStorageDirectory(), Util.DIR_1);
+                File dir2 = new File(dir1.getPath(), Util.DIR_2);
                 xmlFiles = dir2.listFiles(new FilenameFilter()
                 {
                     @Override
                     public boolean accept(File folder, String name)
                     {
-                        return name.toLowerCase().endsWith(SUFFIX);
+                        return name.toLowerCase().endsWith(Util.SUFFIX);
                     }
                 });
-                if (type == Type.LOAD)
-                {
-                    //add demo files
-                    try
-                    {
-                        String[] demoFileNames = getContext().getAssets().list(DEMO);
-                        File[] demoFiles = new File[demoFileNames.length];
-                        for (int i = 0; i < demoFiles.length; i++)
-                        {
-                            demoFiles[i] = new File(demoFileNames[i]);
-                        }
-                        xmlFiles = xmlFiles == null ? demoFiles : concat(xmlFiles, demoFiles);
-                    } catch (IOException ex)
-                    {
-                        ex.printStackTrace();
-                    }
-                }
                 if (xmlFiles != null && xmlFiles.length > 0)
                 {
                     String[] ids = new String[xmlFiles.length];
@@ -255,21 +208,6 @@ public class FileDialog extends DialogFragment
             }
         }
         return builder.create();
-    }
-
-    /**
-     * @param a File[]
-     * @param b File[]
-     * @return File[]
-     */
-    private File[] concat(File[] a, File[] b)
-    {
-        int aLen = a.length;
-        int bLen = b.length;
-        File[] c = new File[aLen + bLen];
-        System.arraycopy(a, 0, c, 0, aLen);
-        System.arraycopy(b, 0, c, aLen, bLen);
-        return c;
     }
 
     /**

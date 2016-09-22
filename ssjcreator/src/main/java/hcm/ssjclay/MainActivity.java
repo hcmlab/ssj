@@ -646,7 +646,7 @@ public class MainActivity extends AppCompatActivity
                 if (isFirstStart)
                 {
                     //launch app intro
-                    Intent i = new Intent(MainActivity.this, Tutorial.class);
+                    Intent i = new Intent(MainActivity.this, TutorialActivity.class);
                     startActivity(i);
                     //make a new preferences editor
                     SharedPreferences.Editor e = getPrefs.edit();
@@ -654,6 +654,8 @@ public class MainActivity extends AppCompatActivity
                     e.putBoolean(preference, false);
                     //apply changes
                     e.apply();
+                    //copy demo files
+                    DemoHandler.copyFiles(MainActivity.this);
                 }
             }
         });

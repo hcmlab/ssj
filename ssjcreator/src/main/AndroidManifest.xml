@@ -45,7 +45,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Tutorial"
+            android:name=".TutorialActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/FullscreenTheme" >
         </activity>

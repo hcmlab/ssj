@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<options>
+    <item name="log" type="BOOL" num="1" value="true" lock="true" help="user log normal distribution" />
+    <item name="prior" type="BOOL" num="1" value="false" lock="true" help="use prior probability" />
+</options>

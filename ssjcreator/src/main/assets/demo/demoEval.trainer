@@ -1,0 +1,22 @@
+<?xml version="1.0" ?>
+<trainer ssi-v="5">
+    <info trained="true" />
+    <streams>
+        <item byte="4" dim="45" sr="1.000000" type="FLOAT" />
+    </streams>
+    <classes>
+        <item name="Stand" />
+        <item name="Walk" />
+        <item name="Jog" />
+    </classes>
+    <users>
+        <item name="1" />
+        <item name="2" />
+        <item name="3" />
+        <item name="4" />
+    </users>
+    <select>
+        <item stream="0" size="15" select="34 18 10 19 6 26 12 20 16 4 11 21 22 24 25" />
+    </select>
+    <model create="NaiveBayes" stream="0" path="demoEval.trainer.NaiveBayes" option="demoEval.trainer.NaiveBayes" />
+</trainer>

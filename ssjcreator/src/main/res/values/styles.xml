@@ -34,7 +34,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- Fullscreen application theme for Tutorial -->
+    <!-- Fullscreen application theme for TutorialActivity -->
     <style name="FullscreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:windowTranslucentStatus">true</item>

@@ -38,7 +38,7 @@ import com.github.paolorotolo.appintro.AppIntroFragment;
 /**
  * Created by Johnny on 22.08.2016.
  */
-public class Tutorial extends AppIntro
+public class TutorialActivity extends AppIntro
 {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
