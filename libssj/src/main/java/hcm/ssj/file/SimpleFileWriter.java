@@ -39,22 +39,19 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
  * File writer for SSJ.<br>
  * Created by Frank Gaibler on 20.08.2015.
  */
-public class SimpleFileWriter extends Consumer
+public class SimpleFileWriter extends Consumer implements FileHandler
 {
     /**
      *
      */
-    public class Options extends OptionList
+    public class Options extends FileHandler.Options
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
         public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "");
 
         /**
@@ -62,6 +59,7 @@ public class SimpleFileWriter extends Consumer
          */
         private Options()
         {
+            super();
             addOptions();
         }
     }

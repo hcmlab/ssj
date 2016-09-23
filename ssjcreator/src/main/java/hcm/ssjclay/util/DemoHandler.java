@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssjclay;
+package hcm.ssjclay.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -64,15 +64,12 @@ public abstract class DemoHandler
         {
             Log.e(e.getMessage());
         }
-        for (int i = 0; i < files.length; i++)
+        for (String file : files)
         {
-            InputStream in = null;
-            OutputStream out = null;
             try
             {
-                //getContext().getAssets().openFd(path).createInputStream();
-                in = assetManager.open(Util.DEMO + "/" + files[i]);
-                out = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + Util.DIR_1 + "/" + Util.DIR_2 + "/" + files[i]);
+                InputStream in = assetManager.open(Util.DEMO + "/" + file);
+                OutputStream out = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + Util.DIR_1 + "/" + Util.DIR_2 + "/" + file);
                 copyFile(in, out);
                 in.close();
                 out.flush();

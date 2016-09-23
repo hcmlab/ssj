@@ -1,5 +1,5 @@
 /*
- * OptionsActivity.java
+ * FileOptions.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,57 +24,31 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssjclay;
+package hcm.ssj.file;
 
-import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.widget.TableLayout;
-
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.option.Option;
-import hcm.ssjclay.creator.Linker;
-import hcm.ssjclay.util.OptionTable;
+import hcm.ssj.core.option.OptionList;
 
-public class OptionsActivity extends AppCompatActivity
+/**
+ * Standard file options.<br>
+ * Created by Frank Gaibler on 22.09.2016.
+ */
+interface FileHandler
 {
-    public static Object object;
-
     /**
-     *
+     * Standard options
      */
-    private void init()
+    class Options extends OptionList
     {
-        Option[] options;
-        if (object != null)
-        {
-            //change title
-            setTitle(((hcm.ssj.core.Component) object).getComponentName());
-            options = Linker.getOptionList(object);
-        } else
-        {
-            //change title
-            setTitle("SSJ_Framework");
-            options = Linker.getOptionList(TheFramework.getFramework());
-        }
-        object = null;
-        //stretch columns
-        TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
-        tableLayout.setStretchAllColumns(true);
-        //add options
-        if (options != null && options.length > 0)
-        {
-            tableLayout.addView(OptionTable.createTable(this, options));
-        }
-    }
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
 
-    /**
-     * @param savedInstanceState Bundle
-     */
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_options);
-        init();
+        /**
+         *
+         */
+        protected Options()
+        {
+            addOptions();
+        }
     }
 }

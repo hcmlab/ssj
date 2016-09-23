@@ -37,8 +37,6 @@ import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -47,28 +45,10 @@ import hcm.ssj.core.stream.Stream;
  */
 @SuppressWarnings("deprecation")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-public abstract class Mp4Writer extends Consumer
+public abstract class Mp4Writer extends Consumer implements FileHandler
 {
     private static final int SENDEND_TIMEOUT = 2000;
     private static final int SENDEND_SLEEP = 100;
-
-    /**
-     * All options for the mp4 writer
-     */
-    public class Options extends OptionList
-    {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
-
-        /**
-         *
-         */
-        protected Options()
-        {
-            addOptions();
-        }
-    }
-
     //encoder
     protected double dFrameRate;
     protected MediaCodec mediaCodec;

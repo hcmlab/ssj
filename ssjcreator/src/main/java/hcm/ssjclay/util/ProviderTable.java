@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssjclay;
+package hcm.ssjclay.util;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -42,6 +42,7 @@ import java.util.Arrays;
 
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
+import hcm.ssjclay.R;
 import hcm.ssjclay.creator.Linker;
 
 /**

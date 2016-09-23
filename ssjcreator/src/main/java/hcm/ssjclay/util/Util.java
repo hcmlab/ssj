@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssjclay;
+package hcm.ssjclay.util;
 
 import android.os.Environment;
 

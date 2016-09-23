@@ -47,7 +47,7 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
 import hcm.ssjclay.R;
-import hcm.ssjclay.Util;
+import hcm.ssjclay.util.Util;
 import hcm.ssjclay.creator.SaveLoad;
 
 /**

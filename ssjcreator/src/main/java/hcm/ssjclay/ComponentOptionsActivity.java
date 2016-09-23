@@ -37,6 +37,8 @@ import android.widget.TableLayout;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssjclay.creator.Linker;
+import hcm.ssjclay.util.OptionTable;
+import hcm.ssjclay.util.ProviderTable;
 
 public class ComponentOptionsActivity extends AppCompatActivity
 {

@@ -42,132 +42,37 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ScrollView;
-import android.widget.TabHost;
-import android.widget.TabHost.TabSpec;
-import android.widget.TextView;
-
-import com.jjoe64.graphview.GraphView;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-import hcm.ssj.camera.CameraPainter;
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.file.LoggingConstants;
-import hcm.ssj.graphic.SignalPainter;
 import hcm.ssjclay.creator.Builder;
 import hcm.ssjclay.creator.Linker;
 import hcm.ssjclay.dialogs.AddDialog;
 import hcm.ssjclay.dialogs.FileDialog;
 import hcm.ssjclay.dialogs.Listener;
-import hcm.ssjclay.view.PipeView;
+import hcm.ssjclay.main.TabHandler;
+import hcm.ssjclay.util.DemoHandler;
 
 public class MainActivity extends AppCompatActivity
 {
     private static boolean ready = true;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
-    //visual pipe editor
-    private PipeView pipeView = null;
     //tabs
-    private TabHost tabHost = null;
-    private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
-    private ArrayList<TabSpec> alTabSpecs = new ArrayList<>();
-    private final static int FIX_TAB_NUMBER = 2;
-    //console
-    private TextView textViewConsole = null;
-    private String strLogMsg = "";
-    private boolean handleLogMessages = false;
-    private Thread threadLog = new Thread()
-    {
-        private final int sleepTime = 100;
-        private Handler handlerLog = new Handler(Looper.getMainLooper());
-        private Runnable runnableLog = new Runnable()
-        {
-            public void run()
-            {
-                if (textViewConsole != null)
-                {
-                    textViewConsole.setText(strLogMsg);
-                }
-            }
-        };
-
-        @Override
-        public void run()
-        {
-            while (handleLogMessages)
-            {
-                try
-                {
-                    handlerLog.post(runnableLog);
-                    Thread.sleep(sleepTime);
-                } catch (InterruptedException ex)
-                {
-                    ex.printStackTrace();
-                }
-            }
-        }
-    };
-    private Log.LogListener logListener = new Log.LogListener()
-    {
-        private String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
-        private final int max = 100000;
-        private final int interim = 100000 / 2;
-
-        /**
-         * @param msg String
-         */
-        public void msg(int type, String msg)
-        {
-            strLogMsg += (type > 0 && type < tags.length ? tags[type] : type) + "/" + Cons.LOGTAG + ": " + msg + LoggingConstants.DELIMITER_LINE;
-            int length = strLogMsg.length();
-            if (length > max)
-            {
-                strLogMsg = strLogMsg.substring(length - interim);
-                strLogMsg = strLogMsg.substring(strLogMsg.indexOf(LoggingConstants.DELIMITER_LINE) + LoggingConstants.DELIMITER_LINE.length());
-            }
-        }
-    };
-    private PipeView.ViewListener viewListener = new PipeView.ViewListener()
-    {
-        @Override
-        public void viewChanged()
-        {
-            checkAdditionalTabs();
-        }
-    };
+    private TabHandler tabHandler;
 
     /**
      *
      */
     private void init()
     {
-        tabHost = (TabHost) findViewById(R.id.id_tabHost);
-        if (tabHost != null)
-        {
-            tabHost.setup();
-            //pipe
-            pipeView = new PipeView(MainActivity.this);
-            pipeView.setWillNotDraw(false);
-            addTab(pipeView, getResources().getString(R.string.str_pipe), android.R.drawable.ic_menu_edit);
-            //console
-            addTabConsole();
-            //add log listener
-            Log.addLogListener(logListener);
-            handleLogMessages = true;
-            threadLog.start();
-            //add view listener
-            pipeView.addViewListener(viewListener);
-        }
+        //init tabs
+        tabHandler = new TabHandler(MainActivity.this);
         //handle permissions
         checkPermissions();
         //set exception handler
@@ -202,62 +107,6 @@ public class MainActivity extends AppCompatActivity
             }
         };
         TheFramework.getFramework().setExceptionHandler(exceptionHandler);
-    }
-
-    /**
-     * @param view    View
-     * @param tabName String
-     * @param image   int
-     */
-    private void addTab(final View view, final String tabName, int image)
-    {
-        final TabSpec tabSpec = tabHost.newTabSpec(tabName);
-        tabSpec.setContent(new TabHost.TabContentFactory()
-        {
-            /**
-             * @param tag String
-             * @return View
-             */
-            public View createTabContent(String tag)
-            {
-                return view;
-            }
-        });
-        tabSpec.setIndicator("", ContextCompat.getDrawable(MainActivity.this, image));
-        tabHost.addTab(tabSpec);
-        //necessary to reset tab strip
-        int tab = tabHost.getCurrentTab();
-        tabHost.setCurrentTab(tabHost.getTabWidget().getTabCount() - 1);
-        tabHost.setCurrentTab(tab);
-        alTabSpecs.add(tabSpec);
-    }
-
-    /**
-     * @param tab int
-     */
-    private void removeTab(final int tab)
-    {
-        int current = tabHost.getCurrentTab();
-        alTabSpecs.remove(tab);
-        tabHost.setCurrentTab(0);
-        tabHost.clearAllTabs();
-        for (TabSpec tabSpec : alTabSpecs)
-        {
-            tabHost.addTab(tabSpec);
-        }
-        tabHost.setCurrentTab(current == 1 ? 1 : 0);
-    }
-
-    /**
-     *
-     */
-    private void addTabConsole()
-    {
-        ScrollView scrollViewConsole = new ScrollView(MainActivity.this);
-        textViewConsole = new TextView(MainActivity.this);
-        scrollViewConsole.addView(textViewConsole);
-        //
-        addTab(scrollViewConsole, getResources().getString(R.string.str_console), android.R.drawable.ic_menu_info_details);
     }
 
     /**
@@ -317,8 +166,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
-                    //clear console
-                    strLogMsg = "";
+                    tabHandler.preStart();
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
                     //remove old content
@@ -334,6 +182,7 @@ public class MainActivity extends AppCompatActivity
                     //stop framework
                     try
                     {
+                        tabHandler.preStop();
                         framework.Stop();
                     } catch (Exception e)
                     {
@@ -511,53 +360,7 @@ public class MainActivity extends AppCompatActivity
      */
     private void actualizeContent()
     {
-        if (pipeView != null)
-        {
-            pipeView.recalculate();
-        }
-    }
-
-    /**
-     * Add or remove additional tabs
-     */
-    private void checkAdditionalTabs()
-    {
-        Object[] consumers = Linker.getInstance().getAll(Linker.Type.Consumer);
-        //add additional tabs
-        for (Object object : consumers)
-        {
-            if (object instanceof SignalPainter)
-            {
-                GraphView graphView = ((SignalPainter) object).options.graphView.get();
-                if (graphView == null)
-                {
-                    graphView = new GraphView(MainActivity.this);
-                    ((SignalPainter) object).options.graphView.set(graphView);
-                    addTab(graphView, "GraphView", android.R.drawable.ic_menu_view);
-                    alAdditionalTabs.add(object);
-                }
-            } else if (object instanceof CameraPainter)
-            {
-                SurfaceView surfaceView = ((CameraPainter) object).options.surfaceView.get();
-                if (surfaceView == null)
-                {
-                    surfaceView = new SurfaceView(MainActivity.this);
-                    ((CameraPainter) object).options.surfaceView.set(surfaceView);
-                    addTab(surfaceView, "SurfaceView", android.R.drawable.ic_menu_camera);
-                    alAdditionalTabs.add(object);
-                }
-            }
-        }
-        //remove obsolete tabs
-        List list = Arrays.asList(consumers);
-        for (int i = alAdditionalTabs.size() - 1; i >= 0; i--)
-        {
-            if (!list.contains(alAdditionalTabs.get(i)))
-            {
-                alAdditionalTabs.remove(i);
-                removeTab(i + FIX_TAB_NUMBER);
-            }
-        }
+        tabHandler.actualizeContent();
     }
 
     /**
@@ -589,12 +392,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
-        handleLogMessages = false;
-        Log.removeLogListener(logListener);
-        if (pipeView != null)
-        {
-            pipeView.removeViewListener(viewListener);
-        }
+        tabHandler.cleanUp();
         TheFramework framework = TheFramework.getFramework();
         if (framework.isRunning())
         {
