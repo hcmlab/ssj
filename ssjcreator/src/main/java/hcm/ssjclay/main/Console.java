@@ -42,7 +42,7 @@ import hcm.ssjclay.R;
  * Console tab for main activity.<br>
  * Created by Frank Gaibler on 23.09.2016.
  */
-class Console implements Tab
+class Console implements ITab
 {
     //tab
     private View view;

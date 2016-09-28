@@ -44,13 +44,15 @@ import hcm.ssj.core.option.OptionList;
  * File reader for SSJ.<br>
  * Created by Frank Gaibler on 20.08.2015.
  */
-public class SimpleFileReader extends Sensor implements FileHandler
+public class SimpleFileReader extends Sensor
 {
     /**
      *
      */
-    public class Options extends FileHandler.Options
+    public class Options extends OptionList
     {
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
         public final Option<Boolean> loop = new Option<>("loop", true, Boolean.class, "");
 
         /**
@@ -58,7 +60,6 @@ public class SimpleFileReader extends Sensor implements FileHandler
          */
         private Options()
         {
-            super();
             addOptions();
         }
     }

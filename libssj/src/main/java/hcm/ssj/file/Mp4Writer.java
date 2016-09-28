@@ -45,7 +45,7 @@ import hcm.ssj.core.stream.Stream;
  */
 @SuppressWarnings("deprecation")
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-public abstract class Mp4Writer extends Consumer implements FileHandler
+public abstract class Mp4Writer extends Consumer implements IFileWriter
 {
     private static final int SENDEND_TIMEOUT = 2000;
     private static final int SENDEND_SLEEP = 100;

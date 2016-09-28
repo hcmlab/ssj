@@ -1,5 +1,5 @@
 /*
- * FileOptions.java
+ * Tab.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,31 +24,28 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
+package hcm.ssjclay.main;
 
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
+import android.view.View;
 
 /**
- * Standard file options.<br>
- * Created by Frank Gaibler on 22.09.2016.
+ * Interface for tabs.<br>
+ * Created by Frank Gaibler on 23.09.2016.
  */
-interface FileHandler
+interface ITab
 {
     /**
-     * Standard options
+     * @return View
      */
-    class Options extends OptionList
-    {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
+    View getView();
 
-        /**
-         *
-         */
-        protected Options()
-        {
-            addOptions();
-        }
-    }
+    /**
+     * @return String
+     */
+    String getTitle();
+
+    /**
+     * @return int
+     */
+    int getIcon();
 }

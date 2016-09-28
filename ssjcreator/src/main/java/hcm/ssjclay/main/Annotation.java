@@ -26,9 +26,17 @@
 
 package hcm.ssjclay.main;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Environment;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -38,14 +46,16 @@ import android.widget.TextView;
 
 import java.io.File;
 
+import hcm.ssj.core.TheFramework;
 import hcm.ssj.file.LoggingConstants;
+import hcm.ssjclay.R;
 import hcm.ssjclay.util.Util;
 
 /**
  * Annotation tab for main activity.<br>
  * Created by Frank Gaibler on 23.09.2016.
  */
-class Annotation implements Tab
+class Annotation implements ITab
 {
     //tab
     private View view;
@@ -53,11 +63,13 @@ class Annotation implements Tab
     private int icon;
     //annotation
     private String lastAnno = null;
+    private FloatingActionButton floatingActionButton = null;
     private EditText editTextPathAnno = null;
     private EditText editTextNameAnno = null;
     private RadioGroup radioGroupAnno = null;
     private File fileAnno = null;
-    private final static String SUFFIX = ".anno";
+    private final static String SUFFIX = ".anno", START = "0.0";
+    private boolean running = false;
 
     /**
      * @param context Context
@@ -67,7 +79,7 @@ class Annotation implements Tab
         //view
         view = createContent(context);
         //title
-        title = "Annotation";
+        title = context.getResources().getString(R.string.str_annotation);
         //icon
         icon = android.R.drawable.ic_menu_agenda;
     }
@@ -75,34 +87,60 @@ class Annotation implements Tab
     /**
      * @param context Context
      */
-    private View createContent(Context context)
+    private View createContent(final Context context)
     {
         ScrollView scrollViewAnno = new ScrollView(context);
-        //
-
-        //
-        editTextNameAnno = new EditText(context);
-        editTextNameAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAnno.setText("test", TextView.BufferType.NORMAL);
-        editTextPathAnno = new EditText(context);
-        editTextPathAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextPathAnno.setText("test", TextView.BufferType.NORMAL);
-        radioGroupAnno = new RadioGroup(context);
-        RadioButton radioButton1 = new RadioButton(context);
-        radioButton1.setText("Stand");
-        RadioButton radioButton2 = new RadioButton(context);
-        radioButton2.setText("Walk");
-        RadioButton radioButton3 = new RadioButton(context);
-        radioButton3.setText("Run");
-        radioGroupAnno.addView(radioButton1);
-        radioGroupAnno.addView(radioButton2);
-        radioGroupAnno.addView(radioButton3);
+        //layouts
+        CoordinatorLayout coordinatorLayout = new CoordinatorLayout(context);
         LinearLayout linearLayout = new LinearLayout(context);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
+        coordinatorLayout.addView(linearLayout);
+        //add annotation
+        floatingActionButton = new FloatingActionButton(context);
+        floatingActionButton.setImageResource(R.drawable.ic_add_white_24dp);
+        CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
+                CoordinatorLayout.LayoutParams.MATCH_PARENT,
+                CoordinatorLayout.LayoutParams.MATCH_PARENT);
+        params.gravity = Gravity.END | Gravity.BOTTOM;
+        floatingActionButton.setLayoutParams(params);
+        floatingActionButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (radioGroupAnno != null)
+                {
+                    radioGroupAnno.addView(getRadioButton(context));
+                }
+            }
+        });
+        coordinatorLayout.addView(floatingActionButton);
+        //file name
+        TextView textViewDescriptionName = new TextView(context);
+        textViewDescriptionName.setText(R.string.str_fileName);
+        textViewDescriptionName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        linearLayout.addView(textViewDescriptionName);
+        editTextNameAnno = new EditText(context);
+        editTextNameAnno.setInputType(InputType.TYPE_CLASS_TEXT);
+        editTextNameAnno.setText("", TextView.BufferType.NORMAL);
         linearLayout.addView(editTextNameAnno);
+        //file path
+        TextView textViewDescriptionPath = new TextView(context);
+        textViewDescriptionPath.setText(R.string.str_filePath);
+        textViewDescriptionPath.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        linearLayout.addView(textViewDescriptionPath);
+        editTextPathAnno = new EditText(context);
+        editTextPathAnno.setInputType(InputType.TYPE_CLASS_TEXT);
+        editTextPathAnno.setText((Environment.getExternalStorageDirectory().getAbsolutePath()
+                + "/" + Util.DIR_1), TextView.BufferType.NORMAL);
         linearLayout.addView(editTextPathAnno);
+        //annotations
+        radioGroupAnno = new RadioGroup(context);
+        radioGroupAnno.addView(getRadioButton(context));
         linearLayout.addView(radioGroupAnno);
-        scrollViewAnno.addView(linearLayout);
+        //
+        scrollViewAnno.addView(coordinatorLayout);
+        //
         radioGroupAnno.check(radioGroupAnno.getChildAt(0).getId());
         radioGroupAnno.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
@@ -111,18 +149,81 @@ class Annotation implements Tab
             {
                 if (fileAnno != null)
                 {
-                    if (lastAnno == null)
+                    //only append to running pipeline
+                    if (TheFramework.getFramework().isRunning())
                     {
-                        lastAnno = ((RadioButton) group.getChildAt(0)).getText().toString();
-                        Util.appendFile(fileAnno, "0.0");
+                        Util.appendFile(fileAnno, " " + Util.getAnnotationTime() + " " + lastAnno + LoggingConstants.DELIMITER_LINE);
+                        Util.appendFile(fileAnno, String.valueOf(Util.getAnnotationTime()));
                     }
-                    Util.appendFile(fileAnno, " " + Util.getAnnotationTime() + " " + lastAnno + LoggingConstants.DELIMITER_LINE);
-                    Util.appendFile(fileAnno, String.valueOf(Util.getAnnotationTime()));
+                    lastAnno = ((RadioButton) group.getChildAt(checkedId - 1)).getText().toString();
                 }
-                lastAnno = ((RadioButton) group.getChildAt(checkedId - 1)).getText().toString();
             }
         });
         return scrollViewAnno;
+    }
+
+    /**
+     * @param context Context
+     * @return RadioButton
+     */
+    private RadioButton getRadioButton(final Context context)
+    {
+        RadioButton radioButton = new RadioButton(context);
+        radioButton.setText(R.string.str_default);
+        //increase text size
+        radioButton.setTextSize(radioButton.getTextSize() * 0.75f);
+        radioButton.setOnLongClickListener(new View.OnLongClickListener()
+        {
+            @Override
+            public boolean onLongClick(final View v)
+            {
+                //only allow edits while pipe is not active
+                if (running)
+                {
+                    return false;
+                } else
+                {
+                    //content
+                    LinearLayout linearLayout = new LinearLayout(context);
+                    linearLayout.setOrientation(LinearLayout.VERTICAL);
+                    final EditText editText = new EditText(context);
+                    editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                    editText.setText(((RadioButton) v).getText(), TextView.BufferType.NORMAL);
+                    linearLayout.addView(editText);
+                    final CheckBox checkBox = new CheckBox(context);
+                    checkBox.setText(R.string.str_delete);
+                    linearLayout.addView(checkBox);
+                    //dialog
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    builder.setTitle(R.string.str_annotation);
+                    builder.setView(linearLayout);
+                    builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int id)
+                        {
+                            if (checkBox.isChecked())
+                            {
+                                ViewGroup viewGroup = (ViewGroup) v.getParent();
+                                if (viewGroup != null)
+                                {
+                                    ((RadioButton) v).setChecked(false);
+                                    viewGroup.removeView(v);
+                                }
+                                v.invalidate();
+                            } else if (!editText.getText().toString().isEmpty())
+                            {
+                                ((RadioButton) v).setText(editText.getText());
+                            }
+                        }
+                    });
+                    builder.setNegativeButton(R.string.str_cancel, null);
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                    return true;
+                }
+            }
+        });
+        return radioButton;
     }
 
     /**
@@ -130,16 +231,35 @@ class Annotation implements Tab
      */
     void startAnnotation()
     {
+        enableComponents(false);
+        running = true;
         String name = editTextNameAnno.getText().toString().trim();
         lastAnno = null;
-        if (!name.isEmpty())
+        if (!name.isEmpty() && radioGroupAnno.getChildCount() > 0)
         {
-            fileAnno = Util.getFile("ssj", name.endsWith(SUFFIX) ? name : name + SUFFIX);
-            if (fileAnno.exists())
+            File parent = new File(editTextPathAnno.getText().toString());
+            if (parent.exists() || parent.mkdirs())
             {
-                fileAnno.delete();
+                fileAnno = new File(parent, name.endsWith(SUFFIX) ? name : name + SUFFIX);
+                //delete existing annotation file
+                if (fileAnno.exists())
+                {
+                    fileAnno.delete();
+                }
+                //get current annotation
+                int selected = radioGroupAnno.getCheckedRadioButtonId();
+                if (selected < 0)
+                {
+                    radioGroupAnno.check(0);
+                }
+                lastAnno = ((RadioButton) radioGroupAnno.getChildAt(
+                        radioGroupAnno.getCheckedRadioButtonId() - 1)).getText().toString();
+                //start file
+                Util.appendFile(fileAnno, START);
+            } else
+            {
+                fileAnno = null;
             }
-            Util.appendFile(fileAnno, "");
         }
     }
 
@@ -154,6 +274,46 @@ class Annotation implements Tab
         }
         fileAnno = null;
         lastAnno = null;
+        running = false;
+        enableComponents(true);
+    }
+
+    /**
+     * @param enable boolean
+     */
+    private void enableComponents(final boolean enable)
+    {
+        if (floatingActionButton != null)
+        {
+            floatingActionButton.post(new Runnable()
+            {
+                public void run()
+                {
+                    floatingActionButton.setVisibility(enable ? View.VISIBLE : View.INVISIBLE);
+                    floatingActionButton.setEnabled(enable);
+                }
+            });
+        }
+        if (editTextPathAnno != null)
+        {
+            editTextPathAnno.post(new Runnable()
+            {
+                public void run()
+                {
+                    editTextPathAnno.setEnabled(enable);
+                }
+            });
+        }
+        if (editTextNameAnno != null)
+        {
+            editTextNameAnno.post(new Runnable()
+            {
+                public void run()
+                {
+                    editTextNameAnno.setEnabled(enable);
+                }
+            });
+        }
     }
 
     /**
