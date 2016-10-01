@@ -39,13 +39,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import hcm.ssj.camera.CameraPainter;
+import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
 import hcm.ssjclay.R;
 import hcm.ssjclay.creator.Linker;
 import hcm.ssjclay.view.PipeView;
 
 /**
- * Tab handler for main activity.<br>
+ * ITab handler for main activity.<br>
  * Created by Frank Gaibler on 23.09.2016.
  */
 public class TabHandler
@@ -55,13 +56,14 @@ public class TabHandler
     private TabHost tabHost = null;
     private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
     private ArrayList<TabHost.TabSpec> alTabSpecs = new ArrayList<>();
-    private final static int FIX_TAB_NUMBER = 2;//3;
+    private final static int FIX_TAB_NUMBER = 2;
     //canvas
     private Canvas canvas;
     //console
     private Console console;
     //annotation
-//    private Annotation annotation;
+    private boolean annotationExists = false;
+    private Annotation annotation;
 
     /**
      * @param activity Activity
@@ -79,9 +81,6 @@ public class TabHandler
             //console
             console = new Console(this.activity);
             addTab(console.getView(), console.getTitle(), console.getIcon());
-            //annotation
-//            annotation = new Annotation(this.activity);
-//            addTab(annotation.getView(), annotation.getTitle(), annotation.getIcon());
             //init tabs
             canvas.init(new PipeView.ViewListener()
             {
@@ -124,6 +123,40 @@ public class TabHandler
     }
 
     /**
+     * Adds annotation tab after fixed tabs
+     *
+     * @param view    View
+     * @param tabName String
+     * @param image   int
+     */
+    private void addTabAnno(final View view, final String tabName, int image)
+    {
+        final TabHost.TabSpec tabSpec = tabHost.newTabSpec(tabName);
+        tabSpec.setContent(new TabHost.TabContentFactory()
+        {
+            /**
+             * @param tag String
+             * @return View
+             */
+            public View createTabContent(String tag)
+            {
+                return view;
+            }
+        });
+        tabSpec.setIndicator("", ContextCompat.getDrawable(activity, image));
+        alTabSpecs.add(FIX_TAB_NUMBER, tabSpec);
+        //
+        int current = tabHost.getCurrentTab();
+        tabHost.setCurrentTab(0);
+        tabHost.clearAllTabs();
+        for (TabHost.TabSpec tab : alTabSpecs)
+        {
+            tabHost.addTab(tab);
+        }
+        tabHost.setCurrentTab(current == 1 ? 1 : 0);
+    }
+
+    /**
      * @param tab int
      */
     private void removeTab(final int tab)
@@ -145,10 +178,23 @@ public class TabHandler
     private void checkAdditionalTabs()
     {
         Object[] consumers = Linker.getInstance().getAll(Linker.Type.Consumer);
+        int counterAnno = 0;
         //add additional tabs
         for (Object object : consumers)
         {
-            if (object instanceof SignalPainter)
+            //annotation
+            if (object instanceof IFileWriter)
+            {
+                counterAnno++;
+                if (!annotationExists)
+                {
+                    annotationExists = true;
+                    annotation = new Annotation(this.activity);
+                    addTabAnno(annotation.getView(), annotation.getTitle(), annotation.getIcon());
+                }
+            }
+            //signals
+            else if (object instanceof SignalPainter)
             {
                 GraphView graphView = ((SignalPainter) object).options.graphView.get();
                 if (graphView == null)
@@ -158,7 +204,9 @@ public class TabHandler
                     addTab(graphView, ((SignalPainter) object).getComponentName(), android.R.drawable.ic_menu_view);
                     alAdditionalTabs.add(object);
                 }
-            } else if (object instanceof CameraPainter)
+            }
+            //camera
+            else if (object instanceof CameraPainter)
             {
                 SurfaceView surfaceView = ((CameraPainter) object).options.surfaceView.get();
                 if (surfaceView == null)
@@ -171,13 +219,20 @@ public class TabHandler
             }
         }
         //remove obsolete tabs
+        //remove annotation
+        if (counterAnno <= 0 && annotationExists)
+        {
+            annotationExists = false;
+            removeTab(FIX_TAB_NUMBER);
+        }
+        //remove signal and camera
         List list = Arrays.asList(consumers);
         for (int i = alAdditionalTabs.size() - 1; i >= 0; i--)
         {
             if (!list.contains(alAdditionalTabs.get(i)))
             {
                 alAdditionalTabs.remove(i);
-                removeTab(i + FIX_TAB_NUMBER);
+                removeTab(i + FIX_TAB_NUMBER + (annotationExists ? 1 : 0));
             }
         }
     }
@@ -188,7 +243,7 @@ public class TabHandler
     public void preStart()
     {
         console.clear();
-//        annotation.startAnnotation();
+        annotation.startAnnotation();
     }
 
     /**
@@ -196,7 +251,7 @@ public class TabHandler
      */
     public void preStop()
     {
-//        annotation.finishAnnotation();
+        annotation.finishAnnotation();
     }
 
     /**

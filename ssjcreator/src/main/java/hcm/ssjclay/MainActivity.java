@@ -62,6 +62,7 @@ import hcm.ssjclay.util.DemoHandler;
 public class MainActivity extends AppCompatActivity
 {
     private static boolean ready = true;
+    private boolean firstStart = false;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
@@ -134,6 +135,32 @@ public class MainActivity extends AppCompatActivity
                         Manifest.permission.CAMERA,
                         Manifest.permission.RECORD_AUDIO,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_DANGEROUS_PERMISSIONS);
+            }
+        }
+    }
+
+    /**
+     * @param requestCode  int
+     * @param permissions  String[]
+     * @param grantResults int[]
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+    {
+        switch (requestCode)
+        {
+            case REQUEST_DANGEROUS_PERMISSIONS:
+            {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[4] == PackageManager.PERMISSION_GRANTED)
+                {
+                    if (firstStart)
+                    {
+                        //copy demo files
+                        DemoHandler.copyFiles(MainActivity.this);
+                    }
+                }
+                break;
             }
         }
     }
@@ -439,9 +466,9 @@ public class MainActivity extends AppCompatActivity
                 SharedPreferences getPrefs = PreferenceManager
                         .getDefaultSharedPreferences(getBaseContext());
                 //create a new boolean and preference and set it to true
-                boolean isFirstStart = getPrefs.getBoolean(preference, true);
+                firstStart = getPrefs.getBoolean(preference, true);
                 //  If the activity has never started before...
-                if (isFirstStart)
+                if (firstStart)
                 {
                     //launch app intro
                     Intent i = new Intent(MainActivity.this, TutorialActivity.class);
@@ -452,8 +479,6 @@ public class MainActivity extends AppCompatActivity
                     e.putBoolean(preference, false);
                     //apply changes
                     e.apply();
-                    //copy demo files
-                    DemoHandler.copyFiles(MainActivity.this);
                 }
             }
         });

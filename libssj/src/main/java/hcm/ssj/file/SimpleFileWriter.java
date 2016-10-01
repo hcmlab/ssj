@@ -45,12 +45,12 @@ import hcm.ssj.core.stream.Stream;
  * File writer for SSJ.<br>
  * Created by Frank Gaibler on 20.08.2015.
  */
-public class SimpleFileWriter extends Consumer implements FileHandler
+public class SimpleFileWriter extends Consumer implements IFileWriter
 {
     /**
      *
      */
-    public class Options extends FileHandler.Options
+    public class Options extends IFileWriter.Options
     {
         public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "");
 

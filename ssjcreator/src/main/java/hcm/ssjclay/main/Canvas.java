@@ -36,8 +36,7 @@ import hcm.ssjclay.view.PipeView;
  * Canvas tab for main activity.<br>
  * Created by Frank Gaibler on 23.09.2016.
  */
-
-class Canvas implements Tab
+class Canvas implements ITab
 {
     //tab
     private View view;

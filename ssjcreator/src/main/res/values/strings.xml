@@ -52,6 +52,11 @@
     <!--tabs-->
     <string name="str_pipe">Pipe</string>
     <string name="str_console">Console</string>
+    <string name="str_annotation">Annotation</string>
+    <!--annotation-->
+    <string name="str_fileName">File name</string>
+    <string name="str_filePath">File path</string>
+    <string name="str_default">Default</string>
     <!--tutorial-->
     <string name="slide1_title">Welcome</string>
     <string name="slide1_text">SSJ Creator allows you to perform signal processing activities by creating, editing and executing SSJ pipelines</string>
