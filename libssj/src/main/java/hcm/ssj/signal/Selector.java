@@ -48,7 +48,6 @@ public class Selector extends Transformer
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
         public final Option<Cons.Type> outputType = new Option<>("outputType", Cons.Type.FLOAT, Cons.Type.class, "The output type for which the input stream has to match.");
         public final Option<int[]> values = new Option<>("values", new int[]{0}, int[].class, "The values to select. The selection interval is given by the selection size.");
-        public final Option<Integer> selectionSize = new Option<>("selectionSize", values.get().length, Integer.class, "The size of all values in one sample");
 
         /**
          *
@@ -110,7 +109,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrBool()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrBool()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -122,7 +121,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrB()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrB()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -134,7 +133,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrC()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrC()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -146,7 +145,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrD()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrD()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -158,7 +157,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrF()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrF()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -170,7 +169,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrI()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrI()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -182,7 +181,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrL()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrL()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
@@ -194,7 +193,7 @@ public class Selector extends Transformer
                 {
                     for (int value : options.values.get())
                     {
-                        out[z++] = stream_in[0].ptrS()[value + options.selectionSize.get() * i];
+                        out[z++] = stream_in[0].ptrS()[value + stream_in[0].dim * i];
                     }
                 }
                 break;
