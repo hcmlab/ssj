@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -89,19 +90,25 @@ class Annotation implements ITab
      */
     private View createContent(final Context context)
     {
-        ScrollView scrollViewAnno = new ScrollView(context);
         //layouts
-        CoordinatorLayout coordinatorLayout = new CoordinatorLayout(context);
         LinearLayout linearLayout = new LinearLayout(context);
+        linearLayout.setLayoutParams(new ScrollView.LayoutParams(ScrollView.LayoutParams.MATCH_PARENT, ScrollView.LayoutParams.MATCH_PARENT));
         linearLayout.setOrientation(LinearLayout.VERTICAL);
-        coordinatorLayout.addView(linearLayout);
-        //add annotation
+        //
+        ScrollView scrollViewAnno = new ScrollView(context);
+        scrollViewAnno.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT));
+        scrollViewAnno.addView(linearLayout);
+        //
+        CoordinatorLayout coordinatorLayout = new CoordinatorLayout(context);
+        coordinatorLayout.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+        coordinatorLayout.addView(scrollViewAnno);
+        //add annotation button
         floatingActionButton = new FloatingActionButton(context);
         floatingActionButton.setImageResource(R.drawable.ic_add_white_24dp);
         CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
-                CoordinatorLayout.LayoutParams.MATCH_PARENT,
-                CoordinatorLayout.LayoutParams.MATCH_PARENT);
-        params.gravity = Gravity.END | Gravity.BOTTOM;
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT,
+                CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+        params.gravity = Gravity.BOTTOM | Gravity.END;
         floatingActionButton.setLayoutParams(params);
         floatingActionButton.setOnClickListener(new View.OnClickListener()
         {
@@ -139,8 +146,6 @@ class Annotation implements ITab
         radioGroupAnno.addView(getRadioButton(context));
         linearLayout.addView(radioGroupAnno);
         //
-        scrollViewAnno.addView(coordinatorLayout);
-        //
         radioGroupAnno.check(radioGroupAnno.getChildAt(0).getId());
         radioGroupAnno.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
         {
@@ -159,7 +164,7 @@ class Annotation implements ITab
                 }
             }
         });
-        return scrollViewAnno;
+        return coordinatorLayout;
     }
 
     /**
