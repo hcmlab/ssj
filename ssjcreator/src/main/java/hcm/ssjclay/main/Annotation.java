@@ -35,7 +35,9 @@ import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.SwitchCompat;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,6 +107,7 @@ class Annotation implements ITab
         coordinatorLayout.addView(scrollViewAnno);
         //add annotation button
         floatingActionButton = new FloatingActionButton(context);
+        floatingActionButton.setVisibility(View.INVISIBLE);
         floatingActionButton.setImageResource(R.drawable.ic_add_white_24dp);
         CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT,
@@ -124,6 +127,7 @@ class Annotation implements ITab
             }
         });
         coordinatorLayout.addView(floatingActionButton);
+
         //file name
         TextView textViewDescriptionName = new TextView(context);
         textViewDescriptionName.setText(R.string.str_fileName);
@@ -131,7 +135,8 @@ class Annotation implements ITab
         linearLayout.addView(textViewDescriptionName);
         editTextNameAnno = new EditText(context);
         editTextNameAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAnno.setText("anno", TextView.BufferType.NORMAL);
+        editTextNameAnno.setText("", TextView.BufferType.NORMAL);
+
         linearLayout.addView(editTextNameAnno);
         //file path
         TextView textViewDescriptionPath = new TextView(context);
@@ -152,7 +157,30 @@ class Annotation implements ITab
         annoClassList.setLayoutParams(lp);
         annoClassList.setOrientation(LinearLayout.VERTICAL);
         annoClassList.setGravity(Gravity.CENTER_HORIZONTAL);
+        annoClassList.setVisibility(View.INVISIBLE);
         linearLayout.addView(annoClassList);
+
+        editTextNameAnno.addTextChangedListener(
+                new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                    @Override
+                    public void afterTextChanged(Editable s) {
+                        if(s.length() > 0) {
+                            floatingActionButton.setVisibility(View.VISIBLE);
+                            annoClassList.setVisibility(View.VISIBLE);
+                        }
+                        else
+                        {
+                            floatingActionButton.setVisibility(View.INVISIBLE);
+                            annoClassList.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                }
+        );
+
         return coordinatorLayout;
     }
 
