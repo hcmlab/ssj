@@ -26,22 +26,23 @@
 
 package hcm.ssjclay.main;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.SwitchCompat;
 import android.text.InputType;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -58,30 +59,30 @@ import hcm.ssjclay.util.Util;
  */
 class Annotation implements ITab
 {
+    Activity activity;
+
     //tab
     private View view;
     private String title;
     private int icon;
     //annotation
-    private String lastAnno = null;
+    private double curAnnoStartTime = 0;
     private FloatingActionButton floatingActionButton = null;
     private EditText editTextPathAnno = null;
     private EditText editTextNameAnno = null;
-    private RadioGroup radioGroupAnno = null;
+    private LinearLayout annoClassList = null;
     private File fileAnno = null;
-    private final static String SUFFIX = ".anno", START = "0.0";
+    private final static String SUFFIX = ".anno";
     private boolean running = false;
 
     /**
-     * @param context Context
+     * @param activity Activity
      */
-    Annotation(Context context)
+    Annotation(Activity activity)
     {
-        //view
-        view = createContent(context);
-        //title
-        title = context.getResources().getString(R.string.str_annotation);
-        //icon
+        this.activity = activity;
+        view = createContent(activity);
+        title = activity.getResources().getString(R.string.str_annotation);
         icon = android.R.drawable.ic_menu_agenda;
     }
 
@@ -109,15 +110,16 @@ class Annotation implements ITab
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT,
                 CoordinatorLayout.LayoutParams.WRAP_CONTENT);
         params.gravity = Gravity.BOTTOM | Gravity.END;
+        params.setMargins(0,0,30,30);
         floatingActionButton.setLayoutParams(params);
         floatingActionButton.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                if (radioGroupAnno != null)
+                if (annoClassList != null)
                 {
-                    radioGroupAnno.addView(getRadioButton(context));
+                    annoClassList.addView(createClassSwitch(context));
                 }
             }
         });
@@ -129,7 +131,7 @@ class Annotation implements ITab
         linearLayout.addView(textViewDescriptionName);
         editTextNameAnno = new EditText(context);
         editTextNameAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAnno.setText("", TextView.BufferType.NORMAL);
+        editTextNameAnno.setText("anno", TextView.BufferType.NORMAL);
         linearLayout.addView(editTextNameAnno);
         //file path
         TextView textViewDescriptionPath = new TextView(context);
@@ -141,94 +143,137 @@ class Annotation implements ITab
         editTextPathAnno.setText((Environment.getExternalStorageDirectory().getAbsolutePath()
                 + "/" + Util.DIR_1), TextView.BufferType.NORMAL);
         linearLayout.addView(editTextPathAnno);
+
         //annotations
-        radioGroupAnno = new RadioGroup(context);
-        radioGroupAnno.addView(getRadioButton(context));
-        linearLayout.addView(radioGroupAnno);
-        //
-        radioGroupAnno.check(radioGroupAnno.getChildAt(0).getId());
-        radioGroupAnno.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
-        {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId)
-            {
-                if (fileAnno != null)
-                {
-                    //only append to running pipeline
-                    if (TheFramework.getFramework().isRunning())
-                    {
-                        Util.appendFile(fileAnno, " " + Util.getAnnotationTime() + " " + lastAnno + LoggingConstants.DELIMITER_LINE);
-                        Util.appendFile(fileAnno, String.valueOf(Util.getAnnotationTime()));
-                    }
-                    lastAnno = ((RadioButton) group.getChildAt(checkedId - 1)).getText().toString();
-                }
-            }
-        });
+        annoClassList = new LinearLayout(context);
+        annoClassList.addView(createClassSwitch(context));
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(50,50,50,0);
+        annoClassList.setLayoutParams(lp);
+        annoClassList.setOrientation(LinearLayout.VERTICAL);
+        annoClassList.setGravity(Gravity.CENTER_HORIZONTAL);
+        linearLayout.addView(annoClassList);
         return coordinatorLayout;
     }
 
     /**
      * @param context Context
-     * @return RadioButton
+     * @return CompoundButton
      */
-    private RadioButton getRadioButton(final Context context)
+    private LinearLayout createClassSwitch(final Context context)
     {
-        RadioButton radioButton = new RadioButton(context);
-        radioButton.setText(R.string.str_default);
-        //increase text size
-        radioButton.setTextSize(radioButton.getTextSize() * 0.75f);
-        radioButton.setOnLongClickListener(new View.OnLongClickListener()
+        SwitchCompat switchButton = new SwitchCompat(context);
+        switchButton.setEnabled(false);
+
+        TextView textView = new TextView(context);
+        textView.setText(context.getString(R.string.str_defaultAnno, annoClassList.getChildCount()));
+        textView.setTextSize(textView.getTextSize() * 0.5f);
+
+        LinearLayout layout = new LinearLayout(context);
+        layout.setBackgroundColor(Color.parseColor("#EEEEEE"));
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(20,20,20,0);
+        layout.setLayoutParams(params);
+
+        layout.addView(textView);
+        layout.addView(switchButton);
+
+        switchButton.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
+        LinearLayout.LayoutParams paramsBtn = (LinearLayout.LayoutParams)switchButton.getLayoutParams();
+        paramsBtn.height = LinearLayout.LayoutParams.MATCH_PARENT;
+        paramsBtn.width = LinearLayout.LayoutParams.MATCH_PARENT;
+        switchButton.setLayoutParams(paramsBtn);
+
+        switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
-            public boolean onLongClick(final View v)
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                if (isChecked)
+                {
+                    for (int i = 0; i < annoClassList.getChildCount(); i++)
+                    {
+                        SwitchCompat button = (SwitchCompat) ((LinearLayout)(annoClassList.getChildAt(i))).getChildAt(1);
+                        if ( button != buttonView )
+                        {
+                            button.setChecked(false);
+                        }
+                    }
+                }
+
+                if (fileAnno != null)
+                {
+                    //only append to running pipeline
+                    if (TheFramework.getFramework().isRunning())
+                    {
+                        if(isChecked) {
+                            curAnnoStartTime = Util.getAnnotationTime();
+                        }
+                        else {
+                            String name = ((TextView)(((ViewGroup)(buttonView.getParent())).getChildAt(0))).getText().toString();
+                            Util.appendFile(fileAnno, curAnnoStartTime + " " + Util.getAnnotationTime() + " " + name + LoggingConstants.DELIMITER_LINE);
+                            curAnnoStartTime = 0;
+                        }
+                    }
+                }
+            }
+        });
+
+        textView.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(final View v)
             {
                 //only allow edits while pipe is not active
-                if (running)
-                {
-                    return false;
-                } else
+                if (!running)
                 {
                     //content
                     LinearLayout linearLayout = new LinearLayout(context);
                     linearLayout.setOrientation(LinearLayout.VERTICAL);
+
                     final EditText editText = new EditText(context);
                     editText.setInputType(InputType.TYPE_CLASS_TEXT);
-                    editText.setText(((RadioButton) v).getText(), TextView.BufferType.NORMAL);
+                    editText.setText(((TextView) v).getText(), TextView.BufferType.NORMAL);
                     linearLayout.addView(editText);
-                    final CheckBox checkBox = new CheckBox(context);
-                    checkBox.setText(R.string.str_delete);
-                    linearLayout.addView(checkBox);
+
                     //dialog
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                     builder.setTitle(R.string.str_annotation);
                     builder.setView(linearLayout);
+
                     builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener()
                     {
                         public void onClick(DialogInterface dialog, int id)
                         {
-                            if (checkBox.isChecked())
-                            {
-                                ViewGroup viewGroup = (ViewGroup) v.getParent();
-                                if (viewGroup != null)
-                                {
-                                    ((RadioButton) v).setChecked(false);
-                                    viewGroup.removeView(v);
-                                }
-                                v.invalidate();
-                            } else if (!editText.getText().toString().isEmpty())
-                            {
-                                ((RadioButton) v).setText(editText.getText());
-                            }
+                            ViewGroup viewGroup = (ViewGroup) v.getParent();
+                            ((TextView) viewGroup.getChildAt(0)).setText(editText.getText().toString().trim());
                         }
                     });
+
                     builder.setNegativeButton(R.string.str_cancel, null);
+
+                    builder.setNeutralButton(R.string.str_delete, new DialogInterface.OnClickListener()
+                    {
+                        public void onClick(DialogInterface dialog, int id)
+                        {
+                            ViewGroup viewGroup = (ViewGroup) v.getParent();
+                            if (viewGroup != null)
+                            {
+                                ((SwitchCompat) viewGroup.getChildAt(1)).setChecked(false);
+                                ((ViewGroup)viewGroup.getParent()).removeView(viewGroup);
+                            }
+                            v.invalidate();
+                        }
+                    });
+
                     AlertDialog alert = builder.create();
                     alert.show();
-                    return true;
                 }
             }
         });
-        return radioButton;
+
+        return layout;
     }
 
     /**
@@ -239,8 +284,7 @@ class Annotation implements ITab
         enableComponents(false);
         running = true;
         String name = editTextNameAnno.getText().toString().trim();
-        lastAnno = null;
-        if (!name.isEmpty() && radioGroupAnno.getChildCount() > 0)
+        if (!name.isEmpty() && annoClassList.getChildCount() > 0)
         {
             File parent = new File(editTextPathAnno.getText().toString());
             if (parent.exists() || parent.mkdirs())
@@ -251,16 +295,18 @@ class Annotation implements ITab
                 {
                     fileAnno.delete();
                 }
-                //get current annotation
-                int selected = radioGroupAnno.getCheckedRadioButtonId();
-                if (selected < 0)
-                {
-                    radioGroupAnno.check(0);
-                }
-                lastAnno = ((RadioButton) radioGroupAnno.getChildAt(
-                        radioGroupAnno.getCheckedRadioButtonId() - 1)).getText().toString();
-                //start file
-                Util.appendFile(fileAnno, START);
+
+                //activate buttons
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        for (int i = 0; i < annoClassList.getChildCount(); i++)
+                        {
+                            SwitchCompat button = (SwitchCompat) ((LinearLayout)(annoClassList.getChildAt(i))).getChildAt(1);
+                            button.setEnabled(true);
+                        }
+                    }
+                });
             } else
             {
                 fileAnno = null;
@@ -273,12 +319,26 @@ class Annotation implements ITab
      */
     void finishAnnotation()
     {
-        if (fileAnno != null && lastAnno != null)
-        {
-            Util.appendFile(fileAnno, " " + Util.getAnnotationTime() + " " + lastAnno + LoggingConstants.DELIMITER_LINE);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < annoClassList.getChildCount(); i++)
+                {
+                    SwitchCompat button = (SwitchCompat) ((LinearLayout)(annoClassList.getChildAt(i))).getChildAt(1);
+                    button.setChecked(false);
+                    button.setEnabled(false);
+                }
+            }
+        });
+
+        //wait for buttons to "uncheck"
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+
         fileAnno = null;
-        lastAnno = null;
         running = false;
         enableComponents(true);
     }

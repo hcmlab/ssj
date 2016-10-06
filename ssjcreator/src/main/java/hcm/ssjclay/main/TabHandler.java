@@ -243,7 +243,9 @@ public class TabHandler
     public void preStart()
     {
         console.clear();
-        annotation.startAnnotation();
+
+        if(annotationExists && annotation != null)
+            annotation.startAnnotation();
     }
 
     /**
@@ -251,7 +253,8 @@ public class TabHandler
      */
     public void preStop()
     {
-        annotation.finishAnnotation();
+        if(annotationExists && annotation != null)
+            annotation.finishAnnotation();
     }
 
     /**

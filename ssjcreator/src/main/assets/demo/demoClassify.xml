@@ -103,8 +103,8 @@
     </transformer>
     <transformer class="hcm.ssj.evaluator.NaiveBayes" id="187320233" frameSize="1.0" delta="0.0">
       <options>
-        <option name="fileNameModel" value="demoEval.trainer.NaiveBayes.model" />
-        <option name="fileNameOption" value="demoEval.trainer.NaiveBayes.option" />
+        <option name="fileNameModel" value="demoClassify.trainer.NaiveBayes.model" />
+        <option name="fileNameOption" value="demoClassify.trainer.NaiveBayes.option" />
         <option name="filePathModel" value="/storage/emulated/0/SSJ/Creator" />
         <option name="filePathOption" value="/storage/emulated/0/SSJ/Creator" />
       </options>
