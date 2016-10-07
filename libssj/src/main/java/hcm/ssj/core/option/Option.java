@@ -68,7 +68,7 @@ public class Option<T>
      */
     public final T get()
     {
-        if(wildcards && type == String.class)
+        if(wildcards && type == String.class && value != null)
             return (T)parseWildcards((String)value);
 
         return value;
