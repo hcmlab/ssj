@@ -90,7 +90,7 @@ public class GPSTest extends ApplicationTestCase<Application>
 
 		// Stop framework
 		frame.Stop();
-		frame.clear();
+		frame.reset();
 	}
 
 

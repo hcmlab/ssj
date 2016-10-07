@@ -34,14 +34,14 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorProvider;
 import hcm.ssj.androidSensor.SensorType;
+import hcm.ssj.core.Log;
+import hcm.ssj.core.TheFramework;
 import hcm.ssj.signal.AvgVar;
 import hcm.ssj.signal.Count;
 import hcm.ssj.signal.Distance;
 import hcm.ssj.signal.Median;
 import hcm.ssj.signal.MinMax;
 import hcm.ssj.signal.Progress;
-import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.test.Logger;
 
 /**
@@ -106,7 +106,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                     e.printStackTrace();
                 }
                 frame.Stop();
-                frame.invalidateFramework();
+                frame.release();
             } else
             {
                 Log.i(type.getName() + " not present on device");
@@ -166,7 +166,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.invalidateFramework();
+            frame.release();
         }
     }
 
@@ -222,7 +222,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 e.printStackTrace();
             }
             frame.Stop();
-            frame.invalidateFramework();
+            frame.release();
         }
     }
 
@@ -272,7 +272,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.invalidateFramework();
+        frame.release();
     }
 
     /**
@@ -317,6 +317,6 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.invalidateFramework();
+        frame.release();
     }
 }

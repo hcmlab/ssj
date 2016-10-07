@@ -86,7 +86,7 @@ public class MSBandTest extends ApplicationTestCase<Application>
 			e.printStackTrace();
 		}
 		frame.Stop();
-		frame.clear();
+		frame.reset();
 	}
 
 

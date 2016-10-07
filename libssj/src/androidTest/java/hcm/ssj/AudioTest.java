@@ -98,7 +98,7 @@ public class AudioTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.invalidateFramework();
+        frame.release();
         //cleanup
         if (file.exists())
         {
@@ -123,6 +123,7 @@ public class AudioTest extends ApplicationTestCase<Application>
 
         Pitch pitch = new Pitch();
         pitch.options.detector.set(Pitch.YIN);
+        pitch.options.computeVoicedProb.set(true);
         frame.addTransformer(pitch, audio, 0.04, 0);
 
         Avg pitch_env = new Avg();

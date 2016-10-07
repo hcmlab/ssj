@@ -30,9 +30,9 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.glass.BlinkDetection;
 import hcm.ssj.glass.InfraredProvider;
 import hcm.ssj.glass.InfraredSensor;
-import hcm.ssj.glass.BlinkDetection;
 import hcm.ssj.test.Logger;
 
 /**
@@ -87,6 +87,6 @@ public class GlassTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.invalidateFramework();
+        frame.release();
     }
 }

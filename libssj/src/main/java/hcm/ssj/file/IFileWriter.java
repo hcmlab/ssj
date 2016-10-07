@@ -49,6 +49,8 @@ public interface IFileWriter
         protected Options()
         {
             addOptions();
+            fileName.enableWildcards(true);
+            filePath.enableWildcards(true);
         }
     }
 }

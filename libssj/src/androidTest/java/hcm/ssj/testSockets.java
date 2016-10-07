@@ -91,7 +91,7 @@ public class testSockets extends ApplicationTestCase<Application> {
             }
 
             frame.Stop();
-            frame.clear();
+            frame.reset();
         }
         catch(Exception e)
         {
@@ -135,7 +135,7 @@ public class testSockets extends ApplicationTestCase<Application> {
             }
 
             frame.Stop();
-            frame.clear();
+            frame.reset();
         }
         catch(Exception e)
         {

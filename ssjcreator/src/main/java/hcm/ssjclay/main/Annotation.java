@@ -314,7 +314,13 @@ class Annotation implements ITab
         String name = editTextNameAnno.getText().toString().trim();
         if (!name.isEmpty() && annoClassList.getChildCount() > 0)
         {
-            File parent = new File(editTextPathAnno.getText().toString());
+            String path = editTextPathAnno.getText().toString();
+            //parse wildcards
+            if (path.contains("%ts")) {
+                path = path.replace("%ts", hcm.ssj.core.Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
+            }
+
+            File parent = new File(path);
             if (parent.exists() || parent.mkdirs())
             {
                 fileAnno = new File(parent, name.endsWith(SUFFIX) ? name : name + SUFFIX);

@@ -97,7 +97,7 @@ public class SpeechRate extends EventConsumer
         }
 
         if((_intensity == null || _intensity.type != Cons.Type.FLOAT)
-        && (_voiced == null || _voiced.type != Cons.Type.FLOAT))
+        || (_voiced == null || _voiced.type != Cons.Type.FLOAT))
         {
             Log.e("invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
             return;

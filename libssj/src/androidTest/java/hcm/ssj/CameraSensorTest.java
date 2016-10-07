@@ -149,7 +149,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.invalidateFramework();
+        frame.release();
         //cleanup
         switch (type)
         {

@@ -200,7 +200,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         framework.Stop();
-        framework.invalidateFramework();
+        framework.release();
     }
 
     /**

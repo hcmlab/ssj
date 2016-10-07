@@ -193,15 +193,16 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
-                    tabHandler.preStart();
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
                     //remove old content
-                    framework.clear();
+                    framework.reset();
                     //add components
                     Linker.getInstance().buildPipe();
                     //change button text
                     changeImageButton(android.R.drawable.ic_media_pause);
+                    //notify tabs
+                    tabHandler.preStart();
                     //start framework
                     framework.Start();
                     //run

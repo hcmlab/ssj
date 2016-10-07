@@ -26,6 +26,9 @@
 
 package hcm.ssj.core.option;
 
+import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Util;
+
 /**
  * Standard option for SSJ.<br>
  * Created by Frank Gaibler on 04.03.2016.
@@ -36,6 +39,7 @@ public class Option<T>
     private T value;
     private final Class<T> type;
     private final String help;
+    private boolean wildcards = false;
 
     /**
      * @param name  String
@@ -64,6 +68,9 @@ public class Option<T>
      */
     public final T get()
     {
+        if(wildcards && type == String.class)
+            return (T)parseWildcards((String)value);
+
         return value;
     }
 
@@ -307,5 +314,19 @@ public class Option<T>
                 || type == Float.class
                 || type == Double.class
                 || type == String.class);
+    }
+
+    public void enableWildcards(boolean enabled)
+    {
+        wildcards = enabled;
+    }
+
+    private String parseWildcards(String value)
+    {
+        if (value.contains("%ts")) {
+            value = value.replace("%ts", Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
+        }
+
+        return value;
     }
 }

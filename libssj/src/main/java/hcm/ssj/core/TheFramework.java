@@ -70,7 +70,9 @@ public class TheFramework
     protected boolean _isRunning = false;
     protected boolean _isStopping = false;
     protected Timer _timer = null;
+
     protected long _startTime = 0;
+    protected long _createTime = 0;
 
     DatagramSocket _syncSocket;
 
@@ -89,6 +91,7 @@ public class TheFramework
     {
         //configure logger
         Log.getInstance().setFramework(this);
+        _createTime = System.currentTimeMillis();
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
@@ -493,32 +496,30 @@ public class TheFramework
         }
     }
 
-    public void invalidateFramework()
+    public void release()
     {
         if (isRunning())
         {
-            Log.w("Cannot invalidateFramework. Framework still active.");
+            Log.w("Cannot release. Framework still active.");
             return;
         }
 
-        _components.clear();
-        _buffer.clear();
-        Log.getInstance().invalidate();
-
+        reset();
         _instance = null;
     }
 
-    public void clear()
+    public void reset()
     {
         if (isRunning())
         {
-            Log.w("Cannot invalidateFramework. Framework still active.");
+            Log.w("Cannot release. Framework still active.");
             return;
         }
 
         _components.clear();
         _buffer.clear();
         Log.getInstance().clear();
+        _createTime = System.currentTimeMillis();
     }
 
     private void log()
@@ -572,6 +573,11 @@ public class TheFramework
     public long getStartTimeMs()
     {
         return _startTime;
+    }
+
+    public long getCreateTimeMs()
+    {
+        return _createTime;
     }
 
     public boolean isRunning()

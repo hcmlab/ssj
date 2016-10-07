@@ -53,7 +53,7 @@ public class Pipeline extends Thread {
         _graphs = graphs;
 
         if(TheFramework.isInstanced())
-            TheFramework.getFramework().clear();
+            TheFramework.getFramework().reset();
         _ssj = TheFramework.getFramework();
     }
 
@@ -121,7 +121,7 @@ public class Pipeline extends Thread {
 
         Log.i("SSJ_Demo", "stopping pipeline");
         _ssj.Stop();
-        _ssj.clear();
+        _ssj.reset();
         _act.notifyPipeState(false);
     }
 

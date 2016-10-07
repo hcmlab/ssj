@@ -42,9 +42,12 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import hcm.ssj.core.stream.Stream;
 
@@ -710,5 +713,13 @@ public class Util
                 Log.e("invalid input stream type");
                 break;
         }
+    }
+
+    public static String getTimestamp(long time_ms)
+    {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk-mm-ss", Locale.GERMANY);
+        Date sessionStart = new Date();
+        sessionStart.setTime(time_ms);
+        return dateFormat.format(sessionStart);
     }
 }

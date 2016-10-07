@@ -130,6 +130,6 @@ public class testLinker extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         frame.Stop();
-        frame.invalidateFramework();
+        frame.release();
     }
 }
