@@ -169,6 +169,7 @@ public class NaiveBayes extends Model
 
     @Override
     void train(Stream stream) {
+        Log.e("training not supported yet");
     }
 
     /**
@@ -209,6 +210,7 @@ public class NaiveBayes extends Model
 
     @Override
     void save(File file) {
+        Log.e("saving not supported yet");
     }
 
     @Override
