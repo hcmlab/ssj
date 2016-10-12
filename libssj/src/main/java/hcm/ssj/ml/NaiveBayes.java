@@ -84,14 +84,19 @@ public class NaiveBayes extends Model
      * @param stream Stream
      * @return double[]
      */
-    protected float[] forward(Stream stream)
+    protected float[] forward(Stream[] stream)
     {
+        if (stream.length != 1)
+        {
+            Log.w("only one input stream currently supported, consider using merge");
+            return null;
+        }
         if (!_isTrained || class_probs == null || class_probs.length <= 0)
         {
             Log.w("not trained");
             return null;
         }
-        if (stream.dim != n_features)
+        if (stream[0].dim != n_features)
         {
             Log.w("feature dimension differs");
             return null;
@@ -104,7 +109,7 @@ public class NaiveBayes extends Model
             for (int nclass = 0; nclass < n_classes; nclass++)
             {
                 double prob = prior ? naiveBayesLog(class_probs[nclass]) : 0;
-                double[] ptr = getValuesAsDouble(stream);
+                double[] ptr = getValuesAsDouble(stream[0]);
                 double temp;
                 for (int nfeat = 0, t = 0; nfeat < n_features; nfeat++)
                 {
@@ -133,7 +138,7 @@ public class NaiveBayes extends Model
             {
                 double norm_const = Math.sqrt(2.0 * Math.PI);
                 double prob = prior ? class_probs[nclass] : 0;
-                double[] ptr = getValuesAsDouble(stream);
+                double[] ptr = getValuesAsDouble(stream[0]);
                 for (int nfeat = 0, t = 0; nfeat < n_features; nfeat++)
                 {
                     double diff = ptr[t++] - means[nclass][nfeat];
@@ -168,7 +173,7 @@ public class NaiveBayes extends Model
     }
 
     @Override
-    void train(Stream stream) {
+    void train(Stream[] stream) {
         Log.e("training not supported yet");
     }
 

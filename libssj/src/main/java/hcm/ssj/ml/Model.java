@@ -43,10 +43,10 @@ public abstract class Model {
     {
         if(name.compareToIgnoreCase("NaiveBayes") == 0)
             return new NaiveBayes();
-//        else if (name.compareToIgnoreCase("SVM") != 0)
-//            return new SVM();
+        else if (name.compareToIgnoreCase("SVM") == 0)
+            return new SVM();
 
-        Log.w("unknown model");
+        Log.e("unknown model");
         return null;
     }
 
@@ -60,13 +60,13 @@ public abstract class Model {
      * @param stream Stream
      * @return double[]
      */
-    abstract float[] forward(Stream stream);
+    abstract float[] forward(Stream[] stream);
 
     /**
      * @param stream Stream
      * @return double[]
      */
-    abstract void train(Stream stream);
+    abstract void train(Stream[] stream);
 
     /**
      * Load data from model file

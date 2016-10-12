@@ -86,20 +86,24 @@ public class SVM extends Model
      * @param stream Stream
      * @return double[]
      */
-    protected float[] forward(Stream stream)
+    protected float[] forward(Stream[] stream)
     {
+        if (stream.length != 1)
+        {
+            Log.w("only one input stream currently supported, consider using merge");
+            return null;
+        }
         if (!_isTrained)
         {
             Log.w("not trained");
             return null;
         }
-        if (stream.dim != n_features)
+        if (stream[0].dim != n_features)
         {
             Log.w("feature dimension differs");
             return null;
         }
-
-        if (stream.type != Cons.Type.FLOAT) {
+        if (stream[0].type != Cons.Type.FLOAT) {
             Log.w ("invalid stream type");
             return null;
         }
@@ -108,7 +112,7 @@ public class SVM extends Model
         for(int i = 0; i < x.length; i++)
             x[i] = new svm_node();
 
-        float[] ptr = stream.ptrF();
+        float[] ptr = stream[0].ptrF();
         for (int i = 0; i < n_features; i++) {
             x[i].index = i + 1;
             x[i].value = ptr[i];
@@ -136,7 +140,7 @@ public class SVM extends Model
     }
 
     @Override
-    void train(Stream stream) {
+    void train(Stream[] stream) {
         Log.e("training not supported yet");
     }
 
@@ -208,23 +212,24 @@ public class SVM extends Model
 
             max = new double[n_features];
             min = new double[n_features];
-            scan(reader, "# Scaling: max\tmin");
+            if(scan(reader, "# Scaling: max\tmin") == null)
+                throw new IOException("can't read scaling information for SVM classifier from " + file.getName());
 
             for (int i = 0; i < n_features; i++) {
 
                 line = reader.readLine();
-                token = line.split(" ");
+                token = line.split("\t");
                 if (token.length != 2) {
-                    throw new IOException("can't read scaling information for SVM classifier from " + file.getName());
+                    throw new IOException("misformed scaling information for SVM classifier from " + file.getName());
                 }
 
-                max[i] = Integer.valueOf(token[0]);
-                min[i] = Integer.valueOf(token[1]);
+                max[i] = Double.valueOf(token[0]);
+                min[i] = Double.valueOf(token[1]);
             }
 
             do {
                 line = reader.readLine();
-            } while (line.startsWith("#") || line.charAt(0) == '\n');
+            } while (line.isEmpty() || line.startsWith("#") || line.charAt(0) == '\n');
 
             //read SVM model
             model = svm.svm_load_model(reader);

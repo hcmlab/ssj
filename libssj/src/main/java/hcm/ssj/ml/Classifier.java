@@ -73,10 +73,10 @@ public class Classifier extends Transformer
     public final Options options = new Options();
     private String[] class_names = null;
 
-    private Merge _merge;
+    private Merge _merge = null;
     private Stream[] _stream_merged;
-    private Selector _selector = new Selector();
-    private Stream _stream_selected;
+    private Selector _selector = null;
+    private Stream[] _stream_selected;
     private Model _model;
 
     /**
@@ -176,21 +176,21 @@ public class Classifier extends Transformer
         if(_model == null || !_model.isTrained())
             Log.e("model not loaded");
 
-        _stream_selected = Stream.create(stream_in[0].num, _selector.options.values.get().length, stream_in[0].sr, stream_in[0].type);
+        Stream[] input = stream_in;
 
         if(options.merge.get())
         {
             _merge = new Merge();
-
             _stream_merged = new Stream[1];
-            _stream_merged[0] = Stream.create(stream_in[0].num, _merge.getSampleDimension(stream_in), stream_in[0].sr, stream_in[0].type);
-
+            _stream_merged[0] = Stream.create(input[0].num, _merge.getSampleDimension(input), input[0].sr, input[0].type);
             _merge.enter(stream_in, _stream_merged[0]);
-            _selector.enter(_stream_merged, _stream_selected);
+            input = _stream_merged;
         }
-        else
+        if(_selector != null)
         {
-            _selector.enter(stream_in, _stream_selected);
+            _stream_merged = new Stream[1];
+            _stream_selected[0] = Stream.create(input[0].num, _selector.options.values.get().length, input[0].sr, input[0].type);
+            _selector.enter(input, _stream_selected[0]);
         }
     }
 
@@ -201,15 +201,18 @@ public class Classifier extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
+        Stream[] input = stream_in;
+
         if(options.merge.get()) {
-            _merge.transform(stream_in, _stream_merged[0]);
-            _selector.transform(_stream_merged, _stream_selected);
+            _merge.transform(input, _stream_merged[0]);
+            input = _stream_merged;
         }
-        else {
-            _selector.transform(stream_in, _stream_selected);
+        if(_selector != null) {
+            _selector.transform(input, _stream_selected[0]);
+            input = _stream_selected;
         }
 
-        float[] probs = _model.forward(_stream_selected);
+        float[] probs = _model.forward(input);
         if (probs != null)
         {
             float[] out = stream_out.ptrF();
