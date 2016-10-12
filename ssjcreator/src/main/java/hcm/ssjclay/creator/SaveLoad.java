@@ -308,11 +308,11 @@ public abstract class SaveLoad
             return true;
         } catch (IOException | XmlPullParserException ex)
         {
-            Log.e("could not parse file");
+            Log.e("could not parse file", ex);
             return false;
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException ex)
         {
-            Log.e("could not create class");
+            Log.e("could not create class", ex);
             return false;
         } finally
         {
@@ -321,7 +321,7 @@ public abstract class SaveLoad
                 fileInputStream.close();
             } catch (IOException ex)
             {
-                Log.e("could not close stream");
+                Log.e("could not close stream", ex);
             }
         }
     }

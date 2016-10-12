@@ -1,5 +1,5 @@
 /*
- * Selector.java
+ * Merge.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -38,7 +38,7 @@ import hcm.ssj.core.stream.Stream;
  * Selects specific values from a stream.<br>
  * Created by Frank Gaibler on 24.11.2015.
  */
-public class Selector extends Transformer
+public class Merge extends Transformer
 {
     /**
      * All options for the transformer
@@ -46,7 +46,6 @@ public class Selector extends Transformer
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<int[]> values = new Option<>("values", new int[]{0}, int[].class, "The values to select. The selection interval is given by the selection size.");
 
         /**
          *
@@ -62,7 +61,7 @@ public class Selector extends Transformer
     /**
      *
      */
-    public Selector()
+    public Merge()
     {
         _name = this.getClass().getSimpleName();
     }
@@ -75,11 +74,9 @@ public class Selector extends Transformer
     public void enter(Stream[] stream_in, Stream stream_out)
     {
         //check for valid stream
-        if (stream_in.length != 1 || stream_in[0].dim < 1)
-        {
-            Log.e("invalid input stream");
-            return;
-        }
+        for(Stream s : stream_in)
+            if(stream_in[0].type != s.type || stream_in[0].sr != s.sr || stream_in[0].num != s.num)
+                Log.e("input streams are incompatible");
     }
 
     /**
@@ -89,16 +86,16 @@ public class Selector extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        switch (stream_in[0].type)
+        switch (stream_out.type)
         {
             case BOOL:
             {
                 boolean[] out = stream_out.ptrBool();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrBool()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrBool()[j];
                     }
                 }
                 break;
@@ -106,11 +103,11 @@ public class Selector extends Transformer
             case BYTE:
             {
                 byte[] out = stream_out.ptrB();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrB()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrB()[j];
                     }
                 }
                 break;
@@ -118,11 +115,11 @@ public class Selector extends Transformer
             case CHAR:
             {
                 char[] out = stream_out.ptrC();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrC()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrC()[j];
                     }
                 }
                 break;
@@ -130,11 +127,11 @@ public class Selector extends Transformer
             case DOUBLE:
             {
                 double[] out = stream_out.ptrD();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrD()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrD()[j];
                     }
                 }
                 break;
@@ -142,11 +139,11 @@ public class Selector extends Transformer
             case FLOAT:
             {
                 float[] out = stream_out.ptrF();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrF()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrF()[j];
                     }
                 }
                 break;
@@ -154,11 +151,11 @@ public class Selector extends Transformer
             case INT:
             {
                 int[] out = stream_out.ptrI();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrI()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrI()[j];
                     }
                 }
                 break;
@@ -166,11 +163,11 @@ public class Selector extends Transformer
             case LONG:
             {
                 long[] out = stream_out.ptrL();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrL()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrL()[j];
                     }
                 }
                 break;
@@ -178,11 +175,11 @@ public class Selector extends Transformer
             case SHORT:
             {
                 short[] out = stream_out.ptrS();
-                for (int i = 0, z = 0; i < stream_in[0].num; i++)
+                for (int i = 0, z = 0; i < stream_in.length; i++)
                 {
-                    for (int value : options.values.get())
+                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
                     {
-                        out[z++] = stream_in[0].ptrS()[value + stream_in[0].dim * i];
+                        out[z++] = stream_in[i].ptrS()[j];
                     }
                 }
                 break;
@@ -197,7 +194,11 @@ public class Selector extends Transformer
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        return options.values.get().length;
+        int dim = 0;
+        for(Stream s : stream_in)
+            dim += s.dim;
+
+        return dim;
     }
 
     /**

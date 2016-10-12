@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.evaluator;
+package hcm.ssj.ml;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -35,33 +35,22 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Provider;
-import hcm.ssj.core.Transformer;
-import hcm.ssj.core.Util;
-import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.SimpleXmlParser;
 
 /**
  * Evaluates live data depending on the naive bayes classifier files of SSI.<br>
  * Created by Frank Gaibler on 22.09.2015.
  */
-public class NaiveBayes extends Transformer
+public class NaiveBayes extends Model
 {
     /**
      * All options for the transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePathOption = new Option<>("filePathOption", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
-        public final Option<String> fileNameOption = new Option<>("fileNameOption", null, String.class, "contains the SSI options");
-        public final Option<String> filePathModel = new Option<>("filePathModel", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
-        public final Option<String> fileNameModel = new Option<>("fileNameModel", null, String.class, "contains the trained model");
-
         /**
          *
          */
@@ -92,120 +81,12 @@ public class NaiveBayes extends Transformer
     }
 
     /**
-     * @param sources Provider[]
-     * @param frame   double
-     * @param delta   double
-     */
-    @Override
-    public void setup(Provider[] sources, double frame, double delta)
-    {
-        if (sources.length > 1 || sources.length < 1)
-        {
-            Log.e("sources count not supported");
-        }
-        loadOption();
-        loadModel();
-        super.setup(sources, frame, delta);
-    }
-
-    /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
-    @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
-    {
-        if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
-        {
-            Log.e("stream type not supported");
-        }
-    }
-
-    /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
-    @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
-    {
-        double[] probs = forward(stream_in[0]);
-        if (probs != null)
-        {
-            int[] out = stream_out.ptrI();
-            for (int i = 0; i < probs.length; i++)
-            {
-                out[i] = (int) (probs[i] * 100 + 0.5);
-            }
-        }
-    }
-
-    /**
-     * @param stream_in Stream[]
-     * @return int
-     */
-    @Override
-    public int getSampleDimension(Stream[] stream_in)
-    {
-        return n_classes;
-    }
-
-    /**
-     * @param stream_in Stream[]
-     * @return int
-     */
-    @Override
-    public int getSampleBytes(Stream[] stream_in)
-    {
-        return Util.sizeOf(Cons.Type.INT);
-    }
-
-    /**
-     * @param stream_in Stream[]
-     * @return Cons.Type
-     */
-    @Override
-    public Cons.Type getSampleType(Stream[] stream_in)
-    {
-        return Cons.Type.INT;
-    }
-
-    /**
-     * @param sampleNumber_in int
-     * @return int
-     */
-    @Override
-    public int getSampleNumber(int sampleNumber_in)
-    {
-        return 1;
-    }
-
-    /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
-    @Override
-    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
-    {
-        int overallDimension = getSampleDimension(stream_in);
-        stream_out.dataclass = new String[overallDimension];
-        if (class_names != null && overallDimension == class_names.length)
-        {
-            System.arraycopy(class_names, 0, stream_out.dataclass, 0, stream_out.dataclass.length);
-            return;
-        }
-        for (int i = 0; i < overallDimension; i++)
-        {
-            stream_out.dataclass[i] = "nb" + i;
-        }
-    }
-
-    /**
      * @param stream Stream
      * @return double[]
      */
-    private double[] forward(Stream stream)
+    protected float[] forward(Stream stream)
     {
-        if (class_probs == null || class_probs.length <= 0)
+        if (!_isTrained || class_probs == null || class_probs.length <= 0)
         {
             Log.w("not trained");
             return null;
@@ -215,7 +96,7 @@ public class NaiveBayes extends Transformer
             Log.w("feature dimension differs");
             return null;
         }
-        double[] probs = new double[n_classes];
+        float[] probs = new float[n_classes];
         double sum = 0;
         boolean prior = usePriorProbability;
         if (userLogNormalDistribution)
@@ -242,7 +123,7 @@ public class NaiveBayes extends Transformer
                         prob += -naiveBayesLog(std_dev[nclass][nfeat]) - (temp * temp) / (2 * Double.MIN_VALUE);
                     }
                 }
-                probs[nclass] = Math.exp(prob / n_features);
+                probs[nclass] = (float)Math.exp(prob / n_features);
                 sum += probs[nclass];
             }
 
@@ -264,7 +145,7 @@ public class NaiveBayes extends Transformer
                     double temp = (1 / (norm_const * stddev)) * Math.exp(-((diff * diff) / (2 * (stddev * stddev))));
                     prob *= temp;
                 }
-                probs[nclass] = prob;
+                probs[nclass] = (float)prob;
                 sum += probs[nclass];
             }
         }
@@ -286,41 +167,15 @@ public class NaiveBayes extends Transformer
         return probs;
     }
 
-    /**
-     * @param filePath Option
-     * @param fileName Option
-     * @return File
-     */
-    protected final File getFile(Option<String> filePath, Option<String> fileName)
-    {
-        if (filePath.get() == null)
-        {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
-        }
-        File fileDirectory = new File(filePath.get());
-        if (!fileDirectory.exists())
-        {
-            if (!fileDirectory.mkdirs())
-            {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return null;
-            }
-        }
-        if (fileName.get() == null)
-        {
-            Log.e("file name not set");
-            return null;
-        }
-        return new File(fileDirectory, fileName.get());
+    @Override
+    void train(Stream stream) {
     }
 
     /**
      * Load data from option file
      */
-    private void loadOption()
+    protected void loadOption(File file)
     {
-        File file = getFile(options.filePathOption, options.fileNameOption);
         if (file == null)
         {
             Log.w("option file not set in options");
@@ -352,12 +207,25 @@ public class NaiveBayes extends Transformer
         }
     }
 
+    @Override
+    void save(File file) {
+    }
+
+    @Override
+    int getNumClasses() {
+        return n_classes;
+    }
+
+    @Override
+    String[] getClassNames() {
+        return class_names;
+    }
+
     /**
      * Load data from model file
      */
-    private void loadModel()
+    protected void load(File file)
     {
-        File file = getFile(options.filePathModel, options.fileNameModel);
         if (file == null)
         {
             Log.e("model file not set in options");
@@ -435,6 +303,8 @@ public class NaiveBayes extends Transformer
         {
             Log.e("could not close reader");
         }
+
+        _isTrained = true;
     }
 
     /**

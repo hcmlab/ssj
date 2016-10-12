@@ -33,7 +33,7 @@ import java.util.ArrayList;
  */
 public abstract class Component implements Runnable
 {
-    protected String _name = "SSJ_Component";
+    protected String _name = "Component";
 
     protected boolean _terminate = false;
     protected boolean _safeToKill = false;

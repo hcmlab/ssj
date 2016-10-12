@@ -90,26 +90,15 @@
         <providerId id="1030095234" />
       </providerList>
     </transformer>
-    <transformer class="hcm.ssj.evaluator.Cull" id="444898161" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.ml.Classifier" id="1" frameSize="1.0" delta="0.0">
       <options>
-        <option name="fileNameTrainer" value="demoEval.trainer" />
-        <option name="filePathTrainer" value="/storage/emulated/0/SSJ/Creator" />
+        <option name="trainerFile" value="demoClassify.trainer" />
+        <option name="trainerPath" value="/storage/emulated/0/SSJ/Creator" />
       </options>
       <providerList>
         <providerId id="168988805" />
         <providerId id="660696742" />
         <providerId id="80895545" />
-      </providerList>
-    </transformer>
-    <transformer class="hcm.ssj.evaluator.NaiveBayes" id="187320233" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="fileNameModel" value="demoClassify.trainer.NaiveBayes.model" />
-        <option name="fileNameOption" value="demoClassify.trainer.NaiveBayes.option" />
-        <option name="filePathModel" value="/storage/emulated/0/SSJ/Creator" />
-        <option name="filePathOption" value="/storage/emulated/0/SSJ/Creator" />
-      </options>
-      <providerList>
-        <providerId id="444898161" />
       </providerList>
     </transformer>
   </transformerList>
@@ -131,7 +120,7 @@
         <option name="size" value="30.0" />
       </options>
       <providerList>
-        <providerId id="187320233" />
+        <providerId id="1" />
       </providerList>
     </consumer>
   </consumerList>
