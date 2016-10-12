@@ -30,6 +30,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 
+import java.util.Arrays;
+
 /**
  * Standard listener for android sensors.<br>
  * Created by Frank Gaibler on 13.08.2015.
@@ -45,7 +47,10 @@ class SensorListener implements SensorEventListener
     public SensorListener(SensorType sensorType)
     {
         this.sensorType = sensorType;
-        data = new SensorData(this.sensorType.getDataSize());
+
+        float[] val = new float[this.sensorType.getDataSize()];
+        Arrays.fill(val, 0);
+        data = new SensorData(val);
     }
 
     /**
@@ -57,12 +62,8 @@ class SensorListener implements SensorEventListener
         // test for proper event
         if (event.sensor.getType() == sensorType.getType())
         {
-            // get values
-            data = new SensorData(sensorType.getDataSize());
-            for (int i = 0; i < data.getSize(); i++)
-            {
-                data.setData(i, event.values[i]);
-            }
+            // set values
+            data = new SensorData(event.values);
         }
     }
 

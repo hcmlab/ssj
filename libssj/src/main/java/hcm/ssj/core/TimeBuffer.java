@@ -106,22 +106,28 @@ public class TimeBuffer {
             //compute actual position of data within buffer
             int pos_mod = (int)(_position % _buffer.length);
 
-            if (pos_mod + numBytes <= _buffer.length) {
-                // end of buffer not reached
-                // copy data in one step
-                Util.arraycopy(data, 0, _buffer, pos_mod, numBytes);
-            } else {
-                // end of buffer reached
-                // copy data in two steps:
-                // 1. copy everything until the end of the buffer is reached
-                // 2. copy remaining part from the beginning
-                int size_until_end = _buffer.length - pos_mod;
-                int size_remaining = numBytes - size_until_end;
-                Util.arraycopy(data, 0, _buffer, pos_mod, size_until_end);
-                Util.arraycopy(data, size_until_end, _buffer, 0, size_remaining);
-            }
+            copy(data, 0, _buffer, pos_mod, numBytes);
+
             _position += numBytes;
             _lock.notifyAll();
+        }
+    }
+
+    private void copy(Object src, int srcpos, byte[] dst, int dstpos, int numBytes)
+    {
+        if (dstpos + numBytes <= dst.length) {
+            // end of buffer not reached
+            // copy data in one step
+            Util.arraycopy(src, srcpos, dst, dstpos, numBytes);
+        } else {
+            // end of buffer reached
+            // copy data in two steps:
+            // 1. copy everything until the end of the buffer is reached
+            // 2. copy remaining part from the beginning
+            int size_until_end = dst.length - dstpos;
+            int size_remaining = numBytes - size_until_end;
+            Util.arraycopy(src, srcpos, dst, dstpos, size_until_end);
+            copy(src, size_until_end, dst, 0, size_remaining);
         }
     }
 
@@ -133,22 +139,27 @@ public class TimeBuffer {
             //compute actual position of data within buffer
             int pos_mod = (int)(_position % _buffer.length);
 
-            if (pos_mod + numBytes <= _buffer.length) {
-                // end of buffer not reached
-                // copy data in one step
-                Arrays.fill(_buffer, pos_mod, pos_mod + numBytes, (byte) 0);
-            } else {
-                // end of buffer reached
-                // copy data in two steps:
-                // 1. copy everything until the end of the buffer is reached
-                // 2. copy remaining part from the beginning
-                int size_until_end = _buffer.length - pos_mod;
-                int size_remaining = numBytes - size_until_end;
-                Arrays.fill(_buffer, pos_mod, pos_mod + size_until_end, (byte) 0);
-                Arrays.fill(_buffer, 0, size_remaining, (byte) 0);
-            }
+            fillZero(_buffer, pos_mod, numBytes);
+
             _position += numBytes;
             _lock.notifyAll();
+        }
+    }
+
+    private void fillZero(byte[] buffer, int pos, int num)
+    {
+        if (pos + num <= buffer.length)
+            Arrays.fill(buffer, pos, pos + num, (byte)0);
+        else
+        {
+            // end of buffer reached
+            // copy data in two steps:
+            // 1. copy everything until the end of the buffer is reached
+            // 2. copy remaining part from the beginning
+            int size_until_end = buffer.length - pos;
+            int size_remaining = num - size_until_end;
+            Arrays.fill(buffer, pos, pos + size_until_end, (byte)0);
+            fillZero(buffer, 0, size_remaining);
         }
     }
 

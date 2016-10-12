@@ -26,6 +26,8 @@
 
 package hcm.ssj.androidSensor;
 
+import hcm.ssj.core.Log;
+
 /**
  * Standard wrapper for android sensor data.<br>
  * Created by Frank Gaibler on 13.08.2015.
@@ -36,12 +38,12 @@ class SensorData
     private float[] data;
 
     /**
-     * @param size int
+     * @param values float[]
      */
-    public SensorData(int size)
+    public SensorData(float[] values)
     {
-        this.size = size;
-        data = new float[this.size];
+        this.size = values.length;
+        data = values;
     }
 
     /**
@@ -67,6 +69,10 @@ class SensorData
      */
     public float getData(int index)
     {
+        if(data == null) {
+            Log.e("data == null, size = " + size);
+            return 0;
+        }
         return data[index];
     }
 }

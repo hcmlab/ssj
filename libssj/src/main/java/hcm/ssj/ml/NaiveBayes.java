@@ -71,6 +71,8 @@ public class NaiveBayes extends Model
     private double[] class_probs = null;
     private double[][] means = null;
     private double[][] std_dev = null;
+    private float[] probs;
+    private double[] data;
 
     /**
      *
@@ -78,6 +80,12 @@ public class NaiveBayes extends Model
     public NaiveBayes()
     {
         _name = this.getClass().getSimpleName();
+    }
+
+
+    private void init()
+    {
+        probs = new float[n_classes];
     }
 
     /**
@@ -101,7 +109,7 @@ public class NaiveBayes extends Model
             Log.w("feature dimension differs");
             return null;
         }
-        float[] probs = new float[n_classes];
+
         double sum = 0;
         boolean prior = usePriorProbability;
         if (userLogNormalDistribution)
@@ -311,6 +319,7 @@ public class NaiveBayes extends Model
             Log.e("could not close reader");
         }
 
+        init();
         _isTrained = true;
     }
 
@@ -351,53 +360,47 @@ public class NaiveBayes extends Model
      */
     private double[] getValuesAsDouble(Stream stream)
     {
+        if(data == null)
+            data = new double[stream.num * stream.dim];
+
         switch (stream.type)
         {
             case CHAR:
                 char[] chars = stream.ptrC();
-                double[] c = new double[stream.num * stream.dim];
-                for (int i = 0; i < c.length; i++)
+                for (int i = 0; i < data.length; i++)
                 {
-                    c[i] = (double) chars[i];
+                    data[i] = (double) chars[i];
                 }
-                return c;
             case SHORT:
                 short[] shorts = stream.ptrS();
-                double[] s = new double[stream.num * stream.dim];
-                for (int i = 0; i < s.length; i++)
+                for (int i = 0; i < data.length; i++)
                 {
-                    s[i] = (double) shorts[i];
+                    data[i] = (double) shorts[i];
                 }
-                return s;
             case INT:
                 int[] ints = stream.ptrI();
-                double[] in = new double[stream.num * stream.dim];
-                for (int i = 0; i < in.length; i++)
+                for (int i = 0; i < data.length; i++)
                 {
-                    in[i] = (double) ints[i];
+                    data[i] = (double) ints[i];
                 }
-                return in;
             case LONG:
                 long[] longs = stream.ptrL();
-                double[] l = new double[stream.num * stream.dim];
-                for (int i = 0; i < l.length; i++)
+                for (int i = 0; i < data.length; i++)
                 {
-                    l[i] = (double) longs[i];
+                    data[i] = (double) longs[i];
                 }
-                return l;
             case FLOAT:
                 float[] floats = stream.ptrF();
-                double[] f = new double[stream.num * stream.dim];
-                for (int i = 0; i < f.length; i++)
+                for (int i = 0; i < data.length; i++)
                 {
-                    f[i] = (double) floats[i];
+                    data[i] = (double) floats[i];
                 }
-                return f;
             case DOUBLE:
                 return stream.ptrD();
             default:
                 Log.e("invalid input stream type");
-                return new double[stream.num * stream.dim];
         }
+
+        return data;
     }
 }

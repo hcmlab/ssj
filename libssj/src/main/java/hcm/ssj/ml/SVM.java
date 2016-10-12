@@ -70,6 +70,9 @@ public class SVM extends Model
     private double[] max = null;
     private double[] min = null;
     private svm_model model;
+    private svm_node[] nodes;
+    double[] prob_estimates;
+    float[] probs;
 
     private final int SVM_SCALE_UPPER = 1;
     private final int SVM_SCALE_LOWER = -1;
@@ -80,6 +83,16 @@ public class SVM extends Model
     public SVM()
     {
         _name = this.getClass().getSimpleName();
+    }
+
+    private void init()
+    {
+        nodes = new svm_node[n_features+1];
+        for(int i = 0; i < nodes.length; i++)
+            nodes[i] = new svm_node();
+
+        prob_estimates = new double[n_classes];
+        probs = new float[n_classes];
     }
 
     /**
@@ -108,25 +121,18 @@ public class SVM extends Model
             return null;
         }
 
-        svm_node[] x = new svm_node[n_features+1];
-        for(int i = 0; i < x.length; i++)
-            x[i] = new svm_node();
-
         float[] ptr = stream[0].ptrF();
         for (int i = 0; i < n_features; i++) {
-            x[i].index = i + 1;
-            x[i].value = ptr[i];
+            nodes[i].index = i + 1;
+            nodes[i].value = ptr[i];
         }
-        x[n_features].index=-1;
+        nodes[n_features].index=-1;
 
-        scale_instance (x, n_features);
-
-        double[] prob_estimates = new double[n_classes];
-        svm.svm_predict_probability (model, x, prob_estimates);
+        scale_instance (nodes, n_features);
+        svm.svm_predict_probability (model, nodes, prob_estimates);
 
         //normalization
         float sum = 0;
-        float[] probs = new float[n_classes];
         for (int i = 0; i < n_classes; i++) {
             probs[model.label[i]] = (float) prob_estimates[i];
             sum += probs[model.label[i]];
@@ -255,6 +261,7 @@ public class SVM extends Model
             }
         }
 
+        init();
         _isTrained = true;
     }
 
