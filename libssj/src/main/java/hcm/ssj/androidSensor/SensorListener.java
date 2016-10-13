@@ -62,8 +62,11 @@ class SensorListener implements SensorEventListener
         // test for proper event
         if (event.sensor.getType() == sensorType.getType())
         {
-            // set values
-            data = new SensorData(event.values);
+            synchronized (this) {
+                // set values
+                if (event.values != null)
+                    data = new SensorData(event.values);
+            }
         }
     }
 
@@ -81,6 +84,10 @@ class SensorListener implements SensorEventListener
      */
     public SensorData getData()
     {
-        return data;
+        SensorData d;
+        synchronized (this) {
+            d = data;
+        }
+        return d;
     }
 }
