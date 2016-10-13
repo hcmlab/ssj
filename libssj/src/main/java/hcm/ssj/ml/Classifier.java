@@ -188,7 +188,7 @@ public class Classifier extends Transformer
         }
         if(_selector != null)
         {
-            _stream_merged = new Stream[1];
+            _stream_selected = new Stream[1];
             _stream_selected[0] = Stream.create(input[0].num, _selector.options.values.get().length, input[0].sr, input[0].type);
             _selector.enter(input, _stream_selected[0]);
         }

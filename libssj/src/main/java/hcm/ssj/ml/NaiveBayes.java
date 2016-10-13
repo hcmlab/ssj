@@ -371,34 +371,40 @@ public class NaiveBayes extends Model
                 {
                     data[i] = (double) chars[i];
                 }
+                break;
             case SHORT:
                 short[] shorts = stream.ptrS();
                 for (int i = 0; i < data.length; i++)
                 {
                     data[i] = (double) shorts[i];
                 }
+                break;
             case INT:
                 int[] ints = stream.ptrI();
                 for (int i = 0; i < data.length; i++)
                 {
                     data[i] = (double) ints[i];
                 }
+                break;
             case LONG:
                 long[] longs = stream.ptrL();
                 for (int i = 0; i < data.length; i++)
                 {
                     data[i] = (double) longs[i];
                 }
+                break;
             case FLOAT:
                 float[] floats = stream.ptrF();
                 for (int i = 0; i < data.length; i++)
                 {
                     data[i] = (double) floats[i];
                 }
+                break;
             case DOUBLE:
                 return stream.ptrD();
             default:
                 Log.e("invalid input stream type");
+                break;
         }
 
         return data;
