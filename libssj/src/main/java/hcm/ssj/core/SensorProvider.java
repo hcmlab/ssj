@@ -25,6 +25,9 @@
  */
 package hcm.ssj.core;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -61,6 +64,8 @@ public abstract class SensorProvider extends Provider {
 
         //if user did not specify a custom priority, use high priority
         android.os.Process.setThreadPriority( (threadPriority == Cons.THREAD_PRIORITY_NORMAL) ? Cons.THREAD_PRIORIIY_HIGH : threadPriority );
+        PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
 
         WatchDog dog = new WatchDog(_bufferID, _watchInterval, _syncInterval);
 
@@ -90,11 +95,13 @@ public abstract class SensorProvider extends Provider {
         while(!_terminate)
         {
             try {
+                wakeLock.acquire();
                 if(process(_stream_out))
                 {
                     _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
                     dog.checkIn();
                 }
+                wakeLock.release();
 
                 _timer.sync();
             } catch(Exception e) {

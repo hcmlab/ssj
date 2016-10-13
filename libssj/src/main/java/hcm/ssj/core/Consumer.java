@@ -26,6 +26,9 @@
 
 package hcm.ssj.core;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 import java.util.Arrays;
 
 import hcm.ssj.core.stream.Stream;
@@ -45,6 +48,7 @@ public abstract class Consumer extends Component {
     private Timer _timer;
 
     protected TheFramework _frame;
+    protected boolean _doWakeLock = true;
 
     public Consumer()
     {
@@ -60,6 +64,8 @@ public abstract class Consumer extends Component {
         }
 
         android.os.Process.setThreadPriority(threadPriority);
+        PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
 
         //reset data
         Arrays.fill(_readPos, 0);
@@ -85,6 +91,8 @@ public abstract class Consumer extends Component {
         while(!_terminate && _frame.isRunning())
         {
             try {
+                if(_doWakeLock) wakeLock.acquire();
+
                 //grab data
                 boolean ok = true;
                 for(int i = 0; i < _bufferID_in.length; i++)
@@ -98,7 +106,11 @@ public abstract class Consumer extends Component {
                 //if we received data from all sources, process it
                 if(ok) {
                     consume(_stream_in);
+                }
 
+                if(_doWakeLock) wakeLock.release();
+
+                if(ok) {
                     //maintain update rate
                     _timer.sync();
                 }

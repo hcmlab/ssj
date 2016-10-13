@@ -81,6 +81,7 @@ public class SignalPainter extends Consumer
     public SignalPainter()
     {
         _name = "SignalPainter";
+        _doWakeLock = false; //since this is a GUI element, disable wakelock to save energy
     }
 
     /**

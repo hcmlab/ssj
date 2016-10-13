@@ -72,6 +72,7 @@ public class EventPainter extends EventHandler
     public EventPainter()
     {
         _name = "EventPainter";
+        _doWakeLock = false; //since this is a GUI element, disable wakelock to save energy
     }
 
     @Override

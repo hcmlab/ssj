@@ -26,6 +26,9 @@
 
 package hcm.ssj.core;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 /**
  * Created by Johnny on 05.03.2015.
  */
@@ -92,6 +95,9 @@ public class WatchDog extends Thread {
             } catch (InterruptedException e) {}
         }
 
+        PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
+
         int syncIterCnt = _syncIter;
         int watchIterCnt = _watchIter;
 
@@ -100,6 +106,8 @@ public class WatchDog extends Thread {
         while(!_terminate && _frame.isRunning())
         {
             try {
+                wakeLock.acquire();
+
                 //check buffer watch
                 if(watchIterCnt == 0)
                 {
@@ -124,6 +132,7 @@ public class WatchDog extends Thread {
                 }
                 else syncIterCnt--;
 
+                wakeLock.release();
                 _timer.sync();
 
             } catch(Exception e) {

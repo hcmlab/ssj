@@ -26,6 +26,9 @@
 
 package hcm.ssj.core;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.stream.Stream;
 
@@ -61,6 +64,8 @@ public abstract class EventConsumer extends Component {
         }
 
         android.os.Process.setThreadPriority(threadPriority);
+        PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
 
         try {
             enter(_stream_in);
@@ -83,6 +88,7 @@ public abstract class EventConsumer extends Component {
                 //wait for event
                 Event ev = _evchannel_in.get(0).getEvent(eventID++, true);
 
+                wakeLock.acquire();
                 if (ev != null && ev.dur > 0)
                 {
                     //grab data
@@ -104,6 +110,7 @@ public abstract class EventConsumer extends Component {
                     if (ok)
                         consume(_stream_in);
                 }
+                wakeLock.release();
 
             } catch(Exception e) {
                 _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);

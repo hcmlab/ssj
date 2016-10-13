@@ -26,6 +26,9 @@
 
 package hcm.ssj.core;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 import java.util.Arrays;
 
 import hcm.ssj.core.stream.Stream;
@@ -60,6 +63,9 @@ public abstract class Transformer extends Provider {
         }
 
         android.os.Process.setThreadPriority(threadPriority);
+        PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
+        PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
+
 
         //reset data
         Arrays.fill(_readPos, 0);
@@ -85,6 +91,8 @@ public abstract class Transformer extends Provider {
         while(!_terminate && _frame.isRunning())
         {
             try {
+                wakeLock.acquire();
+
                 //grab data
                 boolean ok = true;
                 for(int i = 0; i < _bufferID_in.length; i++)
@@ -99,7 +107,11 @@ public abstract class Transformer extends Provider {
                 if(ok) {
                     transform(_stream_in, _stream_out);
                     _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
+                }
 
+                wakeLock.release();
+
+                if(ok) {
                     //maintain update rate
                     _timer.sync();
                 }
