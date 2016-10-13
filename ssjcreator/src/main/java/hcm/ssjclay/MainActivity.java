@@ -140,32 +140,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * @param requestCode  int
-     * @param permissions  String[]
-     * @param grantResults int[]
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-    {
-        switch (requestCode)
-        {
-            case REQUEST_DANGEROUS_PERMISSIONS:
-            {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[4] == PackageManager.PERMISSION_GRANTED)
-                {
-                    if (firstStart)
-                    {
-                        //copy demo files
-                        DemoHandler.copyFiles(MainActivity.this);
-                    }
-                }
-                break;
-            }
-        }
-    }
-
-    /**
      * @param view View
      */
     public void buttonPressed(View view)
@@ -352,6 +326,9 @@ public class MainActivity extends AppCompatActivity
      */
     private void showFileDialog(final int title, FileDialog.Type type, final int message)
     {
+        if (firstStart)
+            DemoHandler.copyFiles(MainActivity.this);
+
         final FileDialog fileDialog = new FileDialog();
         fileDialog.setTitleMessage(title);
         fileDialog.setType(type);

@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.os.Environment;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,8 +69,11 @@ public abstract class DemoHandler
         {
             try
             {
-                InputStream in = assetManager.open(Util.DEMO + "/" + file);
-                OutputStream out = new FileOutputStream(Environment.getExternalStorageDirectory() + "/" + Util.DIR_1 + "/" + Util.DIR_2 + "/" + file);
+                InputStream in = assetManager.open(Util.DEMO + File.separator + file);
+                File dir = new File(Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2);
+                if(!dir.exists())
+                    dir.mkdirs();
+                OutputStream out = new FileOutputStream(new File(dir, file));
                 copyFile(in, out);
                 in.close();
                 out.flush();
