@@ -1,0 +1,12 @@
+Information we collect
+
+SSJ allows the user to collect, process and store information extracted from various sensor, either device internal or external. 
+Due to the nature of the sensors, the collected data may be used to identify the user or any other persons in the perception range of the sensors.
+In addition to the sensor data, usage data in form of application logs are also collected.
+The collection of data is only active when the user explicitly presses the "PLAY" button. Thus, the user of the app is solely responsible for the data she or he collects.
+We encourage the user of the app to obtain an informed consent from all persons in the perception range of the sensors before starting the application.
+
+How we use information we collect
+
+No data is shared or transmitted by the app automatically. It is only stored locally on the device's memory.
+The data is not encrypted in any way.
