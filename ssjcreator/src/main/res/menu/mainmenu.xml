@@ -29,15 +29,11 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_add"
-        android:icon="@android:drawable/ic_menu_edit"
+        android:icon="@android:drawable/ic_menu_add"
         android:orderInCategory="1"
-        android:title="@string/str_creatorMenu"
+        android:title="@string/str_addMenu"
         app:showAsAction="always|withText">
         <menu>
-            <item
-                android:id="@+id/action_framework"
-                android:title="@string/str_framework">
-            </item>
             <item
                 android:id="@+id/action_sensors"
                 android:title="@string/str_sensors">
@@ -60,9 +56,13 @@
         android:id="@+id/action_file"
         android:icon="@android:drawable/ic_menu_manage"
         android:orderInCategory="2"
-        android:title="@string/str_fileMenu"
+        android:title="@string/str_configMenu"
         app:showAsAction="ifRoom|withText">
         <menu>
+            <item
+                android:id="@+id/action_framework"
+                android:title="@string/str_options">
+            </item>
             <item
                 android:id="@+id/action_save"
                 android:title="@string/str_save">

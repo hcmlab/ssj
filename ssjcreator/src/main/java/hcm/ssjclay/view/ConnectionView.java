@@ -33,6 +33,8 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
 
+import hcm.ssjclay.R;
+
 /**
  * Draws connections between elements. Directions are shown with an arrow.<br>
  * Created by Frank Gaibler on 12.05.2016.
@@ -59,7 +61,7 @@ class ConnectionView extends View
         {
             paintConnection = new Paint(Paint.ANTI_ALIAS_FLAG);
             paintConnection.setStyle(Paint.Style.STROKE);
-            paintConnection.setColor(Color.RED);
+            paintConnection.setColor(getResources().getColor(R.color.colorConnectionStream));
             paintConnection.setStrokeWidth(STROKE_WIDTH);
         }
     }

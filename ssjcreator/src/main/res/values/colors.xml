@@ -26,13 +26,14 @@
   -->
 
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    <color name="seafoam">#ffc6f9e5</color>
-    <color name="chartreuse">#ffb6e9b5</color>
-    <color name="emerald">#ffa6d9b5</color>
-    <color name="bluegrass">#ff96c9b5</color>
-    <color name="turquoise">#ff86b9b5</color>
-    <color name="slate">#ff76a9b5</color>
+    <color name="colorPrimary">#4285F4</color>
+    <color name="colorPrimaryDark">#3367D6</color>
+    <color name="colorAccent">#4285F4</color> <!-- green: 0F9D58 -->
+
+    <color name="colorSensor">#ffd54f</color>
+    <color name="colorProvider">#ed1c24</color>
+    <color name="colorTransformer">#0F9D58</color>
+    <color name="colorConsumer">#29b6f6</color>
+
+    <color name="colorConnectionStream">#9e9e9e</color>
 </resources>

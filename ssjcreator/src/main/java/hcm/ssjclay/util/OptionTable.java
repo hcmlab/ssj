@@ -69,14 +69,18 @@ public class OptionTable
         ScrollView scrollView = new ScrollView(activity);
         LinearLayout linearLayoutOptions = new LinearLayout(activity);
         linearLayoutOptions.setOrientation(LinearLayout.VERTICAL);
+
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 2, 1f);
+        layoutParams.setMargins(0, 20, 0, 20);
+
         for (int i = 0, j = 0; i < options.length; i++)
         {
             if (j > 0)
             {
                 //add divider
                 View view = new View(activity);
-                view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 2, 1f));
-                view.setBackgroundColor(Color.CYAN);
+                view.setLayoutParams(layoutParams);
+                view.setBackgroundColor(Color.LTGRAY);
                 linearLayoutOptions.addView(view);
             }
             if (options[i].isAssignableByString())

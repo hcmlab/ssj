@@ -151,9 +151,12 @@ public class ProviderTable
      */
     private static View addDivider(Activity activity)
     {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 6, 1f);
+        layoutParams.setMargins(0, 20, 0, 20);
+
         View view = new View(activity);
-        view.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 6, 1f));
-        view.setBackgroundColor(Color.CYAN);
+        view.setLayoutParams(layoutParams);
+        view.setBackgroundColor(Color.DKGRAY);
         return view;
     }
 
