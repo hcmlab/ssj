@@ -25,7 +25,7 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<manifest package="hcm.ssjclay"
+<manifest package="hcm.creator"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
@@ -37,7 +37,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name=".MainActivity"
+            android:name="hcm.creator.MainActivity"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -45,20 +45,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TutorialActivity"
+            android:name="hcm.creator.TutorialActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/FullscreenTheme" >
         </activity>
         <activity
-            android:name=".OptionsActivity"
+            android:name="hcm.creator.OptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
         <activity
-            android:name=".SensorOptionsActivity"
+            android:name="hcm.creator.SensorOptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
         <activity
-            android:name=".ComponentOptionsActivity"
+            android:name="hcm.creator.ComponentOptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
     </application>
