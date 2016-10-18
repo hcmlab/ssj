@@ -37,7 +37,7 @@
         android:theme="@style/AppTheme">
 
         <activity
-            android:name="hcm.creator.MainActivity"
+            android:name="hcm.ssj.creator.MainActivity"
             android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -45,20 +45,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="hcm.creator.TutorialActivity"
+            android:name="hcm.ssj.creator.TutorialActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/FullscreenTheme" >
         </activity>
         <activity
-            android:name="hcm.creator.OptionsActivity"
+            android:name="hcm.ssj.creator.OptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
         <activity
-            android:name="hcm.creator.SensorOptionsActivity"
+            android:name="hcm.ssj.creator.SensorOptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
         <activity
-            android:name="hcm.creator.ComponentOptionsActivity"
+            android:name="hcm.ssj.creator.ComponentOptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
     </application>
