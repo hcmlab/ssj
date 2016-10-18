@@ -30,6 +30,9 @@ apply from: '../version.gradle'
 //this will compile the library to correspond to the LGPL standard by excluding GPL dependencies from the project
 def lesser = false
 
+//this will include the mobile SSI classes in the library
+def mobileSSI = false
+
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
@@ -61,14 +64,29 @@ android {
     productFlavors {
     }
 
-    if(lesser) {
-        sourceSets {
-            main {
-                java {
-                    srcDir 'src'
+    sourceSets {
+        main {
+            java {
+                //exclude plugins with GPL dependencies
+                if(lesser) {
                     exclude '**/praat/**', '**/SpeechRate.java', '**/Energy.java', '**/Pitch.java'
                     exclude '**/graphic/**'
+                }
+
+                if(!mobileSSI) {
+                    exclude '**/MobileSSIConsumer.java'
+                }
+            }
+        }
+        androidTest {
+            java {
+                //exclude plugins with GPL dependencies
+                if(lesser) {
                     exclude '**/AudioTest.java', '**/testEvent.java'
+                }
+
+                if(!mobileSSI) {
+                    exclude '**/MobileSSITest.java'
                 }
             }
         }

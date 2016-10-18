@@ -29,6 +29,9 @@
     <color name="colorPrimary">#4285F4</color>
     <color name="colorPrimaryDark">#3367D6</color>
     <color name="colorAccent">#4285F4</color> <!-- green: 0F9D58 -->
+    <color name="colorBackground">#fafafa</color>
+
+    <color name="colorListBorder">#eeeeee</color>
 
     <color name="colorSensor">#ffd54f</color>
     <color name="colorProvider">#ed1c24</color>

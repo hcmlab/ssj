@@ -40,8 +40,10 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -49,6 +51,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import hcm.ssj.core.option.Option;
+import hcm.ssj.creator.R;
 
 /**
  * Create a table row which includes every option
@@ -64,29 +67,18 @@ public class OptionTable
     public static TableRow createTable(Activity activity, Option[] options)
     {
         TableRow tableRow = new TableRow(activity);
-        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
         //options
         ScrollView scrollView = new ScrollView(activity);
         LinearLayout linearLayoutOptions = new LinearLayout(activity);
+        linearLayoutOptions.setBackgroundColor(activity.getResources().getColor(R.color.colorListBorder));
         linearLayoutOptions.setOrientation(LinearLayout.VERTICAL);
 
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 2, 1f);
-        layoutParams.setMargins(0, 20, 0, 20);
-
-        for (int i = 0, j = 0; i < options.length; i++)
+        for (int i = 0; i < options.length; i++)
         {
-            if (j > 0)
-            {
-                //add divider
-                View view = new View(activity);
-                view.setLayoutParams(layoutParams);
-                view.setBackgroundColor(Color.LTGRAY);
-                linearLayoutOptions.addView(view);
-            }
             if (options[i].isAssignableByString())
             {
                 linearLayoutOptions.addView(addOption(activity, options[i]));
-                j++;
             }
         }
         scrollView.addView(linearLayoutOptions);
@@ -104,6 +96,10 @@ public class OptionTable
         Object value = option.get();
         // Set up the view
         LinearLayout linearLayout = new LinearLayout(activity);
+        linearLayout.setBackgroundColor(activity.getResources().getColor(R.color.colorBackground));
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
+        params.setMargins(0, 0, 0, 10);
+        linearLayout.setLayoutParams(params);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         //description of the object
         LinearLayout linearLayoutDescription = new LinearLayout(activity);
@@ -119,7 +115,7 @@ public class OptionTable
         {
             TextView textViewHelp = new TextView(activity);
             textViewHelp.setText(helpText);
-            textViewHelp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
+            textViewHelp.setLayoutParams(new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
             textViewHelp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
             linearLayoutDescription.addView(textViewHelp);
         }
@@ -173,6 +169,8 @@ public class OptionTable
             //normal text view for everything else
             inputView = new EditText(activity);
             ((EditText) inputView).setTextColor(Color.BLACK);
+            ((EditText) inputView).setMaxWidth(linearLayout.getWidth()); //workaround for bug in layout params
+
             //specify the expected input type
             Class<?> type = option.getType();
             if (type == Byte.class || type == Short.class || type == Integer.class || type == Long.class)
@@ -228,7 +226,13 @@ public class OptionTable
                 @Override
                 public void afterTextChanged(Editable s)
                 {
-                    option.setValue(s.toString());
+                    try {
+                        option.setValue(s.toString());
+                    }
+                    catch(IllegalArgumentException e)
+                    {
+                        Toast.makeText(activity, activity.getResources().getText(R.string.err_invalidOption), Toast.LENGTH_SHORT).show();
+                    }
                 }
             });
         }
