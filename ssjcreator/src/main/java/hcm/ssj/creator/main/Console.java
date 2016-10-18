@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.main;
+package hcm.ssj.creator.main;
 
 import android.content.Context;
 import android.os.Handler;
@@ -33,9 +33,9 @@ import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import hcm.creator.R;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.creator.R;
 import hcm.ssj.file.LoggingConstants;
 
 /**

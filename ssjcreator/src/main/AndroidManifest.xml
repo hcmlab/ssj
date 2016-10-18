@@ -25,7 +25,7 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<manifest package="hcm.creator"
+<manifest package="hcm.ssj.creator"
           xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application

@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.main;
+package hcm.ssj.creator.main;
 
 import android.app.Activity;
 import android.support.v4.content.ContextCompat;
@@ -38,10 +38,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import hcm.creator.R;
-import hcm.creator.creator.Linker;
-import hcm.creator.view.PipeView;
 import hcm.ssj.camera.CameraPainter;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.view.PipeView;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
 

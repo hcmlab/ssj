@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.dialogs;
+package hcm.ssj.creator.dialogs;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -45,10 +45,10 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import hcm.creator.R;
-import hcm.creator.creator.SaveLoad;
-import hcm.creator.util.Util;
 import hcm.ssj.core.Log;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.SaveLoad;
+import hcm.ssj.creator.util.Util;
 
 /**
  * Dialog to save and choose files.<br>

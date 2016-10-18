@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.util;
+package hcm.ssj.creator.util;
 
 import android.app.Activity;
 import android.graphics.Color;
@@ -40,10 +40,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import hcm.creator.R;
-import hcm.creator.creator.Linker;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.Linker;
 
 /**
  * Create a table row which includes viable providers

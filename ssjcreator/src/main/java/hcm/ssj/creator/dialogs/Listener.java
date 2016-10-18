@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.dialogs;
+package hcm.ssj.creator.dialogs;
 
 /**
  * Created by Frank Gaibler on 21.03.2016.

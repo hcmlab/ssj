@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.util;
+package hcm.ssj.creator.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;

@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.dialogs;
+package hcm.ssj.creator.dialogs;
 
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -45,9 +45,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import hcm.creator.R;
-import hcm.creator.creator.Builder;
-import hcm.creator.creator.Linker;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.Builder;
+import hcm.ssj.creator.core.Linker;
 
 /**
  * A Dialog to confirm actions.<br>

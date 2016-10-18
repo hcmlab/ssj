@@ -29,14 +29,14 @@ package hcm.creator;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.creator.creator.Builder;
-import hcm.creator.creator.Linker;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorProvider;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.creator.core.Builder;
+import hcm.ssj.creator.core.Linker;
 import hcm.ssj.test.Logger;
 
 /**

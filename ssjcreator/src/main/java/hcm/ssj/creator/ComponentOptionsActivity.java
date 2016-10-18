@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator;
+package hcm.ssj.creator;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -34,11 +34,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TableLayout;
 
-import hcm.creator.creator.Linker;
-import hcm.creator.util.OptionTable;
-import hcm.creator.util.ProviderTable;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.util.OptionTable;
+import hcm.ssj.creator.util.ProviderTable;
 
 public class ComponentOptionsActivity extends AppCompatActivity
 {

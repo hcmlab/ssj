@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.main;
+package hcm.ssj.creator.main;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -50,9 +50,9 @@ import android.widget.TextView;
 
 import java.io.File;
 
-import hcm.creator.R;
-import hcm.creator.util.Util;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.util.Util;
 import hcm.ssj.file.LoggingConstants;
 
 /**

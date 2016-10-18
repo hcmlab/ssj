@@ -24,14 +24,13 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.creator;
+package hcm.ssj.creator.core;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import hcm.creator.creator.container.ContainerElement;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
@@ -40,6 +39,7 @@ import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.creator.core.container.ContainerElement;
 
 /**
  * Linker for a pipeline.<br>

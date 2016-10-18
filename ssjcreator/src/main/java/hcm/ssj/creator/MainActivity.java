@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator;
+package hcm.ssj.creator;
 
 import android.Manifest;
 import android.content.Intent;
@@ -47,17 +47,17 @@ import android.widget.ImageButton;
 
 import java.util.ArrayList;
 
-import hcm.creator.creator.Builder;
-import hcm.creator.creator.Linker;
-import hcm.creator.dialogs.AddDialog;
-import hcm.creator.dialogs.FileDialog;
-import hcm.creator.dialogs.Listener;
-import hcm.creator.main.TabHandler;
-import hcm.creator.util.DemoHandler;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.creator.core.Builder;
+import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.dialogs.AddDialog;
+import hcm.ssj.creator.dialogs.FileDialog;
+import hcm.ssj.creator.dialogs.Listener;
+import hcm.ssj.creator.main.TabHandler;
+import hcm.ssj.creator.util.DemoHandler;
 
 public class MainActivity extends AppCompatActivity
 {

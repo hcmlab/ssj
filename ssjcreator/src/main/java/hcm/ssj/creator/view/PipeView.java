@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.view;
+package hcm.ssj.creator.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -42,10 +42,10 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import hcm.creator.creator.Linker;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.creator.core.Linker;
 
 /**
  * Draws a pipe<br>

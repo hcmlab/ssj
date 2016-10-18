@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.creator;
+package hcm.ssj.creator.core;
 
 import android.util.Xml;
 
@@ -45,7 +45,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
-import hcm.creator.creator.container.ContainerElement;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
@@ -54,6 +53,7 @@ import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.creator.core.container.ContainerElement;
 
 /**
  * Save and load files in a {@link Linker} friendly format.<br>

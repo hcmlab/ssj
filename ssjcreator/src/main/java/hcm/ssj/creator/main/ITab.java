@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.main;
+package hcm.ssj.creator.main;
 
 import android.view.View;
 

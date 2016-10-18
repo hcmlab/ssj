@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.view;
+package hcm.ssj.creator.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -32,7 +32,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
 
-import hcm.creator.R;
+import hcm.ssj.creator.R;
 
 /**
  * Draws connections between elements. Directions are shown with an arrow.<br>

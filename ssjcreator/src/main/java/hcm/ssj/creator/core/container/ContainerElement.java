@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator.creator.container;
+package hcm.ssj.creator.core.container;
 
 import java.util.LinkedHashMap;
 
