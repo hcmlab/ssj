@@ -15,8 +15,11 @@ SSJ is an extensible android framework for social signal processing in an out of
 * Basic GUI elements: graphs (using [GraphView](https://github.com/hcmlab/GraphView) library), camera painter
 * SSJ Creator: Android App for building, editing and running SSJ pipelines without writing a single line of code
 
+
 ### Download
-* You can download the [latest binaries](../../releases/latest) for both libssj and SSJCreator from the [releases section](../../releases)
+* You can download the [latest binaries](../../releases/latest) from the [releases section](../../releases)
+<a href='https://play.google.com/store/apps/details?id=hcm.ssj.creator&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height="70" align="right"/></a>
+* SSJ Creator can be downloaded from the <a href="https://play.google.com/store/apps/details?id=hcm.ssj.creator">play store</a>
 
 ### Documentation
 * Api (Javadoc): http://hcmlab.github.io/ssj/api
