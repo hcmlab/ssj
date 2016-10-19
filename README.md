@@ -3,7 +3,7 @@
 
 SSJ is an extensible android framework for social signal processing in an out of lab envirnoment. It packages common signal processing tools in a flexible, mobile friendly Java library which can be easily integrated into Android Apps.
 
-<img align="right" src="/assets/screen_ssj_vsmall.png"/>
+<img align="right" src="/assets/screen_ssj_small.png"/>
 ### Features
 * Realtime signal processing using independent components as processing steps in a pipeline
 * Synchronized data streams
