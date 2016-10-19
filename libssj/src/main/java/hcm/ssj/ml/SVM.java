@@ -338,7 +338,7 @@ public class SVM extends Model
             if (max[j]-min[j] != 0)
                 temp=SVM_SCALE_LOWER+(SVM_SCALE_UPPER-SVM_SCALE_LOWER)*(temp-min[j])/(max[j]-min[j]);
             else
-                temp=SVM_SCALE_LOWER+(SVM_SCALE_UPPER-SVM_SCALE_LOWER)*(temp-min[j])/-Float.MAX_VALUE;
+                temp=SVM_SCALE_LOWER+(SVM_SCALE_UPPER-SVM_SCALE_LOWER)*(temp-min[j])/Float.MIN_VALUE;
             if (temp != 0) {
                 instance[n_idx].index=j+1;
                 instance[n_idx++].value=temp;
