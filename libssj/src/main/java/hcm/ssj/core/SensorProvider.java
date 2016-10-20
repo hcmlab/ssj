@@ -148,21 +148,27 @@ public abstract class SensorProvider extends Provider {
     /**
      * general sensor initialization
      */
-    public void setup()
-    {
-        // figure out properties of output signal
-        int bytes_out = getSampleBytes();
-        int dim_out = getSampleDimension();
-        double sr_out = getSampleRate();
-        Cons.Type type_out = getSampleType();
-        int num_out = getSampleNumber();
+    public void setup() throws SSJException {
+        try
+        {
+            // figure out properties of output signal
+            int bytes_out = getSampleBytes();
+            int dim_out = getSampleDimension();
+            double sr_out = getSampleRate();
+            Cons.Type type_out = getSampleType();
+            int num_out = getSampleNumber();
 
-        _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
+            _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
 
-        defineOutputClasses(_stream_out);
+            defineOutputClasses(_stream_out);
 
-        // configure update rate
-        _timer = new Timer((double)num_out / sr_out);
+            // configure update rate
+            _timer = new Timer((double)num_out / sr_out);
+        }
+        catch(Exception e)
+        {
+            throw new SSJException("error configuring component", e);
+        }
 
         Log.i("Sensor Provider " + _name + " (output)" + '\n' +
                 "\tbytes=" +_stream_out.bytes+ '\n' +

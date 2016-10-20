@@ -26,8 +26,6 @@
 
 package hcm.ssj.core;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -205,8 +203,7 @@ public class TheFramework
      * @param s the sensor which owns the provider
      * @param p the provider to be added to the framework
      */
-    void addSensorProvider(Sensor s, SensorProvider p)
-    {
+    void addSensorProvider(Sensor s, SensorProvider p) throws SSJException {
         p.setSensor(s);
         p.init();
 
@@ -225,13 +222,13 @@ public class TheFramework
         _components.add(p);
     }
 
-    public Provider addTransformer(Transformer t, Provider source, double frame, double delta) throws IOException, XmlPullParserException
+    public Provider addTransformer(Transformer t, Provider source, double frame, double delta) throws SSJException
     {
         Provider[] sources = {source};
         return addTransformer(t, sources, frame, delta);
     }
 
-    public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws IOException, XmlPullParserException
+    public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws SSJException
     {
         t.setup(sources, frame, delta);
 
@@ -250,26 +247,22 @@ public class TheFramework
         return t;
     }
 
-    public void addConsumer(Consumer c, Provider source, double frame, double delta)
-    {
+    public void addConsumer(Consumer c, Provider source, double frame, double delta) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, frame, delta);
     }
 
-    public void addConsumer(Consumer c, Provider[] sources, double frame, double delta)
-    {
+    public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException {
         c.setup(sources, frame, delta);
         _components.add(c);
     }
 
-    public void addConsumer(EventConsumer c, Provider source, EventChannel channel)
-    {
+    public void addConsumer(EventConsumer c, Provider source, EventChannel channel) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, channel);
     }
 
-    public void addConsumer(EventConsumer c, Provider[] sources, EventChannel channel)
-    {
+    public void addConsumer(EventConsumer c, Provider[] sources, EventChannel channel) throws SSJException {
         c.setup(sources);
         c.addEventChannelIn(channel);
         _components.add(c);

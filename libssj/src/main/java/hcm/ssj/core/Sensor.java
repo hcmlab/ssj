@@ -42,8 +42,7 @@ public abstract class Sensor extends Component {
         _frame = TheFramework.getFramework();
     }
 
-    public SensorProvider addProvider(SensorProvider p)
-    {
+    public SensorProvider addProvider(SensorProvider p) throws SSJException {
         _frame.addSensorProvider(this, p);
         _provider.add(p);
         return p;

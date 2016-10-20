@@ -144,8 +144,7 @@ public abstract class EventConsumer extends Component {
     /**
      * general transformer initialization
      */
-    public void setup(Provider[] sources)
-    {
+    public void setup(Provider[] sources) throws SSJException {
         try {
             _bufferID_in = new int[sources.length];
             _stream_in = new Stream[sources.length];
@@ -158,7 +157,7 @@ public abstract class EventConsumer extends Component {
             }
 
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "error configuring component", e);
+            throw new SSJException("error configuring component", e);
         }
 
         _isSetup = true;

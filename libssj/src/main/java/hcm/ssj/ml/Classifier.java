@@ -37,6 +37,7 @@ import java.io.IOException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -91,9 +92,13 @@ public class Classifier extends Transformer
      * @param delta   double
      */
     @Override
-    public void init(double frame, double delta) throws IOException, XmlPullParserException
+    public void init(double frame, double delta) throws SSJException
     {
-        load(getFile(options.trainerPath.get(), options.trainerFile.get()));
+        try {
+            load(getFile(options.trainerPath.get(), options.trainerFile.get()));
+        } catch (XmlPullParserException | IOException e) {
+            throw new SSJException(e);
+        }
     }
 
     /**
