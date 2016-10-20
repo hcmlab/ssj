@@ -73,16 +73,16 @@ public class Option<T>
     /**
      * @return T
      */
-    public String parseWildcards()
+    public T parseWildcards()
     {
         if(type == String.class && value != null)
         {
             String str = (String)value;
-            if (str.contains("%ts")) {
-                return str.replace("%ts", Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
+            if (str.contains("[time]")) {
+                return (T)str.replace("[time]", Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()));
             }
         }
-        return null;
+        return value;
     }
 
     /**

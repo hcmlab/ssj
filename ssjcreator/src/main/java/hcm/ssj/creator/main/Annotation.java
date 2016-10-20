@@ -146,7 +146,7 @@ class Annotation implements ITab
         editTextPathAnno = new EditText(context);
         editTextPathAnno.setInputType(InputType.TYPE_CLASS_TEXT);
         editTextPathAnno.setText((Environment.getExternalStorageDirectory().getAbsolutePath()
-                + "/" + Util.DIR_1), TextView.BufferType.NORMAL);
+                + File.separator + Util.DIR_1 + File.separator + "[time]"), TextView.BufferType.NORMAL);
         linearLayout.addView(editTextPathAnno);
 
         //annotations
@@ -316,8 +316,8 @@ class Annotation implements ITab
         {
             String path = editTextPathAnno.getText().toString();
             //parse wildcards
-            if (path.contains("%ts")) {
-                path = path.replace("%ts", hcm.ssj.core.Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
+            if (path.contains("[time]")) {
+                path = path.replace("[time]", hcm.ssj.core.Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
             }
 
             File parent = new File(path);

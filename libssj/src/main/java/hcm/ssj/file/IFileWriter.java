@@ -26,6 +26,8 @@
 
 package hcm.ssj.file;
 
+import java.io.File;
+
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -40,7 +42,7 @@ public interface IFileWriter
      */
     class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "file path");
         public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
 
         /**
