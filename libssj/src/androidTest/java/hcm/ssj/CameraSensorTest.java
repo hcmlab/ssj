@@ -83,7 +83,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
     /**
      *
      */
-    private void buildPipe(Type type)
+    private void buildPipe(Type type) throws Exception
     {
         //small values because of memory usage
         int frameRate = 10;
