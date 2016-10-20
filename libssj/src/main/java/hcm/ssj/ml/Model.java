@@ -32,7 +32,8 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Created by damia on 10.10.2016.
+ * Generic model for machine learning
+ * Created by Ionut Damian on 10.10.2016.
  */
 public abstract class Model {
 

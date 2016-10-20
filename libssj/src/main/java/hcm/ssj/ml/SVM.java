@@ -44,8 +44,8 @@ import libsvm.svm_node;
 import libsvm.svm_problem;
 
 /**
- * Evaluates live data depending on the naive bayes classifier files of SSI.<br>
- * Created by Frank Gaibler on 22.09.2015.
+ * Implements an SVM model using the libsvm library<br>
+ * Created by Ionut Damian
  */
 public class SVM extends Model
 {
