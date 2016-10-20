@@ -37,7 +37,6 @@ import java.io.IOException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Provider;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -88,76 +87,62 @@ public class Classifier extends Transformer
     }
 
     /**
-     * @param sources Provider[]
      * @param frame   double
      * @param delta   double
      */
     @Override
-    public void setup(Provider[] sources, double frame, double delta)
+    public void init(double frame, double delta) throws IOException, XmlPullParserException
     {
-        if (sources.length > 1 && !options.merge.get())
-        {
-            Log.e("sources count not supported");
-        }
         load(getFile(options.trainerPath.get(), options.trainerFile.get()));
-        super.setup(sources, frame, delta);
     }
 
     /**
      * Load data from option file
      */
-    public void load(File file)
+    public void load(File file) throws XmlPullParserException, IOException
     {
-        try
+        XmlPullParser parser = Xml.newPullParser();
+        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+        parser.setInput(new FileReader(file));
+
+        parser.next();
+        if (parser.getEventType() != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("trainer"))
         {
-            XmlPullParser parser = Xml.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(new FileReader(file));
-
-            parser.next();
-            if (parser.getEventType() != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("trainer"))
-            {
-                Log.w("unknown or malformed trainer file");
-                return;
-            }
-
-            while (parser.next() != XmlPullParser.END_DOCUMENT) {
-
-                //SELECT
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
-
-                    parser.nextTag(); //item
-                    if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
-                        int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
-                        if (stream_id != 0)
-                            Log.w("multiple input streams not supported");
-                        String[] select = parser.getAttributeValue(null, "select").split(" ");
-                        int[] dims = new int[select.length];
-                        for (int i = 0; i < select.length; i++) {
-                            dims[i] = Integer.valueOf(select[i]);
-                        }
-
-                        _selector = new Selector();
-                        _selector.options.values.set(dims);
-                    }
-                }
-
-                //MODEL
-                else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
-                {
-                    _model = Model.create(parser.getAttributeValue(null, "create"));
-                    _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
-                    _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
-                }
-                if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
-                    break;
-            }
-        }
-        catch (XmlPullParserException | IOException e)
-        {
-            Log.e("error parsing", e);
+            Log.w("unknown or malformed trainer file");
             return;
+        }
+
+        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+
+            //SELECT
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
+
+                parser.nextTag(); //item
+                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
+
+                    int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
+                    if (stream_id != 0)
+                        Log.w("multiple input streams not supported");
+                    String[] select = parser.getAttributeValue(null, "select").split(" ");
+                    int[] dims = new int[select.length];
+                    for (int i = 0; i < select.length; i++) {
+                        dims[i] = Integer.valueOf(select[i]);
+                    }
+
+                    _selector = new Selector();
+                    _selector.options.values.set(dims);
+                }
+            }
+
+            //MODEL
+            else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
+            {
+                _model = Model.create(parser.getAttributeValue(null, "create"));
+                _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
+                _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
+            }
+            if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
+                break;
         }
     }
 
@@ -168,6 +153,11 @@ public class Classifier extends Transformer
     @Override
     public void enter(Stream[] stream_in, Stream stream_out)
     {
+        if (stream_in.length > 1 && !options.merge.get())
+        {
+            Log.e("sources count not supported");
+        }
+
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
             Log.e("stream type not supported");

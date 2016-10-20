@@ -26,6 +26,8 @@
 
 package hcm.ssj.file;
 
+import android.text.TextUtils;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,6 +42,8 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
+
+import static hcm.ssj.file.LoggingConstants.FILE_EXTENSION;
 
 /**
  * File writer for SSJ.<br>
@@ -99,7 +103,8 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
             options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
-        File fileDirectory = new File(options.filePath.get());
+
+        File fileDirectory = new File(options.filePath.parseWildcards());
         if (!fileDirectory.exists())
         {
             if (!fileDirectory.mkdirs())
@@ -110,7 +115,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
         }
         if (options.fileName.get() == null)
         {
-            String defaultName = this.getClass().getSimpleName();
+            String defaultName = TextUtils.join("_", stream_in[0].dataclass) + "." + FILE_EXTENSION;
             Log.w("file name not set, setting to " + defaultName);
             options.fileName.set(defaultName);
         }
@@ -135,8 +140,8 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
             fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
         } else
         {
-            fileHeader = new File(path + "." + LoggingConstants.FILE_EXTENSION);
-            fileReal = new File(path + "." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE);
+            fileHeader = new File(path + "." + FILE_EXTENSION);
+            fileReal = new File(path + "." + FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE);
         }
         fileOutputStreamHeader = getFileConnection(fileHeader, fileOutputStreamHeader);
         simpleHeader = new SimpleHeader();

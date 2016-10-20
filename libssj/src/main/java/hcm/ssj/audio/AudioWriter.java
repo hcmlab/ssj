@@ -147,7 +147,7 @@ public class AudioWriter extends Mp4Writer
                 return;
             }
         }
-        initFiles(options);
+        initFiles(stream_in[0], options);
         Log.d("Format: " + dataFormat.toString());
         iSampleRate = (int) stream_in[0].sr;
         iSampleDimension = stream_in[0].dim;

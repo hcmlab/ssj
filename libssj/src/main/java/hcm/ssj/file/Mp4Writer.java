@@ -30,6 +30,7 @@ import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.os.Build;
+import android.text.TextUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,7 +66,6 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
     private ByteBuffer[] aByteBufferInput = null;
     //
     protected File file = null;
-    protected final String defaultName = this.getClass().getSimpleName() + ".mp4";
 
     /**
      * @param inputBuf  ByteBuffer
@@ -89,14 +89,14 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
      *
      * @param options Options
      */
-    protected final void initFiles(Options options)
+    protected final void initFiles(Stream in, Options options)
     {
         if (options.filePath.get() == null)
         {
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
             options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
-        File fileDirectory = new File(options.filePath.get());
+        File fileDirectory = new File(options.filePath.parseWildcards());
         if (!fileDirectory.exists())
         {
             if (!fileDirectory.mkdirs())
@@ -107,6 +107,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
         }
         if (options.fileName.get() == null)
         {
+            String defaultName = TextUtils.join("_", in.dataclass) + ".mp4";
             Log.w("file name not set, setting to " + defaultName);
             options.fileName.set(defaultName);
         }

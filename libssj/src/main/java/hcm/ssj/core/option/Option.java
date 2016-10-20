@@ -39,7 +39,6 @@ public class Option<T>
     private T value;
     private final Class<T> type;
     private final String help;
-    private boolean wildcards = false;
 
     /**
      * @param name  String
@@ -68,10 +67,22 @@ public class Option<T>
      */
     public final T get()
     {
-        if(wildcards && type == String.class && value != null)
-            return (T)parseWildcards((String)value);
-
         return value;
+    }
+
+    /**
+     * @return T
+     */
+    public String parseWildcards()
+    {
+        if(type == String.class && value != null)
+        {
+            String str = (String)value;
+            if (str.contains("%ts")) {
+                return str.replace("%ts", Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
+            }
+        }
+        return null;
     }
 
     /**
@@ -314,19 +325,5 @@ public class Option<T>
                 || type == Float.class
                 || type == Double.class
                 || type == String.class);
-    }
-
-    public void enableWildcards(boolean enabled)
-    {
-        wildcards = enabled;
-    }
-
-    private String parseWildcards(String value)
-    {
-        if (value.contains("%ts")) {
-            value = value.replace("%ts", Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()) );
-        }
-
-        return value;
     }
 }

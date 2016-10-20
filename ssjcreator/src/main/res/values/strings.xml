@@ -59,6 +59,7 @@
     <string name="str_defaultAnno">class%d</string>
     <!--toasts-->
     <string name="err_invalidOption">Invalid option value</string>
+    <string name="err_buildPipe">Error building pipeline</string>
     <!--tutorial-->
     <string name="slide1_title">Welcome</string>
     <string name="slide1_text">SSJ Creator allows you to perform signal processing activities by creating, editing and executing SSJ pipelines</string>

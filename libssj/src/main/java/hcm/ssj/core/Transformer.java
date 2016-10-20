@@ -29,6 +29,9 @@ package hcm.ssj.core;
 import android.content.Context;
 import android.os.PowerManager;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Arrays;
 
 import hcm.ssj.core.stream.Stream;
@@ -131,7 +134,7 @@ public abstract class Transformer extends Provider {
     /**
      * early initialization specific to implementation (called by framework on instantiation)
      */
-    public void init(double frame, double delta) {}
+    public void init(double frame, double delta) throws IOException, XmlPullParserException {}
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
@@ -151,54 +154,49 @@ public abstract class Transformer extends Provider {
     /**
      * general transformer initialization
      */
-    public void setup(Provider[] sources, double frame, double delta)
+    public void setup(Provider[] sources, double frame, double delta) throws IOException, XmlPullParserException, IllegalArgumentException
     {
-        try {
-            _bufferID_in = new int[sources.length];
-            _stream_in = new Stream[sources.length];
-            _readPos = new int[sources.length];
-            _num_frame = new int[sources.length];
-            _num_delta = new int[sources.length];
+        _bufferID_in = new int[sources.length];
+        _stream_in = new Stream[sources.length];
+        _readPos = new int[sources.length];
+        _num_frame = new int[sources.length];
+        _num_delta = new int[sources.length];
 
-            //compute window sizes
-            for(int i = 0; i < sources.length; i++) {
-                _num_frame[i] = (int)(frame * sources[i].getOutputStream().sr + 0.5);
-                _num_delta[i] = (int)(delta * sources[i].getOutputStream().sr + 0.5);
-            }
-            frame = (double)_num_frame[0] / sources[0].getOutputStream().sr;
-            delta = (double)_num_delta[0] / sources[0].getOutputStream().sr;
-
-            if(frame == 0)
-                throw new IllegalArgumentException("frame size too small");
-
-            //give implementation a chance to react to window size
-            init(frame, delta);
-
-            //allocate local input buffer
-            for(int i = 0; i < sources.length; i++) {
-                _bufferID_in[i] = sources[i].getBufferID();
-                _stream_in[i] = Stream.create(sources[i], _num_frame[i] + _num_delta[i]);
-            }
-
-            // figure out properties of output signal based on first input stream
-            int bytes_out = getSampleBytes(_stream_in);
-            int dim_out = getSampleDimension(_stream_in);
-            Cons.Type type_out = getSampleType(_stream_in);
-
-            int num_out = getSampleNumber(_num_frame[0]);
-            double sr_out = (double)num_out / frame;
-
-            _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
-
-            defineOutputClasses(_stream_in, _stream_out);
-
-            // configure update rate
-            _timer = new Timer(frame);
-            _timer.setStartOffset(delta);
-
-        } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "error configuring component", e);
+        //compute window sizes
+        for(int i = 0; i < sources.length; i++) {
+            _num_frame[i] = (int)(frame * sources[i].getOutputStream().sr + 0.5);
+            _num_delta[i] = (int)(delta * sources[i].getOutputStream().sr + 0.5);
         }
+        frame = (double)_num_frame[0] / sources[0].getOutputStream().sr;
+        delta = (double)_num_delta[0] / sources[0].getOutputStream().sr;
+
+        if(frame == 0)
+            throw new IllegalArgumentException("frame size too small");
+
+        //give implementation a chance to react to window size
+        init(frame, delta);
+
+        //allocate local input buffer
+        for(int i = 0; i < sources.length; i++) {
+            _bufferID_in[i] = sources[i].getBufferID();
+            _stream_in[i] = Stream.create(sources[i], _num_frame[i] + _num_delta[i]);
+        }
+
+        // figure out properties of output signal based on first input stream
+        int bytes_out = getSampleBytes(_stream_in);
+        int dim_out = getSampleDimension(_stream_in);
+        Cons.Type type_out = getSampleType(_stream_in);
+
+        int num_out = getSampleNumber(_num_frame[0]);
+        double sr_out = (double)num_out / frame;
+
+        _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
+
+        defineOutputClasses(_stream_in, _stream_out);
+
+        // configure update rate
+        _timer = new Timer(frame);
+        _timer.setStartOffset(delta);
 
         Log.i("Transformer " + _name + " (output)" + '\n' +
                 "\tbytes=" +_stream_out.bytes+ '\n' +

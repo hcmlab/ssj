@@ -26,6 +26,9 @@
 
 package hcm.ssj.creator.core;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -176,8 +179,7 @@ public class Linker
     /**
      *
      */
-    public void buildPipe()
-    {
+    public void buildPipe() throws IOException, XmlPullParserException {
         TheFramework framework = TheFramework.getFramework();
         //add to framework
         //sensors and sensorProviders

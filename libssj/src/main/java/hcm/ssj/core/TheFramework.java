@@ -26,6 +26,8 @@
 
 package hcm.ssj.core;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -223,13 +225,13 @@ public class TheFramework
         _components.add(p);
     }
 
-    public Provider addTransformer(Transformer t, Provider source, double frame, double delta)
+    public Provider addTransformer(Transformer t, Provider source, double frame, double delta) throws IOException, XmlPullParserException
     {
         Provider[] sources = {source};
         return addTransformer(t, sources, frame, delta);
     }
 
-    public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta)
+    public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws IOException, XmlPullParserException
     {
         t.setup(sources, frame, delta);
 

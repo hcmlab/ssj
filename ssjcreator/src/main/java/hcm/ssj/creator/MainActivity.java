@@ -44,6 +44,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -172,7 +173,19 @@ public class MainActivity extends AppCompatActivity
                     //remove old content
                     framework.reset();
                     //add components
-                    Linker.getInstance().buildPipe();
+                    try {
+                        Linker.getInstance().buildPipe();
+                    } catch (Exception e) {
+                        Log.e(getString(R.string.err_buildPipe), e);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getApplicationContext(), R.string.err_buildPipe, Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        ready = true;
+                        return;
+                    }
                     //change button text
                     changeImageButton(android.R.drawable.ic_media_pause);
                     //notify tabs

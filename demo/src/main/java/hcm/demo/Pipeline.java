@@ -67,38 +67,45 @@ public class Pipeline extends Thread {
 
     public void run()
     {
-        _ssj.options.bufferSize.set(10.0f);
-        _ssj.options.countdown.set(10);
-        _ssj.options.logfile.set(Environment.getExternalStorageDirectory() + "/ssjlog.txt");
+        try {
+            _ssj.options.bufferSize.set(10.0f);
+            _ssj.options.countdown.set(10);
+            _ssj.options.logfile.set(Environment.getExternalStorageDirectory() + "/ssjlog.txt");
 
-        //** connection to sensors
-        Microphone mic = new Microphone();
-        _ssj.addSensor(mic);
-        AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(true);
-        mic.addProvider(audio);
+            //** connection to sensors
+            Microphone mic = new Microphone();
+            _ssj.addSensor(mic);
+            AudioProvider audio = new AudioProvider();
+            audio.options.sampleRate.set(16000);
+            audio.options.scale.set(true);
+            mic.addProvider(audio);
 
-        //** transform data coming from sensors
-        Pitch pitch = new Pitch();
-        pitch.options.detector.set(Pitch.YIN);
-        pitch.options.computePitchedState.set(false);
-        pitch.options.computePitch.set(true);
-        pitch.options.computeVoicedProb.set(false);
-        pitch.options.computePitchEnvelope.set(false);
-        _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
+            //** transform data coming from sensors
+            Pitch pitch = new Pitch();
+            pitch.options.detector.set(Pitch.YIN);
+            pitch.options.computePitchedState.set(false);
+            pitch.options.computePitch.set(true);
+            pitch.options.computeVoicedProb.set(false);
+            pitch.options.computePitchEnvelope.set(false);
+            _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
 
-        //** configure GUI
-        //paint audio
-        SignalPainter paint = new SignalPainter();
-        paint.options.manualBounds.set(true);
-        paint.options.min.set(0.);
-        paint.options.max.set(1.);
-        paint.options.renderMax.set(true);
-        paint.options.secondScaleMin.set(0.);
-        paint.options.secondScaleMax.set(500.);
-        paint.options.graphView.set(_graphs[0]);
-        _ssj.addConsumer(paint, new Provider[]{audio,pitch}, 0.032, 0);
+            //** configure GUI
+            //paint audio
+            SignalPainter paint = new SignalPainter();
+            paint.options.manualBounds.set(true);
+            paint.options.min.set(0.);
+            paint.options.max.set(1.);
+            paint.options.renderMax.set(true);
+            paint.options.secondScaleMin.set(0.);
+            paint.options.secondScaleMax.set(500.);
+            paint.options.graphView.set(_graphs[0]);
+            _ssj.addConsumer(paint, new Provider[]{audio, pitch}, 0.032, 0);
+        }
+        catch(Exception e)
+        {
+            Log.e("SSJ_Demo", "error building pipe", e);
+            return;
+        }
 
         Log.i("SSJ_Demo", "starting pipeline");
         _ssj.Start();

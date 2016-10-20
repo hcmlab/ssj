@@ -71,11 +71,12 @@ public class SVM extends Model
     private double[] min = null;
     private svm_model model;
     private svm_node[] nodes;
-    double[] prob_estimates;
-    float[] probs;
+    private svm_node[] usInstance;
+    private double[] prob_estimates;
+    private float[] probs;
 
-    private final int SVM_SCALE_UPPER = 1;
-    private final int SVM_SCALE_LOWER = -1;
+    private static final int SVM_SCALE_UPPER = 1;
+    private static final int SVM_SCALE_LOWER = -1;
 
     /**
      *
@@ -90,6 +91,10 @@ public class SVM extends Model
         nodes = new svm_node[n_features+1];
         for(int i = 0; i < nodes.length; i++)
             nodes[i] = new svm_node();
+
+        usInstance = new svm_node[n_features+1];
+        for(int i = 0; i < usInstance.length; i++)
+            usInstance[i] = new svm_node();
 
         prob_estimates = new double[n_classes];
         probs = new float[n_classes];
@@ -319,9 +324,6 @@ public class SVM extends Model
 
         int j=0, idx=0, n_idx=0;
         double temp;
-        svm_node[] usInstance = new svm_node[n_features+1];
-        for(int i = 0; i < usInstance.length; i++)
-            usInstance[i] = new svm_node();
 
         while (instance[j].index != -1) {
             usInstance[j].index=instance[j].index;

@@ -116,7 +116,7 @@ public class CameraWriter extends Mp4Writer
             return;
         }
         dFrameRate = stream_in[0].sr;
-        initFiles(options);
+        initFiles(stream_in[0], options);
         prepareEncoder(options.width.get(), options.height.get(), options.bitRate.get());
         bufferInfo = new MediaCodec.BufferInfo();
         int reqBuffSize = options.width.get() * options.height.get();

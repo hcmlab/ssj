@@ -152,37 +152,32 @@ public abstract class Consumer extends Component {
      */
     public void setup(Provider[] sources, double frame, double delta)
     {
-        try {
-            _bufferID_in = new int[sources.length];
-            _readPos = new int[sources.length];
-            _stream_in = new Stream[sources.length];
-            _num_frame = new int[sources.length];
-            _num_delta = new int[sources.length];
+        _bufferID_in = new int[sources.length];
+        _readPos = new int[sources.length];
+        _stream_in = new Stream[sources.length];
+        _num_frame = new int[sources.length];
+        _num_delta = new int[sources.length];
 
-            //compute window sizes
-            for(int i = 0; i < sources.length; i++) {
-                _num_frame[i] = (int)(frame * sources[i].getOutputStream().sr + 0.5);
-                _num_delta[i] = (int)(delta * sources[i].getOutputStream().sr + 0.5);
-            }
-            frame = (double)_num_frame[0] / sources[0].getOutputStream().sr;
-            delta = (double)_num_delta[0] / sources[0].getOutputStream().sr;
-
-            //allocate local input buffer
-            for(int i = 0; i < sources.length; i++) {
-                _bufferID_in[i] = sources[i].getBufferID();
-                _stream_in[i] = Stream.create(sources[i], _num_frame[i] + _num_delta[i]);
-            }
-
-            //give implementation a chance to react to window size
-            init(_stream_in);
-
-            // configure update rate
-            _timer = new Timer(frame);
-            _timer.setStartOffset(delta);
-
-        } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "error configuring component", e);
+        //compute window sizes
+        for(int i = 0; i < sources.length; i++) {
+            _num_frame[i] = (int)(frame * sources[i].getOutputStream().sr + 0.5);
+            _num_delta[i] = (int)(delta * sources[i].getOutputStream().sr + 0.5);
         }
+        frame = (double)_num_frame[0] / sources[0].getOutputStream().sr;
+        delta = (double)_num_delta[0] / sources[0].getOutputStream().sr;
+
+        //allocate local input buffer
+        for(int i = 0; i < sources.length; i++) {
+            _bufferID_in[i] = sources[i].getBufferID();
+            _stream_in[i] = Stream.create(sources[i], _num_frame[i] + _num_delta[i]);
+        }
+
+        //give implementation a chance to react to window size
+        init(_stream_in);
+
+        // configure update rate
+        _timer = new Timer(frame);
+        _timer.setStartOffset(delta);
 
         _isSetup = true;
     }
