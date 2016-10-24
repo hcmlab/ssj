@@ -69,14 +69,36 @@ public class AccelerationFeatures extends Transformer
 	}
 	public final Options options = new Options();
 
+	FFT fft;
+	float[] inputCopy;
+	float[] joined;
+
+	float[] xValues;
+	float[] yValues;
+	float[] zValues;
+
+	@Override
+	public void enter(Stream[] stream_in, Stream stream_out)
+	{
+		int values = stream_in[0].num;
+
+		fft = new FFT(values);
+		inputCopy = new float[values];
+		joined = new float[(values >> 1) + 1];
+
+		xValues = new float[values];
+		yValues = new float[values];
+		zValues = new float[values];
+	}
+
 	@Override
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
 		MathTools math = MathTools.getInstance();
 
-		float[] xValues = getValues(stream_in[0], 0);
-		float[] yValues = getValues(stream_in[0], 1);
-		float[] zValues = getValues(stream_in[0], 2);
+		getValues(stream_in[0], 0, xValues);
+		getValues(stream_in[0], 1, yValues);
+		getValues(stream_in[0], 2, zValues);
 
 		float[] out = stream_out.ptrF();
 
@@ -151,14 +173,13 @@ public class AccelerationFeatures extends Transformer
 	* Bao, Ling et al. - Activity Recognition from User-Annotated Acceleration Data
 	* Ravi, N. et al. - Activity recognition from accelerometer data
 	*/
-	public float getEnergy(float[] values)
+	private float getEnergy(float[] values)
 	{
 		float energy = 0;
-		float[] inputCopy = new float[values.length];
 		System.arraycopy(values, 0, inputCopy, 0, values.length);
 
 		// Calculate FFT
-		FFT fft = new FFT(values.length);
+		// FFT fft = new FFT(values.length);
 		fft.forwardTransform(inputCopy);
 
 		// Format values like in SSI
@@ -182,7 +203,7 @@ public class AccelerationFeatures extends Transformer
 	* Bao, Ling et al. - Activity Recognition from User-Annotated Acceleration Data
 	* Ravi, N. et al. - Activity recognition from accelerometer data
 	*/
-	public float getCorrelation(float[] aValues, float[] bValues)
+	private float getCorrelation(float[] aValues, float[] bValues)
 	{
 		MathTools math = MathTools.getInstance();
 
@@ -215,7 +236,7 @@ public class AccelerationFeatures extends Transformer
 	/*
 	 * Displacement for acceleration value in meter
 	 */
-	public float getDisplacement(float[] values, double sampleRate)
+	private float getDisplacement(float[] values, double sampleRate)
 	{
 		float displacement = 0;
 		float a = 0;
@@ -245,19 +266,15 @@ public class AccelerationFeatures extends Transformer
 
 	/**
 	 * Helper function to format fft values similar to SSI
-	 * @param fft
-	 * @return
 	 */
-	public float[] joinFFT(float[] fft)
+	private float[] joinFFT(float[] fft)
 	{
-		float[] joined = new float[(fft.length >> 1) + 1];
-
 		for (int i = 0; i < fft.length; i = i + 2)
 		{
 			if (i == 0)
 			{
-				joined[i] = fft[i];
-				joined[i + 1] = fft[i + 1];
+				joined[0] = fft[0];
+				joined[1] = fft[1];
 			}
 			else
 			{
@@ -270,22 +287,15 @@ public class AccelerationFeatures extends Transformer
 
 	/**
 	 * Helper function to get all values from a specific dimension
-	 *
-	 * @param stream
-	 * @param dimension selected dimension
-	 * @return
 	 */
-	public float[] getValues(Stream stream, int dimension)
+	private void getValues(Stream stream, int dimension, float[] out)
 	{
 		float[] in = stream.ptrF();
-		float[] out = new float[stream.num];
 
 		for (int i = 0; i < stream.num; i++)
 		{
 			out[i] = in[i * stream.dim + dimension];
 		}
-
-		return out;
 	}
 
 	@Override

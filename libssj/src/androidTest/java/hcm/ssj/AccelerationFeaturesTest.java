@@ -140,17 +140,21 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 
 		// Transformer
 		AccelerationFeatures features = new AccelerationFeatures();
-		frame.addTransformer(features, sensorProvider, 3.2, 3.2);
+		frame.addTransformer(features, sensorProvider, 1, 3);
 
 		// SVM
-		Classifier classifier = new Classifier();
-		classifier.options.trainerPath.set("/sdcard/SSJ/Model/");
-		classifier.options.trainerFile.set("my_model.trainer");
-		frame.addTransformer(classifier, features, 3.2, 0);
+		//Classifier classifier = new Classifier();
+		//classifier.options.trainerPath.set("/sdcard/SSJ/Model/");
+		//classifier.options.trainerFile.set("my_model.trainer");
+		//frame.addTransformer(classifier, features, 1, 0);
 
 		// Logger
-		Logger log = new Logger();
-		frame.addConsumer(log, classifier, 3.2, 0);
+		//Logger log = new Logger();
+		//frame.addConsumer(log, classifier, 1, 0);
+
+		SimpleFileWriter consumer = new SimpleFileWriter();
+		consumer.options.fileName.set("features");
+		frame.addConsumer(consumer, features, 1, 0);
 
 		// Start framework
 		frame.Start();
