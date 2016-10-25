@@ -101,10 +101,6 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
                 Log.i("waiting for clients...");
                 _socket = _server.accept();
 
-                try {
-                    Thread.sleep(Cons.WAIT_BL_CONNECT); //give BL adapter some time to establish connection ...
-                } catch (InterruptedException e) {}
-
                 if(_useObjectStreams)
                 {
                     _out = new ObjectOutputStream(_socket.getOutputStream());
@@ -121,10 +117,14 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
                 Log.w("failed to connect to client", e);
             }
 
+            try {
+                Thread.sleep(Cons.WAIT_BL_CONNECT); //give BL adapter some time to establish connection ...
+            } catch (InterruptedException e) {}
+
             if(_socket.isConnected())
             {
                 Log.i("connected to client " + _socket.getRemoteDevice().getName());
-                setConnectionStatus(true);
+                setConnectionStatus(true, _socket.getRemoteDevice());
 
                 //wait as long as there is an active connection
                 waitForDisconnection();

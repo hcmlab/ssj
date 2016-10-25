@@ -89,20 +89,19 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         final BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
         String action = intent.getAction();
 
-        if (BluetoothDevice.ACTION_ACL_CONNECTED.equalsIgnoreCase( action ) )   {
-            if (!device.equals(_connectedDevice))
-            {
-                Log.v("received ACTION_ACL_CONNECTED with " + device.getName() );
-                _connectedDevice = device;
-            }
-        }
+//        if (BluetoothDevice.ACTION_ACL_CONNECTED.equalsIgnoreCase( action ) )   {
+//            if (!device.equals(_connectedDevice))
+//            {
+//                Log.v("received ACTION_ACL_CONNECTED with " + device.getName() );
+//                _connectedDevice = device;
+//            }
+//        }
 
         if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equalsIgnoreCase(action ) )    {
             if (device.equals(_connectedDevice))
             {
                 Log.w("disconnected from " + device.getName() );
-                _connectedDevice = null;
-                setConnectionStatus(false);
+                setConnectionStatus(false, _connectedDevice);
             }
         }
     }
@@ -139,24 +138,35 @@ public abstract class BluetoothConnection extends BroadcastReceiver
 
     public boolean isConnected()
     {
-        return _connectedDevice != null && _isConnected;
+        boolean value;
+        synchronized (this)
+        {
+            value = _connectedDevice != null && _isConnected;
+        }
+        return value;
     }
 
-    protected void setConnectionStatus(boolean connected)
+    protected void setConnectionStatus(boolean connected, BluetoothDevice device)
     {
         if(connected)
         {
-            _isConnected = true;
-            synchronized (_newConnection)
-            {
+            synchronized (this) {
+                _isConnected = true;
+                _connectedDevice = device;
+            }
+
+            synchronized (_newConnection) {
                 _newConnection.notifyAll();
             }
         }
         else
         {
-            _isConnected = false;
-            synchronized (_newDisconnection)
-            {
+            synchronized (this) {
+                _isConnected = false;
+                _connectedDevice = null;
+            }
+
+            synchronized (_newDisconnection){
                 _newDisconnection.notifyAll();
             }
         }
