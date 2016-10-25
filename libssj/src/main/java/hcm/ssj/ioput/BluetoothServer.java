@@ -37,6 +37,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.UUID;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 
 /**
@@ -99,6 +100,10 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
 
                 Log.i("waiting for clients...");
                 _socket = _server.accept();
+
+                try {
+                    Thread.sleep(Cons.WAIT_BL_CONNECT); //give BL adapter some time to establish connection ...
+                } catch (InterruptedException e) {}
 
                 if(_useObjectStreams)
                 {

@@ -36,6 +36,7 @@ public class Cons
     public final static float DFLT_WATCH_INTERVAL = 1.0f; //in seconds
     public final static long SLEEP_ON_IDLE = 10; //in ms
     public final static long SLEEP_ON_TERMINATE = 100; //in ms
+    public final static long WAIT_BL_CONNECT = 1000; //in ms
     public final static long WAIT_SENSOR_CONNECT = 60000; //in ms
     public final static long WAIT_SENSOR_CHECK_CONNECT = 1000; //in ms
     public final static long WAIT_THREAD_TERMINATION = 60000; //in ms
