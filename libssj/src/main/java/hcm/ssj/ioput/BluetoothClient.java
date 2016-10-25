@@ -152,7 +152,8 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
             if(_socket.isConnected())
             {
                 Log.i("connected to server");
-                setConnectionStatus(true, _socket.getRemoteDevice());
+                setConnectedDevice(_socket.getRemoteDevice());
+                setConnectionStatus(true);
 
                 //wait as long as there is an active connection
                 waitForDisconnection();

@@ -26,6 +26,7 @@
 
 package hcm.ssj.ioput;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -72,6 +73,8 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
         SSJApplication.getAppContext().registerReceiver(this, filter);
     }
 
@@ -79,29 +82,57 @@ public abstract class BluetoothConnection extends BroadcastReceiver
     abstract void disconnect() throws IOException;
     abstract BluetoothSocket getSocket();
 
-    public BluetoothDevice getConnectedDevice()
-    {
-        return _connectedDevice;
-    }
-
     public void onReceive(Context ctx, Intent intent) {
 
-        final BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
         String action = intent.getAction();
 
-//        if (BluetoothDevice.ACTION_ACL_CONNECTED.equalsIgnoreCase( action ) )   {
-//            if (!device.equals(_connectedDevice))
-//            {
-//                Log.v("received ACTION_ACL_CONNECTED with " + device.getName() );
-//                _connectedDevice = device;
-//            }
-//        }
+        if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+            BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
+            if (!device.equals(_connectedDevice))
+            {
+                Log.v("connected with " + device.getName() );
+                setConnectionStatus(true);
+            }
+        }
 
-        if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equalsIgnoreCase(action ) )    {
+        else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action))    {
+            BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
             if (device.equals(_connectedDevice))
             {
                 Log.w("disconnected from " + device.getName() );
-                setConnectionStatus(false, _connectedDevice);
+                setConnectionStatus(false);
+            }
+        }
+
+        else if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+                                                 BluetoothAdapter.ERROR);
+            switch (state) {
+                case BluetoothAdapter.STATE_OFF:
+                case BluetoothAdapter.STATE_TURNING_OFF:
+                    Log.w("bluetooth turned off" );
+                    setConnectionStatus(false);
+                    break;
+            }
+        }
+
+        else if (action.equals(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED)) {
+            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_CONNECTION_STATE,
+                                                 BluetoothAdapter.ERROR);
+            BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
+            if (device.equals(_connectedDevice)) {
+                switch (state) {
+                    case BluetoothAdapter.STATE_DISCONNECTED:
+                    case BluetoothAdapter.STATE_DISCONNECTING:
+                        Log.w("bluetooth connection lost");
+                        setConnectionStatus(false);
+                        break;
+                    case BluetoothAdapter.STATE_CONNECTED:
+                    case BluetoothAdapter.STATE_CONNECTING:
+                        Log.w("bluetooth connection lost");
+                        setConnectionStatus(true);
+                        break;
+                }
             }
         }
     }
@@ -146,13 +177,24 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         return value;
     }
 
-    protected void setConnectionStatus(boolean connected, BluetoothDevice device)
+    public BluetoothDevice getConnectedDevice()
+    {
+        return _connectedDevice;
+    }
+
+    protected void setConnectedDevice(BluetoothDevice device)
+    {
+        synchronized (this) {
+            _connectedDevice = device;
+        }
+    }
+
+    protected void setConnectionStatus(boolean connected)
     {
         if(connected)
         {
             synchronized (this) {
                 _isConnected = true;
-                _connectedDevice = device;
             }
 
             synchronized (_newConnection) {
@@ -163,7 +205,6 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         {
             synchronized (this) {
                 _isConnected = false;
-                _connectedDevice = null;
             }
 
             synchronized (_newDisconnection){
