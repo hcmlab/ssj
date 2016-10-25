@@ -85,6 +85,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
     public void onReceive(Context ctx, Intent intent) {
 
         String action = intent.getAction();
+        Log.v("new bluetooth state: " + action);
 
         if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
             BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
@@ -110,7 +111,6 @@ public abstract class BluetoothConnection extends BroadcastReceiver
             switch (state) {
                 case BluetoothAdapter.STATE_OFF:
                 case BluetoothAdapter.STATE_TURNING_OFF:
-                    Log.w("bluetooth turned off" );
                     setConnectionStatus(false);
                     break;
             }
@@ -124,12 +124,9 @@ public abstract class BluetoothConnection extends BroadcastReceiver
                 switch (state) {
                     case BluetoothAdapter.STATE_DISCONNECTED:
                     case BluetoothAdapter.STATE_DISCONNECTING:
-                        Log.w("bluetooth connection lost");
                         setConnectionStatus(false);
                         break;
                     case BluetoothAdapter.STATE_CONNECTED:
-                    case BluetoothAdapter.STATE_CONNECTING:
-                        Log.w("bluetooth connection lost");
                         setConnectionStatus(true);
                         break;
                 }
