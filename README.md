@@ -32,10 +32,11 @@ The Social Signal Processing for Java/Android (SSJ) framework is being developed
 
 SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a one-to-one port of SSI to Java, it is an approximation. Nevertheless, it borrows a lot of programming patterns from SSI and preserves the same vision for signal processing which makes SSI great. It than packages everything in a flexible, mobile friendly Java library which can be easily integrated into Android Apps.
 
-If you use SSJ for a research project, please consider referencing the following paper:
+If you use SSJ for a research project, please reference the following paper:
 <ul>
-  <li>I. Damian, C.S.S. Tan, T. Baur, J. Schöning, K. Luyten, E. André, <i>Augmenting Social Interactions: Realtime Behavioural Feedback using Social Signal Processing Techniques</i>, In Proceedings of Human Factors in Computing Systems (CHI), ACM, 2015<br/>
-  <a href="http://dl.acm.org/citation.cfm?id=2702123.2702314&coll=DL&dl=ACM">dl.acm.org</a> / <a href="http://dl.acm.org/downformats.cfm?id=2702314&parent_id=2702123&expformat=bibtex">BibTex</a></li>
+  <li>Ionut Damian, Tobias Baur, Elisabeth André, <i>Measuring the Impact of Multimodal Behavioural Feedback Loops on Social Interactions</i>, In Proceedings of International Conference on Multimodal Interaction (ICMI), ACM, 2016<br/>
+  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">paper</a> / <a href="https://informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian2/Damian-SocialSignalProcessing-2016-bib.txt">BibTex</a> 
+  </li>
 </ul>
 
 ### License
