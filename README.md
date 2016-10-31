@@ -35,7 +35,7 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 If you use SSJ for a research project, please reference the following paper:
 <ul>
   <li>Ionut Damian, Tobias Baur, Elisabeth André, <i>Measuring the Impact of Multimodal Behavioural Feedback Loops on Social Interactions</i>, In Proceedings of International Conference on Multimodal Interaction (ICMI), ACM, 2016<br/>
-  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">paper</a> / <a href="https://informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian2/Damian-SocialSignalProcessing-2016-bib.txt">BibTex</a> 
+  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">paper</a> / <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/Damian-BehaviouralFeedbackLoops-2016-bib.txt">BibTex</a> 
   </li>
 </ul>
 
