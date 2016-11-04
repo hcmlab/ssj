@@ -26,7 +26,11 @@
 
 package hcm.ssj.creator.util;
 
+import android.app.Activity;
+import android.graphics.Color;
 import android.os.Environment;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -149,5 +153,20 @@ public abstract class Util
     public static double getAnnotationTime()
     {
         return TheFramework.getFramework().getTime();
+    }
+
+    /**
+     * @param activity Activity
+     * @return View
+     */
+    protected static View addDivider(Activity activity)
+    {
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 6, 1f);
+        layoutParams.setMargins(0, 20, 0, 20);
+
+        View view = new View(activity);
+        view.setLayoutParams(layoutParams);
+        view.setBackgroundColor(Color.DKGRAY);
+        return view;
     }
 }

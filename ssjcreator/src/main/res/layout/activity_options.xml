@@ -36,11 +36,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".OptionsActivity">
 
-    <TableLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:focusableInTouchMode="true"
-        android:id="@+id/id_tableLayout">
+        android:layout_height="match_parent">
 
-    </TableLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TableLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:focusableInTouchMode="true"
+                android:id="@+id/id_tableLayout">
+
+            </TableLayout>
+        </LinearLayout>
+    </ScrollView>
+
 </RelativeLayout>

@@ -25,76 +25,96 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<TableLayout
-    android:id="@+id/id_tableLayout"
+
+<LinearLayout
+    android:id="@+id/id_linearLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
+    android:layout_width="match_parent"
     android:focusableInTouchMode="true"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".ComponentOptionsActivity"
-    android:layout_width="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:weightSum="1">
 
-    <TableRow
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="1">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/id_editText"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:ems="10"
-                android:inputType="numberDecimal"/>
+            <TableLayout
+                android:id="@+id/id_tableLayout"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent">
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.4"
-                android:text="@string/str_frameSize"
-                android:textAppearance="?android:attr/textAppearanceMedium"/>
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:weightSum="1">
+
+                            <EditText
+                                android:id="@+id/id_editText"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.6"
+                                android:ems="10"
+                                android:inputType="numberDecimal"/>
+
+                            <TextView
+                                android:id="@+id/textView"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.4"
+                                android:text="@string/str_frameSize"
+                                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+                        </LinearLayout>
+                    </TableRow>
+
+                    <TableRow
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:weightSum="1">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="horizontal"
+                            android:weightSum="1">
+
+                            <EditText
+                                android:id="@+id/id_editText2"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.6"
+                                android:ems="10"
+                                android:inputType="numberDecimal"/>
+
+                            <TextView
+                                android:id="@+id/textView2"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="0.4"
+                                android:text="@string/str_delta"
+                                android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+                        </LinearLayout>
+                    </TableRow>
+            </TableLayout>
         </LinearLayout>
-    </TableRow>
+    </ScrollView>
 
-    <TableRow
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="1">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="1">
-
-            <EditText
-                android:id="@+id/id_editText2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.6"
-                android:ems="10"
-                android:inputType="numberDecimal"/>
-
-            <TextView
-                android:id="@+id/textView2"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.4"
-                android:text="@string/str_delta"
-                android:textAppearance="?android:attr/textAppearanceMedium"/>
-
-        </LinearLayout>
-    </TableRow>
-
-</TableLayout>
+</LinearLayout>

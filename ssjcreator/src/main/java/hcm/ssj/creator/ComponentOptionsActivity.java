@@ -124,13 +124,13 @@ public class ComponentOptionsActivity extends AppCompatActivity
                     }
                 }
             });
-            //add possible providers
-            tableLayout.addView(ProviderTable.createTable(this, ListView.CHOICE_MODE_MULTIPLE, innerObject, true, true));
             //add options
             if (options != null && options.length > 0)
             {
-                tableLayout.addView(OptionTable.createTable(this, options));
+                tableLayout.addView(OptionTable.createTable(this, options, true));
             }
+            //add possible providers
+            tableLayout.addView(ProviderTable.createTable(this, innerObject, true));
         }
     }
 

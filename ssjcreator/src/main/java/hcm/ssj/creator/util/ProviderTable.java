@@ -28,12 +28,11 @@ package hcm.ssj.creator.util;
 
 import android.app.Activity;
 import android.graphics.Color;
+import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -52,14 +51,12 @@ import hcm.ssj.creator.core.Linker;
 public class ProviderTable
 {
     /**
-     * @param activity      Activity
-     * @param choiceMode    int
-     * @param mainObject    Object
-     * @param dividerTop    boolean
-     * @param dividerBottom boolean
+     * @param activity   Activity
+     * @param mainObject Object
+     * @param dividerTop boolean
      * @return TableRow
      */
-    public static TableRow createTable(Activity activity, int choiceMode, final Object mainObject, boolean dividerTop, boolean dividerBottom)
+    public static TableRow createTable(Activity activity, final Object mainObject, boolean dividerTop)
     {
         TableRow tableRow = new TableRow(activity);
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
@@ -68,96 +65,57 @@ public class ProviderTable
         if (dividerTop)
         {
             //add divider
-            linearLayout.addView(addDivider(activity));
+            linearLayout.addView(Util.addDivider(activity));
         }
         TextView textViewName = new TextView(activity);
         textViewName.setText(R.string.str_providers);
         textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
         //get possible providers
         final Object[] objects = getProvider(mainObject);
         //
-        final ListView listView = new ListView(activity);
-        listView.setChoiceMode(choiceMode);
-        int adapterResource = choiceMode == ListView.CHOICE_MODE_MULTIPLE ? android.R.layout.simple_list_item_multiple_choice : android.R.layout.simple_list_item_single_choice;
-        ArrayAdapter arrayAdapter;
         if (objects.length > 0)
         {
-            String[] ids = new String[objects.length];
-            for (int i = 0; i < ids.length; i++)
+            for (int i = 0; i < objects.length; i++)
             {
-                ids[i] = objects[i].getClass().getSimpleName();
-            }
-            arrayAdapter = new ArrayAdapter<>(activity, adapterResource, ids);
-            listView.setAdapter(arrayAdapter);
-            //preselect used already added items
-            Object[] providers = Linker.getInstance().getProviders(mainObject);
-            if (providers != null)
-            {
-                for (Object provider : providers)
+                CheckBox checkBox = new CheckBox(activity);
+                checkBox.setText(objects[i].getClass().getSimpleName());
+                checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
+                Object[] providers = Linker.getInstance().getProviders(mainObject);
+                if (providers != null)
                 {
-                    for (int i = 0; i < objects.length; i++)
+                    for (Object provider : providers)
                     {
                         if (objects[i].equals(provider))
                         {
-                            listView.setItemChecked(i, true);
+                            checkBox.setChecked(true);
                             break;
                         }
                     }
                 }
-            }
-            //ensure correct size
-            int maxCount = 3;
-            if (arrayAdapter.getCount() > maxCount)
-            {
-                View item = arrayAdapter.getView(0, null, listView);
-                item.measure(0, 0);
-                ViewGroup.LayoutParams params = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, (int) ((maxCount + 0.75f) * item.getMeasuredHeight()));
-                listView.setLayoutParams(params);
-            }
-            //handle click events
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-            {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+                final int count = i;
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
                 {
-                    if (listView.isItemChecked(position))
+                    final Object o = objects[count];
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
                     {
-                        Linker.getInstance().addProvider(mainObject, (Provider) objects[position]);
-                    } else
-                    {
-                        Linker.getInstance().removeProvider(mainObject, (Provider) objects[position]);
+                        if (isChecked)
+                        {
+                            Linker.getInstance().addProvider(mainObject, (Provider) o);
+                        } else
+                        {
+                            Linker.getInstance().removeProvider(mainObject, (Provider) o);
+                        }
                     }
-                }
-            });
-        } else
-        {
-            arrayAdapter = new ArrayAdapter<>(activity, adapterResource);
-            listView.setAdapter(arrayAdapter);
-        }
-        linearLayout.addView(listView);
-        if (dividerBottom)
-        {
-            //add divider
-            linearLayout.addView(addDivider(activity));
+                });
+                linearLayout.addView(checkBox);
+            }
         }
         tableRow.addView(linearLayout);
         return tableRow;
-    }
-
-    /**
-     * @param activity Activity
-     * @return View
-     */
-    private static View addDivider(Activity activity)
-    {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 6, 1f);
-        layoutParams.setMargins(0, 20, 0, 20);
-
-        View view = new View(activity);
-        view.setLayoutParams(layoutParams);
-        view.setBackgroundColor(Color.DKGRAY);
-        return view;
     }
 
     /**

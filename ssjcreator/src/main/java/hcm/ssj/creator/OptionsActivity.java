@@ -63,7 +63,7 @@ public class OptionsActivity extends AppCompatActivity
         //add options
         if (options != null && options.length > 0)
         {
-            tableLayout.addView(OptionTable.createTable(this, options));
+            tableLayout.addView(OptionTable.createTable(this, options, false));
         }
     }
 

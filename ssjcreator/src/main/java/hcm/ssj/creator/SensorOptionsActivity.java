@@ -61,13 +61,13 @@ public class SensorOptionsActivity extends AppCompatActivity
             //stretch columns
             TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
             tableLayout.setStretchAllColumns(true);
-            //add possible providers
-            tableLayout.addView(ProviderTable.createTable(this, ListView.CHOICE_MODE_MULTIPLE, innerObject, true, true));
             //add options
             if (options != null && options.length > 0)
             {
-                tableLayout.addView(OptionTable.createTable(this, options));
+                tableLayout.addView(OptionTable.createTable(this, options, false));
             }
+            //add possible providers
+            tableLayout.addView(ProviderTable.createTable(this, innerObject, true));
         }
     }
 

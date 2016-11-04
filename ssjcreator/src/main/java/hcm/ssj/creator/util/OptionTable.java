@@ -31,6 +31,7 @@ import android.graphics.Color;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -60,20 +61,33 @@ import hcm.ssj.creator.R;
 public class OptionTable
 {
     /**
-     * @param activity Activity
-     * @param options  Option[]
+     * @param activity   Activity
+     * @param options    Option[]
+     * @param dividerTop boolean
      * @return TableRow
      */
-    public static TableRow createTable(Activity activity, Option[] options)
+    public static TableRow createTable(Activity activity, Option[] options, boolean dividerTop)
     {
         TableRow tableRow = new TableRow(activity);
         tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
-        //options
-        ScrollView scrollView = new ScrollView(activity);
+        //
+        LinearLayout linearLayout = new LinearLayout(activity);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        if (dividerTop)
+        {
+            //add divider
+            linearLayout.addView(Util.addDivider(activity));
+        }
+        TextView textViewName = new TextView(activity);
+        textViewName.setText(R.string.str_options);
+        textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        linearLayout.addView(textViewName);
+        //
         LinearLayout linearLayoutOptions = new LinearLayout(activity);
         linearLayoutOptions.setBackgroundColor(activity.getResources().getColor(R.color.colorListBorder));
         linearLayoutOptions.setOrientation(LinearLayout.VERTICAL);
-
+        //options
         for (int i = 0; i < options.length; i++)
         {
             if (options[i].isAssignableByString())
@@ -81,8 +95,8 @@ public class OptionTable
                 linearLayoutOptions.addView(addOption(activity, options[i]));
             }
         }
-        scrollView.addView(linearLayoutOptions);
-        tableRow.addView(scrollView);
+        linearLayout.addView(linearLayoutOptions);
+        tableRow.addView(linearLayout);
         return tableRow;
     }
 
@@ -226,10 +240,10 @@ public class OptionTable
                 @Override
                 public void afterTextChanged(Editable s)
                 {
-                    try {
+                    try
+                    {
                         option.setValue(s.toString());
-                    }
-                    catch(IllegalArgumentException e)
+                    } catch (IllegalArgumentException e)
                     {
                         Toast.makeText(activity, activity.getResources().getText(R.string.err_invalidOption), Toast.LENGTH_SHORT).show();
                     }
