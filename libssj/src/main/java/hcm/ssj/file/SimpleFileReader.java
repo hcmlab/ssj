@@ -251,8 +251,8 @@ public class SimpleFileReader extends Sensor
     }
 
     /**
-     * @return String
-     */
+        * @return String
+    */
     protected String getData()
     {
         String data = readLine(bufferedReader);
@@ -263,5 +263,12 @@ public class SimpleFileReader extends Sensor
             data = readLine(bufferedReader);
         }
         return data;
+    }
+
+    protected void skip(int lines)
+    {
+        for (int i = 0; i < lines; i++) {
+            readLine(bufferedReader);
+        }
     }
 }

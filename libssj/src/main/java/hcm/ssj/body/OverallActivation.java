@@ -101,6 +101,7 @@ public class OverallActivation extends Transformer {
 
                 // v1 = a * t + v0
                 velNew = (float) (a * stream.step) + velOld;
+                if(velNew < 0) velNew = 0; //ignore negative velocities -> this can happen at the start of a frame
 
                 // d = v0 * t + 0.5 * a * t²  or  d = v0 * t + 0.5 * (v1 - v0) * t
                 _displacement[i] += velOld * stream.step + 0.5 * (velNew - velOld) * stream.step;
@@ -119,7 +120,7 @@ public class OverallActivation extends Transformer {
             displacement += _displacement[i];
         }
 
-        return Math.abs(displacement);
+        return displacement;
     }
 
     @Override

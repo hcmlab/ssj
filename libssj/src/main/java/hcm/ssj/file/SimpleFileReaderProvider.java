@@ -50,6 +50,7 @@ public class SimpleFileReaderProvider extends SensorProvider
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
         public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "Attribute separator of the file");
+        public final Option<Double> offset = new Option<>("offset", 0.0, Double.class, "start reading from indicated time (in seconds)");
 
         /**
          *
@@ -87,6 +88,15 @@ public class SimpleFileReaderProvider extends SensorProvider
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);
         type = Cons.Type.valueOf(simpleHeader._type);
+    }
+
+
+
+    @Override
+    public void enter(Stream stream_out)
+    {
+        if(options.offset.get() > 0)
+            simpleFileReader.skip((int)(stream_out.sr * options.offset.get()));
     }
 
     /**
