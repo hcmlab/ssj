@@ -125,7 +125,7 @@ public class Butfilt extends Transformer
 			{
 				_firstSample = new float[stream_in[0].dim];
 
-				System.arraycopy(stream_in[0].ptrF(), 0, _firstSample, 0, stream_in[0].ptrF().length);
+				System.arraycopy(stream_in[0].ptrF(), 0, _firstSample, 0, stream_in[0].dim);
 			}
 
 			_firstCall = false;

@@ -51,6 +51,11 @@ public class MSBand extends Sensor
 	protected BandClient   client;
 	protected BandListener listener;
 
+	public MSBand()
+	{
+		_name = "MSBand";
+	}
+
 	@Override
 	protected boolean connect()
 	{

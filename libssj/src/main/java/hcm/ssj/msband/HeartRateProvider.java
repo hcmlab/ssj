@@ -68,8 +68,8 @@ public class HeartRateProvider extends SensorProvider
 		if(!_listener.connected)
 			return false;
 
-		int[] out = stream_out.ptrI();
-		out[0] = _listener.getHeartRate();
+		float[] out = stream_out.ptrF();
+		out[0] = (float)_listener.getHeartRate();
 
 		return true;
 	}
@@ -89,7 +89,7 @@ public class HeartRateProvider extends SensorProvider
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.INT;
+		return Cons.Type.FLOAT;
 	}
 
 	@Override

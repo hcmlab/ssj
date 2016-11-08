@@ -68,8 +68,8 @@ public class GSRProvider extends SensorProvider
 		if(!_listener.connected)
 			return false;
 
-		int[] out = stream_out.ptrI();
-		out[0] = _listener.getGsr();
+		float[] out = stream_out.ptrF();
+		out[0] = (float)_listener.getGsr();
 
 		return true;
 	}
@@ -89,7 +89,7 @@ public class GSRProvider extends SensorProvider
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.INT;
+		return Cons.Type.FLOAT;
 	}
 
 	@Override
