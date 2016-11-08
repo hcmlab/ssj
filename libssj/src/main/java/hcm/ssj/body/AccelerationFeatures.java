@@ -26,9 +26,8 @@
 
 package hcm.ssj.body;
 
-import java.util.Arrays;
+import org.jtransforms.fft.FloatFFT_1D;
 
-import be.tarsos.dsp.util.fft.FFT;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
@@ -69,7 +68,7 @@ public class AccelerationFeatures extends Transformer
 	}
 	public final Options options = new Options();
 
-	FFT fft;
+	FloatFFT_1D fft;
 	float[] inputCopy;
 	float[] joined;
 
@@ -82,7 +81,7 @@ public class AccelerationFeatures extends Transformer
 	{
 		int values = stream_in[0].num;
 
-		fft = new FFT(values);
+		fft = new FloatFFT_1D(values);
 		inputCopy = new float[values];
 		joined = new float[(values >> 1) + 1];
 
@@ -179,8 +178,7 @@ public class AccelerationFeatures extends Transformer
 		System.arraycopy(values, 0, inputCopy, 0, values.length);
 
 		// Calculate FFT
-		// FFT fft = new FFT(values.length);
-		fft.forwardTransform(inputCopy);
+		fft.realForward(inputCopy);
 
 		// Format values like in SSI
 		float[] output = joinFFT(inputCopy);
