@@ -102,6 +102,10 @@ public abstract class Component implements Runnable
         return _evchannel_out;
     }
 
+    /**
+     * Resets internal state of components, does alter references with framework or other components
+     * Called by the framework on start-up
+     */
     public void reset()
     {
         _terminate = false;
@@ -113,4 +117,10 @@ public abstract class Component implements Runnable
 
         if(_evchannel_out != null) _evchannel_out.reset();
     }
+
+    /**
+     * Clears component, may alter references with framework or other components
+     * Called on framework reset()
+     */
+    public void clear() {}
 }

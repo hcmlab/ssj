@@ -89,7 +89,11 @@ public class BluetoothWriter extends Consumer {
             return;
         }
 
-        BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
+        BluetoothDevice dev = _conn.getRemoteDevice();
+        if(dev == null) {
+            Log.e("cannot retrieve remote device");
+            return;
+        }
 
         if(stream_in.length == 1)
             _data = new byte[stream_in[0].tot];

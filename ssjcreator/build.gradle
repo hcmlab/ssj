@@ -37,7 +37,7 @@ android {
         applicationId "hcm.ssj.creator"
         minSdkVersion 19
         targetSdkVersion 23
-        versionName getVerName(false)
+        versionName getVerName()
         versionCode getVerCode()
     }
     buildTypes {

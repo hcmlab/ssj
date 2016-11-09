@@ -95,7 +95,12 @@ public class BluetoothEventWriter extends EventHandler
             return;
         }
 
-        BluetoothDevice dev = _conn.getSocket().getRemoteDevice();
+        BluetoothDevice dev = _conn.getRemoteDevice();
+        if(dev == null) {
+            Log.e("cannot retrieve remote device");
+            return;
+        }
+
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
 
         _buffer = new byte[Cons.MAX_EVENT_SIZE];

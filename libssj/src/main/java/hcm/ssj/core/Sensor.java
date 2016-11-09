@@ -139,4 +139,11 @@ public abstract class Sensor extends Component {
                 } catch (InterruptedException e) {}
             }
     }
+
+    @Override
+    public void clear()
+    {
+        _provider.clear();
+        super.reset();
+    }
 }

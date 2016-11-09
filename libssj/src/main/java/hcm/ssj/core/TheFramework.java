@@ -491,6 +491,9 @@ public class TheFramework
         }
     }
 
+    /**
+     * Invalidates framework instance and clear all local content
+     */
     public void release()
     {
         if (isRunning())
@@ -503,6 +506,9 @@ public class TheFramework
         _instance = null;
     }
 
+    /**
+     * Clears all local references but does not invalidate instance
+     */
     public void reset()
     {
         if (isRunning())
@@ -510,6 +516,9 @@ public class TheFramework
             Log.w("Cannot release. Framework still active.");
             return;
         }
+
+        for (Component c : _components)
+            c.clear();
 
         _components.clear();
         _buffer.clear();

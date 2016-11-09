@@ -12,11 +12,9 @@ if(versionBuild != "0")
 else if(versionPatch != "0")
     version = "$version.$versionPatch"
 
-ext.getVerName = { lesser ->
+ext.getVerName = { ->
 
-    if (lesser)
-        version = "$version" + "L"
-    else if (dirty != null) //otherwise lesser will always be dirty
+    if (dirty != null) //otherwise lesser will always be dirty
         version = "$version-dirty"
 
     return version

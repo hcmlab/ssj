@@ -27,6 +27,7 @@
 package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 
@@ -133,8 +134,17 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
 
             try
             {
-                _server.close();
-                _socket.close();
+                if(_server != null)
+                {
+                    _server.close();
+                    _server = null;
+                }
+
+                if(_socket != null)
+                {
+                    _socket.close();
+                    _socket = null;
+                }
             }
             catch (IOException e)
             {
@@ -146,25 +156,21 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
     public void disconnect() throws IOException
     {
         _terminate = true;
+        _isConnected = false;
 
-        _newConnection.notifyAll();
-        _newDisconnection.notifyAll();
-
-        if(_server != null)
-        {
-            _server.close();
-            _server = null;
+        synchronized (_newConnection) {
+            _newConnection.notifyAll();
         }
-
-        if(_socket != null)
-        {
-            _socket.close();
-            _socket = null;
+        synchronized (_newDisconnection) {
+            _newDisconnection.notifyAll();
         }
     }
 
-    public BluetoothSocket getSocket()
+    public BluetoothDevice getRemoteDevice()
     {
-        return _socket;
+        if(_socket != null)
+            return _socket.getRemoteDevice();
+
+        return null;
     }
 }

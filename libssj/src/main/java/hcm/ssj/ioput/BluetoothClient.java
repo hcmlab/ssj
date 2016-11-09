@@ -161,7 +161,11 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
 
             try
             {
-                _socket.close();
+                if(_socket != null)
+                {
+                    _socket.close();
+                    _socket = null;
+                }
             }
             catch (IOException e)
             {
@@ -173,19 +177,21 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
     public void disconnect() throws IOException
     {
         _terminate = true;
+        _isConnected = false;
 
-        _newConnection.notifyAll();
-        _newDisconnection.notifyAll();
-
-        if(_socket != null)
-        {
-            _socket.close();
-            _socket = null;
+        synchronized (_newConnection) {
+            _newConnection.notifyAll();
+        }
+        synchronized (_newDisconnection) {
+            _newDisconnection.notifyAll();
         }
     }
 
-    public BluetoothSocket getSocket()
+    public BluetoothDevice getRemoteDevice()
     {
-        return _socket;
+        if(_socket != null)
+            return _socket.getRemoteDevice();
+
+        return null;
     }
 }

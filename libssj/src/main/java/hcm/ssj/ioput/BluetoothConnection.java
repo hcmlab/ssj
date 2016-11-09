@@ -28,7 +28,6 @@ package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -80,7 +79,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
 
     abstract void connect(boolean useObjectStreams) throws IOException;
     abstract void disconnect() throws IOException;
-    abstract BluetoothSocket getSocket();
+    abstract BluetoothDevice getRemoteDevice();
 
     public void onReceive(Context ctx, Intent intent) {
 
