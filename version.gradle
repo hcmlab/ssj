@@ -4,7 +4,7 @@ def longVersionName = null
 
 // Fetch the version according to git latest tag and "how far are we from last tag"
 try {
-    longVersionName = "gitz -C . describe --tags --long --dirty".execute().text.trim()
+    longVersionName = "git -C . describe --tags --long --dirty".execute().text.trim()
     (fullVersionTag, versionBuild, shaGit, dirty) = longVersionName.tokenize('-')
     (versionMajor, versionMinor, versionPatch) = fullVersionTag.tokenize('.')
 
