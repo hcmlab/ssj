@@ -35,7 +35,7 @@ import hcm.ssj.core.stream.Stream;
 
 /**
  * Dynamic Acceleration which has the gravity component removed
- * <p/>
+ *
  * Created by Johnny on 01.04.2015.
  */
 public class DynAccelerationProvider extends SensorProvider

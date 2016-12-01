@@ -48,13 +48,13 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     {
         /**
          * According to documentation, the sensor will usually sample values
-         * at a higher rate than the one specified.<p>
-         * The delay is declared in microseconds or as a constant value.<br>
+         * at a higher rate than the one specified.
+         * The delay is declared in microseconds or as a constant value.
          * Every value above 3 will be processed as microseconds.
-         * <li>SENSOR_DELAY_FASTEST = 0 = 0µs</li>
-         * <li>SENSOR_DELAY_GAME = 1 = 20000µs</li>
-         * <li>SENSOR_DELAY_UI = 2 = 66667µs</li>
-         * <li>SENSOR_DELAY_NORMAL = 3 = 200000µs</li>
+         * SENSOR_DELAY_FASTEST = 0 = 0µs
+         * SENSOR_DELAY_GAME = 1 = 20000µs
+         * SENSOR_DELAY_UI = 2 = 66667µs
+         * SENSOR_DELAY_NORMAL = 3 = 200000µs
          */
         public final Option<Integer> sensorDelay = new Option<>("sensorDelay", SensorManager.SENSOR_DELAY_FASTEST, Integer.class, "see android documentation");
         public final Option<SensorType> sensorType = new Option<>("sensorType", SensorType.ACCELEROMETER, SensorType.class, "android sensor type");

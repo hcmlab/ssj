@@ -34,14 +34,14 @@ import hcm.ssj.core.Log;
 
 /**
  * Infrared sensor for google glass.<br>
- * A feature like wink or head detection needs to be enabled for the sensor to work.<p>
+ * A feature like wink or head detection needs to be enabled for the sensor to work.
  * To get IR-Sensor permission on glass, go to console and type in the following commands:
- * <li><code>$ adb root                    </code>(start adb anew with root permissions)</li>
- * <li><code>$ adb shell                   </code>(open shell on glass)</li>
- * <li><code>cd sys/bus/i2c/devices/4-0035 </code>(go to infrared sensor)</li>
- * <li><code>chmod 664 proxraw             </code>(change file permissions)</li>
- * <li><code>ls -l proxraw                 </code>(inspect file permissions (-rw-rw-r--))</li>
- * <li><code>exit                          </code>(exit shell)</li><br>
+ * $ adb root                    (start adb anew with root permissions)
+ * $ adb shell                   (open shell on glass)
+ * cd sys/bus/i2c/devices/4-0035 (go to infrared sensor)
+ * chmod 664 proxraw             (change file permissions)
+ * ls -l proxraw                 (inspect file permissions (-rw-rw-r--))
+ * exit                          (exit shell)
  * Created by Frank Gaibler on 13.08.2015.
  */
 public class InfraredSensor extends hcm.ssj.core.Sensor

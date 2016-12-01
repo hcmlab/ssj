@@ -30,10 +30,38 @@ apply from: '../version.gradle'
 //this will include the mobile SSI classes in the library
 def mobileSSI = false
 
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'ssj'
+
+    publishedGroupId = 'hcm.ssj'
+    libraryName = 'ssj'
+    artifact = 'libssj'
+
+    libraryDescription = 'Social Signal Processing for Android'
+
+    siteUrl = 'https://github.com/hcmlab/ssj'
+    gitUrl = 'https://github.com/hcmlab/ssj.git'
+
+    libraryVersion = getVerName()
+
+    developerId = 'hcmlab'
+    developerName = 'Human Centered Multimedia'
+    developerEmail = 'ssj@hcm-lab.de'
+
+    licenseName = 'GNU GENERAL PUBLIC LICENSE, Version 3'
+    licenseUrl = 'http://www.gnu.org/licenses/gpl.txt'
+    allLicenses = ["GPL-3.0"]
+}
+
 android {
     compileSdkVersion 23
     buildToolsVersion '23.0.3'
     publishNonDefault true
+
+    lintOptions {
+        abortOnError false
+    }
 
     defaultConfig {
         minSdkVersion 16
@@ -82,3 +110,7 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+//upload to library bintray
+apply from: '../installv1.gradle'
+apply from: '../bintrayv1.gradle'

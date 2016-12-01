@@ -194,7 +194,7 @@ public class Util
 
     /**
      * Copy an array from src to dst.
-     * Types do not need to match (currently only BYTE -> ANY and ANY -> BYTE is supported)
+     * Types do not need to match (currently only BYTE - ANY and ANY - BYTE is supported)
      *
      * ByteOrder: Little-Endian
      *

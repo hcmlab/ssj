@@ -16,16 +16,15 @@ try {
         version = "$version.$versionPatch.$versionBuild"
     else if (versionPatch != "0")
         version = "$version.$versionPatch"
+
+    if (dirty != null) //otherwise lesser will always be dirty
+        version = "$version-dirty"
 }
 catch(Exception e1) {
     printf("> Error getting versioning info from git: " + e1.getMessage())
 }
 
 ext.getVerName = { ->
-
-    if (dirty != null) //otherwise lesser will always be dirty
-        version = "$version-dirty"
-
     return version
 }
 

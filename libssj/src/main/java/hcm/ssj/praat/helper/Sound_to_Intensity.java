@@ -59,7 +59,7 @@ Arguments:
         The Hanning/Hamming-equivalent window length will be 3.2 / 'minimumPitch'.
         The actual window length will be twice that.
     'timeStep':
-        if <= 0.0, then 0.8 / minimumPitch.
+        if smaller 0.0, then 0.8 / minimumPitch.
 Performance:
     every periodicity frequency greater than 'minimumPitch'
     will be smoothed away to at most 0.00001 %;
@@ -82,7 +82,7 @@ public class Sound_to_Intensity
      *
      * @param me array with audio samples
      * @param minimumPitch the minimum periodicity frequency that will be smoothed away to at most 0.00001 %. The Hanning/Hamming-equivalent window length will be 3.2 / 'minimumPitch'. The actual window length will be twice that.
-     * @param timeStep if <= 0.0, then 0.8 / minimumPitch.
+     * @param timeStep if smaller than 0.0, then 0.8 / minimumPitch.
      * @param subtractMeanPressure
      * @return intensity of the sound in DB
      */
