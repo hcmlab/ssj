@@ -17,7 +17,11 @@ SSJ is an extensible android framework for social signal processing in an out of
 
 
 ### Download
-* You can download the [latest binaries](../../releases/latest) from the [releases section](../../releases)
+ * To use libssj in your own application, simply add the gradle dependency:
+```
+compile 'hcm.ssj:libssj:0.4.4.6'
+```
+* You can also download the [latest binaries](../../releases/latest) from the [releases section](../../releases)
 <a href='https://play.google.com/store/apps/details?id=hcm.ssj.creator&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height="70" align="right"/></a>
 * SSJ Creator can be downloaded from the <a href="https://play.google.com/store/apps/details?id=hcm.ssj.creator">play store</a>
 
