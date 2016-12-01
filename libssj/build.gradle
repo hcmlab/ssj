@@ -34,7 +34,7 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'ssj'
 
-    publishedGroupId = 'hcm.ssj'
+    publishedGroupId = 'com.github.hcmlab'
     libraryName = 'ssj'
     artifact = 'libssj'
 
