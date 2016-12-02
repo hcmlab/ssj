@@ -166,7 +166,7 @@ public class Log
         double time = (frame == null) ? 0 : frame.getTime();
         str = buildEntry(caller, msg, tr);
 
-        if(buffer.size() != 0 && time - buffer.getLast().t < frame.options.logtimeout.get() && str.compareTo(buffer.getLast().msg) == 0)
+        if(buffer.size() != 0 && time - buffer.getLast().t < frame.options.logtimeout.get() && str.equals(buffer.getLast().msg))
             return;
 
         android.util.Log.println(type, Cons.LOGTAG, str);
