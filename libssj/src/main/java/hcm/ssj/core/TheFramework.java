@@ -54,6 +54,7 @@ public class TheFramework
         public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Integer.class, "");
         public final Option<String> logfile = new Option<>("logfile", null, String.class, "");
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
+        public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
 
         /**
          *
