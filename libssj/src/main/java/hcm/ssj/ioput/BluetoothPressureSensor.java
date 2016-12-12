@@ -30,14 +30,12 @@ import android.bluetooth.BluetoothDevice;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.core.stream.Stream;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -65,7 +63,7 @@ public class BluetoothPressureSensor extends Sensor {
     protected byte[][] _recvData;
 
     public BluetoothPressureSensor() {
-        _name = "BluetoothReader";
+        _name = "BLPressure";
     }
 
     @Override
