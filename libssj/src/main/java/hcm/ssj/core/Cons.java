@@ -47,6 +47,7 @@ public class Cons
     public final static int THREAD_PRIORITY_NORMAL = -2; //nice scale, -20 highest priority, 19 lowest priority
     public final static int THREAD_PRIORIIY_HIGH = -19; //nice scale, -20 highest priority, 19 lowest priority
 
+    public final static String DEFAULT_BL_SERIAL_UUID = "00001101-0000-1000-8000-00805f9b34fb";
     public enum Type {
         UNDEF,
         BYTE,

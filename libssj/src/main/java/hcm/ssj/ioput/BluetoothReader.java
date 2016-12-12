@@ -31,6 +31,7 @@ import android.bluetooth.BluetoothDevice;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.UUID;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
@@ -75,10 +76,10 @@ public class BluetoothReader extends Sensor {
             switch(options.connectionType.get())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
+                    _conn = new BluetoothServer(UUID.nameUUIDFromBytes(options.connectionName.get().getBytes()), options.serverName.get());
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
+                    _conn = new BluetoothClient(UUID.nameUUIDFromBytes(options.connectionName.get().getBytes()), options.serverName.get(), options.serverAddr.get());
                     break;
             }
 

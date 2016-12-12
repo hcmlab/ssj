@@ -34,6 +34,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.UUID;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
@@ -86,11 +87,11 @@ public class BluetoothEventReader extends EventHandler
             switch(options.connectionType.get())
             {
                 case SERVER:
-                    _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
+                    _conn = new BluetoothServer(UUID.nameUUIDFromBytes(options.connectionName.get().getBytes()), options.serverName.get());
                     _conn.connect(false);
                     break;
                 case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
+                    _conn = new BluetoothClient(UUID.nameUUIDFromBytes(options.connectionName.get().getBytes()), options.serverName.get(), options.serverAddr.get());
                     _conn.connect(false);
                     break;
             }

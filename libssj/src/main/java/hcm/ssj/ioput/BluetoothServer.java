@@ -56,7 +56,7 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
     private String _serverName;
     boolean _useObjectStreams = false;
 
-    public BluetoothServer(String connectionName, String serverName) throws IOException
+    public BluetoothServer(UUID connID, String serverName) throws IOException
     {
         _adapter = BluetoothAdapter.getDefaultAdapter();
         if (_adapter == null)
@@ -72,8 +72,8 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
         }
 
         _serverName = serverName;
-        _uuid = UUID.nameUUIDFromBytes(connectionName.getBytes());
-        Log.i("server connection " + connectionName + " on " + _adapter.getName() + " @ " + _adapter.getAddress() + " initialized");
+        _uuid = connID;
+        Log.i("server connection on " + _adapter.getName() + " @ " + _adapter.getAddress() + " initialized");
     }
 
     public void connect(boolean useObjectStreams)

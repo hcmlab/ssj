@@ -26,28 +26,26 @@
 
 package hcm.ssj.ioput;
 
-import android.bluetooth.BluetoothDevice;
-
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.util.UUID;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Sensor;
-import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+
+import static hcm.ssj.core.Cons.DEFAULT_BL_SERIAL_UUID;
 
 /**
  * Created by Johnny on 05.03.2015.
  */
-public class BluetoothPressureSensor extends Sensor {
+public class BluetoothPressureSensor extends BluetoothReader {
 
     public class Options extends OptionList
     {
         public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
         public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
         public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "if this is a client");
-        public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.CLIENT, BluetoothConnection.Type.class, "");
 
         /**
          *
@@ -58,9 +56,7 @@ public class BluetoothPressureSensor extends Sensor {
     }
 
     public final Options options = new Options();
-
-    protected BluetoothConnection _conn;
-    protected byte[][] _recvData;
+    protected boolean _isreallyConnected = false;
 
     public BluetoothPressureSensor() {
         _name = "BLPressure";
@@ -70,15 +66,7 @@ public class BluetoothPressureSensor extends Sensor {
     public void init()
     {
         try {
-            switch(options.connectionType.get())
-            {
-                case SERVER:
-                    _conn = new BluetoothServer(options.connectionName.get(), options.serverName.get());
-                    break;
-                case CLIENT:
-                    _conn = new BluetoothClient(options.connectionName.get(), options.serverName.get(), options.serverAddr.get());
-                    break;
-            }
+            _conn = new BluetoothClient(UUID.fromString(DEFAULT_BL_SERIAL_UUID), options.serverName.get(), options.serverAddr.get());
 
         } catch (IOException e) {
             Log.e("error in setting up connection "+ options.connectionName, e);
@@ -88,27 +76,10 @@ public class BluetoothPressureSensor extends Sensor {
     @Override
     public boolean connect()
     {
-        Log.i("setting up sensor to receive " + _provider.size() + " streams");
-        _recvData = new byte[_provider.size()][];
-        for(int i=0; i< _provider.size(); ++i)
-            _recvData[i] = new byte[_provider.get(i).getOutputStream().tot];
-
-        try {
-            //use object input streams if we expect more than one input
-            _conn.connect(_provider.size() > 1);
-        }
-        catch (IOException e) {
-            Log.e("error connecting over "+ options.connectionName, e);
+        if(!super.connect())
             return false;
-        }
 
-        BluetoothDevice dev = _conn.getConnectedDevice();
-        Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
-        return true;
-    }
-
-    public void enter()
-    {        try
+        try
         {
             byte[] data={10,0};
             _conn.output().write(data);
@@ -118,29 +89,18 @@ public class BluetoothPressureSensor extends Sensor {
             Log.w("unable to rwrite init sequence to bt socket", e);
         }
 
+        _isreallyConnected = true;
+        return true;
     }
 
     public void update()
     {
-        if(!_conn.isConnected())
+        if(!_conn.isConnected() && _isreallyConnected)
             return;
 
         try
         {
-            if(_provider.size() == 1)
-            {
-                ((DataInputStream)_conn.input()).readFully(_recvData[0]);
-            }
-            else if(_provider.size() > 1)
-            {
-
-                byte recvStreams[]=new byte[24];
-
-                ((DataInputStream)_conn.input()).readFully(recvStreams,4,24);
-
-                for(int i = 0; i< recvStreams.length && i < _recvData.length; ++i)
-                    Util.arraycopy(recvStreams[i], 0, _recvData[i], 0, _recvData[i].length);
-            }
+            ((DataInputStream)_conn.input()).readFully(_recvData[0]);
         }
         catch (IOException  e)
         {
@@ -169,15 +129,5 @@ public class BluetoothPressureSensor extends Sensor {
         }
 
         super.forcekill();
-    }
-
-    public BluetoothConnection getConnection()
-    {
-        return _conn;
-    }
-
-    public byte[] getData(int channel_id)
-    {
-        return _recvData[channel_id];
     }
 }
