@@ -51,8 +51,8 @@ import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.Mp4Writer;
 
 /**
- * Parent class to create mp4-files.<br>
- * Created by Frank Gaibler on 18.02.2016.
+ * Writes wav files.<br>
+ * Created by Frank Gaibler and Ionut Damian on 12.12.2016.
  */
 public class WavWriter extends Consumer implements IFileWriter
 {
@@ -248,8 +248,6 @@ public class WavWriter extends Consumer implements IFileWriter
     @Override
     public final void flush(Stream stream_in[])
     {
-        properWAV(file);
-
         if (outputStream != null)
         {
             try
@@ -262,6 +260,7 @@ public class WavWriter extends Consumer implements IFileWriter
             }
         }
 
+        writeWavHeader(file);
         dataFormat = null;
     }
 
@@ -310,9 +309,12 @@ public class WavWriter extends Consumer implements IFileWriter
     }
 
     /**
+     * Writes a PCM Wav header at the start of the provided file
+     * code taken from : http://stackoverflow.com/questions/9179536/writing-pcm-recorded-data-into-a-wav-file-java-android
+     * by: Oliver Mahoney, Oak Bytes
      * @param fileToConvert File
      */
-    private void properWAV(File fileToConvert)
+    private void writeWavHeader(File fileToConvert)
     {
         try
         {
@@ -372,6 +374,10 @@ public class WavWriter extends Consumer implements IFileWriter
 
     }
 
+    /**
+     * Code taken from : http://stackoverflow.com/questions/9179536/writing-pcm-recorded-data-into-a-wav-file-java-android
+     * by: Oliver Mahoney, Oak Bytes
+     */
     private static byte[] intToByteArray(int i)
     {
         byte[] b = new byte[4];
@@ -382,15 +388,13 @@ public class WavWriter extends Consumer implements IFileWriter
         return b;
     }
 
-    // convert a short to a byte array
+    /**
+     * Convert a short to a byte array
+     * code taken from : http://stackoverflow.com/questions/9179536/writing-pcm-recorded-data-into-a-wav-file-java-android
+     * by: Oliver Mahoney, Oak Bytes
+     */
     private static byte[] shortToByteArray(short data)
     {
-        /*
-         * NB have also tried:
-         * return new byte[]{(byte)(data & 0xff),(byte)((data >> 8) & 0xff)};
-         *
-         */
-
         return new byte[]{(byte) (data & 0xff), (byte) ((data >>> 8) & 0xff)};
     }
 }
