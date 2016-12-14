@@ -52,7 +52,7 @@ import static hcm.ssj.core.Cons.DEFAULT_BL_SERIAL_UUID;
 public class BluetoothPressureSensor extends BluetoothReader {
 
 
-    protected int[][] _recvData;
+    protected short[][] _irecvData;
     public class Options extends OptionList
     {
         public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
@@ -88,6 +88,9 @@ public class BluetoothPressureSensor extends BluetoothReader {
     @Override
     public boolean connect()
     {
+        _irecvData=new short[_provider.size()][];
+                for(int i=0; i< _provider.size(); ++i)
+            _irecvData[i] = new short[_provider.get(i).getOutputStream().tot];
         if(!super.connect())
             return false;
 
@@ -115,7 +118,7 @@ public class BluetoothPressureSensor extends BluetoothReader {
             //int bigdata[] = new int[1024];
             byte[] header = new byte[4];
             byte[] data = new byte[1];
-            int[] pair = new int[2];
+            short[] pair = new short[2];
             int i=-1;
 
 
@@ -140,27 +143,27 @@ public class BluetoothPressureSensor extends BluetoothReader {
                         if(i%3==0)
                         {
                             //first 8 bit of 12 bit int
-                            pair[1]=(((int)data[0])+128)<<4;
+                            pair[1]= (short) ((short) (((short)data[0])+128)<<4);
                         }
                         else if(i%3==1)
                         {
                             // second 4 bit of 12 bit int
-                            pair[1]=pair[1]|(((((int)data[0])+128)&0xf0)>>4);
+                            pair[1]= (short) (pair[1]|(((((short)data[0])+128)&0xf0)>>4));
 
                             //first 4 bit of 12 bit int
-                            pair[0]=((((int)data[0])+128)&0x0f)<<8;
+                            pair[0]= (short) (((short) (((short)data[0])+128)&0x0f)<<8);
                         }
                         else if(i%3==2)
                         {
                             //second 8 bit of 12 bit int
-                            pair[0]=(((int)data[0])+128)|pair[0];
+                            pair[0]= (short) ((((short)data[0])+128)|pair[0]);
 
-                            _recvData[0][(i/3)*2]=pair[0];
-                            _recvData[0][((i/3)*2)+1]=pair[1];
+                            _irecvData[0][(i/3)*2]=pair[0];
+                            _irecvData[0][((i/3)*2)+1]=pair[1];
 
                         }
 
-                        if (i==1)Log.i(" copy data:");
+                        //if (i==1)Log.i(" copy data:");
 
 
                         if(i==1535)
@@ -208,9 +211,9 @@ public class BluetoothPressureSensor extends BluetoothReader {
 
         super.forcekill();
     }
-    public int[] getDataInt(int channel_id)
+    public short[] getDataInt(int channel_id)
     {
-        return _recvData[channel_id];
+        return _irecvData[channel_id];
     }
 
 }

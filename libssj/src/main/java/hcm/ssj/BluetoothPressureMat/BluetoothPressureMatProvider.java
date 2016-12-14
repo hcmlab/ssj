@@ -34,6 +34,7 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.ioput.BluetoothReader;
+import hcm.ssj.BluetoothPressureMat.BluetoothPressureSensor;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -48,7 +49,7 @@ public class BluetoothPressureMatProvider extends SensorProvider
         public final Option<Double> sr = new Option<>("sr", 0., Double.class, "");
         public final Option<Integer> num = new Option<>("num", 1, Integer.class, "values >1 make buffer error handling less efficient");
         public final Option<Cons.Type> type = new Option<>("type", Cons.Type.UNDEF, Cons.Type.class, "");
-        public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
+        //public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
 
         /**
          *
@@ -75,7 +76,7 @@ public class BluetoothPressureMatProvider extends SensorProvider
     @Override
     protected boolean process(Stream stream_out)
     {
-        byte[] data = ((BluetoothReader)_sensor).getData(options.channel_id.get());
+        short[] data = ((BluetoothPressureSensor)_sensor).getDataInt(options.channel_id.get());
 
         if(data.length != stream_out.tot)
         {
@@ -117,6 +118,15 @@ public class BluetoothPressureMatProvider extends SensorProvider
         return options.type.get();
     }
 
+    protected void defineOutputClasses(Stream stream_out) {
+        stream_out.dataclass = new String[stream_out.dim];
+
+        for (int i = 0; i < stream_out.dataclass.length; i++) {
+            stream_out.dataclass[i] = "Press"+i;
+
+        }
+    }
+    /*
     @Override
     public void defineOutputClasses(Stream stream_out)
     {
@@ -131,5 +141,5 @@ public class BluetoothPressureMatProvider extends SensorProvider
         {
             System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
         }
-    }
+    }*/
 }
