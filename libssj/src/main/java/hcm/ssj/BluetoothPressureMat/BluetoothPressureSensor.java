@@ -24,15 +24,25 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.ioput;
+package hcm.ssj.BluetoothPressureMat;
+
+import android.bluetooth.BluetoothSocket;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Handler;
+import android.os.Message;
+import android.widget.Toast;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.ioput.BluetoothClient;
+import hcm.ssj.ioput.BluetoothReader;
 
 import static hcm.ssj.core.Cons.DEFAULT_BL_SERIAL_UUID;
 
@@ -41,6 +51,8 @@ import static hcm.ssj.core.Cons.DEFAULT_BL_SERIAL_UUID;
  */
 public class BluetoothPressureSensor extends BluetoothReader {
 
+
+    protected int[][] _recvData;
     public class Options extends OptionList
     {
         public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
@@ -86,7 +98,7 @@ public class BluetoothPressureSensor extends BluetoothReader {
         }
         catch (IOException  e)
         {
-            Log.w("unable to rwrite init sequence to bt socket", e);
+            Log.w("unable to write init sequence to bt socket", e);
         }
 
         _isreallyConnected = true;
@@ -100,7 +112,73 @@ public class BluetoothPressureSensor extends BluetoothReader {
 
         try
         {
-            ((DataInputStream)_conn.input()).readFully(_recvData[0]);
+            //int bigdata[] = new int[1024];
+            byte[] header = new byte[4];
+            byte[] data = new byte[1];
+            int[] pair = new int[2];
+            int i=-1;
+
+
+            for(;_conn.input().read(data) !=-1;)
+            {
+
+                //shift header further
+                header[3]=header[2];
+                header[2]=header[1];
+                header[1]=header[0];
+                header[0]=data[0];
+                //if(data[0]==-128)Log.i(" header??:"+header[0]+header[1]+header[2]+header[3]);
+                if(header[0]==-128 && header[1]==0 && header[3]==0 && header[3]==0)
+                {
+                    //Log.i(" header found:");
+                    i=0;
+
+
+                }else
+                    if(i>=0)
+                    {
+                        if(i%3==0)
+                        {
+                            //first 8 bit of 12 bit int
+                            pair[1]=(((int)data[0])+128)<<4;
+                        }
+                        else if(i%3==1)
+                        {
+                            // second 4 bit of 12 bit int
+                            pair[1]=pair[1]|(((((int)data[0])+128)&0xf0)>>4);
+
+                            //first 4 bit of 12 bit int
+                            pair[0]=((((int)data[0])+128)&0x0f)<<8;
+                        }
+                        else if(i%3==2)
+                        {
+                            //second 8 bit of 12 bit int
+                            pair[0]=(((int)data[0])+128)|pair[0];
+
+                            _recvData[0][(i/3)*2]=pair[0];
+                            _recvData[0][((i/3)*2)+1]=pair[1];
+
+                        }
+
+                        if (i==1)Log.i(" copy data:");
+
+
+                        if(i==1535)
+                        { //search new header
+                            /*
+                            Log.i(" copied frame:");
+                            Log.i("last pair: " + pair[0]+ " "+ pair[1]);
+                            Log.i("last tripple: " + header[2]+ " "+ header[1] +" "+header[0]);*/
+                            i=-1;
+                        }
+
+                        i++;
+                    }
+
+            }
+
+
+
         }
         catch (IOException  e)
         {
@@ -130,4 +208,9 @@ public class BluetoothPressureSensor extends BluetoothReader {
 
         super.forcekill();
     }
+    public int[] getDataInt(int channel_id)
+    {
+        return _recvData[channel_id];
+    }
+
 }
