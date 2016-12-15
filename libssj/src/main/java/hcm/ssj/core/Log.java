@@ -26,6 +26,7 @@
 
 package hcm.ssj.core;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -103,11 +104,21 @@ public class Log
         instance = null;
     }
 
-    public void saveToFile(String filename)
+    public void saveToFile(String path)
     {
         try
         {
-            FileOutputStream fos = new FileOutputStream(filename);
+            File fileDirectory = new File(path);
+            if (!fileDirectory.exists())
+            {
+                if (!fileDirectory.mkdirs())
+                {
+                    Log.e(fileDirectory.getName() + " could not be created");
+                    return;
+                }
+            }
+            File file = new File(fileDirectory, "ssj.log");
+            FileOutputStream fos = new FileOutputStream(file);
 
             NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);
             nf.setMaximumFractionDigits(3);

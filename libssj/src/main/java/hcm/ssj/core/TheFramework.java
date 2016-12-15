@@ -26,6 +26,7 @@
 
 package hcm.ssj.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -37,6 +38,7 @@ import java.util.concurrent.TimeUnit;
 import hcm.ssj.BuildConfig;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -52,7 +54,9 @@ public class TheFramework
         public final Option<Boolean> netSync = new Option<>("netSync", false, Boolean.class, "");
         public final Option<Boolean> netSyncListen = new Option<>("netSyncListen", false, Boolean.class, "set true if this is not the server pipe");
         public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Integer.class, "");
-        public final Option<String> logfile = new Option<>("logfile", null, String.class, "");
+
+        public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
+        public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
         public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
 
@@ -529,9 +533,9 @@ public class TheFramework
 
     private void log()
     {
-        if (options.logfile.get() != null)
+        if (options.log.get())
         {
-            Log.getInstance().saveToFile(options.logfile.get());
+            Log.getInstance().saveToFile(options.logpath.parseWildcards());
         }
     }
 
