@@ -74,8 +74,19 @@ public class BLESensorListener
 
 
 	private Handler         mHandler;
+
+	//angel sensor
 	private Vector<Integer> opticalGreenLED;
 	private Vector<Integer> opticalBlueLED;
+
+	//andys wearable
+	private int accelerometer=0;
+	private int temperature=0;
+	private int RMSSD=0;
+	private int bpm=0;
+	private int gsr=0;
+
+
 	private String service;
 	private String characterisitc;
 
@@ -244,6 +255,25 @@ public class BLESensorListener
 				opticalBlueLED.add(blue);
 			}
 		}
+		else if(UUID.fromString("00002221-0000-1000-8000-00805f9b34fb").equals(characteristic.getUuid()))
+		{
+			//HCM Andis wearable:
+
+
+			byte[] buffer = characteristic.getValue();
+			Log.i(TAG, "Optical Waveform.");
+			final int TWO_SAMPLES_SIZE = 6;
+			if(buffer.length>6)Log.i(TAG, "more than 6 byte data, discarding");
+
+			if(buffer[1]!=-128)accelerometer=buffer[1]+128;
+			if(buffer[2]!=-128)temperature=buffer[2]+128;
+			if(buffer[3]!=-128)bpm=buffer[3]+128;
+			if(buffer[5]!=-128)RMSSD=buffer[5]+128;
+			if(buffer[4]!=-128)gsr=buffer[4]+128;
+
+		}
+
+
 
 		else {
 			// For all other profiles, writes the data formatted in HEX.
@@ -394,7 +424,16 @@ public class BLESensorListener
 			descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
 			mBluetoothGatt.writeDescriptor(descriptor);
 		}
+if(UUID.fromString("00002221-0000-1000-8000-00805f9b34fb").equals(characteristic.getUuid()))
+		{
 
+
+			BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+					UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+			byte[] NOTIFY_AND_INDICATE = new byte[]{(byte)3, (byte)0};
+			descriptor.setValue(NOTIFY_AND_INDICATE);
+			mBluetoothGatt.writeDescriptor(descriptor);
+		}
 
 
 		if(UUID.fromString("334c0be8-76f9-458b-bb2e-7df2b486b4d7").equals(characteristic.getUuid()))
@@ -442,4 +481,9 @@ public class BLESensorListener
 		}
 	}
 
+	public int getBpm(){return bpm;}
+	public int getRMSSD(){ return RMSSD;}
+	public int getAcc(){return accelerometer;}
+	public int getGsr(){ return gsr;}
+	public int getTemperature(){ return temperature;}
 };
