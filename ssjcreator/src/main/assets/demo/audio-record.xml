@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="0.2">
+  <framework>
+    <options>
+      <option name="bufferSize" value="2.0" />
+      <option name="countdown" value="3" />
+      <option name="loglevel" value="VERBOSE" />
+      <option name="netSync" value="false" />
+      <option name="netSyncListen" value="false" />
+      <option name="netSyncPort" value="55100" />
+      <option name="timeoutThread" value="5.0" />
+    </options>
+  </framework>
+  <sensorProviderList>
+    <sensorProvider class="hcm.ssj.audio.AudioProvider" id="13000336">
+      <options>
+        <option name="audioFormat" value="ENCODING_PCM_16BIT" />
+        <option name="channelConfig" value="CHANNEL_IN_MONO" />
+        <option name="sampleRate" value="16000" />
+        <option name="scale" value="true" />
+      </options>
+    </sensorProvider>
+  </sensorProviderList>
+  <sensorList>
+    <sensor class="hcm.ssj.audio.Microphone" id="64672700">
+      <options />
+      <providerList>
+        <providerId id="13000336" />
+      </providerList>
+    </sensor>
+  </sensorList>
+  <transformerList />
+  <consumerList>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="233448485" frameSize="0.1" delta="0.0">
+      <options>
+        <option name="colors" value="[-16746548, -26368, -16737895, -6750208, -65281, -16777216, -13395712]" />
+        <option name="legend" value="true" />
+        <option name="manualBounds" value="false" />
+        <option name="max" value="1.0" />
+        <option name="min" value="0.0" />
+        <option name="numHLabels" value="2" />
+        <option name="numVLabels" value="5" />
+        <option name="renderMax" value="true" />
+        <option name="secondScaleDim" value="0" />
+        <option name="secondScaleMax" value="500.0" />
+        <option name="secondScaleMin" value="0.0" />
+        <option name="secondScaleStream" value="1" />
+        <option name="size" value="20.0" />
+      </options>
+      <providerList>
+        <providerId id="13000336" />
+      </providerList>
+    </consumer>
+    <consumer class="hcm.ssj.audio.AudioWriter" id="38948479" frameSize="1.0" delta="0.0">
+      <options>
+        <option name="fileName" value="Audio.mp4" />
+        <option name="filePath" value="/storage/emulated/0/SSJ/[time]" />
+        <option name="audioFormat" value="ENCODING_DEFAULT" />
+        <option name="mimeType" value="audio/mp4a-latm" />
+      </options>
+      <providerList>
+        <providerId id="13000336" />
+      </providerList>
+    </consumer>
+  </consumerList>
+</ssjSaveFile>

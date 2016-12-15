@@ -26,19 +26,10 @@
 
 package hcm.ssj.BluetoothPressureMat;
 
-import android.bluetooth.BluetoothSocket;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Handler;
-import android.os.Message;
-import android.widget.Toast;
-
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.UUID;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.ioput.BluetoothClient;
@@ -189,28 +180,6 @@ public class BluetoothPressureSensor extends BluetoothReader {
         }
     }
 
-    @Override
-    public void disconnect()
-    {
-        try {
-            _conn.disconnect();
-        } catch (IOException e) {
-            Log.e("failed closing connection", e);
-        }
-    }
-
-    @Override
-    public void forcekill()
-    {
-        try {
-            _conn.disconnect();
-
-        } catch (Exception e) {
-            Log.e("error force killing thread", e);
-        }
-
-        super.forcekill();
-    }
     public short[] getDataInt(int channel_id)
     {
         return _irecvData[channel_id];

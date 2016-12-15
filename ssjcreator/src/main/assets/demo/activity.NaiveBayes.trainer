@@ -18,5 +18,5 @@
     <select>
         <item stream="0" size="15" select="34 18 10 19 6 26 12 20 16 4 11 21 22 24 25" />
     </select>
-    <model create="NaiveBayes" stream="0" path="demoClassify.trainer.NaiveBayes" option="demoClassify.trainer.NaiveBayes" />
+    <model create="NaiveBayes" stream="0" path="activity.NaiveBayes" option="activity.NaiveBayes" />
 </trainer>
