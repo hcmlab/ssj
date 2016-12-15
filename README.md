@@ -26,6 +26,7 @@ compile 'com.github.hcmlab:libssj:0.4.4.11'
 * SSJ Creator can be downloaded from the <a href="https://play.google.com/store/apps/details?id=hcm.ssj.creator">play store</a>
 
 ### Documentation
+* White-paper: <a href="http://dl.acm.org/citation.cfm?id=2998527">dl.acm.org</a> | <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">uni-augsburg.de</a>
 * Api (Javadoc): http://hcmlab.github.io/ssj/api
 
 ### Getting started
@@ -39,7 +40,7 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 If you use SSJ for a research project, please reference the following paper:
 <ul>
   <li>Ionut Damian, Tobias Baur, Elisabeth André, <i>Measuring the Impact of Multimodal Behavioural Feedback Loops on Social Interactions</i>, In Proceedings of International Conference on Multimodal Interaction (ICMI), ACM, 2016<br/>
-  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">paper</a> / <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/Damian-BehaviouralFeedbackLoops-2016-bib.txt">BibTex</a> 
+  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">paper</a> | <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/Damian-BehaviouralFeedbackLoops-2016-bib.txt">BibTex</a> | <a href="http://dl.acm.org/citation.cfm?id=2993174">dl.acm.org</a>
   </li>
 </ul>
 
