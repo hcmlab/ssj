@@ -82,7 +82,7 @@ public class BLESensorListener
 	//andys wearable
 	private int accelerometer=0;
 	private int temperature=0;
-	private int RMSSD=0;
+	private int RMSSD=0; //bvp raw values
 	private int bpm=0;
 	private int gsr=0;
 

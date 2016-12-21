@@ -106,11 +106,11 @@ public class BluetoothPressureSensor extends BluetoothReader {
 
         try
         {
-            //int bigdata[] = new int[1024];
+
             byte[] header = new byte[4];
             byte[] data = new byte[1];
             short[] pair = new short[2];
-            int i=-1;
+            int stateVariable=-1;
 
 
             for(;_conn.input().read(data) !=-1;)
@@ -121,22 +121,23 @@ public class BluetoothPressureSensor extends BluetoothReader {
                 header[2]=header[1];
                 header[1]=header[0];
                 header[0]=data[0];
-                //if(data[0]==-128)Log.i(" header??:"+header[0]+header[1]+header[2]+header[3]);
+
+                // new header found
                 if(header[0]==-128 && header[1]==0 && header[3]==0 && header[3]==0)
                 {
-                    //Log.i(" header found:");
-                    i=0;
+
+                    stateVariable=0;
 
 
-                }else
-                    if(i>=0)
+                }else // process data
+                    if(stateVariable>=0)
                     {
-                        if(i%3==0)
+                        if(stateVariable%3==0)
                         {
                             //first 8 bit of 12 bit int
                             pair[1]= (short) ((short) (((short)data[0])+128)<<4);
                         }
-                        else if(i%3==1)
+                        else if(stateVariable%3==1)
                         {
                             // second 4 bit of 12 bit int
                             pair[1]= (short) (pair[1]|(((((short)data[0])+128)&0xf0)>>4));
@@ -144,29 +145,26 @@ public class BluetoothPressureSensor extends BluetoothReader {
                             //first 4 bit of 12 bit int
                             pair[0]= (short) (((short) (((short)data[0])+128)&0x0f)<<8);
                         }
-                        else if(i%3==2)
+                        else if(stateVariable%3==2)
                         {
                             //second 8 bit of 12 bit int
                             pair[0]= (short) ((((short)data[0])+128)|pair[0]);
 
-                            _irecvData[0][(i/3)*2]=pair[0];
-                            _irecvData[0][((i/3)*2)+1]=pair[1];
+                            //copy package of two pixels tp output
+                            _irecvData[0][(stateVariable/3)*2]=pair[0];
+                            _irecvData[0][((stateVariable/3)*2)+1]=pair[1];
 
                         }
 
-                        //if (i==1)Log.i(" copy data:");
 
 
-                        if(i==1535)
+                        if(stateVariable==1535)
                         { //search new header
-                            /*
-                            Log.i(" copied frame:");
-                            Log.i("last pair: " + pair[0]+ " "+ pair[1]);
-                            Log.i("last tripple: " + header[2]+ " "+ header[1] +" "+header[0]);*/
-                            i=-1;
+
+                            stateVariable=-1;
                         }
 
-                        i++;
+                        stateVariable++;
                     }
 
             }

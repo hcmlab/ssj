@@ -38,6 +38,7 @@ public class BVPAndisProvider extends SensorProvider
 	public class Options
 	{
 		public int sampleRate = 100;
+		public int dimensions=5;
 	}
 	public Options options = new Options();
 
@@ -56,12 +57,20 @@ public class BVPAndisProvider extends SensorProvider
 
 	}
 
+
 	@Override
 	protected boolean process(Stream stream_out)
 	{
-		_listener.readCh();
+		int dimension = getSampleDimension();
 		int[] out = stream_out.ptrI();
-		out[0] = _listener.getBvp();
+
+			out[0] = _listener.getAcc();
+			out[1] = _listener.getTemperature();
+			out[2] = _listener.getBpm();
+			out[3] = _listener.getRMSSD();
+			out[4] = _listener.getGsr();
+
+
 		return true;
 	}
 
@@ -74,7 +83,7 @@ public class BVPAndisProvider extends SensorProvider
 	@Override
 	public int getSampleDimension()
 	{
-		return 1;
+		return 5;
 	}
 
 	@Override
@@ -93,6 +102,10 @@ public class BVPAndisProvider extends SensorProvider
 	protected void defineOutputClasses(Stream stream_out)
 	{
 		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "BVP";
+		stream_out.dataclass[0] = "Acc";
+		stream_out.dataclass[1] = "Tmp";
+		stream_out.dataclass[2] = "Bvp";
+		stream_out.dataclass[3] = "Rmssd"; //bvp raw values
+		stream_out.dataclass[4] = "gsr";
 	}
 }

@@ -49,11 +49,8 @@ public class BluetoothPressureMatProvider extends SensorProvider
         public final Option<Double> sr = new Option<>("sr", 0., Double.class, "");
         public final Option<Integer> num = new Option<>("num", 1, Integer.class, "values >1 make buffer error handling less efficient");
         public final Option<Cons.Type> type = new Option<>("type", Cons.Type.UNDEF, Cons.Type.class, "");
-        //public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
 
-        /**
-         *
-         */
+
         private Options() {
             addOptions();
         }
@@ -126,20 +123,5 @@ public class BluetoothPressureMatProvider extends SensorProvider
 
         }
     }
-    /*
-    @Override
-    public void defineOutputClasses(Stream stream_out)
-    {
-        stream_out.dataclass = new String[stream_out.dim];
-        if(options.outputClass.get() == null || stream_out.dim != options.outputClass.get().length)
-        {
-            Log.w("incomplete definition of output classes");
-            for(int i = 0; i < stream_out.dataclass.length; i++)
-                stream_out.dataclass[i] = "BluetoothData" + options.channel_id.get();
-        }
-        else
-        {
-            System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
-        }
-    }*/
+
 }
