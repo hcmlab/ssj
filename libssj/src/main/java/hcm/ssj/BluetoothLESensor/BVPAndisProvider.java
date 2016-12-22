@@ -33,79 +33,70 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 15.04.2015.
  */
-public class BVPAndisProvider extends SensorProvider
-{
-	public class Options
-	{
-		public int sampleRate = 100;
-		public int dimensions=5;
-	}
-	public Options options = new Options();
+public class BVPAndisProvider extends SensorProvider {
+    public class Options {
+        public int sampleRate = 100;
+        public int dimensions = 5;
+    }
 
-	protected BLESensorListener _listener;
+    public Options options = new Options();
 
-	public BVPAndisProvider()
-	{
-		_name = "BLE_BVP";
-	}
+    protected BLESensorListener _listener;
 
-	@Override
-	public void enter(Stream stream_out)
-	{
+    public BVPAndisProvider() {
+        _name = "BLE_BVP";
+    }
 
-		_listener = ((BLESensor)_sensor).listener;
+    @Override
+    public void enter(Stream stream_out) {
 
-	}
+        _listener = ((BLESensor) _sensor).listener;
+
+    }
 
 
-	@Override
-	protected boolean process(Stream stream_out)
-	{
-		int dimension = getSampleDimension();
-		int[] out = stream_out.ptrI();
+    @Override
+    protected boolean process(Stream stream_out) {
+        int dimension = getSampleDimension();
+        int[] out = stream_out.ptrI();
 
-			out[0] = _listener.getAcc();
-			out[1] = _listener.getTemperature();
-			out[2] = _listener.getBpm();
-			out[3] = _listener.getRMSSD();
-			out[4] = _listener.getGsr();
+        out[0] = _listener.getAcc();
+        out[1] = _listener.getTemperature();
+        out[2] = _listener.getBpm();
+        out[3] = _listener.getRMSSD();
+        out[4] = _listener.getGsr();
 
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public double getSampleRate()
-	{
-		return options.sampleRate;
-	}
+    @Override
+    public double getSampleRate() {
+        return options.sampleRate;
+    }
 
-	@Override
-	public int getSampleDimension()
-	{
-		return 5;
-	}
+    @Override
+    public int getSampleDimension() {
+        return 5;
+    }
 
-	@Override
-	public int getSampleBytes()
-	{
-		return 4;
-	}
+    @Override
+    public int getSampleBytes() {
+        return 4;
+    }
 
-	@Override
-	public Cons.Type getSampleType()
-	{
-		return Cons.Type.INT;
-	}
+    @Override
+    public Cons.Type getSampleType() {
+        return Cons.Type.INT;
+    }
 
-	@Override
-	protected void defineOutputClasses(Stream stream_out)
-	{
-		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "Acc";
-		stream_out.dataclass[1] = "Tmp";
-		stream_out.dataclass[2] = "Bvp";
-		stream_out.dataclass[3] = "Rmssd"; //bvp raw values
-		stream_out.dataclass[4] = "gsr";
-	}
+    @Override
+    protected void defineOutputClasses(Stream stream_out) {
+        stream_out.dataclass = new String[stream_out.dim];
+        stream_out.dataclass[0] = "Acc";
+        stream_out.dataclass[1] = "Tmp";
+        stream_out.dataclass[2] = "Bvp";
+        stream_out.dataclass[3] = "Rmssd"; //bvp raw values
+        stream_out.dataclass[4] = "gsr";
+    }
 }

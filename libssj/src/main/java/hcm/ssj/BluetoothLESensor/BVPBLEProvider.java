@@ -33,66 +33,57 @@ import hcm.ssj.core.stream.Stream;
 /**
  * Created by Michael Dietz on 15.04.2015.
  */
-public class BVPBLEProvider extends SensorProvider
-{
-	public class Options
-	{
-		public int sampleRate = 100;
-	}
-	public Options options = new Options();
+public class BVPBLEProvider extends SensorProvider {
+    public class Options {
+        public int sampleRate = 100;
+    }
 
-	protected BLESensorListener _listener;
+    public Options options = new Options();
 
-	public BVPBLEProvider()
-	{
-		_name = "BLE_BVP";
-	}
+    protected BLESensorListener _listener;
 
-	@Override
-	public void enter(Stream stream_out)
-	{
+    public BVPBLEProvider() {
+        _name = "BLE_BVP";
+    }
 
-		_listener = ((BLESensor)_sensor).listener;
+    @Override
+    public void enter(Stream stream_out) {
 
-	}
+        _listener = ((BLESensor) _sensor).listener;
 
-	@Override
-	protected boolean process(Stream stream_out)
-	{
-		_listener.readCh();
-		int[] out = stream_out.ptrI();
-		out[0] = _listener.getBvp();
-		return true;
-	}
+    }
 
-	@Override
-	public double getSampleRate()
-	{
-		return options.sampleRate;
-	}
+    @Override
+    protected boolean process(Stream stream_out) {
+        _listener.readCh();
+        int[] out = stream_out.ptrI();
+        out[0] = _listener.getBvp();
+        return true;
+    }
 
-	@Override
-	public int getSampleDimension()
-	{
-		return 1;
-	}
+    @Override
+    public double getSampleRate() {
+        return options.sampleRate;
+    }
 
-	@Override
-	public int getSampleBytes()
-	{
-		return 4;
-	}
+    @Override
+    public int getSampleDimension() {
+        return 1;
+    }
 
-	@Override
-	public Cons.Type getSampleType()
-	{
-		return Cons.Type.INT;
-	}
+    @Override
+    public int getSampleBytes() {
+        return 4;
+    }
 
-	@Override
-	protected void defineOutputClasses(Stream stream_out)
-	{
-		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "BVP";
-	}
+    @Override
+    public Cons.Type getSampleType() {
+        return Cons.Type.INT;
+    }
+
+    @Override
+    protected void defineOutputClasses(Stream stream_out) {
+        stream_out.dataclass = new String[stream_out.dim];
+        stream_out.dataclass[0] = "BVP";
+    }
 }

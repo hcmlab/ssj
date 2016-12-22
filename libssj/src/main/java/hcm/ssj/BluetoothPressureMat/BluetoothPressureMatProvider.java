@@ -33,16 +33,12 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.ioput.BluetoothReader;
-import hcm.ssj.BluetoothPressureMat.BluetoothPressureSensor;
 
 /**
  * Created by Johnny on 05.03.2015.
  */
-public class BluetoothPressureMatProvider extends SensorProvider
-{
-    public class Options extends OptionList
-    {
+public class BluetoothPressureMatProvider extends SensorProvider {
+    public class Options extends OptionList {
         public final Option<Integer> channel_id = new Option<>("channel_id", 0, Integer.class, "the channel index as defined by the order in which the streams were sent");
         public final Option<Integer> bytes = new Option<>("bytes", 0, Integer.class, "");
         public final Option<Integer> dim = new Option<>("dim", 0, Integer.class, "");
@@ -58,25 +54,23 @@ public class BluetoothPressureMatProvider extends SensorProvider
 
     public final Options options = new Options();
 
-    public BluetoothPressureMatProvider()
-    {
+    public BluetoothPressureMatProvider() {
         _name = "BluetoothReader_Data";
     }
 
     @Override
     public void enter(Stream stream_out) {
 
-        if(options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
+        if (options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF) {
             Log.e("input channel not configured");
+        }
     }
 
     @Override
-    protected boolean process(Stream stream_out)
-    {
-        short[] data = ((BluetoothPressureSensor)_sensor).getDataInt(options.channel_id.get());
+    protected boolean process(Stream stream_out) {
+        short[] data = ((BluetoothPressureSensor) _sensor).getDataInt(options.channel_id.get());
 
-        if(data.length != stream_out.tot)
-        {
+        if (data.length != stream_out.tot) {
             Log.w("data mismatch");
             return false;
         }
@@ -86,32 +80,27 @@ public class BluetoothPressureMatProvider extends SensorProvider
     }
 
     @Override
-    public int getSampleDimension()
-    {
+    public int getSampleDimension() {
         return options.dim.get();
     }
 
     @Override
-    public double getSampleRate()
-    {
+    public double getSampleRate() {
         return options.sr.get();
     }
 
     @Override
-    public int getSampleBytes()
-    {
+    public int getSampleBytes() {
         return options.bytes.get();
     }
 
     @Override
-    public int getSampleNumber()
-    {
+    public int getSampleNumber() {
         return options.num.get();
     }
 
     @Override
-    public Cons.Type getSampleType()
-    {
+    public Cons.Type getSampleType() {
         return options.type.get();
     }
 
@@ -119,7 +108,7 @@ public class BluetoothPressureMatProvider extends SensorProvider
         stream_out.dataclass = new String[stream_out.dim];
 
         for (int i = 0; i < stream_out.dataclass.length; i++) {
-            stream_out.dataclass[i] = "Press"+i;
+            stream_out.dataclass[i] = "Press" + i;
 
         }
     }

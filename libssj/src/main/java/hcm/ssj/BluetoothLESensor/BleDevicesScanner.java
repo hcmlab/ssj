@@ -66,8 +66,9 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
     }
 
     public synchronized void start() {
-        if (isScanning())
+        if (isScanning()) {
             return;
+        }
 
         if (scanThread != null) {
             scanThread.interrupt();
@@ -95,8 +96,9 @@ public class BleDevicesScanner implements Runnable, BluetoothAdapter.LeScanCallb
                     bluetoothAdapter.startLeScan(this);
                 }
 
-                if (scanPeriod > 0)
+                if (scanPeriod > 0) {
                     Thread.sleep(scanPeriod);
+                }
 
                 synchronized (this) {
                     bluetoothAdapter.stopLeScan(this);

@@ -29,123 +29,96 @@ package hcm.ssj.BluetoothLESensor;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothAdapter.LeScanCallback;
 import android.bluetooth.BluetoothDevice;
-import android.hardware.SensorManager;
-import android.os.Handler;
 
-
-
-import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.angelsensor.*;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
-public class BLESensor extends Sensor
-{
-	private Handler handler;
+public class BLESensor extends Sensor {
+    protected boolean angelInitialized;
+    protected BLESensorListener listener;
 
-	protected boolean             angelInitialized;
-	protected BLESensorListener listener;
+    private BleDevicesScanner mBleScanner;
+    private BluetoothAdapter bluetoothAdapter;
+    BluetoothDevice bluetoothDevice;
 
-	private BleDevicesScanner       mBleScanner;
-	private BluetoothAdapter bluetoothAdapter;
-	BluetoothDevice bluetoothDevice;
+    public class Options extends OptionList {
+        public final Option<String> sensorName = new Option<>("sensorName", "HCM", String.class, "Sensor Name to connect to");
+        //public final Option<String> service = new Option<>("service", "0000180d-0000-1000-8000-00805f9b34fb", String.class, "UUID of service" );//hr
+        //public final Option<String> service = new Option<>("service", "481d178c-10dd-11e4-b514-b2227cce2b54", String.class, "UUID of service" ); //angel
+        public final Option<String> service = new Option<>("service", "00002220-0000-1000-8000-00805f9b34fb", String.class, "UUID of service");// andys
+        //public final Option<String> characteristic = new Option<>("characteristic", "00002a37-0000-1000-8000-00805f9b34fb", String.class, "UUID of characteristic"); //hr
+        //public final Option<String> characteristic = new Option<>("characteristic", "334c0be8-76f9-458b-bb2e-7df2b486b4d7", String.class, "UUID of characteristic");//angel
+        public final Option<String> characteristic = new Option<>("characteristic", "00002221-0000-1000-8000-00805f9b34fb", String.class, "UUID of characteristic"); // andys
 
-	public class Options extends OptionList
-	{
+        /**
+         *
+         */
+        private Options() {
+            addOptions();
+        }
+    }
 
-		 */
-		public final Option<String> sensorName = new Option<>("sensorName", "HCM", String.class, "Sensor Name to connect to");
-		//public final Option<String> service = new Option<>("service", "0000180d-0000-1000-8000-00805f9b34fb", String.class, "UUID of service" );//hr
-		//public final Option<String> service = new Option<>("service", "481d178c-10dd-11e4-b514-b2227cce2b54", String.class, "UUID of service" ); //angel
-		public final Option<String> service = new Option<>("service", "00002220-0000-1000-8000-00805f9b34fb", String.class, "UUID of service" );// andys
-		//public final Option<String> characteristic = new Option<>("characteristic", "00002a37-0000-1000-8000-00805f9b34fb", String.class, "UUID of characteristic"); //hr
-		//public final Option<String> characteristic = new Option<>("characteristic", "334c0be8-76f9-458b-bb2e-7df2b486b4d7", String.class, "UUID of characteristic");//angel
-		public final Option<String> characteristic = new Option<>("characteristic", "00002221-0000-1000-8000-00805f9b34fb", String.class, "UUID of characteristic"); // andys
-
-
-		/**
-		 *
-		 */
-		private Options()
-		{
-			addOptions();
-		}
-	}
-
-	public final BLESensor.Options options = new BLESensor.Options();
+    public final BLESensor.Options options = new BLESensor.Options();
 
 
-
-	public LeScanCallback mScanCallback = new LeScanCallback(){
-
-
-			@Override
-			public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-				if (device.getName() != null)
-				{
-					Log.i("Bluetooth LE device found: " + device.getName());
-					//mBleScanner.stopScan();
-					if (device.getName() != null && device.getName().startsWith(options.sensorName.get()))
-					{
-
-						bluetoothDevice = device;
-						//mBleScanner.stop();
-						mBleScanner.stop();
-						listener.initialize();
-						listener.connect(device.getAddress());
-						Log.i("connected to device " + device.getName());
-					}
-				}
-				}
-	};
+    public LeScanCallback mScanCallback = new LeScanCallback() {
 
 
-	public BLESensor()
-	{
-		_name = "BLESensor";
-		angelInitialized = false;
-	}
+        @Override
+        public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            if (device.getName() != null) {
+                Log.i("Bluetooth LE device found: " + device.getName());
+                //mBleScanner.stopScan();
+                if (device.getName() != null && device.getName().startsWith(options.sensorName.get())) {
 
-	@Override
-	public boolean connect()
-	{
-		listener = new BLESensorListener(options.service.get(), options.characteristic.get());
-
-		try
-		{
-			if (mBleScanner == null)
-			{
-
-				bluetoothAdapter = BleUtils.getBluetoothAdapter(SSJApplication.getAppContext());
-				mBleScanner = new BleDevicesScanner(bluetoothAdapter, mScanCallback);
-			}
-		}
-		catch (Exception e)
-		{
-			Log.e("Exception:", e);
-		}
-
-		mBleScanner.start();
+                    bluetoothDevice = device;
+                    //mBleScanner.stop();
+                    mBleScanner.stop();
+                    listener.initialize();
+                    listener.connect(device.getAddress());
+                    Log.i("connected to device " + device.getName());
+                }
+            }
+        }
+    };
 
 
+    public BLESensor() {
+        _name = "BLESensor";
+        angelInitialized = false;
+    }
 
-		return true;
-	}
+    @Override
+    public boolean connect() {
+        listener = new BLESensorListener(options.service.get(), options.characteristic.get());
 
-	@Override
-	public void disconnect()
-	{
+        try {
+            if (mBleScanner == null) {
 
-	}
+                bluetoothAdapter = BleUtils.getBluetoothAdapter(SSJApplication.getAppContext());
+                mBleScanner = new BleDevicesScanner(bluetoothAdapter, mScanCallback);
+            }
+        } catch (Exception e) {
+            Log.e("Exception:", e);
+        }
 
-	public void didDiscoverDevice(BluetoothDevice bluetoothDevice, int rssi, boolean allowed)
-	{
+        mBleScanner.start();
 
-	}
+
+        return true;
+    }
+
+    @Override
+    public void disconnect() {
+
+    }
+
+    public void didDiscoverDevice(BluetoothDevice bluetoothDevice, int rssi, boolean allowed) {
+
+    }
 
 
 }

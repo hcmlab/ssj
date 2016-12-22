@@ -44,8 +44,8 @@ public class BluetoothPressureSensor extends BluetoothReader {
 
 
     protected short[][] _irecvData;
-    public class Options extends OptionList
-    {
+
+    public class Options extends OptionList {
         public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
         public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
         public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "if this is a client");
@@ -66,32 +66,29 @@ public class BluetoothPressureSensor extends BluetoothReader {
     }
 
     @Override
-    public void init()
-    {
+    public void init() {
         try {
             _conn = new BluetoothClient(UUID.fromString(DEFAULT_BL_SERIAL_UUID), options.serverName.get(), options.serverAddr.get());
 
         } catch (IOException e) {
-            Log.e("error in setting up connection "+ options.connectionName, e);
+            Log.e("error in setting up connection " + options.connectionName, e);
         }
     }
 
     @Override
-    public boolean connect()
-    {
-        _irecvData=new short[_provider.size()][];
-                for(int i=0; i< _provider.size(); ++i)
+    public boolean connect() {
+        _irecvData = new short[_provider.size()][];
+        for (int i = 0; i < _provider.size(); ++i) {
             _irecvData[i] = new short[_provider.get(i).getOutputStream().tot];
-        if(!super.connect())
-            return false;
-
-        try
-        {
-            byte[] data={10,0};
-            _conn.output().write(data);
         }
-        catch (IOException  e)
-        {
+        if (!super.connect()) {
+            return false;
+        }
+
+        try {
+            byte[] data = {10, 0};
+            _conn.output().write(data);
+        } catch (IOException e) {
             Log.w("unable to write init sequence to bt socket", e);
         }
 
@@ -99,69 +96,58 @@ public class BluetoothPressureSensor extends BluetoothReader {
         return true;
     }
 
-    public void update()
-    {
-        if(!_conn.isConnected() && _isreallyConnected)
+    public void update() {
+        if (!_conn.isConnected() && _isreallyConnected) {
             return;
+        }
 
-        try
-        {
+        try {
 
             byte[] header = new byte[4];
             byte[] data = new byte[1];
             short[] pair = new short[2];
-            int stateVariable=-1;
+            int stateVariable = -1;
 
 
-            for(;_conn.input().read(data) !=-1;)
-            {
+            for (; _conn.input().read(data) != -1; ) {
 
                 //shift header further
-                header[3]=header[2];
-                header[2]=header[1];
-                header[1]=header[0];
-                header[0]=data[0];
+                header[3] = header[2];
+                header[2] = header[1];
+                header[1] = header[0];
+                header[0] = data[0];
 
                 // new header found
-                if(header[0]==-128 && header[1]==0 && header[3]==0 && header[3]==0)
-                {
+                if (header[0] == -128 && header[1] == 0 && header[3] == 0 && header[3] == 0) {
 
-                    stateVariable=0;
+                    stateVariable = 0;
 
 
-                }else // process data
-                    if(stateVariable>=0)
-                    {
-                        if(stateVariable%3==0)
-                        {
+                } else // process data
+                    if (stateVariable >= 0) {
+                        if (stateVariable % 3 == 0) {
                             //first 8 bit of 12 bit int
-                            pair[1]= (short) ((short) (((short)data[0])+128)<<4);
-                        }
-                        else if(stateVariable%3==1)
-                        {
+                            pair[1] = (short) ((short) (((short) data[0]) + 128) << 4);
+                        } else if (stateVariable % 3 == 1) {
                             // second 4 bit of 12 bit int
-                            pair[1]= (short) (pair[1]|(((((short)data[0])+128)&0xf0)>>4));
+                            pair[1] = (short) (pair[1] | (((((short) data[0]) + 128) & 0xf0) >> 4));
 
                             //first 4 bit of 12 bit int
-                            pair[0]= (short) (((short) (((short)data[0])+128)&0x0f)<<8);
-                        }
-                        else if(stateVariable%3==2)
-                        {
+                            pair[0] = (short) (((short) (((short) data[0]) + 128) & 0x0f) << 8);
+                        } else if (stateVariable % 3 == 2) {
                             //second 8 bit of 12 bit int
-                            pair[0]= (short) ((((short)data[0])+128)|pair[0]);
+                            pair[0] = (short) ((((short) data[0]) + 128) | pair[0]);
 
                             //copy package of two pixels tp output
-                            _irecvData[0][(stateVariable/3)*2]=pair[0];
-                            _irecvData[0][((stateVariable/3)*2)+1]=pair[1];
+                            _irecvData[0][(stateVariable / 3) * 2] = pair[0];
+                            _irecvData[0][((stateVariable / 3) * 2) + 1] = pair[1];
 
                         }
 
 
+                        if (stateVariable == 1535) { //search new header
 
-                        if(stateVariable==1535)
-                        { //search new header
-
-                            stateVariable=-1;
+                            stateVariable = -1;
                         }
 
                         stateVariable++;
@@ -170,16 +156,12 @@ public class BluetoothPressureSensor extends BluetoothReader {
             }
 
 
-
-        }
-        catch (IOException  e)
-        {
+        } catch (IOException e) {
             Log.w("unable to read from data stream", e);
         }
     }
 
-    public short[] getDataInt(int channel_id)
-    {
+    public short[] getDataInt(int channel_id) {
         return _irecvData[channel_id];
     }
 
