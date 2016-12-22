@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package hcm.ssj.BluetoothLESensor;
+package hcm.ssj.bleSensor;
 
 import java.util.HashMap;
 

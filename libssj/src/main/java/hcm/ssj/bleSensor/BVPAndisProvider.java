@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.BluetoothLESensor;
+package hcm.ssj.bleSensor;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SensorProvider;
