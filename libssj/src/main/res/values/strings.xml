@@ -26,4 +26,5 @@
 
 <resources>
     <string name="app_name">SSJ</string>
+    <string name="name_long">Social Signal Processing for Android</string>
 </resources>

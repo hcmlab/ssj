@@ -36,6 +36,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
 import hcm.ssj.BuildConfig;
+import hcm.ssj.R;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.file.LoggingConstants;
@@ -101,7 +102,7 @@ public class TheFramework
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
-        Log.i("\nSocial Signal Interpretation for Java/Android v" + getVersion() + "\n\n");
+        Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
 
     public static TheFramework getFramework()
