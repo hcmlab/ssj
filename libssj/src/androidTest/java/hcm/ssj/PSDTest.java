@@ -70,6 +70,8 @@ public class PSDTest extends ApplicationTestCase<Application>
         sensor.addProvider(sensorProvider);
         //transformer
         PSD transformer = new PSD();
+        transformer.options.entropy.set(false);
+        transformer.options.normalize.set(false);
         frame.addTransformer(transformer, sensorProvider, 1, 0);
         //logger
         Logger log = new Logger();

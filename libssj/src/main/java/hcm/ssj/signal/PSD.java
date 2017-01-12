@@ -26,7 +26,8 @@
 
 package hcm.ssj.signal;
 
-import be.tarsos.dsp.util.fft.FFT;
+import org.jtransforms.fft.FloatFFT_1D;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
@@ -47,8 +48,8 @@ public class PSD extends Transformer
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<Boolean> entropy = new Option<>("entropy", true, Boolean.class, "Calculate entropy instead of PSD");
-        public final Option<Boolean> normalize = new Option<>("normalize", true, Boolean.class, "Normalize PSD");
+        public final Option<Boolean> entropy = new Option<>("entropy", false, Boolean.class, "Calculate entropy instead of PSD");
+        public final Option<Boolean> normalize = new Option<>("normalize", false, Boolean.class, "Normalize PSD");
 
         /**
          *
@@ -61,8 +62,8 @@ public class PSD extends Transformer
 
     public final Options options = new Options();
     //helper variables
-    private FFT fft;
-    private float[] psd;
+    private FloatFFT_1D fft;
+    private float[] copy, psd;
 
     /**
      *
@@ -83,8 +84,9 @@ public class PSD extends Transformer
         {
             Log.e("invalid input stream");
         }
-        fft = new FFT(stream_in[0].num);
-        psd = new float[stream_out.dim];
+        fft = new FloatFFT_1D(stream_in[0].num);
+        copy = new float[stream_in[0].num];
+        psd = new float[stream_in[0].num / 2 + 1];
     }
 
     /**
@@ -96,6 +98,7 @@ public class PSD extends Transformer
     {
         super.flush(stream_in, stream_out);
         fft = null;
+        copy = null;
         psd = null;
     }
 
@@ -106,19 +109,21 @@ public class PSD extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        int sample_number = stream_in[0].num, out_dim = stream_out.dim;
+        int rfft = psd.length;
         float[] ptr_in = stream_in[0].ptrF(), ptr_out = stream_out.ptrF();
         float fde = 0;
         // Copy data for FFT
-        float[] dataCopy = ptr_in.clone();
+        System.arraycopy(ptr_in, 0, copy, 0, stream_in[0].num);
         // 1. Calculate FFT
-        fft.forwardTransform(dataCopy);
-        if (out_dim > 0)
+        fft.realForward(copy);
+        // Format values like in SSI
+        joinFFT(copy);
+        if (rfft > 0)
         {
             // 2. Calculate Power Spectral Density
-            for (int i = 0; i < out_dim; i++)
+            for (int i = 0; i < rfft; i++)
             {
-                psd[i] = (float) Math.pow(dataCopy[i], 2) / (float) (out_dim);
+                psd[i] = (float) Math.pow(psd[i], 2) / (float) (rfft);
             }
             if (options.entropy.get() || options.normalize.get())
             {
@@ -128,7 +133,7 @@ public class PSD extends Transformer
                     if (options.entropy.get() || options.normalize.get())
                     {
                         // 3. Normalize calculated PSD so that it can be viewed as a Probability Density Function
-                        for (int i = 0; i < out_dim; i++)
+                        for (int i = 0; i < rfft; i++)
                         {
                             psd[i] = psd[i] / psdSum;
                         }
@@ -136,9 +141,12 @@ public class PSD extends Transformer
                     if (options.entropy.get())
                     {
                         // 4. Calculate the Frequency Domain Entropy
-                        for (int i = 0; i < out_dim; i++)
+                        for (float val : psd)
                         {
-                            fde += psd[i] * Math.log(psd[i]);
+                            if (val != 0)
+                            {
+                                fde += val * Math.log(val);
+                            }
                         }
                         fde *= -1;
                     }
@@ -147,7 +155,7 @@ public class PSD extends Transformer
             if (!options.entropy.get())
             {
                 //return psd
-                System.arraycopy(psd, 0, ptr_out, 0, out_dim);
+                System.arraycopy(psd, 0, ptr_out, 0, rfft);
             }
         }
         //return entropy
@@ -171,6 +179,26 @@ public class PSD extends Transformer
             sum += val;
         }
         return sum;
+    }
+
+    /**
+     * Helper function to format fft values similar to SSI
+     *
+     * @param fft float[]
+     */
+    private void joinFFT(float[] fft)
+    {
+        for (int i = 0; i < fft.length; i += 2)
+        {
+            if (i == 0)
+            {
+                psd[0] = fft[0];
+                psd[1] = fft[1];
+            } else
+            {
+                psd[i / 2 + 1] = (float) Math.sqrt(Math.pow(fft[i], 2) + Math.pow(fft[i + 1], 2));
+            }
+        }
     }
 
     /**
@@ -215,7 +243,7 @@ public class PSD extends Transformer
             return 1;
         } else
         {
-            return (sampleNumber_in >> 1) + 1;
+            return sampleNumber_in / 2 + 1;
         }
     }
 

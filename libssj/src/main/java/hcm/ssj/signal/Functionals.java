@@ -52,8 +52,8 @@ public class Functionals extends Transformer
         public final Option<Boolean> min = new Option<>("min", true, Boolean.class, "Calculate minimum of each frame");
         public final Option<Boolean> max = new Option<>("max", true, Boolean.class, "Calculate maximum of each frame");
         public final Option<Boolean> range = new Option<>("range", true, Boolean.class, "Calculate range of each frame");
-        public final Option<Boolean> minPos = new Option<>("minPos", true, Boolean.class, "Calculate minimum position of each frame");
-        public final Option<Boolean> maxPos = new Option<>("maxPos", true, Boolean.class, "Calculate maximum position of each frame");
+        public final Option<Boolean> minPos = new Option<>("minPos", true, Boolean.class, "Calculate sample position of the minimum of each frame");
+        public final Option<Boolean> maxPos = new Option<>("maxPos", true, Boolean.class, "Calculate sample position of the maximum of each frame");
         public final Option<Boolean> zeros = new Option<>("zeros", true, Boolean.class, "Calculate zeros of each frame");
         public final Option<Boolean> peaks = new Option<>("peaks", true, Boolean.class, "Calculate peaks of each frame");
         public final Option<Boolean> len = new Option<>("len", true, Boolean.class, "Calculate length of each frame");
@@ -147,12 +147,12 @@ public class Functionals extends Transformer
     public void transform(Stream[] stream_in, Stream stream_out)
     {
         boolean first_call = true;
-        int sample_number = stream_in[0].num, sample_dimension = stream_in[0].dim, countIn = 0, countOut = 0;
-        float[] in = stream_in[0].ptrF(), out = stream_out.ptrF();
+        int sample_number = stream_in[0].num, sample_dimension = stream_in[0].dim, c_in = 0, c_out = 0;
+        float[] ptr_in = stream_in[0].ptrF(), ptr_out = stream_out.ptrF();
         float _val;
         for (int i = 0; i < sample_dimension; i++)
         {
-            _val = in[countIn++];
+            _val = ptr_in[c_in++];
             _mean_val[i] = _val;
             _energy_val[i] = _val * _val;
             _min_val[i] = _val;
@@ -167,7 +167,7 @@ public class Functionals extends Transformer
         {
             for (int j = 0; j < sample_dimension; j++)
             {
-                _val = in[countIn++];
+                _val = ptr_in[c_in++];
                 _mean_val[j] += _val;
                 _energy_val[j] += _val * _val;
                 if (_val < _min_val[j])
@@ -210,77 +210,77 @@ public class Functionals extends Transformer
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = _mean_val[i];
+                ptr_out[c_out++] = _mean_val[i];
             }
         }
         if (options.energy.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = _energy_val[i];
+                ptr_out[c_out++] = _energy_val[i];
             }
         }
         if (options.std.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = _std_val[i];
+                ptr_out[c_out++] = _std_val[i];
             }
         }
         if (options.min.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = _min_val[i];
+                ptr_out[c_out++] = _min_val[i];
             }
         }
         if (options.max.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = _max_val[i];
+                ptr_out[c_out++] = _max_val[i];
             }
         }
         if (options.range.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = _max_val[i] - _min_val[i];
+                ptr_out[c_out++] = _max_val[i] - _min_val[i];
             }
         }
         if (options.minPos.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = (float) (_min_pos[i]) / sample_number;
+                ptr_out[c_out++] = (float) (_min_pos[i]) / sample_number;
             }
         }
         if (options.maxPos.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = (float) (_max_pos[i]) / sample_number;
+                ptr_out[c_out++] = (float) (_max_pos[i]) / sample_number;
             }
         }
         if (options.zeros.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = (float) (_zeros[i]) / sample_number;
+                ptr_out[c_out++] = (float) (_zeros[i]) / sample_number;
             }
         }
         if (options.peaks.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = (float) (_peaks[i]) / sample_number;
+                ptr_out[c_out++] = (float) (_peaks[i]) / sample_number;
             }
         }
         if (options.len.get())
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                out[countOut++] = (float) sample_number;
+                ptr_out[c_out++] = (float) sample_number;
             }
         }
     }
