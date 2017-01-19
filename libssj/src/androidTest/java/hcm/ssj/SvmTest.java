@@ -35,7 +35,6 @@ import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.ml.Classifier;
-import hcm.ssj.signal.AbsProgress;
 import hcm.ssj.signal.Functionals;
 import hcm.ssj.signal.Progress;
 import hcm.ssj.test.Logger;
@@ -82,9 +81,21 @@ public class SvmTest extends ApplicationTestCase<Application>
             Progress progress = new Progress();
             frame.addTransformer(progress, sensorProvider, 5, 0);
             //
-            AbsProgress absProgress = new AbsProgress();
-            frame.addTransformer(absProgress, sensorProvider, 30, 30);
-            transformers[i] = absProgress;
+            Functionals distance = new Functionals();
+            distance.options.mean.set(false);
+            distance.options.energy.set(false);
+            distance.options.std.set(false);
+            distance.options.min.set(false);
+            distance.options.max.set(false);
+            distance.options.range.set(false);
+            distance.options.minPos.set(false);
+            distance.options.maxPos.set(false);
+            distance.options.zeros.set(false);
+            distance.options.peaks.set(false);
+            distance.options.len.set(false);
+            distance.options.path.set(true);
+            frame.addTransformer(distance, sensorProvider, 30, 30);
+            transformers[i] = distance;
             //
             Functionals functionals = new Functionals();
             functionals.options.mean.set(true);
@@ -98,6 +109,7 @@ public class SvmTest extends ApplicationTestCase<Application>
             functionals.options.zeros.set(false);
             functionals.options.peaks.set(false);
             functionals.options.len.set(false);
+            functionals.options.path.set(false);
             frame.addTransformer(functionals, progress, 30, 30);
             transformers[i + SENSOR_TYPES.length] = functionals;
         }

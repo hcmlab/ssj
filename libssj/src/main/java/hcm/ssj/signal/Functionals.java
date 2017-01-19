@@ -56,7 +56,8 @@ public class Functionals extends Transformer
         public final Option<Boolean> maxPos = new Option<>("maxPos", true, Boolean.class, "Calculate sample position of the maximum of each frame");
         public final Option<Boolean> zeros = new Option<>("zeros", true, Boolean.class, "Calculate zeros of each frame");
         public final Option<Boolean> peaks = new Option<>("peaks", true, Boolean.class, "Calculate peaks of each frame");
-        public final Option<Boolean> len = new Option<>("len", true, Boolean.class, "Calculate length of each frame");
+        public final Option<Boolean> len = new Option<>("len", true, Boolean.class, "Calculate sample number of each frame");
+        public final Option<Boolean> path = new Option<>("path", true, Boolean.class, "Calculate path length of each frame");
         public final Option<Integer> delta = new Option<>("delta", 2, Integer.class, "zero/peaks search offset");
 
         /**
@@ -82,6 +83,8 @@ public class Functionals extends Transformer
     private int[] _peaks;
     private float[] _left_val;
     private float[] _mid_val;
+    private float[] _path;
+    private float[] _old_val;
 
     /**
      *
@@ -116,6 +119,8 @@ public class Functionals extends Transformer
         _peaks = new int[sample_dimension];
         _left_val = new float[sample_dimension];
         _mid_val = new float[sample_dimension];
+        _path = new float[sample_dimension];
+        _old_val = new float[sample_dimension];
     }
 
     /**
@@ -137,6 +142,8 @@ public class Functionals extends Transformer
         _peaks = null;
         _left_val = null;
         _mid_val = null;
+        _path = null;
+        _old_val = null;
     }
 
     /**
@@ -162,6 +169,8 @@ public class Functionals extends Transformer
             _zeros[i] = 0;
             _peaks[i] = 0;
             _mid_val[i] = _val;
+            _path[i] = 0;
+            _old_val[i] = _val;
         }
         for (int i = 1; i < sample_number; i++)
         {
@@ -198,6 +207,8 @@ public class Functionals extends Transformer
                     _left_val[j] = _mid_val[j];
                     _mid_val[j] = _val;
                 }
+                _path[j] += Math.abs(_val - _old_val[j]);
+                _old_val[j] = _val;
             }
         }
         for (int i = 0; i < sample_dimension; i++)
@@ -283,6 +294,13 @@ public class Functionals extends Transformer
                 ptr_out[c_out++] = (float) sample_number;
             }
         }
+        if (options.path.get())
+        {
+            for (int i = 0; i < sample_dimension; i++)
+            {
+                ptr_out[c_out++] = _path[i];
+            }
+        }
     }
 
     /**
@@ -334,6 +352,10 @@ public class Functionals extends Transformer
             dim += stream_in[0].dim;
         }
         if (options.len.get())
+        {
+            dim += stream_in[0].dim;
+        }
+        if (options.path.get())
         {
             dim += stream_in[0].dim;
         }
@@ -390,7 +412,7 @@ public class Functionals extends Transformer
             }
             for (int i = 0; i < overallDimension; i++)
             {
-                stream_out.dataclass[i] = "fun" + i;
+                stream_out.dataclass[i] = "fnc" + i;
             }
         }
     }

@@ -38,7 +38,6 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.signal.AvgVar;
 import hcm.ssj.signal.Count;
-import hcm.ssj.signal.Distance;
 import hcm.ssj.signal.Median;
 import hcm.ssj.signal.MinMax;
 import hcm.ssj.signal.Progress;
@@ -250,13 +249,11 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         //transformer
         Progress transformer1 = new Progress();
         frame.addTransformer(transformer1, sensorProviders, 1, 0);
-        Distance transformer2 = new Distance();
+        Count transformer2 = new Count();
         frame.addTransformer(transformer2, transformer1, 1, 0);
-        Count transformer3 = new Count();
-        frame.addTransformer(transformer3, transformer2, 1, 0);
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, transformer3, 1, 0);
+        frame.addConsumer(log, transformer2, 1, 0);
         //start framework
         frame.Start();
         //run test
