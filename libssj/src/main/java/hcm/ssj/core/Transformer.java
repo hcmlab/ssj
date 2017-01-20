@@ -99,7 +99,9 @@ public abstract class Transformer extends Provider {
                 {
                     ok &= _frame.getData(_bufferID_in[i], _stream_in[i].ptr(), _readPos[i],
                                          _stream_in[i].num);
-                    _stream_in[i].time = (double)_readPos[i] / _stream_in[i].sr;
+                    if(ok)
+                        _stream_in[i].time = (double)_readPos[i] / _stream_in[i].sr;
+
                     _readPos[i] += _num_frame[i];
                 }
 

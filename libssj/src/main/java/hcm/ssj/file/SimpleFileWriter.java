@@ -323,7 +323,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
     {
         fileOutputStream = closeStream(fileOutputStream);
         simpleHeader._num = String.valueOf(sampleCount);
-        simpleHeader._to = String.valueOf(stream.time);
+        simpleHeader._to = String.valueOf(stream.time + stream.num / stream.sr);
         writeLine(simpleHeader.getLine5(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine6(), fileOutputStreamHeader);
         fileOutputStreamHeader = closeStream(fileOutputStreamHeader);
