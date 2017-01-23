@@ -49,7 +49,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -118,12 +118,12 @@ public abstract class SaveLoad
             serializer.endTag(null, FRAMEWORK);
             //sensorProviders
             serializer.startTag(null, SENSOR_PROVIDER_LIST);
-            LinkedHashSet<SensorProvider> hsSensorProviders = Linker.getInstance().hsSensorProviders;
-            for (SensorProvider sensorProvider : hsSensorProviders)
+            LinkedHashSet<SensorChannel> hsSensorChannels = Linker.getInstance().hsSensorChannels;
+            for (SensorChannel sensorChannel : hsSensorChannels)
             {
                 serializer.startTag(null, SENSOR_PROVIDER);
-                addStandard(serializer, sensorProvider);
-                addOptions(serializer, sensorProvider);
+                addStandard(serializer, sensorChannel);
+                addOptions(serializer, sensorChannel);
                 serializer.endTag(null, SENSOR_PROVIDER);
             }
             serializer.endTag(null, SENSOR_PROVIDER_LIST);

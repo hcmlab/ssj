@@ -33,7 +33,7 @@ import hcm.ssj.biosig.GSRArousalEstimation;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.empatica.Empatica;
-import hcm.ssj.empatica.GSRProvider;
+import hcm.ssj.empatica.GSRChannel;
 import hcm.ssj.test.Logger;
 
 /**
@@ -52,7 +52,7 @@ public class ArousalTest extends ApplicationTestCase<Application>
 		TheFramework frame = TheFramework.getFramework();
 
 		Empatica empatica = new Empatica();
-		GSRProvider data = new GSRProvider();
+		GSRChannel data = new GSRChannel();
 		empatica.addProvider(data);
 		frame.addSensor(empatica);
 

@@ -30,10 +30,10 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.creator.core.Builder;
 import hcm.ssj.creator.core.Linker;
@@ -80,24 +80,24 @@ public class testLinker extends ApplicationTestCase<Application>
                 break;
             }
         }
-        SensorProvider sensorProvider = null;
+        SensorChannel sensorChannel = null;
         if (sensor != null)
         {
             for (Class clazz : builder.sensorProviders)
             {
-                if (clazz.equals(AndroidSensorProvider.class))
+                if (clazz.equals(AndroidSensorChannel.class))
                 {
-                    sensorProvider = (SensorProvider) Builder.instantiate(clazz);
+                    sensorChannel = (SensorChannel) Builder.instantiate(clazz);
                     break;
                 }
             }
         }
         Consumer consumer = null;
-        if (sensorProvider != null)
+        if (sensorChannel != null)
         {
             linker.add(sensor);
-            linker.add(sensorProvider);
-            linker.addProvider(sensor, sensorProvider);
+            linker.add(sensorChannel);
+            linker.addProvider(sensor, sensorChannel);
             for (Class clazz : builder.consumers)
             {
                 if (clazz.equals(Logger.class))
@@ -109,7 +109,7 @@ public class testLinker extends ApplicationTestCase<Application>
             if (consumer != null)
             {
                 linker.add(consumer);
-                linker.addProvider(consumer, sensorProvider);
+                linker.addProvider(consumer, sensorChannel);
                 linker.setFrameSize(consumer, 1);
                 linker.setDelta(consumer, 0);
             }

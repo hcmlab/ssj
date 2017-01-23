@@ -37,8 +37,8 @@ import com.thalmic.myo.Myo;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.myo.DynAccelerationProvider;
-import hcm.ssj.myo.EMGProvider;
+import hcm.ssj.myo.DynAccelerationChannel;
+import hcm.ssj.myo.EMGChannel;
 import hcm.ssj.myo.Vibrate2Command;
 import hcm.ssj.test.Logger;
 
@@ -57,7 +57,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
         TheFramework frame = TheFramework.getFramework();
 
         hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
-        DynAccelerationProvider acc = new DynAccelerationProvider();
+        DynAccelerationChannel acc = new DynAccelerationChannel();
         acc.options.sampleRate.set(10);
         frame.addSensor(myo);
         myo.addProvider(acc);
@@ -88,7 +88,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
         TheFramework frame = TheFramework.getFramework();
 
         hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
-        EMGProvider emg = new EMGProvider();
+        EMGChannel emg = new EMGChannel();
         emg.options.sampleRate.set(10);
         frame.addSensor(myo);
         myo.addProvider(emg);

@@ -31,7 +31,7 @@ import android.content.res.AssetManager;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.mobileSSI.MobileSSIConsumer;
@@ -92,8 +92,8 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         frame.addSensor(s2);
 
         //provider
-        AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-        AndroidSensorProvider sensorPmag = new AndroidSensorProvider();
+        AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
+        AndroidSensorChannel sensorPmag = new AndroidSensorChannel();
 
         sensor.addProvider(sensorProvider);
         s2.addProvider(sensorPmag);

@@ -33,8 +33,8 @@ import android.view.SurfaceView;
 
 import java.io.File;
 
+import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraPainter;
-import hcm.ssj.camera.CameraProvider;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.CameraWriter;
 import hcm.ssj.core.TheFramework;
@@ -103,7 +103,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         cameraSensor.options.previewFpsRangeMax.set(16 * 1000);
         frame.addSensor(cameraSensor);
         //provider
-        CameraProvider cameraProvider = new CameraProvider();
+        CameraChannel cameraProvider = new CameraChannel();
         cameraProvider.options.sampleRate.set((double) frameRate);
         cameraSensor.addProvider(cameraProvider);
         //consumer

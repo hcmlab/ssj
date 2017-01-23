@@ -41,7 +41,7 @@ import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.creator.ComponentOptionsActivity;
 import hcm.ssj.creator.OptionsActivity;
@@ -107,7 +107,7 @@ class ElementView extends View
 					SensorOptionsActivity.object = ElementView.this.element;
 					intent = new Intent(activity, SensorOptionsActivity.class);
 				}
-				else if (ElementView.this.element instanceof SensorProvider)
+				else if (ElementView.this.element instanceof SensorChannel)
 				{
 					OptionsActivity.object = ElementView.this.element;
 					intent = new Intent(activity, OptionsActivity.class);
@@ -259,7 +259,7 @@ class ElementView extends View
 		{
 			paintType = 0;
 		}
-		else if (element instanceof SensorProvider)
+		else if (element instanceof SensorChannel)
 		{
 			paintType = 1;
 		}

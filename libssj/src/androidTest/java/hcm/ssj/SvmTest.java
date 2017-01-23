@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
@@ -75,7 +75,7 @@ public class SvmTest extends ApplicationTestCase<Application>
             sensor.options.sensorType.set(SENSOR_TYPES[i]);
             frame.addSensor(sensor);
             //provider
-            AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+            AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
             sensor.addProvider(sensorProvider);
             //transformers
             Progress progress = new Progress();

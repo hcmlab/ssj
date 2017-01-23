@@ -33,9 +33,9 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.ioput.BluetoothChannel;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventReader;
-import hcm.ssj.ioput.BluetoothProvider;
 import hcm.ssj.ioput.BluetoothReader;
 import hcm.ssj.test.EventLogger;
 import hcm.ssj.test.Logger;
@@ -61,7 +61,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         blr.options.connectionName.set("stream");
         frame.addSensor(blr);
 
-        BluetoothProvider acc = new BluetoothProvider();
+        BluetoothChannel acc = new BluetoothChannel();
         acc.options.channel_id.set(0);
         acc.options.dim.set(3);
         acc.options.bytes.set(4);
@@ -70,7 +70,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         acc.options.num.set(50);
         blr.addProvider(acc);
 
-        BluetoothProvider gyr = new BluetoothProvider();
+        BluetoothChannel gyr = new BluetoothChannel();
         gyr.options.channel_id.set(1);
         gyr.options.dim.set(3);
         gyr.options.bytes.set(4);

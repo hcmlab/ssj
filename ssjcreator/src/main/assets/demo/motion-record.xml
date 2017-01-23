@@ -12,12 +12,12 @@
     </options>
   </framework>
   <sensorProviderList>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorProvider" id="182691243">
+    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="182691243">
       <options>
         <option name="sampleRate" value="50" />
       </options>
     </sensorProvider>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorProvider" id="152692641">
+    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="152692641">
       <options>
         <option name="sampleRate" value="50" />
       </options>

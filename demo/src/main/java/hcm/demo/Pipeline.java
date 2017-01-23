@@ -30,13 +30,11 @@ import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
-import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
-import hcm.ssj.audio.Pitch;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.graphic.SignalPainter;
+import hcm.ssj.file.SimpleFileWriter;
 
 public class Pipeline extends Thread {
 
@@ -71,34 +69,13 @@ public class Pipeline extends Thread {
             _ssj.options.countdown.set(10);
             _ssj.options.log.set(true);
 
-            //** connection to sensors
             Microphone mic = new Microphone();
+            Provider audio = mic.registerOutput(mic.OUT_AUDIO);
             _ssj.addSensor(mic);
-            AudioProvider audio = new AudioProvider();
-            audio.options.sampleRate.set(16000);
-            audio.options.scale.set(true);
-            mic.addProvider(audio);
 
-            //** transform data coming from sensors
-            Pitch pitch = new Pitch();
-            pitch.options.detector.set(Pitch.YIN);
-            pitch.options.computePitchedState.set(false);
-            pitch.options.computePitch.set(true);
-            pitch.options.computeVoicedProb.set(false);
-            pitch.options.computePitchEnvelope.set(false);
-            _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
-
-            //** configure GUI
-            //paint audio
-            SignalPainter paint = new SignalPainter();
-            paint.options.manualBounds.set(true);
-            paint.options.min.set(0.);
-            paint.options.max.set(1.);
-            paint.options.renderMax.set(true);
-            paint.options.secondScaleMin.set(0.);
-            paint.options.secondScaleMax.set(500.);
-            paint.options.graphView.set(_graphs[0]);
-            _ssj.addConsumer(paint, new Provider[]{audio, pitch}, 0.032, 0);
+            // Transformer
+            SimpleFileWriter sfw = new SimpleFileWriter();
+            _ssj.addConsumer(sfw, audio, 1, 0);
         }
         catch(Exception e)
         {

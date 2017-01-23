@@ -35,17 +35,21 @@ public abstract class Sensor extends Component {
 
     private boolean _isConnected = false;
     protected TheFramework _frame;
-    protected ArrayList<Provider> _provider = new ArrayList<>();
+    protected ArrayList<SensorChannel> _provider = new ArrayList<>();
 
     public Sensor()
     {
         _frame = TheFramework.getFramework();
     }
 
-    public SensorProvider addProvider(SensorProvider p) throws SSJException {
-        _frame.addSensorProvider(this, p);
+    SensorChannel addProvider(SensorChannel p) throws SSJException {
         _provider.add(p);
         return p;
+    }
+
+    public ArrayList<SensorChannel> getProviders()
+    {
+        return _provider;
     }
 
     @Override
@@ -121,6 +125,24 @@ public abstract class Sensor extends Component {
      * called once before termination
      */
     protected abstract void disconnect();
+
+    public abstract int getChannelSize();
+
+    public SensorChannel getChannel(int id) throws SSJException
+    {
+        SensorChannel provider = null;
+        try {
+            provider = (SensorChannel) getChannelClass(id).newInstance();
+        } catch (InstantiationException e) {
+            throw new SSJException(e);
+        } catch (IllegalAccessException e) {
+            throw new SSJException(e);
+        }
+
+        return provider;
+    }
+
+    public abstract Class getChannelClass(int id) throws SSJException;
 
     public boolean isConnected()
     {

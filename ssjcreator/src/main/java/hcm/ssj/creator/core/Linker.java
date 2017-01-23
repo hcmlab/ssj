@@ -35,7 +35,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -49,7 +49,7 @@ import hcm.ssj.creator.core.container.ContainerElement;
 public class Linker
 {
     private static Linker instance = null;
-    protected LinkedHashSet<SensorProvider> hsSensorProviders = new LinkedHashSet<>();
+    protected LinkedHashSet<SensorChannel> hsSensorChannels = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Sensor>> hsSensorElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
@@ -84,7 +84,7 @@ public class Linker
      */
     public void clear()
     {
-        hsSensorProviders.clear();
+        hsSensorChannels.clear();
         hsSensorElements.clear();
         hsTransformerElements.clear();
         hsConsumerElements.clear();
@@ -146,7 +146,7 @@ public class Linker
                 return objects;
             }
             case SensorProvider:
-                return hsSensorProviders.toArray();
+                return hsSensorChannels.toArray();
             case Transformer:
             {
                 Object[] objects = new Object[hsTransformerElements.size()];
@@ -187,20 +187,19 @@ public class Linker
             HashMap<Provider, Boolean> hmProviders = element.getHmProviders();
             if (hmProviders.size() > 0)
             {
-                framework.addSensor(sensor);
                 for (Map.Entry<Provider, Boolean> entry : hmProviders.entrySet())
                 {
-                    SensorProvider sensorProvider = (SensorProvider) entry.getKey();
-                    sensor.addProvider(sensorProvider);
+                    SensorChannel sensorChannel = (SensorChannel) entry.getKey();
+                    framework.addSensor(sensor, sensorChannel);
                     //activate in transformer
                     for (ContainerElement<Transformer> element2 : hsTransformerElements)
                     {
-                        element2.setAdded(sensorProvider);
+                        element2.setAdded(sensorChannel);
                     }
                     //activate in consumer
                     for (ContainerElement<Consumer> element2 : hsConsumerElements)
                     {
-                        element2.setAdded(sensorProvider);
+                        element2.setAdded(sensorChannel);
                     }
                 }
             }
@@ -257,9 +256,9 @@ public class Linker
     public boolean add(Object o)
     {
         //sensorProvider
-        if (o instanceof SensorProvider)
+        if (o instanceof SensorChannel)
         {
-            return hsSensorProviders.add((SensorProvider) o);
+            return hsSensorChannels.add((SensorChannel) o);
         }
         //sensor
         else if (o instanceof Sensor)
@@ -318,25 +317,25 @@ public class Linker
             }
         }
         //sensorProvider
-        else if (o instanceof SensorProvider)
+        else if (o instanceof SensorChannel)
         {
-            SensorProvider sensorProvider = (SensorProvider) o;
+            SensorChannel sensorChannel = (SensorChannel) o;
             //also remove in sensors
             for (ContainerElement<Sensor> element : hsSensorElements)
             {
-                element.removeProvider(sensorProvider);
+                element.removeProvider(sensorChannel);
             }
             //also remove in transformers
             for (ContainerElement<Transformer> element : hsTransformerElements)
             {
-                element.removeProvider(sensorProvider);
+                element.removeProvider(sensorChannel);
             }
             //also remove in consumers
             for (ContainerElement<Consumer> element : hsConsumerElements)
             {
-                element.removeProvider(sensorProvider);
+                element.removeProvider(sensorChannel);
             }
-            return hsSensorProviders.remove(sensorProvider);
+            return hsSensorChannels.remove(sensorChannel);
         }
         //transformer
         else if (o instanceof Transformer)
@@ -382,9 +381,9 @@ public class Linker
     {
         //check for existence in
         //sensorProviders
-        if (provider instanceof SensorProvider)
+        if (provider instanceof SensorChannel)
         {
-            if (!hsSensorProviders.contains(provider))
+            if (!hsSensorChannels.contains(provider))
             {
                 return false;
             }
@@ -406,7 +405,7 @@ public class Linker
             }
         }
         //add to sensor
-        if (o instanceof Sensor && provider instanceof SensorProvider)
+        if (o instanceof Sensor && provider instanceof SensorChannel)
         {
             for (ContainerElement<Sensor> element : hsSensorElements)
             {
@@ -451,9 +450,9 @@ public class Linker
     {
         //check for existence in
         //sensorProviders
-        if (provider instanceof SensorProvider)
+        if (provider instanceof SensorChannel)
         {
-            if (!hsSensorProviders.contains(provider))
+            if (!hsSensorChannels.contains(provider))
             {
                 return false;
             }
@@ -475,7 +474,7 @@ public class Linker
             }
         }
         //remove from sensor
-        if (o instanceof Sensor && provider instanceof SensorProvider)
+        if (o instanceof Sensor && provider instanceof SensorChannel)
         {
             for (ContainerElement<Sensor> element : hsSensorElements)
             {

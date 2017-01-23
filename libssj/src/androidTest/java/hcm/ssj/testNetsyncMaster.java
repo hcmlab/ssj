@@ -29,7 +29,7 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.audio.AudioProvider;
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
@@ -64,7 +64,7 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
 //        blr.addProvider(data);
 
         Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
+        AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
         mic.addProvider(audio);

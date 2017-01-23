@@ -36,12 +36,12 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.SimpleFileReader;
-import hcm.ssj.file.SimpleFileReaderProvider;
+import hcm.ssj.file.SimpleFileReaderChannel;
 import hcm.ssj.file.SimpleFileWriter;
 import hcm.ssj.file.SimpleXmlParser;
 import hcm.ssj.test.Logger;
@@ -215,7 +215,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
         sensorConnection.options.sensorType.set(SensorType.ACCELEROMETER);
         frame.addSensor(sensorConnection);
         //provider
-        AndroidSensorProvider sensorConnectionProvider = new AndroidSensorProvider();
+        AndroidSensorChannel sensorConnectionProvider = new AndroidSensorChannel();
         sensorConnection.addProvider(sensorConnectionProvider);
         //consumer
         SimpleFileWriter simpleFileWriter = new SimpleFileWriter();
@@ -238,7 +238,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
         simpleFileReader.options.loop.set(true);
         frame.addSensor(simpleFileReader);
         //provider
-        SimpleFileReaderProvider simpleFileReaderProvider = new SimpleFileReaderProvider();
+        SimpleFileReaderChannel simpleFileReaderProvider = new SimpleFileReaderChannel();
         simpleFileReader.addProvider(simpleFileReaderProvider);
         //logger
         Logger log = new Logger();

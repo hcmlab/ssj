@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.gps.GPSProvider;
+import hcm.ssj.gps.GPSChannel;
 import hcm.ssj.gps.GPSSensor;
 import hcm.ssj.test.Logger;
 
@@ -64,7 +64,7 @@ public class GPSTest extends ApplicationTestCase<Application>
 		frame.addSensor(sensor);
 
 		// Provider
-		GPSProvider sensorProvider = new GPSProvider();
+		GPSChannel sensorProvider = new GPSChannel();
 		sensor.addProvider(sensorProvider);
 
 		// Logger

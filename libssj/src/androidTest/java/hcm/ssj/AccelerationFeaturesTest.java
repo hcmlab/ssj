@@ -28,24 +28,12 @@ package hcm.ssj;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
-import android.test.suitebuilder.annotation.Suppress;
-
-import java.io.FileReader;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.body.AccelerationFeatures;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.file.SimpleFileReader;
-import hcm.ssj.file.SimpleFileReaderProvider;
 import hcm.ssj.file.SimpleFileWriter;
-import hcm.ssj.gps.GPSProvider;
-import hcm.ssj.gps.GPSSensor;
-import hcm.ssj.ml.Classifier;
-import hcm.ssj.signal.Avg;
-import hcm.ssj.test.Logger;
 
 /**
  * Created by Michael Dietz on 19.10.2016.
@@ -54,7 +42,7 @@ import hcm.ssj.test.Logger;
 public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 {
 	// Test length in milliseconds
-	private final static int TEST_LENGTH = 2 * 60 * 1000;
+	private final static int TEST_LENGTH = 1 * 60 * 1000;
 
 	public AccelerationFeaturesTest()
 	{
@@ -70,30 +58,17 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
+		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 		frame.addSensor(sensor);
 
 		// Provider
-		AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+		AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
 		sensorProvider.options.sampleRate.set(40);
 		sensor.addProvider(sensorProvider);
 
 		// Transformer
-		AccelerationFeatures features = new AccelerationFeatures();
-		frame.addTransformer(features, sensorProvider, 1, 3);
-
-		// SVM
-		Classifier classifier = new Classifier();
-		classifier.options.trainerPath.set("/sdcard/SSJ/Model/");
-		classifier.options.trainerFile.set("my_model.trainer");
-		frame.addTransformer(classifier, features, 1, 0);
-
-		// Logger
-		Logger log = new Logger();
-		frame.addConsumer(log, classifier, 1, 0);
-
-		//Logger log2 = new Logger();
-		//frame.addConsumer(log2, features, 1, 0);
+		SimpleFileWriter sfw = new SimpleFileWriter();
+		frame.addConsumer(sfw, sensorProvider, 1, 0);
 
 		// Start framework
 		frame.Start();

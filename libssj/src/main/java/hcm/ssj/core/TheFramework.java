@@ -197,10 +197,21 @@ public class TheFramework
         }
     }
 
-    public void addSensor(Sensor s)
-    {
-        s.init();
-        _components.add(s);
+//    public void addSensor(Sensor s) throws SSJException
+//    {
+//        s.init();
+//        _components.add(s);
+//
+//        //add providers
+//        for(SensorProvider p : s.getProviders())
+//        {
+//            addSensorProvider(s, p);
+//        }
+//    }
+
+
+    public void addSensor(Sensor s, int channel_id) throws SSJException {
+        addSensor(s, s.getChannel(channel_id));
     }
 
     /**
@@ -209,7 +220,9 @@ public class TheFramework
      * @param s the sensor which owns the provider
      * @param p the provider to be added to the framework
      */
-    void addSensorProvider(Sensor s, SensorProvider p) throws SSJException {
+    public void addSensor(Sensor s, SensorChannel p) throws SSJException {
+
+        s.addProvider(p);
         p.setSensor(s);
         p.init();
 

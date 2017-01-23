@@ -32,7 +32,7 @@ import android.hardware.SensorManager;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
@@ -85,7 +85,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 sensor.options.sensorType.set(type);
                 frame.addSensor(sensor);
                 //provider
-                AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+                AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
                 sensor.addProvider(sensorProvider);
                 //logger
                 Logger log = new Logger();
@@ -130,7 +130,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             TheFramework frame = TheFramework.getFramework();
             frame.options.bufferSize.set(10.0f);
             //create providers
-            AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
+            AndroidSensorChannel[] sensorProviders = new AndroidSensorChannel[sensorTypes.length];
             for (int i = 0; i < sensorTypes.length; i++)
             {
                 //sensor
@@ -138,7 +138,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 sensor.options.sensorType.set(sensorTypes[i]);
                 frame.addSensor(sensor);
                 //provider
-                AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+                AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
                 sensor.addProvider(sensorProvider);
                 sensorProviders[i] = sensorProvider;
             }
@@ -186,7 +186,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             TheFramework frame = TheFramework.getFramework();
             frame.options.bufferSize.set(10.0f);
             //create providers
-            AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
+            AndroidSensorChannel[] sensorProviders = new AndroidSensorChannel[sensorTypes.length];
             for (int i = 0; i < sensorTypes.length; i++)
             {
                 //sensor
@@ -194,7 +194,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 sensor.options.sensorType.set(sensorTypes[i]);
                 frame.addSensor(sensor);
                 //provider
-                AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+                AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
                 sensor.addProvider(sensorProvider);
                 sensorProviders[i] = sensorProvider;
             }
@@ -234,7 +234,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.set(10.0f);
         //create providers
-        AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
+        AndroidSensorChannel[] sensorProviders = new AndroidSensorChannel[sensorTypes.length];
         for (int i = 0; i < sensorTypes.length; i++)
         {
             //sensor
@@ -242,7 +242,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             sensor.options.sensorType.set(sensorTypes[i]);
             frame.addSensor(sensor);
             //provider
-            AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+            AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
             sensor.addProvider(sensorProvider);
             sensorProviders[i] = sensorProvider;
         }
@@ -281,7 +281,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.set(10.0f);
         //create providers
-        AndroidSensorProvider[] sensorProviders = new AndroidSensorProvider[sensorTypes.length];
+        AndroidSensorChannel[] sensorProviders = new AndroidSensorChannel[sensorTypes.length];
         for (int i = 0; i < sensorTypes.length; i++)
         {
             //sensor
@@ -289,7 +289,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             sensor.options.sensorType.set(sensorTypes[i]);
             frame.addSensor(sensor);
             //provider
-            AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
+            AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
             sensor.addProvider(sensorProvider);
             sensorProviders[i] = sensorProvider;
         }

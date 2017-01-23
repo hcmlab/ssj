@@ -4,7 +4,7 @@
   <framework/>
   
   <sensorProviderList>
-    <sensorProvider class="hcm.ssj.audio.AudioProvider" id="1">
+    <sensorProvider class="hcm.ssj.audio.AudioChannel" id="1">
       <options>
         <option name="audioFormat" value="ENCODING_PCM_16BIT" />
         <option name="channelConfig" value="CHANNEL_IN_MONO" />
