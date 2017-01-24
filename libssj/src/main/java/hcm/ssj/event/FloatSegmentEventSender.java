@@ -27,13 +27,13 @@
 package hcm.ssj.event;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.EventConsumer;
+import hcm.ssj.core.Consumer;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
-public class FloatSegmentEventSender extends EventConsumer
+public class FloatSegmentEventSender extends Consumer
 {
     public class Options extends OptionList
     {

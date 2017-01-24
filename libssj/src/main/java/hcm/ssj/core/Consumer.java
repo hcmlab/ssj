@@ -31,6 +31,7 @@ import android.os.PowerManager;
 
 import java.util.Arrays;
 
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -39,7 +40,7 @@ import hcm.ssj.core.stream.Stream;
 public abstract class Consumer extends Component {
 
     private Stream[] _stream_in;
-    private int[] _readPos ;
+    private int[] _readPos = null;
     private int[] _bufferID_in;
 
     private int[] _num_frame;
@@ -67,8 +68,16 @@ public abstract class Consumer extends Component {
         PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
 
+        boolean eventTrigger = false;
+        Event ev = null;
+        int eventID = 0;
+
+        if(_evchannel_in != null && _evchannel_in.size() == 1)
+            eventTrigger = true;
+
         //reset data
-        Arrays.fill(_readPos, 0);
+        if(_readPos != null)
+            Arrays.fill(_readPos, 0);
         for(int i = 0; i < _stream_in.length; i++)
             _stream_in[i].reset();
 
@@ -86,23 +95,42 @@ public abstract class Consumer extends Component {
         }
 
         //maintain update rate starting from now
-        _timer.reset();
+        if(!eventTrigger)
+            _timer.reset();
 
         while(!_terminate && _frame.isRunning())
         {
             try {
+                if(eventTrigger) {
+                    ev = _evchannel_in.get(0).getEvent(eventID++, true);
+                    if (ev == null || ev.dur == 0)
+                        continue;
+                }
+
                 if(_doWakeLock) wakeLock.acquire();
 
                 //grab data
                 boolean ok = true;
+                int pos, numSamples;
                 for(int i = 0; i < _bufferID_in.length; i++)
                 {
-                    ok &= _frame.getData(_bufferID_in[i], _stream_in[i].ptr(), _readPos[i],
-                                         _stream_in[i].num);
-                    if(ok)
-                        _stream_in[i].time = (double)_readPos[i] / _stream_in[i].sr;
+                    if(eventTrigger)
+                    {
+                        pos = (int) ((ev.time / 1000.0) * _stream_in[i].sr + 0.5);
+                        numSamples = ((int) (((ev.time + ev.dur) / 1000.0) * _stream_in[i].sr + 0.5)) - pos;
 
-                    _readPos[i] += _num_frame[i];
+                        // check if local buffer is large enough and make it larger if necessary
+                        _stream_in[i].adjust(numSamples);
+                    }
+                    else
+                    {
+                        pos = _readPos[i];
+                        _readPos[i] += _num_frame[i];
+                    }
+
+                    ok &= _frame.getData(_bufferID_in[i], _stream_in[i].ptr(), pos, _stream_in[i].num);
+                    if (ok)
+                        _stream_in[i].time = (double) pos / _stream_in[i].sr;
                 }
 
                 //if we received data from all sources, process it
@@ -112,10 +140,10 @@ public abstract class Consumer extends Component {
 
                 if(_doWakeLock) wakeLock.release();
 
-                if(ok) {
-                    //maintain update rate
+                //maintain update rate
+                if(ok && !eventTrigger)
                     _timer.sync();
-                }
+
             } catch(Exception e) {
                 _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
             }
@@ -150,7 +178,7 @@ public abstract class Consumer extends Component {
     public void flush(Stream stream_in[]) {}
 
     /**
-     * general transformer initialization
+     * initialization for continuous consumer
      */
     public void setup(Provider[] sources, double frame, double delta) throws SSJException
     {
@@ -185,6 +213,30 @@ public abstract class Consumer extends Component {
         }
         catch(Exception e)
         {
+            throw new SSJException("error configuring component", e);
+        }
+
+        _isSetup = true;
+    }
+
+    /**
+     * initialization for event consumer
+     */
+    public void setup(Provider[] sources) throws SSJException {
+        try {
+            _bufferID_in = new int[sources.length];
+            _stream_in = new Stream[sources.length];
+
+            for(int i = 0; i < sources.length; i++) {
+                _bufferID_in[i] = sources[i].getBufferID();
+
+                //allocate local input buffer and make it one second large too avoid memory allocation at runtime
+                _stream_in[i] = Stream.create(sources[i], (int)sources[i].getOutputStream().sr);
+            }
+
+            init(_stream_in);
+
+        } catch(Exception e) {
             throw new SSJException("error configuring component", e);
         }
 

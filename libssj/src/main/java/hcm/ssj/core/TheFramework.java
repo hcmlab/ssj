@@ -263,12 +263,12 @@ public class TheFramework
         _components.add(c);
     }
 
-    public void addConsumer(EventConsumer c, Provider source, EventChannel channel) throws SSJException {
+    public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, channel);
     }
 
-    public void addConsumer(EventConsumer c, Provider[] sources, EventChannel channel) throws SSJException {
+    public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException {
         c.setup(sources);
         c.addEventChannelIn(channel);
         _components.add(c);
