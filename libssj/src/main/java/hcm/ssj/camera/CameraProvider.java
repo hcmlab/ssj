@@ -26,8 +26,6 @@
 
 package hcm.ssj.camera;
 
-import java.util.Arrays;
-
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorProvider;
@@ -155,7 +153,6 @@ public class CameraProvider extends SensorProvider
     @Override
     protected void defineOutputClasses(Stream stream_out)
     {
-        stream_out.dataclass = new String[getSampleDimension()];
-        Arrays.fill(stream_out.dataclass, "");
+        stream_out.dataclass = new String[]{"video"};
     }
 }
