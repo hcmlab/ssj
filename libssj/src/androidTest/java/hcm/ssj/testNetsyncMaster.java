@@ -50,8 +50,9 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
     {
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.set(10.0f);
-        frame.options.netSync.set(true);
-        frame.options.netSyncListen.set(false);
+
+        frame.options.startSyncPort.set(55100);
+        frame.options.master.set(null); //this is the master
 
 //        BluetoothReader blr = new BluetoothReader();
 //        blr.options.connectionType = BluetoothConnection.Type.SERVER;

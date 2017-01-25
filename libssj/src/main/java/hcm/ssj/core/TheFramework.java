@@ -26,10 +26,10 @@
 
 package hcm.ssj.core;
 
+import android.os.SystemClock;
+
 import java.io.File;
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.concurrent.SynchronousQueue;
@@ -51,10 +51,13 @@ public class TheFramework
     {
         public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "");
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "");
-        public final Option<Float> timeoutThread = new Option<>("timeoutThread", 5.f, Float.class, "");
-        public final Option<Boolean> netSync = new Option<>("netSync", false, Boolean.class, "");
-        public final Option<Boolean> netSyncListen = new Option<>("netSyncListen", false, Boolean.class, "set true if this is not the server pipe");
-        public final Option<Integer> netSyncPort = new Option<>("netSyncPort", 55100, Integer.class, "");
+        public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 5.f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
+
+        public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
+
+        public final Option<Integer> startSyncPort = new Option<>("startSyncPort", 0, Integer.class, "set port for synchronizing pipeline start over network (0 = disabled)"); //55100
+        public final Option<Integer> clockSyncPort = new Option<>("clockSyncPort", 0, Integer.class, "set port for synchronizing pipeline clock over network (0 = disabled)"); //55101
+        public final Option<Float> clockSyncInterval = new Option<>("clockSyncInterval", 1.0f, Float.class, "define time between clock sync attempts");
 
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
@@ -75,12 +78,11 @@ public class TheFramework
     protected String _name = "SSJ_Framework";
     protected boolean _isRunning = false;
     protected boolean _isStopping = false;
-    protected Timer _timer = null;
 
-    protected long _startTime = 0;
-    protected long _createTime = 0;
-
-    DatagramSocket _syncSocket;
+    private long _startTime = 0;
+    private long _createTime = 0;
+    private long _timeOffset = 0;
+    private ClockSync _clockSync;
 
     ThreadPool _threadPool;
     ExceptionHandler _exceptionHandler = null;
@@ -97,7 +99,7 @@ public class TheFramework
     {
         //configure logger
         Log.getInstance().setFramework(this);
-        _createTime = System.currentTimeMillis();
+        _createTime = SystemClock.elapsedRealtime();
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
@@ -141,57 +143,25 @@ public class TheFramework
                 Thread.sleep(1000);
             }
 
-            if (options.netSync.get())
+            if (options.startSyncPort.get() != 0)
             {
-                try
-                {
-                    if (options.netSyncListen.get())
-                    {
-                        _syncSocket = new DatagramSocket(options.netSyncPort.get());
-                        _syncSocket.setReuseAddress(true);
-
-                        Log.i("waiting for master pipeline (port = " + options.netSyncPort + ")");
-                        while (true)
-                        {
-                            byte[] data = new byte[32];
-                            DatagramPacket packet = new DatagramPacket(data, 32);
-                            _syncSocket.receive(packet);
-                            Log.d("received packet from " + packet.getAddress().toString());
-
-                            //check data
-                            String str =  new String(packet.getData(), "ASCII");
-                            if (str.startsWith("SSI:STRT:RUN")) //SSI format for compatibility
-                            {
-                                Log.d("packet identified as start ping");
-                                break;
-                            }
-                            Log.d("packet not recognized");
-                        }
-                    } else
-                    {
-                        _syncSocket = new DatagramSocket(null);
-                        _syncSocket.setReuseAddress(true);
-                        _syncSocket.setBroadcast(true);
-
-                        String msg = "SSI:STRT:RUN1"; //send in SSI format for compatibility
-                        byte[] data = msg.getBytes("ASCII");
-                        DatagramPacket packet = new DatagramPacket(data, data.length, Util.getBroadcastAddress(), options.netSyncPort.get());
-                        _syncSocket.send(packet);
-
-                        Log.i("sync ping sent on port " + options.netSyncPort.get());
-                    }
-                } catch (IOException e)
-                {
-                    Log.e("network sync failed", e);
-                }
+                if (options.master.get() == null)
+                    ClockSync.sendStartSignal(options.startSyncPort.get());
+                else
+                    ClockSync.listenForStartSignal(options.startSyncPort.get());
             }
 
-            _startTime = System.currentTimeMillis();
-            _timer = new Timer();
+            _startTime = SystemClock.elapsedRealtime();
             _isRunning = true;
             Log.i("pipeline started");
 
-        } catch (Exception e)
+            //start clock sync
+            if (options.clockSyncPort.get() != 0) {
+                _clockSync = new ClockSync(options.master.get() == null, InetAddress.getByName(options.master.get()), options.clockSyncPort.get(), (int)(options.clockSyncInterval.get() * 1000));
+                _threadPool.execute(_clockSync);
+            }
+        }
+        catch (Exception e)
         {
             crash("framework start", "error starting pipeline", e);
         }
@@ -561,23 +531,28 @@ public class TheFramework
         if (!isRunning())
             return;
 
-        _buffer.get(bufferID).sync(_timer.getElapsed());
+        _buffer.get(bufferID).sync(getTime());
     }
 
     public double getTime()
     {
-        if (_timer == null)
+        if (_startTime == 0)
             return 0;
 
-        return _timer.getElapsed();
+        return getTimeMs() / 1000.0;
     }
 
     public long getTimeMs()
     {
-        if (_timer == null)
+        if (_startTime == 0)
             return 0;
 
-        return _timer.getElapsedMs();
+        return SystemClock.elapsedRealtime() - _startTime + _timeOffset;
+    }
+
+    void adjustTime(long offset)
+    {
+        _timeOffset += offset;
     }
 
     public long getStartTimeMs()
