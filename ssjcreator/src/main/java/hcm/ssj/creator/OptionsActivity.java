@@ -43,7 +43,7 @@ import hcm.ssj.core.Sensor;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
 
@@ -64,12 +64,12 @@ public class OptionsActivity extends AppCompatActivity
         {
             //change title
             setTitle("SSJ_Framework");
-            options = Linker.getOptionList(TheFramework.getFramework());
+            options = Pipeline.getOptionList(TheFramework.getFramework());
         } else
         {
             //change title
             setTitle(((hcm.ssj.core.Component) innerObject).getComponentName());
-            options = Linker.getOptionList(object);
+            options = Pipeline.getOptionList(object);
         }
         //stretch columns
         TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
@@ -118,8 +118,8 @@ public class OptionsActivity extends AppCompatActivity
         editText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.6f));
         editText.setText(String.valueOf(isFrameSize
-                ? Linker.getInstance().getFrameSize(innerObject)
-                : Linker.getInstance().getDelta(innerObject)));
+                ? Pipeline.getInstance().getFrameSize(innerObject)
+                : Pipeline.getInstance().getDelta(innerObject)));
         editText.addTextChangedListener(new TextWatcher()
         {
             @Override
@@ -142,7 +142,7 @@ public class OptionsActivity extends AppCompatActivity
                         double d = Double.parseDouble(s.toString());
                         if (d > 0)
                         {
-                            Linker.getInstance().setFrameSize(innerObject, d);
+                            Pipeline.getInstance().setFrameSize(innerObject, d);
                         }
                     } catch (NumberFormatException ex)
                     {
@@ -156,7 +156,7 @@ public class OptionsActivity extends AppCompatActivity
                         double d = Double.parseDouble(s.toString());
                         if (d >= 0)
                         {
-                            Linker.getInstance().setDelta(innerObject, d);
+                            Pipeline.getInstance().setDelta(innerObject, d);
                         }
                     } catch (NumberFormatException ex)
                     {

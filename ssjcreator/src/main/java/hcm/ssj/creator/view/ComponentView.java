@@ -50,7 +50,7 @@ import hcm.ssj.creator.R;
  * Draws elements.<br>
  * Created by Frank Gaibler on 12.05.2016.
  */
-class ElementView extends View
+class ComponentView extends View
 {
 	private final static int[] boxColor  = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer};
 	private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE};
@@ -74,7 +74,7 @@ class ElementView extends View
 	/**
 	 * @param context Context
 	 */
-	private ElementView(Context context)
+	private ComponentView(Context context)
 	{
 		super(context);
 	}
@@ -83,7 +83,7 @@ class ElementView extends View
 	 * @param context Context
 	 * @param element Object
 	 */
-	protected ElementView(Context context, Object element)
+	protected ComponentView(Context context, Object element)
 	{
 		super(context);
 		this.element = element;
@@ -99,7 +99,7 @@ class ElementView extends View
 			public void onClick(View v)
 			{
 				Activity activity = (Activity) getContext();
-				OptionsActivity.object = ElementView.this.element;
+				OptionsActivity.object = ComponentView.this.element;
 				activity.startActivity(new Intent(activity, OptionsActivity.class));
 			}
 		};
