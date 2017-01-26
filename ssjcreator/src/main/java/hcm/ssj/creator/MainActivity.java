@@ -52,8 +52,8 @@ import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.creator.core.Builder;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.creator.dialogs.AddDialog;
 import hcm.ssj.creator.dialogs.FileDialog;
 import hcm.ssj.creator.dialogs.Listener;
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity
                     framework.reset();
                     //add components
                     try {
-                        Linker.getInstance().buildPipe();
+                        Pipeline.getInstance().buildPipe();
                     } catch (Exception e) {
                         Log.e(getString(R.string.err_buildPipe), e);
                         runOnUiThread(new Runnable() {
@@ -261,22 +261,22 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_sensors:
             {
-                showAddDialog(R.string.str_sensors, Builder.getInstance().sensors);
+                showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
                 return true;
             }
             case R.id.action_providers:
             {
-                showAddDialog(R.string.str_providers, Builder.getInstance().sensorProviders);
+                showAddDialog(R.string.str_providers, SSJDescriptor.getInstance().sensorProviders);
                 return true;
             }
             case R.id.action_transformers:
             {
-                showAddDialog(R.string.str_transformers, Builder.getInstance().transformers);
+                showAddDialog(R.string.str_transformers, SSJDescriptor.getInstance().transformers);
                 return true;
             }
             case R.id.action_consumers:
             {
-                showAddDialog(R.string.str_consumers, Builder.getInstance().consumers);
+                showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
                 return true;
             }
             case R.id.action_save:
@@ -296,7 +296,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_clear:
             {
-                Linker.getInstance().clear();
+                Pipeline.getInstance().clear();
                 actualizeContent();
                 return true;
             }
@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity
         {
             framework.Stop();
         }
-        Linker.getInstance().clear();
+        Pipeline.getInstance().clear();
         super.onDestroy();
     }
 

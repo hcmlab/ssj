@@ -56,7 +56,7 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.core.container.ContainerElement;
 
 /**
- * Save and load files in a {@link Linker} friendly format.<br>
+ * Save and load files in a {@link Pipeline} friendly format.<br>
  * Created by Frank Gaibler on 28.06.2016.
  */
 public abstract class SaveLoad
@@ -85,7 +85,7 @@ public abstract class SaveLoad
     private final static String DELTA = "delta";
 
     /**
-     * Saves the values in {@link Linker}
+     * Saves the values in {@link Pipeline}
      *
      * @param file File
      * @return boolean
@@ -118,7 +118,7 @@ public abstract class SaveLoad
             serializer.endTag(null, FRAMEWORK);
             //sensorProviders
             serializer.startTag(null, SENSOR_PROVIDER_LIST);
-            LinkedHashSet<SensorProvider> hsSensorProviders = Linker.getInstance().hsSensorProviders;
+            LinkedHashSet<SensorProvider> hsSensorProviders = Pipeline.getInstance().hsSensorProviders;
             for (SensorProvider sensorProvider : hsSensorProviders)
             {
                 serializer.startTag(null, SENSOR_PROVIDER);
@@ -129,21 +129,21 @@ public abstract class SaveLoad
             serializer.endTag(null, SENSOR_PROVIDER_LIST);
             //sensors
             serializer.startTag(null, SENSOR_LIST);
-            for (ContainerElement<Sensor> containerElement : Linker.getInstance().hsSensorElements)
+            for (ContainerElement<Sensor> containerElement : Pipeline.getInstance().hsSensorElements)
             {
                 addContainerElement(serializer, SENSOR, containerElement, false);
             }
             serializer.endTag(null, SENSOR_LIST);
             //transformers
             serializer.startTag(null, TRANSFORMER_LIST);
-            for (ContainerElement<Transformer> containerElement : Linker.getInstance().hsTransformerElements)
+            for (ContainerElement<Transformer> containerElement : Pipeline.getInstance().hsTransformerElements)
             {
                 addContainerElement(serializer, TRANSFORMER, containerElement, true);
             }
             serializer.endTag(null, TRANSFORMER_LIST);
             //consumers
             serializer.startTag(null, CONSUMER_LIST);
-            for (ContainerElement<Consumer> containerElement : Linker.getInstance().hsConsumerElements)
+            for (ContainerElement<Consumer> containerElement : Pipeline.getInstance().hsConsumerElements)
             {
                 addContainerElement(serializer, CONSUMER, containerElement, true);
             }
@@ -231,7 +231,7 @@ public abstract class SaveLoad
                         }
                         case OPTIONS:
                         {
-                            options = Linker.getOptionList(context);
+                            options = Pipeline.getOptionList(context);
                             break;
                         }
                         case OPTION:
@@ -256,7 +256,7 @@ public abstract class SaveLoad
                         {
                             String clazz = parser.getAttributeValue(null, CLASS);
                             context = Class.forName(clazz).newInstance();
-                            Linker.getInstance().add(context);
+                            Pipeline.getInstance().add(context);
                             String hash = parser.getAttributeValue(null, ID);
                             LinkContainer container = new LinkContainer();
                             container.hash = Integer.parseInt(hash);
@@ -268,9 +268,9 @@ public abstract class SaveLoad
                         {
                             String clazz = parser.getAttributeValue(null, CLASS);
                             context = Class.forName(clazz).newInstance();
-                            Linker.getInstance().add(context);
-                            Linker.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
-                            Linker.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
+                            Pipeline.getInstance().add(context);
+                            Pipeline.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
+                            Pipeline.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
                             String hash = parser.getAttributeValue(null, ID);
                             LinkContainer container = new LinkContainer();
                             container.hash = Integer.parseInt(hash);
@@ -300,7 +300,7 @@ public abstract class SaveLoad
                         LinkContainer candidateValue = candidate.getValue();
                         if (candidateValue.hash == provider)
                         {
-                            Linker.getInstance().addProvider(key, (Provider) candidateKey);
+                            Pipeline.getInstance().addProvider(key, (Provider) candidateKey);
                         }
                     }
                 }
@@ -345,7 +345,7 @@ public abstract class SaveLoad
     private static void addOptions(XmlSerializer serializer, Object object) throws IOException
     {
         serializer.startTag(null, OPTIONS);
-        Option[] options = Linker.getOptionList(object);
+        Option[] options = Pipeline.getOptionList(object);
         if (options != null)
         {
             for (Option option : options)

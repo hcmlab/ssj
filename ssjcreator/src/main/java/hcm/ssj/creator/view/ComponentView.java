@@ -52,7 +52,7 @@ import hcm.ssj.creator.SensorOptionsActivity;
  * Draws elements.<br>
  * Created by Frank Gaibler on 12.05.2016.
  */
-class ElementView extends View
+class ComponentView extends View
 {
 	private final static int[] boxColor  = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer};
 	private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE};
@@ -76,7 +76,7 @@ class ElementView extends View
 	/**
 	 * @param context Context
 	 */
-	private ElementView(Context context)
+	private ComponentView(Context context)
 	{
 		super(context);
 	}
@@ -85,7 +85,7 @@ class ElementView extends View
 	 * @param context Context
 	 * @param element Object
 	 */
-	protected ElementView(Context context, Object element)
+	protected ComponentView(Context context, Object element)
 	{
 		super(context);
 		this.element = element;
@@ -102,19 +102,19 @@ class ElementView extends View
 			{
 				Intent intent;
 				Activity activity = (Activity) getContext();
-				if (ElementView.this.element instanceof Sensor)
+				if (ComponentView.this.element instanceof Sensor)
 				{
-					SensorOptionsActivity.object = ElementView.this.element;
+					SensorOptionsActivity.object = ComponentView.this.element;
 					intent = new Intent(activity, SensorOptionsActivity.class);
 				}
-				else if (ElementView.this.element instanceof SensorProvider)
+				else if (ComponentView.this.element instanceof SensorProvider)
 				{
-					OptionsActivity.object = ElementView.this.element;
+					OptionsActivity.object = ComponentView.this.element;
 					intent = new Intent(activity, OptionsActivity.class);
 				}
 				else
 				{
-					ComponentOptionsActivity.object = ElementView.this.element;
+					ComponentOptionsActivity.object = ComponentView.this.element;
 					intent = new Intent(activity, ComponentOptionsActivity.class);
 				}
 				activity.startActivity(intent);

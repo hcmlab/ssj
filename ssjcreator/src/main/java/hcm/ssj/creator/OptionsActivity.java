@@ -32,7 +32,7 @@ import android.widget.TableLayout;
 
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.util.OptionTable;
 
 public class OptionsActivity extends AppCompatActivity
@@ -49,12 +49,12 @@ public class OptionsActivity extends AppCompatActivity
         {
             //change title
             setTitle(((hcm.ssj.core.Component) object).getComponentName());
-            options = Linker.getOptionList(object);
+            options = Pipeline.getOptionList(object);
         } else
         {
             //change title
             setTitle("SSJ_Framework");
-            options = Linker.getOptionList(TheFramework.getFramework());
+            options = Pipeline.getOptionList(TheFramework.getFramework());
         }
         object = null;
         //stretch columns

@@ -31,12 +31,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TableLayout;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
 
@@ -59,13 +58,13 @@ public class ComponentOptionsActivity extends AppCompatActivity
             object = null;
             //change title
             setTitle(((hcm.ssj.core.Component) innerObject).getComponentName());
-            Option[] options = Linker.getOptionList(innerObject);
+            Option[] options = Pipeline.getOptionList(innerObject);
             //stretch columns
             TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
             tableLayout.setStretchAllColumns(true);
             //fill frameSize and delta
             EditText editTextFrameSize = (EditText) findViewById(R.id.id_editText);
-            editTextFrameSize.setText(String.valueOf(Linker.getInstance().getFrameSize(innerObject)));
+            editTextFrameSize.setText(String.valueOf(Pipeline.getInstance().getFrameSize(innerObject)));
             editTextFrameSize.addTextChangedListener(new TextWatcher()
             {
                 @Override
@@ -86,7 +85,7 @@ public class ComponentOptionsActivity extends AppCompatActivity
                         double d = Double.parseDouble(s.toString());
                         if (d > 0)
                         {
-                            Linker.getInstance().setFrameSize(innerObject, d);
+                            Pipeline.getInstance().setFrameSize(innerObject, d);
                         }
                     } catch (NumberFormatException ex)
                     {
@@ -95,7 +94,7 @@ public class ComponentOptionsActivity extends AppCompatActivity
                 }
             });
             EditText editTextDelta = (EditText) findViewById(R.id.id_editText2);
-            editTextDelta.setText(String.valueOf(Linker.getInstance().getDelta(innerObject)));
+            editTextDelta.setText(String.valueOf(Pipeline.getInstance().getDelta(innerObject)));
             editTextDelta.addTextChangedListener(new TextWatcher()
             {
                 @Override
@@ -116,7 +115,7 @@ public class ComponentOptionsActivity extends AppCompatActivity
                         double d = Double.parseDouble(s.toString());
                         if (d >= 0)
                         {
-                            Linker.getInstance().setDelta(innerObject, d);
+                            Pipeline.getInstance().setDelta(innerObject, d);
                         }
                     } catch (NumberFormatException ex)
                     {

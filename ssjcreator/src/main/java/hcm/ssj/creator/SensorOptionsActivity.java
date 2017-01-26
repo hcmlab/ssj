@@ -28,12 +28,11 @@ package hcm.ssj.creator;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.ListView;
 import android.widget.TableLayout;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
 
@@ -57,7 +56,7 @@ public class SensorOptionsActivity extends AppCompatActivity
             //change title
             setTitle(((hcm.ssj.core.Component) innerObject).getComponentName());
             //
-            Option[] options = Linker.getOptionList(innerObject);
+            Option[] options = Pipeline.getOptionList(innerObject);
             //stretch columns
             TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
             tableLayout.setStretchAllColumns(true);

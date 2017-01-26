@@ -46,9 +46,9 @@ import hcm.ssj.creator.core.container.ContainerElement;
  * Linker for a pipeline.<br>
  * Created by Frank Gaibler on 09.03.2016.
  */
-public class Linker
+public class Pipeline
 {
-    private static Linker instance = null;
+    private static Pipeline instance = null;
     protected LinkedHashSet<SensorProvider> hsSensorProviders = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Sensor>> hsSensorElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
@@ -63,18 +63,18 @@ public class Linker
     /**
      *
      */
-    private Linker()
+    private Pipeline()
     {
     }
 
     /**
      * @return Linker
      */
-    public static synchronized Linker getInstance()
+    public static synchronized Pipeline getInstance()
     {
         if (instance == null)
         {
-            instance = new Linker();
+            instance = new Pipeline();
         }
         return instance;
     }
