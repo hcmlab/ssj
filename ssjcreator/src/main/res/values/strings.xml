@@ -29,7 +29,7 @@
     <!--creator menu-->
     <string name="str_addMenu">Add</string>
     <string name="str_options">Options</string>
-    <string name="str_providers">Providers</string>
+    <string name="str_channels">Channels</string>
     <string name="str_sensors">Sensors</string>
     <string name="str_transformers">Transformers</string>
     <string name="str_consumers">Consumers</string>

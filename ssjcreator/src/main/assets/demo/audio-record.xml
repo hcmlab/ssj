@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<ssjSaveFile version="0.2">
+<ssjSaveFile version="3">
   <framework>
     <options>
       <option name="bufferSize" value="2.0" />
@@ -11,22 +11,22 @@
       <option name="timeoutThread" value="5.0" />
     </options>
   </framework>
-  <sensorProviderList>
-    <sensorProvider class="hcm.ssj.audio.AudioChannel" id="13000336">
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.audio.AudioChannel" id="13000336">
       <options>
         <option name="audioFormat" value="ENCODING_PCM_16BIT" />
         <option name="channelConfig" value="CHANNEL_IN_MONO" />
         <option name="sampleRate" value="16000" />
         <option name="scale" value="true" />
       </options>
-    </sensorProvider>
-  </sensorProviderList>
+    </sensorChannel>
+  </sensorChannelList>
   <sensorList>
     <sensor class="hcm.ssj.audio.Microphone" id="64672700">
       <options />
-      <providerList>
-        <providerId id="13000336" />
-      </providerList>
+      <channelList>
+        <channelId id="13000336" />
+      </channelList>
     </sensor>
   </sensorList>
   <transformerList />
@@ -47,9 +47,9 @@
         <option name="secondScaleStream" value="1" />
         <option name="size" value="20.0" />
       </options>
-      <providerList>
-        <providerId id="13000336" />
-      </providerList>
+      <channelList>
+        <channelId id="13000336" />
+      </channelList>
     </consumer>
     <consumer class="hcm.ssj.audio.AudioWriter" id="38948479" frameSize="1.0" delta="0.0">
       <options>
@@ -58,9 +58,9 @@
         <option name="audioFormat" value="ENCODING_DEFAULT" />
         <option name="mimeType" value="audio/mp4a-latm" />
       </options>
-      <providerList>
-        <providerId id="13000336" />
-      </providerList>
+      <channelList>
+        <channelId id="13000336" />
+      </channelList>
     </consumer>
   </consumerList>
 </ssjSaveFile>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<ssjSaveFile version="0.2">
+<ssjSaveFile version="3">
   <framework>
     <options>
       <option name="bufferSize" value="2.0" />
@@ -11,36 +11,36 @@
       <option name="timeoutThread" value="5.0" />
     </options>
   </framework>
-  <sensorProviderList>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="182691243">
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="182691243">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="152692641">
+    </sensorChannel>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="152692641">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-  </sensorProviderList>
+    </sensorChannel>
+  </sensorChannelList>
   <sensorList>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="114056413">
       <options>
         <option name="sensorDelay" value="0" />
         <option name="sensorType" value="ACCELEROMETER" />
       </options>
-      <providerList>
-        <providerId id="182691243" />
-      </providerList>
+      <channelList>
+        <channelId id="182691243" />
+      </channelList>
     </sensor>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="209182622">
       <options>
         <option name="sensorDelay" value="0" />
         <option name="sensorType" value="ORIENTATION" />
       </options>
-      <providerList>
-        <providerId id="152692641" />
-      </providerList>
+      <channelList>
+        <channelId id="152692641" />
+      </channelList>
     </sensor>
   </sensorList>
   <transformerList />
@@ -61,9 +61,9 @@
         <option name="secondScaleStream" value="1" />
         <option name="size" value="20.0" />
       </options>
-      <providerList>
-        <providerId id="182691243" />
-      </providerList>
+      <channelList>
+        <channelId id="182691243" />
+      </channelList>
     </consumer>
     <consumer class="hcm.ssj.file.SimpleFileWriter" id="240294829" frameSize="1.0" delta="0.0">
       <options>
@@ -71,9 +71,9 @@
         <option name="filePath" value="/storage/emulated/0/SSJ/[time]" />
         <option name="separator" value=" " />
       </options>
-      <providerList>
-        <providerId id="182691243" />
-      </providerList>
+      <channelList>
+        <channelId id="182691243" />
+      </channelList>
     </consumer>
     <consumer class="hcm.ssj.graphic.SignalPainter" id="157888226" frameSize="0.1" delta="0.0">
       <options>
@@ -91,9 +91,9 @@
         <option name="secondScaleStream" value="1" />
         <option name="size" value="20.0" />
       </options>
-      <providerList>
-        <providerId id="152692641" />
-      </providerList>
+      <channelList>
+        <channelId id="152692641" />
+      </channelList>
     </consumer>
     <consumer class="hcm.ssj.file.SimpleFileWriter" id="48104051" frameSize="1.0" delta="0.0">
       <options>
@@ -101,9 +101,9 @@
         <option name="filePath" value="/storage/emulated/0/SSJ/[time]" />
         <option name="separator" value=" " />
       </options>
-      <providerList>
-        <providerId id="152692641" />
-      </providerList>
+      <channelList>
+        <channelId id="152692641" />
+      </channelList>
     </consumer>
   </consumerList>
 </ssjSaveFile>

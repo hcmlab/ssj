@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<ssjSaveFile version="0.2">
+<ssjSaveFile version="3">
   <framework>
     <options>
       <option name="bufferSize" value="2.0" />
@@ -11,95 +11,95 @@
       <option name="timeoutThread" value="5.0" />
     </options>
   </framework>
-  <sensorProviderList>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="911435374">
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="911435374">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="317348773">
+    </sensorChannel>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="317348773">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="428273451">
+    </sensorChannel>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="428273451">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-  </sensorProviderList>
+    </sensorChannel>
+  </sensorChannelList>
   <sensorList>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="943085472">
       <options>
         <option name="sensorDelay" value="0" />
         <option name="sensorType" value="ACCELEROMETER" />
       </options>
-      <providerList>
-        <providerId id="911435374" />
-      </providerList>
+      <channelList>
+        <channelId id="911435374" />
+      </channelList>
     </sensor>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="356077004">
       <options>
         <option name="sensorDelay" value="0" />
         <option name="sensorType" value="GYROSCOPE" />
       </options>
-      <providerList>
-        <providerId id="317348773" />
-      </providerList>
+      <channelList>
+        <channelId id="317348773" />
+      </channelList>
     </sensor>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="663976632">
       <options>
         <option name="sensorDelay" value="0" />
         <option name="sensorType" value="MAGNETIC_FIELD" />
       </options>
-      <providerList>
-        <providerId id="428273451" />
-      </providerList>
+      <channelList>
+        <channelId id="428273451" />
+      </channelList>
     </sensor>
   </sensorList>
   <transformerList>
     <transformer class="hcm.ssj.signal.Progress" id="1030095234" frameSize="1.0" delta="0.0">
       <options />
-      <providerList>
-        <providerId id="911435374" />
-        <providerId id="317348773" />
-        <providerId id="428273451" />
-      </providerList>
+      <channelList>
+        <channelId id="911435374" />
+        <channelId id="317348773" />
+        <channelId id="428273451" />
+      </channelList>
     </transformer>
     <transformer class="hcm.ssj.signal.AvgVar" id="168988805" frameSize="1.0" delta="0.0">
       <options>
         <option name="avg" value="true" />
         <option name="var" value="true" />
       </options>
-      <providerList>
-        <providerId id="1030095234" />
-      </providerList>
+      <channelList>
+        <channelId id="1030095234" />
+      </channelList>
     </transformer>
     <transformer class="hcm.ssj.signal.Median" id="660696742" frameSize="1.0" delta="0.0">
       <options />
-      <providerList>
-        <providerId id="1030095234" />
-      </providerList>
+      <channelList>
+        <channelId id="1030095234" />
+      </channelList>
     </transformer>
     <transformer class="hcm.ssj.signal.MinMax" id="80895545" frameSize="1.0" delta="0.0">
       <options>
         <option name="max" value="true" />
         <option name="min" value="true" />
       </options>
-      <providerList>
-        <providerId id="1030095234" />
-      </providerList>
+      <channelList>
+        <channelId id="1030095234" />
+      </channelList>
     </transformer>
     <transformer class="hcm.ssj.ml.Classifier" id="1" frameSize="1.0" delta="0.0">
       <options>
         <option name="trainerFile" value="activity.NaiveBayes.trainer" />
         <option name="trainerPath" value="/storage/emulated/0/SSJ/Creator" />
       </options>
-      <providerList>
-        <providerId id="168988805" />
-        <providerId id="660696742" />
-        <providerId id="80895545" />
-      </providerList>
+      <channelList>
+        <channelId id="168988805" />
+        <channelId id="660696742" />
+        <channelId id="80895545" />
+      </channelList>
     </transformer>
   </transformerList>
   <consumerList>
@@ -119,9 +119,9 @@
         <option name="secondScaleStream" value="1" />
         <option name="size" value="30.0" />
       </options>
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </consumer>
   </consumerList>
 </ssjSaveFile>

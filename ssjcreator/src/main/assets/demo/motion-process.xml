@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<ssjSaveFile version="0.2">
+<ssjSaveFile version="3">
   
   <framework>
     <options>
@@ -7,35 +7,35 @@
     </options>
   </framework>
   
-  <sensorProviderList>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="1">
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="1">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-    <sensorProvider class="hcm.ssj.androidSensor.AndroidSensorChannel" id="2">
+    </sensorChannel>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="2">
       <options>
         <option name="sampleRate" value="50" />
       </options>
-    </sensorProvider>
-  </sensorProviderList>
+    </sensorChannel>
+  </sensorChannelList>
 
   <sensorList>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="3">
       <options>
         <option name="sensorType" value="ACCELEROMETER" />
       </options>
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </sensor>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="4">
       <options>
         <option name="sensorType" value="MAGNETIC_FIELD" />
       </options>
-      <providerList>
-        <providerId id="2" />
-      </providerList>
+      <channelList>
+        <channelId id="2" />
+      </channelList>
     </sensor>
   </sensorList>
 
@@ -45,30 +45,30 @@
         <option name="outputClass" value="[avgX, avgY, avgZ]" />
         <option name="var" value="false" />
       </options>
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </transformer>
     <transformer class="hcm.ssj.signal.MinMax" id="6" frameSize="0.1" delta="1.0">
       <options>
         <option name="outputClass" value="[minX, maxX, minY, maxY, minZ, maxZ]" />
       </options>
-      <providerList>
-        <providerId id="2" />
-      </providerList>
+      <channelList>
+        <channelId id="2" />
+      </channelList>
     </transformer>
   </transformerList>
 
   <consumerList>
     <consumer class="hcm.ssj.graphic.SignalPainter" id="7" frameSize="0.1" delta="0.0">
-      <providerList>
-        <providerId id="5" />
-      </providerList>
+      <channelList>
+        <channelId id="5" />
+      </channelList>
     </consumer>
     <consumer class="hcm.ssj.graphic.SignalPainter" id="8" frameSize="0.1" delta="0.0">
-      <providerList>
-        <providerId id="6" />
-      </providerList>
+      <channelList>
+        <channelId id="6" />
+      </channelList>
     </consumer>
   </consumerList>
 

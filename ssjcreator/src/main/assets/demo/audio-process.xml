@@ -1,39 +1,39 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<ssjSaveFile version="0.2">
+<ssjSaveFile version="3">
   
   <framework/>
   
-  <sensorProviderList>
-    <sensorProvider class="hcm.ssj.audio.AudioChannel" id="1">
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.audio.AudioChannel" id="1">
       <options>
         <option name="audioFormat" value="ENCODING_PCM_16BIT" />
         <option name="channelConfig" value="CHANNEL_IN_MONO" />
         <option name="scale" value="true" />
       </options>
-    </sensorProvider>
-  </sensorProviderList>
+    </sensorChannel>
+  </sensorChannelList>
   
   <sensorList>
     <sensor class="hcm.ssj.audio.Microphone" id="2">
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </sensor>
   </sensorList>
   
   <transformerList>
     <transformer class="hcm.ssj.audio.Energy" id="3" frameSize="0.2" delta="0.0">
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </transformer>
     <transformer class="hcm.ssj.audio.Pitch" id="4" frameSize="0.04" delta="0">
       <options>
         <option name="computeVoicedProb" value="false" />
       </options>
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </transformer>
   </transformerList>
   
@@ -43,10 +43,10 @@
         <option name="secondScaleMin" value="0" />
         <option name="secondScaleMax" value="500" />
       </options>
-      <providerList>
-        <providerId id="3" />
-        <providerId id="4" />
-      </providerList>
+      <channelList>
+        <channelId id="3" />
+        <channelId id="4" />
+      </channelList>
     </consumer>
   </consumerList>
   

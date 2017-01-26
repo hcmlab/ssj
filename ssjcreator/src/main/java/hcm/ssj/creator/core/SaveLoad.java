@@ -63,13 +63,13 @@ public abstract class SaveLoad
 {
     private final static String ROOT = "ssjSaveFile";
     private final static String VERSION = "version";
-    private final static String VERSION_NUMBER = "0.2";
+    private final static String VERSION_NUMBER = "3";
     private final static String FRAMEWORK = "framework";
-    private final static String SENSOR_PROVIDER_LIST = "sensorChannelList";
+    private final static String SENSOR_CHANNEL_LIST = "sensorChannelList";
     private final static String SENSOR_LIST = "sensorList";
     private final static String TRANSFORMER_LIST = "transformerList";
     private final static String CONSUMER_LIST = "consumerList";
-    private final static String SENSOR_PROVIDER = "sensorChannel";
+    private final static String SENSOR_CHANNEL = "sensorChannel";
     private final static String SENSOR = "sensor";
     private final static String TRANSFORMER = "transformer";
     private final static String CONSUMER = "consumer";
@@ -79,8 +79,8 @@ public abstract class SaveLoad
     private final static String OPTION = "option";
     private final static String NAME = "name";
     private final static String VALUE = "value";
-    private final static String PROVIDER_ID = "providerId";
-    private final static String PROVIDER_LIST = "providerList";
+    private final static String CHANNEL_ID = "channelId";
+    private final static String CHANNEL_LIST = "channelList";
     private final static String FRAME_SIZE = "frameSize";
     private final static String DELTA = "delta";
 
@@ -117,16 +117,16 @@ public abstract class SaveLoad
             addOptions(serializer, TheFramework.getFramework());
             serializer.endTag(null, FRAMEWORK);
             //sensorChannels
-            serializer.startTag(null, SENSOR_PROVIDER_LIST);
+            serializer.startTag(null, SENSOR_CHANNEL_LIST);
             LinkedHashSet<SensorChannel> hsSensorChannels = Pipeline.getInstance().hsSensorChannels;
             for (SensorChannel sensorChannel : hsSensorChannels)
             {
-                serializer.startTag(null, SENSOR_PROVIDER);
+                serializer.startTag(null, SENSOR_CHANNEL);
                 addStandard(serializer, sensorChannel);
                 addOptions(serializer, sensorChannel);
-                serializer.endTag(null, SENSOR_PROVIDER);
+                serializer.endTag(null, SENSOR_CHANNEL);
             }
-            serializer.endTag(null, SENSOR_PROVIDER_LIST);
+            serializer.endTag(null, SENSOR_CHANNEL_LIST);
             //sensors
             serializer.startTag(null, SENSOR_LIST);
             for (ContainerElement<Sensor> containerElement : Pipeline.getInstance().hsSensorElements)
@@ -204,7 +204,7 @@ public abstract class SaveLoad
             if (parser.getName().equals(ROOT))
             {
                 String value = parser.getAttributeValue(null, VERSION);
-                if (Double.valueOf(VERSION_NUMBER) < Double.valueOf(value))
+                if (!value.equals(VERSION_NUMBER))
                 {
                     return false;
                 }
@@ -251,7 +251,7 @@ public abstract class SaveLoad
                             }
                             break;
                         }
-                        case SENSOR_PROVIDER:
+                        case SENSOR_CHANNEL:
                         case SENSOR:
                         {
                             String clazz = parser.getAttributeValue(null, CLASS);
@@ -277,7 +277,7 @@ public abstract class SaveLoad
                             map.put(context, container);
                             break;
                         }
-                        case PROVIDER_ID:
+                        case CHANNEL_ID:
                         {
                             String hash = parser.getAttributeValue(null, ID);
                             map.get(context).hashes.add(Integer.parseInt(hash));
@@ -393,14 +393,14 @@ public abstract class SaveLoad
         }
         addOptions(serializer, containerElement.getElement());
         HashMap<Provider, Boolean> hashMap = containerElement.getHmProviders();
-        serializer.startTag(null, PROVIDER_LIST);
+        serializer.startTag(null, CHANNEL_LIST);
         for (Map.Entry<Provider, Boolean> element : hashMap.entrySet())
         {
-            serializer.startTag(null, PROVIDER_ID);
+            serializer.startTag(null, CHANNEL_ID);
             serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
-            serializer.endTag(null, PROVIDER_ID);
+            serializer.endTag(null, CHANNEL_ID);
         }
-        serializer.endTag(null, PROVIDER_LIST);
+        serializer.endTag(null, CHANNEL_LIST);
         serializer.endTag(null, tag);
     }
 

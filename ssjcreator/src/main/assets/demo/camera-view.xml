@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
-<ssjSaveFile version="0.2">
+<ssjSaveFile version="3">
 
   <framework/>
 
-  <sensorProviderList>
-    <sensorProvider class="hcm.ssj.camera.CameraChannel" id="1">
-    </sensorProvider>
-  </sensorProviderList>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="1">
+    </sensorChannel>
+  </sensorChannelList>
 
   <sensorList>
     <sensor class="hcm.ssj.camera.CameraSensor" id="2">
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </sensor>
   </sensorList>
 
@@ -21,9 +21,9 @@
       <options>
         <option name="orientation" value="270" />
       </options>
-      <providerList>
-        <providerId id="1" />
-      </providerList>
+      <channelList>
+        <channelId id="1" />
+      </channelList>
     </consumer>
   </consumerList>
 

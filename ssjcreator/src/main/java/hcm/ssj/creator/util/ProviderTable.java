@@ -67,7 +67,7 @@ public class ProviderTable
             linearLayout.addView(Util.addDivider(activity));
         }
         TextView textViewName = new TextView(activity);
-        textViewName.setText(R.string.str_providers);
+        textViewName.setText(R.string.str_channels);
         textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
