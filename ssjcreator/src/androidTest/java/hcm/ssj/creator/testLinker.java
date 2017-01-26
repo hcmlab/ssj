@@ -24,19 +24,19 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.creator;
+package hcm.ssj.creator;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorChannel;
+import hcm.ssj.androidSensor.AndroidSensorProvider;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorChannel;
+import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.creator.core.Builder;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.test.Logger;
 
 /**
@@ -61,60 +61,60 @@ public class testLinker extends ApplicationTestCase<Application>
     public void testBuildAndLink() throws Exception
     {
         //scan content
-        Builder builder = Builder.getInstance();
+        SSJDescriptor descriptor = SSJDescriptor.getInstance();
 //        Builder.getInstance().scan(this.getContext());
-        System.out.println(builder.sensors.get(0));
-        System.out.println(builder.sensorProviders.get(0));
-        System.out.println(builder.consumers.get(0));
+        System.out.println(descriptor.sensors.get(0));
+        System.out.println(descriptor.sensorProviders.get(0));
+        System.out.println(descriptor.consumers.get(0));
         //
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.set(2.0f);
-        Linker linker = Linker.getInstance();
+        Pipeline pipeline = Pipeline.getInstance();
         //select classes
         Sensor sensor = null;
-        for (Class clazz : builder.sensors)
+        for (Class clazz : descriptor.sensors)
         {
             if (clazz.equals(AndroidSensor.class))
             {
-                sensor = (Sensor) Builder.instantiate(clazz);
+                sensor = (Sensor) SSJDescriptor.instantiate(clazz);
                 break;
             }
         }
-        SensorChannel sensorChannel = null;
+        SensorProvider sensorProvider = null;
         if (sensor != null)
         {
-            for (Class clazz : builder.sensorProviders)
+            for (Class clazz : descriptor.sensorProviders)
             {
-                if (clazz.equals(AndroidSensorChannel.class))
+                if (clazz.equals(AndroidSensorProvider.class))
                 {
-                    sensorChannel = (SensorChannel) Builder.instantiate(clazz);
+                    sensorProvider = (SensorProvider) SSJDescriptor.instantiate(clazz);
                     break;
                 }
             }
         }
         Consumer consumer = null;
-        if (sensorChannel != null)
+        if (sensorProvider != null)
         {
-            linker.add(sensor);
-            linker.add(sensorChannel);
-            linker.addProvider(sensor, sensorChannel);
-            for (Class clazz : builder.consumers)
+            pipeline.add(sensor);
+            pipeline.add(sensorProvider);
+            pipeline.addProvider(sensor, sensorProvider);
+            for (Class clazz : descriptor.consumers)
             {
                 if (clazz.equals(Logger.class))
                 {
-                    consumer = (Consumer) Builder.instantiate(clazz);
+                    consumer = (Consumer) SSJDescriptor.instantiate(clazz);
                     break;
                 }
             }
             if (consumer != null)
             {
-                linker.add(consumer);
-                linker.addProvider(consumer, sensorChannel);
-                linker.setFrameSize(consumer, 1);
-                linker.setDelta(consumer, 0);
+                pipeline.add(consumer);
+                pipeline.addProvider(consumer, sensorProvider);
+                pipeline.setFrameSize(consumer, 1);
+                pipeline.setDelta(consumer, 0);
             }
         }
-        linker.buildPipe();
+        pipeline.buildPipe();
         //start framework
         frame.Start();
         //run for two minutes

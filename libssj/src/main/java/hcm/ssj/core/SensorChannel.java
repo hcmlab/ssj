@@ -188,7 +188,7 @@ public abstract class SensorChannel extends Provider {
             return null;
         }
 
-        String[] outputClass = new String[_stream_out.dim];
+        String[] outputClass = new String[_stream_out.dataclass.length];
         System.arraycopy(_stream_out.dataclass, 0, outputClass, 0, _stream_out.dataclass.length);
 
         return outputClass;

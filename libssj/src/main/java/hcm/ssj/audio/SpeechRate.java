@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.EventConsumer;
+import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
@@ -44,7 +44,7 @@ import hcm.ssj.core.stream.Stream;
  * - uses audio processing tools from TarsosDSP
  * Created by Johnny on 05.03.2015.
  */
-public class SpeechRate extends EventConsumer
+public class SpeechRate extends Consumer
 {
     public class Options extends OptionList
     {

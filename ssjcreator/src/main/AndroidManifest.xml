@@ -53,14 +53,6 @@
             android:name="hcm.ssj.creator.OptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
-        <activity
-            android:name="hcm.ssj.creator.SensorOptionsActivity"
-            android:configChanges="orientation|screenSize">
-        </activity>
-        <activity
-            android:name="hcm.ssj.creator.ComponentOptionsActivity"
-            android:configChanges="orientation|screenSize">
-        </activity>
     </application>
 
 </manifest>

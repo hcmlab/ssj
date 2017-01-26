@@ -41,18 +41,16 @@ import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorChannel;
+import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Transformer;
-import hcm.ssj.creator.ComponentOptionsActivity;
 import hcm.ssj.creator.OptionsActivity;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.SensorOptionsActivity;
 
 /**
  * Draws elements.<br>
  * Created by Frank Gaibler on 12.05.2016.
  */
-class ElementView extends View
+class ComponentView extends View
 {
 	private final static int[] boxColor  = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer};
 	private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE};
@@ -76,7 +74,7 @@ class ElementView extends View
 	/**
 	 * @param context Context
 	 */
-	private ElementView(Context context)
+	private ComponentView(Context context)
 	{
 		super(context);
 	}
@@ -85,7 +83,7 @@ class ElementView extends View
 	 * @param context Context
 	 * @param element Object
 	 */
-	protected ElementView(Context context, Object element)
+	protected ComponentView(Context context, Object element)
 	{
 		super(context);
 		this.element = element;
@@ -100,24 +98,9 @@ class ElementView extends View
 			@Override
 			public void onClick(View v)
 			{
-				Intent intent;
 				Activity activity = (Activity) getContext();
-				if (ElementView.this.element instanceof Sensor)
-				{
-					SensorOptionsActivity.object = ElementView.this.element;
-					intent = new Intent(activity, SensorOptionsActivity.class);
-				}
-				else if (ElementView.this.element instanceof SensorChannel)
-				{
-					OptionsActivity.object = ElementView.this.element;
-					intent = new Intent(activity, OptionsActivity.class);
-				}
-				else
-				{
-					ComponentOptionsActivity.object = ElementView.this.element;
-					intent = new Intent(activity, ComponentOptionsActivity.class);
-				}
-				activity.startActivity(intent);
+				OptionsActivity.object = ComponentView.this.element;
+				activity.startActivity(new Intent(activity, OptionsActivity.class));
 			}
 		};
 		this.setOnClickListener(onClickListener);
@@ -259,7 +242,7 @@ class ElementView extends View
 		{
 			paintType = 0;
 		}
-		else if (element instanceof SensorChannel)
+		else if (element instanceof SensorProvider)
 		{
 			paintType = 1;
 		}

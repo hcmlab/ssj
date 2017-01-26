@@ -45,7 +45,7 @@ import java.util.HashSet;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
 
 /**
  * Draws a pipe<br>
@@ -62,10 +62,10 @@ public class PipeView extends ViewGroup
     }
 
     //elements
-    private static ArrayList<ElementView> elementViewsSensor;
-    private static ArrayList<ElementView> elementViewsProvider;
-    private static ArrayList<ElementView> elementViewsTransformer;
-    private static ArrayList<ElementView> elementViewsConsumer;
+    private static ArrayList<ComponentView> componentViewsSensor;
+    private static ArrayList<ComponentView> componentViewsProvider;
+    private static ArrayList<ComponentView> componentViewsTransformer;
+    private static ArrayList<ComponentView> componentViewsConsumer;
     //connections
     private ConnectionView[] connectionViews;
     //layout
@@ -121,7 +121,7 @@ public class PipeView extends ViewGroup
             private void cleanup(DragEvent event)
             {
                 //remove view from owner
-                ElementView view = (ElementView) event.getLocalState();
+                ComponentView view = (ComponentView) event.getLocalState();
                 try
                 {
                     //check collision
@@ -131,7 +131,7 @@ public class PipeView extends ViewGroup
                     if (rectBin.contains((int) xCoord, (int) yCoord))
                     {
                         setGridValue(view.getGridX(), view.getGridY(), false);
-                        Linker.getInstance().remove(view.getElement());
+                        Pipeline.getInstance().remove(view.getElement());
                     } //reposition
                     else
                     {
@@ -152,13 +152,13 @@ public class PipeView extends ViewGroup
                                 Object object = view.getElement();
                                 if (object instanceof Sensor)
                                 {
-                                    addCollisionConnection(object, x, y, elementViewsProvider, false);
+                                    addCollisionConnection(object, x, y, componentViewsProvider, false);
                                 } else if (object instanceof Provider)
                                 {
-                                    boolean found = addCollisionConnection(object, x, y, elementViewsTransformer, true);
+                                    boolean found = addCollisionConnection(object, x, y, componentViewsTransformer, true);
                                     if (!found)
                                     {
-                                        addCollisionConnection(object, x, y, elementViewsConsumer, true);
+                                        addCollisionConnection(object, x, y, componentViewsConsumer, true);
                                     }
                                 }
                             }
@@ -231,7 +231,7 @@ public class PipeView extends ViewGroup
                         xCoord = event.getX();
                         yCoord = event.getY();
                         dropped = true;
-                        ElementView view = (ElementView) event.getLocalState();
+                        ComponentView view = (ComponentView) event.getLocalState();
                         setGridValue(view.getGridX(), view.getGridY(), false);
                         break;
                     case DragEvent.ACTION_DRAG_ENDED:
@@ -294,51 +294,51 @@ public class PipeView extends ViewGroup
         //cleanup
         removeAllViews();
         //add connections
-        connectionViews = new ConnectionView[Linker.getInstance().getNumberOfConnections()];
+        connectionViews = new ConnectionView[Pipeline.getInstance().getNumberOfConnections()];
         for (int i = 0; i < connectionViews.length; i++)
         {
             connectionViews[i] = new ConnectionView(getContext());
             addView(connectionViews[i]);
         }
         //add sensors
-        elementViewsSensor = fillList(elementViewsSensor, Linker.Type.Sensor);
+        componentViewsSensor = fillList(componentViewsSensor, Pipeline.Type.Sensor);
         //add providers
-        elementViewsProvider = fillList(elementViewsProvider, Linker.Type.SensorProvider);
+        componentViewsProvider = fillList(componentViewsProvider, Pipeline.Type.SensorProvider);
         //add transformers
-        elementViewsTransformer = fillList(elementViewsTransformer, Linker.Type.Transformer);
+        componentViewsTransformer = fillList(componentViewsTransformer, Pipeline.Type.Transformer);
         //add consumers
-        elementViewsConsumer = fillList(elementViewsConsumer, Linker.Type.Consumer);
+        componentViewsConsumer = fillList(componentViewsConsumer, Pipeline.Type.Consumer);
     }
 
     /**
      * @param alView ArrayList
      * @param type   Linker.Type
      */
-    private ArrayList<ElementView> fillList(ArrayList<ElementView> alView, Linker.Type type)
+    private ArrayList<ComponentView> fillList(ArrayList<ComponentView> alView, Pipeline.Type type)
     {
         if (alView == null)
         {
             alView = new ArrayList<>();
         }
-        Object[] objects = Linker.getInstance().getAll(type);
-        ArrayList<ElementView> alInterim = new ArrayList<>();
+        Object[] objects = Pipeline.getInstance().getAll(type);
+        ArrayList<ComponentView> alInterim = new ArrayList<>();
         for (Object object : objects)
         {
             boolean found = false;
-            for (ElementView v : alView)
+            for (ComponentView v : alView)
             {
                 if (v.getElement().equals(object))
                 {
                     found = true;
-                    v.setConnectionHashes(Linker.getInstance().getConnectionHashes(object));
+                    v.setConnectionHashes(Pipeline.getInstance().getConnectionHashes(object));
                     alInterim.add(v);
                     break;
                 }
             }
             if (!found)
             {
-                ElementView view = new ElementView(getContext(), object);
-                view.setConnectionHashes(Linker.getInstance().getConnectionHashes(object));
+                ComponentView view = new ComponentView(getContext(), object);
+                view.setConnectionHashes(Pipeline.getInstance().getConnectionHashes(object));
                 alInterim.add(view);
             }
         }
@@ -358,35 +358,35 @@ public class PipeView extends ViewGroup
         //elements
         int initHeight = 0;
         int divider = 4;
-        setLayouts(elementViewsSensor, initHeight);
+        setLayouts(componentViewsSensor, initHeight);
         initHeight += gridHeight / divider;
-        setLayouts(elementViewsProvider, initHeight);
+        setLayouts(componentViewsProvider, initHeight);
         initHeight += gridHeight / divider;
-        setLayouts(elementViewsTransformer, initHeight);
+        setLayouts(componentViewsTransformer, initHeight);
         initHeight += gridHeight / divider;
-        setLayouts(elementViewsConsumer, initHeight);
+        setLayouts(componentViewsConsumer, initHeight);
         //connections
         for (ConnectionView connectionView : connectionViews)
         {
             connectionView.layout(0, 0, gridWPix, gridHPix);
         }
         int connections = 0;
-        for (ElementView elementViewSensor : elementViewsSensor)
+        for (ComponentView componentViewSensor : componentViewsSensor)
         {
-            int[] hashes = elementViewSensor.getConnectionHashes();
-            connections = checkConnections(hashes, connections, elementViewSensor, elementViewsProvider, false);
+            int[] hashes = componentViewSensor.getConnectionHashes();
+            connections = checkConnections(hashes, connections, componentViewSensor, componentViewsProvider, false);
         }
-        for (ElementView elementViewTransformer : elementViewsTransformer)
+        for (ComponentView componentViewTransformer : componentViewsTransformer)
         {
-            int[] hashes = elementViewTransformer.getConnectionHashes();
-            connections = checkConnections(hashes, connections, elementViewTransformer, elementViewsProvider, true);
-            connections = checkConnections(hashes, connections, elementViewTransformer, elementViewsTransformer, true);
+            int[] hashes = componentViewTransformer.getConnectionHashes();
+            connections = checkConnections(hashes, connections, componentViewTransformer, componentViewsProvider, true);
+            connections = checkConnections(hashes, connections, componentViewTransformer, componentViewsTransformer, true);
         }
-        for (ElementView elementViewConsumer : elementViewsConsumer)
+        for (ComponentView componentViewConsumer : componentViewsConsumer)
         {
-            int[] hashes = elementViewConsumer.getConnectionHashes();
-            connections = checkConnections(hashes, connections, elementViewConsumer, elementViewsProvider, true);
-            connections = checkConnections(hashes, connections, elementViewConsumer, elementViewsTransformer, true);
+            int[] hashes = componentViewConsumer.getConnectionHashes();
+            connections = checkConnections(hashes, connections, componentViewConsumer, componentViewsProvider, true);
+            connections = checkConnections(hashes, connections, componentViewConsumer, componentViewsTransformer, true);
         }
     }
 
@@ -394,19 +394,19 @@ public class PipeView extends ViewGroup
      * @param hashes              int[]
      * @param connections         int
      * @param destination         View
-     * @param elementViews        ArrayList
+     * @param componentViews        ArrayList
      * @param standardOrientation boolean
      * @return int
      */
-    private int checkConnections(int[] hashes, int connections, View destination, ArrayList<ElementView> elementViews, boolean standardOrientation)
+    private int checkConnections(int[] hashes, int connections, View destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
     {
         if (hashes != null)
         {
             for (int hash : hashes)
             {
-                for (ElementView elementView : elementViews)
+                for (ComponentView componentView : componentViews)
                 {
-                    if (hash == elementView.getElementHash())
+                    if (hash == componentView.getElementHash())
                     {
                         ConnectionView connectionView = connectionViews[connections];
                         //arrow from child to parent (e.g. transformer to consumer)
@@ -414,13 +414,13 @@ public class PipeView extends ViewGroup
                         {
                             connectionView.setLine(
                                     destination.getX(), destination.getY(),
-                                    elementView.getX(), elementView.getY());
+                                    componentView.getX(), componentView.getY());
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorProvider)
                         {
                             connectionView.setLine(
-                                    elementView.getX(), elementView.getY(),
+                                    componentView.getX(), componentView.getY(),
                                     destination.getX(), destination.getY());
                             connectionView.invalidate();
                         }
@@ -437,9 +437,9 @@ public class PipeView extends ViewGroup
      * @param views      ArrayList
      * @param initHeight int
      */
-    private void setLayouts(ArrayList<ElementView> views, int initHeight)
+    private void setLayouts(ArrayList<ComponentView> views, int initHeight)
     {
-        for (ElementView view : views)
+        for (ComponentView view : views)
         {
             if (view.isPositioned())
             {
@@ -486,12 +486,12 @@ public class PipeView extends ViewGroup
     /**
      * @param view ElementView
      */
-    private void placeElementView(ElementView view)
+    private void placeElementView(ComponentView view)
     {
         setGridValue(view.getGridX(), view.getGridY(), true);
         int xPos = view.getGridX() * GRID_SIZE + gridPadWPix;
         int yPos = view.getGridY() * GRID_SIZE + gridPadHPix;
-        view.layout(xPos, yPos, xPos + ElementView.BOX_SIZE, yPos + ElementView.BOX_SIZE);
+        view.layout(xPos, yPos, xPos + ComponentView.BOX_SIZE, yPos + ComponentView.BOX_SIZE);
     }
 
     /**
@@ -553,22 +553,22 @@ public class PipeView extends ViewGroup
         if (gridWidth != width || gridHeight != height)
         {
             //clear element placements
-            for (ElementView view : elementViewsSensor)
+            for (ComponentView view : componentViewsSensor)
             {
                 view.setGridX(-1);
                 view.setGridY(-1);
             }
-            for (ElementView view : elementViewsProvider)
+            for (ComponentView view : componentViewsProvider)
             {
                 view.setGridX(-1);
                 view.setGridY(-1);
             }
-            for (ElementView view : elementViewsTransformer)
+            for (ComponentView view : componentViewsTransformer)
             {
                 view.setGridX(-1);
                 view.setGridY(-1);
             }
-            for (ElementView view : elementViewsConsumer)
+            for (ComponentView view : componentViewsConsumer)
             {
                 view.setGridX(-1);
                 view.setGridY(-1);
@@ -587,24 +587,24 @@ public class PipeView extends ViewGroup
      * @param object       Object
      * @param x            int
      * @param y            int
-     * @param elementViews ArrayList
+     * @param componentViews ArrayList
      * @param standard     boolean
      * @return boolean
      */
-    private boolean addCollisionConnection(Object object, int x, int y, ArrayList<ElementView> elementViews, boolean standard)
+    private boolean addCollisionConnection(Object object, int x, int y, ArrayList<ComponentView> componentViews, boolean standard)
     {
-        for (ElementView elementView : elementViews)
+        for (ComponentView componentView : componentViews)
         {
-            int colX = elementView.getGridX();
-            int colY = elementView.getGridY();
+            int colX = componentView.getGridX();
+            int colY = componentView.getGridY();
             if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
             {
                 if (standard)
                 {
-                    Linker.getInstance().addProvider(elementView.getElement(), (Provider) object);
+                    Pipeline.getInstance().addProvider(componentView.getElement(), (Provider) object);
                 } else
                 {
-                    Linker.getInstance().addProvider(object, (Provider) elementView.getElement());
+                    Pipeline.getInstance().addProvider(object, (Provider) componentView.getElement());
                 }
                 return true;
             }

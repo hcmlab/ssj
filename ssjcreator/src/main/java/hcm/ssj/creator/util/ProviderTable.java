@@ -27,7 +27,6 @@
 package hcm.ssj.creator.util;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.CheckBox;
@@ -42,7 +41,7 @@ import java.util.Arrays;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.Linker;
+import hcm.ssj.creator.core.Pipeline;
 
 /**
  * Create a table row which includes viable providers
@@ -82,7 +81,7 @@ public class ProviderTable
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
-                Object[] providers = Linker.getInstance().getProviders(mainObject);
+                Object[] providers = Pipeline.getInstance().getProviders(mainObject);
                 if (providers != null)
                 {
                     for (Object provider : providers)
@@ -104,10 +103,10 @@ public class ProviderTable
                     {
                         if (isChecked)
                         {
-                            Linker.getInstance().addProvider(mainObject, (Provider) o);
+                            Pipeline.getInstance().addProvider(mainObject, (Provider) o);
                         } else
                         {
-                            Linker.getInstance().removeProvider(mainObject, (Provider) o);
+                            Pipeline.getInstance().removeProvider(mainObject, (Provider) o);
                         }
                     }
                 });
@@ -124,12 +123,12 @@ public class ProviderTable
     private static Object[] getProvider(Object mainObject)
     {
         //add possible providers
-        Object[] sensProvCandidates = Linker.getInstance().getAll(Linker.Type.SensorProvider);
+        Object[] sensProvCandidates = Pipeline.getInstance().getAll(Pipeline.Type.SensorProvider);
         ArrayList<Object> alCandidates = new ArrayList<>();
         //only add sensorProviders for sensors
         if (!(mainObject instanceof Sensor))
         {
-            alCandidates.addAll(Arrays.asList(Linker.getInstance().getAll(Linker.Type.Transformer)));
+            alCandidates.addAll(Arrays.asList(Pipeline.getInstance().getAll(Pipeline.Type.Transformer)));
             //remove itself
             for (int i = 0; i < alCandidates.size(); i++)
             {
