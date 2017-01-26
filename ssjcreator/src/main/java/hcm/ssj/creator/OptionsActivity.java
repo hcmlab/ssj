@@ -28,43 +28,153 @@ package hcm.ssj.creator;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.InputType;
+import android.text.TextWatcher;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 
+import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Log;
+import hcm.ssj.core.Sensor;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.core.Linker;
 import hcm.ssj.creator.util.OptionTable;
+import hcm.ssj.creator.util.ProviderTable;
 
 public class OptionsActivity extends AppCompatActivity
 {
     public static Object object;
+    private Object innerObject;
 
     /**
      *
      */
     private void init()
     {
+        innerObject = object;
+        object = null;
         Option[] options;
-        if (object != null)
-        {
-            //change title
-            setTitle(((hcm.ssj.core.Component) object).getComponentName());
-            options = Linker.getOptionList(object);
-        } else
+        if (innerObject == null)
         {
             //change title
             setTitle("SSJ_Framework");
             options = Linker.getOptionList(TheFramework.getFramework());
+        } else
+        {
+            //change title
+            setTitle(((hcm.ssj.core.Component) innerObject).getComponentName());
+            options = Linker.getOptionList(object);
         }
-        object = null;
         //stretch columns
         TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
         tableLayout.setStretchAllColumns(true);
+        //add frame size and delta for transformer and consumer
+        if (innerObject != null
+                && (innerObject instanceof Transformer
+                || innerObject instanceof Consumer))
+        {
+            //add frame size and delta
+            tableLayout.addView(createTextView(true));
+            tableLayout.addView(createTextView(false));
+        }
         //add options
         if (options != null && options.length > 0)
         {
             tableLayout.addView(OptionTable.createTable(this, options, false));
         }
+        //add possible providers for sensor, transformer or consumer
+        if (innerObject != null
+                && (innerObject instanceof Sensor
+                || innerObject instanceof  Transformer
+                || innerObject instanceof  Consumer))
+        {
+            //add possible providers
+            tableLayout.addView(ProviderTable.createTable(this, innerObject, true));
+        }
+    }
+
+    /**
+     *
+     * @param isFrameSize boolean
+     * @return TableRow
+     */
+    private TableRow createTextView(final boolean isFrameSize)
+    {
+        TableRow tableRow = new TableRow(getApplicationContext());
+        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        LinearLayout linearLayout = new LinearLayout(getApplicationContext());
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setWeightSum(1.0f);
+        //
+        EditText editText = new EditText(getApplicationContext());
+        editText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        editText.setEms(10);
+        editText.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.6f));
+        editText.setText(String.valueOf(isFrameSize
+                ? Linker.getInstance().getFrameSize(innerObject)
+                : Linker.getInstance().getDelta(innerObject)));
+        editText.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                if (isFrameSize)
+                {
+                    try
+                    {
+                        double d = Double.parseDouble(s.toString());
+                        if (d > 0)
+                        {
+                            Linker.getInstance().setFrameSize(innerObject, d);
+                        }
+                    } catch (NumberFormatException ex)
+                    {
+                        Log.w("Invalid input for frameSize double: " + s.toString());
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        double d = Double.parseDouble(s.toString());
+                        if (d >= 0)
+                        {
+                            Linker.getInstance().setDelta(innerObject, d);
+                        }
+                    } catch (NumberFormatException ex)
+                    {
+                        Log.w("Invalid input for delta double: " + s.toString());
+                    }
+                }
+            }
+        });
+        linearLayout.addView(editText);
+        //
+        TextView textView = new TextView(getApplicationContext());
+        textView.setText(isFrameSize ? R.string.str_frameSize : R.string.str_delta);
+        textView.setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_Medium);
+        textView.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.4f));
+        linearLayout.addView(textView);
+        tableRow.addView(linearLayout);
+        return tableRow;
     }
 
     /**

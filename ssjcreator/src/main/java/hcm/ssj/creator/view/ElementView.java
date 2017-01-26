@@ -43,10 +43,8 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.Transformer;
-import hcm.ssj.creator.ComponentOptionsActivity;
 import hcm.ssj.creator.OptionsActivity;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.SensorOptionsActivity;
 
 /**
  * Draws elements.<br>
@@ -100,24 +98,9 @@ class ElementView extends View
 			@Override
 			public void onClick(View v)
 			{
-				Intent intent;
 				Activity activity = (Activity) getContext();
-				if (ElementView.this.element instanceof Sensor)
-				{
-					SensorOptionsActivity.object = ElementView.this.element;
-					intent = new Intent(activity, SensorOptionsActivity.class);
-				}
-				else if (ElementView.this.element instanceof SensorProvider)
-				{
-					OptionsActivity.object = ElementView.this.element;
-					intent = new Intent(activity, OptionsActivity.class);
-				}
-				else
-				{
-					ComponentOptionsActivity.object = ElementView.this.element;
-					intent = new Intent(activity, ComponentOptionsActivity.class);
-				}
-				activity.startActivity(intent);
+				OptionsActivity.object = ElementView.this.element;
+				activity.startActivity(new Intent(activity, OptionsActivity.class));
 			}
 		};
 		this.setOnClickListener(onClickListener);
