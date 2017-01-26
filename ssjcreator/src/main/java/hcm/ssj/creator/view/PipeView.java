@@ -303,7 +303,7 @@ public class PipeView extends ViewGroup
         //add sensors
         componentViewsSensor = fillList(componentViewsSensor, Pipeline.Type.Sensor);
         //add providers
-        componentViewsProvider = fillList(componentViewsProvider, Pipeline.Type.SensorProvider);
+        componentViewsProvider = fillList(componentViewsProvider, Pipeline.Type.SensorChannel);
         //add transformers
         componentViewsTransformer = fillList(componentViewsTransformer, Pipeline.Type.Transformer);
         //add consumers
@@ -417,7 +417,7 @@ public class PipeView extends ViewGroup
                                     componentView.getX(), componentView.getY());
                             connectionView.invalidate();
                         } else
-                        //arrow from parent to child (e.g. sensor to sensorProvider)
+                        //arrow from parent to child (e.g. sensor to sensorChannel)
                         {
                             connectionView.setLine(
                                     componentView.getX(), componentView.getY(),

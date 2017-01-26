@@ -41,7 +41,7 @@ import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.creator.OptionsActivity;
 import hcm.ssj.creator.R;
@@ -242,7 +242,7 @@ class ComponentView extends View
 		{
 			paintType = 0;
 		}
-		else if (element instanceof SensorProvider)
+		else if (element instanceof SensorChannel)
 		{
 			paintType = 1;
 		}

@@ -29,7 +29,7 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.audio.AudioProvider;
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Provider;
@@ -54,11 +54,11 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.options.bufferSize.set(10.0f);
 
         Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
+        AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
@@ -99,11 +99,11 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.options.bufferSize.set(10.0f);
 
         Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
+        AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);

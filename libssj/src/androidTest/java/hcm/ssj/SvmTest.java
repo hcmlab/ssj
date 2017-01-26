@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
@@ -73,13 +73,13 @@ public class SvmTest extends ApplicationTestCase<Application>
             //sensor
             AndroidSensor sensor = new AndroidSensor();
             sensor.options.sensorType.set(SENSOR_TYPES[i]);
-            frame.addSensor(sensor);
-            //provider
-            AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-            sensor.addProvider(sensorProvider);
+
+            //channel
+            AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+            frame.addSensor(sensor,sensorChannel);
             //transformers
             Progress progress = new Progress();
-            frame.addTransformer(progress, sensorProvider, 5, 0);
+            frame.addTransformer(progress, sensorChannel, 5, 0);
             //
             Functionals distance = new Functionals();
             distance.options.mean.set(false);
@@ -94,7 +94,7 @@ public class SvmTest extends ApplicationTestCase<Application>
             distance.options.peaks.set(false);
             distance.options.len.set(false);
             distance.options.path.set(true);
-            frame.addTransformer(distance, sensorProvider, 30, 30);
+            frame.addTransformer(distance, sensorChannel, 30, 30);
             transformers[i] = distance;
             //
             Functionals functionals = new Functionals();

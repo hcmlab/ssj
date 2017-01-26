@@ -35,17 +35,20 @@ public abstract class Sensor extends Component {
 
     private boolean _isConnected = false;
     protected TheFramework _frame;
-    protected ArrayList<Provider> _provider = new ArrayList<>();
+    protected ArrayList<SensorChannel> _provider = new ArrayList<>();
 
     public Sensor()
     {
         _frame = TheFramework.getFramework();
     }
 
-    public SensorProvider addProvider(SensorProvider p) throws SSJException {
-        _frame.addSensorProvider(this, p);
+    void addChannel(SensorChannel p) throws SSJException {
         _provider.add(p);
-        return p;
+    }
+
+    public ArrayList<SensorChannel> getProviders()
+    {
+        return _provider;
     }
 
     @Override

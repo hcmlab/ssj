@@ -123,9 +123,9 @@ public class ProviderTable
     private static Object[] getProvider(Object mainObject)
     {
         //add possible providers
-        Object[] sensProvCandidates = Pipeline.getInstance().getAll(Pipeline.Type.SensorProvider);
+        Object[] sensProvCandidates = Pipeline.getInstance().getAll(Pipeline.Type.SensorChannel);
         ArrayList<Object> alCandidates = new ArrayList<>();
-        //only add sensorProviders for sensors
+        //only add sensorChannels for sensors
         if (!(mainObject instanceof Sensor))
         {
             alCandidates.addAll(Arrays.asList(Pipeline.getInstance().getAll(Pipeline.Type.Transformer)));

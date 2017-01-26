@@ -46,7 +46,7 @@ public class SSJDescriptor
     private static SSJDescriptor instance = null;
     //
     public ArrayList<Class> sensors = new ArrayList<>();
-    public ArrayList<Class> sensorProviders = new ArrayList<>();
+    public ArrayList<Class> sensorChannels = new ArrayList<>();
     public ArrayList<Class> transformers = new ArrayList<>();
     public ArrayList<Class> consumers = new ArrayList<>();
     public ArrayList<Class> eventConsumers = new ArrayList<>();
@@ -117,9 +117,9 @@ public class SSJDescriptor
                         if (parent.getSimpleName().compareToIgnoreCase("Sensor") == 0)
                         {
                             sensors.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("SensorProvider") == 0)
+                        } else if (parent.getSimpleName().compareToIgnoreCase("SensorChannel") == 0)
                         {
-                            sensorProviders.add(aClass);
+                            sensorChannels.add(aClass);
                         } else if (parent.getSimpleName().compareToIgnoreCase("Transformer") == 0)
                         {
                             transformers.add(aClass);

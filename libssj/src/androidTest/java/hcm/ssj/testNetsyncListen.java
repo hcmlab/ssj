@@ -29,7 +29,7 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.audio.AudioProvider;
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
@@ -55,11 +55,11 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
         frame.options.master.set("127.0.0.1");
 
         Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
+        AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);
@@ -73,7 +73,7 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
 
 //        FloatsEventSender fes = new FloatsEventSender();
 //        frame.addConsumer(fes, audio, 1.0, 0);
-//        EventChannel ch = frame.registerEventProvider(fes);
+//        EventChannel ch = frame.registerEventChannel(fes);
 //
 //        BluetoothEventWriter blew = new BluetoothEventWriter();
 //        blew.options.connectionType = BluetoothConnection.Type.CLIENT;

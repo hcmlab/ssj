@@ -29,14 +29,14 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.audio.AudioProvider;
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.FloatsEventSender;
+import hcm.ssj.ioput.SocketChannel;
 import hcm.ssj.ioput.SocketEventWriter;
-import hcm.ssj.ioput.SocketProvider;
 import hcm.ssj.ioput.SocketReader;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
@@ -56,11 +56,11 @@ public class testSockets extends ApplicationTestCase<Application> {
         frame.options.bufferSize.set(10.0f);
 
         Microphone mic = new Microphone();
-        AudioProvider audio = new AudioProvider();
+        AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
@@ -108,15 +108,15 @@ public class testSockets extends ApplicationTestCase<Application> {
         sock.options.port.set(7777);
         sock.options.ip.set("192.168.0.104");
         sock.options.type.set(Cons.SocketType.TCP);
-        frame.addSensor(sock);
 
-        SocketProvider data = new SocketProvider();
+
+        SocketChannel data = new SocketChannel();
         data.options.dim.set(2);
         data.options.bytes.set(4);
         data.options.type.set(Cons.Type.FLOAT);
         data.options.sr.set(50.);
         data.options.num.set(10);
-        sock.addProvider(data);
+        frame.addSensor(sock,data);
 
         Logger log = new Logger();
         frame.addConsumer(log, data, 0.2, 0);

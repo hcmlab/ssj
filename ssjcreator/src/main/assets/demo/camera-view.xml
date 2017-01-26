@@ -4,7 +4,7 @@
   <framework/>
 
   <sensorProviderList>
-    <sensorProvider class="hcm.ssj.camera.CameraProvider" id="1">
+    <sensorProvider class="hcm.ssj.camera.CameraChannel" id="1">
     </sensorProvider>
   </sensorProviderList>
 

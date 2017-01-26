@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.signal.Functionals;
@@ -64,13 +64,13 @@ public class FunctionalsTest extends ApplicationTestCase<Application>
         //sensor
         AndroidSensor sensor = new AndroidSensor();
         sensor.options.sensorType.set(SensorType.ACCELEROMETER);
-        frame.addSensor(sensor);
-        //provider
-        AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-        sensor.addProvider(sensorProvider);
+
+        //channel
+        AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+        frame.addSensor(sensor,sensorChannel);
         //transformer
         Functionals transformer = new Functionals();
-        frame.addTransformer(transformer, sensorProvider, 1, 0);
+        frame.addTransformer(transformer, sensorChannel, 1, 0);
         //logger
         Logger log = new Logger();
         frame.addConsumer(log, transformer, 1, 0);

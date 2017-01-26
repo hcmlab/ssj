@@ -31,12 +31,12 @@ import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.empatica.AccelerationProvider;
-import hcm.ssj.empatica.BVPProvider;
+import hcm.ssj.empatica.AccelerationChannel;
+import hcm.ssj.empatica.BVPChannel;
 import hcm.ssj.empatica.Empatica;
-import hcm.ssj.empatica.GSRProvider;
-import hcm.ssj.empatica.IBIProvider;
-import hcm.ssj.empatica.TemperatureProvider;
+import hcm.ssj.empatica.GSRChannel;
+import hcm.ssj.empatica.IBIChannel;
+import hcm.ssj.empatica.TemperatureChannel;
 import hcm.ssj.test.Logger;
 
 /**
@@ -55,9 +55,9 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		TheFramework frame = TheFramework.getFramework();
 
 		Empatica empatica = new Empatica();
-		AccelerationProvider acc = new AccelerationProvider();
-		empatica.addProvider(acc);
-		frame.addSensor(empatica);
+		AccelerationChannel acc = new AccelerationChannel();
+		frame.addSensor(empatica,acc);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, acc, 0.1, 0);
@@ -85,9 +85,9 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		TheFramework frame = TheFramework.getFramework();
 
 		Empatica empatica = new Empatica();
-		GSRProvider data = new GSRProvider();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		GSRChannel data = new GSRChannel();
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.25, 0);
@@ -115,9 +115,9 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		TheFramework frame = TheFramework.getFramework();
 
 		Empatica empatica = new Empatica();
-		IBIProvider data = new IBIProvider();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		IBIChannel data = new IBIChannel();
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.1, 0);
@@ -145,9 +145,9 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		TheFramework frame = TheFramework.getFramework();
 
 		Empatica empatica = new Empatica();
-		TemperatureProvider data = new TemperatureProvider();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		TemperatureChannel data = new TemperatureChannel();
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.25, 0);
@@ -175,9 +175,9 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		TheFramework frame = TheFramework.getFramework();
 
 		Empatica empatica = new Empatica();
-		BVPProvider data = new BVPProvider();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		BVPChannel data = new BVPChannel();
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.1, 0);

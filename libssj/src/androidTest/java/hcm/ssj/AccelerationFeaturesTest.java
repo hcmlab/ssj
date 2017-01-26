@@ -28,24 +28,12 @@ package hcm.ssj;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
-import android.test.suitebuilder.annotation.Suppress;
-
-import java.io.FileReader;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.body.AccelerationFeatures;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.file.SimpleFileReader;
-import hcm.ssj.file.SimpleFileReaderProvider;
 import hcm.ssj.file.SimpleFileWriter;
-import hcm.ssj.gps.GPSProvider;
-import hcm.ssj.gps.GPSSensor;
-import hcm.ssj.ml.Classifier;
-import hcm.ssj.signal.Avg;
-import hcm.ssj.test.Logger;
 
 /**
  * Created by Michael Dietz on 19.10.2016.
@@ -54,7 +42,7 @@ import hcm.ssj.test.Logger;
 public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 {
 	// Test length in milliseconds
-	private final static int TEST_LENGTH = 2 * 60 * 1000;
+	private final static int TEST_LENGTH = 1 * 60 * 1000;
 
 	public AccelerationFeaturesTest()
 	{
@@ -70,30 +58,14 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-		frame.addSensor(sensor);
-
-		// Provider
-		AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-		sensorProvider.options.sampleRate.set(40);
-		sensor.addProvider(sensorProvider);
+		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
+		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sampleRate.set(40);
+		frame.addSensor(sensor, channel);
 
 		// Transformer
-		AccelerationFeatures features = new AccelerationFeatures();
-		frame.addTransformer(features, sensorProvider, 1, 3);
-
-		// SVM
-		Classifier classifier = new Classifier();
-		classifier.options.trainerPath.set("/sdcard/SSJ/Model/");
-		classifier.options.trainerFile.set("my_model.trainer");
-		frame.addTransformer(classifier, features, 1, 0);
-
-		// Logger
-		Logger log = new Logger();
-		frame.addConsumer(log, classifier, 1, 0);
-
-		//Logger log2 = new Logger();
-		//frame.addConsumer(log2, features, 1, 0);
+		SimpleFileWriter sfw = new SimpleFileWriter();
+		frame.addConsumer(sfw, channel, 1, 0);
 
 		// Start framework
 		frame.Start();
@@ -131,16 +103,16 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		sensor.options.filePath.set("/sdcard/SSJ/");
 		sensor.options.fileName.set("GlassLinearAcceleration.stream");
 		sensor.options.loop.set(false);
-		frame.addSensor(sensor);
 
-		// Provider
-		SimpleFileReaderProvider sensorProvider = new SimpleFileReaderProvider();
-		sensorProvider.setSyncInterval(0);
-		sensor.addProvider(sensorProvider);
+
+		// Channel
+		SimpleFileReaderChannel sensorChannel = new SimpleFileReaderChannel();
+		sensorChannel.setSyncInterval(0);
+		frame.addSensor(sensor,sensorChannel);
 
 		// Transformer
 		AccelerationFeatures features = new AccelerationFeatures();
-		frame.addTransformer(features, sensorProvider, 1, 3);
+		frame.addTransformer(features, sensorChannel, 1, 3);
 
 		// SVM
 		//Classifier classifier = new Classifier();
@@ -189,17 +161,17 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
 		sensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-		frame.addSensor(sensor);
 
-		// Provider
-		AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-		sensorProvider.options.sampleRate.set(40);
-		sensor.addProvider(sensorProvider);
+
+		// Channel
+		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+		sensorChannel.options.sampleRate.set(40);
+		frame.addSensor(sensor,sensorChannel);
 
 		// Logger
 		SimpleFileWriter consumer = new SimpleFileWriter();
 		consumer.options.fileName.set("TestAcceleration");
-		frame.addConsumer(consumer, sensorProvider, 1, 0);
+		frame.addConsumer(consumer, sensorChannel, 1, 0);
 
 		// Start framework
 		frame.Start();

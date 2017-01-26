@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
@@ -60,17 +60,16 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
 
         AndroidSensor sensor = new AndroidSensor();
         sensor.options.sensorType.set(SensorType.ACCELEROMETER);
-        frame.addSensor(sensor);
-        AndroidSensorProvider acc = new AndroidSensorProvider();
+
+        AndroidSensorChannel acc = new AndroidSensorChannel();
         acc.options.sampleRate.set(50);
-        sensor.addProvider(acc);
+        frame.addSensor(sensor,acc);
 
         AndroidSensor sensor2 = new AndroidSensor();
         sensor2.options.sensorType.set(SensorType.GRAVITY);
-        frame.addSensor(sensor2);
-        AndroidSensorProvider gyr = new AndroidSensorProvider();
+        AndroidSensorChannel gyr = new AndroidSensorChannel();
         gyr.options.sampleRate.set(50);
-        sensor2.addProvider(gyr);
+        frame.addSensor(sensor2,gyr);
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);

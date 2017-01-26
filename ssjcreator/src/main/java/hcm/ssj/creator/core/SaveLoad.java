@@ -49,7 +49,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -65,11 +65,11 @@ public abstract class SaveLoad
     private final static String VERSION = "version";
     private final static String VERSION_NUMBER = "0.2";
     private final static String FRAMEWORK = "framework";
-    private final static String SENSOR_PROVIDER_LIST = "sensorProviderList";
+    private final static String SENSOR_PROVIDER_LIST = "sensorChannelList";
     private final static String SENSOR_LIST = "sensorList";
     private final static String TRANSFORMER_LIST = "transformerList";
     private final static String CONSUMER_LIST = "consumerList";
-    private final static String SENSOR_PROVIDER = "sensorProvider";
+    private final static String SENSOR_PROVIDER = "sensorChannel";
     private final static String SENSOR = "sensor";
     private final static String TRANSFORMER = "transformer";
     private final static String CONSUMER = "consumer";
@@ -116,14 +116,14 @@ public abstract class SaveLoad
             serializer.startTag(null, FRAMEWORK);
             addOptions(serializer, TheFramework.getFramework());
             serializer.endTag(null, FRAMEWORK);
-            //sensorProviders
+            //sensorChannels
             serializer.startTag(null, SENSOR_PROVIDER_LIST);
-            LinkedHashSet<SensorProvider> hsSensorProviders = Pipeline.getInstance().hsSensorProviders;
-            for (SensorProvider sensorProvider : hsSensorProviders)
+            LinkedHashSet<SensorChannel> hsSensorChannels = Pipeline.getInstance().hsSensorChannels;
+            for (SensorChannel sensorChannel : hsSensorChannels)
             {
                 serializer.startTag(null, SENSOR_PROVIDER);
-                addStandard(serializer, sensorProvider);
-                addOptions(serializer, sensorProvider);
+                addStandard(serializer, sensorChannel);
+                addOptions(serializer, sensorChannel);
                 serializer.endTag(null, SENSOR_PROVIDER);
             }
             serializer.endTag(null, SENSOR_PROVIDER_LIST);

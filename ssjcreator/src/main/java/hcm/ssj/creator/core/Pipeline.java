@@ -35,7 +35,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -49,7 +49,7 @@ import hcm.ssj.creator.core.container.ContainerElement;
 public class Pipeline
 {
     private static Pipeline instance = null;
-    protected LinkedHashSet<SensorProvider> hsSensorProviders = new LinkedHashSet<>();
+    protected LinkedHashSet<SensorChannel> hsSensorChannels = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Sensor>> hsSensorElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
@@ -57,7 +57,7 @@ public class Pipeline
 
     public enum Type
     {
-        Sensor, SensorProvider, Transformer, Consumer
+        Sensor, SensorChannel, Transformer, Consumer
     }
 
     /**
@@ -84,7 +84,7 @@ public class Pipeline
      */
     public void clear()
     {
-        hsSensorProviders.clear();
+        hsSensorChannels.clear();
         hsSensorElements.clear();
         hsTransformerElements.clear();
         hsConsumerElements.clear();
@@ -145,8 +145,8 @@ public class Pipeline
                 }
                 return objects;
             }
-            case SensorProvider:
-                return hsSensorProviders.toArray();
+            case SensorChannel:
+                return hsSensorChannels.toArray();
             case Transformer:
             {
                 Object[] objects = new Object[hsTransformerElements.size()];
@@ -180,27 +180,26 @@ public class Pipeline
     public void buildPipe() throws SSJException {
         TheFramework framework = TheFramework.getFramework();
         //add to framework
-        //sensors and sensorProviders
+        //sensors and sensorChannels
         for (ContainerElement<Sensor> element : hsSensorElements)
         {
             Sensor sensor = element.getElement();
             HashMap<Provider, Boolean> hmProviders = element.getHmProviders();
             if (hmProviders.size() > 0)
             {
-                framework.addSensor(sensor);
                 for (Map.Entry<Provider, Boolean> entry : hmProviders.entrySet())
                 {
-                    SensorProvider sensorProvider = (SensorProvider) entry.getKey();
-                    sensor.addProvider(sensorProvider);
+                    SensorChannel sensorChannel = (SensorChannel) entry.getKey();
+                    framework.addSensor(sensor,sensorChannel);
                     //activate in transformer
                     for (ContainerElement<Transformer> element2 : hsTransformerElements)
                     {
-                        element2.setAdded(sensorProvider);
+                        element2.setAdded(sensorChannel);
                     }
                     //activate in consumer
                     for (ContainerElement<Consumer> element2 : hsConsumerElements)
                     {
-                        element2.setAdded(sensorProvider);
+                        element2.setAdded(sensorChannel);
                     }
                 }
             }
@@ -256,10 +255,10 @@ public class Pipeline
      */
     public boolean add(Object o)
     {
-        //sensorProvider
-        if (o instanceof SensorProvider)
+        //sensorChannel
+        if (o instanceof SensorChannel)
         {
-            return hsSensorProviders.add((SensorProvider) o);
+            return hsSensorChannels.add((SensorChannel) o);
         }
         //sensor
         else if (o instanceof Sensor)
@@ -317,26 +316,26 @@ public class Pipeline
                 }
             }
         }
-        //sensorProvider
-        else if (o instanceof SensorProvider)
+        //sensorChannel
+        else if (o instanceof SensorChannel)
         {
-            SensorProvider sensorProvider = (SensorProvider) o;
+            SensorChannel sensorChannel = (SensorChannel) o;
             //also remove in sensors
             for (ContainerElement<Sensor> element : hsSensorElements)
             {
-                element.removeProvider(sensorProvider);
+                element.removeProvider(sensorChannel);
             }
             //also remove in transformers
             for (ContainerElement<Transformer> element : hsTransformerElements)
             {
-                element.removeProvider(sensorProvider);
+                element.removeProvider(sensorChannel);
             }
             //also remove in consumers
             for (ContainerElement<Consumer> element : hsConsumerElements)
             {
-                element.removeProvider(sensorProvider);
+                element.removeProvider(sensorChannel);
             }
-            return hsSensorProviders.remove(sensorProvider);
+            return hsSensorChannels.remove(sensorChannel);
         }
         //transformer
         else if (o instanceof Transformer)
@@ -381,10 +380,10 @@ public class Pipeline
     public boolean addProvider(Object o, Provider provider)
     {
         //check for existence in
-        //sensorProviders
-        if (provider instanceof SensorProvider)
+        //sensorChannels
+        if (provider instanceof SensorChannel)
         {
-            if (!hsSensorProviders.contains(provider))
+            if (!hsSensorChannels.contains(provider))
             {
                 return false;
             }
@@ -406,7 +405,7 @@ public class Pipeline
             }
         }
         //add to sensor
-        if (o instanceof Sensor && provider instanceof SensorProvider)
+        if (o instanceof Sensor && provider instanceof SensorChannel)
         {
             for (ContainerElement<Sensor> element : hsSensorElements)
             {
@@ -450,10 +449,10 @@ public class Pipeline
     public boolean removeProvider(Object o, Provider provider)
     {
         //check for existence in
-        //sensorProviders
-        if (provider instanceof SensorProvider)
+        //sensorChannels
+        if (provider instanceof SensorChannel)
         {
-            if (!hsSensorProviders.contains(provider))
+            if (!hsSensorChannels.contains(provider))
             {
                 return false;
             }
@@ -475,7 +474,7 @@ public class Pipeline
             }
         }
         //remove from sensor
-        if (o instanceof Sensor && provider instanceof SensorProvider)
+        if (o instanceof Sensor && provider instanceof SensorChannel)
         {
             for (ContainerElement<Sensor> element : hsSensorElements)
             {

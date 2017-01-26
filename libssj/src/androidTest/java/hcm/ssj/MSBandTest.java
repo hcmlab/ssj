@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.msband.GSRProvider;
+import hcm.ssj.msband.GSRChannel;
 import hcm.ssj.msband.MSBand;
 import hcm.ssj.test.Logger;
 
@@ -63,13 +63,13 @@ public class MSBandTest extends ApplicationTestCase<Application>
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		MSBand sensor = new MSBand();
-		frame.addSensor(sensor);
-		//provider
-		GSRProvider sensorProvider = new GSRProvider();
-		sensor.addProvider(sensorProvider);
+
+		//channel
+		GSRChannel sensorChannel = new GSRChannel();
+		frame.addSensor(sensor,sensorChannel);
 		//logger
 		Logger log = new Logger();
-		frame.addConsumer(log, sensorProvider, 1, 0);
+		frame.addConsumer(log, sensorChannel, 1, 0);
 		//start framework
 		frame.Start();
 		//run test

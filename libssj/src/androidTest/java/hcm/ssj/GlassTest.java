@@ -31,7 +31,7 @@ import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.glass.BlinkDetection;
-import hcm.ssj.glass.InfraredProvider;
+import hcm.ssj.glass.InfraredChannel;
 import hcm.ssj.glass.InfraredSensor;
 import hcm.ssj.test.Logger;
 
@@ -62,16 +62,16 @@ public class GlassTest extends ApplicationTestCase<Application>
         frame.options.bufferSize.set(10.0f);
         //sensor
         InfraredSensor sensor = new InfraredSensor();
-        frame.addSensor(sensor);
-        //provider
-        InfraredProvider sensorProvider = new InfraredProvider();
-        sensor.addProvider(sensorProvider);
+
+        //channel
+        InfraredChannel sensorChannel = new InfraredChannel();
+        frame.addSensor(sensor,sensorChannel);
         //transformer
         BlinkDetection transformer = new BlinkDetection();
-        frame.addTransformer(transformer, sensorProvider, 1, 0);
+        frame.addTransformer(transformer, sensorChannel, 1, 0);
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, sensorProvider, 1, 0);
+        frame.addConsumer(log, sensorChannel, 1, 0);
         //start framework
         frame.Start();
         //run for two minutes
