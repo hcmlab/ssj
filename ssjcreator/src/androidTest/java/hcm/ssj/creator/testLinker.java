@@ -30,10 +30,10 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorProvider;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.core.SSJDescriptor;
@@ -64,7 +64,7 @@ public class testLinker extends ApplicationTestCase<Application>
         SSJDescriptor descriptor = SSJDescriptor.getInstance();
 //        Builder.getInstance().scan(this.getContext());
         System.out.println(descriptor.sensors.get(0));
-        System.out.println(descriptor.sensorProviders.get(0));
+        System.out.println(descriptor.sensorChannels.get(0));
         System.out.println(descriptor.consumers.get(0));
         //
         TheFramework frame = TheFramework.getFramework();
@@ -80,24 +80,24 @@ public class testLinker extends ApplicationTestCase<Application>
                 break;
             }
         }
-        SensorProvider sensorProvider = null;
+        SensorChannel sensorChannel = null;
         if (sensor != null)
         {
-            for (Class clazz : descriptor.sensorProviders)
+            for (Class clazz : descriptor.sensorChannels)
             {
-                if (clazz.equals(AndroidSensorProvider.class))
+                if (clazz.equals(AndroidSensorChannel.class))
                 {
-                    sensorProvider = (SensorProvider) SSJDescriptor.instantiate(clazz);
+                    sensorChannel = (SensorChannel) SSJDescriptor.instantiate(clazz);
                     break;
                 }
             }
         }
         Consumer consumer = null;
-        if (sensorProvider != null)
+        if (sensorChannel != null)
         {
             pipeline.add(sensor);
-            pipeline.add(sensorProvider);
-            pipeline.addProvider(sensor, sensorProvider);
+            pipeline.add(sensorChannel);
+            pipeline.addProvider(sensor, sensorChannel);
             for (Class clazz : descriptor.consumers)
             {
                 if (clazz.equals(Logger.class))
@@ -109,7 +109,7 @@ public class testLinker extends ApplicationTestCase<Application>
             if (consumer != null)
             {
                 pipeline.add(consumer);
-                pipeline.addProvider(consumer, sensorProvider);
+                pipeline.addProvider(consumer, sensorChannel);
                 pipeline.setFrameSize(consumer, 1);
                 pipeline.setDelta(consumer, 0);
             }

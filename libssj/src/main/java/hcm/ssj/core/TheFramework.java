@@ -167,27 +167,12 @@ public class TheFramework
         }
     }
 
-    public void addSensor(Sensor s)
-    {
-        s.init();
-        _components.add(s);
-    }
-
-    public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException {
-        addSensor(s);
-        return addSensorChannel(s, c);
-    }
-
-    /**
-     * Used by the sensor to initialize each provider
-     *
-     * @param s the sensor which owns the provider
-     * @param c the provider to be added to the framework
-     */
-    SensorChannel addSensorChannel(Sensor s, SensorChannel c) throws SSJException
+    public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException
     {
         s.addChannel(c);
         c.setSensor(s);
+
+        s.init();
         c.init();
 
         int dim = c.getSampleDimension();
@@ -202,6 +187,8 @@ public class TheFramework
         c.setBufferID(buffer_id);
 
         c.setup();
+
+        _components.add(s);
         _components.add(c);
 
         return c;

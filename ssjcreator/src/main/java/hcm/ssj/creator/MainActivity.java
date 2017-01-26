@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_providers:
             {
-                showAddDialog(R.string.str_providers, SSJDescriptor.getInstance().sensorProviders);
+                showAddDialog(R.string.str_providers, SSJDescriptor.getInstance().sensorChannels);
                 return true;
             }
             case R.id.action_transformers:
