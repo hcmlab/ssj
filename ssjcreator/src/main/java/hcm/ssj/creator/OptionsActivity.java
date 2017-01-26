@@ -26,6 +26,7 @@
 
 package hcm.ssj.creator;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -69,7 +70,7 @@ public class OptionsActivity extends AppCompatActivity
         {
             //change title
             setTitle(((hcm.ssj.core.Component) innerObject).getComponentName());
-            options = Pipeline.getOptionList(object);
+            options = Pipeline.getOptionList(innerObject);
         }
         //stretch columns
         TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
@@ -107,13 +108,17 @@ public class OptionsActivity extends AppCompatActivity
     private TableRow createTextView(final boolean isFrameSize)
     {
         TableRow tableRow = new TableRow(getApplicationContext());
-        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
+
         LinearLayout linearLayout = new LinearLayout(getApplicationContext());
+        linearLayout.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setWeightSum(1.0f);
         //
         EditText editText = new EditText(getApplicationContext());
         editText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        editText.setTextColor(Color.BLACK);
         editText.setEms(10);
         editText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.6f));
