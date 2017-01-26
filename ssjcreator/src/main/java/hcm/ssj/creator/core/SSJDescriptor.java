@@ -41,9 +41,9 @@ import hcm.ssj.core.SSJApplication;
  * Builds pipelines.<br>
  * Created by Frank Gaibler on 09.03.2016.
  */
-public class Builder
+public class SSJDescriptor
 {
-    private static Builder instance = null;
+    private static SSJDescriptor instance = null;
     //
     public ArrayList<Class> sensors = new ArrayList<>();
     public ArrayList<Class> sensorProviders = new ArrayList<>();
@@ -55,7 +55,7 @@ public class Builder
     /**
      *
      */
-    private Builder()
+    private SSJDescriptor()
     {
         scan();
     }
@@ -63,11 +63,11 @@ public class Builder
     /**
      * @return Builder
      */
-    public static synchronized Builder getInstance()
+    public static synchronized SSJDescriptor getInstance()
     {
         if (instance == null)
         {
-            instance = new Builder();
+            instance = new SSJDescriptor();
         }
         return instance;
     }
