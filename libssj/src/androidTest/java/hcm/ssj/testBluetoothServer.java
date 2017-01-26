@@ -59,7 +59,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         BluetoothReader blr = new BluetoothReader();
         blr.options.connectionType.set(BluetoothConnection.Type.SERVER);
         blr.options.connectionName.set("stream");
-        frame.addSensor(blr);
+
 
         BluetoothChannel acc = new BluetoothChannel();
         acc.options.channel_id.set(0);
@@ -68,7 +68,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         acc.options.type.set(Cons.Type.FLOAT);
         acc.options.sr.set(50.);
         acc.options.num.set(50);
-        blr.addProvider(acc);
+        frame.addSensor(blr,acc);
 
         BluetoothChannel gyr = new BluetoothChannel();
         gyr.options.channel_id.set(1);
@@ -77,7 +77,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
         gyr.options.type.set(Cons.Type.FLOAT);
         gyr.options.sr.set(50.);
         gyr.options.num.set(50);
-        blr.addProvider(gyr);
+        frame.addSensor(blr,gyr);
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);

@@ -213,15 +213,15 @@ public class LoggingTest extends ApplicationTestCase<Application>
         //sensor
         AndroidSensor sensorConnection = new AndroidSensor();
         sensorConnection.options.sensorType.set(SensorType.ACCELEROMETER);
-        frame.addSensor(sensorConnection);
-        //provider
-        AndroidSensorChannel sensorConnectionProvider = new AndroidSensorChannel();
-        sensorConnection.addProvider(sensorConnectionProvider);
+
+        //channel
+        AndroidSensorChannel sensorConnectionChannel = new AndroidSensorChannel();
+        frame.addSensor(sensorConnection,sensorConnectionChannel);
         //consumer
         SimpleFileWriter simpleFileWriter = new SimpleFileWriter();
         simpleFileWriter.options.filePath.set(file.getParent());
         simpleFileWriter.options.fileName.set(file.getName());
-        frame.addConsumer(simpleFileWriter, sensorConnectionProvider, 0.25, 0);
+        frame.addConsumer(simpleFileWriter, sensorConnectionChannel, 0.25, 0);
     }
 
     /**
@@ -236,12 +236,12 @@ public class LoggingTest extends ApplicationTestCase<Application>
         simpleFileReader.options.filePath.set(file.getParent());
         simpleFileReader.options.fileName.set(file.getName());
         simpleFileReader.options.loop.set(true);
-        frame.addSensor(simpleFileReader);
-        //provider
-        SimpleFileReaderChannel simpleFileReaderProvider = new SimpleFileReaderChannel();
-        simpleFileReader.addProvider(simpleFileReaderProvider);
+
+        //channel
+        SimpleFileReaderChannel simpleFileReaderChannel = new SimpleFileReaderChannel();
+        frame.addSensor(simpleFileReader,simpleFileReaderChannel);
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, simpleFileReaderProvider, 0.25, 0);
+        frame.addConsumer(log, simpleFileReaderChannel, 0.25, 0);
     }
 }

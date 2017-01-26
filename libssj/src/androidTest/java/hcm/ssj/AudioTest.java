@@ -69,7 +69,7 @@ public class AudioTest extends ApplicationTestCase<Application>
         frame.options.bufferSize.set(10.0f);
         //sensor
         Microphone microphone = new Microphone();
-        AudioChannel audio = (AudioChannel) microphone.getChannel(microphone.OUT_AUDIO);
+        AudioChannel audio = new AudioChannel();
         audio.options.audioFormat.set(Cons.AudioFormat.ENCODING_PCM_16BIT);
         audio.options.channelConfig.set(Cons.ChannelFormat.CHANNEL_IN_STEREO);
         audio.options.sampleRate.set(8000);

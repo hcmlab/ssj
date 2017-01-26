@@ -63,13 +63,13 @@ public class MSBandTest extends ApplicationTestCase<Application>
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		MSBand sensor = new MSBand();
-		frame.addSensor(sensor);
-		//provider
-		GSRChannel sensorProvider = new GSRChannel();
-		sensor.addProvider(sensorProvider);
+
+		//channel
+		GSRChannel sensorChannel = new GSRChannel();
+		frame.addSensor(sensor,sensorChannel);
 		//logger
 		Logger log = new Logger();
-		frame.addConsumer(log, sensorProvider, 1, 0);
+		frame.addConsumer(log, sensorChannel, 1, 0);
 		//start framework
 		frame.Start();
 		//run test

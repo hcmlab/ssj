@@ -57,8 +57,8 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
         AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);
@@ -72,7 +72,7 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
 
 //        FloatsEventSender fes = new FloatsEventSender();
 //        frame.addConsumer(fes, audio, 1.0, 0);
-//        EventChannel ch = frame.registerEventProvider(fes);
+//        EventChannel ch = frame.registerEventChannel(fes);
 //
 //        BluetoothEventWriter blew = new BluetoothEventWriter();
 //        blew.options.connectionType = BluetoothConnection.Type.CLIENT;

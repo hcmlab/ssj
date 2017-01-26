@@ -197,48 +197,44 @@ public class TheFramework
         }
     }
 
-//    public void addSensor(Sensor s) throws SSJException
-//    {
-//        s.init();
-//        _components.add(s);
-//
-//        //add providers
-//        for(SensorProvider p : s.getProviders())
-//        {
-//            addSensorProvider(s, p);
-//        }
-//    }
+    public void addSensor(Sensor s)
+    {
+        s.init();
+        _components.add(s);
+    }
 
-
-    public void addSensor(Sensor s, int channel_id) throws SSJException {
-        addSensor(s, s.getChannel(channel_id));
+    public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException {
+        addSensor(s);
+        return addSensorChannel(s, c);
     }
 
     /**
      * Used by the sensor to initialize each provider
      *
      * @param s the sensor which owns the provider
-     * @param p the provider to be added to the framework
+     * @param c the provider to be added to the framework
      */
-    public void addSensor(Sensor s, SensorChannel p) throws SSJException {
+    SensorChannel addSensorChannel(Sensor s, SensorChannel c) throws SSJException
+    {
+        s.addChannel(c);
+        c.setSensor(s);
+        c.init();
 
-        s.addProvider(p);
-        p.setSensor(s);
-        p.init();
-
-        int dim = p.getSampleDimension();
-        double sr = p.getSampleRate();
-        int bytesPerValue = p.getSampleBytes();
-        Cons.Type type = p.getSampleType();
+        int dim = c.getSampleDimension();
+        double sr = c.getSampleRate();
+        int bytesPerValue = c.getSampleBytes();
+        Cons.Type type = c.getSampleType();
 
         //add output buffer
-        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, p);
+        TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, c);
         _buffer.add(buf);
         int buffer_id = _buffer.size() - 1;
-        p.setBufferID(buffer_id);
+        c.setBufferID(buffer_id);
 
-        p.setup();
-        _components.add(p);
+        c.setup();
+        _components.add(c);
+
+        return c;
     }
 
     public Provider addTransformer(Transformer t, Provider source, double frame, double delta) throws SSJException

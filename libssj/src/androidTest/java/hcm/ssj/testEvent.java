@@ -57,8 +57,8 @@ public class testEvent extends ApplicationTestCase<Application> {
         AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
@@ -102,8 +102,8 @@ public class testEvent extends ApplicationTestCase<Application> {
         AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);

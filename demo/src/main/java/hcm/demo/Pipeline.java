@@ -30,9 +30,9 @@ import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
 
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.ExceptionHandler;
-import hcm.ssj.core.Provider;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.file.SimpleFileWriter;
 
@@ -70,8 +70,8 @@ public class Pipeline extends Thread {
             _ssj.options.log.set(true);
 
             Microphone mic = new Microphone();
-            Provider audio = mic.registerOutput(mic.OUT_AUDIO);
-            _ssj.addSensor(mic);
+            AudioChannel audio = new AudioChannel();
+            _ssj.addSensor(mic, audio);
 
             // Transformer
             SimpleFileWriter sfw = new SimpleFileWriter();

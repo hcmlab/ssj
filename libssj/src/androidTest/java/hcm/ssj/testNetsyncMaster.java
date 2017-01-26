@@ -56,19 +56,19 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
 //        BluetoothReader blr = new BluetoothReader();
 //        blr.options.connectionType = BluetoothConnection.Type.SERVER;
 //        blr.options.connectionName = "stream";
-//        BluetoothProvider data = new BluetoothProvider();
+//        BluetoothChannel data = new BluetoothChannel();
 //        data.options.dim = 1;
 //        data.options.type = Cons.Type.FLOAT;
 //        data.options.sr = 16000;
-//        frame.addSensor(blr);
-//        blr.addProvider(data);
+
+//        frame.addSensor(blr,data);
 
         Microphone mic = new Microphone();
         AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);
@@ -78,7 +78,7 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
 //        bler.options.connectionType = BluetoothConnection.Type.SERVER;
 //        bler.options.connectionName = "event";
 //        frame.registerEventListener(bler);
-//        EventChannel ch = frame.registerEventProvider(bler);
+//        EventChannel ch = frame.registerEventChannel(bler);
 //
 //        EventLogger evlog = new EventLogger();
 //        frame.registerEventListener(evlog);

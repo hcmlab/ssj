@@ -59,16 +59,13 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
 		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
-		frame.addSensor(sensor);
-
-		// Provider
-		AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
-		sensorProvider.options.sampleRate.set(40);
-		sensor.addProvider(sensorProvider);
+		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sampleRate.set(40);
+		frame.addSensor(sensor, channel);
 
 		// Transformer
 		SimpleFileWriter sfw = new SimpleFileWriter();
-		frame.addConsumer(sfw, sensorProvider, 1, 0);
+		frame.addConsumer(sfw, channel, 1, 0);
 
 		// Start framework
 		frame.Start();
@@ -106,16 +103,16 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		sensor.options.filePath.set("/sdcard/SSJ/");
 		sensor.options.fileName.set("GlassLinearAcceleration.stream");
 		sensor.options.loop.set(false);
-		frame.addSensor(sensor);
 
-		// Provider
-		SimpleFileReaderProvider sensorProvider = new SimpleFileReaderProvider();
-		sensorProvider.setSyncInterval(0);
-		sensor.addProvider(sensorProvider);
+
+		// Channel
+		SimpleFileReaderChannel sensorChannel = new SimpleFileReaderChannel();
+		sensorChannel.setSyncInterval(0);
+		frame.addSensor(sensor,sensorChannel);
 
 		// Transformer
 		AccelerationFeatures features = new AccelerationFeatures();
-		frame.addTransformer(features, sensorProvider, 1, 3);
+		frame.addTransformer(features, sensorChannel, 1, 3);
 
 		// SVM
 		//Classifier classifier = new Classifier();
@@ -164,17 +161,17 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
 		sensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-		frame.addSensor(sensor);
 
-		// Provider
-		AndroidSensorProvider sensorProvider = new AndroidSensorProvider();
-		sensorProvider.options.sampleRate.set(40);
-		sensor.addProvider(sensorProvider);
+
+		// Channel
+		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+		sensorChannel.options.sampleRate.set(40);
+		frame.addSensor(sensor,sensorChannel);
 
 		// Logger
 		SimpleFileWriter consumer = new SimpleFileWriter();
 		consumer.options.fileName.set("TestAcceleration");
-		frame.addConsumer(consumer, sensorProvider, 1, 0);
+		frame.addConsumer(consumer, sensorChannel, 1, 0);
 
 		// Start framework
 		frame.Start();

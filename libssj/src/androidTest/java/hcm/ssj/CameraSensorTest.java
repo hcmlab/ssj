@@ -40,7 +40,7 @@ import hcm.ssj.camera.CameraWriter;
 import hcm.ssj.core.TheFramework;
 
 /**
- * Tests all camera sensor, provider and consumer.<br>
+ * Tests all camera sensor, channel and consumer.<br>
  * Created by Frank Gaibler on 28.01.2016.
  */
 public class CameraSensorTest extends ApplicationTestCase<Application>
@@ -101,11 +101,11 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         cameraSensor.options.height.set(height);
         cameraSensor.options.previewFpsRangeMin.set(4 * 1000);
         cameraSensor.options.previewFpsRangeMax.set(16 * 1000);
-        frame.addSensor(cameraSensor);
-        //provider
-        CameraChannel cameraProvider = new CameraChannel();
-        cameraProvider.options.sampleRate.set((double) frameRate);
-        cameraSensor.addProvider(cameraProvider);
+
+        //channel
+        CameraChannel cameraChannel = new CameraChannel();
+        cameraChannel.options.sampleRate.set((double) frameRate);
+        frame.addSensor(cameraSensor,cameraChannel);
         //consumer
         switch (type)
         {
@@ -120,7 +120,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
                 cameraWriter.options.fileName.set(fileName);
                 cameraWriter.options.width.set(width);
                 cameraWriter.options.height.set(height);
-                frame.addConsumer(cameraWriter, cameraProvider, 1.0 / frameRate, 0);
+                frame.addConsumer(cameraWriter, cameraChannel, 1.0 / frameRate, 0);
                 break;
             }
             case PAINTER:
@@ -130,7 +130,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
                 cameraPainter.options.height.set(height);
                 cameraPainter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
                 cameraPainter.options.surfaceView.set(new SurfaceView(this.getContext()));
-                frame.addConsumer(cameraPainter, cameraProvider, 1 / frameRate, 0);
+                frame.addConsumer(cameraPainter, cameraChannel, 1 / frameRate, 0);
                 break;
             }
         }

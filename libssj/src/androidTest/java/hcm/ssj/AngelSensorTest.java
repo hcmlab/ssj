@@ -63,13 +63,13 @@ public class AngelSensorTest extends ApplicationTestCase<Application>
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		AngelSensor sensor = new AngelSensor();
-		frame.addSensor(sensor);
-		//provider
-		BVPAngelChannel sensorProvider = new BVPAngelChannel();
-		sensor.addProvider(sensorProvider);
+
+		//channel
+		BVPAngelChannel sensorChannel = new BVPAngelChannel();
+		frame.addSensor(sensor,sensorChannel);
 		//logger
 		Logger log = new Logger();
-		frame.addConsumer(log, sensorProvider, 1, 0);
+		frame.addConsumer(log, sensorChannel, 1, 0);
 		//start framework
 		frame.Start();
 		//run test

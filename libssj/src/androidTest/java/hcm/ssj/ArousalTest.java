@@ -53,8 +53,8 @@ public class ArousalTest extends ApplicationTestCase<Application>
 
 		Empatica empatica = new Empatica();
 		GSRChannel data = new GSRChannel();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		frame.addSensor(empatica,data);
+
 
 		GSRArousalEstimation arousal = new GSRArousalEstimation();
 		frame.addTransformer(arousal, data, 0.25, 0);

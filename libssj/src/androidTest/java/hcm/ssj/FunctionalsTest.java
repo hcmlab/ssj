@@ -64,13 +64,13 @@ public class FunctionalsTest extends ApplicationTestCase<Application>
         //sensor
         AndroidSensor sensor = new AndroidSensor();
         sensor.options.sensorType.set(SensorType.ACCELEROMETER);
-        frame.addSensor(sensor);
-        //provider
-        AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
-        sensor.addProvider(sensorProvider);
+
+        //channel
+        AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+        frame.addSensor(sensor,sensorChannel);
         //transformer
         Functionals transformer = new Functionals();
-        frame.addTransformer(transformer, sensorProvider, 1, 0);
+        frame.addTransformer(transformer, sensorChannel, 1, 0);
         //logger
         Logger log = new Logger();
         frame.addConsumer(log, transformer, 1, 0);

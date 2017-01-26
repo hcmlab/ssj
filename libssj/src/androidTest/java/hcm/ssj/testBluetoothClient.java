@@ -60,17 +60,17 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
 
         AndroidSensor sensor = new AndroidSensor();
         sensor.options.sensorType.set(SensorType.ACCELEROMETER);
-        frame.addSensor(sensor);
+
         AndroidSensorChannel acc = new AndroidSensorChannel();
         acc.options.sampleRate.set(50);
-        sensor.addProvider(acc);
+        frame.addSensor(sensor,acc);
 
         AndroidSensor sensor2 = new AndroidSensor();
         sensor2.options.sensorType.set(SensorType.GRAVITY);
         frame.addSensor(sensor2);
         AndroidSensorChannel gyr = new AndroidSensorChannel();
         gyr.options.sampleRate.set(50);
-        sensor2.addProvider(gyr);
+        frame.addSensor(sensor2,gyr);
 
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);

@@ -88,19 +88,19 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         AndroidSensor s2 = new AndroidSensor();
         s2.options.sensorType.set(mag);
 
-        frame.addSensor(sensor);
+
         frame.addSensor(s2);
 
-        //provider
-        AndroidSensorChannel sensorProvider = new AndroidSensorChannel();
+        //channel
+        AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
         AndroidSensorChannel sensorPmag = new AndroidSensorChannel();
 
-        sensor.addProvider(sensorProvider);
-        s2.addProvider(sensorPmag);
+        frame.addSensor(sensor,sensorChannel);
+        frame.addSensor(s2,sensorPmag);
 
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, sensorProvider, 1, 0);
+        frame.addConsumer(log, sensorChannel, 1, 0);
         frame.addConsumer(log, sensorPmag, 1, 0);
 
         MobileSSIConsumer mobileSSI2 =new MobileSSIConsumer();
@@ -109,7 +109,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         mobileSSI.setId(1);
         mobileSSI2.setId(2);
 
-        frame.addConsumer(mobileSSI, sensorProvider, 1, 0);
+        frame.addConsumer(mobileSSI, sensorChannel, 1, 0);
         frame.addConsumer(mobileSSI2, sensorPmag, 1, 0);
         //start framework
 
@@ -117,7 +117,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         Thread.sleep(3100);
         frame.Start();
 
-        mobileSSI.setSensor(sensorProvider, null, mobileSSI.getId());
+        mobileSSI.setSensor(sensorChannel, null, mobileSSI.getId());
         mobileSSI2.setSensor(sensorPmag, null, mobileSSI2.getId());
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;

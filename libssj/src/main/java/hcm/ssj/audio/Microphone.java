@@ -29,17 +29,13 @@ package hcm.ssj.audio;
 import android.media.AudioFormat;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.SensorChannel;
 
 /**
  * Audio Sensor - "connects" to the audio interface
  * Created by Johnny on 05.03.2015.
  */
 public class Microphone extends Sensor {
-
-    public final int OUT_AUDIO = 0;
 
     public Microphone()
     {
@@ -55,25 +51,6 @@ public class Microphone extends Sensor {
     @Override
     public void disconnect()
     {
-    }
-
-    @Override
-    public int getChannelSize() {
-        return 1;
-    }
-
-    @Override
-    public Class getChannelClass(int id) throws SSJException
-    {
-        SensorChannel provider = null;
-
-        switch(id)
-        {
-            case OUT_AUDIO:
-                return AudioChannel.class;
-        }
-
-        return null;
     }
 
     public static int audioFormatSampleBytes(int f)

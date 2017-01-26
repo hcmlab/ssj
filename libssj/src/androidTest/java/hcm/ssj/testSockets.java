@@ -59,8 +59,8 @@ public class testSockets extends ApplicationTestCase<Application> {
         AudioChannel audio = new AudioChannel();
         audio.options.sampleRate.set(16000);
         audio.options.scale.set(true);
-        mic.addProvider(audio);
-        frame.addSensor(mic);
+        frame.addSensor(mic,audio);
+
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
@@ -108,7 +108,7 @@ public class testSockets extends ApplicationTestCase<Application> {
         sock.options.port.set(7777);
         sock.options.ip.set("192.168.0.104");
         sock.options.type.set(Cons.SocketType.TCP);
-        frame.addSensor(sock);
+
 
         SocketChannel data = new SocketChannel();
         data.options.dim.set(2);
@@ -116,7 +116,7 @@ public class testSockets extends ApplicationTestCase<Application> {
         data.options.type.set(Cons.Type.FLOAT);
         data.options.sr.set(50.);
         data.options.num.set(10);
-        sock.addProvider(data);
+        frame.addSensor(sock,data);
 
         Logger log = new Logger();
         frame.addConsumer(log, data, 0.2, 0);

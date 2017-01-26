@@ -56,8 +56,8 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 
 		Empatica empatica = new Empatica();
 		AccelerationChannel acc = new AccelerationChannel();
-		empatica.addProvider(acc);
-		frame.addSensor(empatica);
+		frame.addSensor(empatica,acc);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, acc, 0.1, 0);
@@ -86,8 +86,8 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 
 		Empatica empatica = new Empatica();
 		GSRChannel data = new GSRChannel();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.25, 0);
@@ -116,8 +116,8 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 
 		Empatica empatica = new Empatica();
 		IBIChannel data = new IBIChannel();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.1, 0);
@@ -146,8 +146,8 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 
 		Empatica empatica = new Empatica();
 		TemperatureChannel data = new TemperatureChannel();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.25, 0);
@@ -176,8 +176,8 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 
 		Empatica empatica = new Empatica();
 		BVPChannel data = new BVPChannel();
-		empatica.addProvider(data);
-		frame.addSensor(empatica);
+		frame.addSensor(empatica,data);
+
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.1, 0);

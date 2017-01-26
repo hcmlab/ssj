@@ -61,15 +61,15 @@ public class GPSTest extends ApplicationTestCase<Application>
 
 		// Sensor
 		GPSSensor sensor = new GPSSensor();
-		frame.addSensor(sensor);
 
-		// Provider
-		GPSChannel sensorProvider = new GPSChannel();
-		sensor.addProvider(sensorProvider);
+
+		// Channel
+		GPSChannel sensorChannel = new GPSChannel();
+		frame.addSensor(sensor,sensorChannel);
 
 		// Logger
 		Logger log = new Logger();
-		frame.addConsumer(log, sensorProvider, 1, 0);
+		frame.addConsumer(log, sensorChannel, 1, 0);
 
 		// Start framework
 		frame.Start();
