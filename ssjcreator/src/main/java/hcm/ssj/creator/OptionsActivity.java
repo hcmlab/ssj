@@ -26,7 +26,6 @@
 
 package hcm.ssj.creator;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -117,19 +116,16 @@ public class OptionsActivity extends AppCompatActivity
     {
         TableRow tableRow = new TableRow(this);
         tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
-
         LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
-
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setWeightSum(1.0f);
         //
         EditText editText = new EditText(this);
         editText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        editText.setTextColor(Color.BLACK);
         editText.setEms(10);
         editText.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f));
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f));
         editText.setText(String.valueOf(isFrameSize
                 ? Pipeline.getInstance().getFrameSize(innerObject)
                 : Pipeline.getInstance().getDelta(innerObject)));
@@ -183,7 +179,7 @@ public class OptionsActivity extends AppCompatActivity
         textView.setText(isFrameSize ? R.string.str_frameSize : R.string.str_delta);
         textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
         textView.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
         linearLayout.addView(textView);
         tableRow.addView(linearLayout);
         return tableRow;
