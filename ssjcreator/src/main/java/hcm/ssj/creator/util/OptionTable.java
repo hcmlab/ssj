@@ -182,7 +182,6 @@ public class OptionTable
         {
             //normal text view for everything else
             inputView = new EditText(activity);
-            ((EditText) inputView).setTextColor(Color.BLACK);
             ((EditText) inputView).setMaxWidth(linearLayout.getWidth()); //workaround for bug in layout params
 
             //specify the expected input type

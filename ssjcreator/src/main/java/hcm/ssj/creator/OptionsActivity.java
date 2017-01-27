@@ -107,16 +107,16 @@ public class OptionsActivity extends AppCompatActivity
      */
     private TableRow createTextView(final boolean isFrameSize)
     {
-        TableRow tableRow = new TableRow(getApplicationContext());
+        TableRow tableRow = new TableRow(this);
         tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
 
-        LinearLayout linearLayout = new LinearLayout(getApplicationContext());
+        LinearLayout linearLayout = new LinearLayout(this);
         linearLayout.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
 
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setWeightSum(1.0f);
         //
-        EditText editText = new EditText(getApplicationContext());
+        EditText editText = new EditText(this);
         editText.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
         editText.setTextColor(Color.BLACK);
         editText.setEms(10);
@@ -172,9 +172,9 @@ public class OptionsActivity extends AppCompatActivity
         });
         linearLayout.addView(editText);
         //
-        TextView textView = new TextView(getApplicationContext());
+        TextView textView = new TextView(this);
         textView.setText(isFrameSize ? R.string.str_frameSize : R.string.str_delta);
-        textView.setTextAppearance(getApplicationContext(), android.R.style.TextAppearance_Medium);
+        textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
         textView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.4f));
         linearLayout.addView(textView);
