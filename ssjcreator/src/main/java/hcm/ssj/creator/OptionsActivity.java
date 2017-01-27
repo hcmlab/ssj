@@ -87,21 +87,29 @@ public class OptionsActivity extends AppCompatActivity
         //add options
         if (options != null && options.length > 0)
         {
-            tableLayout.addView(OptionTable.createTable(this, options, false));
+            tableLayout.addView(OptionTable.createTable(this, options,
+                    innerObject != null
+                            && (innerObject instanceof Transformer
+                            || innerObject instanceof Consumer)));
         }
         //add possible providers for sensor, transformer or consumer
         if (innerObject != null
                 && (innerObject instanceof Sensor
-                || innerObject instanceof  Transformer
-                || innerObject instanceof  Consumer))
+                || innerObject instanceof Transformer
+                || innerObject instanceof Consumer))
         {
             //add possible providers
-            tableLayout.addView(ProviderTable.createTable(this, innerObject, true));
+            TableRow tableRow = ProviderTable.createTable(this, innerObject,
+                    (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                            || (innerObject instanceof Sensor && options != null && options.length > 0));
+            if (tableRow != null)
+            {
+                tableLayout.addView(tableRow);
+            }
         }
     }
 
     /**
-     *
      * @param isFrameSize boolean
      * @return TableRow
      */
@@ -121,7 +129,7 @@ public class OptionsActivity extends AppCompatActivity
         editText.setTextColor(Color.BLACK);
         editText.setEms(10);
         editText.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.6f));
+                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f));
         editText.setText(String.valueOf(isFrameSize
                 ? Pipeline.getInstance().getFrameSize(innerObject)
                 : Pipeline.getInstance().getDelta(innerObject)));
@@ -153,8 +161,7 @@ public class OptionsActivity extends AppCompatActivity
                     {
                         Log.w("Invalid input for frameSize double: " + s.toString());
                     }
-                }
-                else
+                } else
                 {
                     try
                     {
@@ -176,7 +183,7 @@ public class OptionsActivity extends AppCompatActivity
         textView.setText(isFrameSize ? R.string.str_frameSize : R.string.str_delta);
         textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
         textView.setLayoutParams(new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT,0.4f));
+                LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
         linearLayout.addView(textView);
         tableRow.addView(linearLayout);
         return tableRow;

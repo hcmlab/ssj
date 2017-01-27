@@ -74,44 +74,38 @@ public class ProviderTable
         //get possible providers
         final Object[] objects = getProvider(mainObject);
         //
-        if (objects.length > 0)
-        {
-            for (int i = 0; i < objects.length; i++)
-            {
+        if (objects.length > 0) {
+            for (int i = 0; i < objects.length; i++) {
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
                 Object[] providers = Pipeline.getInstance().getProviders(mainObject);
-                if (providers != null)
-                {
-                    for (Object provider : providers)
-                    {
-                        if (objects[i].equals(provider))
-                        {
+                if (providers != null) {
+                    for (Object provider : providers) {
+                        if (objects[i].equals(provider)) {
                             checkBox.setChecked(true);
                             break;
                         }
                     }
                 }
                 final int count = i;
-                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-                {
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     final Object o = objects[count];
 
                     @Override
-                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-                    {
-                        if (isChecked)
-                        {
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
                             Pipeline.getInstance().addProvider(mainObject, (Provider) o);
-                        } else
-                        {
+                        } else {
                             Pipeline.getInstance().removeProvider(mainObject, (Provider) o);
                         }
                     }
                 });
                 linearLayout.addView(checkBox);
             }
+        } else
+        {
+            return null;
         }
         tableRow.addView(linearLayout);
         return tableRow;
