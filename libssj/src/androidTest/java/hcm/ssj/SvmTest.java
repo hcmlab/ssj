@@ -34,7 +34,10 @@ import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.file.SimpleFileReader;
+import hcm.ssj.file.SimpleFileReaderChannel;
 import hcm.ssj.ml.Classifier;
+import hcm.ssj.signal.FFTfeat;
 import hcm.ssj.signal.Functionals;
 import hcm.ssj.signal.Progress;
 import hcm.ssj.test.Logger;
@@ -136,5 +139,59 @@ public class SvmTest extends ApplicationTestCase<Application>
         }
         frame.Stop();
         frame.release();
+    }
+
+    public void testAudio() throws Exception
+    {
+        double window = 1.0;
+
+        // Setup
+        TheFramework frame = TheFramework.getFramework();
+        frame.options.bufferSize.set(10.0f);
+        frame.options.countdown.set(0);
+
+        // Sensor
+        SimpleFileReader file = new SimpleFileReader();
+        file.options.fileName.set("audio.stream");
+        SimpleFileReaderChannel channel = new SimpleFileReaderChannel();
+        channel.setWatchInterval(0);
+        channel.setSyncInterval(0);
+        frame.addSensor(file, channel);
+
+        // Transformer
+        FFTfeat fft = new FFTfeat();
+        frame.addTransformer(fft, channel, 512.0 / channel.getSampleRate(), 0);
+
+        Functionals func = new Functionals();
+        frame.addTransformer(func, fft, window, 0);
+
+
+        Classifier classifier = new Classifier();
+        classifier.options.trainerFile.set("johnny.trainer");
+        frame.addTransformer(classifier, func, window, 0);
+
+        Logger log = new Logger();
+        frame.addConsumer(log, classifier, window, 0);
+
+        // Start framework
+        frame.Start();
+
+        // Run test
+        long end = System.currentTimeMillis() + TEST_LENGTH;
+        try
+        {
+            while (System.currentTimeMillis() < end)
+            {
+                Thread.sleep(1);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        // Stop framework
+        frame.Stop();
+        frame.reset();
     }
 }

@@ -57,7 +57,7 @@ public class Functionals extends Transformer
         public final Option<Boolean> zeros = new Option<>("zeros", true, Boolean.class, "Calculate zeros of each frame");
         public final Option<Boolean> peaks = new Option<>("peaks", true, Boolean.class, "Calculate peaks of each frame");
         public final Option<Boolean> len = new Option<>("len", true, Boolean.class, "Calculate sample number of each frame");
-        public final Option<Boolean> path = new Option<>("path", true, Boolean.class, "Calculate path length of each frame");
+        public final Option<Boolean> path = new Option<>("path", false, Boolean.class, "Calculate path length of each frame");
         public final Option<Integer> delta = new Option<>("delta", 2, Integer.class, "zero/peaks search offset");
 
         /**

@@ -99,7 +99,7 @@ public class TheFramework
     {
         //configure logger
         Log.getInstance().setFramework(this);
-        _createTime = SystemClock.elapsedRealtime();
+        _createTime = System.currentTimeMillis();
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());

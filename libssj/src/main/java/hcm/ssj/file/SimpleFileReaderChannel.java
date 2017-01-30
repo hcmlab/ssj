@@ -51,6 +51,7 @@ public class SimpleFileReaderChannel extends SensorChannel
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
         public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "Attribute separator of the file");
         public final Option<Double> offset = new Option<>("offset", 0.0, Double.class, "start reading from indicated time (in seconds)");
+        public final Option<Double> chunk = new Option<>("chunk", 0.1, Double.class, "how many samples to read at once (in seconds)");
 
         /**
          *
@@ -65,6 +66,7 @@ public class SimpleFileReaderChannel extends SensorChannel
     private SimpleFileReader simpleFileReader;
     private double sampleRate;
     private int dimension;
+    private int num;
     private Cons.Type type;
 
     /**
@@ -87,6 +89,7 @@ public class SimpleFileReaderChannel extends SensorChannel
         SimpleHeader simpleHeader = simpleFileReader.getSimpleHeader();
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);
+        num = (int)(sampleRate * options.chunk.get() + 0.5);
         type = Cons.Type.valueOf(simpleHeader._type);
     }
 
@@ -105,91 +108,76 @@ public class SimpleFileReaderChannel extends SensorChannel
     @Override
     protected boolean process(Stream stream_out)
     {
-        switch (type)
-        {
-            case BOOL:
-            {
-                boolean[] out = stream_out.ptrBool();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Boolean.valueOf(separated[k]);
+        for(int i = 0; i < num; ++i) {
+            switch (type) {
+                case BOOL: {
+                    boolean[] out = stream_out.ptrBool();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Boolean.valueOf(separated[k]);
+                    }
+                    break;
                 }
-                break;
-            }
-            case BYTE:
-            {
-                byte[] out = stream_out.ptrB();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Byte.valueOf(separated[k]);
+                case BYTE: {
+                    byte[] out = stream_out.ptrB();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Byte.valueOf(separated[k]);
+                    }
+                    break;
                 }
-                break;
-            }
-            case CHAR:
-            {
-                char[] out = stream_out.ptrC();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = separated[k].charAt(0);
+                case CHAR: {
+                    char[] out = stream_out.ptrC();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = separated[k].charAt(0);
+                    }
+                    break;
                 }
-                break;
-            }
-            case SHORT:
-            {
-                short[] out = stream_out.ptrS();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Short.valueOf(separated[k]);
+                case SHORT: {
+                    short[] out = stream_out.ptrS();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Short.valueOf(separated[k]);
+                    }
+                    break;
                 }
-                break;
-            }
-            case INT:
-            {
-                int[] out = stream_out.ptrI();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Integer.valueOf(separated[k]);
+                case INT: {
+                    int[] out = stream_out.ptrI();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Integer.valueOf(separated[k]);
+                    }
+                    break;
                 }
-                break;
-            }
-            case LONG:
-            {
-                long[] out = stream_out.ptrL();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Long.valueOf(separated[k]);
+                case LONG: {
+                    long[] out = stream_out.ptrL();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Long.valueOf(separated[k]);
+                    }
+                    break;
                 }
-                break;
-            }
-            case FLOAT:
-            {
-                float[] out = stream_out.ptrF();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Float.valueOf(separated[k]);
+                case FLOAT: {
+                    float[] out = stream_out.ptrF();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Float.parseFloat(separated[k]);
+                    }
+                    break;
                 }
-                break;
-            }
-            case DOUBLE:
-            {
-                double[] out = stream_out.ptrD();
-                String[] separated = getData();
-                for (int k = 0; k < dimension; k++)
-                {
-                    out[k] = Double.valueOf(separated[k]);
+                case DOUBLE: {
+                    double[] out = stream_out.ptrD();
+                    String[] separated = getData();
+                    for (int k = 0; k < dimension; k++) {
+                        out[i * dimension + k] = Double.valueOf(separated[k]);
+                    }
+                    break;
                 }
-                break;
+                default:
+                    Log.w("unsupported data type");
+                    return false;
             }
-            default:
-                Log.w("unsupported data type");
-                return false;
         }
 
         return true;
@@ -201,15 +189,21 @@ public class SimpleFileReaderChannel extends SensorChannel
     private String[] getData()
     {
         String data = simpleFileReader.getData();
+        String[] result;
+
         if (data != null)
         {
-            return data.split(options.separator.get());
+            result = data.split(options.separator.get());
         }
-        //notify listeners
-        Monitor.notifyMonitor();
-        String[] other = new String[dimension];
-        Arrays.fill(other, "0");
-        return other;
+        else
+        {
+            //notify listeners
+            Monitor.notifyMonitor();
+            result = new String[dimension];
+            Arrays.fill(result, "0");
+        }
+
+        return result;
     }
 
     /**
@@ -228,6 +222,16 @@ public class SimpleFileReaderChannel extends SensorChannel
     final public int getSampleDimension()
     {
         return dimension;
+    }
+
+
+    /**
+     * @return int
+     */
+    @Override
+    final public int getSampleNumber()
+    {
+        return num;
     }
 
     /**
