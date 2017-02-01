@@ -29,28 +29,33 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.file.SimpleFileReader;
 import hcm.ssj.file.SimpleFileReaderChannel;
 import hcm.ssj.file.SimpleFileWriter;
+import hcm.ssj.signal.Derivative;
 import hcm.ssj.signal.FFTfeat;
+import hcm.ssj.test.Logger;
 
 /**
  * Created by Michael Dietz on 19.10.2016.
  */
 
-public class FFTTest extends ApplicationTestCase<Application>
+public class SignalTest extends ApplicationTestCase<Application>
 {
 	// Test length in milliseconds
-	private final static int TEST_LENGTH = 26 * 1000;
+	private final static int TEST_LENGTH = 26 * 1000 * 1000;
 
-	public FFTTest()
+	public SignalTest()
 	{
 		super(Application.class);
 	}
 
 	/**/
-	public void test() throws Exception
+	public void testFFT() throws Exception
 	{
 		// Setup
 		TheFramework frame = TheFramework.getFramework();
@@ -71,6 +76,50 @@ public class FFTTest extends ApplicationTestCase<Application>
 
 		SimpleFileWriter sfw = new SimpleFileWriter();
 		frame.addConsumer(sfw, fft, 1, 0);
+
+		// Start framework
+		frame.Start();
+
+		// Run test
+		long end = System.currentTimeMillis() + TEST_LENGTH;
+		try
+		{
+			while (System.currentTimeMillis() < end)
+			{
+				Thread.sleep(1);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		// Stop framework
+		frame.Stop();
+		frame.reset();
+	}
+
+	/**/
+	public void testDerivative() throws Exception
+	{
+		// Setup
+		TheFramework frame = TheFramework.getFramework();
+		frame.options.bufferSize.set(10.0f);
+		frame.options.countdown.set(0);
+
+		// Sensor
+		AndroidSensor sensor = new AndroidSensor();
+		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
+		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sampleRate.set(40);
+		frame.addSensor(sensor, channel);
+
+		// Transformer
+		Derivative deriv = new Derivative();
+		frame.addTransformer(deriv, channel, 1, 0);
+
+		Logger log = new Logger();
+		frame.addConsumer(log, deriv, 1, 0);
 
 		// Start framework
 		frame.Start();
