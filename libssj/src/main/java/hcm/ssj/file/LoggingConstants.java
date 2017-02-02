@@ -39,6 +39,8 @@ public class LoggingConstants
     public static final String DELIMITER_ATTRIBUTE = " ";
     public static final String DELIMITER_LINE = "\r\n"; //works on android and windows, System.getProperty("line.separator") might not
     public static final String TAG_DATA_FILE = "~";
-    public static final String FILE_EXTENSION = "stream";
+    public static final String FILE_EXTENSION_STREAM = "stream";
+    public static final String FILE_EXTENSION_EVENT = "events";
+    public static final String FILE_EXTENSION_ANNO_PLAIN = "anno";
     public static final String SSJ_EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory(), "SSJ").getPath();
 }

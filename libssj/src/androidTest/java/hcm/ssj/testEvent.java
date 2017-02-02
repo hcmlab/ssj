@@ -29,6 +29,9 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.EventChannel;
@@ -37,6 +40,7 @@ import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.event.ThresholdEventSender;
+import hcm.ssj.file.FileEventWriter;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
 
@@ -53,23 +57,23 @@ public class testEvent extends ApplicationTestCase<Application> {
         TheFramework frame = TheFramework.getFramework();
         frame.options.bufferSize.set(10.0f);
 
-        Microphone mic = new Microphone();
-        AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(true);
-        frame.addSensor(mic,audio);
-
-
-        Intensity energy = new Intensity();
-        frame.addTransformer(energy, audio, 1.0, 0);
+        AndroidSensor sensor = new AndroidSensor();
+        sensor.options.sensorType.set(SensorType.ACCELEROMETER);
+        AndroidSensorChannel acc = new AndroidSensorChannel();
+        acc.options.sampleRate.set(40);
+        frame.addSensor(sensor, acc);
 
         FloatsEventSender evs = new FloatsEventSender();
-        evs.options.mean.set(false);
-        frame.addConsumer(evs, energy, 1.0, 0);
+        evs.options.mean.set(true);
+        frame.addConsumer(evs, acc, 1.0, 0);
         EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
         frame.registerEventListener(log, channel);
+
+        FileEventWriter write = new FileEventWriter();
+        write.options.format.set(FileEventWriter.Format.EVENT);
+        frame.registerEventListener(write, channel);
 
         try {
             frame.Start();

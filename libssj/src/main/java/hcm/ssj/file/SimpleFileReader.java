@@ -172,8 +172,8 @@ public class SimpleFileReader extends Sensor
             fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
         } else
         {
-            fileHeader = new File(path + "." + LoggingConstants.FILE_EXTENSION);
-            fileReal = new File(path + "." + LoggingConstants.FILE_EXTENSION + LoggingConstants.TAG_DATA_FILE);
+            fileHeader = new File(path + "." + LoggingConstants.FILE_EXTENSION_STREAM);
+            fileReal = new File(path + "." + LoggingConstants.FILE_EXTENSION_STREAM + LoggingConstants.TAG_DATA_FILE);
         }
     }
 

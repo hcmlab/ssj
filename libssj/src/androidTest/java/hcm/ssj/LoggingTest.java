@@ -157,7 +157,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
             {
                 throw new RuntimeException("Header file could not be deleted");
             }
-            File fileReal = new File(dir, fileName + LoggingConstants.FILE_EXTENSION);
+            File fileReal = new File(dir, fileName + LoggingConstants.FILE_EXTENSION_STREAM);
             if (fileReal.exists())
             {
                 if (!fileReal.delete())

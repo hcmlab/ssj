@@ -76,11 +76,11 @@ public class Cons
         /** Audio data format: AC-3 compressed */
         ENCODING_AC3(android.media.AudioFormat.ENCODING_AC3),
         /** Audio data format: E-AC-3 compressed */
-        ENCODING_E_AC3(android.media.AudioFormat.ENCODING_E_AC3),
-        /** Audio data format: DTS compressed */
-        ENCODING_DTS(android.media.AudioFormat.ENCODING_DTS),
-        /** Audio data format: DTS HD compressed */
-        ENCODING_DTS_HD(android.media.AudioFormat.ENCODING_DTS_HD);
+        ENCODING_E_AC3(android.media.AudioFormat.ENCODING_E_AC3);
+//        /** Audio data format: DTS compressed */
+//        ENCODING_DTS(android.media.AudioFormat.ENCODING_DTS),
+//        /** Audio data format: DTS HD compressed */
+//        ENCODING_DTS_HD(android.media.AudioFormat.ENCODING_DTS_HD);
 
         public int val;
         AudioFormat(int value)
