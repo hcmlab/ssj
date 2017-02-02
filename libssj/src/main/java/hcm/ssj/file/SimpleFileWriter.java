@@ -40,6 +40,7 @@ import java.util.TimeZone;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 
@@ -103,16 +104,8 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
             options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
+        File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
 
-        File fileDirectory = new File(options.filePath.parseWildcards());
-        if (!fileDirectory.exists())
-        {
-            if (!fileDirectory.mkdirs())
-            {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return;
-            }
-        }
         if (options.fileName.get() == null)
         {
             String defaultName = TextUtils.join("_", stream_in[0].dataclass) + "." + FILE_EXTENSION_STREAM;
@@ -144,22 +137,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
             fileReal = new File(path + "." + FILE_EXTENSION_STREAM + LoggingConstants.TAG_DATA_FILE);
         }
         fileOutputStreamHeader = getFileConnection(fileHeader, fileOutputStreamHeader);
-        simpleHeader = new SimpleHeader();
-        simpleHeader._sr = String.valueOf(stream.sr);
-        simpleHeader._dim = String.valueOf(stream.dim);
-        simpleHeader._byte = String.valueOf(stream.bytes);
-        simpleHeader._type = stream.type.name();
-        simpleHeader._from = String.valueOf(stream.time);
-        simpleHeader._ms = String.valueOf(_frame.getTimeMs());
-        SimpleDateFormat sdf = new SimpleDateFormat(SimpleHeader.DATE_FORMAT, Locale.getDefault());
-        Date date = new Date();
-        simpleHeader._local = sdf.format(date);
-        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-        simpleHeader._system = sdf.format(date);
-        writeLine(simpleHeader.getLine1(), fileOutputStreamHeader);
-        writeLine(simpleHeader.getLine2(), fileOutputStreamHeader);
-        writeLine(simpleHeader.getLine3(), fileOutputStreamHeader);
-        writeLine(simpleHeader.getLine4(), fileOutputStreamHeader);
+
         sampleCount = 0;
         fileOutputStream = getFileConnection(fileReal, fileOutputStream);
     }
@@ -322,11 +300,39 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
     private void end(Stream stream)
     {
         fileOutputStream = closeStream(fileOutputStream);
+
+        writeHeader(stream);
+        fileOutputStreamHeader = closeStream(fileOutputStreamHeader);
+    }
+
+    private void writeHeader(Stream stream) {
+
+        simpleHeader = new SimpleHeader();
+
+        simpleHeader._sr = String.valueOf(stream.sr);
+        simpleHeader._dim = String.valueOf(stream.dim);
+        simpleHeader._byte = String.valueOf(stream.bytes);
+        simpleHeader._type = stream.type.name();
+        simpleHeader._from = String.valueOf(stream.time);
+        simpleHeader._ms = String.valueOf(_frame.getStartTimeMs());
+
+        SimpleDateFormat sdf = new SimpleDateFormat(SimpleHeader.DATE_FORMAT, Locale.getDefault());
+
+        Date date = new Date(_frame.getStartTimeMs());
+        simpleHeader._local = sdf.format(date);
+
+        sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+        simpleHeader._system = sdf.format(date);
+
+        writeLine(simpleHeader.getLine1(), fileOutputStreamHeader);
+        writeLine(simpleHeader.getLine2(), fileOutputStreamHeader);
+        writeLine(simpleHeader.getLine3(), fileOutputStreamHeader);
+        writeLine(simpleHeader.getLine4(), fileOutputStreamHeader);
+
         simpleHeader._num = String.valueOf(sampleCount);
         simpleHeader._to = String.valueOf(stream.time + stream.num / stream.sr);
         writeLine(simpleHeader.getLine5(), fileOutputStreamHeader);
         writeLine(simpleHeader.getLine6(), fileOutputStreamHeader);
-        fileOutputStreamHeader = closeStream(fileOutputStreamHeader);
     }
 
     /**

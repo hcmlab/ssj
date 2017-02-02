@@ -38,6 +38,7 @@ import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -96,15 +97,8 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
             options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
-        File fileDirectory = new File(options.filePath.parseWildcards());
-        if (!fileDirectory.exists())
-        {
-            if (!fileDirectory.mkdirs())
-            {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return;
-            }
-        }
+        File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
+
         if (options.fileName.get() == null)
         {
             String defaultName = TextUtils.join("_", in.dataclass) + ".mp4";

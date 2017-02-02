@@ -79,8 +79,9 @@ public class TheFramework
     protected boolean _isRunning = false;
     protected boolean _isStopping = false;
 
-    private long _startTime = 0;
-    private long _createTime = 0;
+    private long _startTime = 0; //virtual clock
+    private long _startTimeSystem = 0; //real clock
+    private long _createTime = 0; //real clock
     private long _timeOffset = 0;
     private ClockSync _clockSync;
 
@@ -151,6 +152,7 @@ public class TheFramework
                     ClockSync.listenForStartSignal(options.startSyncPort.get());
             }
 
+            _startTimeSystem = System.currentTimeMillis();
             _startTime = SystemClock.elapsedRealtime();
             _isRunning = true;
             Log.i("pipeline started");
@@ -530,14 +532,17 @@ public class TheFramework
         _buffer.get(bufferID).sync(getTime());
     }
 
+    /**
+     * @return elapsed time since start of the pipeline
+     */
     public double getTime()
     {
-        if (_startTime == 0)
-            return 0;
-
         return getTimeMs() / 1000.0;
     }
 
+    /**
+     * @return elapsed time since start of the pipeline
+     */
     public long getTimeMs()
     {
         if (_startTime == 0)
@@ -551,11 +556,17 @@ public class TheFramework
         _timeOffset += offset;
     }
 
+    /**
+     * @return system time at which the pipeline started
+     */
     public long getStartTimeMs()
     {
-        return _startTime;
+        return _startTimeSystem;
     }
 
+    /**
+     * @return system time at which the framework was created
+     */
     public long getCreateTimeMs()
     {
         return _createTime;

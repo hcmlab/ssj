@@ -41,6 +41,7 @@ import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.event.ThresholdEventSender;
 import hcm.ssj.file.FileEventWriter;
+import hcm.ssj.file.SimpleFileWriter;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
 
@@ -74,6 +75,9 @@ public class testEvent extends ApplicationTestCase<Application> {
         FileEventWriter write = new FileEventWriter();
         write.options.format.set(FileEventWriter.Format.EVENT);
         frame.registerEventListener(write, channel);
+
+        SimpleFileWriter fw = new SimpleFileWriter();
+        frame.addConsumer(fw, acc, 1.0, 0);
 
         try {
             frame.Start();

@@ -36,9 +36,11 @@ import java.util.UUID;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -67,6 +69,7 @@ public class BluetoothEventWriter extends EventHandler
     private boolean _connected = false;
     byte[] _buffer;
     int _evID[];
+    StringBuilder _builder = new StringBuilder();
 
     public BluetoothEventWriter() {
         _name = "BluetoothEventWriter";
@@ -116,8 +119,13 @@ public class BluetoothEventWriter extends EventHandler
         if (!_connected || !_conn.isConnected())
             return;
 
-        String msg = null;
+        _builder.delete(0, _builder.length());
 
+        _builder.append("<events ssi-v=\"2\" ssj-v=\"");
+        _builder.append(_frame.getVersion());
+        _builder.append("\">");
+
+        int count = 0;
         for(int i = 0; i < _evchannel_in.size(); ++i)
         {
             Event ev = _evchannel_in.get(i).getEvent(_evID[i], false);
@@ -125,29 +133,22 @@ public class BluetoothEventWriter extends EventHandler
                 continue;
 
             _evID[i] = ev.id + 1;
+            count++;
 
             //build event
-            msg += "<event sender=\"" + ev.sender + "\""
-                    + " event=\"" + ev.name + "\""
-                    + " from=\"" + ev.time + "\""
-                    + " dur=\"" + ev.dur + "\""
-                    + " prob=\"1.000000\""
-                    + " type=\"STRING\""
-                    + " state=\"" + ev.state + "\""
-                    + " glue=\"0\">"
-                    + ev.ptr()
-                    + "</event>";
+            Util.eventToXML(_builder, ev);
+            _builder.append(LoggingConstants.DELIMITER_LINE);
         }
 
-        if(msg != null)
+        if(count > 0)
         {
-            msg = "<events fw=\"ssj\" v=\""+ _frame.getVersion() +"\">" + msg + "</events>";
+            _builder.append( "</events>");
 
             ByteBuffer buf = ByteBuffer.wrap(_buffer);
             buf.order(ByteOrder.BIG_ENDIAN);
 
             //store event
-            buf.put(msg.getBytes());
+            buf.put(_builder.toString().getBytes());
 
             try
             {

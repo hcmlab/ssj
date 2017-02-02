@@ -30,12 +30,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
@@ -69,6 +74,8 @@ public class FileEventWriter extends EventHandler implements IFileWriter
     private File file;
     private FileOutputStream fileOutputStream = null;
 
+    private boolean headerWritten = false;
+
     public FileEventWriter()
     {
         _name = "FileEventWriter";
@@ -91,16 +98,8 @@ public class FileEventWriter extends EventHandler implements IFileWriter
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
             options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
         }
+        File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
 
-        File fileDirectory = new File(options.filePath.parseWildcards());
-        if (!fileDirectory.exists())
-        {
-            if (!fileDirectory.mkdirs())
-            {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return;
-            }
-        }
         if (options.fileName.get() == null)
         {
             String defaultName = "events";
@@ -120,25 +119,38 @@ public class FileEventWriter extends EventHandler implements IFileWriter
         file = new File(fileDirectory, options.fileName.get());
         fileOutputStream = getFileConnection(file, fileOutputStream);
 
-        //write header
-        if(options.format.get() == Format.EVENT) {
-            _builder.delete(0, _builder.length());
-            _builder.append("<events fw=\"ssj\" v=\"");
-            _builder.append(_frame.getVersion());
-            _builder.append("\">");
-
-            writeLine(_builder.toString(), fileOutputStream);
-        }
-
+        headerWritten = false;
         unprocessedEvents.clear();
     }
 
     @Override
     protected void process()
     {
+        //write header
+        if(!headerWritten && options.format.get() == Format.EVENT)
+        {
+            _builder.delete(0, _builder.length());
+            _builder.append("<events ssi-v=\"2\" ssj-v=\"");
+            _builder.append(_frame.getVersion());
+            _builder.append("\">");
+            _builder.append(LoggingConstants.DELIMITER_LINE);
+
+            SimpleDateFormat sdf = new SimpleDateFormat(SimpleHeader.DATE_FORMAT, Locale.getDefault());
+
+            Date date = new Date(_frame.getStartTimeMs());
+            String local = sdf.format(date);
+
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String system = sdf.format(date);
+
+            _builder.append("<time ms=\"").append(_frame.getStartTimeMs()).append("\" local=\"").append(local).append("\" system=\"").append(system).append("\"/>");
+            _builder.append(LoggingConstants.DELIMITER_LINE);
+
+            write(_builder.toString(), fileOutputStream);
+            headerWritten = true;
+        }
+
         _builder.delete(0, _builder.length());
-
-
         for(int i = 0; i < _evchannel_in.size(); ++i)
         {
             Event ev = _evchannel_in.get(i).getEvent(_evID[i], false);
@@ -147,57 +159,9 @@ public class FileEventWriter extends EventHandler implements IFileWriter
 
             _evID[i] = ev.id + 1;
 
-            if(options.format.get() == Format.EVENT) {
-                //build event
-                _builder.append("<event sender=\"").append(ev.sender).append("\"");
-                _builder.append(" event=\"").append(ev.name).append("\"");
-                _builder.append(" from=\"").append(ev.time).append("\"");
-                _builder.append(" dur=\"").append(ev.dur).append("\"");
-                _builder.append(" prob=\"1.00000\"");
-                _builder.append(" type=\"STRING\"");
-                _builder.append(" type=\"").append(ev.state).append("\"");
-                _builder.append(" glue=\"0\">");
-                _builder.append(LoggingConstants.DELIMITER_LINE);
-
-                switch(ev.type)
-                {
-                    case BYTE:
-                        for(byte v : ev.ptrB())
-                            _builder.append(v).append(" ");
-                        break;
-
-                    case SHORT:
-                        for(short v : ev.ptrShort())
-                            _builder.append(v).append(" ");
-                        break;
-
-                    case INT:
-                        for(int v : ev.ptrI())
-                            _builder.append(v).append(" ");
-                        break;
-
-                    case LONG:
-                        for(long v : ev.ptrL())
-                            _builder.append(v).append(" ");
-                        break;
-
-                    case FLOAT:
-                        for(float v : ev.ptrF())
-                            _builder.append(v).append(" ");
-                        break;
-
-                    case DOUBLE:
-                        for(double v : ev.ptrD())
-                            _builder.append(v).append(" ");
-                        break;
-
-                    case STRING:
-                        _builder.append(ev.ptrStr());
-                        break;
-                }
-                _builder.append(LoggingConstants.DELIMITER_LINE);
-
-                _builder.append("</event>");
+            if(options.format.get() == Format.EVENT)
+            {
+                Util.eventToXML(_builder, ev);
                 _builder.append(LoggingConstants.DELIMITER_LINE);
 
                 write(_builder.toString(), fileOutputStream);

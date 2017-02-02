@@ -37,7 +37,9 @@ import java.util.Arrays;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -115,7 +117,7 @@ public class SocketEventWriter extends EventHandler
 
         _builder.delete(0, _builder.length());
 
-        _builder.append("<events fw=\"ssj\" v=\"");
+        _builder.append("<events ssi-v=\"2\" ssj-v=\"");
         _builder.append(_frame.getVersion());
         _builder.append("\">");
 
@@ -130,16 +132,8 @@ public class SocketEventWriter extends EventHandler
             _evID[i] = ev.id + 1;
 
             //build event
-            _builder.append("<event sender=\"").append(ev.sender).append("\"");
-            _builder.append(" event=\"").append(ev.name).append("\"");
-            _builder.append(" from=\"").append(ev.time).append("\"");
-            _builder.append(" dur=\"").append(ev.dur).append("\"");
-            _builder.append(" prob=\"1.00000\"");
-            _builder.append(" type=\"STRING\"");
-            _builder.append(" type=\"").append(ev.state).append("\"");
-            _builder.append(" glue=\"0\">");
-            _builder.append(ev.ptr());
-            _builder.append( "</event>");
+            Util.eventToXML(_builder, ev);
+            _builder.append(LoggingConstants.DELIMITER_LINE);
         }
 
         if(count > 0)

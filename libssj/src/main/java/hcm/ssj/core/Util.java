@@ -35,6 +35,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -49,6 +50,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -721,5 +723,96 @@ public class Util
         Date sessionStart = new Date();
         sessionStart.setTime(time_ms);
         return dateFormat.format(sessionStart);
+    }
+
+    public static synchronized File createDirectory(String path)
+    {
+        File fileDirectory = new File(path);
+
+        if (!fileDirectory.exists())
+        {
+            if (!fileDirectory.mkdirs())
+            {
+                //check again, perhaps another thread created it
+                Log.e(fileDirectory.getName() + " could not be created");
+                return null;
+            }
+        }
+
+        return fileDirectory;
+    }
+
+    public static void eventToXML(StringBuilder builder, Event ev)
+    {
+        builder.append("<event sender=\"").append(ev.sender).append("\"");
+        builder.append(" event=\"").append(ev.name).append("\"");
+        builder.append(" from=\"").append(ev.time).append("\"");
+        builder.append(" dur=\"").append(ev.dur).append("\"");
+        builder.append(" prob=\"1.00000\"");
+        builder.append(" type=\"").append(ev.type).append("\"");
+        builder.append(" state=\"").append(ev.state).append("\"");
+        builder.append(" glue=\"0\">");
+
+        switch(ev.type)
+        {
+            case BYTE: {
+                byte[] data = ev.ptrB();
+                for (int i = 0; i < data.length; i++) {
+                    builder.append(data[i]);
+                    if (i < data.length - 1)
+                        builder.append(" ");
+                }
+                break;
+            }
+            case SHORT: {
+                short[] data = ev.ptrShort();
+                for(int i = 0; i < data.length; i++) {
+                    builder.append(data[i]);
+                    if(i < data.length -1)
+                        builder.append(" ");
+                }
+                break;
+            }
+            case INT: {
+                int[] data = ev.ptrI();
+                for(int i = 0; i < data.length; i++) {
+                    builder.append(data[i]);
+                    if(i < data.length -1)
+                        builder.append(" ");
+                }
+                break;
+            }
+            case LONG: {
+                long[] data = ev.ptrL();
+                for(int i = 0; i < data.length; i++) {
+                    builder.append(data[i]);
+                    if(i < data.length -1)
+                        builder.append(" ");
+                }
+                break;
+            }
+            case FLOAT: {
+                float[] data = ev.ptrF();
+                for(int i = 0; i < data.length; i++) {
+                    builder.append(data[i]);
+                    if(i < data.length -1)
+                        builder.append(" ");
+                }
+                break;
+            }
+            case DOUBLE: {
+                double[] data = ev.ptrD();
+                for (int i = 0; i < data.length; i++) {
+                    builder.append(data[i]);
+                    if (i < data.length - 1)
+                        builder.append(" ");
+                }
+                break;
+            }
+            case STRING:
+                builder.append(ev.ptrStr());
+                break;
+        }
+        builder.append("</event>");
     }
 }
