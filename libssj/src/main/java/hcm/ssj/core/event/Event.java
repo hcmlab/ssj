@@ -41,7 +41,7 @@ public abstract class Event {
 
     public String name;
     public String sender;
-    public int time;
+    public long time;
     public int dur;
     public State state;
     public Cons.Type type;
