@@ -49,7 +49,7 @@ public class EventPainter extends EventHandler
     public class Options extends OptionList
     {
         public final Option<String> title = new Option<>("title", "events", String.class, "");
-        public final Option<Integer> color = new Option<>("color", 0xff0077cc, Integer.class, "");
+        public final Option<String> color = new Option<>("color", "blue", String.class, "Chart color either as HEX or color name (e.g. blue, red ...)");
         public final Option<Integer> numBars = new Option<>("numBars", 2, Integer.class, "");
         public final Option<Integer> spacing = new Option<>("spacing", 50, Integer.class, "space between bars");
         public final Option<GraphView> graphView = new Option<>("graphView", null, GraphView.class, "");        public final Option<Boolean> manualBounds = new Option<>("manualBounds", false, Boolean.class, "");
@@ -191,7 +191,7 @@ public class EventPainter extends EventHandler
             public void run()
             {
                 _series = new BarGraphSeries<>();
-                _series.setColor(options.color.get());
+                _series.setColor(Color.parseColor(options.color.get()));
                 _series.setDrawValuesOnTop(true);
                 _series.setValuesOnTopColor(Color.BLACK);
                 _series.setSpacing(spacing);
