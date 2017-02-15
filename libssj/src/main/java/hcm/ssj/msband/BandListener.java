@@ -52,6 +52,7 @@ import com.microsoft.band.sensors.BandRRIntervalEvent;
 import com.microsoft.band.sensors.BandRRIntervalEventListener;
 import com.microsoft.band.sensors.BandSkinTemperatureEvent;
 import com.microsoft.band.sensors.BandSkinTemperatureEventListener;
+import com.microsoft.band.sensors.MotionType;
 
 import hcm.ssj.core.Log;
 
@@ -80,6 +81,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	private float speed;
 	private float pace;
 	private long steps;
+	private int motionType;
 	private double interBeatInterval; // time between two heart beats
 	private long flightsAscended;
 	private long flightsDescended;
@@ -123,6 +125,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		interBeatInterval = 0;
 		flightsAscended = 0;
 		flightsDescended = 0;
+		motionType = MotionType.UNKNOWN.ordinal();
 
 		receivedData = false;
 		connected = false;
@@ -206,6 +209,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		distance = bandDistanceEvent.getTotalDistance();
 		speed = bandDistanceEvent.getSpeed();
 		pace = bandDistanceEvent.getPace();
+		motionType = bandDistanceEvent.getMotionType().ordinal();
 	}
 
 	@Override
@@ -329,6 +333,11 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	public float getPace()
 	{
 		return pace;
+	}
+
+	public float getMotionType()
+	{
+		return motionType;
 	}
 
 	public long getSteps()

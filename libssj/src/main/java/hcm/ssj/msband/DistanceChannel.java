@@ -72,6 +72,7 @@ public class DistanceChannel extends SensorChannel
 		out[0] = _listener.getDistance();
 		out[1] = _listener.getSpeed();
 		out[2] = _listener.getPace();
+		out[3] = _listener.getMotionType();
 
 		return true;
 	}
@@ -85,7 +86,7 @@ public class DistanceChannel extends SensorChannel
 	@Override
 	protected int getSampleDimension()
 	{
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -101,5 +102,6 @@ public class DistanceChannel extends SensorChannel
 		stream_out.dataclass[0] = "Distance";
 		stream_out.dataclass[1] = "Speed";
 		stream_out.dataclass[2] = "Pace";
+		stream_out.dataclass[3] = "MotionType";
 	}
 }
