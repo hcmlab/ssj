@@ -95,7 +95,7 @@ public class GPSSensor extends Sensor
 
 			// Wait for values
 			long time = SystemClock.elapsedRealtime();
-			while (!_terminate && !listener.receivedData && SystemClock.elapsedRealtime() - time < Cons.WAIT_SENSOR_CONNECT)
+			while (!_terminate && !listener.receivedData && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 			{
 				try
 				{

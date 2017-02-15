@@ -52,6 +52,7 @@ public class TheFramework
         public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "");
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "");
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 5.f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
+        public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
 
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
 

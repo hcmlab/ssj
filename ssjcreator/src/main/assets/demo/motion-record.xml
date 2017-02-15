@@ -65,7 +65,7 @@
         <channelId id="182691243" />
       </channelList>
     </consumer>
-    <consumer class="hcm.ssj.file.SimpleFileWriter" id="240294829" frameSize="1.0" delta="0.0">
+    <consumer class="hcm.ssj.file.FileWriter" id="240294829" frameSize="1.0" delta="0.0">
       <options>
         <option name="fileName" value="AccX_AccY_AccZ.stream" />
         <option name="filePath" value="/storage/emulated/0/SSJ/[time]" />
@@ -95,7 +95,7 @@
         <channelId id="152692641" />
       </channelList>
     </consumer>
-    <consumer class="hcm.ssj.file.SimpleFileWriter" id="48104051" frameSize="1.0" delta="0.0">
+    <consumer class="hcm.ssj.file.FileWriter" id="48104051" frameSize="1.0" delta="0.0">
       <options>
         <option name="fileName" value="OriAzi_OriPitch_OriRoll.stream" />
         <option name="filePath" value="/storage/emulated/0/SSJ/[time]" />

@@ -34,8 +34,8 @@ import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
-import hcm.ssj.file.SimpleFileReader;
-import hcm.ssj.file.SimpleFileReaderChannel;
+import hcm.ssj.file.FileReader;
+import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.ml.Classifier;
 import hcm.ssj.signal.FFTfeat;
 import hcm.ssj.signal.Functionals;
@@ -151,9 +151,9 @@ public class SvmTest extends ApplicationTestCase<Application>
         frame.options.countdown.set(0);
 
         // Sensor
-        SimpleFileReader file = new SimpleFileReader();
+        FileReader file = new FileReader();
         file.options.fileName.set("audio.stream");
-        SimpleFileReaderChannel channel = new SimpleFileReaderChannel();
+        FileReaderChannel channel = new FileReaderChannel();
         channel.setWatchInterval(0);
         channel.setSyncInterval(0);
         frame.addSensor(file, channel);

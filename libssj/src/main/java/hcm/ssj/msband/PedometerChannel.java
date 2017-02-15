@@ -57,6 +57,12 @@ public class PedometerChannel extends SensorChannel
 	}
 
 	@Override
+	public void init()
+	{
+		((MSBand)_sensor).configureChannel(MSBand.Channel.Pedometer, true, 0);
+	}
+
+	@Override
 	public void enter(Stream stream_out)
 	{
 		_listener = ((MSBand) _sensor).listener;

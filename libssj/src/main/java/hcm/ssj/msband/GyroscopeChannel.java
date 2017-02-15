@@ -26,6 +26,8 @@
 
 package hcm.ssj.msband;
 
+import com.microsoft.band.sensors.SampleRate;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
@@ -39,7 +41,7 @@ public class GyroscopeChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 62, Integer.class, "");
+		public final Option<Float> sampleRate = new Option<>("sampleRate", 62.5f, Float.class, "supported sample rates: 7.8125, 31.25, 62.5 Hz");
 
 		private Options()
 		{
@@ -54,6 +56,20 @@ public class GyroscopeChannel extends SensorChannel
 	public GyroscopeChannel()
 	{
 		_name = "MSBand_Gyroscope";
+	}
+
+	@Override
+	public void init()
+	{
+		SampleRate sr;
+		if(options.sampleRate.get() <= 7.8125)
+			sr = SampleRate.MS128;
+		else if(options.sampleRate.get() <= 31.25)
+			sr = SampleRate.MS32;
+		else
+			sr = SampleRate.MS16;
+
+		((MSBand)_sensor).configureChannel(MSBand.Channel.Gyroscope, true, sr.ordinal());
 	}
 
 	@Override

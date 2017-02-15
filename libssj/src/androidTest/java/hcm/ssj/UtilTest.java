@@ -30,6 +30,8 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 import android.util.Xml;
 
+import com.microsoft.band.sensors.MotionType;
+
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.StringReader;
@@ -48,6 +50,9 @@ public class UtilTest extends ApplicationTestCase<Application> {
 
     public void test() throws Exception
     {
+        int tord = MotionType.JOGGING.ordinal();
+
+
         int[] x = new int[]{0, 2, 9, -20};
         byte[] y = new byte[1024];
         int[] z = new int[1024];

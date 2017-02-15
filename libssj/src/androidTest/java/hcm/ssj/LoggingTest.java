@@ -39,10 +39,10 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.file.FileReader;
+import hcm.ssj.file.FileReaderChannel;
+import hcm.ssj.file.FileWriter;
 import hcm.ssj.file.LoggingConstants;
-import hcm.ssj.file.SimpleFileReader;
-import hcm.ssj.file.SimpleFileReaderChannel;
-import hcm.ssj.file.SimpleFileWriter;
 import hcm.ssj.file.SimpleXmlParser;
 import hcm.ssj.test.Logger;
 
@@ -218,10 +218,10 @@ public class LoggingTest extends ApplicationTestCase<Application>
         AndroidSensorChannel sensorConnectionChannel = new AndroidSensorChannel();
         frame.addSensor(sensorConnection,sensorConnectionChannel);
         //consumer
-        SimpleFileWriter simpleFileWriter = new SimpleFileWriter();
-        simpleFileWriter.options.filePath.set(file.getParent());
-        simpleFileWriter.options.fileName.set(file.getName());
-        frame.addConsumer(simpleFileWriter, sensorConnectionChannel, 0.25, 0);
+        FileWriter fileWriter = new FileWriter();
+        fileWriter.options.filePath.set(file.getParent());
+        fileWriter.options.fileName.set(file.getName());
+        frame.addConsumer(fileWriter, sensorConnectionChannel, 0.25, 0);
     }
 
     /**
@@ -232,16 +232,16 @@ public class LoggingTest extends ApplicationTestCase<Application>
     private void read(TheFramework frame, File file) throws Exception
     {
         //sensor
-        SimpleFileReader simpleFileReader = new SimpleFileReader();
-        simpleFileReader.options.filePath.set(file.getParent());
-        simpleFileReader.options.fileName.set(file.getName());
-        simpleFileReader.options.loop.set(true);
+        FileReader fileReader = new FileReader();
+        fileReader.options.filePath.set(file.getParent());
+        fileReader.options.fileName.set(file.getName());
+        fileReader.options.loop.set(true);
 
         //channel
-        SimpleFileReaderChannel simpleFileReaderChannel = new SimpleFileReaderChannel();
-        frame.addSensor(simpleFileReader,simpleFileReaderChannel);
+        FileReaderChannel fileReaderChannel = new FileReaderChannel();
+        frame.addSensor(fileReader, fileReaderChannel);
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, simpleFileReaderChannel, 0.25, 0);
+        frame.addConsumer(log, fileReaderChannel, 0.25, 0);
     }
 }

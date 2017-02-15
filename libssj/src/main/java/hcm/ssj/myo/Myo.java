@@ -125,7 +125,7 @@ public class Myo extends Sensor
 
 		// Wait until myo is connected
 		long time = SystemClock.elapsedRealtime();
-		while (!_terminate && hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_SENSOR_CONNECT)
+		while (!_terminate && hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 		{
 			try {
 				Thread.sleep(Cons.SLEEP_ON_IDLE);

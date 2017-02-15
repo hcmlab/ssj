@@ -35,7 +35,7 @@ class SimpleHeader
     protected final static String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss:SSS";
     private final static String _version = "1.0";
     private final static String _ssi_v = "2";
-    private final static String _ftype = "ASCII";
+    protected String _ftype = "ASCII";
     protected String _sr = "50.0";
     protected String _dim = "1";
     protected String _byte = "4";

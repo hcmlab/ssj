@@ -27,6 +27,7 @@
 package hcm.ssj.file;
 
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -44,7 +45,7 @@ import hcm.ssj.core.option.OptionList;
  * File reader for SSJ.<br>
  * Created by Frank Gaibler on 20.08.2015.
  */
-public class SimpleFileReader extends Sensor
+public class FileReader extends Sensor
 {
     /**
      *
@@ -67,14 +68,16 @@ public class SimpleFileReader extends Sensor
     public final Options options = new Options();
     private File fileHeader;
     private File fileReal;
-    private BufferedReader bufferedReader = null;
+    private BufferedInputStream inputBytes = null;
+    private BufferedReader inputString = null;
+    private int pos;
     private SimpleHeader simpleHeader = null;
     private boolean initialized = false;
 
     /**
      *
      */
-    public SimpleFileReader()
+    public FileReader()
     {
         _name = this.getClass().getSimpleName();
     }
@@ -115,8 +118,14 @@ public class SimpleFileReader extends Sensor
     protected boolean connect()
     {
         readerInit();
-        simpleHeader = null;
-        bufferedReader = getFileConnection(fileReal, bufferedReader);
+        simpleHeader = getSimpleHeader();
+
+        if(simpleHeader._ftype.equals("BINARY"))
+            inputBytes = getFileConnection(fileReal, inputBytes);
+        else if(simpleHeader._ftype.equals("ASCII"))
+            inputString = getFileConnection(fileReal, inputString);
+
+        pos = 0;
         return true;
     }
 
@@ -133,13 +142,14 @@ public class SimpleFileReader extends Sensor
                 SimpleXmlParser.XmlValues xmlValues = simpleXmlParser.parse(
                         new FileInputStream(fileHeader),
                         new String[]{"stream", "info"},
-                        new String[]{"sr", "dim", "byte", "type"}
+                        new String[]{"ftype", "sr", "dim", "byte", "type"}
                 );
                 simpleHeader = new SimpleHeader();
-                simpleHeader._sr = xmlValues.foundAttributes.get(0)[0];
-                simpleHeader._dim = xmlValues.foundAttributes.get(0)[1];
-                simpleHeader._byte = xmlValues.foundAttributes.get(0)[2];
-                simpleHeader._type = xmlValues.foundAttributes.get(0)[3];
+                simpleHeader._ftype = xmlValues.foundAttributes.get(0)[0];
+                simpleHeader._sr = xmlValues.foundAttributes.get(0)[1];
+                simpleHeader._dim = xmlValues.foundAttributes.get(0)[2];
+                simpleHeader._byte = xmlValues.foundAttributes.get(0)[3];
+                simpleHeader._type = xmlValues.foundAttributes.get(0)[4];
                 xmlValues = simpleXmlParser.parse(
                         new FileInputStream(fileHeader),
                         new String[]{"stream", "chunk"},
@@ -150,8 +160,7 @@ public class SimpleFileReader extends Sensor
                 simpleHeader._num = xmlValues.foundAttributes.get(0)[2];
             } catch (Exception e)
             {
-                e.printStackTrace();
-                Log.e("file could not be parsed");
+                Log.e("file could not be parsed", e);
             }
         }
         return simpleHeader;
@@ -181,6 +190,26 @@ public class SimpleFileReader extends Sensor
      * @param reader BufferedReader
      * @return BufferedReader
      */
+    private BufferedInputStream closeStream(BufferedInputStream reader)
+    {
+        if (reader != null)
+        {
+            try
+            {
+                reader.close();
+                reader = null;
+            } catch (IOException e)
+            {
+                Log.e("could not close reader", e);
+            }
+        }
+        return reader;
+    }
+
+    /**
+     * @param reader BufferedReader
+     * @return BufferedReader
+     */
     private BufferedReader closeStream(BufferedReader reader)
     {
         if (reader != null)
@@ -191,7 +220,7 @@ public class SimpleFileReader extends Sensor
                 reader = null;
             } catch (IOException e)
             {
-                Log.e("could not close reader");
+                Log.e("could not close reader", e);
             }
         }
         return reader;
@@ -203,8 +232,30 @@ public class SimpleFileReader extends Sensor
     @Override
     protected void disconnect()
     {
-        bufferedReader = closeStream(bufferedReader);
+        inputBytes = closeStream(inputBytes);
         initialized = false;
+    }
+
+    /**
+     * @param file   File
+     * @param stream BufferedInputStream
+     * @return BufferedInputStream
+     */
+    private BufferedInputStream getFileConnection(File file, BufferedInputStream stream)
+    {
+        if (stream != null)
+        {
+            stream = closeStream(stream);
+        }
+        try
+        {
+            InputStream inputStream = new FileInputStream(file);
+            stream = new BufferedInputStream(inputStream);
+        } catch (FileNotFoundException e)
+        {
+            Log.e("file not found", e);
+        }
+        return stream;
     }
 
     /**
@@ -221,11 +272,11 @@ public class SimpleFileReader extends Sensor
         try
         {
             InputStream inputStream = new FileInputStream(file);
-            InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-            reader = new BufferedReader(inputStreamReader);
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+
         } catch (FileNotFoundException e)
         {
-            Log.e("fileHeader not found");
+            Log.e("file not found", e);
         }
         return reader;
     }
@@ -244,31 +295,74 @@ public class SimpleFileReader extends Sensor
                 line = reader.readLine();
             } catch (IOException e)
             {
-                Log.e("could not read line");
+                Log.e("could not read line", e);
             }
         }
         return line;
     }
 
     /**
+     * @param stream BufferedInputStream
+     * @return String
+     */
+    private int read(BufferedInputStream stream, byte[] buffer, int numBytes)
+    {
+        int ret = 0;
+        if (stream != null)
+        {
+            try
+            {
+                ret = stream.read(buffer, 0, numBytes);
+            } catch (IOException e)
+            {
+                Log.e("could not read line", e);
+            }
+        }
+        return ret;
+    }
+
+    /**
         * @return String
     */
-    protected String getData()
+    protected String getDataASCII()
     {
-        String data = readLine(bufferedReader);
+
+        String data = readLine(inputString);
         if (data == null && options.loop.get())
         {
             //start anew
-            bufferedReader = getFileConnection(fileReal, bufferedReader);
-            data = readLine(bufferedReader);
+            inputBytes = getFileConnection(fileReal, inputBytes);
+            data = readLine(inputString);
         }
         return data;
     }
 
-    protected void skip(int lines)
+
+    protected int getDataBinary(byte[] buffer, int numBytes)
     {
-        for (int i = 0; i < lines; i++) {
-            readLine(bufferedReader);
+        int ret = read(inputBytes, buffer, numBytes);
+        if(ret == -1 && options.loop.get())
+        {
+            //we reached end of file, start anew
+            inputBytes = getFileConnection(fileReal, inputBytes);
+            ret = read(inputBytes, buffer, numBytes);
+
+            if(ret <= 0)
+                Log.e("unexpected error reading from file");
+        }
+
+        if(numBytes != ret)
+            Log.e("unexpected amount of bytes read from file");
+
+        return ret;
+    }
+
+    protected void skip(int bytes)
+    {
+        try {
+            inputBytes.skip(bytes);
+        } catch (IOException e) {
+            Log.e("exception while skipping bytes", e);
         }
     }
 }

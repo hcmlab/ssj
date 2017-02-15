@@ -26,6 +26,8 @@
 
 package hcm.ssj.msband;
 
+import com.microsoft.band.sensors.GsrSampleRate;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
@@ -39,7 +41,7 @@ public class GSRChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 5, Integer.class, "");
+		public final Option<Float> sampleRate = new Option<>("sampleRate", 5.0f, Float.class, "supported sample rates: 0.2, 5.0 Hz");
 
 		private Options()
 		{
@@ -54,6 +56,18 @@ public class GSRChannel extends SensorChannel
 	public GSRChannel()
 	{
 		_name = "MSBand_GSR";
+	}
+
+	@Override
+	public void init()
+	{
+		GsrSampleRate sr;
+		if(options.sampleRate.get() <= 0.2)
+			sr = GsrSampleRate.MS5000;
+		else
+			sr = GsrSampleRate.MS200;
+
+		((MSBand)_sensor).configureChannel(MSBand.Channel.GSR, true, sr.ordinal());
 	}
 
 	@Override

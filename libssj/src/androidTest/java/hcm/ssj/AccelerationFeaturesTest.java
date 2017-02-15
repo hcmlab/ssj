@@ -33,7 +33,7 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.file.SimpleFileWriter;
+import hcm.ssj.file.FileWriter;
 
 /**
  * Created by Michael Dietz on 19.10.2016.
@@ -64,7 +64,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		frame.addSensor(sensor, channel);
 
 		// Transformer
-		SimpleFileWriter sfw = new SimpleFileWriter();
+		FileWriter sfw = new FileWriter();
 		frame.addConsumer(sfw, channel, 1, 0);
 
 		// Start framework

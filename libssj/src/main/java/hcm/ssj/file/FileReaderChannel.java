@@ -41,7 +41,7 @@ import hcm.ssj.core.stream.Stream;
  * File reader provider for SSJ.<br>
  * Created by Frank Gaibler on 20.08.2015.
  */
-public class SimpleFileReaderChannel extends SensorChannel
+public class FileReaderChannel extends SensorChannel
 {
     /**
      *
@@ -63,16 +63,19 @@ public class SimpleFileReaderChannel extends SensorChannel
     }
 
     public final Options options = new Options();
-    private SimpleFileReader simpleFileReader;
+    private FileReader fileReader;
+    private byte[] buffer;
     private double sampleRate;
     private int dimension;
     private int num;
+    private int bytes;
     private Cons.Type type;
+    private Cons.FileType ftype;
 
     /**
      *
      */
-    public SimpleFileReaderChannel()
+    public FileReaderChannel()
     {
         super();
         _name = this.getClass().getSimpleName();
@@ -84,13 +87,17 @@ public class SimpleFileReaderChannel extends SensorChannel
     @Override
     protected void init()
     {
-        simpleFileReader = (SimpleFileReader) _sensor;
-        simpleFileReader.readerInit();
-        SimpleHeader simpleHeader = simpleFileReader.getSimpleHeader();
+        fileReader = (FileReader) _sensor;
+        fileReader.readerInit();
+        SimpleHeader simpleHeader = fileReader.getSimpleHeader();
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);
+        bytes = Integer.parseInt(simpleHeader._byte);
         num = (int)(sampleRate * options.chunk.get() + 0.5);
         type = Cons.Type.valueOf(simpleHeader._type);
+        ftype = Cons.FileType.valueOf(simpleHeader._ftype);
+
+        buffer = new byte[num*dimension*bytes];
     }
 
 
@@ -99,7 +106,7 @@ public class SimpleFileReaderChannel extends SensorChannel
     public void enter(Stream stream_out)
     {
         if(options.offset.get() > 0)
-            simpleFileReader.skip((int)(stream_out.sr * options.offset.get()));
+            fileReader.skip((int)(stream_out.sr * options.offset.get()));
     }
 
     /**
@@ -108,76 +115,92 @@ public class SimpleFileReaderChannel extends SensorChannel
     @Override
     protected boolean process(Stream stream_out)
     {
-        for(int i = 0; i < num; ++i) {
-            switch (type) {
-                case BOOL: {
-                    boolean[] out = stream_out.ptrBool();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Boolean.valueOf(separated[k]);
+        if(ftype == Cons.FileType.ASCII)
+        {
+            for(int i = 0; i < num; ++i) {
+                switch (type) {
+                    case BOOL: {
+                        boolean[] out = stream_out.ptrBool();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = Boolean.valueOf(separated[k]);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case BYTE: {
-                    byte[] out = stream_out.ptrB();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Byte.valueOf(separated[k]);
+                    case BYTE: {
+                        byte[] out = stream_out.ptrB();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = Byte.valueOf(separated[k]);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case CHAR: {
-                    char[] out = stream_out.ptrC();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = separated[k].charAt(0);
+                    case CHAR: {
+                        char[] out = stream_out.ptrC();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = separated[k].charAt(0);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case SHORT: {
-                    short[] out = stream_out.ptrS();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Short.valueOf(separated[k]);
+                    case SHORT: {
+                        short[] out = stream_out.ptrS();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = Short.valueOf(separated[k]);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case INT: {
-                    int[] out = stream_out.ptrI();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Integer.valueOf(separated[k]);
+                    case INT: {
+                        int[] out = stream_out.ptrI();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = Integer.valueOf(separated[k]);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case LONG: {
-                    long[] out = stream_out.ptrL();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Long.valueOf(separated[k]);
+                    case LONG: {
+                        long[] out = stream_out.ptrL();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = Long.valueOf(separated[k]);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case FLOAT: {
-                    float[] out = stream_out.ptrF();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Float.parseFloat(separated[k]);
+                    case FLOAT: {
+                        float[] out = stream_out.ptrF();
+
+                            String[] separated = getData();
+                            for (int k = 0; k < dimension; k++) {
+                                out[i * dimension + k] = Float.parseFloat(separated[k]);
+                            }
+                        break;
                     }
-                    break;
-                }
-                case DOUBLE: {
-                    double[] out = stream_out.ptrD();
-                    String[] separated = getData();
-                    for (int k = 0; k < dimension; k++) {
-                        out[i * dimension + k] = Double.valueOf(separated[k]);
+                    case DOUBLE: {
+                        double[] out = stream_out.ptrD();
+                        String[] separated = getData();
+                        for (int k = 0; k < dimension; k++) {
+                            out[i * dimension + k] = Double.valueOf(separated[k]);
+                        }
+                        break;
                     }
-                    break;
+                    default:
+                        Log.w("unsupported data type");
+                        return false;
                 }
-                default:
-                    Log.w("unsupported data type");
-                    return false;
             }
+        }
+        else if(ftype == Cons.FileType.BINARY)
+        {
+            int numBytes = num * dimension * bytes;
+            fileReader.getDataBinary(buffer, numBytes);
+            Util.arraycopy(buffer, 0, stream_out.ptr(), 0, numBytes);
         }
 
         return true;
@@ -188,7 +211,7 @@ public class SimpleFileReaderChannel extends SensorChannel
      */
     private String[] getData()
     {
-        String data = simpleFileReader.getData();
+        String data = fileReader.getDataASCII();
         String[] result;
 
         if (data != null)

@@ -28,10 +28,12 @@ package hcm.ssj.file;
 
 import android.text.TextUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -50,7 +52,7 @@ import static hcm.ssj.file.LoggingConstants.FILE_EXTENSION_STREAM;
  * File writer for SSJ.<br>
  * Created by Frank Gaibler on 20.08.2015.
  */
-public class SimpleFileWriter extends Consumer implements IFileWriter
+public class FileWriter extends Consumer implements IFileWriter
 {
     /**
      *
@@ -58,6 +60,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
     public class Options extends IFileWriter.Options
     {
         public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "");
+        public final Option<Cons.FileType> type = new Option<>("type", Cons.FileType.BINARY, Cons.FileType.class, "file type (ASCII or BINARY)");
 
         /**
          *
@@ -70,14 +73,18 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
     }
 
     public final Options options = new Options();
+    private Cons.FileType fileType;
     private FileOutputStream fileOutputStream = null;
     private FileOutputStream fileOutputStreamHeader = null;
+    private BufferedOutputStream byteStream;
+    private byte[] buffer;
+
     private int sampleCount = 0;
     private SimpleHeader simpleHeader;
-    private StringBuilder stringBuilder = new StringBuilder();
+    private StringBuilder stringBuilder;
     private File file;
 
-    public SimpleFileWriter()
+    public FileWriter()
     {
         _name = this.getClass().getSimpleName();
     }
@@ -113,6 +120,8 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
             options.fileName.set(defaultName);
         }
         file = new File(fileDirectory, options.fileName.get());
+
+        fileType = options.type.get();
         start(stream_in[0]);
     }
 
@@ -140,6 +149,14 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
 
         sampleCount = 0;
         fileOutputStream = getFileConnection(fileReal, fileOutputStream);
+
+        if(fileType == Cons.FileType.BINARY) {
+            byteStream = new BufferedOutputStream(fileOutputStream);
+            buffer = new byte[stream.tot];
+        }
+        else if(fileType == Cons.FileType.ASCII) {
+            stringBuilder = new StringBuilder();
+        }
     }
 
     /**
@@ -148,140 +165,149 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
     @Override
     protected final void consume(Stream[] stream_in)
     {
-        stringBuilder.delete(0, stringBuilder.length());
-        switch (stream_in[0].type)
+        if(fileType == Cons.FileType.ASCII)
+            stringBuilder.delete(0, stringBuilder.length());
+
+        if(fileType == Cons.FileType.ASCII)
         {
-            case BOOL:
+            switch (stream_in[0].type)
             {
-                boolean[] in = stream_in[0].ptrBool();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case BOOL:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
-                    {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                    boolean[] in = stream_in[0].ptrBool();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++) {
+                        for (int k = 0; k < stream_in[0].dim; k++, j++) {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case BYTE:
-            {
-                byte[] in = stream_in[0].ptrB();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case BYTE:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    byte[] in = stream_in[0].ptrB();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case CHAR:
-            {
-                char[] in = stream_in[0].ptrC();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case CHAR:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    char[] in = stream_in[0].ptrC();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case SHORT:
-            {
-                short[] in = stream_in[0].ptrS();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case SHORT:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    short[] in = stream_in[0].ptrS();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case INT:
-            {
-                int[] in = stream_in[0].ptrI();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case INT:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    int[] in = stream_in[0].ptrI();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case LONG:
-            {
-                long[] in = stream_in[0].ptrL();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case LONG:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    long[] in = stream_in[0].ptrL();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case FLOAT:
-            {
-                float[] in = stream_in[0].ptrF();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case FLOAT:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    float[] in = stream_in[0].ptrF();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
-            }
-            case DOUBLE:
-            {
-                double[] in = stream_in[0].ptrD();
-                for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                case DOUBLE:
                 {
-                    for (int k = 0; k < stream_in[0].dim; k++, j++)
+                    double[] in = stream_in[0].ptrD();
+                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
                     {
-                        stringBuilder.append(in[j]);
-                        stringBuilder.append(options.separator.get());
+                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        {
+                            stringBuilder.append(in[j]);
+                            stringBuilder.append(options.separator.get());
+                        }
+                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
                     }
-                    stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                    sampleCount += stream_in[0].num;
+                    write(stringBuilder.toString(), fileOutputStream);
+                    break;
                 }
-                sampleCount += stream_in[0].num;
-                write(stringBuilder.toString(), fileOutputStream);
-                break;
+                default:
+                    Log.w("unsupported data type");
+                    break;
             }
-            default:
-                Log.w("unsupported data type");
-                break;
+        }
+        else if(fileType == Cons.FileType.BINARY)
+        {
+            sampleCount += stream_in[0].num;
+            Util.arraycopy(stream_in[0].ptr(), 0, buffer, 0, stream_in[0].tot);
+            write(buffer, byteStream);
         }
     }
 
@@ -299,21 +325,25 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
      */
     private void end(Stream stream)
     {
-        fileOutputStream = closeStream(fileOutputStream);
+        if(fileType == Cons.FileType.BINARY)
+            byteStream = (BufferedOutputStream)closeStream(byteStream);
+
+        fileOutputStream = (FileOutputStream)closeStream(fileOutputStream);
 
         writeHeader(stream);
-        fileOutputStreamHeader = closeStream(fileOutputStreamHeader);
+        fileOutputStreamHeader = (FileOutputStream)closeStream(fileOutputStreamHeader);
     }
 
     private void writeHeader(Stream stream) {
 
         simpleHeader = new SimpleHeader();
 
+        simpleHeader._ftype = fileType.name();
         simpleHeader._sr = String.valueOf(stream.sr);
         simpleHeader._dim = String.valueOf(stream.dim);
         simpleHeader._byte = String.valueOf(stream.bytes);
         simpleHeader._type = stream.type.name();
-        simpleHeader._from = String.valueOf(stream.time);
+        simpleHeader._from = "0";
         simpleHeader._ms = String.valueOf(_frame.getStartTimeMs());
 
         SimpleDateFormat sdf = new SimpleDateFormat(SimpleHeader.DATE_FORMAT, Locale.getDefault());
@@ -339,7 +369,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
      * @param stream FileOutputStream
      * @return FileOutputStream
      */
-    private FileOutputStream closeStream(FileOutputStream stream)
+    private OutputStream closeStream(OutputStream stream)
     {
         if (stream != null)
         {
@@ -349,7 +379,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
                 stream = null;
             } catch (IOException e)
             {
-                Log.e("could not close writer");
+                Log.e("could not close writer", e);
             }
         }
         return stream;
@@ -367,9 +397,27 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
             stream = new FileOutputStream(file);
         } catch (FileNotFoundException e)
         {
-            Log.e("file not found");
+            Log.e("file not found", e);
         }
         return stream;
+    }
+
+    /**
+     * @param data   byte[]
+     * @param stream BufferedOutputStream
+     */
+    private void write(byte[] data, BufferedOutputStream stream)
+    {
+        if (data != null)
+        {
+            try
+            {
+                stream.write(data);
+            } catch (IOException e)
+            {
+                Log.e("could not write data", e);
+            }
+        }
     }
 
     /**
@@ -385,7 +433,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
                 stream.write(line.getBytes());
             } catch (IOException e)
             {
-                Log.e("could not write data");
+                Log.e("could not write data", e);
             }
         }
     }
@@ -404,7 +452,7 @@ public class SimpleFileWriter extends Consumer implements IFileWriter
                 stream.write(line.getBytes());
             } catch (IOException e)
             {
-                Log.e("could not write line");
+                Log.e("could not write line", e);
             }
         }
     }

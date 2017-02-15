@@ -51,9 +51,42 @@ public class MSBand extends Sensor
 	protected BandClient   client;
 	protected BandListener listener;
 
+	protected enum Channel
+	{
+		HeartRate,
+		RRInterval,
+		GSR,
+		SkinTemperature,
+		Acceleration,
+		Gyroscope,
+		AmbientLight,
+		Barometer,
+		Calories,
+		Distance,
+		Pedometer,
+		Altimeter
+	}
+
+	private class ChannelInfo {
+		public boolean active = false;
+		public int srMode = SampleRate.MS16.ordinal();
+	}
+
+	protected ChannelInfo channels[] = new ChannelInfo[Channel.values().length];
+
+	public void configureChannel(Channel ch, boolean active, int srMode)
+	{
+		channels[ch.ordinal()].active = active;
+		channels[ch.ordinal()].srMode = srMode;
+	}
+
 	public MSBand()
 	{
 		_name = "MSBand";
+
+		for (int i = 0; i < channels.length; i++) {
+			channels[i] = new ChannelInfo();
+		}
 	}
 
 	@Override
@@ -79,22 +112,22 @@ public class MSBand extends Sensor
 					pref.edit().putInt("c3", 1).commit();
 
 					// Register listeners
-					client.getSensorManager().registerHeartRateEventListener(listener);
-					client.getSensorManager().registerRRIntervalEventListener(listener);
-					client.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.MS200);
-					client.getSensorManager().registerSkinTemperatureEventListener(listener);
-					client.getSensorManager().registerAccelerometerEventListener(listener, SampleRate.MS16);
-					client.getSensorManager().registerGyroscopeEventListener(listener, SampleRate.MS16);
-					client.getSensorManager().registerAmbientLightEventListener(listener);
-					client.getSensorManager().registerBarometerEventListener(listener);
-					client.getSensorManager().registerCaloriesEventListener(listener);
-					client.getSensorManager().registerDistanceEventListener(listener);
-					client.getSensorManager().registerPedometerEventListener(listener);
-					client.getSensorManager().registerAltimeterEventListener(listener);
+					if(channels[Channel.HeartRate.ordinal()].active) client.getSensorManager().registerHeartRateEventListener(listener);
+					if(channels[Channel.RRInterval.ordinal()].active) client.getSensorManager().registerRRIntervalEventListener(listener);
+					if(channels[Channel.GSR.ordinal()].active) client.getSensorManager().registerGsrEventListener(listener, GsrSampleRate.values()[channels[Channel.GSR.ordinal()].srMode]);
+					if(channels[Channel.SkinTemperature.ordinal()].active) client.getSensorManager().registerSkinTemperatureEventListener(listener);
+					if(channels[Channel.Acceleration.ordinal()].active) client.getSensorManager().registerAccelerometerEventListener(listener, SampleRate.values()[channels[Channel.Acceleration.ordinal()].srMode]);
+					if(channels[Channel.Gyroscope.ordinal()].active) client.getSensorManager().registerGyroscopeEventListener(listener, SampleRate.values()[channels[Channel.Gyroscope.ordinal()].srMode]);
+					if(channels[Channel.AmbientLight.ordinal()].active) client.getSensorManager().registerAmbientLightEventListener(listener);
+					if(channels[Channel.Barometer.ordinal()].active) client.getSensorManager().registerBarometerEventListener(listener);
+					if(channels[Channel.Calories.ordinal()].active) client.getSensorManager().registerCaloriesEventListener(listener);
+					if(channels[Channel.Distance.ordinal()].active) client.getSensorManager().registerDistanceEventListener(listener);
+					if(channels[Channel.Pedometer.ordinal()].active) client.getSensorManager().registerPedometerEventListener(listener);
+					if(channels[Channel.Altimeter.ordinal()].active) client.getSensorManager().registerAltimeterEventListener(listener);
 
 					// Wait for values
 					long time = SystemClock.elapsedRealtime();
-					while (!_terminate && !listener.receivedData && SystemClock.elapsedRealtime() - time < Cons.WAIT_SENSOR_CONNECT)
+					while (!_terminate && !listener.receivedData && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 					{
 						try
 						{

@@ -57,6 +57,12 @@ public class BarometerChannel extends SensorChannel
 	}
 
 	@Override
+	public void init()
+	{
+		((MSBand)_sensor).configureChannel(MSBand.Channel.Barometer, true, 0);
+	}
+
+	@Override
 	public void enter(Stream stream_out)
 	{
 		_listener = ((MSBand) _sensor).listener;
