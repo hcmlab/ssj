@@ -53,7 +53,7 @@ public class Butfilt extends Transformer
 		public final Option<Boolean> norm = new Option<>("norm", true, Boolean.class, "Frequency values are normalized in interval [0..1], where 1 is the nyquist frequency (=half the sample rate)");
 		public final Option<Double> low = new Option<>("low", 0., Double.class, "Low cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
 		public final Option<Double> high = new Option<>("high", 1., Double.class, "High cutoff frequency given either as normalized value in interval [0..1] or as an absolute value in Hz (see -norm)");
-		public final Option<Boolean> zero = new Option<>("zero", false, Boolean.class, "Subtract first sample from signal to avoid artifacts at the beginning of the signal");
+		public final Option<Boolean> zero = new Option<>("zero", true, Boolean.class, "Subtract first sample from signal to avoid artifacts at the beginning of the signal");
 
 		/**
 		 *

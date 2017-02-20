@@ -99,7 +99,7 @@ public class FilterTools
 
 		for (int i = 0; i < sections; i++)
 		{
-			double poleReal = poles.getData(i).real();
+			double poleReal = - poles.getData(i).real();
 			double poleImag = poles.getData(i).imag();
 			double a1 = -2.0 * poleReal;
 			double a2 = poleReal * poleReal + poleImag * poleImag;
@@ -144,6 +144,7 @@ public class FilterTools
 		double ang = Math.cos((wHigh + wLow) / 2) / Math.cos((wHigh - wLow) / 2);
 
 		Matrix<Complex> poles = new Matrix<>(sections, 1);
+		poles.fillValue(new Complex(0,0));
 
 		for (int i = 0; i < sections / 2; i++)
 		{
