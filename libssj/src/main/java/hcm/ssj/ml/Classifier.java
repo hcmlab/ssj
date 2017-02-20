@@ -79,6 +79,11 @@ public class Classifier extends Transformer
     private Stream[] _stream_selected;
     private Model _model;
 
+    private int bytes = 0;
+    private int dim = 0;
+    private float sr = 0;
+    private Cons.Type type = Cons.Type.UNDEF;
+
     /**
      *
      */
@@ -118,6 +123,19 @@ public class Classifier extends Transformer
         }
 
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
+
+            //STREAM
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams")) {
+
+                parser.nextTag(); //item
+                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
+
+                    bytes = Integer.valueOf(parser.getAttributeValue(null, "byte"));
+                    dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
+                    sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
+                    type = Cons.Type.valueOf(parser.getAttributeValue(null, "type"));
+                }
+            }
 
             //SELECT
             if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
@@ -172,6 +190,15 @@ public class Classifier extends Transformer
             Log.e("model not loaded");
 
         Stream[] input = stream_in;
+        if(input[0].bytes != bytes || input[0].type != type) {
+            Log.e("input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
+                          + ") does not match model's expected input (type=" + type + ", bytes=" + bytes + ", sr=" + sr + ")");
+            return;
+        }
+        if(input[0].sr != sr) {
+            Log.w("input stream (sr=" + input[0].sr + ") may not be correct for model (sr=" + sr + ")");
+        }
+
 
         if(options.merge.get())
         {
@@ -181,6 +208,15 @@ public class Classifier extends Transformer
             _merge.enter(stream_in, _stream_merged[0]);
             input = _stream_merged;
         }
+
+        if(input[0].dim != dim) {
+            Log.e("input stream (dim=" + input[0].dim + ") does not match model (dim=" + dim + ")");
+            return;
+        }
+        if (input[0].num > 1) {
+            Log.w ("stream num > 1, only first sample is used");
+        }
+
         if(_selector != null)
         {
             _stream_selected = new Stream[1];

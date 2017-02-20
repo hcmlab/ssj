@@ -93,6 +93,13 @@ public class FileReaderChannel extends SensorChannel
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);
         bytes = Integer.parseInt(simpleHeader._byte);
+
+        double minChunk = 1.0 / sampleRate;
+        if(options.chunk.get() < minChunk) {
+            Log.w("chunk size too small, setting to " + minChunk + "s");
+            options.chunk.set(minChunk);
+        }
+
         num = (int)(sampleRate * options.chunk.get() + 0.5);
         type = Cons.Type.valueOf(simpleHeader._type);
         ftype = Cons.FileType.valueOf(simpleHeader._ftype);

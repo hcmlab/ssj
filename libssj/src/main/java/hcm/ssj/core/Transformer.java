@@ -190,6 +190,9 @@ public abstract class Transformer extends Provider {
             int num_out = getSampleNumber(_num_frame[0]);
             double sr_out = (double) num_out / frame;
 
+            if(num_out > 1 && delta != 0)
+                Log.w("Non-feature transformer called with positive delta. Transformer may not support this.");
+
             _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
 
             defineOutputClasses(_stream_in, _stream_out);
