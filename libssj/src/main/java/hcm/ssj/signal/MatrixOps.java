@@ -56,15 +56,16 @@ public class MatrixOps
 		return _instance;
 	}
 
-	public Complex multiplyValue(Matrix<Complex> m1, Matrix<Complex> m2)
+	public Complex multiplyVector(Matrix<Complex> vec1, Matrix<Complex> vec2)
 	{
 		Complex result = new Complex(0, 0);
 
-		int len = m1.getCols() * m2.getRows();
+		int len = vec1.getCols() * vec1.getRows();
 
 		for (int i = 0; i < len; i++)
 		{
-			result.plus(m1.getData(i).times(m2.getData(i).mod()));
+			Complex c = vec1.getData(i).times(vec2.getData(i));
+			result = result.plus(c);
 		}
 
 		return result;

@@ -114,7 +114,7 @@ public class FilterTools
 			tmp2.setData(1, new Complex(a1, 0.0));
 			tmp2.setData(2, new Complex(a2, 0.0));
 
-			double gain = Math.abs(2.0 / MatrixOps.getInstance().multiplyValue(tmp2, tmp).mod());
+			double gain = new Complex(2.0, 0.0).div(MatrixOps.getInstance().multiplyVector(tmp2, tmp)).mod();
 
 			sos.setData(i, 0, (float) (1.0 / gain));
 			sos.setData(i, 1, (float) (-2.0 / gain));
@@ -171,7 +171,7 @@ public class FilterTools
 			tmp2.setData(1, new Complex(a1, 0.0));
 			tmp2.setData(2, new Complex(a2, 0.0));
 
-			double gain = Math.abs(new Complex(0.1685, 0.5556).div(MatrixOps.getInstance().multiplyValue(tmp2, tmp)).mod());
+			double gain = Math.abs(new Complex(0.1685, 0.5556).div(MatrixOps.getInstance().multiplyVector(tmp2, tmp)).mod());
 
 			sos.setData(i, 0, (float) (1.0 / gain));
 			sos.setData(i, 1, 0.0f);
