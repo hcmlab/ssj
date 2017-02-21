@@ -63,7 +63,8 @@ public class TabHandler
     private Console console;
     //annotation
     private boolean annotationExists = false;
-    private Annotation annotation;
+
+    private Annotation annotation = null;
 
     /**
      * @param activity Activity
@@ -272,5 +273,9 @@ public class TabHandler
     {
         console.cleanUp();
         canvas.cleanUp();
+    }
+
+    public Annotation getAnnotation() {
+        return annotation;
     }
 }

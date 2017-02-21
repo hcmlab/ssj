@@ -71,4 +71,5 @@
     <string name="slide4_text">Once you have a pipeline, press the play button to start it</string>
     <string name="slide5_title">Enjoy</string>
     <string name="slide5_text">You can check out your pipeline in action using the different views</string>
+    <string name="anno_msband">Annotate using MS Band 2</string>
 </resources>

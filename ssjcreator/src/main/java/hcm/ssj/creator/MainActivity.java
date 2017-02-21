@@ -27,7 +27,10 @@
 package hcm.ssj.creator;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -46,17 +49,22 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.microsoft.band.tiles.TileButtonEvent;
+import com.microsoft.band.tiles.TileEvent;
+
 import java.util.ArrayList;
 
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.creator.dialogs.AddDialog;
 import hcm.ssj.creator.dialogs.FileDialog;
 import hcm.ssj.creator.dialogs.Listener;
+import hcm.ssj.creator.main.Annotation;
 import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 
@@ -67,6 +75,25 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
+
+    private BroadcastReceiver msBandReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            android.util.Log.i("SSJCreator", "received tile event");
+            TileButtonEvent data = intent.getParcelableExtra(TileEvent.TILE_EVENT_DATA);
+
+            if(!data.getPageID().equals(BandComm.pageId))
+                return;
+
+            //toggle button
+            Annotation anno = tabHandler.getAnnotation();
+            if(anno == null)
+                return;
+
+            anno.toggleAnnoButton(anno.getBandAnnoButton(), data.getElementID() == BandComm.BTN_YES);
+        }
+    };
 
     /**
      *
@@ -79,6 +106,11 @@ public class MainActivity extends AppCompatActivity
         checkPermissions();
         //set exception handler
         setExceptionHandler();
+
+        //register receiver for ms band events
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.microsoft.band.action.ACTION_TILE_BUTTON_PRESSED");
+        registerReceiver(msBandReceiver, filter);
     }
 
     /**
@@ -410,6 +442,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onDestroy()
     {
+        unregisterReceiver(msBandReceiver);
+
         tabHandler.cleanUp();
         TheFramework framework = TheFramework.getFramework();
         if (framework.isRunning())
