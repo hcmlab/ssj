@@ -60,7 +60,7 @@ public class FileWriter extends Consumer implements IFileWriter
     public class Options extends IFileWriter.Options
     {
         public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "");
-        public final Option<Cons.FileType> type = new Option<>("type", Cons.FileType.BINARY, Cons.FileType.class, "file type (ASCII or BINARY)");
+        public final Option<Cons.FileType> type = new Option<>("type", Cons.FileType.ASCII, Cons.FileType.class, "file type (ASCII or BINARY)");
 
         /**
          *
