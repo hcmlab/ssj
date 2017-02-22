@@ -62,23 +62,25 @@ public class PipeView extends ViewGroup
     }
 
     //elements
-    private static ArrayList<ComponentView> componentViewsSensor;
-    private static ArrayList<ComponentView> componentViewsProvider;
-    private static ArrayList<ComponentView> componentViewsTransformer;
-    private static ArrayList<ComponentView> componentViewsConsumer;
+    private ArrayList<ComponentView> componentViewsSensor;
+    private ArrayList<ComponentView> componentViewsProvider;
+    private ArrayList<ComponentView> componentViewsTransformer;
+    private ArrayList<ComponentView> componentViewsConsumer;
     //connections
     private ConnectionView[] connectionViews;
     //layout
     private Paint paintElementGrid;
     private Paint paintElementShadow;
+
     protected final static int GRID_SIZE = 50;
-    private static int gridWidth = 0;
-    private static int gridHeight = 0;
+
+    private int gridWidth = 0;
+    private int gridHeight = 0;
     private int gridPadWPix = 0;
     private int gridPadHPix = 0;
     private int gridWPix = 0;
     private int gridHPix = 0;
-    private static boolean[][] grid = null;
+    private boolean[][] grid = null;
     //
     private HashSet<ViewListener> hsViewListener = new HashSet<>();
 
@@ -106,6 +108,8 @@ public class PipeView extends ViewGroup
      */
     private void init()
     {
+        Log.i("init pipeview");
+
         //children should not be clipped
         setClipToPadding(false);
         //add drag listener
