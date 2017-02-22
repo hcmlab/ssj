@@ -65,9 +65,10 @@ public abstract class Sensor extends Component {
                 try
                 {
                     _isConnected = connect();
-
-                    if (!_isConnected && !_terminate)
-                        throw new RuntimeException("unable to connect to device");
+                    if (!_isConnected) {
+                        waitCheckConnect();
+                        continue;
+                    }
 
                     synchronized (this)
                     {
@@ -109,15 +110,20 @@ public abstract class Sensor extends Component {
     protected abstract boolean connect();
     protected boolean checkConnection() {return true;}
 
-    /**
-     * called once per frame, can be overwritten
-     */
-    protected void update()
+    private void waitCheckConnect()
     {
         try{
             Thread.sleep(Cons.WAIT_SENSOR_CHECK_CONNECT);
         }
         catch(InterruptedException e) {}
+    }
+
+    /**
+     * called once per frame, can be overwritten
+     */
+    protected void update()
+    {
+        waitCheckConnect();
     }
 
     /**

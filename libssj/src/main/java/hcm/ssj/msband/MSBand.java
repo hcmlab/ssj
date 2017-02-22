@@ -87,6 +87,8 @@ public class MSBand extends Sensor
 		for (int i = 0; i < channels.length; i++) {
 			channels[i] = new ChannelInfo();
 		}
+
+		listener = new BandListener();
 	}
 
 	@Override
@@ -94,8 +96,7 @@ public class MSBand extends Sensor
 	{
 		Log.i("connecting to ms band ...");
 		boolean connected = false;
-
-		listener = new BandListener();
+		listener.reset();
 
 		BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
 
