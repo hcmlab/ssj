@@ -54,6 +54,7 @@ public class EventChannel {
     public void reset() {
         _terminate = false;
         _event_id = 0;
+        _events.clear();
     }
 
     public void addEventListener(EventListener listener) {
