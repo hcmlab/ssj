@@ -31,6 +31,8 @@ import android.os.PowerManager;
 
 import hcm.ssj.core.event.Event;
 
+import static hcm.ssj.core.Cons.SLEEP_ON_COMPONENT_IDLE;
+
 /**
  * An EventHandler is a general component with no regulated inputs or outputs
  * Its only means of communication are events
@@ -40,7 +42,7 @@ import hcm.ssj.core.event.Event;
 public abstract class EventHandler extends Component implements EventListener {
 
     protected TheFramework _frame;
-    protected boolean _doWakeLock = true;
+    protected boolean _doWakeLock = false;
 
     public EventHandler()
     {
@@ -73,7 +75,7 @@ public abstract class EventHandler extends Component implements EventListener {
         //wait for framework
         while (!_frame.isRunning()) {
             try {
-                Thread.sleep(Cons.SLEEP_ON_IDLE);
+                Thread.sleep(Cons.SLEEP_IN_LOOP);
             } catch (InterruptedException e) {}
         }
 
@@ -107,7 +109,7 @@ public abstract class EventHandler extends Component implements EventListener {
      */
     protected void process() {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(SLEEP_ON_COMPONENT_IDLE);
         } catch (InterruptedException e) {}
     }
 

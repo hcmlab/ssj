@@ -79,6 +79,7 @@ public class SocketEventReader extends EventHandler
     public SocketEventReader()
     {
         _name = "SocketEventReader";
+        _doWakeLock = true;
     }
 
     @Override

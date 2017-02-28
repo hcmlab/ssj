@@ -91,7 +91,7 @@ public class WatchDog extends Thread {
         //wait for framework
         while (!_frame.isRunning()) {
             try {
-                sleep(Cons.SLEEP_ON_IDLE);
+                sleep(Cons.SLEEP_IN_LOOP);
             } catch (InterruptedException e) {}
         }
 
@@ -150,7 +150,7 @@ public class WatchDog extends Thread {
         _terminate = true;
 
         while(!_safeToKill)
-            sleep(Cons.SLEEP_ON_TERMINATE);
+            sleep(Cons.SLEEP_IN_LOOP);
 
         Log.i("shut down complete");
     }

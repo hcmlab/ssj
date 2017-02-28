@@ -26,6 +26,9 @@
 
 package hcm.ssj.core;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 
@@ -46,9 +49,11 @@ public class EventChannel {
     protected boolean _terminate = false;
 
     protected TheFramework _frame;
+    PowerManager powerManager;
 
     public EventChannel() {
         _frame = TheFramework.getFramework();
+        powerManager = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
     }
 
     public void reset() {
@@ -58,6 +63,10 @@ public class EventChannel {
     }
 
     public void addEventListener(EventListener listener) {
+
+        if(_listeners.contains(listener))
+            return;
+
         _listeners.add(listener);
     }
 
@@ -143,7 +152,10 @@ public class EventChannel {
                 _frame._threadPool.execute(new Runnable() {
                     @Override
                     public void run() {
+                        PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ev" + ev.id + listener.toString());
+                        wakeLock.acquire();
                         listener.notify(ev);
+                        wakeLock.release();
                     }
                 });
             }

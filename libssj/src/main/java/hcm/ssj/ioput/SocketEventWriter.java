@@ -71,6 +71,7 @@ public class SocketEventWriter extends EventHandler
     public SocketEventWriter()
     {
         _name = "SocketEventWriter";
+        _doWakeLock = true;
     }
 
     @Override

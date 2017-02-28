@@ -60,7 +60,7 @@ public abstract class Component implements Runnable
         double time = frame.getTime();
         while(!_safeToKill)
         {
-            Thread.sleep(Cons.SLEEP_ON_TERMINATE);
+            Thread.sleep(Cons.SLEEP_IN_LOOP);
 
             if(frame.getTime() > time + frame.options.waitThreadKill.get())
             {

@@ -51,6 +51,7 @@ public class EventLogger extends EventHandler
     public EventLogger()
     {
         _name = "EventLogger";
+        _doWakeLock = true;
     }
 
     int _lastBehavEventID = -1;

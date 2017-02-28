@@ -78,6 +78,7 @@ public class BluetoothEventReader extends EventHandler
     public BluetoothEventReader()
     {
         _name = "BluetoothEventReader";
+        _doWakeLock = true;
     }
 
     @Override

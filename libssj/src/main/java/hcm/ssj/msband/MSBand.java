@@ -132,7 +132,7 @@ public class MSBand extends Sensor
 					{
 						try
 						{
-							Thread.sleep(Cons.SLEEP_ON_IDLE);
+							Thread.sleep(Cons.SLEEP_IN_LOOP);
 						}
 						catch (InterruptedException e)
 						{

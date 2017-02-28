@@ -73,6 +73,7 @@ public class BluetoothEventWriter extends EventHandler
 
     public BluetoothEventWriter() {
         _name = "BluetoothEventWriter";
+        _doWakeLock = true;
     }
 
     @Override

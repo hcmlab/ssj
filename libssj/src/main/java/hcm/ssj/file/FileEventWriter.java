@@ -32,7 +32,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -67,7 +66,6 @@ public class FileEventWriter extends EventHandler implements IFileWriter
 
     StringBuilder _builder = new StringBuilder();
     byte[] _buffer;
-    int _evID[];
 
     ArrayList<Event> unprocessedEvents = new ArrayList<>();
 
@@ -88,8 +86,6 @@ public class FileEventWriter extends EventHandler implements IFileWriter
             throw new RuntimeException("no incoming event channels defined");
 
         _buffer = new byte[Cons.MAX_EVENT_SIZE];
-        _evID = new int[_evchannel_in.size()];
-        Arrays.fill(_evID, 0);
         _builder.delete(0, _builder.length());
 
         //create file
@@ -124,7 +120,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
     }
 
     @Override
-    protected void process()
+    public synchronized void notify(Event event)
     {
         //write header
         if(!headerWritten && options.format.get() == Format.EVENT)
@@ -151,46 +147,38 @@ public class FileEventWriter extends EventHandler implements IFileWriter
         }
 
         _builder.delete(0, _builder.length());
-        for(int i = 0; i < _evchannel_in.size(); ++i)
+
+        if(options.format.get() == Format.EVENT)
         {
-            Event ev = _evchannel_in.get(i).getEvent(_evID[i], false);
-            if (ev == null)
-                continue;
+            Util.eventToXML(_builder, event);
+            _builder.append(LoggingConstants.DELIMITER_LINE);
 
-            _evID[i] = ev.id + 1;
-
-            if(options.format.get() == Format.EVENT)
-            {
-                Util.eventToXML(_builder, ev);
-                _builder.append(LoggingConstants.DELIMITER_LINE);
-
-                write(_builder.toString(), fileOutputStream);
+            write(_builder.toString(), fileOutputStream);
+        }
+        else if(options.format.get() == Format.ANNO_PLAIN)
+        {
+            if(event.state == Event.State.CONTINUED) {
+                unprocessedEvents.add(event);
             }
-            else if(options.format.get() == Format.ANNO_PLAIN)
+            else
             {
-                if(ev.state == Event.State.CONTINUED) {
-                    unprocessedEvents.add(ev);
-                }
-                else
+                //search for event start
+                Event start = null;
+                for(int j = 0; j < unprocessedEvents.size(); j++)
                 {
-                    //search for event start
-                    Event start = null;
-                    for(int j = 0; i < unprocessedEvents.size(); i++)
+                    if(unprocessedEvents.get(j).name.equals(event.name))
                     {
-                        if(unprocessedEvents.get(i).name.equals(ev.name))
-                        {
-                            start = unprocessedEvents.get(i);
-                            unprocessedEvents.remove(i);
-                            break;
-                        }
+                        start = unprocessedEvents.get(j);
+                        unprocessedEvents.remove(j);
+                        break;
                     }
-
-                    double to = (ev.time + ev.dur) / 1000.0;
-                    double from = (start != null) ? start.time / 1000.0 : ev.time / 1000.0;
-                    _builder.append(from).append(" ").append(to).append(" ").append(ev.name);
-
-                    writeLine(_builder.toString(), fileOutputStream);
                 }
+
+                double to = (event.time + event.dur) / 1000.0;
+                double from = (start != null) ? start.time / 1000.0 : event.time / 1000.0;
+                _builder.append(from).append(" ").append(to).append(" ").append(event.name);
+
+                writeLine(_builder.toString(), fileOutputStream);
             }
         }
     }

@@ -113,7 +113,7 @@ public abstract class Sensor extends Component {
     private void waitCheckConnect()
     {
         try{
-            Thread.sleep(Cons.WAIT_SENSOR_CHECK_CONNECT);
+            Thread.sleep(Cons.SLEEP_ON_COMPONENT_IDLE);
         }
         catch(InterruptedException e) {}
     }

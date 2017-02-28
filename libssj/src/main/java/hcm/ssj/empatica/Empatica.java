@@ -125,7 +125,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		while (!_terminate && !listener.receivedData && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 		{
 			try {
-				Thread.sleep(Cons.SLEEP_ON_IDLE);
+				Thread.sleep(Cons.SLEEP_IN_LOOP);
 			} catch (InterruptedException e) {}
 		}
 

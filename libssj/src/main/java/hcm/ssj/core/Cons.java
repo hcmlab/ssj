@@ -34,10 +34,9 @@ public class Cons
     public final static String LOGTAG = "SSJ";
     public final static float DFLT_SYNC_INTERVAL = 5.0f; //in seconds
     public final static float DFLT_WATCH_INTERVAL = 1.0f; //in seconds
-    public final static long SLEEP_ON_IDLE = 10; //in ms
-    public final static long SLEEP_ON_TERMINATE = 100; //in ms
+    public final static long SLEEP_IN_LOOP = 100; //in ms
+    public final static long SLEEP_ON_COMPONENT_IDLE = 5000; //in ms
     public final static long WAIT_BL_CONNECT = 1000; //in ms
-    public final static long WAIT_SENSOR_CHECK_CONNECT = 1000; //in ms
     public final static long WAIT_THREAD_TERMINATION = 60000; //in ms
     public final static int MAX_EVENT_SIZE = 4096; //in bytes
     public final static int MAX_NUM_EVENTS_PER_CHANNEL = 128; //in bytes

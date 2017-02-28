@@ -128,7 +128,7 @@ public class Myo extends Sensor
 		while (!_terminate && hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 		{
 			try {
-				Thread.sleep(Cons.SLEEP_ON_IDLE);
+				Thread.sleep(Cons.SLEEP_IN_LOOP);
 			} catch (InterruptedException e) {}
 		}
 
