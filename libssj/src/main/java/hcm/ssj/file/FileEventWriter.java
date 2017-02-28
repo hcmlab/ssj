@@ -186,7 +186,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
                     }
 
                     double to = (ev.time + ev.dur) / 1000.0;
-                    double from = (start != null) ? start.time / 1000.0 : to;
+                    double from = (start != null) ? start.time / 1000.0 : ev.time;
                     _builder.append(from).append(" ").append(to).append(" ").append(ev.name);
 
                     writeLine(_builder.toString(), fileOutputStream);
