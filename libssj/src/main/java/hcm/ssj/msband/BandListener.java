@@ -335,7 +335,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		return pace;
 	}
 
-	public float getMotionType()
+	public int getMotionType()
 	{
 		return motionType;
 	}

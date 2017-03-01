@@ -74,10 +74,10 @@ public class DistanceChannel extends SensorChannel
 		if(!_listener.connected)
 			return false;
 
-		double[] out = stream_out.ptrD();
-		out[0] = _listener.getDistance();
-		out[1] = _listener.getSpeed();
-		out[2] = _listener.getPace();
+		int[] out = stream_out.ptrI();
+		out[0] = (int)_listener.getDistance();
+		out[1] = (int)_listener.getSpeed();
+		out[2] = (int)_listener.getPace();
 		out[3] = _listener.getMotionType();
 
 		return true;
@@ -98,7 +98,7 @@ public class DistanceChannel extends SensorChannel
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.DOUBLE;
+		return Cons.Type.INT;
 	}
 
 	@Override

@@ -546,7 +546,7 @@ public class TheFramework
      */
     public long getTimeMs()
     {
-        if (_startTime == 0)
+        if (_startTime == 0 || !isRunning())
             return 0;
 
         return SystemClock.elapsedRealtime() - _startTime + _timeOffset;
