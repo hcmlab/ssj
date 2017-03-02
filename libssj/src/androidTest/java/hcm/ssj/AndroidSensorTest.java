@@ -89,7 +89,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 Logger log = new Logger();
                 frame.addConsumer(log, channel, 1, 0);
                 //start framework
-                frame.Start();
+                frame.start();
                 //run test
                 long end = System.currentTimeMillis() + TEST_LENGTH;
                 try
@@ -102,7 +102,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 {
                     e.printStackTrace();
                 }
-                frame.Stop();
+                frame.stop();
                 frame.release();
             } else
             {
@@ -147,7 +147,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             Logger log = new Logger();
             frame.addConsumer(log, transformer, 1, 0);
             //start framework
-            frame.Start();
+            frame.start();
             //run test
             long end = System.currentTimeMillis() + TEST_LENGTH;
             try
@@ -160,7 +160,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             {
                 e.printStackTrace();
             }
-            frame.Stop();
+            frame.stop();
             frame.release();
         }
     }
@@ -203,7 +203,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             Logger log = new Logger();
             frame.addConsumer(log, transformer, 1, 0);
             //start framework
-            frame.Start();
+            frame.start();
             //run test
             long end = System.currentTimeMillis() + TEST_LENGTH;
             try
@@ -216,7 +216,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             {
                 e.printStackTrace();
             }
-            frame.Stop();
+            frame.stop();
             frame.release();
         }
     }
@@ -251,7 +251,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, transformer2, 1, 0);
         //start framework
-        frame.Start();
+        frame.start();
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -264,7 +264,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
     }
 
@@ -296,7 +296,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, transformer, 1, 0);
         //start framework
-        frame.Start();
+        frame.start();
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -309,7 +309,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
     }
 }

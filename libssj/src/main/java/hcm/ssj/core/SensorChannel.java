@@ -80,7 +80,9 @@ public abstract class SensorChannel extends Provider {
             {
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                    Log.w("thread interrupt");
+                }
             }
         }
 

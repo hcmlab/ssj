@@ -124,7 +124,7 @@ public class SvmTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, classifier, 30, 0);
         //start framework
-        frame.Start();
+        frame.start();
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -137,7 +137,7 @@ public class SvmTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
     }
 
@@ -173,8 +173,8 @@ public class SvmTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, classifier, window, 0);
 
-        // Start framework
-        frame.Start();
+        // start framework
+        frame.start();
 
         // Run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -190,8 +190,8 @@ public class SvmTest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
 
-        // Stop framework
-        frame.Stop();
-        frame.reset();
+        // stop framework
+        frame.stop();
+        frame.clear();
     }
 }

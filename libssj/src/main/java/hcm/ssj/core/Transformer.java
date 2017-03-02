@@ -67,7 +67,7 @@ public abstract class Transformer extends Provider {
         PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
 
 
-        //reset data
+        //clear data
         Arrays.fill(_readPos, 0);
         for(int i = 0; i < _stream_in.length; i++)
             _stream_in[i].reset();
@@ -82,7 +82,9 @@ public abstract class Transformer extends Provider {
         while (!_frame.isRunning()) {
             try {
                 Thread.sleep(Cons.SLEEP_IN_LOOP);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                Log.w("thread interrupt");
+            }
         }
 
         //maintain update rate starting from now

@@ -170,7 +170,9 @@ public class TimeBuffer {
             while (pos + len > _position && !_terminate) {
                 try {
                     _lock.wait();
-                } catch (InterruptedException e) {}
+                } catch (InterruptedException e) {
+                    Log.w("thread interrupt");
+                }
             }
 
             if(_terminate)

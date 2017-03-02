@@ -63,7 +63,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		frame.addConsumer(dummy, acc, 0.1, 0);
 
 		try {
-			frame.Start();
+			frame.start();
 
 			long start = System.currentTimeMillis();
 			while (true) {
@@ -74,7 +74,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 				Thread.sleep(1);
 			}
 
-			frame.Stop();
+			frame.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -93,7 +93,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		frame.addConsumer(dummy, data, 0.25, 0);
 
 		try {
-			frame.Start();
+			frame.start();
 
 			long start = System.currentTimeMillis();
 			while (true) {
@@ -104,7 +104,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 				Thread.sleep(1);
 			}
 
-			frame.Stop();
+			frame.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -123,7 +123,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		frame.addConsumer(dummy, data, 0.1, 0);
 
 		try {
-			frame.Start();
+			frame.start();
 
 			long start = System.currentTimeMillis();
 			while (true) {
@@ -134,7 +134,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 				Thread.sleep(1);
 			}
 
-			frame.Stop();
+			frame.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -153,7 +153,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		frame.addConsumer(dummy, data, 0.25, 0);
 
 		try {
-			frame.Start();
+			frame.start();
 
 			long start = System.currentTimeMillis();
 			while (true) {
@@ -164,7 +164,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 				Thread.sleep(1);
 			}
 
-			frame.Stop();
+			frame.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -183,7 +183,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		frame.addConsumer(dummy, data, 0.1, 0);
 
 		try {
-			frame.Start();
+			frame.start();
 
 			long start = System.currentTimeMillis();
 			while (true) {
@@ -194,7 +194,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 				Thread.sleep(1);
 			}
 
-			frame.Stop();
+			frame.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

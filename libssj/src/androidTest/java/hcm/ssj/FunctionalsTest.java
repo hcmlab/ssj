@@ -75,7 +75,7 @@ public class FunctionalsTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, transformer, 1, 0);
         //start framework
-        frame.Start();
+        frame.start();
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -88,7 +88,7 @@ public class FunctionalsTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
     }
 }

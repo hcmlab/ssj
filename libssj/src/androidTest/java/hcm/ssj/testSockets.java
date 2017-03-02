@@ -79,7 +79,7 @@ public class testSockets extends ApplicationTestCase<Application> {
         frame.registerEventListener(sock, channel);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
@@ -90,8 +90,8 @@ public class testSockets extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
-            frame.reset();
+            frame.stop();
+            frame.clear();
         }
         catch(Exception e)
         {
@@ -123,7 +123,7 @@ public class testSockets extends ApplicationTestCase<Application> {
 
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
@@ -134,8 +134,8 @@ public class testSockets extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
-            frame.reset();
+            frame.stop();
+            frame.clear();
         }
         catch(Exception e)
         {

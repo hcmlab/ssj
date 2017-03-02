@@ -115,7 +115,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
 
         startSSI("/sdcard/android_xmlpipe", null, false);
         Thread.sleep(3100);
-        frame.Start();
+        frame.start();
 
         mobileSSI.setSensor(sensorChannel, null, mobileSSI.getId());
         mobileSSI2.setSensor(sensorPmag, null, mobileSSI2.getId());
@@ -132,7 +132,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
             e.printStackTrace();
         }
         stopSSI();
-        frame.Stop();
+        frame.stop();
         frame.release();
 
 

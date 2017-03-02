@@ -96,7 +96,7 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
         frame.registerEventListener(blew, ch);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
@@ -107,7 +107,7 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
         }
         catch(Exception e)
         {

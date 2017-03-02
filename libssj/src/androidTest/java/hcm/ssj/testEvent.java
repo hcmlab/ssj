@@ -80,7 +80,7 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.addConsumer(fw, acc, 1.0, 0);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
@@ -91,7 +91,7 @@ public class testEvent extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
             frame.release();
         }
         catch(Exception e)
@@ -135,7 +135,7 @@ public class testEvent extends ApplicationTestCase<Application> {
         frame.registerEventListener(log, channel);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
@@ -146,7 +146,7 @@ public class testEvent extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
             frame.release();
         }
         catch(Exception e)

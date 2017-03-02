@@ -186,7 +186,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
             read(framework, file);
         }
         //start framework
-        framework.Start();
+        framework.start();
         //run for two minutes
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -199,7 +199,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        framework.Stop();
+        framework.stop();
         framework.release();
     }
 

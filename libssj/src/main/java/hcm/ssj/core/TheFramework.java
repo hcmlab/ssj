@@ -51,7 +51,7 @@ public class TheFramework
     {
         public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "");
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "");
-        public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 5.f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
+        public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
 
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
@@ -101,7 +101,7 @@ public class TheFramework
     {
         //configure logger
         Log.getInstance().setFramework(this);
-        _createTime = System.currentTimeMillis();
+        resetCreateTime();
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
@@ -122,7 +122,7 @@ public class TheFramework
         return _instance != null;
     }
 
-    public void Start()
+    public void start()
     {
         try
         {
@@ -417,7 +417,7 @@ public class TheFramework
         return true;
     }
 
-    public void Stop()
+    public void stop()
     {
         if (_isStopping)
             return;
@@ -442,8 +442,7 @@ public class TheFramework
                     c.close();
                 } catch (Exception e)
                 {
-                    e.printStackTrace();
-                    Log.e("closing " + c.getComponentName() + " failed");
+                    Log.e("closing " + c.getComponentName() + " failed", e);
                 }
             }
 
@@ -477,18 +476,18 @@ public class TheFramework
             return;
         }
 
-        reset();
+        clear();
         _instance = null;
     }
 
     /**
      * Clears all local references but does not invalidate instance
      */
-    public void reset()
+    public void clear()
     {
         if (isRunning())
         {
-            Log.w("Cannot release. Framework still active.");
+            Log.w("Cannot clear. Framework still active.");
             return;
         }
 
@@ -498,6 +497,11 @@ public class TheFramework
         _components.clear();
         _buffer.clear();
         Log.getInstance().clear();
+        _startTime = 0;
+    }
+
+    public void resetCreateTime()
+    {
         _createTime = System.currentTimeMillis();
     }
 
@@ -546,7 +550,7 @@ public class TheFramework
      */
     public long getTimeMs()
     {
-        if (_startTime == 0 || !isRunning())
+        if (_startTime == 0)
             return 0;
 
         return SystemClock.elapsedRealtime() - _startTime + _timeOffset;

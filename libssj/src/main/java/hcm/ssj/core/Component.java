@@ -44,7 +44,7 @@ public abstract class Component implements Runnable
 
     public int threadPriority = Cons.THREAD_PRIORITY_NORMAL;
 
-    public void close() throws Exception
+    public void close()
     {
         TheFramework frame = TheFramework.getFramework();
         Log.i(_name + " shutting down");
@@ -60,7 +60,11 @@ public abstract class Component implements Runnable
         double time = frame.getTime();
         while(!_safeToKill)
         {
-            Thread.sleep(Cons.SLEEP_IN_LOOP);
+            try {
+                Thread.sleep(Cons.SLEEP_IN_LOOP);
+            } catch (InterruptedException e) {
+                Log.w("thread interrupt");
+            }
 
             if(frame.getTime() > time + frame.options.waitThreadKill.get())
             {
@@ -103,7 +107,7 @@ public abstract class Component implements Runnable
     }
 
     /**
-     * Resets internal state of components, does alter references with framework or other components
+     * Resets internal state of components, does not alter references with framework or other components
      * Called by the framework on start-up
      */
     public void reset()
@@ -120,7 +124,7 @@ public abstract class Component implements Runnable
 
     /**
      * Clears component, may alter references with framework or other components
-     * Called on framework reset()
+     * Called on framework clear()
      */
     public void clear() {}
 }

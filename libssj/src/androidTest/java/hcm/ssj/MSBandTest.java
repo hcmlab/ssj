@@ -29,8 +29,10 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.msband.GSRChannel;
+import hcm.ssj.file.FileWriter;
+import hcm.ssj.msband.DistanceChannel;
 import hcm.ssj.msband.MSBand;
 import hcm.ssj.test.Logger;
 
@@ -65,13 +67,19 @@ public class MSBandTest extends ApplicationTestCase<Application>
 		MSBand sensor = new MSBand();
 
 		//channel
-		GSRChannel sensorChannel = new GSRChannel();
+		DistanceChannel sensorChannel = new DistanceChannel();
 		frame.addSensor(sensor,sensorChannel);
 		//logger
 		Logger log = new Logger();
 		frame.addConsumer(log, sensorChannel, 1, 0);
+
+		FileWriter write = new FileWriter();
+		write.options.type.set(Cons.FileType.ASCII);
+		frame.addConsumer(write, sensorChannel, 1, 0);
+
+
 		//start framework
-		frame.Start();
+		frame.start();
 		//run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
 		try
@@ -85,8 +93,8 @@ public class MSBandTest extends ApplicationTestCase<Application>
 		{
 			e.printStackTrace();
 		}
-		frame.Stop();
-		frame.reset();
+		frame.stop();
+		frame.clear();
 	}
 
 

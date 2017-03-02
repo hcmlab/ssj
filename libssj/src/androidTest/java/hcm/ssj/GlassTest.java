@@ -73,7 +73,7 @@ public class GlassTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, sensorChannel, 1, 0);
         //start framework
-        frame.Start();
+        frame.start();
         //run for two minutes
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -86,7 +86,7 @@ public class GlassTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
     }
 }

@@ -719,7 +719,7 @@ public class Util
 
     public static String getTimestamp(long time_ms)
     {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-kk-mm-ss", Locale.GERMANY);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault());
         Date sessionStart = new Date();
         sessionStart.setTime(time_ms);
         return dateFormat.format(sessionStart);

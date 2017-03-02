@@ -109,7 +109,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
 
     public void test5() throws Exception
     {
-        double[] x = new double[]{0, 2, 9, -20};
+        double[] x = new double[]{0.7985, 2, 9, -20.556999};
         byte[] y = new byte[1024];
         double[] z = new double[1024];
 

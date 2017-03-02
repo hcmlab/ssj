@@ -77,8 +77,8 @@ public class SignalTest extends ApplicationTestCase<Application>
 		FileWriter sfw = new FileWriter();
 		frame.addConsumer(sfw, fft, 1, 0);
 
-		// Start framework
-		frame.Start();
+		// start framework
+		frame.start();
 
 		// Run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -94,9 +94,9 @@ public class SignalTest extends ApplicationTestCase<Application>
 			e.printStackTrace();
 		}
 
-		// Stop framework
-		frame.Stop();
-		frame.reset();
+		// stop framework
+		frame.stop();
+		frame.clear();
 	}
 
 	/**/
@@ -121,8 +121,8 @@ public class SignalTest extends ApplicationTestCase<Application>
 		Logger log = new Logger();
 		frame.addConsumer(log, deriv, 1, 0);
 
-		// Start framework
-		frame.Start();
+		// start framework
+		frame.start();
 
 		// Run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -138,9 +138,9 @@ public class SignalTest extends ApplicationTestCase<Application>
 			e.printStackTrace();
 		}
 
-		// Stop framework
-		frame.Stop();
-		frame.reset();
+		// stop framework
+		frame.stop();
+		frame.clear();
 	}
 
 }

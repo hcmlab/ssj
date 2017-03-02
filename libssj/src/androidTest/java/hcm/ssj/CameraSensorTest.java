@@ -135,7 +135,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
             }
         }
         //start framework
-        frame.Start();
+        frame.start();
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -148,7 +148,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
         //cleanup
         switch (type)

@@ -203,7 +203,8 @@ public class MainActivity extends AppCompatActivity
                     //save framework options
                     TheFramework framework = TheFramework.getFramework();
                     //remove old content
-                    framework.reset();
+                    framework.clear();
+                    framework.resetCreateTime();
                     //add components
                     try {
                         Pipeline.getInstance().buildPipe();
@@ -223,14 +224,14 @@ public class MainActivity extends AppCompatActivity
                     //notify tabs
                     tabHandler.preStart();
                     //start framework
-                    framework.Start();
+                    framework.start();
                     //run
                     Monitor.waitMonitor();
                     //stop framework
                     try
                     {
                         tabHandler.preStop();
-                        framework.Stop();
+                        framework.stop();
                     } catch (Exception e)
                     {
                         e.printStackTrace();
@@ -448,7 +449,7 @@ public class MainActivity extends AppCompatActivity
         TheFramework framework = TheFramework.getFramework();
         if (framework.isRunning())
         {
-            framework.Stop();
+            framework.stop();
         }
         Pipeline.getInstance().clear();
         super.onDestroy();

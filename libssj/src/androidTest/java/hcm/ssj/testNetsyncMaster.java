@@ -86,7 +86,7 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
 //        frame.registerEventListener(evlog, ch);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
@@ -97,7 +97,7 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
         }
         catch(Exception e)
         {

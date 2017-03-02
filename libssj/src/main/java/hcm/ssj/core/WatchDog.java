@@ -92,7 +92,9 @@ public class WatchDog extends Thread {
         while (!_frame.isRunning()) {
             try {
                 sleep(Cons.SLEEP_IN_LOOP);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                Log.w("thread interrupt");
+            }
         }
 
         PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);

@@ -75,7 +75,7 @@ public abstract class Consumer extends Component {
         if(_evchannel_in != null && _evchannel_in.size() == 1)
             eventTrigger = true;
 
-        //reset data
+        //clear data
         if(_readPos != null)
             Arrays.fill(_readPos, 0);
         for(int i = 0; i < _stream_in.length; i++)
@@ -91,7 +91,9 @@ public abstract class Consumer extends Component {
         while (!_frame.isRunning()) {
             try {
                 Thread.sleep(Cons.SLEEP_IN_LOOP);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                Log.w("thread interrupt");
+            }
         }
 
         //maintain update rate starting from now

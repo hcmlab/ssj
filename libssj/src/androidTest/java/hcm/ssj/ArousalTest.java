@@ -63,7 +63,7 @@ public class ArousalTest extends ApplicationTestCase<Application>
 		frame.addConsumer(dummy, arousal, 0.25, 0);
 
 		try {
-			frame.Start();
+			frame.start();
 
 			long start = System.currentTimeMillis();
 			while (true) {
@@ -74,7 +74,7 @@ public class ArousalTest extends ApplicationTestCase<Application>
 				Thread.sleep(1);
 			}
 
-			frame.Stop();
+			frame.stop();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

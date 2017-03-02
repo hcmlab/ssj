@@ -68,7 +68,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		frame.addConsumer(sfw, channel, 1, 0);
 
 		// Start framework
-		frame.Start();
+		frame.start();
 
 		// Run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -85,8 +85,8 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		}
 
 		// Stop framework
-		frame.Stop();
-		frame.reset();
+		frame.stop();
+		frame.clear();
 	}
 	/**/
 

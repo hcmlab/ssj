@@ -115,7 +115,9 @@ public abstract class Sensor extends Component {
         try{
             Thread.sleep(Cons.SLEEP_ON_COMPONENT_IDLE);
         }
-        catch(InterruptedException e) {}
+        catch(InterruptedException e) {
+            Log.w("thread interrupt");
+        }
     }
 
     /**

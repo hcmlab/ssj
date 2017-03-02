@@ -66,7 +66,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
         frame.addConsumer(dummy, acc, 0.1, 0);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while (true) {
@@ -77,7 +77,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,7 +97,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
         frame.addConsumer(dummy, emg, 0.1, 0);
 
         try {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while (true) {
@@ -108,7 +108,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -76,7 +76,9 @@ public abstract class EventHandler extends Component implements EventListener {
         while (!_frame.isRunning()) {
             try {
                 Thread.sleep(Cons.SLEEP_IN_LOOP);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException e) {
+                Log.w("thread interrupt");
+            }
         }
 
         while(!_terminate && _frame.isRunning())
@@ -110,7 +112,9 @@ public abstract class EventHandler extends Component implements EventListener {
     protected void process() {
         try {
             Thread.sleep(SLEEP_ON_COMPONENT_IDLE);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException e) {
+            Log.w("thread interrupt");
+        }
     }
 
     /**

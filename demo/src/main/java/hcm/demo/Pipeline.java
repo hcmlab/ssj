@@ -52,7 +52,7 @@ public class Pipeline extends Thread {
         _graphs = graphs;
 
         if(TheFramework.isInstanced())
-            TheFramework.getFramework().reset();
+            TheFramework.getFramework().clear();
         _ssj = TheFramework.getFramework();
     }
 
@@ -68,7 +68,7 @@ public class Pipeline extends Thread {
     {
         try {
             _ssj.options.bufferSize.set(10.0f);
-            _ssj.options.countdown.set(10);
+            _ssj.options.countdown.set(1);
             _ssj.options.log.set(true);
 
             //** connection to sensors
@@ -106,7 +106,7 @@ public class Pipeline extends Thread {
         }
 
         Log.i("SSJ_Demo", "starting pipeline");
-        _ssj.Start();
+        _ssj.start();
         _act.notifyPipeState(true);
 
         while(!_terminate)
@@ -125,8 +125,8 @@ public class Pipeline extends Thread {
         }
 
         Log.i("SSJ_Demo", "stopping pipeline");
-        _ssj.Stop();
-        _ssj.reset();
+        _ssj.stop();
+        _ssj.clear();
         _act.notifyPipeState(false);
     }
 

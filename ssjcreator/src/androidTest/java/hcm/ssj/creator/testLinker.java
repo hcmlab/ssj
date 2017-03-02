@@ -116,7 +116,7 @@ public class testLinker extends ApplicationTestCase<Application>
         }
         pipeline.buildPipe();
         //start framework
-        frame.Start();
+        frame.start();
         //run for two minutes
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -129,7 +129,7 @@ public class testLinker extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
     }
 }

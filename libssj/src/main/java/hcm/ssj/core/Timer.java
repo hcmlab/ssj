@@ -110,7 +110,9 @@ public class Timer {
             {
                 Thread.sleep ( _next_ms - _now );
             }
-            catch (InterruptedException e){}
+            catch (InterruptedException e){
+                Log.w("thread interrupt");
+            }
 
             _now = SystemClock.elapsedRealtime() - _init;
         }

@@ -71,8 +71,8 @@ public class GPSTest extends ApplicationTestCase<Application>
 		Logger log = new Logger();
 		frame.addConsumer(log, sensorChannel, 1, 0);
 
-		// Start framework
-		frame.Start();
+		// start framework
+		frame.start();
 
 		// Run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -88,9 +88,9 @@ public class GPSTest extends ApplicationTestCase<Application>
 			e.printStackTrace();
 		}
 
-		// Stop framework
-		frame.Stop();
-		frame.reset();
+		// stop framework
+		frame.stop();
+		frame.clear();
 	}
 
 

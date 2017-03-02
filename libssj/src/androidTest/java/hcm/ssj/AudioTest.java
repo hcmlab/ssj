@@ -82,7 +82,7 @@ public class AudioTest extends ApplicationTestCase<Application>
         audioWriter.options.fileName.set(fileName);
         frame.addConsumer(audioWriter, audio, 1, 0);
         //start framework
-        frame.Start();
+        frame.start();
         //run test
         long end = System.currentTimeMillis() + TEST_LENGTH;
         try
@@ -95,7 +95,7 @@ public class AudioTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
-        frame.Stop();
+        frame.stop();
         frame.release();
         //cleanup
         if (file.exists())
@@ -151,7 +151,7 @@ public class AudioTest extends ApplicationTestCase<Application>
 
         try
         {
-            frame.Start();
+            frame.start();
 
             long start = System.currentTimeMillis();
             while (true)
@@ -162,7 +162,7 @@ public class AudioTest extends ApplicationTestCase<Application>
                 Thread.sleep(1);
             }
 
-            frame.Stop();
+            frame.stop();
         } catch (Exception e)
         {
             e.printStackTrace();
