@@ -61,7 +61,7 @@ public class PipeView extends ViewGroup
         void viewChanged();
     }
 
-    //    //elements
+    //elements
     private ArrayList<ComponentView> componentViewsSensor = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsProvider = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsTransformer = new ArrayList<>();
@@ -72,14 +72,14 @@ public class PipeView extends ViewGroup
     private Paint paintElementGrid;
     private Paint paintElementShadow;
     //
-    protected static int GRID_BOX_SIZE = 50;
+    private final int landscapeNumberOfBoxes = 15;
+    private final int portraitBoxes = 20;
     //
+    private int gridBoxSize = 0;
     private int gridWidthNumberOfBoxes = 0;
     private int gridHeightNumberOfBoxes = 0;
     private int gridPadWPix = 0;
     private int gridPadHPix = 0;
-    private int gridWPix = 0;
-    private int gridHPix = 0;
     private boolean[][] grid = null;
     //
     private HashSet<ViewListener> hsViewListener = new HashSet<>();
@@ -210,9 +210,9 @@ public class PipeView extends ViewGroup
                         }
                         imageView = new ImageView(getContext());
                         imageView.setImageResource(android.R.drawable.ic_menu_delete);
-                        int width = gridWPix;
-                        int height = gridHPix;
-                        imageView.layout(width - (GRID_BOX_SIZE * 3), height - (GRID_BOX_SIZE * 3), width, height);
+                        int width = PipeView.this.getWidth();
+                        int height = PipeView.this.getHeight();
+                        imageView.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
                         addView(imageView);
                         break;
                     case DragEvent.ACTION_DRAG_ENTERED:
@@ -360,7 +360,7 @@ public class PipeView extends ViewGroup
         //connections
         for (ConnectionView connectionView : connectionViews)
         {
-            connectionView.layout(0, 0, gridWPix, gridHPix);
+            connectionView.layout(0, 0, getWidth(), getHeight());
         }
         int connections = 0;
         for (ComponentView componentViewSensor : componentViewsSensor)
@@ -406,14 +406,16 @@ public class PipeView extends ViewGroup
                         {
                             connectionView.setLine(
                                     destination.getX(), destination.getY(),
-                                    componentView.getX(), componentView.getY());
+                                    componentView.getX(), componentView.getY(),
+                                    gridBoxSize);
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorChannel)
                         {
                             connectionView.setLine(
                                     componentView.getX(), componentView.getY(),
-                                    destination.getX(), destination.getY());
+                                    destination.getX(), destination.getY(),
+                                    gridBoxSize);
                             connectionView.invalidate();
                         }
                         connections++;
@@ -481,9 +483,10 @@ public class PipeView extends ViewGroup
     private void placeElementView(ComponentView view)
     {
         setGridValue(view.getGridX(), view.getGridY(), true);
-        int xPos = view.getGridX() * GRID_BOX_SIZE + gridPadWPix;
-        int yPos = view.getGridY() * GRID_BOX_SIZE + gridPadHPix;
-        view.layout(xPos, yPos, xPos + ComponentView.getBoxSize(), yPos + ComponentView.getBoxSize());
+        int xPos = view.getGridX() * gridBoxSize + gridPadWPix;
+        int yPos = view.getGridY() * gridBoxSize + gridPadHPix;
+        int componentSize = gridBoxSize * 2;
+        view.layout(xPos, yPos, xPos + componentSize, yPos + componentSize);
     }
 
     /**
@@ -494,7 +497,7 @@ public class PipeView extends ViewGroup
      */
     private int getGridCoordinate(float pos)
     {
-        int i = (int) (pos / GRID_BOX_SIZE + 0.5f) - 1;
+        int i = (int) (pos / gridBoxSize + 0.5f) - 1;
         return i < 0 ? 0 : i;
     }
 
@@ -535,18 +538,18 @@ public class PipeView extends ViewGroup
      */
     private void calculateGrid()
     {
-        gridWPix = getWidth();
-        gridHPix = getHeight();
-        GRID_BOX_SIZE = gridWPix > gridHPix ? gridHPix / 20 : gridWPix / 20;
-        if (GRID_BOX_SIZE <= 0)
+        int gridWPix = getWidth();
+        int gridHPix = getHeight();
+        gridBoxSize = gridWPix > gridHPix ? gridHPix / landscapeNumberOfBoxes : gridWPix / portraitBoxes;
+        if (gridBoxSize <= 0)
         {
-            GRID_BOX_SIZE = 50;
+            gridBoxSize = 50;
         }
-        gridPadWPix = gridWPix % GRID_BOX_SIZE / 2;
-        gridPadHPix = gridHPix % GRID_BOX_SIZE / 2;
+        gridPadWPix = gridWPix % gridBoxSize / 2;
+        gridPadHPix = gridHPix % gridBoxSize / 2;
         //
-        int width = gridWPix / GRID_BOX_SIZE;
-        int height = gridHPix / GRID_BOX_SIZE;
+        int width = gridWPix / gridBoxSize;
+        int height = gridHPix / gridBoxSize;
         if (gridWidthNumberOfBoxes != width || gridHeightNumberOfBoxes != height)
         {
             //clear element placements
@@ -637,14 +640,14 @@ public class PipeView extends ViewGroup
     {
         super.onDraw(canvas);
         int left = 0;
-        int right = gridWPix;
+        int right = getWidth();
         int top = 0;
-        int bottom = gridHPix;
-        for (int i = left + gridPadWPix; i <= right - gridPadWPix; i += GRID_BOX_SIZE)
+        int bottom = getHeight();
+        for (int i = left + gridPadWPix; i <= right - gridPadWPix; i += gridBoxSize)
         {
             canvas.drawLine(i, top + gridPadHPix, i, bottom - gridPadHPix, paintElementGrid);
         }
-        for (int i = top + gridPadHPix; i <= bottom - gridPadHPix; i += GRID_BOX_SIZE)
+        for (int i = top + gridPadHPix; i <= bottom - gridPadHPix; i += gridBoxSize)
         {
             canvas.drawLine(left + gridPadWPix, i, right - gridPadWPix, i, paintElementGrid);
         }
@@ -656,10 +659,10 @@ public class PipeView extends ViewGroup
                 {
                     if (grid[i][j])
                     {
-                        float xS = GRID_BOX_SIZE * i + gridPadWPix;
-                        float yS = GRID_BOX_SIZE * j + gridPadHPix;
-                        float xE = GRID_BOX_SIZE * i + gridPadWPix + GRID_BOX_SIZE;
-                        float yE = GRID_BOX_SIZE * j + gridPadHPix + GRID_BOX_SIZE;
+                        float xS = gridBoxSize * i + gridPadWPix;
+                        float yS = gridBoxSize * j + gridPadHPix;
+                        float xE = gridBoxSize * i + gridPadWPix + gridBoxSize;
+                        float yE = gridBoxSize * j + gridPadHPix + gridBoxSize;
                         canvas.drawRect(xS, yS, xE, yE, paintElementShadow);
                     }
                 }

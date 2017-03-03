@@ -290,19 +290,11 @@ class ComponentView extends View
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        int boxSize = getBoxSize();;
-        canvas.drawRect(0, 0, boxSize, boxSize, paintsElementBox[paintType]);
-        canvas.drawRect(0, 0, boxSize, boxSize, paintElementBorder);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), paintsElementBox[paintType]);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), paintElementBorder);
         //draws the text in the middle of the box
-        float textSize = boxSize / 2.5f;
+        float textSize = getWidth() / 2.5f;
         paintElementText[paintType].setTextSize(textSize);
         canvas.drawText(text, textSize * (5.f / 4.f), textSize * (8.f / 5.f), paintElementText[paintType]);
-    }
-
-    /**
-     * @return int
-     */
-    protected static int getBoxSize() {
-        return PipeView.GRID_BOX_SIZE * 2;
     }
 }

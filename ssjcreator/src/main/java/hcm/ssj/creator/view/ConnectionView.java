@@ -66,16 +66,17 @@ class ConnectionView extends View
     }
 
     /**
-     * @param stopX  float
-     * @param stopY  float
-     * @param startX float
-     * @param startY float
+     * @param stopX   float
+     * @param stopY   float
+     * @param startX  float
+     * @param startY  float
+     * @param boxSize int
      */
-    protected void setLine(float stopX, float stopY, float startX, float startY)
+    protected void setLine(float stopX, float stopY, float startX, float startY, int boxSize)
     {
         //draw line
         //start and end are in the middle of the element box
-        float half = ComponentView.getBoxSize() / 2.f;
+        float half = boxSize;
         stopX += half;
         stopY += half;
         startX += half;
