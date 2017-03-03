@@ -170,14 +170,16 @@ public class Log
 
     private void log(int type, String caller, String msg, Throwable tr)
     {
-        if(frame != null && type < frame.options.loglevel.get().val)
+        if(type < ((frame == null) ? Level.VERBOSE.val : frame.options.loglevel.get().val))
             return;
 
         String str;
         double time = (frame == null) ? 0 : frame.getTime();
         str = buildEntry(caller, msg, tr);
 
-        if(buffer.size() != 0 && time - buffer.getLast().t < frame.options.logtimeout.get() && str.equals(buffer.getLast().msg))
+        if(buffer.size() != 0
+                && time - buffer.getLast().t < ((frame == null) ? 1.0 : frame.options.logtimeout.get())
+                && str.equals(buffer.getLast().msg))
             return;
 
         android.util.Log.println(type, Cons.LOGTAG, str);
