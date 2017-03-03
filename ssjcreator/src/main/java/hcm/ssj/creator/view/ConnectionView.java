@@ -75,7 +75,7 @@ class ConnectionView extends View
     {
         //draw line
         //start and end are in the middle of the element box
-        float half = ComponentView.BOX_SIZE / 2.f;
+        float half = ComponentView.getBoxSize() / 2.f;
         stopX += half;
         stopY += half;
         startX += half;
