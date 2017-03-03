@@ -48,14 +48,6 @@ import hcm.ssj.creator.core.Pipeline;
  */
 public class PipeView extends ViewGroup
 {
-    /**
-     * Interface to register listeners to
-     */
-    public interface ViewListener
-    {
-        void viewChanged();
-    }
-
     //elements
     private ArrayList<ComponentView> componentViewsSensor = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsProvider = new ArrayList<>();
@@ -77,7 +69,7 @@ public class PipeView extends ViewGroup
     private int gridPadHPix = 0;
     private boolean[][] grid = null;
     //
-    private HashSet<ViewListener> hsViewListener = new HashSet<>();
+    private HashSet<PipeListener> hsPipeListener = new HashSet<>();
 
     /**
      * @param context Context
@@ -104,7 +96,6 @@ public class PipeView extends ViewGroup
     private void init()
     {
         Log.i("init pipeview");
-
         //children should not be clipped
         setClipToPadding(false);
         //add drag listener
@@ -131,27 +122,27 @@ public class PipeView extends ViewGroup
             calculateGrid();
             createElements();
             placeElements();
-            for (ViewListener viewListener : hsViewListener)
+            for (PipeListener pipeListener : hsPipeListener)
             {
-                viewListener.viewChanged();
+                pipeListener.viewChanged();
             }
         }
     }
 
     /**
-     * @param viewListener ViewListener
+     * @param pipeListener PipeListener
      */
-    public final void addViewListener(ViewListener viewListener)
+    public final void addViewListener(PipeListener pipeListener)
     {
-        hsViewListener.add(viewListener);
+        hsPipeListener.add(pipeListener);
     }
 
     /**
-     * @param viewListener ViewListener
+     * @param pipeListener PipeListener
      */
-    public final void removeViewListener(ViewListener viewListener)
+    public final void removeViewListener(PipeListener pipeListener)
     {
-        hsViewListener.remove(viewListener);
+        hsPipeListener.remove(pipeListener);
     }
 
     /**

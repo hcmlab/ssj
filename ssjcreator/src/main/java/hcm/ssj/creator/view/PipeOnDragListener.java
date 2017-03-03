@@ -27,8 +27,6 @@
 package hcm.ssj.creator.view;
 
 import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
