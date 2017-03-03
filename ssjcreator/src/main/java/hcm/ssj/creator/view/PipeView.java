@@ -30,14 +30,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.AttributeSet;
-import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -72,8 +67,8 @@ public class PipeView extends ViewGroup
     private Paint paintElementGrid;
     private Paint paintElementShadow;
     //
-    private final int landscapeNumberOfBoxes = 15;
-    private final int portraitBoxes = 20;
+    private final static int LANDSCAPE_NUMBER_OF_BOXES = 15;
+    private final static int PORTRAIT_NUMBER_OF_BOXES = 20;
     //
     private int gridBoxSize = 0;
     private int gridWidthNumberOfBoxes = 0;
@@ -113,130 +108,7 @@ public class PipeView extends ViewGroup
         //children should not be clipped
         setClipToPadding(false);
         //add drag listener
-        OnDragListener onDragListener = new OnDragListener()
-        {
-            private ImageView imageView;
-            private boolean dropped;
-            private float xCoord, yCoord;
-
-            /**
-             * @param event DragEvent
-             */
-            private void cleanup(DragEvent event)
-            {
-                //remove view from owner
-                ComponentView view = (ComponentView) event.getLocalState();
-                try
-                {
-                    //check collision
-                    Rect rectBin = new Rect();
-                    imageView.getHitRect(rectBin);
-                    //delete element
-                    if (rectBin.contains((int) xCoord, (int) yCoord))
-                    {
-                        setGridValue(view.getGridX(), view.getGridY(), false);
-                        Pipeline.getInstance().remove(view.getElement());
-                    } //reposition
-                    else
-                    {
-                        int x = getGridCoordinate(xCoord);
-                        int y = getGridCoordinate(yCoord);
-                        if (dropped)
-                        {
-                            if (isGridFree(x, y))
-                            {
-                                //change position
-                                setGridValue(view.getGridX(), view.getGridY(), false);
-                                view.setGridX(x);
-                                view.setGridY(y);
-                                placeElementView(view);
-                            } else
-                            {
-                                //check for collision to add a connection
-                                checkCollisionConnection(view.getElement(), x, y);
-                            }
-                        }
-                        PipeView.this.addView(view);
-                    }
-                } finally
-                {
-                    //remove recycle bin
-                    ViewGroup viewGroup = (ViewGroup) imageView.getParent();
-                    if (viewGroup != null)
-                    {
-                        viewGroup.removeView(imageView);
-                    }
-                    imageView.invalidate();
-                    imageView = null;
-                    view.invalidate();
-                    //recalculate view after delay to fix shadow behaviour
-                    Handler handler = new Handler(Looper.getMainLooper());
-                    Runnable runnable = new Runnable()
-                    {
-                        public void run()
-                        {
-                            recalculate();
-                        }
-                    };
-                    handler.postDelayed(runnable, 50);
-                }
-            }
-
-            /**
-             * @param v     View
-             * @param event DragEvent
-             * @return boolean
-             */
-            @Override
-            public boolean onDrag(View v, DragEvent event)
-            {
-                switch (event.getAction())
-                {
-                    case DragEvent.ACTION_DRAG_STARTED:
-                        //init values
-                        xCoord = 0;
-                        yCoord = 0;
-                        dropped = false;
-                        //create recycle bin
-                        if (imageView != null)
-                        {
-                            ViewGroup parent = ((ViewGroup) imageView.getParent());
-                            if (parent != null)
-                            {
-                                parent.removeView(imageView);
-                            }
-                            imageView.invalidate();
-                            imageView = null;
-                        }
-                        imageView = new ImageView(getContext());
-                        imageView.setImageResource(android.R.drawable.ic_menu_delete);
-                        int width = PipeView.this.getWidth();
-                        int height = PipeView.this.getHeight();
-                        imageView.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
-                        addView(imageView);
-                        break;
-                    case DragEvent.ACTION_DRAG_ENTERED:
-                        break;
-                    case DragEvent.ACTION_DRAG_EXITED:
-                        break;
-                    case DragEvent.ACTION_DROP:
-                        //update drop location
-                        xCoord = event.getX();
-                        yCoord = event.getY();
-                        dropped = true;
-                        ComponentView view = (ComponentView) event.getLocalState();
-                        setGridValue(view.getGridX(), view.getGridY(), false);
-                        break;
-                    case DragEvent.ACTION_DRAG_ENDED:
-                        cleanup(event);
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            }
-        };
-        setOnDragListener(onDragListener);
+        setOnDragListener(new PipeOnDragListener(PipeView.this));
         //initiate colors
         paintElementGrid = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintElementGrid.setStyle(Paint.Style.STROKE);
@@ -480,7 +352,7 @@ public class PipeView extends ViewGroup
     /**
      * @param view ElementView
      */
-    private void placeElementView(ComponentView view)
+    protected void placeElementView(ComponentView view)
     {
         setGridValue(view.getGridX(), view.getGridY(), true);
         int xPos = view.getGridX() * gridBoxSize + gridPadWPix;
@@ -490,12 +362,20 @@ public class PipeView extends ViewGroup
     }
 
     /**
+     * @return int
+     */
+    protected int getGridBoxSize()
+    {
+        return gridBoxSize;
+    }
+
+    /**
      * Translates one pixel axis position to grid coordinate
      *
      * @param pos float
      * @return int
      */
-    private int getGridCoordinate(float pos)
+    protected int getGridCoordinate(float pos)
     {
         int i = (int) (pos / gridBoxSize + 0.5f) - 1;
         return i < 0 ? 0 : i;
@@ -508,7 +388,7 @@ public class PipeView extends ViewGroup
      * @param y int
      * @return boolean
      */
-    private boolean isGridFree(int x, int y)
+    protected boolean isGridFree(int x, int y)
     {
         //check for valid input
         return grid != null && x + 1 < grid.length && y + 1 < grid[0].length &&
@@ -521,7 +401,7 @@ public class PipeView extends ViewGroup
      * @param y      int
      * @param placed boolean
      */
-    private void setGridValue(int x, int y, boolean placed)
+    protected void setGridValue(int x, int y, boolean placed)
     {
         //check for valid input
         if (grid != null && x + 1 < grid.length && y + 1 < grid[0].length)
@@ -540,7 +420,7 @@ public class PipeView extends ViewGroup
     {
         int gridWPix = getWidth();
         int gridHPix = getHeight();
-        gridBoxSize = gridWPix > gridHPix ? gridHPix / landscapeNumberOfBoxes : gridWPix / portraitBoxes;
+        gridBoxSize = gridWPix > gridHPix ? gridHPix / LANDSCAPE_NUMBER_OF_BOXES : gridWPix / PORTRAIT_NUMBER_OF_BOXES;
         if (gridBoxSize <= 0)
         {
             gridBoxSize = 50;
@@ -588,7 +468,7 @@ public class PipeView extends ViewGroup
      * @param x      int
      * @param y      int
      */
-    private void checkCollisionConnection(Object object, int x, int y)
+    protected void checkCollisionConnection(Object object, int x, int y)
     {
         if (object instanceof Sensor)
         {
