@@ -460,7 +460,7 @@ public class TheFramework
                 throw new RuntimeException(e);
         } finally
         {
-            log();
+            writeLogFile();
             _isStopping = false;
         }
     }
@@ -505,7 +505,7 @@ public class TheFramework
         _createTime = System.currentTimeMillis();
     }
 
-    private void log()
+    private void writeLogFile()
     {
         if (options.log.get())
         {
@@ -518,7 +518,7 @@ public class TheFramework
         _isRunning = false;
 
         Log.e(location, message, e);
-        log();
+        writeLogFile();
 
         if (_exceptionHandler != null)
         {
