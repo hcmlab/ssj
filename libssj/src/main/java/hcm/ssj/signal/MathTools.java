@@ -26,6 +26,8 @@
 
 package hcm.ssj.signal;
 
+import java.util.Arrays;
+
 /**
  * Created by Michael Dietz on 19.10.2016.
  */
@@ -87,6 +89,84 @@ public class MathTools
 		return mean;
 	}
 
+	/*
+	* Calculates the minimum of all values
+	*/
+	public float getMin(float[] values)
+	{
+		float min = Float.MAX_VALUE;
+
+		for (int i = 0; i < values.length; i++)
+		{
+			if (values[i] < min)
+			{
+				min = values[i];
+			}
+		}
+
+		if (min == Float.MAX_VALUE)
+		{
+			min = 0;
+		}
+
+		return min;
+	}
+
+	/*
+	* Calculates the maximum of all values
+	*/
+	public float getMax(float[] values)
+	{
+		float max = -Float.MAX_VALUE;
+
+		for (int i = 0; i < values.length; i++)
+		{
+			if (values[i] > max)
+			{
+				max = values[i];
+			}
+		}
+
+		if (max == -Float.MAX_VALUE)
+		{
+			max = 0;
+		}
+
+		return max;
+	}
+
+	/*
+	* Calculates the median of all values
+	*/
+	public float getMedian(float[] values)
+	{
+		float median = 0;
+		int n = values.length;
+
+		if (n > 0)
+		{
+			// Copy values for sorting
+			float[] valueCopies = new float[values.length];
+			System.arraycopy(values, 0, valueCopies, 0, values.length);
+
+			// Sort values ascending
+			Arrays.sort(valueCopies);
+
+			if (n % 2 == 0)
+			{
+				// Even
+				median =  (valueCopies[n / 2 - 1] + valueCopies[n / 2]) / 2.0f;
+			}
+			else
+			{
+				// Odd
+				median = valueCopies[(n - 1) / 2];
+			}
+		}
+
+		return median;
+	}
+
 	/**
 	 * Calculates the variance of all values
 	 */
@@ -122,5 +202,192 @@ public class MathTools
 		}
 
 		return stdDeviation;
+	}
+
+	/*
+	* Calculates the skew of all values
+	*/
+	public float getSkew(float[] values)
+	{
+		float skew = 0;
+		float mean = getMean(values);
+		float stdDeviation = getStdDeviation(values);
+
+		if (values.length > 0 && stdDeviation > 0)
+		{
+			for (int i = 0; i < values.length; i++)
+			{
+				skew += Math.pow((values[i] - mean) / stdDeviation, 3);
+			}
+
+			skew = skew / values.length;
+		}
+
+		return skew;
+	}
+
+	/*
+	* Calculates the kurtosis of all values
+	*/
+	public float getKurtosis(float[] values)
+	{
+		float kurtosis = 0;
+		float mean = getMean(values);
+		float stdDeviation = getStdDeviation(values);
+
+		if (values.length > 0 && stdDeviation > 0)
+		{
+			for (int i = 0; i < values.length; i++)
+			{
+				kurtosis += Math.pow((values[i] - mean) / stdDeviation, 4);
+			}
+
+			kurtosis = kurtosis / values.length;
+		}
+
+		return kurtosis;
+	}
+
+	/*
+	* Calculates the range of all values
+	*/
+	public float getRange(float[] values)
+	{
+		return getMax(values) - getMin(values);
+	}
+
+	/*
+	* Calculates the root mean square
+	*/
+	public float getRMS(float[] values)
+	{
+		float rms = 0;
+
+		if (values.length > 0)
+		{
+			for (int i = 0; i < values.length; i++)
+			{
+				rms += Math.pow(values[i], 2);
+			}
+
+			rms = (float) Math.sqrt(rms / (float) values.length);
+		}
+
+		return rms;
+	}
+
+	/*
+	* Calculates the mean absolute deviation of all values
+	*/
+	public float getMAD(float[] values)
+	{
+		float mad = 0;
+		float mean = getMean(values);
+
+		if (values.length > 0)
+		{
+			for (int i = 0; i < values.length; i++)
+			{
+				mad += Math.abs(values[i] - mean);
+			}
+
+			mad = (float) Math.sqrt(mad / (float) values.length);
+		}
+
+		return mad;
+	}
+
+	/*
+	* Calculates the interquartile range
+	*/
+	public float getIQR(float[] values)
+	{
+		float iqr = 0;
+		int n = values.length;
+
+		if (n > 0)
+		{
+			// Copy values for sorting
+			float[] valueCopies = new float[values.length];
+			System.arraycopy(values, 0, valueCopies, 0, values.length);
+
+			// Sort values ascending
+			Arrays.sort(valueCopies);
+
+			float[] lowerPercentile;
+			float[] upperPercentile;
+
+			if (n % 2 == 0)
+			{
+				lowerPercentile = new float[n / 2];
+				upperPercentile = new float[n / 2];
+
+				// Even
+				for (int i = 0; i < n; i++)
+				{
+					if (i < n / 2)
+					{
+						lowerPercentile[i] = valueCopies[i];
+					}
+					else
+					{
+						upperPercentile[i - n / 2] = valueCopies[i];
+					}
+				}
+			}
+			else
+			{
+				lowerPercentile = new float[(n - 1) / 2];
+				upperPercentile = new float[(n - 1) / 2];
+
+				// Odd
+				for (int i = 0; i < n; i++)
+				{
+					if (i < (n - 1) / 2)
+					{
+						lowerPercentile[i] = valueCopies[i];
+					}
+
+					// Exclude median
+
+					if (i > (n - 1) / 2)
+					{
+						upperPercentile[i - ((n - 1) / 2) - 1] = valueCopies[i];
+					}
+				}
+			}
+
+			iqr = getMedian(upperPercentile) - getMedian(lowerPercentile);
+		}
+
+		return iqr;
+	}
+
+	/*
+	* Calculates the crest factor
+	*/
+	public float getCrest(float[] values)
+	{
+		float absValue = 0;
+		float crest = 0;
+		float peak = 0;
+		float rms = getRMS(values);
+
+		for (int i = 0; i < values.length; i++)
+		{
+			absValue = Math.abs(values[i]);
+
+			if (absValue > peak)
+			{
+				peak = absValue;
+			}
+		}
+
+		if (rms > 0)
+		{
+			crest = peak / rms;
+		}
+
+		return crest;
 	}
 }

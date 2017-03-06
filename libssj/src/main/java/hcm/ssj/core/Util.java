@@ -815,4 +815,23 @@ public class Util
         }
         builder.append("</event>");
     }
+
+    /**
+     * Helper function to format fft values similar to SSI
+     */
+    public static void joinFFT(float[] in, float[] out)
+    {
+        for (int i = 0; i < in.length; i += 2)
+        {
+            if (i == 0)
+            {
+                out[0] = (float) Math.sqrt(Math.pow(in[0], 2));
+                out[out.length - 1] = (float) Math.sqrt(Math.pow(in[1], 2));
+            }
+            else
+            {
+                out[i / 2] = (float) Math.sqrt(Math.pow(in[i], 2) + Math.pow(in[i + 1], 2));
+            }
+        }
+    }
 }
