@@ -71,7 +71,7 @@ public class HeartRateChannel extends SensorChannel
 	@Override
 	protected boolean process(Stream stream_out)
 	{
-		if(!_listener.connected)
+		if(!_listener.isConnected())
 			return false;
 
 		float[] out = stream_out.ptrF();

@@ -47,8 +47,12 @@ import com.microsoft.band.tiles.pages.FlowPanelOrientation;
 import com.microsoft.band.tiles.pages.HorizontalAlignment;
 import com.microsoft.band.tiles.pages.PageData;
 import com.microsoft.band.tiles.pages.PageLayout;
+import com.microsoft.band.tiles.pages.TextBlock;
+import com.microsoft.band.tiles.pages.TextBlockData;
+import com.microsoft.band.tiles.pages.TextBlockFont;
 import com.microsoft.band.tiles.pages.TextButton;
 import com.microsoft.band.tiles.pages.TextButtonData;
+import com.microsoft.band.tiles.pages.VerticalAlignment;
 
 import java.util.Date;
 import java.util.List;
@@ -66,6 +70,7 @@ public class BandComm {
 
     public static final int BTN_YES = 1;
     public static final int BTN_NO = 2;
+    public static final int TXT_TITLE = 3;
 
     public static final UUID tileId = UUID.nameUUIDFromBytes("SSJCreator-tile".getBytes());//fromString("cc0D508F-70A3-47D4-BBA3-812BADB1F8Aa");
     public static final UUID pageId = UUID.nameUUIDFromBytes("SSJCreator-page".getBytes());//UUID.fromString("b1234567-89ab-cdef-0123-456789abcd00");
@@ -273,16 +278,19 @@ public class BandComm {
 
     private PageLayout createButtonLayout() {
         return new PageLayout(
-                new FlowPanel(15, 0, 260, 105, FlowPanelOrientation.HORIZONTAL)
-                        .addElements(new TextButton(0, 0, 100, 100).setMargins(5, 5, 5, 5).setId(BTN_YES).setPressedColor(Color.RED).setHorizontalAlignment(HorizontalAlignment.CENTER))
-                        .addElements(new TextButton(100, 0, 100, 100).setMargins(5, 5, 5, 5).setId(BTN_NO).setPressedColor(Color.BLUE).setHorizontalAlignment(HorizontalAlignment.CENTER)));
+                new FlowPanel(15, 0, 243, 120, FlowPanelOrientation.VERTICAL)
+                    .addElements(new TextBlock(0, 0, 243, 40, TextBlockFont.SMALL).setId(TXT_TITLE))
+                    .addElements(new FlowPanel(0, 0, 243, 80, FlowPanelOrientation.HORIZONTAL)
+                         .addElements(new TextButton(0, 0, 100, 70).setMargins(5, 5, 5, 5).setId(BTN_YES).setPressedColor(Color.GREEN).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.CENTER))
+                         .addElements(new TextButton(100, 0, 100, 70).setMargins(5, 5, 5, 5).setId(BTN_NO).setPressedColor(Color.RED).setHorizontalAlignment(HorizontalAlignment.CENTER).setVerticalAlignment(VerticalAlignment.CENTER))));
     }
 
     private void updatePages() throws BandIOException {
         client.getTileManager().setPages(tileId,
                                          new PageData(pageId, 0)
                                                  .update(new TextButtonData(BTN_YES, "Start"))
-                                                 .update(new TextButtonData(BTN_NO, "End")));
+                                                 .update(new TextButtonData(BTN_NO, "End"))
+                                                 .update(new TextBlockData(TXT_TITLE, "Annotation")));
     }
 
     private void handleBandException(BandException e) {

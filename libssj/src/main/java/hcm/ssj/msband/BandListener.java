@@ -61,6 +61,8 @@ import hcm.ssj.core.Log;
  */
 public class BandListener implements BandGsrEventListener, BandSkinTemperatureEventListener, BandHeartRateEventListener, BandAccelerometerEventListener, BandGyroscopeEventListener, BandAmbientLightEventListener, BandBarometerEventListener, BandCaloriesEventListener, BandDistanceEventListener, BandPedometerEventListener, BandRRIntervalEventListener, BandAltimeterEventListener, BandConnectionCallback
 {
+	private final int TIMEOUT = 10000; //in ms
+
 	private int   gsr; // Resistance in ohm
 	private float skinTemperature;
 	private int   heartRate;
@@ -92,8 +94,8 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	private long altimeterGain;
 	private long altimeterLoss;
 
-	public boolean receivedData;
-	public boolean connected;
+	private long lastDataTimestamp = 0;
+	private boolean connected;
 
 	public BandListener()
 	{
@@ -127,7 +129,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 		flightsDescended = 0;
 		motionType = MotionType.UNKNOWN.ordinal();
 
-		receivedData = false;
+		lastDataTimestamp = 0;
 		connected = false;
 	}
 
@@ -141,28 +143,28 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	@Override
 	public void onBandGsrChanged(BandGsrEvent bandGsrEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		gsr = bandGsrEvent.getResistance();
 	}
 
 	@Override
 	public void onBandSkinTemperatureChanged(BandSkinTemperatureEvent bandSkinTemperatureEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		skinTemperature = bandSkinTemperatureEvent.getTemperature();
 	}
 
 	@Override
 	public void onBandHeartRateChanged(BandHeartRateEvent bandHeartRateEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		heartRate = bandHeartRateEvent.getHeartRate();
 	}
 
 	@Override
 	public void onBandAccelerometerChanged(BandAccelerometerEvent bandAccelerometerEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		accelerationX = bandAccelerometerEvent.getAccelerationX();
 		accelerationY = bandAccelerometerEvent.getAccelerationY();
 		accelerationZ = bandAccelerometerEvent.getAccelerationZ();
@@ -171,7 +173,7 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	@Override
 	public void onBandGyroscopeChanged(BandGyroscopeEvent bandGyroscopeEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		gyrVelocityX = bandGyroscopeEvent.getAngularVelocityX();
 		gyrVelocityY = bandGyroscopeEvent.getAngularVelocityY();
 		gyrVelocityZ = bandGyroscopeEvent.getAngularVelocityZ();
@@ -183,14 +185,14 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	@Override
 	public void onBandAmbientLightChanged(BandAmbientLightEvent bandAmbientLightEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		brightness = bandAmbientLightEvent.getBrightness();
 	}
 
 	@Override
 	public void onBandBarometerChanged(BandBarometerEvent bandBarometerEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		airPressure = bandBarometerEvent.getAirPressure();
 		temperature = bandBarometerEvent.getTemperature();
 	}
@@ -198,14 +200,14 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	@Override
 	public void onBandCaloriesChanged(BandCaloriesEvent bandCaloriesEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		calories = bandCaloriesEvent.getCalories();
 	}
 
 	@Override
 	public void onBandDistanceChanged(BandDistanceEvent bandDistanceEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		distance = bandDistanceEvent.getTotalDistance();
 		speed = bandDistanceEvent.getSpeed();
 		pace = bandDistanceEvent.getPace();
@@ -215,21 +217,21 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	@Override
 	public void onBandPedometerChanged(BandPedometerEvent bandPedometerEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		steps = bandPedometerEvent.getTotalSteps();
 	}
 
 	@Override
 	public void onBandRRIntervalChanged(BandRRIntervalEvent bandRRIntervalEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		interBeatInterval = bandRRIntervalEvent.getInterval();
 	}
 
 	@Override
 	public void onBandAltimeterChanged(BandAltimeterEvent bandAltimeterEvent)
 	{
-		receivedData = true;
+		dataReceived();
 		flightsAscended = bandAltimeterEvent.getFlightsAscended();
 		flightsDescended = bandAltimeterEvent.getFlightsDescended();
 		steppingGain = bandAltimeterEvent.getSteppingGain();
@@ -388,5 +390,20 @@ public class BandListener implements BandGsrEventListener, BandSkinTemperatureEv
 	public long getAltimeterLoss()
 	{
 		return altimeterLoss;
+	}
+
+	private synchronized void dataReceived()
+	{
+		lastDataTimestamp = System.currentTimeMillis();
+	}
+
+	public boolean isConnected()
+	{
+		return (connected && System.currentTimeMillis() - lastDataTimestamp < TIMEOUT);
+	}
+
+	public boolean hasReceivedData()
+	{
+		return lastDataTimestamp != 0;
 	}
 }
