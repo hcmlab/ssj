@@ -34,6 +34,8 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -216,10 +218,12 @@ class ComponentView extends View
         }
         if (paintElementBorder == null)
         {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
             paintElementBorder = new Paint(Paint.ANTI_ALIAS_FLAG);
             paintElementBorder.setStyle(Paint.Style.STROKE);
             paintElementBorder.setColor(Color.BLACK);
-            paintElementBorder.setStrokeWidth(STROKE_WIDTH);
+            paintElementBorder.setStrokeWidth(strokeWidth);
         }
         if (paintElementText == null)
         {

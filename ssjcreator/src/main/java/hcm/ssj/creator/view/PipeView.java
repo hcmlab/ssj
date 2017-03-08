@@ -59,16 +59,16 @@ public class PipeView extends ViewGroup
     private Paint paintElementGrid;
     private Paint paintElementShadow;
     //
-    private final static int LANDSCAPE_NUMBER_OF_BOXES = 15;
-    private final static int PORTRAIT_NUMBER_OF_BOXES = 20;
+    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10;
+    private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
     //
     private final GridLayout gridLayout = new GridLayout();
     //
-    private int gridBoxSize = 0;
-    private int gridWidthNumberOfBoxes = 0;
-    private int gridHeightNumberOfBoxes = 0;
-    private int gridPadWPix = 0;
-    private int gridPadHPix = 0;
+    private int gridBoxSize = 0; //box size depends on screen width
+    private int gridWidthNumberOfBoxes = 0; //number depends on orientation
+    private int gridHeightNumberOfBoxes = 0; //number depends on orientation
+    private int gridPadWPix = 0; //padding left and right is half of a box size each
+    private int gridPadHPix = 0; //padding top and down is half of a box size each
     //
     private HashSet<PipeListener> hsPipeListener = new HashSet<>();
 

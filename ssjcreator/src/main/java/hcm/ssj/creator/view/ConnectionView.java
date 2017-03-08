@@ -30,6 +30,8 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 import android.view.View;
 
 import hcm.ssj.creator.R;
@@ -41,12 +43,9 @@ import hcm.ssj.creator.R;
 class ConnectionView extends View
 {
     private static Paint paintConnection;
-    private final static float STROKE_WIDTH = 5;
-    private final static int ARROW_LENGTH = 35;
+    private final static float STROKE_WIDTH = 2.0f;
     private final static int ARROW_ANGLE = 35;
-    private final static double TRIANGLE_A = ARROW_LENGTH * Math.cos(Math.toRadians(90 - ARROW_ANGLE));
-    private final static double TRIANGLE_B = Math.sqrt(Math.pow(ARROW_LENGTH, 2) - Math.pow(TRIANGLE_A, 2));
-    private final static double TRIANGLE_ALPHA = Math.toRadians(ARROW_ANGLE);
+
     //
     private Path path;
 
@@ -58,10 +57,12 @@ class ConnectionView extends View
         super(context);
         if (paintConnection == null)
         {
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
             paintConnection = new Paint(Paint.ANTI_ALIAS_FLAG);
             paintConnection.setStyle(Paint.Style.STROKE);
             paintConnection.setColor(getResources().getColor(R.color.colorConnectionStream));
-            paintConnection.setStrokeWidth(STROKE_WIDTH);
+            paintConnection.setStrokeWidth(strokeWidth);
         }
     }
 
@@ -72,15 +73,19 @@ class ConnectionView extends View
      * @param startY  float
      * @param boxSize int
      */
-    protected void setLine(float stopX, float stopY, float startX, float startY, int boxSize)
+    protected void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
     {
+        //calc triangle
+        int arrowLength = (int) (boxSize / 1.42f + 0.5f);
+        double triangleA = arrowLength * Math.cos(Math.toRadians(90 - ARROW_ANGLE));
+        double triangleB = Math.sqrt(Math.pow(arrowLength, 2) - Math.pow(triangleA, 2));
+        double triangleAlpha = Math.toRadians(ARROW_ANGLE);
         //draw line
         //start and end are in the middle of the element box
-        float half = boxSize;
-        stopX += half;
-        stopY += half;
-        startX += half;
-        startY += half;
+        stopX += boxSize;
+        stopY += boxSize;
+        startX += boxSize;
+        startY += boxSize;
         path = new Path();
         path.moveTo(stopX, stopY);
         path.lineTo(startX, startY);
@@ -93,16 +98,16 @@ class ConnectionView extends View
         double middleX = (stopX + startX) / 2;
         double middleY = (stopY + startY) / 2;
         //position arrow in the middle
-        middleX += TRIANGLE_B / 2 * Math.cos(theta);
-        middleY += TRIANGLE_B / 2 * Math.sin(theta);
+        middleX += triangleB / 2 * Math.cos(theta);
+        middleY += triangleB / 2 * Math.sin(theta);
         //draw first line
-        double x = middleX - ARROW_LENGTH * Math.cos(theta + TRIANGLE_ALPHA);
-        double y = middleY - ARROW_LENGTH * Math.sin(theta + TRIANGLE_ALPHA);
+        double x = middleX - arrowLength * Math.cos(theta + triangleAlpha);
+        double y = middleY - arrowLength * Math.sin(theta + triangleAlpha);
         path.moveTo((float) middleX, (float) middleY);
         path.lineTo((float) x, (float) y);
         //draw second line
-        double x2 = middleX - ARROW_LENGTH * Math.cos(theta - TRIANGLE_ALPHA);
-        double y2 = middleY - ARROW_LENGTH * Math.sin(theta - TRIANGLE_ALPHA);
+        double x2 = middleX - arrowLength * Math.cos(theta - triangleAlpha);
+        double y2 = middleY - arrowLength * Math.sin(theta - triangleAlpha);
         path.moveTo((float) middleX, (float) middleY);
         path.lineTo((float) x2, (float) y2);
     }
