@@ -119,9 +119,11 @@ class ConnectionView extends View
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
+        canvas.save();
         if (path != null)
         {
             canvas.drawPath(path, paintConnection);
         }
+        canvas.restore();
     }
 }

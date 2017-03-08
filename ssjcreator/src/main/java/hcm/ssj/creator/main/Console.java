@@ -110,10 +110,11 @@ class Console implements ITab
     Console(Context context)
     {
         //view
-        ScrollView scrollViewConsole = new ScrollView(context);
         textViewConsole = new TextView(context);
-        scrollViewConsole.addView(textViewConsole);
-        view = scrollViewConsole;
+        ScrollView scrollView = new ScrollView(context);
+        scrollView.setFillViewport(true);
+        scrollView.addView(textViewConsole);
+        view = scrollView;
         //title
         title = context.getResources().getString(R.string.str_console);
         //icon
