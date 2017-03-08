@@ -48,6 +48,7 @@ public class AudioChannel extends SensorChannel
         public final Option<Cons.ChannelFormat> channelConfig = new Option<>("channelConfig", Cons.ChannelFormat.CHANNEL_IN_MONO, Cons.ChannelFormat.class, "");
         public final Option<Cons.AudioFormat> audioFormat = new Option<>("audioFormat", Cons.AudioFormat.ENCODING_PCM_16BIT, Cons.AudioFormat.class, "");
         public final Option<Boolean> scale = new Option<>("scale", true, Boolean.class, "");
+        public final Option<Double> chunk = new Option<>("chunk", 0.1, Double.class, "how many samples to read at once (in seconds)");
 
         /**
          *
@@ -179,7 +180,16 @@ public class AudioChannel extends SensorChannel
         int bytesPerSample = Microphone.audioFormatSampleBytes(options.audioFormat.get().val);
         int dim = getSampleDimension();
 
-        return minBufSize / (bytesPerSample * dim);
+        double sr = getSampleRate();
+        int minSampleNum = (minBufSize / (bytesPerSample * dim));
+        double minFrameSize = minSampleNum / sr;
+
+        if(options.chunk.get() < minFrameSize) {
+            Log.w("requested chunk size too small, setting it to " + minFrameSize + "s");
+            options.chunk.set(minFrameSize);
+        }
+
+        return (int)(options.chunk.get() * sr + 0.5);
     }
 
     @Override

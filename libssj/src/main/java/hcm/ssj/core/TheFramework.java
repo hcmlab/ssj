@@ -63,7 +63,7 @@ public class TheFramework
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
-        public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
+        public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
 
         /**
          *
