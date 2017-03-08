@@ -41,6 +41,7 @@ import java.util.List;
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.view.PipeListener;
 import hcm.ssj.creator.view.PipeView;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
@@ -83,7 +84,7 @@ public class TabHandler
             console = new Console(this.activity);
             addTab(console.getView(), console.getTitle(), console.getIcon());
             //init tabs
-            canvas.init(new PipeView.ViewListener()
+            canvas.init(new PipeListener()
             {
                 @Override
                 public void viewChanged()

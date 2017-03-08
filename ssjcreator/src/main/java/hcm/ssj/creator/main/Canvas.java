@@ -30,6 +30,7 @@ import android.content.Context;
 import android.view.View;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.view.PipeListener;
 import hcm.ssj.creator.view.PipeView;
 
 /**
@@ -44,7 +45,7 @@ class Canvas implements ITab
     private int icon;
     //canvas
     private PipeView pipeView = null;
-    private PipeView.ViewListener listener = null;
+    private PipeListener listener = null;
 
     /**
      * @param context Context
@@ -85,9 +86,9 @@ class Canvas implements ITab
     }
 
     /**
-     * @param listener PipeView.ViewListener
+     * @param listener PipeListener
      */
-    void init(PipeView.ViewListener listener)
+    void init(PipeListener listener)
     {
         this.listener = listener;
         pipeView.addViewListener(this.listener);
