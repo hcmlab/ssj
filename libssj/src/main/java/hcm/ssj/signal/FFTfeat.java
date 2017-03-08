@@ -31,6 +31,7 @@ import org.jtransforms.fft.FloatFFT_1D;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -52,7 +53,6 @@ public class FFTfeat extends Transformer
 	{
 		fft_dim = stream_in[0].dim;
 		fft_size = stream_in[0].num;
-//		rfft = (fft_size >> 1) + 1;
 
 		fft = new FloatFFT_1D(fft_size);
 		fft_out = new float[fft_dim][];
@@ -86,7 +86,7 @@ public class FFTfeat extends Transformer
 			fft.realForward(fft_in[i]);
 
 			// Format values like in SSI
-			joinFFT(fft_in[i], fft_out[i]);
+			Util.joinFFT(fft_in[i], fft_out[i]);
 		}
 
 		for (int j = 0; j < rfft; j++){
@@ -94,16 +94,6 @@ public class FFTfeat extends Transformer
 				out[j * fft_dim + i] = fft_out[i][j];
 			}
 		}
-	}
-
-	/**
-	 * Helper function to format fft values similar to SSI
-	 */
-	private void joinFFT(float[] in, float[] out)
-	{
-		int cnt = 0;
-		for (int i = 0; i < in.length; i += 2)
-			out[cnt++] = (float) Math.sqrt(Math.pow(in[i], 2) + Math.pow(in[i + 1], 2)); //fft in contains two values
 	}
 
 	@Override

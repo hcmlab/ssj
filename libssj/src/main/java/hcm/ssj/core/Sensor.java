@@ -64,6 +64,7 @@ public abstract class Sensor extends Component {
             {
                 try
                 {
+                    disconnect();
                     _isConnected = connect();
                     if (!_isConnected) {
                         waitCheckConnect();

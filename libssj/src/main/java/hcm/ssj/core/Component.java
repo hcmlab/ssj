@@ -42,7 +42,7 @@ public abstract class Component implements Runnable
     protected ArrayList<EventChannel> _evchannel_in = null;
     protected EventChannel _evchannel_out = null;
 
-    public int threadPriority = Cons.THREAD_PRIORITY_NORMAL;
+    public int threadPriority = Cons.THREAD_PRIORIIY_HIGH;
 
     public void close()
     {

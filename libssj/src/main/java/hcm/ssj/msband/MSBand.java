@@ -38,6 +38,9 @@ import com.microsoft.band.InvalidBandVersionException;
 import com.microsoft.band.sensors.GsrSampleRate;
 import com.microsoft.band.sensors.SampleRate;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
@@ -175,9 +178,9 @@ public class MSBand extends Sensor
 			try
 			{
 				client.getSensorManager().unregisterAllListeners();
-				client.disconnect().await();
+				client.disconnect().await(1000, TimeUnit.MILLISECONDS);
 			}
-			catch (InterruptedException | BandException e)
+			catch (InterruptedException | TimeoutException | BandException e)
 			{
 				Log.e("Error while disconnecting from ms band", e);
 			}

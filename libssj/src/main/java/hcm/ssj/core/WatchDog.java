@@ -72,9 +72,13 @@ public class WatchDog extends Thread {
         _syncIter = (int)(syncInterval / sleep) -1;
         _watchIter = (int)(watchInterval / sleep) -1;
 
-        _timer = new Timer(sleep);
-
-        start();
+        if(sleep > 0) {
+            _timer = new Timer(sleep);
+            start();
+        }
+        else {
+            _safeToKill = true;
+        }
     }
 
     public void checkIn()
@@ -111,28 +115,26 @@ public class WatchDog extends Thread {
                 wakeLock.acquire();
 
                 //check buffer watch
-                if(watchIterCnt == 0)
-                {
-                    synchronized (_lock)
-                    {
-                        if (!_targetCheckedIn)
-                        {
-                            //provider did not check in, provide zeroes
-                            _frame.pushZeroes(_bufferID);
+                if(_watchIter > 0) {
+                    if (watchIterCnt == 0) {
+                        synchronized (_lock) {
+                            if (!_targetCheckedIn) {
+                                //provider did not check in, provide zeroes
+                                _frame.pushZeroes(_bufferID);
+                            }
+                            _targetCheckedIn = false;
                         }
-                        _targetCheckedIn = false;
-                    }
-                    watchIterCnt = _watchIter;
+                        watchIterCnt = _watchIter;
+                    } else watchIterCnt--;
                 }
-                else watchIterCnt--;
 
                 //check buffer sync
-                if(syncIterCnt == 0)
-                {
-                    _frame.sync(_bufferID);
-                    syncIterCnt = _syncIter;
+                if(_syncIter > 0) {
+                    if (syncIterCnt == 0) {
+                        _frame.sync(_bufferID);
+                        syncIterCnt = _syncIter;
+                    } else syncIterCnt--;
                 }
-                else syncIterCnt--;
 
                 wakeLock.release();
                 _timer.sync();
