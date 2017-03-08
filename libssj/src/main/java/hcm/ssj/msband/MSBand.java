@@ -128,7 +128,7 @@ public class MSBand extends Sensor
 
 					// Wait for values
 					long time = SystemClock.elapsedRealtime();
-					while (!_terminate && !listener.receivedData && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
+					while (!_terminate && !listener.hasReceivedData() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 					{
 						try
 						{
@@ -139,7 +139,7 @@ public class MSBand extends Sensor
 						}
 					}
 
-					if (listener.receivedData)
+					if (listener.hasReceivedData())
 					{
 						connected = true;
 					}
@@ -164,7 +164,7 @@ public class MSBand extends Sensor
 
 	protected boolean checkConnection()
 	{
-		return listener.connected;
+		return listener.isConnected();
 	}
 
 	@Override

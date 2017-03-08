@@ -71,7 +71,7 @@ public class CaloriesChannel extends SensorChannel
 	@Override
 	protected boolean process(Stream stream_out)
 	{
-		if(!_listener.connected)
+		if(!_listener.isConnected())
 			return false;
 
 		long[] out = stream_out.ptrL();

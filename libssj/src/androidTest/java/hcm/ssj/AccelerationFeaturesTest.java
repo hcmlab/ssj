@@ -28,12 +28,20 @@ package hcm.ssj;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
+import android.test.suitebuilder.annotation.Suppress;
 
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
+import hcm.ssj.body.AccelerationFeatures;
+import hcm.ssj.core.Provider;
 import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Transformer;
+import hcm.ssj.file.FileReader;
+import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.file.FileWriter;
+import hcm.ssj.ml.Classifier;
+import hcm.ssj.test.Logger;
 
 /**
  * Created by Michael Dietz on 19.10.2016.
@@ -49,8 +57,8 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		super(Application.class);
 	}
 
-	/**/
-	public void test() throws Exception
+	@Suppress
+	public void testWriting() throws Exception
 	{
 		// Setup
 		TheFramework frame = TheFramework.getFramework();
@@ -59,13 +67,26 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
 		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
+
+		// Channel
 		AndroidSensorChannel channel = new AndroidSensorChannel();
 		channel.options.sampleRate.set(40);
 		frame.addSensor(sensor, channel);
 
 		// Transformer
-		FileWriter sfw = new FileWriter();
-		frame.addConsumer(sfw, channel, 1, 0);
+		AccelerationFeatures features = new AccelerationFeatures();
+		frame.addTransformer(features, channel, 2, 2);
+
+		// Consumer
+		Logger log = new Logger();
+		frame.addConsumer(log, features, 2, 0);
+
+		FileWriter rawWriter = new FileWriter();
+		frame.addConsumer(rawWriter, channel, 1, 0);
+
+		FileWriter featureWriter = new FileWriter();
+		featureWriter.options.fileName.set("features");
+		frame.addConsumer(featureWriter, features, 2, 0);
 
 		// Start framework
 		frame.start();
@@ -88,10 +109,9 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		frame.stop();
 		frame.clear();
 	}
-	/**/
 
-	/**
-	public void test2() throws Exception
+	@Suppress
+	public void testReading() throws Exception
 	{
 		// Setup
 		TheFramework frame = TheFramework.getFramework();
@@ -99,20 +119,19 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		frame.options.bufferSize.set(10.0f);
 
 		// Sensor
-		SimpleFileReader sensor = new SimpleFileReader();
+		FileReader sensor = new FileReader();
 		sensor.options.filePath.set("/sdcard/SSJ/");
-		sensor.options.fileName.set("GlassLinearAcceleration.stream");
+		sensor.options.fileName.set("AccX_AccY_AccZ.stream");
 		sensor.options.loop.set(false);
 
-
 		// Channel
-		SimpleFileReaderChannel sensorChannel = new SimpleFileReaderChannel();
-		sensorChannel.setSyncInterval(0);
+		FileReaderChannel sensorChannel = new FileReaderChannel();
+		sensorChannel.setWatchInterval(0);
 		frame.addSensor(sensor,sensorChannel);
 
 		// Transformer
 		AccelerationFeatures features = new AccelerationFeatures();
-		frame.addTransformer(features, sensorChannel, 1, 3);
+		frame.addTransformer(features, sensorChannel, 2, 2);
 
 		// SVM
 		//Classifier classifier = new Classifier();
@@ -121,15 +140,15 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		//frame.addTransformer(classifier, features, 1, 0);
 
 		// Logger
-		//Logger log = new Logger();
-		//frame.addConsumer(log, classifier, 1, 0);
+		Logger log = new Logger();
+		frame.addConsumer(log, features, 1, 0);
 
-		SimpleFileWriter consumer = new SimpleFileWriter();
-		consumer.options.fileName.set("features");
-		frame.addConsumer(consumer, features, 1, 0);
+		//FileWriter consumer = new FileWriter();
+		//consumer.options.fileName.set("features");
+		//frame.addConsumer(consumer, features, 1, 0);
 
 		// Start framework
-		frame.Start();
+		frame.start();
 
 		// Run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -146,35 +165,63 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		}
 
 		// Stop framework
-		frame.Stop();
-		frame.reset();
+		frame.stop();
+		frame.clear();
 	}
-	/**/
 
-	/**
-	public void test3() throws Exception
+	//@Suppress
+	public void testSVM() throws Exception
 	{
 		// Setup
 		TheFramework frame = TheFramework.getFramework();
 		frame.options.bufferSize.set(10.0f);
 
 		// Sensor
-		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
+		AndroidSensor accSensor = new AndroidSensor();
+		accSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
 
+		AndroidSensor gyrSensor = new AndroidSensor();
+		gyrSensor.options.sensorType.set(SensorType.GYROSCOPE);
 
 		// Channel
-		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
-		sensorChannel.options.sampleRate.set(40);
-		frame.addSensor(sensor,sensorChannel);
+		AndroidSensorChannel accChannel = new AndroidSensorChannel();
+		accChannel.options.sampleRate.set(40);
+		frame.addSensor(accSensor, accChannel);
 
-		// Logger
-		SimpleFileWriter consumer = new SimpleFileWriter();
-		consumer.options.fileName.set("TestAcceleration");
-		frame.addConsumer(consumer, sensorChannel, 1, 0);
+		AndroidSensorChannel gyrChannel = new AndroidSensorChannel();
+		gyrChannel.options.sampleRate.set(40);
+		frame.addSensor(gyrSensor, gyrChannel);
+
+		// Transformer
+		AccelerationFeatures accFeatures = new AccelerationFeatures();
+		frame.addTransformer(accFeatures, accChannel, 2, 2);
+
+		AccelerationFeatures gyrFeatures = new AccelerationFeatures();
+		frame.addTransformer(gyrFeatures, gyrChannel, 2, 2);
+
+		// SVM
+		Classifier classifier = new Classifier();
+		classifier.options.trainerPath.set("/sdcard/SSJ/Model/");
+		classifier.options.trainerFile.set("search_model_feature_fusion.trainer");
+		frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);
+
+		// Consumer
+		Logger log = new Logger();
+		frame.addConsumer(log, classifier, 2, 0);
+
+		FileWriter rawWriter = new FileWriter();
+		frame.addConsumer(rawWriter, accChannel, 1, 0);
+
+		FileWriter featureWriter = new FileWriter();
+		featureWriter.options.fileName.set("features");
+		frame.addConsumer(featureWriter, accFeatures, 2, 0);
+
+		FileWriter svmWriter = new FileWriter();
+		svmWriter.options.fileName.set("svm_results");
+		frame.addConsumer(svmWriter, classifier, 2, 0);
 
 		// Start framework
-		frame.Start();
+		frame.start();
 
 		// Run test
 		long end = System.currentTimeMillis() + TEST_LENGTH;
@@ -191,8 +238,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		}
 
 		// Stop framework
-		frame.Stop();
-		frame.reset();
+		frame.stop();
+		frame.clear();
 	}
-	/**/
 }
