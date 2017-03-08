@@ -97,10 +97,12 @@ public class MSBand extends Sensor
 	@Override
 	protected boolean connect()
 	{
-		Log.i("connecting to ms band ...");
 		boolean connected = false;
+
+		disconnect(); //clean up old connection
 		listener.reset();
 
+		Log.i("connecting to ms band ...");
 		BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
 
 		if (devices.length > 0)
@@ -154,7 +156,7 @@ public class MSBand extends Sensor
 			}
 			catch (InterruptedException | BandException e)
 			{
-				Log.e("Error while connection to ms band", e);
+				Log.e("Error while connecting to ms band", e);
 			}
 			catch (InvalidBandVersionException e)
 			{
@@ -173,6 +175,7 @@ public class MSBand extends Sensor
 	@Override
 	protected void disconnect()
 	{
+		Log.d("Disconnecting from MS Band");
 		if (client != null)
 		{
 			try
@@ -185,5 +188,7 @@ public class MSBand extends Sensor
 				Log.e("Error while disconnecting from ms band", e);
 			}
 		}
+
+		client = null;
 	}
 }
