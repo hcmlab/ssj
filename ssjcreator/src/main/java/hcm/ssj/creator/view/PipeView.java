@@ -62,12 +62,13 @@ public class PipeView extends ViewGroup
     private final static int LANDSCAPE_NUMBER_OF_BOXES = 15;
     private final static int PORTRAIT_NUMBER_OF_BOXES = 20;
     //
+    private final GridLayout gridLayout = new GridLayout();
+    //
     private int gridBoxSize = 0;
     private int gridWidthNumberOfBoxes = 0;
     private int gridHeightNumberOfBoxes = 0;
     private int gridPadWPix = 0;
     private int gridPadHPix = 0;
-    private boolean[][] grid = null;
     //
     private HashSet<PipeListener> hsPipeListener = new HashSet<>();
 
@@ -98,6 +99,7 @@ public class PipeView extends ViewGroup
         Log.i("init pipeview");
         //children should not be clipped
         setClipToPadding(false);
+        //
         //add drag listener
         setOnDragListener(new PipeOnDragListener(PipeView.this));
         //initiate colors
@@ -309,7 +311,7 @@ public class PipeView extends ViewGroup
                 {
                     for (int i = j % 4; !placed && i < gridWidthNumberOfBoxes; i += 4)
                     {
-                        if (isGridFree(i, j))
+                        if (gridLayout.isGridFree(i, j))
                         {
                             view.setGridX(i);
                             view.setGridY(j);
@@ -323,7 +325,7 @@ public class PipeView extends ViewGroup
                 {
                     for (int i = 0; !placed && i < gridWidthNumberOfBoxes; i++)
                     {
-                        if (isGridFree(i, j))
+                        if (gridLayout.isGridFree(i, j))
                         {
                             view.setGridX(i);
                             view.setGridY(j);
@@ -345,7 +347,7 @@ public class PipeView extends ViewGroup
      */
     protected void placeElementView(ComponentView view)
     {
-        setGridValue(view.getGridX(), view.getGridY(), true);
+        gridLayout.setGridValue(view.getGridX(), view.getGridY(), true);
         int xPos = view.getGridX() * gridBoxSize + gridPadWPix;
         int yPos = view.getGridY() * gridBoxSize + gridPadHPix;
         int componentSize = gridBoxSize * 2;
@@ -373,41 +375,9 @@ public class PipeView extends ViewGroup
     }
 
     /**
-     * Checks free grid from top left corner
-     *
-     * @param x int
-     * @param y int
-     * @return boolean
-     */
-    protected boolean isGridFree(int x, int y)
-    {
-        //check for valid input
-        return grid != null && x + 1 < grid.length && y + 1 < grid[0].length &&
-                //check grid
-                !grid[x][y] && !grid[x + 1][y] && !grid[x][y + 1] && !grid[x + 1][y + 1];
-    }
-
-    /**
-     * @param x      int
-     * @param y      int
-     * @param placed boolean
-     */
-    protected void setGridValue(int x, int y, boolean placed)
-    {
-        //check for valid input
-        if (grid != null && x + 1 < grid.length && y + 1 < grid[0].length)
-        {
-            grid[x][y] = placed;
-            grid[x + 1][y] = placed;
-            grid[x][y + 1] = placed;
-            grid[x + 1][y + 1] = placed;
-        }
-    }
-
-    /**
      *
      */
-    private void calculateGrid()
+    void calculateGrid()
     {
         int gridWPix = getWidth();
         int gridHPix = getHeight();
@@ -447,11 +417,7 @@ public class PipeView extends ViewGroup
         }
         gridWidthNumberOfBoxes = width;
         gridHeightNumberOfBoxes = height;
-        grid = new boolean[gridWidthNumberOfBoxes][];
-        for (int i = 0; i < grid.length; i++)
-        {
-            grid[i] = new boolean[gridHeightNumberOfBoxes];
-        }
+        gridLayout.setGrid(gridWidthNumberOfBoxes, gridHeightNumberOfBoxes);
     }
 
     /**
@@ -504,6 +470,14 @@ public class PipeView extends ViewGroup
     }
 
     /**
+     * @return GridLayout
+     */
+    protected GridLayout getGrid()
+    {
+        return gridLayout;
+    }
+
+    /**
      * @param canvas Canvas
      */
     @Override
@@ -522,20 +496,17 @@ public class PipeView extends ViewGroup
         {
             canvas.drawLine(left + gridPadWPix, i, right - gridPadWPix, i, paintElementGrid);
         }
-        if (grid != null)
+        for (int i = 0; i < gridLayout.getWidth(); i++)
         {
-            for (int i = 0; i < grid.length; i++)
+            for (int j = 0; j < gridLayout.getHeight(); j++)
             {
-                for (int j = 0; j < grid[i].length; j++)
+                if (gridLayout.getValue(i, j))
                 {
-                    if (grid[i][j])
-                    {
-                        float xS = gridBoxSize * i + gridPadWPix;
-                        float yS = gridBoxSize * j + gridPadHPix;
-                        float xE = gridBoxSize * i + gridPadWPix + gridBoxSize;
-                        float yE = gridBoxSize * j + gridPadHPix + gridBoxSize;
-                        canvas.drawRect(xS, yS, xE, yE, paintElementShadow);
-                    }
+                    float xS = gridBoxSize * i + gridPadWPix;
+                    float yS = gridBoxSize * j + gridPadHPix;
+                    float xE = gridBoxSize * i + gridPadWPix + gridBoxSize;
+                    float yE = gridBoxSize * j + gridPadHPix + gridBoxSize;
+                    canvas.drawRect(xS, yS, xE, yE, paintElementShadow);
                 }
             }
         }

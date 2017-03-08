@@ -91,7 +91,7 @@ class PipeOnDragListener implements View.OnDragListener
         //delete element
         if (rectBin.contains((int) xCoord, (int) yCoord))
         {
-            pipeView.setGridValue(view.getGridX(), view.getGridY(), false);
+            pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
             Pipeline.getInstance().remove(view.getElement());
         } //reposition
         else
@@ -100,10 +100,10 @@ class PipeOnDragListener implements View.OnDragListener
             int y = pipeView.getGridCoordinate(yCoord);
             if (dropped)
             {
-                if (pipeView.isGridFree(x, y))
+                if (pipeView.getGrid().isGridFree(x, y))
                 {
                     //change position
-                    pipeView.setGridValue(view.getGridX(), view.getGridY(), false);
+                    pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
                     view.setGridX(x);
                     view.setGridY(y);
                     pipeView.placeElementView(view);
@@ -161,7 +161,7 @@ class PipeOnDragListener implements View.OnDragListener
                 yCoord = event.getY();
                 dropped = true;
                 ComponentView view = (ComponentView) event.getLocalState();
-                pipeView.setGridValue(view.getGridX(), view.getGridY(), false);
+                pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
                 break;
             case DragEvent.ACTION_DRAG_ENDED:
                 cleanup(event);
