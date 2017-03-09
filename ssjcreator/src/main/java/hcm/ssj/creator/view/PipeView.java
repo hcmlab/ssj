@@ -73,7 +73,6 @@ public class PipeView extends ViewGroup
     private int iGridPadHPix = 0; //padding top and bottom is half of a box size each
     private int iSizeWidth = 0; //draw size width
     private int iSizeHeight = 0; //draw size height
-    private Rect rectSizeShown = new Rect(); //visible size
     //listeners
     private HashSet<PipeListener> hsPipeListener = new HashSet<>();
 
@@ -436,22 +435,6 @@ public class PipeView extends ViewGroup
     }
 
     /**
-     * @return int
-     */
-    protected int getDisplayedWidth()
-    {
-        return rectSizeShown.width();
-    }
-
-    /**
-     * @return int
-     */
-    protected int getDisplayedHeight()
-    {
-        return rectSizeShown.height();
-    }
-
-    /**
      * @param canvas Canvas
      */
     @Override
@@ -528,6 +511,5 @@ public class PipeView extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b)
     {
-        getGlobalVisibleRect(rectSizeShown); //determine shown width of the view
     }
 }
