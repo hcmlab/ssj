@@ -32,6 +32,7 @@ import android.os.Looper;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -69,10 +70,10 @@ class PipeOnDragListener implements View.OnDragListener
         } finally
         {
             //remove recycle bin
-            ViewGroup viewGroup = (ViewGroup) recycleBin.getParent();
-            if (viewGroup != null)
+            ViewParent viewParent = recycleBin.getParent();
+            if (viewParent != null && viewParent instanceof ViewGroup)
             {
-                viewGroup.removeView(recycleBin);
+                ((ViewGroup) viewParent).removeView(recycleBin);
             }
             recycleBin.invalidate();
             recycleBin = null;
@@ -147,20 +148,20 @@ class PipeOnDragListener implements View.OnDragListener
         recycleBin = new ImageView(pipeView.getContext());
         recycleBin.setImageResource(android.R.drawable.ic_menu_delete);
         //determine shown width of the view
-        Rect rectSizeShown = new Rect();
-        pipeView.getGlobalVisibleRect(rectSizeShown);
-        int width = rectSizeShown.width();
-        int height = rectSizeShown.height();
-        //determine scroll changes through
+        Rect rectSizeDisplayed = new Rect();
+        pipeView.getGlobalVisibleRect(rectSizeDisplayed);
+        int width = rectSizeDisplayed.width();
+        int height = rectSizeDisplayed.height();
+        //determine scroll changes
         int scrollX = 0, scrollY = 0;
-        HorizontalScrollView horizontalScrollView = (HorizontalScrollView) pipeView.getParent();
-        if (horizontalScrollView != null)
+        ViewParent viewParent = pipeView.getParent();
+        if (viewParent != null && viewParent instanceof HorizontalScrollView)
         {
-            scrollX = horizontalScrollView.getScrollX();
-            ScrollView scrollView = (ScrollView) horizontalScrollView.getParent();
-            if (scrollView != null)
+            scrollX = ((HorizontalScrollView) viewParent).getScrollX();
+            ViewParent viewGrandparent = viewParent.getParent();
+            if (viewGrandparent != null && viewGrandparent instanceof ScrollView)
             {
-                scrollY = scrollView.getScrollY();
+                scrollY = ((ScrollView) viewGrandparent).getScrollY();
             }
         }
         width += scrollX;

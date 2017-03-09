@@ -31,6 +31,7 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
@@ -179,10 +180,13 @@ public class PipeView extends ViewGroup
      */
     private ArrayList<ComponentView> fillList(ArrayList<ComponentView> alView, Pipeline.Type type)
     {
+        //get all pipe components of specific type
         Object[] objects = Pipeline.getInstance().getAll(type);
+        //copy to new list to delete unused components
         ArrayList<ComponentView> alInterim = new ArrayList<>();
         for (Object object : objects)
         {
+            //check of components already exist in list
             boolean found = false;
             for (ComponentView v : alView)
             {
@@ -194,6 +198,7 @@ public class PipeView extends ViewGroup
                     break;
                 }
             }
+            //create new ComponentView if not
             if (!found)
             {
                 ComponentView view = new ComponentView(getContext(), object);
@@ -201,7 +206,9 @@ public class PipeView extends ViewGroup
                 alInterim.add(view);
             }
         }
+        //replace old list
         alView = alInterim;
+        //add views
         for (View view : alView)
         {
             addView(view);
@@ -442,9 +449,9 @@ public class PipeView extends ViewGroup
         super.onDraw(canvas);
         canvas.save();
         int left = iGridPadWPix;
-        int right = iSizeWidth - iGridBoxSize + iGridPadWPix;
+        int right = iSizeWidth - iGridPadWPix;
         int top = iGridPadHPix;
-        int bottom = iSizeHeight - iGridBoxSize + iGridPadHPix;
+        int bottom = iSizeHeight - iGridPadHPix;
         for (int i = 0; i < iGridWidthNumberOfBoxes + 1; i++)
         {
             canvas.drawLine(iGridPadWPix + i * iGridBoxSize, top,
@@ -482,22 +489,6 @@ public class PipeView extends ViewGroup
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
         super.onSizeChanged(w, h, oldw, oldh);
-        int orientation = getResources().getConfiguration().orientation;
-        if (iOrientation != orientation)
-        {
-            iOrientation = orientation;
-            iGridBoxSize = w > h ? h / LANDSCAPE_NUMBER_OF_BOXES : w / PORTRAIT_NUMBER_OF_BOXES;
-            if (iGridBoxSize <= 0)
-            {
-                iGridBoxSize = 50;
-            }
-            iGridPadWPix = w % iGridBoxSize / 2;
-            iGridPadHPix = h % iGridBoxSize / 2;
-            iSizeWidth = iGridBoxSize * (iGridWidthNumberOfBoxes + 1);
-            iSizeHeight = iGridBoxSize * (iGridHeightNumberOfBoxes + 1);
-            setMinimumHeight(iSizeHeight);
-            setMinimumWidth(iSizeWidth);
-        }
     }
 
     /**
@@ -510,5 +501,49 @@ public class PipeView extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b)
     {
+        //only change grid box size on orientation change
+        int orientation = getResources().getConfiguration().orientation;
+        if (iOrientation != orientation)
+        {
+            iOrientation = orientation;
+            //get displayed screen size
+            Rect rectSizeDisplayed = new Rect();
+            getGlobalVisibleRect(rectSizeDisplayed);
+            int width = rectSizeDisplayed.width();
+            int height = rectSizeDisplayed.height();
+            iGridBoxSize = width > height
+                    ? height / LANDSCAPE_NUMBER_OF_BOXES
+                    : width / PORTRAIT_NUMBER_OF_BOXES;
+            if (iGridBoxSize <= 0)
+            {
+                iGridBoxSize = 50;
+            }
+            calcDerivedSizes(width, height);
+            //check if display wouldn't be filled
+            if (iSizeWidth < width)
+            {
+                iGridBoxSize = width / (iGridWidthNumberOfBoxes);
+            } else if (iSizeHeight < height)
+            {
+                iGridBoxSize = height / (iGridHeightNumberOfBoxes);
+            }
+            calcDerivedSizes(width, height);
+            setMinimumHeight(iSizeHeight);
+            setMinimumWidth(iSizeWidth);
+            //place elements anew
+            placeElements();
+        }
+    }
+
+    /**
+     * @param width  int
+     * @param height int
+     */
+    private void calcDerivedSizes(int width, int height)
+    {
+        iGridPadWPix = width % iGridBoxSize / 2;
+        iGridPadHPix = height % iGridBoxSize / 2;
+        iSizeWidth = iGridBoxSize * iGridWidthNumberOfBoxes + (2 * iGridPadWPix);
+        iSizeHeight = iGridBoxSize * iGridHeightNumberOfBoxes + (2 * iGridPadHPix);
     }
 }
