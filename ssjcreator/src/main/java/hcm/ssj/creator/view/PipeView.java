@@ -32,9 +32,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -69,8 +74,8 @@ public class PipeView extends ViewGroup
     private int iGridBoxSize = 0; //box size depends on screen width
     private final int iGridWidthNumberOfBoxes = 50; //chosen box number
     private final int iGridHeightNumberOfBoxes = 50; //chosen box number
-    private int iGridPadWPix = 0; //padding left and right is half of a box size each
-    private int iGridPadHPix = 0; //padding top and bottom is half of a box size each
+    private int iGridPadWPix = 0; //left and right padding to center grid
+    private int iGridPadHPix = 0; //top and bottom padding to center grid
     private int iSizeWidth = 0; //draw size width
     private int iSizeHeight = 0; //draw size height
     //listeners
@@ -309,7 +314,8 @@ public class PipeView extends ViewGroup
     {
         for (ComponentView view : views)
         {
-            if (view.isPositioned())
+            if (view.isPositioned()
+                    && gridLayout.isGridFree(view.getGridX(), view.getGridY()))
             {
                 placeElementView(view);
             } else
@@ -506,6 +512,17 @@ public class PipeView extends ViewGroup
         if (iOrientation != orientation)
         {
             iOrientation = orientation;
+            //reset scroll
+            ViewParent viewParent = getParent();
+            if (viewParent != null && viewParent instanceof HorizontalScrollView)
+            {
+                ((HorizontalScrollView) viewParent).setScrollX(0);
+                ViewParent viewGrandparent = viewParent.getParent();
+                if (viewGrandparent != null && viewGrandparent instanceof ScrollView)
+                {
+                    ((ScrollView) viewGrandparent).setScrollY(0);
+                }
+            }
             //get displayed screen size
             Rect rectSizeDisplayed = new Rect();
             getGlobalVisibleRect(rectSizeDisplayed);
@@ -528,10 +545,20 @@ public class PipeView extends ViewGroup
                 iGridBoxSize = height / (iGridHeightNumberOfBoxes);
             }
             calcDerivedSizes(width, height);
-            setMinimumHeight(iSizeHeight);
-            setMinimumWidth(iSizeWidth);
-            //place elements anew
-            placeElements();
+            //set size in handler to force correct size and scroll view behaviour
+            Handler handler = new Handler(Looper.getMainLooper());
+            Runnable runnable = new Runnable()
+            {
+                public void run()
+                {
+                    setMinimumHeight(iSizeHeight);
+                    setMinimumWidth(iSizeWidth);
+                    //place elements anew
+                    gridLayout.clear();
+                    placeElements();
+                }
+            };
+            handler.postDelayed(runnable, 50);
         }
     }
 
