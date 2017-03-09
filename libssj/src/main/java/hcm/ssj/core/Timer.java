@@ -42,11 +42,14 @@ public class Timer {
     long _now; //in ms
     long _init; //in ms
     long _next_ms; //in ms
+    long _delta_ms; //in s
 
     long _tick_start = 0;
 
     final int HISTORY_SIZE = 10;
     ArrayList<Long> _history = new ArrayList<Long>();
+
+    boolean _syncFailFlag;
 
     public Timer()
     {
@@ -68,11 +71,13 @@ public class Timer {
     public void setClockS(double seconds)
     {
         _delta = seconds;
+        _delta_ms = (long)(_delta * 1000 + 0.5);
     }
 
     public void setClockMs(long milliseconds)
     {
         _delta = milliseconds / 1000.0;
+        _delta_ms = milliseconds;
     }
 
     public void setClockHz(double hz)
@@ -82,6 +87,7 @@ public class Timer {
 
     public void reset ()
     {
+        _syncFailFlag = false;
         _init = SystemClock.elapsedRealtime();
         _next = _delta + _offset;
     }
@@ -117,9 +123,19 @@ public class Timer {
             _now = SystemClock.elapsedRealtime() - _init;
         }
 
-        if(_now - _next_ms > _delta * 1000)
-            Log.d(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
-                  "thread too busy, missed sync point");
+        if(_now - _next_ms > _delta_ms) {
+            if(!_syncFailFlag) {
+                _syncFailFlag = true;
+                Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                      "thread too slow, missing sync point");
+            }
+        } else if(_now - _next_ms <= 1) {
+            if(_syncFailFlag) {
+                _syncFailFlag = false;
+                Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                      "no longer missing sync point");
+            }
+        }
 
         _next += _delta;
     }
