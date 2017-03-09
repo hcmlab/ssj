@@ -30,6 +30,7 @@ import android.content.Context;
 import android.view.View;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
 import hcm.ssj.creator.view.PipeView;
 
@@ -69,11 +70,11 @@ class Canvas implements ITab
     /**
      *
      */
-    void actualizeContent()
+    void actualizeContent(Util.ButtonAction buttonAction)
     {
         if (pipeView != null)
         {
-            pipeView.recalculate();
+            pipeView.recalculate(buttonAction);
         }
     }
 

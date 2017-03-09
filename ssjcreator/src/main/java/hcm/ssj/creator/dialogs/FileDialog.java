@@ -34,6 +34,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
+import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
@@ -112,30 +113,19 @@ public class FileDialog extends DialogFragment
                                 return;
                             }
                             case LOAD:
-                            case DELETE:
                             {
                                 if (xmlFiles != null && xmlFiles.length > 0)
                                 {
                                     int pos = listView.getCheckedItemPosition();
                                     if (pos > AbsListView.INVALID_POSITION)
                                     {
-                                        if (type == Type.DELETE && xmlFiles[pos].delete())
+                                        if (SaveLoad.load(xmlFiles[pos]))
                                         {
                                             for (Listener listener : alListeners)
                                             {
                                                 listener.onPositiveEvent(null);
                                             }
                                             return;
-                                        } else if (type == Type.LOAD)
-                                        {
-                                            if (SaveLoad.load(xmlFiles[pos]))
-                                            {
-                                                for (Listener listener : alListeners)
-                                                {
-                                                    listener.onPositiveEvent(null);
-                                                }
-                                                return;
-                                            }
                                         }
                                         for (Listener listener : alListeners)
                                         {
@@ -143,6 +133,37 @@ public class FileDialog extends DialogFragment
                                         }
                                         return;
                                     }
+                                }
+                                for (Listener listener : alListeners)
+                                {
+                                    listener.onNegativeEvent(null);
+                                }
+                                break;
+                            }
+                            case DELETE:
+                            {
+                                if (xmlFiles != null && xmlFiles.length > 0)
+                                {
+                                    SparseBooleanArray sparseBooleanArray = listView.getCheckedItemPositions();
+                                    for (int i = 0; i < listView.getCount(); i++)
+                                    {
+                                        if (sparseBooleanArray.get(i))
+                                        {
+                                            if (!xmlFiles[i].delete())
+                                            {
+                                                for (Listener listener : alListeners)
+                                                {
+                                                    listener.onNegativeEvent(new Boolean[]{false});
+                                                }
+                                                return;
+                                            }
+                                        }
+                                    }
+                                    for (Listener listener : alListeners)
+                                    {
+                                        listener.onPositiveEvent(null);
+                                    }
+                                    return;
                                 }
                                 for (Listener listener : alListeners)
                                 {
@@ -180,7 +201,9 @@ public class FileDialog extends DialogFragment
             case DELETE:
             {
                 listView = new ListView(getContext());
-                listView.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+                listView.setChoiceMode(type == Type.DELETE
+                        ? ListView.CHOICE_MODE_MULTIPLE
+                        : ListView.CHOICE_MODE_SINGLE);
                 File dir1 = new File(Environment.getExternalStorageDirectory(), Util.DIR_1);
                 File dir2 = new File(dir1.getPath(), Util.DIR_2);
                 xmlFiles = dir2.listFiles(new FilenameFilter()
@@ -198,7 +221,9 @@ public class FileDialog extends DialogFragment
                     {
                         ids[i] = xmlFiles[i].getName();
                     }
-                    listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice, ids));
+                    listView.setAdapter(new ArrayAdapter<>(getContext(), type == Type.DELETE
+                            ? android.R.layout.simple_list_item_multiple_choice
+                            : android.R.layout.simple_list_item_single_choice, ids));
                 } else
                 {
                     listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice));

@@ -50,6 +50,11 @@ public abstract class Util
 {
     public final static String DIR_1 = "SSJ", DIR_2 = "Creator", SUFFIX = ".xml", DEMO = "demo";
 
+    public enum ButtonAction
+    {
+        ADD, SAVE, LOAD, CLEAR, UNDEFINED
+    }
+
     /**
      *
      */

@@ -37,6 +37,7 @@ import android.widget.ImageView;
 
 import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.main.TwoDScrollView;
+import hcm.ssj.creator.util.Util;
 
 /**
  * On drag listener for pipe <br>
@@ -84,7 +85,7 @@ class PipeOnDragListener implements View.OnDragListener
             {
                 public void run()
                 {
-                    pipeView.recalculate();
+                    pipeView.recalculate(Util.ButtonAction.UNDEFINED);
                 }
             };
             handler.postDelayed(runnable, 50);

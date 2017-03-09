@@ -35,6 +35,10 @@
         app:showAsAction="always|withText">
         <menu>
             <item
+                android:id="@+id/action_framework"
+                android:title="@string/str_options">
+            </item>
+            <item
                 android:id="@+id/action_sensors"
                 android:title="@string/str_sensors">
             </item>
@@ -50,6 +54,10 @@
                 android:id="@+id/action_consumers"
                 android:title="@string/str_consumers">
             </item>
+            <item
+                android:id="@+id/action_clear"
+                android:title="@string/str_clear">
+            </item>
         </menu>
     </item>
     <item
@@ -59,10 +67,6 @@
         android:title="@string/str_configMenu"
         app:showAsAction="ifRoom|withText">
         <menu>
-            <item
-                android:id="@+id/action_framework"
-                android:title="@string/str_options">
-            </item>
             <item
                 android:id="@+id/action_save"
                 android:title="@string/str_save">
@@ -74,10 +78,6 @@
             <item
                 android:id="@+id/action_delete"
                 android:title="@string/str_delete">
-            </item>
-            <item
-                android:id="@+id/action_clear"
-                android:title="@string/str_clear">
             </item>
         </menu>
     </item>

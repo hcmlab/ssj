@@ -47,6 +47,7 @@ import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.main.TwoDScrollView;
+import hcm.ssj.creator.util.Util;
 
 /**
  * Draws a pipe<br>
@@ -122,18 +123,24 @@ public class PipeView extends ViewGroup
     }
 
     /**
-     *
+     * @param buttonAction Util.ButtonAction
      */
-    public final void recalculate()
+    public final void recalculate(Util.ButtonAction buttonAction)
     {
         if (this.isLaidOut())
         {
-            gridLayout.clear();
-            createElements();
-            placeElements();
-            for (PipeListener pipeListener : hsPipeListener)
+            if (buttonAction != Util.ButtonAction.SAVE)
             {
-                pipeListener.viewChanged();
+                if (buttonAction == Util.ButtonAction.CLEAR)
+                {
+                    gridLayout.clear();
+                }
+                createElements();
+                placeElements();
+                for (PipeListener pipeListener : hsPipeListener)
+                {
+                    pipeListener.viewChanged();
+                }
             }
         }
     }
@@ -313,8 +320,7 @@ public class PipeView extends ViewGroup
     {
         for (ComponentView view : views)
         {
-            if (view.isPositioned()
-                    && gridLayout.isGridFree(view.getGridX(), view.getGridY()))
+            if (view.isPositioned())
             {
                 placeElementView(view);
             } else
@@ -549,7 +555,6 @@ public class PipeView extends ViewGroup
                     setMinimumHeight(iSizeHeight);
                     setMinimumWidth(iSizeWidth);
                     //place elements anew
-                    gridLayout.clear();
                     placeElements();
                 }
             };
