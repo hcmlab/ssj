@@ -31,8 +31,8 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -61,7 +61,7 @@ public class PipeView extends ViewGroup
     private Paint paintElementGrid;
     private Paint paintElementShadow;
     //layout
-    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10;
+    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
     private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
     private int iOrientation = Configuration.ORIENTATION_UNDEFINED;
     //grid
@@ -73,12 +73,7 @@ public class PipeView extends ViewGroup
     private int iGridPadHPix = 0; //padding top and bottom is half of a box size each
     private int iSizeWidth = 0; //draw size width
     private int iSizeHeight = 0; //draw size height
-    //touch events
-    private float fPosX = 0;
-    private float fPosY = 0;
-    private float fLastTouchX;
-    private float fLastTouchY;
-    private int iActivePointerId = MotionEvent.INVALID_POINTER_ID;
+    private Rect rectSizeShown = new Rect(); //visible size
     //listeners
     private HashSet<PipeListener> hsPipeListener = new HashSet<>();
 
@@ -112,7 +107,7 @@ public class PipeView extends ViewGroup
         //create grid
         gridLayout = new GridLayout(iGridWidthNumberOfBoxes, iGridHeightNumberOfBoxes);
         //add drag listener
-        setOnDragListener(new PipeOnDragListener(PipeView.this));
+        setOnDragListener(new PipeOnDragListener());
         //initiate colors
         paintElementGrid = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintElementGrid.setStyle(Paint.Style.STROKE);
@@ -223,7 +218,7 @@ public class PipeView extends ViewGroup
     {
         //elements
         int initHeight = 0;
-        int divider = 6;
+        int divider = 5;
         setLayouts(componentViewsSensor, initHeight);
         initHeight += divider;
         setLayouts(componentViewsProvider, initHeight);
@@ -234,8 +229,7 @@ public class PipeView extends ViewGroup
         //connections
         for (ConnectionView connectionView : connectionViews)
         {
-            connectionView.layout((int) (fPosX + 0.5f), (int) (fPosY + 0.5f), iSizeWidth, iSizeHeight);
-            //connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
+            connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
         }
         int connections = 0;
         for (ComponentView componentViewSensor : componentViewsSensor)
@@ -358,8 +352,8 @@ public class PipeView extends ViewGroup
     protected void placeElementView(ComponentView view)
     {
         gridLayout.setGridValue(view.getGridX(), view.getGridY(), true);
-        int xPos = (int) (fPosX + 0.5f + (view.getGridX() * iGridBoxSize + iGridPadWPix));
-        int yPos = (int) (fPosY + 0.5f + (view.getGridY() * iGridBoxSize + iGridPadHPix));
+        int xPos = view.getGridX() * iGridBoxSize + iGridPadWPix;
+        int yPos = view.getGridY() * iGridBoxSize + iGridPadHPix;
         int componentSize = iGridBoxSize * 2;
         view.layout(xPos, yPos, xPos + componentSize, yPos + componentSize);
     }
@@ -442,6 +436,22 @@ public class PipeView extends ViewGroup
     }
 
     /**
+     * @return int
+     */
+    protected int getDisplayedWidth()
+    {
+        return rectSizeShown.width();
+    }
+
+    /**
+     * @return int
+     */
+    protected int getDisplayedHeight()
+    {
+        return rectSizeShown.height();
+    }
+
+    /**
      * @param canvas Canvas
      */
     @Override
@@ -449,7 +459,6 @@ public class PipeView extends ViewGroup
     {
         super.onDraw(canvas);
         canvas.save();
-        canvas.translate(fPosX, fPosY); //change canvas position
         int left = iGridPadWPix;
         int right = iSizeWidth - iGridBoxSize + iGridPadWPix;
         int top = iGridPadHPix;
@@ -519,86 +528,6 @@ public class PipeView extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b)
     {
+        getGlobalVisibleRect(rectSizeShown); //determine shown width of the view
     }
-
-//    /**
-//     * @param ev MotionEvent
-//     * @return boolean
-//     */
-//    @Override
-//    public boolean onTouchEvent(MotionEvent ev)
-//    {
-//        final int action = ev.getAction();
-//        switch (action & MotionEvent.ACTION_MASK)
-//        {
-//            case MotionEvent.ACTION_DOWN:
-//            {
-//                final float x = ev.getX();
-//                final float y = ev.getY();
-//                //remember start
-//                fLastTouchX = x;
-//                fLastTouchY = y;
-//                //save the ID of this pointer
-//                iActivePointerId = ev.getPointerId(0);
-//                break;
-//            }
-//            case MotionEvent.ACTION_MOVE:
-//            {
-//                //find the index of the active pointer and fetch its position
-//                final int pointerIndex = ev.findPointerIndex(iActivePointerId);
-//                if (pointerIndex != MotionEvent.INVALID_POINTER_ID)
-//                {
-//                    final float x = ev.getX(pointerIndex);
-//                    final float y = ev.getY(pointerIndex);
-//                    //calculate the distance moved
-//                    final float dx = x - fLastTouchX;
-//                    final float dy = y - fLastTouchY;
-//                    //move the object
-//                    fPosX += dx;
-//                    fPosY += dy;
-//                    //remember this touch position for the next move event
-//                    fLastTouchX = x;
-//                    fLastTouchY = y;
-//                    //change child positions
-//                    for (int i = 0; i < getChildCount(); i++)
-//                    {
-//                        View view = getChildAt(i);
-//                        view.setX(dx + view.getX());
-//                        view.setY(dy + view.getY());
-//                    }
-//                    //invalidate to request a redraw
-//                    invalidate();
-//                }
-//                break;
-//            }
-//            case MotionEvent.ACTION_UP:
-//            {
-//                iActivePointerId = MotionEvent.INVALID_POINTER_ID;
-//                break;
-//            }
-//            case MotionEvent.ACTION_CANCEL:
-//            {
-//                iActivePointerId = MotionEvent.INVALID_POINTER_ID;
-//                break;
-//            }
-//            case MotionEvent.ACTION_POINTER_UP:
-//            {
-//                //extract the index of the pointer that left the touch sensor
-//                final int pointerIndex = (action & MotionEvent.ACTION_POINTER_INDEX_MASK)
-//                        >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-//                final int pointerId = ev.getPointerId(pointerIndex);
-//                if (pointerId == iActivePointerId)
-//                {
-//                    //this was the active pointer going up
-//                    //choose a new active pointer and adjust accordingly
-//                    final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-//                    fLastTouchX = ev.getX(newPointerIndex);
-//                    fLastTouchY = ev.getY(newPointerIndex);
-//                    iActivePointerId = ev.getPointerId(newPointerIndex);
-//                }
-//                break;
-//            }
-//        }
-//        return true;
-//    }
 }

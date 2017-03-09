@@ -27,6 +27,8 @@
 package hcm.ssj.creator.view;
 
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,30 +42,28 @@ import hcm.ssj.creator.core.Pipeline;
  */
 class PipeOnDragListener implements View.OnDragListener
 {
-    private final PipeView pipeView;
-    //
     private ImageView imageView;
     private boolean dropped;
     private float xCoord, yCoord;
 
     /**
-     * @param pipeView PipeView
+     *
      */
-    PipeOnDragListener(PipeView pipeView)
+    PipeOnDragListener()
     {
-        this.pipeView = pipeView;
     }
 
     /**
-     * @param event DragEvent
+     * @param pipeView PipeView
+     * @param event    DragEvent
      */
-    private void cleanup(DragEvent event)
+    private void cleanup(final PipeView pipeView, final DragEvent event)
     {
         //remove view from owner
-        ComponentView view = (ComponentView) event.getLocalState();
+        ComponentView componentView = (ComponentView) event.getLocalState();
         try
         {
-            handleCollision(view);
+            handleCollision(pipeView, componentView);
         } finally
         {
             //remove recycle bin
@@ -74,16 +74,26 @@ class PipeOnDragListener implements View.OnDragListener
             }
             imageView.invalidate();
             imageView = null;
-            view.invalidate();
-            //recalculate
-            pipeView.recalculate();
+            componentView.invalidate();
+            //recalculate view after delay to avoid null pointer exception when tab is deleted aswell
+            //@todo find better fix
+            Handler handler = new Handler(Looper.getMainLooper());
+            Runnable runnable = new Runnable()
+            {
+                public void run()
+                {
+                    pipeView.recalculate();
+                }
+            };
+            handler.postDelayed(runnable, 50);
         }
     }
 
     /**
-     * @param view ComponentView
+     * @param pipeView PipeView
+     * @param view     ComponentView
      */
-    private void handleCollision(ComponentView view)
+    private void handleCollision(final PipeView pipeView, final ComponentView view)
     {
         //check collision
         Rect rectBin = new Rect();
@@ -123,52 +133,57 @@ class PipeOnDragListener implements View.OnDragListener
      * @return boolean
      */
     @Override
-    public boolean onDrag(View v, DragEvent event)
+    public boolean onDrag(final View v, final DragEvent event)
     {
-        switch (event.getAction())
+        if (v instanceof PipeView)
         {
-            case DragEvent.ACTION_DRAG_STARTED:
-                //init values
-                xCoord = 0;
-                yCoord = 0;
-                dropped = false;
-                //create recycle bin
-                if (imageView != null)
-                {
-                    ViewGroup parent = ((ViewGroup) imageView.getParent());
-                    if (parent != null)
+            PipeView pipeView = (PipeView) v;
+            switch (event.getAction())
+            {
+                case DragEvent.ACTION_DRAG_STARTED:
+                    //init values
+                    xCoord = 0;
+                    yCoord = 0;
+                    dropped = false;
+                    //create recycle bin
+                    if (imageView != null)
                     {
-                        parent.removeView(imageView);
+                        ViewGroup parent = ((ViewGroup) imageView.getParent());
+                        if (parent != null)
+                        {
+                            parent.removeView(imageView);
+                        }
+                        imageView.invalidate();
+                        imageView = null;
                     }
-                    imageView.invalidate();
-                    imageView = null;
-                }
-                imageView = new ImageView(pipeView.getContext());
-                imageView.setImageResource(android.R.drawable.ic_menu_delete);
-                int width = pipeView.getWidth();
-                int height = pipeView.getHeight();
-                int gridBoxSize = pipeView.getGridBoxSize();
-                imageView.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
-                pipeView.addView(imageView);
-                break;
-            case DragEvent.ACTION_DRAG_ENTERED:
-                break;
-            case DragEvent.ACTION_DRAG_EXITED:
-                break;
-            case DragEvent.ACTION_DROP:
-                //update drop location
-                xCoord = event.getX();
-                yCoord = event.getY();
-                dropped = true;
-                ComponentView view = (ComponentView) event.getLocalState();
-                pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
-                break;
-            case DragEvent.ACTION_DRAG_ENDED:
-                cleanup(event);
-                break;
-            default:
-                break;
+                    imageView = new ImageView(pipeView.getContext());
+                    imageView.setImageResource(android.R.drawable.ic_menu_delete);
+                    int width = pipeView.getDisplayedWidth();
+                    int height = pipeView.getDisplayedHeight();
+                    int gridBoxSize = pipeView.getGridBoxSize();
+                    imageView.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
+                    pipeView.addView(imageView);
+                    break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    //update drop location
+                    xCoord = event.getX();
+                    yCoord = event.getY();
+                    dropped = true;
+                    ComponentView view = (ComponentView) event.getLocalState();
+                    pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    cleanup(pipeView, event);
+                    break;
+                default:
+                    break;
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 }
