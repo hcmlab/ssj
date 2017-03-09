@@ -117,6 +117,10 @@ public class Timer {
             _now = SystemClock.elapsedRealtime() - _init;
         }
 
+        if(_now - _next_ms > _delta * 1000)
+            Log.d(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                  "thread too busy, missed sync point");
+
         _next += _delta;
     }
 

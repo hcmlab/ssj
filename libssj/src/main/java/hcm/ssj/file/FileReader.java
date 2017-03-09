@@ -68,8 +68,8 @@ public class FileReader extends Sensor
     public final Options options = new Options();
     private File fileHeader;
     private File fileReal;
-    private BufferedInputStream inputBytes = null;
-    private BufferedReader inputString = null;
+    private BufferedInputStream inputBinary = null;
+    private BufferedReader inputASCII = null;
     private int pos;
     private SimpleHeader simpleHeader = null;
     private boolean initialized = false;
@@ -121,9 +121,9 @@ public class FileReader extends Sensor
         simpleHeader = getSimpleHeader();
 
         if(simpleHeader._ftype.equals("BINARY"))
-            inputBytes = getFileConnection(fileReal, inputBytes);
+            inputBinary = getFileConnection(fileReal, inputBinary);
         else if(simpleHeader._ftype.equals("ASCII"))
-            inputString = getFileConnection(fileReal, inputString);
+            inputASCII = getFileConnection(fileReal, inputASCII);
 
         pos = 0;
         return true;
@@ -232,7 +232,8 @@ public class FileReader extends Sensor
     @Override
     protected void disconnect()
     {
-        inputBytes = closeStream(inputBytes);
+        inputBinary = closeStream(inputBinary);
+        inputASCII = closeStream(inputASCII);
         initialized = false;
     }
 
@@ -327,12 +328,12 @@ public class FileReader extends Sensor
     protected String getDataASCII()
     {
 
-        String data = readLine(inputString);
+        String data = readLine(inputASCII);
         if (data == null && options.loop.get())
         {
-            //start anew
-            inputBytes = getFileConnection(fileReal, inputBytes);
-            data = readLine(inputString);
+            Log.d("end of file reached, looping");
+            inputASCII = getFileConnection(fileReal, inputASCII);
+            data = readLine(inputASCII);
         }
         return data;
     }
@@ -340,12 +341,12 @@ public class FileReader extends Sensor
 
     protected int getDataBinary(byte[] buffer, int numBytes)
     {
-        int ret = read(inputBytes, buffer, numBytes);
+        int ret = read(inputBinary, buffer, numBytes);
         if(ret == -1 && options.loop.get())
         {
-            //we reached end of file, start anew
-            inputBytes = getFileConnection(fileReal, inputBytes);
-            ret = read(inputBytes, buffer, numBytes);
+            Log.d("end of file reached, looping");
+            inputBinary = getFileConnection(fileReal, inputBinary);
+            ret = read(inputBinary, buffer, numBytes);
 
             if(ret <= 0)
                 Log.e("unexpected error reading from file");
@@ -360,7 +361,7 @@ public class FileReader extends Sensor
     protected void skip(int bytes)
     {
         try {
-            inputBytes.skip(bytes);
+            inputBinary.skip(bytes);
         } catch (IOException e) {
             Log.e("exception while skipping bytes", e);
         }
