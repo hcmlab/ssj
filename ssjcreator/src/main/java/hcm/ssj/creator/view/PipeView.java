@@ -27,12 +27,19 @@
 package hcm.ssj.creator.view;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.HorizontalScrollView;
+import android.widget.ScrollView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -55,21 +62,23 @@ public class PipeView extends ViewGroup
     private ArrayList<ComponentView> componentViewsConsumer = new ArrayList<>();
     //connections
     private ArrayList<ConnectionView> connectionViews = new ArrayList<>();
-    //layout
+    //colors
     private Paint paintElementGrid;
     private Paint paintElementShadow;
-    //
-    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10;
+    //layout
+    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
     private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
-    //
-    private final GridLayout gridLayout = new GridLayout();
-    //
-    private int gridBoxSize = 0; //box size depends on screen width
-    private int gridWidthNumberOfBoxes = 0; //number depends on orientation
-    private int gridHeightNumberOfBoxes = 0; //number depends on orientation
-    private int gridPadWPix = 0; //padding left and right is half of a box size each
-    private int gridPadHPix = 0; //padding top and down is half of a box size each
-    //
+    private int iOrientation = Configuration.ORIENTATION_UNDEFINED;
+    //grid
+    private GridLayout gridLayout;
+    private int iGridBoxSize = 0; //box size depends on screen width
+    private final int iGridWidthNumberOfBoxes = 50; //chosen box number
+    private final int iGridHeightNumberOfBoxes = 50; //chosen box number
+    private int iGridPadWPix = 0; //left and right padding to center grid
+    private int iGridPadHPix = 0; //top and bottom padding to center grid
+    private int iSizeWidth = 0; //draw size width
+    private int iSizeHeight = 0; //draw size height
+    //listeners
     private HashSet<PipeListener> hsPipeListener = new HashSet<>();
 
     /**
@@ -99,9 +108,10 @@ public class PipeView extends ViewGroup
         Log.i("init pipeview");
         //children should not be clipped
         setClipToPadding(false);
-        //
+        //create grid
+        gridLayout = new GridLayout(iGridWidthNumberOfBoxes, iGridHeightNumberOfBoxes);
         //add drag listener
-        setOnDragListener(new PipeOnDragListener(PipeView.this));
+        setOnDragListener(new PipeOnDragListener());
         //initiate colors
         paintElementGrid = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintElementGrid.setStyle(Paint.Style.STROKE);
@@ -110,8 +120,6 @@ public class PipeView extends ViewGroup
         paintElementShadow = new Paint(Paint.ANTI_ALIAS_FLAG);
         paintElementShadow.setStyle(Paint.Style.FILL);
         paintElementShadow.setColor(Color.LTGRAY);
-        //
-        recalculate();
     }
 
     /**
@@ -121,7 +129,7 @@ public class PipeView extends ViewGroup
     {
         if (this.isLaidOut())
         {
-            calculateGrid();
+            gridLayout.clear();
             createElements();
             placeElements();
             for (PipeListener pipeListener : hsPipeListener)
@@ -177,10 +185,13 @@ public class PipeView extends ViewGroup
      */
     private ArrayList<ComponentView> fillList(ArrayList<ComponentView> alView, Pipeline.Type type)
     {
+        //get all pipe components of specific type
         Object[] objects = Pipeline.getInstance().getAll(type);
+        //copy to new list to delete unused components
         ArrayList<ComponentView> alInterim = new ArrayList<>();
         for (Object object : objects)
         {
+            //check of components already exist in list
             boolean found = false;
             for (ComponentView v : alView)
             {
@@ -192,6 +203,7 @@ public class PipeView extends ViewGroup
                     break;
                 }
             }
+            //create new ComponentView if not
             if (!found)
             {
                 ComponentView view = new ComponentView(getContext(), object);
@@ -199,7 +211,9 @@ public class PipeView extends ViewGroup
                 alInterim.add(view);
             }
         }
+        //replace old list
         alView = alInterim;
+        //add views
         for (View view : alView)
         {
             addView(view);
@@ -214,18 +228,18 @@ public class PipeView extends ViewGroup
     {
         //elements
         int initHeight = 0;
-        int divider = 4;
+        int divider = 5;
         setLayouts(componentViewsSensor, initHeight);
-        initHeight += gridHeightNumberOfBoxes / divider;
+        initHeight += divider;
         setLayouts(componentViewsProvider, initHeight);
-        initHeight += gridHeightNumberOfBoxes / divider;
+        initHeight += divider;
         setLayouts(componentViewsTransformer, initHeight);
-        initHeight += gridHeightNumberOfBoxes / divider;
+        initHeight += divider;
         setLayouts(componentViewsConsumer, initHeight);
         //connections
         for (ConnectionView connectionView : connectionViews)
         {
-            connectionView.layout(0, 0, getWidth(), getHeight());
+            connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
         }
         int connections = 0;
         for (ComponentView componentViewSensor : componentViewsSensor)
@@ -272,7 +286,7 @@ public class PipeView extends ViewGroup
                             connectionView.setLine(
                                     destination.getX(), destination.getY(),
                                     componentView.getX(), componentView.getY(),
-                                    gridBoxSize);
+                                    iGridBoxSize);
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorChannel)
@@ -280,7 +294,7 @@ public class PipeView extends ViewGroup
                             connectionView.setLine(
                                     componentView.getX(), componentView.getY(),
                                     destination.getX(), destination.getY(),
-                                    gridBoxSize);
+                                    iGridBoxSize);
                             connectionView.invalidate();
                         }
                         connections++;
@@ -300,16 +314,17 @@ public class PipeView extends ViewGroup
     {
         for (ComponentView view : views)
         {
-            if (view.isPositioned())
+            if (view.isPositioned()
+                    && gridLayout.isGridFree(view.getGridX(), view.getGridY()))
             {
                 placeElementView(view);
             } else
             {
                 boolean placed = false;
                 //place elements as chess grid
-                for (int j = initHeight; !placed && j < gridHeightNumberOfBoxes; j += 2)
+                for (int j = initHeight; !placed && j < iGridHeightNumberOfBoxes; j += 2)
                 {
-                    for (int i = j % 4; !placed && i < gridWidthNumberOfBoxes; i += 4)
+                    for (int i = j % 4; !placed && i < iGridWidthNumberOfBoxes; i += 4)
                     {
                         if (gridLayout.isGridFree(i, j))
                         {
@@ -321,9 +336,9 @@ public class PipeView extends ViewGroup
                     }
                 }
                 //try from zero if placement didn't work
-                for (int j = 0; !placed && j < gridHeightNumberOfBoxes && j < initHeight; j++)
+                for (int j = 0; !placed && j < iGridHeightNumberOfBoxes && j < initHeight; j++)
                 {
-                    for (int i = 0; !placed && i < gridWidthNumberOfBoxes; i++)
+                    for (int i = 0; !placed && i < iGridWidthNumberOfBoxes; i++)
                     {
                         if (gridLayout.isGridFree(i, j))
                         {
@@ -348,9 +363,9 @@ public class PipeView extends ViewGroup
     protected void placeElementView(ComponentView view)
     {
         gridLayout.setGridValue(view.getGridX(), view.getGridY(), true);
-        int xPos = view.getGridX() * gridBoxSize + gridPadWPix;
-        int yPos = view.getGridY() * gridBoxSize + gridPadHPix;
-        int componentSize = gridBoxSize * 2;
+        int xPos = view.getGridX() * iGridBoxSize + iGridPadWPix;
+        int yPos = view.getGridY() * iGridBoxSize + iGridPadHPix;
+        int componentSize = iGridBoxSize * 2;
         view.layout(xPos, yPos, xPos + componentSize, yPos + componentSize);
     }
 
@@ -359,7 +374,7 @@ public class PipeView extends ViewGroup
      */
     protected int getGridBoxSize()
     {
-        return gridBoxSize;
+        return iGridBoxSize;
     }
 
     /**
@@ -370,54 +385,8 @@ public class PipeView extends ViewGroup
      */
     protected int getGridCoordinate(float pos)
     {
-        int i = (int) (pos / gridBoxSize + 0.5f) - 1;
+        int i = (int) (pos / iGridBoxSize + 0.5f) - 1;
         return i < 0 ? 0 : i;
-    }
-
-    /**
-     *
-     */
-    void calculateGrid()
-    {
-        int gridWPix = getWidth();
-        int gridHPix = getHeight();
-        gridBoxSize = gridWPix > gridHPix ? gridHPix / LANDSCAPE_NUMBER_OF_BOXES : gridWPix / PORTRAIT_NUMBER_OF_BOXES;
-        if (gridBoxSize <= 0)
-        {
-            gridBoxSize = 50;
-        }
-        gridPadWPix = gridWPix % gridBoxSize / 2;
-        gridPadHPix = gridHPix % gridBoxSize / 2;
-        //
-        int width = gridWPix / gridBoxSize;
-        int height = gridHPix / gridBoxSize;
-        if (gridWidthNumberOfBoxes != width || gridHeightNumberOfBoxes != height)
-        {
-            //clear element placements
-            for (ComponentView view : componentViewsSensor)
-            {
-                view.setGridX(-1);
-                view.setGridY(-1);
-            }
-            for (ComponentView view : componentViewsProvider)
-            {
-                view.setGridX(-1);
-                view.setGridY(-1);
-            }
-            for (ComponentView view : componentViewsTransformer)
-            {
-                view.setGridX(-1);
-                view.setGridY(-1);
-            }
-            for (ComponentView view : componentViewsConsumer)
-            {
-                view.setGridX(-1);
-                view.setGridY(-1);
-            }
-        }
-        gridWidthNumberOfBoxes = width;
-        gridHeightNumberOfBoxes = height;
-        gridLayout.setGrid(gridWidthNumberOfBoxes, gridHeightNumberOfBoxes);
     }
 
     /**
@@ -484,17 +453,20 @@ public class PipeView extends ViewGroup
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
-        int left = 0;
-        int right = getWidth();
-        int top = 0;
-        int bottom = getHeight();
-        for (int i = left + gridPadWPix; i <= right - gridPadWPix; i += gridBoxSize)
+        canvas.save();
+        int left = iGridPadWPix;
+        int right = iSizeWidth - iGridPadWPix;
+        int top = iGridPadHPix;
+        int bottom = iSizeHeight - iGridPadHPix;
+        for (int i = 0; i < iGridWidthNumberOfBoxes + 1; i++)
         {
-            canvas.drawLine(i, top + gridPadHPix, i, bottom - gridPadHPix, paintElementGrid);
+            canvas.drawLine(iGridPadWPix + i * iGridBoxSize, top,
+                    iGridPadWPix + i * iGridBoxSize, bottom, paintElementGrid);
         }
-        for (int i = top + gridPadHPix; i <= bottom - gridPadHPix; i += gridBoxSize)
+        for (int i = 0; i < iGridHeightNumberOfBoxes + 1; i++)
         {
-            canvas.drawLine(left + gridPadWPix, i, right - gridPadWPix, i, paintElementGrid);
+            canvas.drawLine(left, iGridPadHPix + i * iGridBoxSize,
+                    right, iGridPadHPix + i * iGridBoxSize, paintElementGrid);
         }
         for (int i = 0; i < gridLayout.getWidth(); i++)
         {
@@ -502,14 +474,15 @@ public class PipeView extends ViewGroup
             {
                 if (gridLayout.getValue(i, j))
                 {
-                    float xS = gridBoxSize * i + gridPadWPix;
-                    float yS = gridBoxSize * j + gridPadHPix;
-                    float xE = gridBoxSize * i + gridPadWPix + gridBoxSize;
-                    float yE = gridBoxSize * j + gridPadHPix + gridBoxSize;
+                    float xS = iGridBoxSize * i + iGridPadWPix;
+                    float yS = iGridBoxSize * j + iGridPadHPix;
+                    float xE = iGridBoxSize * i + iGridPadWPix + iGridBoxSize;
+                    float yE = iGridBoxSize * j + iGridPadHPix + iGridBoxSize;
                     canvas.drawRect(xS, yS, xE, yE, paintElementShadow);
                 }
             }
         }
+        canvas.restore();
     }
 
     /**
@@ -534,7 +507,70 @@ public class PipeView extends ViewGroup
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b)
     {
-        calculateGrid();
-        placeElements();
+        //only change grid box size on orientation change
+        int orientation = getResources().getConfiguration().orientation;
+        if (iOrientation != orientation)
+        {
+            iOrientation = orientation;
+            //reset scroll
+            ViewParent viewParent = getParent();
+            if (viewParent != null && viewParent instanceof HorizontalScrollView)
+            {
+                ((HorizontalScrollView) viewParent).setScrollX(0);
+                ViewParent viewGrandparent = viewParent.getParent();
+                if (viewGrandparent != null && viewGrandparent instanceof ScrollView)
+                {
+                    ((ScrollView) viewGrandparent).setScrollY(0);
+                }
+            }
+            //get displayed screen size
+            Rect rectSizeDisplayed = new Rect();
+            getGlobalVisibleRect(rectSizeDisplayed);
+            int width = rectSizeDisplayed.width();
+            int height = rectSizeDisplayed.height();
+            iGridBoxSize = width > height
+                    ? height / LANDSCAPE_NUMBER_OF_BOXES
+                    : width / PORTRAIT_NUMBER_OF_BOXES;
+            if (iGridBoxSize <= 0)
+            {
+                iGridBoxSize = 50;
+            }
+            calcDerivedSizes(width, height);
+            //check if display wouldn't be filled
+            if (iSizeWidth < width)
+            {
+                iGridBoxSize = width / (iGridWidthNumberOfBoxes);
+            } else if (iSizeHeight < height)
+            {
+                iGridBoxSize = height / (iGridHeightNumberOfBoxes);
+            }
+            calcDerivedSizes(width, height);
+            //set size in handler to force correct size and scroll view behaviour
+            Handler handler = new Handler(Looper.getMainLooper());
+            Runnable runnable = new Runnable()
+            {
+                public void run()
+                {
+                    setMinimumHeight(iSizeHeight);
+                    setMinimumWidth(iSizeWidth);
+                    //place elements anew
+                    gridLayout.clear();
+                    placeElements();
+                }
+            };
+            handler.postDelayed(runnable, 50);
+        }
+    }
+
+    /**
+     * @param width  int
+     * @param height int
+     */
+    private void calcDerivedSizes(int width, int height)
+    {
+        iGridPadWPix = width % iGridBoxSize / 2;
+        iGridPadHPix = height % iGridBoxSize / 2;
+        iSizeWidth = iGridBoxSize * iGridWidthNumberOfBoxes + (2 * iGridPadWPix);
+        iSizeHeight = iGridBoxSize * iGridHeightNumberOfBoxes + (2 * iGridPadHPix);
     }
 }

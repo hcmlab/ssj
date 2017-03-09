@@ -26,6 +26,8 @@
 
 package hcm.ssj.creator.view;
 
+import java.util.Arrays;
+
 /**
  * Grid layout for pipe <br>
  * Created by Frank on 03.03.2017.
@@ -33,13 +35,9 @@ package hcm.ssj.creator.view;
 
 class GridLayout
 {
-    private boolean[][] grid = null;
+    private final boolean[][] grid;
 
-    GridLayout()
-    {
-    }
-
-    void setGrid(int width, int height)
+    GridLayout(int width, int height)
     {
         grid = new boolean[width][height];
     }
@@ -49,7 +47,7 @@ class GridLayout
      */
     int getWidth()
     {
-        return grid != null ? grid.length : 0;
+        return grid.length;
     }
 
     /**
@@ -57,7 +55,7 @@ class GridLayout
      */
     int getHeight()
     {
-        return grid != null ? grid[0].length : 0;
+        return grid[0].length;
     }
 
     /**
@@ -67,7 +65,7 @@ class GridLayout
      */
     boolean getValue(int x, int y)
     {
-        return grid != null && grid[x][y];
+        return grid[x][y];
     }
 
     /**
@@ -80,7 +78,7 @@ class GridLayout
     boolean isGridFree(int x, int y)
     {
         //check for valid input
-        return grid != null && x + 1 < grid.length && y + 1 < grid[0].length &&
+        return x + 1 < grid.length && y + 1 < grid[0].length &&
                 //check grid
                 !grid[x][y] && !grid[x + 1][y] && !grid[x][y + 1] && !grid[x + 1][y + 1];
     }
@@ -93,12 +91,23 @@ class GridLayout
     void setGridValue(int x, int y, boolean placed)
     {
         //check for valid input
-        if (grid != null && x + 1 < grid.length && y + 1 < grid[0].length)
+        if (x + 1 < grid.length && y + 1 < grid[0].length)
         {
             grid[x][y] = placed;
             grid[x + 1][y] = placed;
             grid[x][y + 1] = placed;
             grid[x + 1][y + 1] = placed;
+        }
+    }
+
+    /**
+     *
+     */
+    void clear()
+    {
+        for (boolean[] booleans : grid)
+        {
+            Arrays.fill(booleans, false);
         }
     }
 }

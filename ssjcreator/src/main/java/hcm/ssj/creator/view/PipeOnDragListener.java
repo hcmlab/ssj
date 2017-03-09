@@ -27,10 +27,15 @@
 package hcm.ssj.creator.view;
 
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import hcm.ssj.creator.core.Pipeline;
 
@@ -40,54 +45,62 @@ import hcm.ssj.creator.core.Pipeline;
  */
 class PipeOnDragListener implements View.OnDragListener
 {
-    private final PipeView pipeView;
-    //
-    private ImageView imageView;
+    private ImageView recycleBin;
     private boolean dropped;
     private float xCoord, yCoord;
 
     /**
-     * @param pipeView PipeView
+     *
      */
-    PipeOnDragListener(PipeView pipeView)
+    PipeOnDragListener()
     {
-        this.pipeView = pipeView;
     }
 
     /**
-     * @param event DragEvent
+     * @param pipeView PipeView
+     * @param event    DragEvent
      */
-    private void cleanup(DragEvent event)
+    private void cleanup(final PipeView pipeView, final DragEvent event)
     {
         //remove view from owner
-        ComponentView view = (ComponentView) event.getLocalState();
+        ComponentView componentView = (ComponentView) event.getLocalState();
         try
         {
-            handleCollision(view);
+            handleCollision(pipeView, componentView);
         } finally
         {
             //remove recycle bin
-            ViewGroup viewGroup = (ViewGroup) imageView.getParent();
-            if (viewGroup != null)
+            ViewParent viewParent = recycleBin.getParent();
+            if (viewParent != null && viewParent instanceof ViewGroup)
             {
-                viewGroup.removeView(imageView);
+                ((ViewGroup) viewParent).removeView(recycleBin);
             }
-            imageView.invalidate();
-            imageView = null;
-            view.invalidate();
-            //recalculate
-            pipeView.recalculate();
+            recycleBin.invalidate();
+            recycleBin = null;
+            componentView.invalidate();
+            //recalculate view after delay to avoid null pointer exception when tab is deleted as well
+            //@todo find better fix
+            Handler handler = new Handler(Looper.getMainLooper());
+            Runnable runnable = new Runnable()
+            {
+                public void run()
+                {
+                    pipeView.recalculate();
+                }
+            };
+            handler.postDelayed(runnable, 50);
         }
     }
 
     /**
-     * @param view ComponentView
+     * @param pipeView PipeView
+     * @param view     ComponentView
      */
-    private void handleCollision(ComponentView view)
+    private void handleCollision(final PipeView pipeView, final ComponentView view)
     {
         //check collision
         Rect rectBin = new Rect();
-        imageView.getHitRect(rectBin);
+        recycleBin.getHitRect(rectBin);
         //delete element
         if (rectBin.contains((int) xCoord, (int) yCoord))
         {
@@ -118,57 +131,131 @@ class PipeOnDragListener implements View.OnDragListener
     }
 
     /**
+     * @param pipeView PipeView
+     */
+    private void createRecycleBin(final PipeView pipeView)
+    {
+        if (recycleBin != null)
+        {
+            ViewGroup parent = ((ViewGroup) recycleBin.getParent());
+            if (parent != null)
+            {
+                parent.removeView(recycleBin);
+            }
+            recycleBin.invalidate();
+            recycleBin = null;
+        }
+        recycleBin = new ImageView(pipeView.getContext());
+        recycleBin.setImageResource(android.R.drawable.ic_menu_delete);
+        //determine shown width of the view
+        Rect rectSizeDisplayed = new Rect();
+        pipeView.getGlobalVisibleRect(rectSizeDisplayed);
+        int width = rectSizeDisplayed.width();
+        int height = rectSizeDisplayed.height();
+        //determine scroll changes
+        int scrollX = 0, scrollY = 0;
+        ViewParent viewParent = pipeView.getParent();
+        if (viewParent != null && viewParent instanceof HorizontalScrollView)
+        {
+            scrollX = ((HorizontalScrollView) viewParent).getScrollX();
+            ViewParent viewGrandparent = viewParent.getParent();
+            if (viewGrandparent != null && viewGrandparent instanceof ScrollView)
+            {
+                scrollY = ((ScrollView) viewGrandparent).getScrollY();
+            }
+        }
+        width += scrollX;
+        height += scrollY;
+        int gridBoxSize = pipeView.getGridBoxSize();
+        //place recycle bin
+        recycleBin.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
+        pipeView.addView(recycleBin);
+    }
+
+    /**
      * @param v     View
      * @param event DragEvent
      * @return boolean
      */
     @Override
-    public boolean onDrag(View v, DragEvent event)
+    public boolean onDrag(final View v, final DragEvent event)
     {
-        switch (event.getAction())
+        if (v instanceof PipeView)
         {
-            case DragEvent.ACTION_DRAG_STARTED:
-                //init values
-                xCoord = 0;
-                yCoord = 0;
-                dropped = false;
-                //create recycle bin
-                if (imageView != null)
+            final PipeView pipeView = (PipeView) v;
+            switch (event.getAction())
+            {
+                case DragEvent.ACTION_DRAG_STARTED:
                 {
-                    ViewGroup parent = ((ViewGroup) imageView.getParent());
-                    if (parent != null)
-                    {
-                        parent.removeView(imageView);
-                    }
-                    imageView.invalidate();
-                    imageView = null;
+                    //init values
+                    xCoord = 0;
+                    yCoord = 0;
+                    dropped = false;
+                    createRecycleBin(pipeView);
+                    break;
                 }
-                imageView = new ImageView(pipeView.getContext());
-                imageView.setImageResource(android.R.drawable.ic_menu_delete);
-                int width = pipeView.getWidth();
-                int height = pipeView.getHeight();
-                int gridBoxSize = pipeView.getGridBoxSize();
-                imageView.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
-                pipeView.addView(imageView);
-                break;
-            case DragEvent.ACTION_DRAG_ENTERED:
-                break;
-            case DragEvent.ACTION_DRAG_EXITED:
-                break;
-            case DragEvent.ACTION_DROP:
-                //update drop location
-                xCoord = event.getX();
-                yCoord = event.getY();
-                dropped = true;
-                ComponentView view = (ComponentView) event.getLocalState();
-                pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
-                break;
-            case DragEvent.ACTION_DRAG_ENDED:
-                cleanup(event);
-                break;
-            default:
-                break;
+                case DragEvent.ACTION_DRAG_ENTERED:
+                    break;
+                case DragEvent.ACTION_DRAG_EXITED:
+                    break;
+                case DragEvent.ACTION_DROP:
+                    //update drop location
+                    xCoord = event.getX();
+                    yCoord = event.getY();
+                    dropped = true;
+                    ComponentView view = (ComponentView) event.getLocalState();
+                    pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
+                    break;
+                case DragEvent.ACTION_DRAG_ENDED:
+                    cleanup(pipeView, event);
+                    break;
+                case DragEvent.ACTION_DRAG_LOCATION:
+                {
+//                    //@todo add scroll behaviour to drag and drop
+//                    HorizontalScrollView horizontalScrollView = (HorizontalScrollView) pipeView.getParent();
+//                    if (horizontalScrollView != null)
+//                    {
+//                        ScrollView scrollView = (ScrollView) horizontalScrollView.getParent();
+//                        if (scrollView != null)
+//                        {
+//                            //way one
+//                            int y = Math.round(event.getY());
+//                            int translatedY = y - scrollView.getScrollY();
+//                            int threshold = 50;
+//                            // make a scrolling up due the y has passed the threshold
+//                            if (translatedY < threshold) {
+//                                // make a scroll up by 30 px
+//                                scrollView.smoothScrollBy(0, -30);
+//                            }
+//                            // make a autoscrolling down due y has passed the 500 px border
+//                            if (translatedY + threshold > 500) {
+//                                // make a scroll down by 30 px
+//                                scrollView.smoothScrollBy(0, 30);
+//                            }
+//                            //way two
+//                            int topOfDropZone = pipeView.getTop();
+//                            int bottomOfDropZone = pipeView.getBottom();
+//                            int scrollY = scrollView.getScrollY();
+//                            int scrollViewHeight = scrollView.getMeasuredHeight();
+//                            Log.d("location: Scroll Y: " + scrollY + " Scroll Y+Height: " + (scrollY + scrollViewHeight));
+//                            Log.d(" top: " + topOfDropZone + " bottom: " + bottomOfDropZone);
+//                            if (bottomOfDropZone > (scrollY + scrollViewHeight - 100))
+//                            {
+//                                scrollView.smoothScrollBy(0, 30);
+//                            }
+//                            if (topOfDropZone < (scrollY + 100))
+//                            {
+//                                scrollView.smoothScrollBy(0, -30);
+//                            }
+//                        }
+//                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            return true;
         }
-        return true;
+        return false;
     }
 }
