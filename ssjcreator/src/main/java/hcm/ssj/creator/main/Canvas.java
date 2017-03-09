@@ -28,8 +28,6 @@ package hcm.ssj.creator.main;
 
 import android.content.Context;
 import android.view.View;
-import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
 
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.view.PipeListener;
@@ -57,13 +55,11 @@ class Canvas implements ITab
         //view
         pipeView = new PipeView(context);
         pipeView.setWillNotDraw(false);
-        HorizontalScrollView horizontalScrollView = new HorizontalScrollView(context);
-        horizontalScrollView.setFillViewport(true);
-        horizontalScrollView.addView(pipeView);
-        ScrollView scrollView = new ScrollView(context);
-        scrollView.setFillViewport(true);
-        scrollView.addView(horizontalScrollView);
-        view = scrollView;
+        TwoDScrollView twoDScrollView = new TwoDScrollView(context);
+        twoDScrollView.setHorizontalScrollBarEnabled(true);
+        twoDScrollView.setVerticalScrollBarEnabled(true);
+        twoDScrollView.addView(pipeView);
+        view = twoDScrollView;
         //title
         title = context.getResources().getString(R.string.str_pipe);
         //icon

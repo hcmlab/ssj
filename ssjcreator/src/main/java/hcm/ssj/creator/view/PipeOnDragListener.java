@@ -33,11 +33,10 @@ import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 
 import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.main.TwoDScrollView;
 
 /**
  * On drag listener for pipe <br>
@@ -155,14 +154,10 @@ class PipeOnDragListener implements View.OnDragListener
         //determine scroll changes
         int scrollX = 0, scrollY = 0;
         ViewParent viewParent = pipeView.getParent();
-        if (viewParent != null && viewParent instanceof HorizontalScrollView)
+        if (viewParent != null && viewParent instanceof TwoDScrollView)
         {
-            scrollX = ((HorizontalScrollView) viewParent).getScrollX();
-            ViewParent viewGrandparent = viewParent.getParent();
-            if (viewGrandparent != null && viewGrandparent instanceof ScrollView)
-            {
-                scrollY = ((ScrollView) viewGrandparent).getScrollY();
-            }
+            scrollX = ((TwoDScrollView) viewParent).getScrollX();
+            scrollY = ((TwoDScrollView) viewParent).getScrollY();
         }
         width += scrollX;
         height += scrollY;

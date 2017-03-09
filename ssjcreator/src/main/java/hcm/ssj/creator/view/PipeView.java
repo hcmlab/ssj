@@ -38,8 +38,6 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
-import android.widget.HorizontalScrollView;
-import android.widget.ScrollView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,6 +46,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.main.TwoDScrollView;
 
 /**
  * Draws a pipe<br>
@@ -514,14 +513,10 @@ public class PipeView extends ViewGroup
             iOrientation = orientation;
             //reset scroll
             ViewParent viewParent = getParent();
-            if (viewParent != null && viewParent instanceof HorizontalScrollView)
+            if (viewParent != null && viewParent instanceof TwoDScrollView)
             {
-                ((HorizontalScrollView) viewParent).setScrollX(0);
-                ViewParent viewGrandparent = viewParent.getParent();
-                if (viewGrandparent != null && viewGrandparent instanceof ScrollView)
-                {
-                    ((ScrollView) viewGrandparent).setScrollY(0);
-                }
+                ((TwoDScrollView) viewParent).setScrollX(0);
+                ((TwoDScrollView) viewParent).setScrollY(0);
             }
             //get displayed screen size
             Rect rectSizeDisplayed = new Rect();
