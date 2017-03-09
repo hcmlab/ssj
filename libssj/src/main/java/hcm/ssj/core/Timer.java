@@ -35,18 +35,18 @@ import java.util.ArrayList;
  */
 public class Timer {
 
-    double _delta; //in s
-    double _next; //in s
-    double _offset = 0; //in s
+    private long _now;
+    private long _init;
+    private long _next;
+    private long _delta;
+    private long _offset;
 
-    long _now; //in ms
-    long _init; //in ms
-    long _next_ms; //in ms
+    private long _tick_start = 0;
 
-    long _tick_start = 0;
+    private final int HISTORY_SIZE = 10;
+    private ArrayList<Long> _history = new ArrayList<Long>();
 
-    final int HISTORY_SIZE = 10;
-    ArrayList<Long> _history = new ArrayList<Long>();
+    private boolean _syncFailFlag;
 
     public Timer()
     {
@@ -67,12 +67,12 @@ public class Timer {
 
     public void setClockS(double seconds)
     {
-        _delta = seconds;
+        _delta = (long)(seconds * 1000 + 0.5);
     }
 
     public void setClockMs(long milliseconds)
     {
-        _delta = milliseconds / 1000.0;
+        _delta = milliseconds;
     }
 
     public void setClockHz(double hz)
@@ -82,6 +82,7 @@ public class Timer {
 
     public void reset ()
     {
+        _syncFailFlag = false;
         _init = SystemClock.elapsedRealtime();
         _next = _delta + _offset;
     }
@@ -89,26 +90,24 @@ public class Timer {
     //offsets the first tick, requires a "reset"
     public void setStartOffset(double seconds)
     {
-        _offset = seconds;
+        _offset = (long)(seconds * 1000 + 0.5);
     }
 
     //offsets the next tick, requires a "reset"
     public void setStartOffset(long milliseconds)
     {
-        _offset = milliseconds / 1000.0;
+        _offset = milliseconds;
     }
 
     //equivalent to SSI's wait()
     public void sync ()
     {
         _now = SystemClock.elapsedRealtime() - _init;
-        _next_ms = (long)(_next * 1000 + 0.5);
-
-        while (_now < _next_ms)
+        while (_now < _next)
         {
             try
             {
-                Thread.sleep ( _next_ms - _now );
+                Thread.sleep (_next - _now);
             }
             catch (InterruptedException e){
                 Log.w("thread interrupt");
@@ -117,9 +116,19 @@ public class Timer {
             _now = SystemClock.elapsedRealtime() - _init;
         }
 
-        if(_now - _next_ms > _delta * 1000)
-            Log.d(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
-                  "thread too busy, missed sync point");
+        if(_now - _next > _delta) {
+            if(!_syncFailFlag) {
+                _syncFailFlag = true;
+                Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                      "thread too slow, missing sync points");
+            }
+        } else if(_now - _next <= 1) {
+            if(_syncFailFlag) {
+                _syncFailFlag = false;
+                Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                      "thread back in sync");
+            }
+        }
 
         _next += _delta;
     }
