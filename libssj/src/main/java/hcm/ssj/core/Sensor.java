@@ -60,7 +60,7 @@ public abstract class Sensor extends Component {
 
         while(!_terminate)
         {
-            if(!_isConnected)
+            if(!_isConnected && !_frame.isStopping())
             {
                 try
                 {
