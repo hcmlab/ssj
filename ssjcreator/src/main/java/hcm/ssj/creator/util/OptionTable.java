@@ -110,7 +110,10 @@ public class OptionTable
         LinearLayout linearLayout = new LinearLayout(activity);
         linearLayout.setBackgroundColor(activity.getResources().getColor(R.color.colorBackground));
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 1f);
-        params.setMargins(0, 0, 0, 10);
+        int dpValue = 4; // margin in dips
+        float d = activity.getResources().getDisplayMetrics().density;
+        int margin = (int)(dpValue * d); // margin in pixels
+        params.setMargins(0, 0, 0, margin);
         linearLayout.setLayoutParams(params);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         //description of the object

@@ -166,9 +166,14 @@ public abstract class Util
      */
     protected static View addDivider(Activity activity)
     {
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 6, 1f);
-        layoutParams.setMargins(0, 20, 0, 20);
-
+        int dpValue = 3; // margin in dips
+        float d = activity.getResources().getDisplayMetrics().density;
+        int margin = (int) (dpValue * d); // margin in pixels
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, margin, 1f);
+        dpValue = 8; // margin in dips
+        d = activity.getResources().getDisplayMetrics().density;
+        margin = (int) (dpValue * d); // margin in pixels
+        layoutParams.setMargins(0, margin, 0, margin);
         View view = new View(activity);
         view.setLayoutParams(layoutParams);
         view.setBackgroundColor(Color.DKGRAY);

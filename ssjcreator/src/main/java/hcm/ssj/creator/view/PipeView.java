@@ -127,23 +127,24 @@ public class PipeView extends ViewGroup
      */
     public final void recalculate(Util.ButtonAction buttonAction)
     {
-        if (this.isLaidOut())
+        switch (buttonAction)
         {
-            if (buttonAction == Util.ButtonAction.ADD
-                    || buttonAction == Util.ButtonAction.CLEAR
-                    || buttonAction == Util.ButtonAction.LOAD)
-            {
-                if (buttonAction == Util.ButtonAction.CLEAR)
-                {
-                    gridLayout.clear();
-                }
+            case ADD:
                 createElements();
                 placeElements();
-                if (buttonAction == Util.ButtonAction.LOAD)
-                {
-                    informListeners();
-                }
-            }
+                break;
+            case CLEAR:
+                gridLayout.clear();
+                createElements();
+                placeElements();
+                break;
+            case LOAD:
+                createElements();
+                placeElements();
+                informListeners();
+                break;
+            default:
+                break;
         }
     }
 
@@ -411,6 +412,7 @@ public class PipeView extends ViewGroup
      * @param object Object
      * @param x      int
      * @param y      int
+     * @return boolean
      */
     protected boolean checkCollisionConnection(Object object, int x, int y)
     {
