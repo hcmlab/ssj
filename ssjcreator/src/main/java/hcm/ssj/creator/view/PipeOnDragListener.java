@@ -37,7 +37,6 @@ import android.widget.ImageView;
 
 import hcm.ssj.creator.core.Pipeline;
 import hcm.ssj.creator.main.TwoDScrollView;
-import hcm.ssj.creator.util.Util;
 
 /**
  * On drag listener for pipe <br>
@@ -48,6 +47,11 @@ class PipeOnDragListener implements View.OnDragListener
     private ImageView recycleBin;
     private boolean dropped;
     private float xCoord, yCoord;
+
+    private enum Result
+    {
+        NOTHING, PLACED, DELETED, CONNECTED
+    }
 
     /**
      *
@@ -64,9 +68,10 @@ class PipeOnDragListener implements View.OnDragListener
     {
         //remove view from owner
         ComponentView componentView = (ComponentView) event.getLocalState();
+        Result result = Result.NOTHING;
         try
         {
-            handleCollision(pipeView, componentView);
+            result = handleCollision(pipeView, componentView);
         } finally
         {
             //remove recycle bin
@@ -78,34 +83,54 @@ class PipeOnDragListener implements View.OnDragListener
             recycleBin.invalidate();
             recycleBin = null;
             componentView.invalidate();
-            //recalculate view after delay to avoid null pointer exception when tab is deleted as well
-            //@todo find better fix
-            Handler handler = new Handler(Looper.getMainLooper());
-            Runnable runnable = new Runnable()
+            switch (result)
             {
-                public void run()
-                {
-                    pipeView.recalculate(Util.ButtonAction.UNDEFINED);
-                }
-            };
-            handler.postDelayed(runnable, 50);
+                case NOTHING:
+                    break;
+                case PLACED:
+                    pipeView.placeElements();
+                    break;
+                case CONNECTED:
+                    pipeView.createElements();
+                    pipeView.placeElements();
+                    break;
+                case DELETED:
+                    pipeView.createElements();
+                    pipeView.placeElements();
+                    //inform listeners after delay to avoid null pointer exception on tab deletion
+                    Handler handler = new Handler(Looper.getMainLooper());
+                    Runnable runnable = new Runnable()
+                    {
+                        public void run()
+                        {
+                            pipeView.informListeners();
+                        }
+                    };
+                    handler.postDelayed(runnable, 50);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
     /**
-     * @param pipeView PipeView
-     * @param view     ComponentView
+     * @param pipeView      PipeView
+     * @param componentView ComponentView
+     * @return Result
      */
-    private void handleCollision(final PipeView pipeView, final ComponentView view)
+    private Result handleCollision(final PipeView pipeView, final ComponentView componentView)
     {
+        Result result = Result.NOTHING;
         //check collision
         Rect rectBin = new Rect();
         recycleBin.getHitRect(rectBin);
         //delete element
         if (rectBin.contains((int) xCoord, (int) yCoord))
         {
-            pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
-            Pipeline.getInstance().remove(view.getElement());
+            pipeView.getGrid().setGridValue(componentView.getGridX(), componentView.getGridY(), false);
+            Pipeline.getInstance().remove(componentView.getElement());
+            result = Result.DELETED;
         } //reposition
         else
         {
@@ -116,18 +141,24 @@ class PipeOnDragListener implements View.OnDragListener
                 if (pipeView.getGrid().isGridFree(x, y))
                 {
                     //change position
-                    pipeView.getGrid().setGridValue(view.getGridX(), view.getGridY(), false);
-                    view.setGridX(x);
-                    view.setGridY(y);
-                    pipeView.placeElementView(view);
+                    pipeView.getGrid().setGridValue(componentView.getGridX(), componentView.getGridY(), false);
+                    componentView.setGridX(x);
+                    componentView.setGridY(y);
+                    pipeView.placeElementView(componentView);
+                    result = Result.PLACED;
                 } else
                 {
                     //check for collision to add a connection
-                    pipeView.checkCollisionConnection(view.getElement(), x, y);
+                    boolean conn = pipeView.checkCollisionConnection(componentView.getElement(), x, y);
+                    if (conn)
+                    {
+                        result = Result.CONNECTED;
+                    }
                 }
             }
-            pipeView.addView(view);
+            pipeView.addView(componentView);
         }
+        return result;
     }
 
     /**

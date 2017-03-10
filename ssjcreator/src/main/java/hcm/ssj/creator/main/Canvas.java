@@ -59,6 +59,7 @@ class Canvas implements ITab
         TwoDScrollView twoDScrollView = new TwoDScrollView(context);
         twoDScrollView.setHorizontalScrollBarEnabled(true);
         twoDScrollView.setVerticalScrollBarEnabled(true);
+        twoDScrollView.setFillViewport(true); //necessary for pipe to have immediate size data
         twoDScrollView.addView(pipeView);
         view = twoDScrollView;
         //title

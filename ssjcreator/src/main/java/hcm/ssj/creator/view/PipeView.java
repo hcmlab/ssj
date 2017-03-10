@@ -129,7 +129,9 @@ public class PipeView extends ViewGroup
     {
         if (this.isLaidOut())
         {
-            if (buttonAction != Util.ButtonAction.SAVE)
+            if (buttonAction == Util.ButtonAction.ADD
+                    || buttonAction == Util.ButtonAction.CLEAR
+                    || buttonAction == Util.ButtonAction.LOAD)
             {
                 if (buttonAction == Util.ButtonAction.CLEAR)
                 {
@@ -137,11 +139,22 @@ public class PipeView extends ViewGroup
                 }
                 createElements();
                 placeElements();
-                for (PipeListener pipeListener : hsPipeListener)
+                if (buttonAction == Util.ButtonAction.LOAD)
                 {
-                    pipeListener.viewChanged();
+                    informListeners();
                 }
             }
+        }
+    }
+
+    /**
+     *
+     */
+    protected void informListeners()
+    {
+        for (PipeListener pipeListener : hsPipeListener)
+        {
+            pipeListener.viewChanged();
         }
     }
 
@@ -164,7 +177,7 @@ public class PipeView extends ViewGroup
     /**
      *
      */
-    private void createElements()
+    protected void createElements()
     {
         //cleanup
         removeAllViews();
@@ -230,7 +243,7 @@ public class PipeView extends ViewGroup
     /**
      *
      */
-    private void placeElements()
+    protected void placeElements()
     {
         //elements
         int initHeight = 0;
@@ -399,19 +412,22 @@ public class PipeView extends ViewGroup
      * @param x      int
      * @param y      int
      */
-    protected void checkCollisionConnection(Object object, int x, int y)
+    protected boolean checkCollisionConnection(Object object, int x, int y)
     {
+        boolean result = false;
         if (object instanceof Sensor)
         {
-            addCollisionConnection(object, x, y, componentViewsProvider, false);
+            result = addCollisionConnection(object, x, y, componentViewsProvider, false);
         } else if (object instanceof Provider)
         {
             boolean found = addCollisionConnection(object, x, y, componentViewsTransformer, true);
+            result = found;
             if (!found)
             {
-                addCollisionConnection(object, x, y, componentViewsConsumer, true);
+                result = addCollisionConnection(object, x, y, componentViewsConsumer, true);
             }
         }
+        return result;
     }
 
     /**

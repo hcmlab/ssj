@@ -48,6 +48,7 @@ package hcm.ssj.creator.main;
 
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.FocusFinder;
 import android.view.KeyEvent;
@@ -55,6 +56,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.animation.AnimationUtils;
@@ -134,6 +136,13 @@ public class TwoDScrollView extends FrameLayout
     private int mMinimumVelocity;
     private int mMaximumVelocity;
 
+    /**
+     * When set to true, the scroll view measure its child to make it fill the currently
+     * visible area.
+     */
+    @ViewDebug.ExportedProperty(category = "layout")
+    private boolean mFillViewport;
+
     public TwoDScrollView(Context context)
     {
         this(context, null);
@@ -148,6 +157,79 @@ public class TwoDScrollView extends FrameLayout
     {
         super(context, attrs, defStyle);
         initTwoDScrollView();
+    }
+
+    /**
+     * Indicates whether this ScrollView's content is stretched to fill the viewport.
+     *
+     * @return True if the content fills the viewport, false otherwise.
+     * @attr ref android.R.styleable#ScrollView_fillViewport
+     */
+    public boolean isFillViewport()
+    {
+        return mFillViewport;
+    }
+
+    /**
+     * Indicates this ScrollView whether it should stretch its content height to fill
+     * the viewport or not.
+     *
+     * @param fillViewport True to stretch the content's height to the viewport's
+     *                     boundaries, false otherwise.
+     * @attr ref android.R.styleable#ScrollView_fillViewport
+     */
+    public void setFillViewport(boolean fillViewport)
+    {
+        if (fillViewport != mFillViewport)
+        {
+            mFillViewport = fillViewport;
+            requestLayout();
+        }
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
+    {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+
+        if (!mFillViewport)
+        {
+            return;
+        }
+
+        final int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        if (heightMode == MeasureSpec.UNSPECIFIED)
+        {
+            return;
+        }
+
+        if (getChildCount() > 0)
+        {
+            final View child = getChildAt(0);
+            final int height = getMeasuredHeight();
+            if (child.getMeasuredHeight() < height)
+            {
+                final int widthPadding;
+                final int heightPadding;
+                final FrameLayout.LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                final int targetSdkVersion = getContext().getApplicationInfo().targetSdkVersion;
+                if (targetSdkVersion >= Build.VERSION_CODES.M)
+                {
+                    widthPadding = getPaddingLeft() + getPaddingRight() + lp.leftMargin + lp.rightMargin;
+                    heightPadding = getPaddingTop() + getPaddingBottom() + lp.topMargin + lp.bottomMargin;
+                } else
+                {
+                    widthPadding = getPaddingLeft() + getPaddingRight();
+                    heightPadding = getPaddingTop() + getPaddingBottom();
+                }
+
+                final int childWidthMeasureSpec = getChildMeasureSpec(
+                        widthMeasureSpec, widthPadding, lp.width);
+                final int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                        height - heightPadding, MeasureSpec.EXACTLY);
+                child.measure(childWidthMeasureSpec, childHeightMeasureSpec);
+            }
+        }
     }
 
     @Override
