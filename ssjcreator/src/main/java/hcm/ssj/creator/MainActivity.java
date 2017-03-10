@@ -67,6 +67,7 @@ import hcm.ssj.creator.dialogs.Listener;
 import hcm.ssj.creator.main.Annotation;
 import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
+import hcm.ssj.creator.util.Util;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -76,19 +77,21 @@ public class MainActivity extends AppCompatActivity
     //tabs
     private TabHandler tabHandler;
 
-    private BroadcastReceiver msBandReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
+    {
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(Context context, Intent intent)
+        {
 
             android.util.Log.i("SSJCreator", "received tile event");
             TileButtonEvent data = intent.getParcelableExtra(TileEvent.TILE_EVENT_DATA);
 
-            if(!data.getPageID().equals(BandComm.pageId))
+            if (!data.getPageID().equals(BandComm.pageId))
                 return;
 
             //toggle button
             Annotation anno = tabHandler.getAnnotation();
-            if(anno == null)
+            if (anno == null)
                 return;
 
             anno.toggleAnnoButton(anno.getBandAnnoButton(), data.getElementID() == BandComm.BTN_YES);
@@ -206,13 +209,17 @@ public class MainActivity extends AppCompatActivity
                     framework.clear();
                     framework.resetCreateTime();
                     //add components
-                    try {
+                    try
+                    {
                         Pipeline.getInstance().buildPipe();
-                    } catch (Exception e) {
+                    } catch (Exception e)
+                    {
                         Log.e(getString(R.string.err_buildPipe), e);
-                        runOnUiThread(new Runnable() {
+                        runOnUiThread(new Runnable()
+                        {
                             @Override
-                            public void run() {
+                            public void run()
+                            {
                                 Toast.makeText(getApplicationContext(), R.string.err_buildPipe, Toast.LENGTH_LONG).show();
                             }
                         });
@@ -330,7 +337,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_clear:
             {
                 Pipeline.getInstance().clear();
-                actualizeContent();
+                actualizeContent(Util.ButtonAction.CLEAR);
                 return true;
             }
         }
@@ -352,7 +359,7 @@ public class MainActivity extends AppCompatActivity
             public void onPositiveEvent(Object[] o)
             {
                 addDialog.removeListener(this);
-                actualizeContent();
+                actualizeContent(Util.ButtonAction.ADD);
             }
 
             @Override
@@ -370,7 +377,7 @@ public class MainActivity extends AppCompatActivity
      * @param type    FileDialog.Type
      * @param message int
      */
-    private void showFileDialog(final int title, FileDialog.Type type, final int message)
+    private void showFileDialog(final int title, final FileDialog.Type type, final int message)
     {
         if (firstStart)
             DemoHandler.copyFiles(MainActivity.this);
@@ -385,7 +392,10 @@ public class MainActivity extends AppCompatActivity
             public void onPositiveEvent(Object[] o)
             {
                 fileDialog.removeListener(this);
-                actualizeContent();
+                if (type == FileDialog.Type.LOAD)
+                {
+                    actualizeContent(Util.ButtonAction.LOAD);
+                }
             }
 
             @Override
@@ -407,11 +417,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     *
+     * @param buttonAction Util.ButtonAction
      */
-    private void actualizeContent()
+    private void actualizeContent(Util.ButtonAction buttonAction)
     {
-        tabHandler.actualizeContent();
+        tabHandler.actualizeContent(buttonAction);
     }
 
     /**
@@ -421,7 +431,6 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
-        actualizeContent();
         if (!ready)
         {
             changeImageButton(android.R.drawable.ic_media_pause);

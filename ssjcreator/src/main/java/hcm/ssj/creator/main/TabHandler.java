@@ -41,8 +41,8 @@ import java.util.List;
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
-import hcm.ssj.creator.view.PipeView;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
 
@@ -246,8 +246,10 @@ public class TabHandler
     {
         console.clear();
 
-        if(annotationExists && annotation != null)
+        if (annotationExists && annotation != null)
+        {
             annotation.startAnnotation();
+        }
     }
 
     /**
@@ -255,16 +257,18 @@ public class TabHandler
      */
     public void preStop()
     {
-        if(annotationExists && annotation != null)
+        if (annotationExists && annotation != null)
+        {
             annotation.finishAnnotation();
+        }
     }
 
     /**
-     *
+     * @param buttonAction Util.ButtonAction
      */
-    public void actualizeContent()
+    public void actualizeContent(Util.ButtonAction buttonAction)
     {
-        canvas.actualizeContent();
+        canvas.actualizeContent(buttonAction);
     }
 
     /**
@@ -276,7 +280,11 @@ public class TabHandler
         canvas.cleanUp();
     }
 
-    public Annotation getAnnotation() {
+    /**
+     * @return Annotation
+     */
+    public Annotation getAnnotation()
+    {
         return annotation;
     }
 }
