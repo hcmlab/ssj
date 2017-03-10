@@ -129,16 +129,10 @@ public class PipeView extends ViewGroup
     {
         switch (buttonAction)
         {
-            case ADD:
-                createElements();
-                placeElements();
-                break;
-            case CLEAR:
+            case CLEAR: //fallthrough
                 gridLayout.clear();
-                createElements();
-                placeElements();
-                break;
-            case LOAD:
+            case ADD: //fallthrough
+            case LOAD: //fallthrough
                 createElements();
                 placeElements();
                 informListeners();
@@ -149,7 +143,8 @@ public class PipeView extends ViewGroup
     }
 
     /**
-     *
+     * Inform listeners about changed components.<br>
+     * Mainly used for informing tab holder about new or deleted painters or writers.<br>
      */
     protected void informListeners()
     {
