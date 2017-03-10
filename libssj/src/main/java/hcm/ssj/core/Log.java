@@ -108,16 +108,17 @@ public class Log
     {
         try
         {
-            File fileDirectory = new File(path);
-            if (!fileDirectory.exists())
-            {
-                if (!fileDirectory.mkdirs())
-                {
-                    Log.e(fileDirectory.getName() + " could not be created");
-                    return;
-                }
-            }
+            File fileDirectory = Util.createDirectory(path);
+            if(fileDirectory == null)
+                return;
+
             File file = new File(fileDirectory, "ssj.log");
+            int i = 2;
+            while(file.exists())
+            {
+                file = new File(fileDirectory, "ssj" + (i++) + ".log");
+            }
+
             FileOutputStream fos = new FileOutputStream(file);
 
             NumberFormat nf = NumberFormat.getNumberInstance(Locale.ENGLISH);

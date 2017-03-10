@@ -126,7 +126,9 @@ public class TheFramework
     {
         try
         {
-            Log.i("starting pipeline (SSJ v" + getVersion() + ")");
+            Log.i("starting pipeline" + '\n' +
+                  "\tSSJ v" + getVersion() + '\n' +
+                  "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
 
             Log.i("preparing buffers");
             for (TimeBuffer b : _buffer)
@@ -425,7 +427,8 @@ public class TheFramework
         _isStopping = true;
         _isRunning = false;
 
-        Log.i("shutting down ...");
+        Log.i("stopping pipeline" + '\n' +
+              "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
         try
         {
             Log.i("closing buffer");
@@ -580,6 +583,11 @@ public class TheFramework
     public boolean isRunning()
     {
         return _isRunning;
+    }
+
+    public boolean isStopping()
+    {
+        return _isStopping;
     }
 
     public String getVersion()
