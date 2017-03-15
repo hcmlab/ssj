@@ -264,11 +264,12 @@ public class TabHandler
     }
 
     /**
-     * @param buttonAction Util.ButtonAction
+     * @param appAction Util.AppAction
+     * @param o            Object
      */
-    public void actualizeContent(Util.ButtonAction buttonAction)
+    public void actualizeContent(Util.AppAction appAction, Object o)
     {
-        canvas.actualizeContent(buttonAction);
+        canvas.actualizeContent(appAction, o);
     }
 
     /**

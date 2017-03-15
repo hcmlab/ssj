@@ -69,13 +69,14 @@ class Canvas implements ITab
     }
 
     /**
-     *
+     * @param appAction Util.AppAction
+     * @param o            Object
      */
-    void actualizeContent(Util.ButtonAction buttonAction)
+    void actualizeContent(Util.AppAction appAction, Object o)
     {
         if (pipeView != null)
         {
-            pipeView.recalculate(buttonAction);
+            pipeView.recalculate(appAction, o);
         }
     }
 

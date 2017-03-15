@@ -31,6 +31,7 @@ import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
@@ -123,16 +124,32 @@ public class PipeView extends ViewGroup
     }
 
     /**
-     * @param buttonAction Util.ButtonAction
+     * @param appAction Util.AppAction
+     * @param o         Object
      */
-    public final void recalculate(Util.ButtonAction buttonAction)
+    public final void recalculate(Util.AppAction appAction, Object o)
     {
-        switch (buttonAction)
+        switch (appAction)
         {
-            case CLEAR: //fallthrough
+            case SAVE:
+            {
+                SaveLoad.save(o, componentViewsProvider, componentViewsSensor,
+                        componentViewsTransformer, componentViewsConsumer);
+                break;
+            }
+            case LOAD:
+            {
+                createElements();
                 gridLayout.clear();
+                changeElementPositions(SaveLoad.load(o));
+                placeElements();
+                informListeners();
+                break;
+            }
+            case CLEAR:
+                gridLayout.clear(); //fallthrough
             case ADD: //fallthrough
-            case LOAD: //fallthrough
+            case DISPLAYED:
                 createElements();
                 placeElements();
                 informListeners();
@@ -184,10 +201,10 @@ public class PipeView extends ViewGroup
             connectionViews.add(new ConnectionView(getContext()));
             addView(connectionViews.get(i));
         }
-        //add sensors
-        componentViewsSensor = fillList(componentViewsSensor, Pipeline.Type.Sensor);
         //add providers
         componentViewsProvider = fillList(componentViewsProvider, Pipeline.Type.SensorChannel);
+        //add sensors
+        componentViewsSensor = fillList(componentViewsSensor, Pipeline.Type.Sensor);
         //add transformers
         componentViewsTransformer = fillList(componentViewsTransformer, Pipeline.Type.Transformer);
         //add consumers
@@ -277,6 +294,36 @@ public class PipeView extends ViewGroup
     }
 
     /**
+     * @param alPoints ArrayList<Point
+     */
+    private void changeElementPositions(ArrayList<Point> alPoints)
+    {
+        if (alPoints != null)
+        {
+            int count = 0;
+            count = changeElementPositions(alPoints, componentViewsProvider, count);
+            count = changeElementPositions(alPoints, componentViewsSensor, count);
+            count = changeElementPositions(alPoints, componentViewsTransformer, count);
+            changeElementPositions(alPoints, componentViewsConsumer, count);
+        }
+    }
+
+    /**
+     * @param alPoints        ArrayList<Point>
+     * @param alComponentView ArrayList<ComponentView>
+     * @param count           int
+     */
+    private int changeElementPositions(ArrayList<Point> alPoints, ArrayList<ComponentView> alComponentView, int count)
+    {
+        for (int i = 0; i < alComponentView.size() && count < alPoints.size(); i++, count++)
+        {
+            alComponentView.get(i).setGridX(alPoints.get(count).x);
+            alComponentView.get(i).setGridY(alPoints.get(count).y);
+        }
+        return count;
+    }
+
+    /**
      * @param hashes              int[]
      * @param connections         int
      * @param destination         View
@@ -338,7 +385,7 @@ public class PipeView extends ViewGroup
                 //place elements as chess grid
                 for (int j = initHeight; !placed && j < iGridHeightNumberOfBoxes; j += 2)
                 {
-                    for (int i = j % 4; !placed && i < iGridWidthNumberOfBoxes; i += 4)
+                    for (int i = j % 2; !placed && i < iGridWidthNumberOfBoxes; i += 4)
                     {
                         if (gridLayout.isGridFree(i, j))
                         {

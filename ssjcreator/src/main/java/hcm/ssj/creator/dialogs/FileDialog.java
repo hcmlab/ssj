@@ -101,7 +101,7 @@ public class FileDialog extends DialogFragment
                                     {
                                         for (Listener listener : alListeners)
                                         {
-                                            listener.onPositiveEvent(null);
+                                            listener.onPositiveEvent(new File[]{file});
                                         }
                                         return;
                                     }
@@ -123,7 +123,7 @@ public class FileDialog extends DialogFragment
                                         {
                                             for (Listener listener : alListeners)
                                             {
-                                                listener.onPositiveEvent(null);
+                                                listener.onPositiveEvent(new File[]{xmlFiles[pos]});
                                             }
                                             return;
                                         }

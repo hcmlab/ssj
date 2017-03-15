@@ -53,7 +53,7 @@ public class Pipeline
     protected LinkedHashSet<ContainerElement<Sensor>> hsSensorElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
-//    private LinkedHashSet<Container<EventConsumer>> hsEventConsumers = new LinkedHashSet<>(); //doesn't work yet, because of EventChannel and optional frame size
+//    private LinkedHashSet<Container<EventConsumer>> hsEventConsumers = new LinkedHashSet<>(); //@todo doesn't work yet, because of EventChannel and optional frame size
 
     public enum Type
     {
@@ -177,7 +177,8 @@ public class Pipeline
     /**
      *
      */
-    public void buildPipe() throws SSJException {
+    public void buildPipe() throws SSJException
+    {
         TheFramework framework = TheFramework.getFramework();
         //add to framework
         //sensors and sensorChannels
@@ -190,7 +191,7 @@ public class Pipeline
                 for (Map.Entry<Provider, Boolean> entry : hmProviders.entrySet())
                 {
                     SensorChannel sensorChannel = (SensorChannel) entry.getKey();
-                    framework.addSensor(sensor,sensorChannel);
+                    framework.addSensor(sensor, sensorChannel);
                     //activate in transformer
                     for (ContainerElement<Transformer> element2 : hsTransformerElements)
                     {

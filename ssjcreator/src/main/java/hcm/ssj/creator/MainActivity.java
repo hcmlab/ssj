@@ -337,7 +337,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_clear:
             {
                 Pipeline.getInstance().clear();
-                actualizeContent(Util.ButtonAction.CLEAR);
+                actualizeContent(Util.AppAction.CLEAR, null);
                 return true;
             }
         }
@@ -359,7 +359,7 @@ public class MainActivity extends AppCompatActivity
             public void onPositiveEvent(Object[] o)
             {
                 addDialog.removeListener(this);
-                actualizeContent(Util.ButtonAction.ADD);
+                actualizeContent(Util.AppAction.ADD, o != null ? o[0] : null);
             }
 
             @Override
@@ -394,7 +394,10 @@ public class MainActivity extends AppCompatActivity
                 fileDialog.removeListener(this);
                 if (type == FileDialog.Type.LOAD)
                 {
-                    actualizeContent(Util.ButtonAction.LOAD);
+                    actualizeContent(Util.AppAction.LOAD, o != null ? o[0] : null);
+                } else if (type == FileDialog.Type.SAVE)
+                {
+                    actualizeContent(Util.AppAction.SAVE, o != null ? o[0] : null);
                 }
             }
 
@@ -417,11 +420,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * @param buttonAction Util.ButtonAction
+     * @param appAction Util.AppAction
+     * @param o         Object
      */
-    private void actualizeContent(Util.ButtonAction buttonAction)
+    private void actualizeContent(Util.AppAction appAction, Object o)
     {
-        tabHandler.actualizeContent(buttonAction);
+        tabHandler.actualizeContent(appAction, o);
     }
 
     /**
@@ -431,6 +435,7 @@ public class MainActivity extends AppCompatActivity
     protected void onResume()
     {
         super.onResume();
+        actualizeContent(Util.AppAction.DISPLAYED, null);
         if (!ready)
         {
             changeImageButton(android.R.drawable.ic_media_pause);

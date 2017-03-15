@@ -212,6 +212,8 @@ public abstract class SaveLoad
             {
                 return false;
             }
+            //clear previous content
+            Pipeline.getInstance().clear();
             //load classes
             parser.nextTag();
             String tag;
