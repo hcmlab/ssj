@@ -41,7 +41,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.creator.core.Pipeline;
 
 /**
  * Save and load files for {@link hcm.ssj.creator.view.PipeView} placements.<br>
