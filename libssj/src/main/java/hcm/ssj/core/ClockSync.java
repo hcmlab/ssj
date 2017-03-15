@@ -119,7 +119,7 @@ class ClockSync implements Runnable {
         }
     }
 
-    private TheFramework frame;
+    private Pipeline frame;
     private DatagramSocket sendSocket;
     private DatagramSocket recvSocket;
     private boolean isMaster = true;
@@ -130,7 +130,7 @@ class ClockSync implements Runnable {
 
     public ClockSync(boolean isMaster, InetAddress masterAddr, int port, int interval)
     {
-        frame = TheFramework.getFramework();
+        frame = Pipeline.getInstance();
 
         this.isMaster = isMaster;
         this.masterAddr = masterAddr;

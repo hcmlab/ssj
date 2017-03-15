@@ -32,7 +32,7 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.signal.Functionals;
 import hcm.ssj.test.Logger;
 
@@ -59,7 +59,7 @@ public class FunctionalsTest extends ApplicationTestCase<Application>
     public void testFunctionals() throws Exception
     {
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //sensor
         AndroidSensor sensor = new AndroidSensor();

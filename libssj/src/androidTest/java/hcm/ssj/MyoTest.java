@@ -36,7 +36,7 @@ import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.myo.DynAccelerationChannel;
 import hcm.ssj.myo.EMGChannel;
 import hcm.ssj.myo.Vibrate2Command;
@@ -54,7 +54,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
     }
 
     public void testAcc() throws Exception {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
 
         hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
         DynAccelerationChannel acc = new DynAccelerationChannel();
@@ -85,7 +85,7 @@ public class MyoTest extends ApplicationTestCase<Application> {
     }
 
     public void testEmg() throws Exception {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
 
         hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
         EMGChannel emg = new EMGChannel();

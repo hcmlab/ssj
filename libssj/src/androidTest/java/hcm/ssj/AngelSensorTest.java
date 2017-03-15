@@ -31,7 +31,7 @@ import android.test.ApplicationTestCase;
 
 import hcm.ssj.angelsensor.AngelSensor;
 import hcm.ssj.angelsensor.BVPAngelChannel;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
 /**
@@ -59,7 +59,7 @@ public class AngelSensorTest extends ApplicationTestCase<Application>
 		//test for every sensor type
 
 		//setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		AngelSensor sensor = new AngelSensor();

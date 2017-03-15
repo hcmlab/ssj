@@ -47,11 +47,11 @@ public abstract class Transformer extends Provider {
 
     private Timer _timer;
 
-    protected TheFramework _frame;
+    protected Pipeline _frame;
 
     public Transformer()
     {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
     }
 
     @Override

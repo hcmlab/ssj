@@ -32,7 +32,7 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.ioput.BluetoothChannel;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventReader;
@@ -53,7 +53,7 @@ public class testBluetoothServer extends ApplicationTestCase<Application> {
 
     public void test() throws Exception
     {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
 
         BluetoothReader blr = new BluetoothReader();

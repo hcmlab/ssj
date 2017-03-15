@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 
 /**
  * Utility class.<br>
@@ -157,7 +157,7 @@ public abstract class Util
      */
     public static double getAnnotationTime()
     {
-        return TheFramework.getFramework().getTime();
+        return Pipeline.getInstance().getTime();
     }
 
     /**

@@ -32,15 +32,19 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
+import hcm.ssj.file.FileWriter;
 import hcm.ssj.ml.Classifier;
+import hcm.ssj.signal.Butfilt;
 import hcm.ssj.signal.FFTfeat;
 import hcm.ssj.signal.Functionals;
 import hcm.ssj.signal.Progress;
+import hcm.ssj.test.CPULoadChannel;
 import hcm.ssj.test.Logger;
+import hcm.ssj.test.Profiler;
 
 /**
  * Tests the SVM class.<br>
@@ -67,7 +71,7 @@ public class SvmTest extends ApplicationTestCase<Application>
     public void testSvm() throws Exception
     {
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(61.0f);
         Transformer[] transformers = new Transformer[SENSOR_TYPES.length * 2];
         //add all sensors
@@ -143,10 +147,10 @@ public class SvmTest extends ApplicationTestCase<Application>
 
     public void testAudio() throws Exception
     {
-        double window = 1.0;
+        double window = 0.5;
 
         // Setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         frame.options.countdown.set(0);
 
@@ -156,6 +160,7 @@ public class SvmTest extends ApplicationTestCase<Application>
         FileReaderChannel channel = new FileReaderChannel();
         channel.setWatchInterval(0);
         channel.setSyncInterval(0);
+        channel.options.chunk.set(1.0);
         frame.addSensor(file, channel);
 
         // Transformer
@@ -165,13 +170,26 @@ public class SvmTest extends ApplicationTestCase<Application>
         Functionals func = new Functionals();
         frame.addTransformer(func, fft, window, 0);
 
+        Butfilt gsrf = new Butfilt();
+        gsrf.options.type.set(Butfilt.Type.HIGH);
+        gsrf.options.high.set(0.001);
+        frame.addTransformer(gsrf, channel, 5, 5);
 
         Classifier classifier = new Classifier();
         classifier.options.trainerFile.set("johnny.trainer");
         frame.addTransformer(classifier, func, window, 0);
 
         Logger log = new Logger();
-        frame.addConsumer(log, classifier, window, 0);
+        frame.addConsumer(log, channel, window, 0);
+
+        //profile cpu load
+        Profiler profiler = new Profiler();
+        CPULoadChannel cpu = new CPULoadChannel();
+        cpu.options.sampleRate.set(2);
+        frame.addSensor(profiler, cpu);
+
+        FileWriter write = new FileWriter();
+        frame.addConsumer(write, cpu, 1, 0);
 
         // start framework
         frame.start();
@@ -182,7 +200,7 @@ public class SvmTest extends ApplicationTestCase<Application>
         {
             while (System.currentTimeMillis() < end)
             {
-                Thread.sleep(1);
+                Thread.sleep(100);
             }
         }
         catch (Exception e)

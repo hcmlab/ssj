@@ -31,7 +31,7 @@ import android.test.ApplicationTestCase;
 
 import hcm.ssj.biosig.GSRArousalEstimation;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.empatica.Empatica;
 import hcm.ssj.empatica.GSRChannel;
 import hcm.ssj.test.Logger;
@@ -49,7 +49,7 @@ public class ArousalTest extends ApplicationTestCase<Application>
 	}
 
 	public void test() throws Exception {
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		GSRChannel data = new GSRChannel();

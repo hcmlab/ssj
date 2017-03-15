@@ -32,7 +32,7 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
 /**
@@ -48,7 +48,7 @@ public class testNetsyncListen extends ApplicationTestCase<Application> {
 
     public void test() throws Exception
     {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
 
         frame.options.startSyncPort.set(55100);

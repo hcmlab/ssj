@@ -33,7 +33,7 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.mobileSSI.MobileSSIConsumer;
 import hcm.ssj.test.Logger;
 
@@ -80,7 +80,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         SensorType mag = SensorType.ACCELEROMETER;
 
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //sensor
         AndroidSensor sensor = new AndroidSensor();

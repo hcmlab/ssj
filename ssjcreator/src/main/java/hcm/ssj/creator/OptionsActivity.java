@@ -39,11 +39,11 @@ import android.widget.TextView;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
 
@@ -64,12 +64,12 @@ public class OptionsActivity extends AppCompatActivity
         {
             //change title
             setTitle("SSJ_Framework");
-            options = Pipeline.getOptionList(TheFramework.getFramework());
+            options = PipelineBuilder.getOptionList(Pipeline.getInstance());
         } else
         {
             //change title
             setTitle(((hcm.ssj.core.Component) innerObject).getComponentName());
-            options = Pipeline.getOptionList(innerObject);
+            options = PipelineBuilder.getOptionList(innerObject);
         }
         //stretch columns
         TableLayout tableLayout = (TableLayout) findViewById(R.id.id_tableLayout);
@@ -127,8 +127,8 @@ public class OptionsActivity extends AppCompatActivity
         editText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f));
         editText.setText(String.valueOf(isFrameSize
-                ? Pipeline.getInstance().getFrameSize(innerObject)
-                : Pipeline.getInstance().getDelta(innerObject)));
+                ? PipelineBuilder.getInstance().getFrameSize(innerObject)
+                : PipelineBuilder.getInstance().getDelta(innerObject)));
         editText.addTextChangedListener(new TextWatcher()
         {
             @Override
@@ -151,7 +151,7 @@ public class OptionsActivity extends AppCompatActivity
                         double d = Double.parseDouble(s.toString());
                         if (d > 0)
                         {
-                            Pipeline.getInstance().setFrameSize(innerObject, d);
+                            PipelineBuilder.getInstance().setFrameSize(innerObject, d);
                         }
                     } catch (NumberFormatException ex)
                     {
@@ -164,7 +164,7 @@ public class OptionsActivity extends AppCompatActivity
                         double d = Double.parseDouble(s.toString());
                         if (d >= 0)
                         {
-                            Pipeline.getInstance().setDelta(innerObject, d);
+                            PipelineBuilder.getInstance().setDelta(innerObject, d);
                         }
                     } catch (NumberFormatException ex)
                     {

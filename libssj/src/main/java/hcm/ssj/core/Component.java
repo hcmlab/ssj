@@ -46,7 +46,7 @@ public abstract class Component implements Runnable
 
     public void close()
     {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         Log.i(_name + " shutting down");
 
         _terminate = true;

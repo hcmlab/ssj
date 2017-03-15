@@ -45,7 +45,7 @@ import java.util.HashSet;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.Util;
 
@@ -179,29 +179,29 @@ public class PipeView extends ViewGroup
         removeAllViews();
         //add connections
         connectionViews.clear();
-        for (int i = 0; i < Pipeline.getInstance().getNumberOfConnections(); i++)
+        for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfConnections(); i++)
         {
             connectionViews.add(new ConnectionView(getContext()));
             addView(connectionViews.get(i));
         }
         //add sensors
-        componentViewsSensor = fillList(componentViewsSensor, Pipeline.Type.Sensor);
+        componentViewsSensor = fillList(componentViewsSensor, PipelineBuilder.Type.Sensor);
         //add providers
-        componentViewsProvider = fillList(componentViewsProvider, Pipeline.Type.SensorChannel);
+        componentViewsProvider = fillList(componentViewsProvider, PipelineBuilder.Type.SensorChannel);
         //add transformers
-        componentViewsTransformer = fillList(componentViewsTransformer, Pipeline.Type.Transformer);
+        componentViewsTransformer = fillList(componentViewsTransformer, PipelineBuilder.Type.Transformer);
         //add consumers
-        componentViewsConsumer = fillList(componentViewsConsumer, Pipeline.Type.Consumer);
+        componentViewsConsumer = fillList(componentViewsConsumer, PipelineBuilder.Type.Consumer);
     }
 
     /**
      * @param alView ArrayList
      * @param type   Linker.Type
      */
-    private ArrayList<ComponentView> fillList(ArrayList<ComponentView> alView, Pipeline.Type type)
+    private ArrayList<ComponentView> fillList(ArrayList<ComponentView> alView, PipelineBuilder.Type type)
     {
         //get all pipe components of specific type
-        Object[] objects = Pipeline.getInstance().getAll(type);
+        Object[] objects = PipelineBuilder.getInstance().getAll(type);
         //copy to new list to delete unused components
         ArrayList<ComponentView> alInterim = new ArrayList<>();
         for (Object object : objects)
@@ -213,7 +213,7 @@ public class PipeView extends ViewGroup
                 if (v.getElement().equals(object))
                 {
                     found = true;
-                    v.setConnectionHashes(Pipeline.getInstance().getConnectionHashes(object));
+                    v.setConnectionHashes(PipelineBuilder.getInstance().getConnectionHashes(object));
                     alInterim.add(v);
                     break;
                 }
@@ -222,7 +222,7 @@ public class PipeView extends ViewGroup
             if (!found)
             {
                 ComponentView view = new ComponentView(getContext(), object);
-                view.setConnectionHashes(Pipeline.getInstance().getConnectionHashes(object));
+                view.setConnectionHashes(PipelineBuilder.getInstance().getConnectionHashes(object));
                 alInterim.add(view);
             }
         }
@@ -445,10 +445,10 @@ public class PipeView extends ViewGroup
             {
                 if (standard)
                 {
-                    Pipeline.getInstance().addProvider(componentView.getElement(), (Provider) object);
+                    PipelineBuilder.getInstance().addProvider(componentView.getElement(), (Provider) object);
                 } else
                 {
-                    Pipeline.getInstance().addProvider(object, (Provider) componentView.getElement());
+                    PipelineBuilder.getInstance().addProvider(object, (Provider) componentView.getElement());
                 }
                 return true;
             }

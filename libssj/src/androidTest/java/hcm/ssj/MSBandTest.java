@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.file.FileWriter;
 import hcm.ssj.msband.DistanceChannel;
 import hcm.ssj.msband.MSBand;
@@ -61,7 +61,7 @@ public class MSBandTest extends ApplicationTestCase<Application>
 		//test for every sensor type
 
 		//setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		MSBand sensor = new MSBand();

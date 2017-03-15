@@ -57,9 +57,9 @@ import java.util.ArrayList;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.creator.core.BandComm;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.creator.dialogs.AddDialog;
 import hcm.ssj.creator.dialogs.FileDialog;
@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity
                 handler.post(runnable);
             }
         };
-        TheFramework.getFramework().setExceptionHandler(exceptionHandler);
+        Pipeline.getInstance().setExceptionHandler(exceptionHandler);
     }
 
     /**
@@ -204,14 +204,14 @@ public class MainActivity extends AppCompatActivity
                 public void run()
                 {
                     //save framework options
-                    TheFramework framework = TheFramework.getFramework();
+                    Pipeline pipeline = Pipeline.getInstance();
                     //remove old content
-                    framework.clear();
-                    framework.resetCreateTime();
+                    pipeline.clear();
+                    pipeline.resetCreateTime();
                     //add components
                     try
                     {
-                        Pipeline.getInstance().buildPipe();
+                        PipelineBuilder.getInstance().buildPipe();
                     } catch (Exception e)
                     {
                         Log.e(getString(R.string.err_buildPipe), e);
@@ -231,14 +231,14 @@ public class MainActivity extends AppCompatActivity
                     //notify tabs
                     tabHandler.preStart();
                     //start framework
-                    framework.start();
+                    pipeline.start();
                     //run
                     Monitor.waitMonitor();
                     //stop framework
                     try
                     {
                         tabHandler.preStop();
-                        framework.stop();
+                        pipeline.stop();
                     } catch (Exception e)
                     {
                         e.printStackTrace();
@@ -336,7 +336,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_clear:
             {
-                Pipeline.getInstance().clear();
+                PipelineBuilder.getInstance().clear();
                 actualizeContent(Util.ButtonAction.CLEAR);
                 return true;
             }
@@ -455,12 +455,12 @@ public class MainActivity extends AppCompatActivity
         unregisterReceiver(msBandReceiver);
 
         tabHandler.cleanUp();
-        TheFramework framework = TheFramework.getFramework();
+        Pipeline framework = Pipeline.getInstance();
         if (framework.isRunning())
         {
             framework.stop();
         }
-        Pipeline.getInstance().clear();
+        PipelineBuilder.getInstance().clear();
         super.onDestroy();
     }
 

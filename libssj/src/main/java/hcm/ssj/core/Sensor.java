@@ -34,12 +34,12 @@ import java.util.ArrayList;
 public abstract class Sensor extends Component {
 
     private boolean _isConnected = false;
-    protected TheFramework _frame;
+    protected Pipeline _frame;
     protected ArrayList<SensorChannel> _provider = new ArrayList<>();
 
     public Sensor()
     {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
     }
 
     void addChannel(SensorChannel p) throws SSJException {

@@ -48,12 +48,12 @@ public abstract class Consumer extends Component {
 
     private Timer _timer;
 
-    protected TheFramework _frame;
+    protected Pipeline _frame;
     protected boolean _doWakeLock = true;
 
     public Consumer()
     {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
     }
 
     @Override

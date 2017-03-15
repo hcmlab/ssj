@@ -35,7 +35,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 
 /**
@@ -129,7 +129,7 @@ class PipeOnDragListener implements View.OnDragListener
         if (rectBin.contains((int) xCoord, (int) yCoord))
         {
             pipeView.getGrid().setGridValue(componentView.getGridX(), componentView.getGridY(), false);
-            Pipeline.getInstance().remove(componentView.getElement());
+            PipelineBuilder.getInstance().remove(componentView.getElement());
             result = Result.DELETED;
         } //reposition
         else

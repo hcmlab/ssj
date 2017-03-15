@@ -46,7 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.SSJDescriptor;
 
 /**
@@ -94,7 +94,7 @@ public class AddDialog extends DialogFragment
                                     if (itemState[x][y])
                                     {
                                         written = true;
-                                        Pipeline.getInstance().add(SSJDescriptor.instantiate(clazz));
+                                        PipelineBuilder.getInstance().add(SSJDescriptor.instantiate(clazz));
                                     }
                                     y++;
                                 }

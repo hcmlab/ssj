@@ -35,7 +35,7 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.signal.AvgVar;
 import hcm.ssj.signal.Count;
 import hcm.ssj.signal.Median;
@@ -78,7 +78,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
             if (mSensorManager.getDefaultSensor(type.getType()) != null)
             {
                 //setup
-                TheFramework frame = TheFramework.getFramework();
+                Pipeline frame = Pipeline.getInstance();
                 frame.options.bufferSize.set(10.0f);
                 //sensor
                 AndroidSensor sensor = new AndroidSensor();
@@ -125,7 +125,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         for (boolean[] option : options)
         {
             //setup
-            TheFramework frame = TheFramework.getFramework();
+            Pipeline frame = Pipeline.getInstance();
             frame.options.bufferSize.set(10.0f);
             //create channels
             AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
@@ -179,7 +179,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
         for (boolean[] option : options)
         {
             //setup
-            TheFramework frame = TheFramework.getFramework();
+            Pipeline frame = Pipeline.getInstance();
             frame.options.bufferSize.set(10.0f);
             //create channels
             AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
@@ -227,7 +227,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
     public void testProgressDistanceCount() throws Exception
     {
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //create channels
         AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
@@ -274,7 +274,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
     public void testMedian() throws Exception
     {
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //create channels
         AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];

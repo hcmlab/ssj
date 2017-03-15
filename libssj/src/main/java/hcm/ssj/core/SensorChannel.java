@@ -39,14 +39,14 @@ public abstract class SensorChannel extends Provider {
     private float _watchInterval  = Cons.DFLT_WATCH_INTERVAL; //how often should the watchdog check if the sensor is providing data (in seconds)
     private float _syncInterval = Cons.DFLT_SYNC_INTERVAL; //how often should the watchdog sync the buffer with the framework (in seconds)
 
-    protected TheFramework _frame;
+    protected Pipeline _frame;
     protected Timer _timer;
 
     protected Sensor _sensor;
 
     public SensorChannel()
     {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
     }
 
     void setSensor(Sensor s)

@@ -50,7 +50,7 @@ import android.widget.Toast;
 
 import java.io.File;
 
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.util.Util;
@@ -242,7 +242,7 @@ public class Annotation implements ITab
                 if (fileAnno != null)
                 {
                     //only append to running pipeline
-                    if (TheFramework.getFramework().isRunning())
+                    if (Pipeline.getInstance().isRunning())
                     {
                         if (isChecked)
                         {
@@ -320,7 +320,7 @@ public class Annotation implements ITab
         //parse wildcards
         if (path.contains("[time]"))
         {
-            path = path.replace("[time]", hcm.ssj.core.Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()));
+            path = path.replace("[time]", hcm.ssj.core.Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
         }
         File parent = new File(path);
         File anno = null;
