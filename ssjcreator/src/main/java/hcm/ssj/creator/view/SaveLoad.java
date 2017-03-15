@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.creator.util.Util;
 
 /**
  * Save and load files for {@link hcm.ssj.creator.view.PipeView} placements.<br>
@@ -69,7 +70,7 @@ abstract class SaveLoad
                         ArrayList<ComponentView> transformers, ArrayList<ComponentView> consumers)
     {
         File fileOrig = (File) o;
-        File file = new File(fileOrig.getParentFile().getPath(), fileOrig.getName() + SUFFIX);
+        File file = new File(fileOrig.getParentFile().getPath(), fileOrig.getName().replace(Util.SUFFIX, "") + SUFFIX);
         try
         {
             file.createNewFile();
@@ -146,7 +147,7 @@ abstract class SaveLoad
     static ArrayList<Point> load(Object o)
     {
         File fileOrig = (File) o;
-        File file = new File(fileOrig.getParentFile().getPath(), fileOrig.getName() + SUFFIX);
+        File file = new File(fileOrig.getParentFile().getPath(), fileOrig.getName().replace(Util.SUFFIX, "") + SUFFIX);
         if (!file.exists())
         {
             return null;
