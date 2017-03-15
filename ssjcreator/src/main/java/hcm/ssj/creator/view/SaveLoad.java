@@ -49,7 +49,7 @@ import hcm.ssj.creator.util.Util;
  */
 abstract class SaveLoad
 {
-    private final static String SUFFIX = ".position";
+    private final static String SUFFIX = ".layout";
     private final static String ROOT = "ssjCreatorPositionSaveFile";
     private final static String VERSION = "version";
     private final static String VERSION_NUMBER = "1";
