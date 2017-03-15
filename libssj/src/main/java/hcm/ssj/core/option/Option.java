@@ -26,7 +26,7 @@
 
 package hcm.ssj.core.option;
 
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Util;
 
 /**
@@ -79,7 +79,7 @@ public class Option<T>
         {
             String str = (String)value;
             if (str.contains("[time]")) {
-                return (T)str.replace("[time]", Util.getTimestamp(TheFramework.getFramework().getCreateTimeMs()));
+                return (T)str.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
             }
         }
         return value;

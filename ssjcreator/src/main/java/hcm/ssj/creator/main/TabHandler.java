@@ -40,7 +40,7 @@ import java.util.List;
 
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
 import hcm.ssj.file.IFileWriter;
@@ -179,7 +179,7 @@ public class TabHandler
      */
     private void checkAdditionalTabs()
     {
-        Object[] consumers = Pipeline.getInstance().getAll(Pipeline.Type.Consumer);
+        Object[] consumers = PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Consumer);
         int counterAnno = 0;
         //add additional tabs
         for (Object object : consumers)

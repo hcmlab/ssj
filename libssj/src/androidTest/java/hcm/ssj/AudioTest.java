@@ -37,12 +37,14 @@ import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.ThresholdEventSender;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.signal.Avg;
+import hcm.ssj.signal.Merge;
 import hcm.ssj.test.EventLogger;
+import hcm.ssj.test.Logger;
 
 /**
  * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
@@ -65,7 +67,7 @@ public class AudioTest extends ApplicationTestCase<Application>
         String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
         File file = new File(dir, fileName);
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //sensor
         Microphone microphone = new Microphone();
@@ -109,25 +111,33 @@ public class AudioTest extends ApplicationTestCase<Application>
 
     public void testSpeechrate() throws Exception
     {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
+        frame.options.log.set(true);
 
         Microphone mic = new Microphone();
         AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(16000);
+        audio.options.sampleRate.set(8000);
         audio.options.scale.set(true);
+        audio.options.chunk.set(0.1);
         frame.addSensor(mic, audio);
 
         Pitch pitch = new Pitch();
         pitch.options.detector.set(Pitch.YIN);
         pitch.options.computeVoicedProb.set(true);
-        frame.addTransformer(pitch, audio, 0.04, 0);
+        frame.addTransformer(pitch, audio, 0.1, 0);
 
         Avg pitch_env = new Avg();
-        frame.addTransformer(pitch_env, pitch, 0.04, 0.96);
+        frame.addTransformer(pitch_env, pitch, 0.1, 0);
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
+
+        Merge merge = new Merge();
+        frame.addTransformer(merge, new Provider[] {pitch, pitch_env}, 0.1, 0);
+
+        Logger logger = new Logger();
+        frame.addConsumer(logger, merge, 1, 0);
 
         //VAD
         ThresholdEventSender vad = new ThresholdEventSender();
@@ -156,7 +166,7 @@ public class AudioTest extends ApplicationTestCase<Application>
             long start = System.currentTimeMillis();
             while (true)
             {
-                if (System.currentTimeMillis() > start + 2 * 60 * 1000)
+                if (System.currentTimeMillis() > start + 1 * 20 * 1000)
                     break;
 
                 Thread.sleep(1);

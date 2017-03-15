@@ -37,7 +37,7 @@ import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.CameraWriter;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 
 /**
  * Tests all camera sensor, channel and consumer.<br>
@@ -92,7 +92,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         //resources
         File file = null;
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //sensor
         CameraSensor cameraSensor = new CameraSensor();

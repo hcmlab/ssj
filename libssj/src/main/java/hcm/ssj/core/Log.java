@@ -70,14 +70,14 @@ public class Log
     }
 
     private LinkedList<Entry> buffer = new LinkedList<>();
-    private TheFramework frame = null;
+    private Pipeline frame = null;
     private static Log instance = null;
     //
     private static HashSet<LogListener> hsLogListener = new HashSet<>();
 
     Log() {}
 
-    public void setFramework(TheFramework frame)
+    public void setFramework(Pipeline frame)
     {
         this.frame = frame;
     }

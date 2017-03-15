@@ -29,7 +29,7 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.glass.BlinkDetection;
 import hcm.ssj.glass.InfraredChannel;
 import hcm.ssj.glass.InfraredSensor;
@@ -58,7 +58,7 @@ public class GlassTest extends ApplicationTestCase<Application>
     public void testInfrared() throws Exception
     {
         //setup
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
         //sensor
         InfraredSensor sensor = new InfraredSensor();

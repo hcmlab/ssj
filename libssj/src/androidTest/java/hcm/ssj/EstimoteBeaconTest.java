@@ -28,13 +28,9 @@ package hcm.ssj;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
-import android.test.suitebuilder.annotation.Suppress;
 
-import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorChannel;
-import hcm.ssj.androidSensor.SensorType;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.estimote.BeaconChannel;
 import hcm.ssj.estimote.EstimoteBeacon;
 import hcm.ssj.signal.Butfilt;
@@ -59,7 +55,7 @@ public class EstimoteBeaconTest extends ApplicationTestCase<Application>
 	public void testBeacons() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 		frame.options.logtimeout.set(0.2);
 

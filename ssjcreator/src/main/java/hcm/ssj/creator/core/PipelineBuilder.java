@@ -32,11 +32,11 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -46,9 +46,9 @@ import hcm.ssj.creator.core.container.ContainerElement;
  * Linker for a pipeline.<br>
  * Created by Frank Gaibler on 09.03.2016.
  */
-public class Pipeline
+public class PipelineBuilder
 {
-    private static Pipeline instance = null;
+    private static PipelineBuilder instance = null;
     protected LinkedHashSet<SensorChannel> hsSensorChannels = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Sensor>> hsSensorElements = new LinkedHashSet<>();
     protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
@@ -63,18 +63,18 @@ public class Pipeline
     /**
      *
      */
-    private Pipeline()
+    private PipelineBuilder()
     {
     }
 
     /**
      * @return Linker
      */
-    public static synchronized Pipeline getInstance()
+    public static synchronized PipelineBuilder getInstance()
     {
         if (instance == null)
         {
-            instance = new Pipeline();
+            instance = new PipelineBuilder();
         }
         return instance;
     }
@@ -179,7 +179,7 @@ public class Pipeline
      */
     public void buildPipe() throws SSJException
     {
-        TheFramework framework = TheFramework.getFramework();
+        Pipeline framework = Pipeline.getInstance();
         //add to framework
         //sensors and sensorChannels
         for (ContainerElement<Sensor> element : hsSensorElements)

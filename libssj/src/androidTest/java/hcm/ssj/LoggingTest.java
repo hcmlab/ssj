@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.file.FileWriter;
@@ -176,7 +176,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
     private void buildPipeline(File file, boolean write) throws Exception
     {
         //setup
-        TheFramework framework = TheFramework.getFramework();
+        Pipeline framework = Pipeline.getInstance();
         framework.options.bufferSize.set(10.0f);
         if (write)
         {
@@ -208,7 +208,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
      * @param file  File
      * @throws Exception
      */
-    private void write(TheFramework frame, File file) throws Exception
+    private void write(Pipeline frame, File file) throws Exception
     {
         //sensor
         AndroidSensor sensorConnection = new AndroidSensor();
@@ -229,7 +229,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
      * @param file  File
      * @throws Exception
      */
-    private void read(TheFramework frame, File file) throws Exception
+    private void read(Pipeline frame, File file) throws Exception
     {
         //sensor
         FileReader fileReader = new FileReader();

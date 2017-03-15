@@ -32,10 +32,10 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
-import hcm.ssj.core.TheFramework;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.test.Logger;
 
@@ -67,9 +67,9 @@ public class testLinker extends ApplicationTestCase<Application>
         System.out.println(descriptor.sensorChannels.get(0));
         System.out.println(descriptor.consumers.get(0));
         //
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(2.0f);
-        Pipeline pipeline = Pipeline.getInstance();
+        PipelineBuilder pipelineBuilder = PipelineBuilder.getInstance();
         //select classes
         Sensor sensor = null;
         for (Class clazz : descriptor.sensors)
@@ -95,9 +95,9 @@ public class testLinker extends ApplicationTestCase<Application>
         Consumer consumer = null;
         if (sensorChannel != null)
         {
-            pipeline.add(sensor);
-            pipeline.add(sensorChannel);
-            pipeline.addProvider(sensor, sensorChannel);
+            pipelineBuilder.add(sensor);
+            pipelineBuilder.add(sensorChannel);
+            pipelineBuilder.addProvider(sensor, sensorChannel);
             for (Class clazz : descriptor.consumers)
             {
                 if (clazz.equals(Logger.class))
@@ -108,13 +108,13 @@ public class testLinker extends ApplicationTestCase<Application>
             }
             if (consumer != null)
             {
-                pipeline.add(consumer);
-                pipeline.addProvider(consumer, sensorChannel);
-                pipeline.setFrameSize(consumer, 1);
-                pipeline.setDelta(consumer, 0);
+                pipelineBuilder.add(consumer);
+                pipelineBuilder.addProvider(consumer, sensorChannel);
+                pipelineBuilder.setFrameSize(consumer, 1);
+                pipelineBuilder.setDelta(consumer, 0);
             }
         }
-        pipeline.buildPipe();
+        pipelineBuilder.buildPipe();
         //start framework
         frame.start();
         //run for two minutes

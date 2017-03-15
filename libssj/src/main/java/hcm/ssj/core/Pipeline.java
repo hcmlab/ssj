@@ -44,7 +44,7 @@ import hcm.ssj.file.LoggingConstants;
 /**
  * Created by Johnny on 05.03.2015.
  */
-public class TheFramework
+public class Pipeline
 {
 
     public class Options extends OptionList
@@ -95,9 +95,9 @@ public class TheFramework
     //buffers
     protected ArrayList<TimeBuffer> _buffer = new ArrayList<>();
 
-    protected static TheFramework _instance = null;
+    protected static Pipeline _instance = null;
 
-    private TheFramework()
+    private Pipeline()
     {
         //configure logger
         Log.getInstance().setFramework(this);
@@ -109,10 +109,10 @@ public class TheFramework
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
 
-    public static TheFramework getFramework()
+    public static Pipeline getInstance()
     {
         if (_instance == null)
-            _instance = new TheFramework();
+            _instance = new Pipeline();
 
         return _instance;
     }

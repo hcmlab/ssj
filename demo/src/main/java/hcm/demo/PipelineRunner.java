@@ -34,26 +34,26 @@ import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
 import hcm.ssj.core.ExceptionHandler;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.graphic.SignalPainter;
 
-public class Pipeline extends Thread {
+public class PipelineRunner extends Thread {
 
     private boolean _terminate = false;
-    private TheFramework _ssj;
+    private Pipeline _ssj;
 
     private MainActivity _act = null;
     private GraphView _graphs[] = null;
 
-    public Pipeline(MainActivity a, GraphView[] graphs)
+    public PipelineRunner(MainActivity a, GraphView[] graphs)
     {
         _act = a;
         _graphs = graphs;
 
-        if(TheFramework.isInstanced())
-            TheFramework.getFramework().clear();
-        _ssj = TheFramework.getFramework();
+        if(Pipeline.isInstanced())
+            Pipeline.getInstance().clear();
+        _ssj = Pipeline.getInstance();
     }
 
     public void setExceptionHandler(ExceptionHandler h)

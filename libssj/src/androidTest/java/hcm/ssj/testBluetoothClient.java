@@ -34,8 +34,8 @@ import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventWriter;
@@ -55,7 +55,7 @@ public class testBluetoothClient extends ApplicationTestCase<Application> {
 
     public void test() throws Exception
     {
-        TheFramework frame = TheFramework.getFramework();
+        Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
 
         AndroidSensor sensor = new AndroidSensor();

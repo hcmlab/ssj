@@ -32,7 +32,7 @@ import android.test.ApplicationTestCase;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.file.FileWriter;
@@ -58,7 +58,7 @@ public class SignalTest extends ApplicationTestCase<Application>
 	public void testFFT() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 		frame.options.countdown.set(0);
 
@@ -103,7 +103,7 @@ public class SignalTest extends ApplicationTestCase<Application>
 	public void testDerivative() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 		frame.options.countdown.set(0);
 

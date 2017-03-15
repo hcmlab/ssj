@@ -29,7 +29,7 @@ package hcm.ssj;
 import android.app.Application;
 import android.test.ApplicationTestCase;
 
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.gps.GPSChannel;
 import hcm.ssj.gps.GPSSensor;
 import hcm.ssj.test.Logger;
@@ -56,7 +56,7 @@ public class GPSTest extends ApplicationTestCase<Application>
 	public void testSensors() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
 		// Sensor

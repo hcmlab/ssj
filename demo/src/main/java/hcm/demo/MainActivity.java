@@ -41,12 +41,12 @@ import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
 import hcm.ssj.core.ExceptionHandler;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.myo.Vibrate2Command;
 
 public class MainActivity extends Activity implements ExceptionHandler
 {
-    private Pipeline _pipe = null;
+    private PipelineRunner _pipe = null;
     private String _ssj_version = null;
     private String _error_msg = null;
 
@@ -56,7 +56,7 @@ public class MainActivity extends Activity implements ExceptionHandler
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _ssj_version = "SSJ v" + TheFramework.getFramework().getVersion();
+        _ssj_version = "SSJ v" + Pipeline.getInstance().getVersion();
 
         TextView text = (TextView) findViewById(R.id.txt_ssj);
         text.setText(_ssj_version);
@@ -106,7 +106,7 @@ public class MainActivity extends Activity implements ExceptionHandler
 
             GraphView graphs[] = new GraphView[]{graph, graph2};
 
-            _pipe = new Pipeline(this, graphs);
+            _pipe = new PipelineRunner(this, graphs);
             _pipe.setExceptionHandler(this);
             _pipe.start();
         }

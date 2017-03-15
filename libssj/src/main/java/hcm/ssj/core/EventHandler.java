@@ -41,12 +41,12 @@ import static hcm.ssj.core.Cons.SLEEP_ON_COMPONENT_IDLE;
  */
 public abstract class EventHandler extends Component implements EventListener {
 
-    protected TheFramework _frame;
+    protected Pipeline _frame;
     protected boolean _doWakeLock = false;
 
     public EventHandler()
     {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
     }
 
     @Override

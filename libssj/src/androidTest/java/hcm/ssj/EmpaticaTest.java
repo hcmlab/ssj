@@ -30,7 +30,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.empatica.AccelerationChannel;
 import hcm.ssj.empatica.BVPChannel;
 import hcm.ssj.empatica.Empatica;
@@ -52,7 +52,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 	}
 
 	public void testAcc() throws Exception {
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		AccelerationChannel acc = new AccelerationChannel();
@@ -82,7 +82,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 	}
 
 	public void testGsr() throws Exception {
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		GSRChannel data = new GSRChannel();
@@ -112,7 +112,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 	}
 
 	public void testIBI() throws Exception {
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		IBIChannel data = new IBIChannel();
@@ -142,7 +142,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 	}
 
 	public void testTemp() throws Exception {
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		TemperatureChannel data = new TemperatureChannel();
@@ -172,7 +172,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 	}
 
 	public void testBVP() throws Exception {
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		BVPChannel data = new BVPChannel();

@@ -44,7 +44,7 @@ public class WatchDog extends Thread {
 
     protected final Object _lock = new Object();
 
-    protected TheFramework _frame;
+    protected Pipeline _frame;
 
     protected int _bufferID;
     protected double _watchInterval;
@@ -54,7 +54,7 @@ public class WatchDog extends Thread {
 
     public WatchDog(int bufferID, double watchInterval, double syncInterval)
     {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
 
         _bufferID = bufferID;
         _watchInterval = watchInterval;

@@ -41,7 +41,7 @@ import java.util.Arrays;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.Pipeline;
+import hcm.ssj.creator.core.PipelineBuilder;
 
 /**
  * Create a table row which includes viable providers
@@ -79,7 +79,7 @@ public class ProviderTable
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
-                Object[] providers = Pipeline.getInstance().getProviders(mainObject);
+                Object[] providers = PipelineBuilder.getInstance().getProviders(mainObject);
                 if (providers != null) {
                     for (Object provider : providers) {
                         if (objects[i].equals(provider)) {
@@ -95,9 +95,9 @@ public class ProviderTable
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
-                            Pipeline.getInstance().addProvider(mainObject, (Provider) o);
+                            PipelineBuilder.getInstance().addProvider(mainObject, (Provider) o);
                         } else {
-                            Pipeline.getInstance().removeProvider(mainObject, (Provider) o);
+                            PipelineBuilder.getInstance().removeProvider(mainObject, (Provider) o);
                         }
                     }
                 });
@@ -117,12 +117,12 @@ public class ProviderTable
     private static Object[] getProvider(Object mainObject)
     {
         //add possible providers
-        Object[] sensProvCandidates = Pipeline.getInstance().getAll(Pipeline.Type.SensorChannel);
+        Object[] sensProvCandidates = PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.SensorChannel);
         ArrayList<Object> alCandidates = new ArrayList<>();
         //only add sensorChannels for sensors
         if (!(mainObject instanceof Sensor))
         {
-            alCandidates.addAll(Arrays.asList(Pipeline.getInstance().getAll(Pipeline.Type.Transformer)));
+            alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Transformer)));
             //remove itself
             for (int i = 0; i < alCandidates.size(); i++)
             {

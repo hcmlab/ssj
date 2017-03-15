@@ -48,11 +48,11 @@ public class EventChannel {
     final private Object _lock = new Object();
     protected boolean _terminate = false;
 
-    protected TheFramework _frame;
+    protected Pipeline _frame;
     PowerManager powerManager;
 
     public EventChannel() {
-        _frame = TheFramework.getFramework();
+        _frame = Pipeline.getInstance();
         powerManager = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
     }
 

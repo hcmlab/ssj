@@ -34,9 +34,8 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.body.AccelerationFeatures;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.TheFramework;
-import hcm.ssj.core.Transformer;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.file.FileWriter;
@@ -61,7 +60,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 	public void testWriting() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
 		// Sensor
@@ -114,7 +113,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 	public void testReading() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.countdown.set(0);
 		frame.options.bufferSize.set(10.0f);
 
@@ -173,7 +172,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 	public void testSVM() throws Exception
 	{
 		// Setup
-		TheFramework frame = TheFramework.getFramework();
+		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
 		// Sensor
