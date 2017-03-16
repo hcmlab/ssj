@@ -29,9 +29,6 @@ compile 'com.github.hcmlab:libssj:0.4.5'
 * White-paper: <a href="http://dl.acm.org/citation.cfm?id=2998527">dl.acm.org</a> | <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian2/">uni-augsburg.de</a>
 * Api (Javadoc): http://hcmlab.github.io/ssj/api
 
-### Getting started
-We do not yet have a formal tutorial, however you can have a look at the "demo" module which implements a simple but functional SSJ pipeline.
-
 ### About
 The Social Signal Processing for Java/Android (SSJ) framework is being developed at the Lab for Human Centered Multimedia of the University of Augsburg. The authors of the framework are: <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/damian/">Ionut Damian</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/dietz/">Michael Dietz</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/_students/gaibler/">Frank Gaibler</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/_formerstudents/langerenken/">Daniel Langerenken</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/flutura/">Simon Flutura</a>.
 
