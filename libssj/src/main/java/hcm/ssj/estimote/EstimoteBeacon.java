@@ -74,6 +74,8 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 	protected BeaconListener listener;
 	protected Region         region;
 
+	protected boolean connected;
+
 	public EstimoteBeacon()
 	{
 		_name = "EstimoteBeacon";
@@ -85,7 +87,7 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 	protected boolean connect()
 	{
 		Log.i("Connecting to estimote beacons");
-		boolean connected = true;
+		connected = false;
 
 		listener.reset();
 		listener.setIdMode(options.idMode.get());
@@ -106,7 +108,7 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 		}, 1);
 
 		long time = SystemClock.elapsedRealtime();
-		while (!_terminate && !listener.hasReceivedData() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
+		while (!_terminate && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
 		{
 			try
 			{
@@ -117,10 +119,9 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 			}
 		}
 
-		if (!listener.hasReceivedData())
+		if (!connected)
 		{
 			Log.e("Unable to connect to estimote beacons");
-			connected = false;
 		}
 
 		return connected;
@@ -131,12 +132,16 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 	{
 		Log.i("Estimote service ready, starting ranging");
 
+		connected = true;
+
 		beaconManager.startRanging(region);
 	}
 
 	@Override
 	protected void disconnect()
 	{
+		connected = false;
+
 		if (beaconManager != null && region != null)
 		{
 			beaconManager.stopRanging(region);
