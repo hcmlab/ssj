@@ -116,16 +116,16 @@ public class Timer {
             _now = SystemClock.elapsedRealtime() - _init;
         }
 
-        if(_now - _next > _delta * 2) {
+        if(_now - _next > _delta + Cons.TIMER_SYNC_ACCURACY) {
             if(!_syncFailFlag) {
                 _syncFailFlag = true;
-                Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                Log.i(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
                       "thread too slow, missing sync points");
             }
         } else if(_now - _next <= 1) {
             if(_syncFailFlag) {
                 _syncFailFlag = false;
-                Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
+                Log.i(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
                       "thread back in sync");
             }
         }
