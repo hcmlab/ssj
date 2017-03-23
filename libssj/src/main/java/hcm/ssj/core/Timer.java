@@ -116,7 +116,7 @@ public class Timer {
             _now = SystemClock.elapsedRealtime() - _init;
         }
 
-        if(_now - _next > _delta) {
+        if(_now - _next > _delta * 2) {
             if(!_syncFailFlag) {
                 _syncFailFlag = true;
                 Log.w(Thread.currentThread().getStackTrace()[3].getClassName().replace("hcm.ssj.", ""),
