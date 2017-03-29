@@ -61,16 +61,25 @@ public class WatchDog extends Thread {
         _syncInterval = syncInterval;
 
         double sleep = 0;
-        if (watchInterval > 0 && syncInterval > 0) {
-            sleep = Math.min (watchInterval, syncInterval);
-        } else if (syncInterval > 0) {
-            sleep = syncInterval;
-        } else if (watchInterval > 0) {
-            sleep = watchInterval;
-        }
+        _syncIter = -1;
+        _watchIter = -1;
 
-        _syncIter = (int)(syncInterval / sleep) -1;
-        _watchIter = (int)(watchInterval / sleep) -1;
+        if (watchInterval > 0 && syncInterval > 0)
+        {
+            sleep = Math.min (watchInterval, syncInterval);
+            _syncIter = (int)(syncInterval / sleep) -1;
+            _watchIter = (int)(watchInterval / sleep) -1;
+        }
+        else if (syncInterval > 0)
+        {
+            sleep = syncInterval;
+            _syncIter = (int)(syncInterval / sleep) -1;
+        }
+        else if (watchInterval > 0)
+        {
+            sleep = watchInterval;
+            _watchIter = (int)(watchInterval / sleep) -1;
+        }
 
         if(sleep > 0) {
             _timer = new Timer(sleep);
@@ -115,7 +124,7 @@ public class WatchDog extends Thread {
                 wakeLock.acquire();
 
                 //check buffer watch
-                if(_watchIter > 0) {
+                if(_watchIter >= 0) {
                     if (watchIterCnt == 0) {
                         synchronized (_lock) {
                             if (!_targetCheckedIn) {
@@ -129,7 +138,7 @@ public class WatchDog extends Thread {
                 }
 
                 //check buffer sync
-                if(_syncIter > 0) {
+                if(_syncIter >= 0) {
                     if (syncIterCnt == 0) {
                         _frame.sync(_bufferID);
                         syncIterCnt = _syncIter;
