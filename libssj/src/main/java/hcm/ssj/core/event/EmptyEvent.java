@@ -26,10 +26,16 @@
 
 package hcm.ssj.core.event;
 
+import hcm.ssj.core.Cons;
+
 /**
  * Created by Johnny on 19.03.2015.
  */
 public class EmptyEvent extends Event {
+
+    public EmptyEvent() {
+        type = Cons.Type.EMPTY;
+    }
 
     public void setData(Object data) { throw new UnsupportedOperationException(); }
     public boolean[] ptr() {
