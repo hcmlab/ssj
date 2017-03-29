@@ -228,7 +228,7 @@ public class Functionals extends Transformer
         {
             for (int i = 0; i < sample_dimension; i++)
             {
-                ptr_out[c_out++] = _energy_val[i];
+                ptr_out[c_out++] = (float)Math.sqrt(_energy_val[i]);
             }
         }
         if (options.std.get())
