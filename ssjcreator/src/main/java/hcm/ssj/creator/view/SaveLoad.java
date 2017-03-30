@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -50,7 +51,13 @@ import hcm.ssj.creator.util.Util;
 abstract class SaveLoad
 {
     private final static String SUFFIX = ".layout";
-    private final static String ROOT = "ssjCreatorPositionSaveFile";
+    private final static String ROOT = "ssjCreator";
+    private final static String PIPE_GROUP = "pipeLayout";
+    private final static String ANNO_GROUP = "annotation";
+    private final static String ANNO = "annoClass";
+    private final static String NAME = "name";
+    private final static String FILE_NAME = "fileName";
+    private final static String FILE_PATH = "filePath";
     private final static String VERSION = "version";
     private final static String VERSION_NUMBER = "1";
     private final static String COMPONENT = "component";
@@ -99,6 +106,9 @@ abstract class SaveLoad
             serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
             serializer.startTag(null, ROOT);
             serializer.attribute(null, VERSION, VERSION_NUMBER);
+
+            //pipe layout
+            serializer.startTag(null, PIPE_GROUP);
             //sensorChannels
             for (ComponentView componentView : providers)
             {
@@ -119,6 +129,21 @@ abstract class SaveLoad
             {
                 addComponentView(serializer, componentView);
             }
+            serializer.endTag(null, PIPE_GROUP);
+
+            //annotations
+            serializer.startTag(null, ANNO_GROUP);
+            serializer.attribute(null, FILE_NAME, Annotation.getInstance().getFileName());
+            serializer.attribute(null, FILE_PATH, Annotation.getInstance().getFilePath());
+            ArrayList<String> annos = Annotation.getInstance().getClasses();
+            for(String anno : annos)
+            {
+                serializer.startTag(null, ANNO);
+                serializer.attribute(null, NAME, anno);
+                serializer.endTag(null, ANNO);
+            }
+            serializer.endTag(null, ANNO_GROUP);
+
             //finish document
             serializer.endTag(null, ROOT);
             serializer.endDocument();
@@ -204,6 +229,18 @@ abstract class SaveLoad
                             String x = parser.getAttributeValue(null, X);
                             String y = parser.getAttributeValue(null, Y);
                             alPoints.add(new Point(Integer.valueOf(x), Integer.valueOf(y)));
+                            break;
+                        }
+                        case ANNO_GROUP:
+                        {
+                            Annotation.getInstance().setFileName(parser.getAttributeValue(null, FILE_NAME));
+                            Annotation.getInstance().setFilePath(parser.getAttributeValue(null, FILE_PATH));
+                            break;
+                        }
+                        case ANNO:
+                        {
+                            String name = parser.getAttributeValue(null, NAME);
+                            Annotation.getInstance().addClass(name);
                             break;
                         }
                     }

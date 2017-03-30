@@ -31,11 +31,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
-import android.os.Environment;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.SwitchCompat;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,9 +50,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.file.LoggingConstants;
@@ -60,7 +63,7 @@ import hcm.ssj.file.LoggingConstants;
  * Annotation tab for main activity.<br>
  * Created by Frank Gaibler on 23.09.2016.
  */
-public class Annotation implements ITab
+public class AnnotationTab implements ITab
 {
     private Activity activity = null;
     //tab
@@ -83,7 +86,7 @@ public class Annotation implements ITab
     /**
      * @param activity Activity
      */
-    Annotation(Activity activity)
+    AnnotationTab(Activity activity)
     {
         this.activity = activity;
         view = createContent(activity);
@@ -129,11 +132,14 @@ public class Annotation implements ITab
             {
                 if (annoClassList != null)
                 {
-                    annoClassList.addView(createClassSwitch(context));
+                    String name = context.getString(R.string.str_defaultAnno, annoClassList.getChildCount());
+                    annoClassList.addView(createClassSwitch(context, name));
+                    Annotation.getInstance().addClass(name);
                 }
             }
         });
         coordinatorLayout.addView(floatingActionButton);
+
         //file name
         TextView textViewDescriptionName = new TextView(context);
         textViewDescriptionName.setText(R.string.str_fileName);
@@ -141,8 +147,27 @@ public class Annotation implements ITab
         linearLayout.addView(textViewDescriptionName);
         editTextNameAnno = new EditText(context);
         editTextNameAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAnno.setText("anno", TextView.BufferType.NORMAL);
+        editTextNameAnno.setText(Annotation.getInstance().getFileName(), TextView.BufferType.NORMAL);
+        editTextNameAnno.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                Annotation.getInstance().setFileName(s.toString().trim());
+            }
+        });
         linearLayout.addView(editTextNameAnno);
+
         //file path
         TextView textViewDescriptionPath = new TextView(context);
         textViewDescriptionPath.setText(R.string.str_filePath);
@@ -150,9 +175,27 @@ public class Annotation implements ITab
         linearLayout.addView(textViewDescriptionPath);
         editTextPathAnno = new EditText(context);
         editTextPathAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextPathAnno.setText((Environment.getExternalStorageDirectory().getAbsolutePath()
-                + File.separator + Util.DIR_1 + File.separator + "[time]"), TextView.BufferType.NORMAL);
+        editTextPathAnno.setText(Annotation.getInstance().getFilePath(), TextView.BufferType.NORMAL);
+        editTextPathAnno.addTextChangedListener(new TextWatcher()
+        {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after)
+            {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count)
+            {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s)
+            {
+                Annotation.getInstance().setFilePath(s.toString().trim());
+            }
+        });
         linearLayout.addView(editTextPathAnno);
+
         //other options
         externalAnno = new CheckBox(context);
         externalAnno.setText(R.string.anno_msband);
@@ -177,14 +220,17 @@ public class Annotation implements ITab
         dpValue = 12; // margin in dips
         d = context.getResources().getDisplayMetrics().density;
         margin = (int) (dpValue * d); // margin in pixels
+
         annoClassList = new LinearLayout(context);
-        annoClassList.addView(createClassSwitch(context));
+        setAnnoClasses(Annotation.getInstance().getClasses());
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(margin, margin, margin, 0);
         annoClassList.setLayoutParams(lp);
         annoClassList.setOrientation(LinearLayout.VERTICAL);
         annoClassList.setGravity(Gravity.CENTER_HORIZONTAL);
         linearLayout.addView(annoClassList);
+
         return coordinatorLayout;
     }
 
@@ -192,13 +238,13 @@ public class Annotation implements ITab
      * @param context Context
      * @return CompoundButton
      */
-    private LinearLayout createClassSwitch(final Context context)
+    private LinearLayout createClassSwitch(final Context context, String name)
     {
         SwitchCompat switchButton = new SwitchCompat(context);
         switchButton.setEnabled(false);
         //
         TextView textView = new TextView(context);
-        textView.setText(context.getString(R.string.str_defaultAnno, annoClassList.getChildCount()));
+        textView.setText(name);
         textView.setTextSize(textView.getTextSize() * 0.5f);
         //
         LinearLayout layout = new LinearLayout(context);
@@ -281,7 +327,9 @@ public class Annotation implements ITab
                         public void onClick(DialogInterface dialog, int id)
                         {
                             ViewGroup viewGroup = (ViewGroup) v.getParent();
-                            ((TextView) viewGroup.getChildAt(0)).setText(editText.getText().toString().trim());
+                            String name = editText.getText().toString().trim();
+                            ((TextView) viewGroup.getChildAt(0)).setText(name);
+                            Annotation.getInstance().setClasses(getAnnoClasses());
                         }
                     });
                     builder.setNegativeButton(R.string.str_cancel, null);
@@ -293,6 +341,7 @@ public class Annotation implements ITab
                             if (viewGroup != null)
                             {
                                 ((SwitchCompat) viewGroup.getChildAt(1)).setChecked(false);
+                                Annotation.getInstance().removeClass(((TextView) viewGroup.getChildAt(0)).getText().toString());
                                 ((ViewGroup) viewGroup.getParent()).removeView(viewGroup);
                             }
                             v.invalidate();
@@ -489,5 +538,33 @@ public class Annotation implements ITab
             }
         });
         return true;
+    }
+
+    public ArrayList<String> getAnnoClasses()
+    {
+        if (annoClassList == null)
+            return null;
+
+        ArrayList<String> classes = new ArrayList<>();
+        for(int i = 0; i < annoClassList.getChildCount(); i++)
+        {
+            LinearLayout anno = (LinearLayout) annoClassList.getChildAt(i);
+            classes.add(((TextView) anno.getChildAt(0)).getText().toString());
+        }
+        return classes;
+    }
+
+    public void setAnnoClasses(ArrayList<String> classes)
+    {
+        if (annoClassList == null)
+            return;
+
+        //clear existing annotations
+        annoClassList.removeAllViews();
+
+        for(String anno : classes)
+        {
+            annoClassList.addView(createClassSwitch(activity, anno));
+        }
     }
 }

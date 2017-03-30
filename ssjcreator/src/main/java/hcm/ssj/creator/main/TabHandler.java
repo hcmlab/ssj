@@ -65,7 +65,7 @@ public class TabHandler
     //annotation
     private boolean annotationExists = false;
 
-    private Annotation annotation = null;
+    private AnnotationTab annotationTab = null;
 
     /**
      * @param activity Activity
@@ -191,8 +191,8 @@ public class TabHandler
                 if (!annotationExists)
                 {
                     annotationExists = true;
-                    annotation = new Annotation(this.activity);
-                    addTabAnno(annotation.getView(), annotation.getTitle(), annotation.getIcon());
+                    annotationTab = new AnnotationTab(this.activity);
+                    addTabAnno(annotationTab.getView(), annotationTab.getTitle(), annotationTab.getIcon());
                 }
             }
             //signals
@@ -246,9 +246,9 @@ public class TabHandler
     {
         console.clear();
 
-        if (annotationExists && annotation != null)
+        if (annotationExists && annotationTab != null)
         {
-            annotation.startAnnotation();
+            annotationTab.startAnnotation();
         }
     }
 
@@ -257,9 +257,9 @@ public class TabHandler
      */
     public void preStop()
     {
-        if (annotationExists && annotation != null)
+        if (annotationExists && annotationTab != null)
         {
-            annotation.finishAnnotation();
+            annotationTab.finishAnnotation();
         }
     }
 
@@ -284,8 +284,8 @@ public class TabHandler
     /**
      * @return Annotation
      */
-    public Annotation getAnnotation()
+    public AnnotationTab getAnnotation()
     {
-        return annotation;
+        return annotationTab;
     }
 }

@@ -58,13 +58,14 @@ import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.creator.dialogs.AddDialog;
 import hcm.ssj.creator.dialogs.FileDialog;
 import hcm.ssj.creator.dialogs.Listener;
-import hcm.ssj.creator.main.Annotation;
+import hcm.ssj.creator.main.AnnotationTab;
 import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 import hcm.ssj.creator.util.Util;
@@ -90,7 +91,7 @@ public class MainActivity extends AppCompatActivity
                 return;
 
             //toggle button
-            Annotation anno = tabHandler.getAnnotation();
+            AnnotationTab anno = tabHandler.getAnnotation();
             if (anno == null)
                 return;
 
@@ -337,6 +338,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_clear:
             {
                 PipelineBuilder.getInstance().clear();
+                Annotation.getInstance().clear();
                 actualizeContent(Util.AppAction.CLEAR, null);
                 return true;
             }
