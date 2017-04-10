@@ -26,12 +26,31 @@
 
 package hcm.ssj.signal;
 
+import hcm.ssj.core.Log;
+import hcm.ssj.signal.Matrix.MATRIX_DIMENSION;
+
+import static java.lang.Math.PI;
+
 /**
  * Created by Michael Dietz on 13.08.2015.
  */
 public class FilterTools
 {
 	private static FilterTools _instance = null;
+
+	public enum WINDOW_TYPE
+	{
+		//! rectangular window
+		RECTANGLE,
+		//! triangle window
+		TRIANGLE,
+		//! gauss window
+		GAUSS,
+		//! hamming window
+		HAMMING
+	}
+
+	;
 
 	/**
 	 * Private constructor for singleton pattern.
@@ -99,15 +118,15 @@ public class FilterTools
 
 		for (int i = 0; i < sections; i++)
 		{
-			double poleReal = - poles.getData(i).real();
+			double poleReal = -poles.getData(i).real();
 			double poleImag = poles.getData(i).imag();
 			double a1 = -2.0 * poleReal;
 			double a2 = poleReal * poleReal + poleImag * poleImag;
 
 			Matrix<Complex> tmp = new Matrix<>(3, 1);
 			tmp.setData(0, new Complex(1.0, 0.0));
-			tmp.setData(1, new Complex(Math.cos(0.5 * Math.PI), Math.sin(0.5 * Math.PI)));
-			tmp.setData(2, new Complex(Math.cos(Math.PI), Math.sin(Math.PI)));
+			tmp.setData(1, new Complex(Math.cos(0.5 * PI), Math.sin(0.5 * PI)));
+			tmp.setData(2, new Complex(Math.cos(PI), Math.sin(PI)));
 
 			Matrix<Complex> tmp2 = new Matrix<>(1, 3);
 			tmp2.setData(0, new Complex(1.0, 0.0));
@@ -139,12 +158,12 @@ public class FilterTools
 
 		Matrix<Complex> polesTmp = getButterPoles(sections / 2, hFreq - lFreq);
 
-		double wLow = 2 * Math.PI * lFreq;
-		double wHigh = 2 * Math.PI * hFreq;
+		double wLow = 2 * PI * lFreq;
+		double wHigh = 2 * PI * hFreq;
 		double ang = Math.cos((wHigh + wLow) / 2) / Math.cos((wHigh - wLow) / 2);
 
 		Matrix<Complex> poles = new Matrix<>(sections, 1);
-		poles.fillValue(new Complex(0,0));
+		poles.fillValue(new Complex(0, 0));
 
 		for (int i = 0; i < sections / 2; i++)
 		{
@@ -164,8 +183,8 @@ public class FilterTools
 
 			Matrix<Complex> tmp = new Matrix<>(3, 1);
 			tmp.setData(0, new Complex(1.0, 0.0));
-			tmp.setData(1, new Complex(Math.cos((lFreq + hFreq) * Math.PI), Math.sin((lFreq + hFreq) * Math.PI)));
-			tmp.setData(2, new Complex(Math.cos(2 * (lFreq + hFreq) * Math.PI), Math.sin(2 * (lFreq + hFreq) * Math.PI)));
+			tmp.setData(1, new Complex(Math.cos((lFreq + hFreq) * PI), Math.sin((lFreq + hFreq) * PI)));
+			tmp.setData(2, new Complex(Math.cos(2 * (lFreq + hFreq) * PI), Math.sin(2 * (lFreq + hFreq) * PI)));
 
 			Matrix<Complex> tmp2 = new Matrix<>(1, 3);
 			tmp2.setData(0, new Complex(1.0, 0.0));
@@ -199,14 +218,14 @@ public class FilterTools
 			}
 		}
 
-		double w = Math.PI * frequency;
+		double w = PI * frequency;
 		double tanW = Math.sin(w) / Math.cos(w);
 
 		int polesIndex = 0;
 
 		for (int m = sections; m <= 2 * sections - 1; m++)
 		{
-			double ang = (2.0 * m + 1) * Math.PI / (4.0 * sections);
+			double ang = (2.0 * m + 1) * PI / (4.0 * sections);
 			double d = 1.0 - 2.0 * tanW * Math.cos(ang) + tanW * tanW;
 
 			double real = (1.0 - tanW * tanW) / d;
@@ -216,5 +235,86 @@ public class FilterTools
 		}
 
 		return poles;
+	}
+
+	Matrix<Float> Filterbank(int size, double sample_rate, Matrix<Float> intervals, WINDOW_TYPE type)
+	{
+
+		Matrix<Float> filterbank = new Matrix<>(intervals.getRows(), size);
+		filterbank.fillValue(0f);
+
+		sample_rate /= 2; // convert sampling to nyquist rate
+
+		int intervalsptr = 0;
+		for (int i = 0; i < filterbank.getRows(); i++)
+		{
+
+			int minind = (int) ((intervals.getData(intervalsptr) / sample_rate) * size + 0.5f);
+			intervalsptr++;
+
+			int maxind = (int) ((intervals.getData(intervalsptr) / sample_rate) * size + 0.5f);
+			intervalsptr++;
+
+			maxind = Math.min(maxind, size - 1);
+			Matrix<Float> winmat = Window(1 + (maxind - minind), type, MATRIX_DIMENSION.ROW);
+			MatrixOps.getInstance().div(winmat, MatrixOps.getInstance().sum(winmat));
+			filterbank.setSubMatrix(i, minind, winmat);
+		}
+
+		return filterbank;
+	}
+
+	public Matrix<Float> Window(int size, WINDOW_TYPE type, MATRIX_DIMENSION dimension)
+	{
+		Matrix<Float> window;
+
+		if (size < 1)
+		{
+			window = new Matrix<>(0, 0);
+		}
+		else if (size == 1)
+		{
+			window = new Matrix<>(1, 1);
+			window.setData(0, 1f);
+		}
+		else
+		{
+			switch (type)
+			{
+				default:
+				case RECTANGLE:
+					window = new Matrix<>(1, size);
+					window.fillValue(1f);
+					break;
+
+				case TRIANGLE:
+					Log.e("window "+type.name()+" not supported yet");
+					return null;
+
+				case GAUSS:
+					Log.e("window "+type.name()+" not supported yet");
+					return null;
+
+				case HAMMING:
+				{
+					window = MatrixOps.getInstance().array(0,1, size-1, MATRIX_DIMENSION.ROW);
+					float scalar = (float) ((2.0 * PI) / size);
+
+					MatrixOps.getInstance().mult (window, scalar);
+					MatrixOps.getInstance().cos (window);
+					MatrixOps.getInstance().mult (window, -0.46f);
+					MatrixOps.getInstance().plus (window, 0.54f);
+				}
+				break;
+			}
+
+			// swap dimension if column vector
+			if (dimension == MATRIX_DIMENSION.COL)
+			{
+				window.transpose();
+			}
+		}
+
+		return window;
 	}
 }

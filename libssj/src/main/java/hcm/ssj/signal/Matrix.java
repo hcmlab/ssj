@@ -34,10 +34,18 @@ import java.util.List;
  */
 public class Matrix<T>
 {
+	public enum MATRIX_DIMENSION {
+
+		//! rowwise
+		ROW,
+		//! columnwise
+		COL
+	};
+
 	private int rows;
 	private int cols;
 
-	List<T> data;
+	ArrayList<T> data;
 
 	public Matrix(int rows, int cols)
 	{
@@ -54,6 +62,17 @@ public class Matrix<T>
 			data = new ArrayList<T>(rows * cols);
 			while(data.size() < rows * cols) data.add(null);
 		}
+	}
+
+	public Matrix<T> clone()
+	{
+		Matrix<T> ret = new Matrix<>(rows, cols);
+		for (int i = 0; i < getSize(); i++)
+		{
+			ret.setData(i, data.get(i));
+		}
+
+		return ret;
 	}
 
 	public List<T> getData()
@@ -100,5 +119,71 @@ public class Matrix<T>
 	public int getCols()
 	{
 		return cols;
+	}
+
+	public int getSize()
+	{
+		return cols * rows;
+	}
+
+	public void transpose ()
+	{
+		if (data.isEmpty()) {
+			return;
+		}
+
+		if (rows > 1 && cols > 1) {
+
+			Matrix<T> tmp = this.clone();
+
+			int srcrows = tmp.getRows();
+			int srccols = tmp.getCols();
+
+			int srcptr = 0;
+			int dstptr = 0;
+
+			for (int i = 0; i < srccols; i++)
+			{
+				srcptr = i;
+				for (int j = 0; j < srcrows; j++)
+				{
+					data.set(dstptr, tmp.getData(srcptr));
+					srcptr += srccols;
+					dstptr++;
+				}
+			}
+		}
+
+		int tmp = cols;
+		cols = rows;
+		rows = tmp;
+	}
+
+	public void setSubMatrix(int row, int col, Matrix<T> submaxtrix)
+	{
+		setSubMatrix(row, col, 0, 0, submaxtrix.getRows(), submaxtrix.getCols(), submaxtrix);
+	}
+
+	public void setSubMatrix(int row_dst, int col_dst, int row_src, int col_src, int row_number, int col_number, Matrix<T> src)
+	{
+		if (row_dst + row_number > rows
+				|| col_dst + col_number > cols
+				|| row_src + row_number > src.getRows()
+				|| col_src + col_number > src.getCols())
+			return;
+
+		int srccols = src.getCols();
+		int srcptr = row_src * srccols + col_src;
+		int dstcols = cols;
+		int dstptr = row_dst * dstcols + col_dst;
+
+		for (int i = 0; i < row_number; i++) {
+
+			for(int j = 0; j < col_number; j++)
+				data.set(dstptr + j, src.getData(srcptr + j));
+
+			srcptr += srccols;
+			dstptr += dstcols;
+		}
 	}
 }
