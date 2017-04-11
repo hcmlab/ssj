@@ -1,5 +1,5 @@
 /*
- * SpeechRate.java
+ * Loudness.java
  * Copyright (c) 2015
  * Author: Ionut Damian
  * *****************************************************
@@ -20,16 +20,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.ssj.feedback.behaviours;
+package hcm.ssj.feedback.conditions;
 
 import android.content.Context;
-import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.LinkedList;
 
 import hcm.ssj.core.Log;
@@ -38,60 +36,23 @@ import hcm.ssj.core.event.Event;
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class SpeechRate extends Behaviour
+public class Loudness extends Condition
 {
-    LinkedList<Float> _sr = new LinkedList<Float>();
+
+    LinkedList<Float> _loudness = new LinkedList<Float>();
     int _history_size;
 
-    XmlPullParser _parser;
-
-    public SpeechRate()
-    {
-        try
-        {
-            _parser = Xml.newPullParser();
-            _parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-        }
-        catch (XmlPullParserException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    
     @Override
     public float parseEvent(Event event)
     {
-        try
-        {
-            float srate = 0;
-            _parser.setInput(new StringReader(event.ptrStr()));
+        float loudness = Float.parseFloat(event.ptrStr());
 
-            while (_parser.next() != XmlPullParser.END_DOCUMENT)
-            {
-                if (_parser.getEventType() == XmlPullParser.START_TAG && _parser.getName().equalsIgnoreCase("tuple"))
-                {
-                    if (_parser.getAttributeValue(null, "string").equalsIgnoreCase("Speechrate (syllables/sec)")) {
-                        srate = Float.parseFloat(_parser.getAttributeValue(null, "value"));
+        _loudness.add(loudness);
+        if (_loudness.size() > _history_size)
+            _loudness.removeFirst();
 
-                        _sr.add(srate);
-                        if (_sr.size() > _history_size)
-                            _sr.removeFirst();
-
-                        break;
-                    }
-                }
-                else if(_parser.getEventType() == XmlPullParser.END_TAG && _parser.getName().equalsIgnoreCase("event"))
-                    break; //jump out once we reach end tag
-            }
-        }
-        catch (XmlPullParserException | IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-
-        float value = getAvg(_sr);
-        Log.d("SpeechRate_avg = " + value);
-
+        float value = getAvg(_loudness);
+        Log.d("Loudness = " + value);
         return value;
     }
 
@@ -113,7 +74,7 @@ public class SpeechRate extends Behaviour
     {
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "behaviour");
+            xml.require(XmlPullParser.START_TAG, null, "condition");
         }
         catch (XmlPullParserException | IOException e)
         {

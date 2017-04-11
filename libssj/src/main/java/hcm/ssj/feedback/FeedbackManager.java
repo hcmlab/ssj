@@ -38,7 +38,7 @@ import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.feedback.classes.Feedback;
+import hcm.ssj.feedback.classes.FeedbackClass;
 import hcm.ssj.feedback.classes.FeedbackListener;
 
 /**
@@ -59,7 +59,7 @@ public class FeedbackManager extends EventHandler
 
     protected Activity activity;
 
-    protected ArrayList<Feedback> classes = new ArrayList<Feedback>();
+    protected ArrayList<FeedbackClass> classes = new ArrayList<FeedbackClass>();
 
     protected int level = 0;
     private int max_level = 3;
@@ -73,7 +73,7 @@ public class FeedbackManager extends EventHandler
         activity = act;
     }
 
-    public ArrayList<Feedback> getClasses()
+    public ArrayList<FeedbackClass> getClasses()
     {
         return classes;
     }
@@ -99,7 +99,7 @@ public class FeedbackManager extends EventHandler
     @Override
     public void process() {
 
-        for(Feedback i : classes)
+        for(FeedbackClass i : classes)
         {
             i.update();
         }
@@ -113,7 +113,7 @@ public class FeedbackManager extends EventHandler
 
     public void flush()
     {
-        for(Feedback f : classes)
+        for(FeedbackClass f : classes)
         {
             f.release();
         }
@@ -127,17 +127,17 @@ public class FeedbackManager extends EventHandler
             return;
 
         //validate feedback
-        for(Feedback i : classes)
+        for(FeedbackClass i : classes)
         {
             if(i.getLevel() == level)
             {
-                if(i.getValence() == Feedback.Valence.Desirable)
+                if(i.getValence() == FeedbackClass.Valence.Desirable && i.getLastExecutionTime() > lastDesireableState)
                 {
-                    lastDesireableState = System.currentTimeMillis();
+                    lastDesireableState = i.getLastExecutionTime();
                 }
-                else if(i.getValence() == Feedback.Valence.Undesirable)
+                else if(i.getValence() == FeedbackClass.Valence.Undesirable && i.getLastExecutionTime() > lastUndesireableState)
                 {
-                    lastUndesireableState = System.currentTimeMillis();
+                    lastUndesireableState = i.getLastExecutionTime();
                 }
             }
         }
@@ -146,15 +146,17 @@ public class FeedbackManager extends EventHandler
         if (System.currentTimeMillis() - progressionTimeout > lastDesireableState && level < max_level) {
             level++;
             lastDesireableState = System.currentTimeMillis();
+            Log.d("activating level " + level);
         }
         //if all current feedback classes are in a desirable state, check if we can go back to the previous level
         else if (System.currentTimeMillis() - regressionTimeout > lastUndesireableState && level > 0) {
             level--;
             lastUndesireableState = System.currentTimeMillis();
+            Log.d("activating level " + level);
         }
 
         //execute feedback
-        for(Feedback i : classes)
+        for(FeedbackClass i : classes)
         {
             if(i.getLevel() == level)
                 i.process(behavEvent);
@@ -179,7 +181,7 @@ public class FeedbackManager extends EventHandler
             switch(parser.getEventType())
             {
                 case XmlPullParser.START_TAG:
-                    if(parser.getName().equalsIgnoreCase("feedback"))
+                    if(parser.getName().equalsIgnoreCase("strategy"))
                     {
                         load(parser);
                     }
@@ -189,7 +191,7 @@ public class FeedbackManager extends EventHandler
 
         //find max progression level
         max_level = 0;
-        for(Feedback i : classes) {
+        for(FeedbackClass i : classes) {
             if(i.getLevel() > max_level)
                 max_level = i.getLevel();
         }
@@ -199,29 +201,29 @@ public class FeedbackManager extends EventHandler
 
     private void load(XmlPullParser parser) throws IOException, XmlPullParserException
     {
-        parser.require(XmlPullParser.START_TAG, null, "feedback");
+        parser.require(XmlPullParser.START_TAG, null, "strategy");
 
         //iterate through classes
         while (parser.next() != XmlPullParser.END_DOCUMENT)
         {
-            if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("class"))
+            if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
             {
                 //parse feedback classes
-                Feedback c = Feedback.create(parser, activity);
+                FeedbackClass c = FeedbackClass.create(parser, activity);
                 classes.add(c);
             }
-            else if(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
+            else if(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
                 break; //jump out once we reach end tag for classes
         }
 
-        parser.require(XmlPullParser.END_TAG, null, "feedback");
+        parser.require(XmlPullParser.END_TAG, null, "strategy");
 
-        Log.i("loaded " + classes.size() + " classes");
+        Log.i("loaded " + classes.size() + " feedback classes");
     }
 
     public void addFeedbackListener(FeedbackListener listener)
     {
-        for(Feedback i : classes)
+        for(FeedbackClass i : classes)
         {
             i.addFeedbackListener(listener);
         }

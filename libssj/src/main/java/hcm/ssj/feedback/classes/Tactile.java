@@ -38,15 +38,15 @@ import java.security.InvalidParameterException;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.feedback.BandComm;
-import hcm.ssj.feedback.events.Event;
-import hcm.ssj.feedback.events.TactileEvent;
+import hcm.ssj.feedback.actions.Action;
+import hcm.ssj.feedback.actions.TactileAction;
 import hcm.ssj.myo.Vibrate2Command;
 
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class TactileFeedback extends Feedback
+public class Tactile extends FeedbackClass
 {
     enum Device
     {
@@ -62,11 +62,10 @@ public class TactileFeedback extends Feedback
     Vibrate2Command cmd = null;
 
     long lock = 0;
-    byte intensityNew[] = null;
 
     Device deviceType = Device.Myo;
 
-    public TactileFeedback(Activity activity)
+    public Tactile(Activity activity)
     {
         this.activity = activity;
         type = Type.Tactile;
@@ -102,7 +101,7 @@ public class TactileFeedback extends Feedback
     }
 
     @Override
-    public boolean execute(Event event)
+    public boolean execute(Action action)
     {
         if(firstCall)
             firstCall();
@@ -114,42 +113,20 @@ public class TactileFeedback extends Feedback
             return false;
         }
 
-        TactileEvent ev = (TactileEvent) event;
-        if(ev == lastEvent)
-        {
-            //check lock
-            //only execute if enough time has passed since last execution of this instance
-            if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
-                return false;
+        TactileAction ev = (TactileAction) action;
 
-            if(deviceType == Device.Myo) {
-                if (ev.multiplier != 1) {
-                    intensityNew = multiply(intensityNew, ev.multiplier);
-                }
+        //check self-lock
+        //only execute if enough time has passed since last execution of this instance
+        if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+            return false;
 
-                Log.i("vibration " + ev.duration[0] + "/" + (int) intensityNew[0]);
-                cmd.vibrate(myo, ev.duration, intensityNew);
-            }
-            else if(deviceType == Device.MsBand) {
-                Log.i("vibration " + ev.vibrationType);
-                msband.vibrate(ev.vibrationType);
-            }
-
+        if(deviceType == Device.Myo) {
+            Log.i("vibration " + ev.duration[0] + "/" + (int) ev.intensity[0]);
+            cmd.vibrate(myo, ev.duration, ev.intensity);
         }
-        else
-        {
-            if(deviceType == Device.Myo) {
-                Log.i("vibration " +  ev.duration[0] + "/" + (int)ev.intensity[0]);
-                cmd.vibrate(myo, ev.duration, ev.intensity);
-
-                if(intensityNew == null)
-                    intensityNew = new byte[ev.intensity.length];
-                System.arraycopy(ev.intensity, 0, intensityNew, 0, ev.intensity.length);
-            }
-            else if(deviceType == Device.MsBand) {
-                Log.i("vibration " + ev.vibrationType);
-                msband.vibrate(ev.vibrationType);
-            }
+        else if(deviceType == Device.MsBand) {
+            Log.i("vibration " + ev.vibrationType);
+            msband.vibrate(ev.vibrationType);
         }
 
         //set lock
@@ -181,7 +158,7 @@ public class TactileFeedback extends Feedback
     protected void load(XmlPullParser xml, final Context context)
     {
         try {
-            xml.require(XmlPullParser.START_TAG, null, "class");
+            xml.require(XmlPullParser.START_TAG, null, "feedback");
 
             String device_name = xml.getAttributeValue(null, "device");
             if (device_name != null) {

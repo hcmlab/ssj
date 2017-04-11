@@ -30,35 +30,35 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.behaviours.Behaviour;
-import hcm.ssj.feedback.events.Event;
+import hcm.ssj.core.event.Event;
+import hcm.ssj.feedback.actions.Action;
+import hcm.ssj.feedback.conditions.Condition;
 
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public abstract class Feedback
+public abstract class FeedbackClass
 {
     protected Type type;
-    protected Behaviour behaviour;
-    protected ArrayList<Event> events = new ArrayList<Event>();
-    protected Event lastEvent = null;
+    protected Condition condition = null;
+    protected Action action = null;
     protected int level = 0;
+    protected FeedbackClass.Valence valence;
     private ArrayList<FeedbackListener> listeners = new ArrayList<>();
 
-    public static Feedback create(XmlPullParser xml, Activity activity)
+    public static FeedbackClass create(XmlPullParser xml, Activity activity)
     {
-        Feedback f = null;
+        FeedbackClass f = null;
 
         if(xml.getAttributeValue(null, "type").equalsIgnoreCase("visual"))
-            f = new VisualFeedback(activity);
+            f = new Visual(activity);
         else if(xml.getAttributeValue(null, "type").equalsIgnoreCase("tactile"))
-            f = new TactileFeedback(activity);
+            f = new Tactile(activity);
         else if(xml.getAttributeValue(null, "type").equalsIgnoreCase("audio"))
-            f = new AudioFeedback(activity);
+            f = new Auditory(activity);
         else
             throw new UnsupportedOperationException("feedback type "+ xml.getAttributeValue(null, "type") +" not yet implemented");
 
@@ -71,29 +71,22 @@ public abstract class Feedback
     }
 
     public Valence getValence() {
-        if(lastEvent == null)
-            return Valence.Unknown;
-
-        return lastEvent.getValence();
+        return valence;
     }
 
     public void release()
     {
-        for(Event ev : events)
-        {
-            ev.release();
-        }
-        events.clear();
+        action.release();
     }
 
-    public Behaviour getBehaviour()
+    public Condition getCondition()
     {
-        return behaviour;
+        return condition;
     }
 
-    public ArrayList<Event> getEvents()
+    public Action getAction()
     {
-        return events;
+        return action;
     }
 
     /*
@@ -101,27 +94,20 @@ public abstract class Feedback
      */
     public void update() {}
 
-    public void process(hcm.ssj.core.event.Event behavEvent)
+    public void process(Event event)
     {
-        if(!behaviour.checkEvent(behavEvent))
+        if(!condition.checkEvent(event))
             return;
 
-        float value = behaviour.parseEvent(behavEvent);
-
-        Event ev = getEvent(value);
-        if(ev == null)
-            return;
-
-        if(execute(ev)) {
-            ev.lastExecutionTime = System.currentTimeMillis();
-            lastEvent = ev;
+        if(action != null && execute(action)) {
+            action.lastExecutionTime = System.currentTimeMillis();
         }
 
         // Notify event listeners
-        callPostFeedback(behavEvent, ev, value);
+        callPostFeedback(event, action, condition.parseEvent(event));
     }
 
-    private void callPostFeedback(final hcm.ssj.core.event.Event ssjEvent, final Event ev, final float value)
+    private void callPostFeedback(final hcm.ssj.core.event.Event ssjEvent, final Action ev, final float value)
     {
         for (final FeedbackListener listener : listeners)
         {
@@ -135,44 +121,33 @@ public abstract class Feedback
         }
     }
 
-    public abstract boolean execute(Event event);
-
-    //returns currently active event
-    public Event getEvent(float value)
-    {
-        Iterator<Event> iter = events.iterator();
-        Event inst = null;
-        while(iter.hasNext())
-        {
-            inst = iter.next();
-            if((value == inst.thres_lower) || (value >= inst.thres_lower && value < inst.thres_upper))
-                return inst;
-        }
-        return null;
-    }
+    public abstract boolean execute(Action action);
 
     protected void load(XmlPullParser xml, Context context)
     {
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "class");
+            xml.require(XmlPullParser.START_TAG, null, "feedback");
 
             String level_str = xml.getAttributeValue(null, "level");
             if(level_str != null)
                 level = Integer.parseInt(level_str);
 
+            String valence_str = xml.getAttributeValue(null, "valence");
+            if(valence_str != null)
+                valence = FeedbackClass.Valence.valueOf(valence_str);
+
             while (xml.next() != XmlPullParser.END_DOCUMENT)
             {
-                if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("behaviour"))
+                if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("condition"))
                 {
-                    behaviour = Behaviour.create(xml, context);
+                    condition = Condition.create(xml, context);
                 }
-                else if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("event"))
+                else if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("action"))
                 {
-                    Event t = Event.create(type, xml, context);
-                    events.add(t);
+                    action = Action.create(type, xml, context);
                 }
-                else if (xml.getEventType() == XmlPullParser.END_TAG && xml.getName().equalsIgnoreCase("class"))
+                else if (xml.getEventType() == XmlPullParser.END_TAG && xml.getName().equalsIgnoreCase("feedback"))
                     break; //jump out once we reach end tag
             }
         }
@@ -185,6 +160,11 @@ public abstract class Feedback
     public void addFeedbackListener(FeedbackListener listener)
     {
         listeners.add(listener);
+    }
+
+    public long getLastExecutionTime()
+    {
+        return action.lastExecutionTime;
     }
 
     public enum Type

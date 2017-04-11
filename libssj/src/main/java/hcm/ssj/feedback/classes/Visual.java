@@ -42,14 +42,14 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.events.Event;
-import hcm.ssj.feedback.events.VisualEvent;
+import hcm.ssj.feedback.actions.Action;
+import hcm.ssj.feedback.actions.VisualAction;
 
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class VisualFeedback extends Feedback
+public class Visual extends FeedbackClass
 {
     Activity activity;
 
@@ -64,7 +64,7 @@ public class VisualFeedback extends Feedback
     protected long lock = 0;
     private boolean isSetup;
 
-    public VisualFeedback(Activity activity)
+    public Visual(Activity activity)
     {
         this.activity = activity;
         type = Type.Visual;
@@ -72,12 +72,12 @@ public class VisualFeedback extends Feedback
     }
 
     @Override
-    public boolean execute(Event event)
+    public boolean execute(Action action)
     {
         if(!isSetup)
             return false;
 
-        VisualEvent ve = (VisualEvent) event;
+        VisualAction ve = (VisualAction) action;
 
         //update only if the lock has passed
         if(System.currentTimeMillis() < lock)
@@ -159,7 +159,7 @@ public class VisualFeedback extends Feedback
         int fade = 0;
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "class");
+            xml.require(XmlPullParser.START_TAG, null, "feedback");
 
             layout_name = xml.getAttributeValue(null, "layout_id");
             if(layout_name == null)
@@ -168,6 +168,24 @@ public class VisualFeedback extends Feedback
             String fade_str = xml.getAttributeValue(null, "fade");
             if (fade_str != null)
                 fade = Integer.valueOf(fade_str);
+
+            String res_str = xml.getAttributeValue(null, "res");
+            if (res_str != null)
+            {
+                String[] icon_names = res_str.split("\\s*,\\s*");
+                if(icon_names.length > 2)
+                    throw new IOException("unsupported amount of resources");
+
+                defIcon = new Drawable[icon_names.length];
+                for(int i = 0; i< icon_names.length; i++)
+                {
+                    defIcon[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i]), null);
+                }
+            }
+
+            String bright_str = xml.getAttributeValue(null, "brightness");
+            if (bright_str != null)
+                defBrightness = Float.valueOf(bright_str);
         }
         catch(IOException | XmlPullParserException | InvalidParameterException e)
         {
@@ -176,10 +194,6 @@ public class VisualFeedback extends Feedback
 
         super.load(xml, context);
         id = s_id[level]++;
-
-        //default icons
-        defIcon = ((VisualEvent) events.get(0)).icons;
-        defBrightness = ((VisualEvent) events.get(0)).brightness;
 
         buildLayout(context, layout_name, fade);
     }
@@ -195,11 +209,7 @@ public class VisualFeedback extends Feedback
                 TableLayout table = (TableLayout) activity.findViewById(layout_id);
                 table.setStretchAllColumns(true);
 
-                int rows = ((VisualEvent) events.get(0)).icons.length;
-                for(Event e : events)
-                    if(((VisualEvent)e).icons.length > rows)
-                        rows = ((VisualEvent)e).icons.length;
-
+                int rows = ((VisualAction) action).icons.length;
                 img = new ImageSwitcher[rows];
 
                 //if this is the first visual class, init rows
@@ -246,7 +256,7 @@ public class VisualFeedback extends Feedback
                 isSetup = true;
 
                 //init view
-                execute(events.get(0));
+                execute(action);
             }
         });
     }

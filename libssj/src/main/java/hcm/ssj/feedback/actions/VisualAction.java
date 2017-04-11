@@ -1,5 +1,5 @@
 /*
- * TactileInstance.java
+ * VisualInstance.java
  * Copyright (c) 2015
  * Author: Ionut Damian
  * *****************************************************
@@ -20,11 +20,10 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.ssj.feedback.events;
+package hcm.ssj.feedback.actions;
 
 import android.content.Context;
-
-import com.microsoft.band.notifications.VibrationType;
+import android.graphics.drawable.Drawable;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -32,25 +31,22 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.Feedback;
+import hcm.ssj.feedback.classes.FeedbackClass;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class TactileEvent extends Event
+public class VisualAction extends Action
 {
-    public int[] duration = {500};
-    public byte[] intensity = {(byte)150};
-    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
+    public Drawable icons[];
 
+    public int dur = 0;
     public int lock = 0;
-    public int lockSelf = 0;
+    public float brightness = 1;
 
-    public float multiplier = 1f; //in case of lock, intensity is multiplied
-
-    public TactileEvent()
+    public VisualAction()
     {
-        type = Feedback.Type.Tactile;
+        type = FeedbackClass.Type.Visual;
     }
 
     protected void load(XmlPullParser xml, Context context)
@@ -59,25 +55,35 @@ public class TactileEvent extends Event
 
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "event");
+            xml.require(XmlPullParser.START_TAG, null, "action");
 
-            String str = xml.getAttributeValue(null, "intensity");
-            if(str != null) intensity = parseByteArray(str, ",");
+            String res_str = xml.getAttributeValue(null, "res");
+            if(res_str == null)
+                throw new IOException("event resource not defined");
 
-            str = xml.getAttributeValue(null, "duration");
-            if(str != null) duration = parseIntArray(str, ",");
+            String[] icon_names = res_str.split("\\s*,\\s*");
+            if(icon_names.length > 2)
+                throw new IOException("unsupported amount of resources");
 
-            str = xml.getAttributeValue(null, "type");
-            if(str != null) vibrationType = VibrationType.valueOf(str);
+            int num = icon_names.length;
+            icons = new Drawable[num];
 
-            str = xml.getAttributeValue(null, "lock");
-            if(str != null) lock = Integer.valueOf(str);
+            for(int i = 0; i< icon_names.length; i++)
+            {
+                icons[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i]), null);
+            }
 
-            str = xml.getAttributeValue(null, "lockSelf");
-            if(str != null) lockSelf = Integer.valueOf(str);
+            String bright_str = xml.getAttributeValue(null, "brightness");
+            if (bright_str != null)
+                brightness = Float.valueOf(bright_str);
 
-            str = xml.getAttributeValue(null, "multiplier");
-            if(str != null) multiplier = Float.valueOf(str);
+            String dur_str = xml.getAttributeValue(null, "dur");
+            if (dur_str != null)
+                dur = Integer.valueOf(dur_str);
+
+            String lock_str = xml.getAttributeValue(null, "lock");
+            if (lock_str != null)
+                lock = Integer.valueOf(lock_str);
         }
         catch(IOException | XmlPullParserException e)
         {

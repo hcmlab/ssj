@@ -20,93 +20,50 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.ssj.feedback.events;
+package hcm.ssj.feedback.actions;
 
 import android.content.Context;
 
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-
-import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.Feedback;
+import hcm.ssj.feedback.classes.FeedbackClass;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class Event
+public class Action
 {
     protected static int s_id = 0;
-    public float thres_lower = 0;
-    public float thres_upper = 0;
     public long lastExecutionTime = 0;
     protected int id;
-    protected Feedback.Type type;
-    protected Feedback.Valence valence;
+    protected FeedbackClass.Type type;
 
-    protected Event()
+    protected Action()
     {
         id = s_id++;
     }
 
-    public static Event create(Feedback.Type feedback_type, XmlPullParser xml, Context context)
+    public static Action create(FeedbackClass.Type feedback_type, XmlPullParser xml, Context context)
     {
-        Event i = null;
-        if (feedback_type == Feedback.Type.Visual)
-            i = new VisualEvent();
-        else if (feedback_type == Feedback.Type.Tactile)
-            i = new TactileEvent();
-        else if (feedback_type == Feedback.Type.Audio)
-            i = new AudioEvent();
+        Action i = null;
+        if (feedback_type == FeedbackClass.Type.Visual)
+            i = new VisualAction();
+        else if (feedback_type == FeedbackClass.Type.Tactile)
+            i = new TactileAction();
+        else if (feedback_type == FeedbackClass.Type.Audio)
+            i = new AudioAction();
         else
-            i = new Event();
+            i = new Action();
 
         i.load(xml, context);
         return i;
-    }
-
-    public Feedback.Valence getValence() {
-        return valence;
     }
 
     public void release()
     {}
 
     protected void load(XmlPullParser xml, Context context)
-    {
-        try
-        {
-            xml.require(XmlPullParser.START_TAG, null, "event");
-
-            String from = xml.getAttributeValue(null, "from");
-            String equals = xml.getAttributeValue(null, "equals");
-            String to = xml.getAttributeValue(null, "to");
-
-            String valence_str = xml.getAttributeValue(null, "valence");
-            if(valence_str != null)
-                valence = Feedback.Valence.valueOf(valence_str);
-
-            if(equals != null)
-            {
-                thres_lower = Float.parseFloat(equals);
-            }
-            else if(from != null && to != null)
-            {
-                thres_lower = Float.parseFloat(from);
-                thres_upper = Float.parseFloat(to);
-            }
-            else
-            {
-                throw new IOException("threshold value(s) not set");
-            }
-
-        }
-        catch(IOException | XmlPullParserException e)
-        {
-            Log.e("error parsing config file", e);
-        }
-    }
+    {}
 
     public int[] parseIntArray(String str, String delim)
     {

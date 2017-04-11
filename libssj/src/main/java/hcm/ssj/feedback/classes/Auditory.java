@@ -30,23 +30,22 @@ import android.media.SoundPool;
 import org.xmlpull.v1.XmlPullParser;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.events.AudioEvent;
-import hcm.ssj.feedback.events.Event;
+import hcm.ssj.feedback.actions.Action;
+import hcm.ssj.feedback.actions.AudioAction;
 
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class AudioFeedback extends Feedback
+public class Auditory extends FeedbackClass
 {
     Activity activity;
-    float intensityNew = 0;
 
     long lock = 0;
 
     SoundPool player;
 
-    public AudioFeedback(Activity activity)
+    public Auditory(Activity activity)
     {
         this.activity = activity;
         type = Type.Audio;
@@ -59,7 +58,7 @@ public class AudioFeedback extends Feedback
     }
 
     @Override
-    public boolean execute(Event event)
+    public boolean execute(Action action)
     {
         //update only if the global lock has passed
         if(System.currentTimeMillis() < lock)
@@ -68,28 +67,14 @@ public class AudioFeedback extends Feedback
             return false;
         }
 
-        AudioEvent ev = (AudioEvent) event;
-        if(ev == lastEvent)
-        {
-            //check lock
-            //only execute if enough time has passed since last execution of this instance
-            if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
-                return false;
+        AudioAction ev = (AudioAction) action;
 
-            if(ev.multiplier != 1)
-            {
-                intensityNew *= ev.multiplier;
-                if(intensityNew > 1)
-                    intensityNew = 1;
-            }
+        //check self-lock
+        //only execute if enough time has passed since last execution of this instance
+        if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+            return false;
 
-            player.play(ev.soundId, intensityNew, 1, 1, 0, 1);
-        }
-        else
-        {
-            player.play(ev.soundId, ev.intensity, ev.intensity, 1, 0, 1);
-            intensityNew = ev.intensity;
-        }
+        player.play(ev.soundId, ev.intensity, ev.intensity, 1, 0, 1);
 
         //set lock
         if(ev.lock > 0)
@@ -105,7 +90,6 @@ public class AudioFeedback extends Feedback
         super.load(xml, context);
 
         player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
-        for(Event ev : events)
-            ((AudioEvent) ev).registerWithPlayer(player);
+        ((AudioAction) action).registerWithPlayer(player);
     }
 }

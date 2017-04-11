@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.ssj.feedback.events;
+package hcm.ssj.feedback.actions;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
@@ -31,12 +31,12 @@ import org.xmlpull.v1.XmlPullParser;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.Feedback;
+import hcm.ssj.feedback.classes.FeedbackClass;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class AudioEvent extends Event
+public class AudioAction extends Action
 {
     Context _context = null;
 
@@ -49,9 +49,9 @@ public class AudioEvent extends Event
 
     public int soundId;
 
-    public AudioEvent()
+    public AudioAction()
     {
-        type = Feedback.Type.Audio;
+        type = FeedbackClass.Type.Audio;
     }
 
     protected void load(XmlPullParser xml, Context context)

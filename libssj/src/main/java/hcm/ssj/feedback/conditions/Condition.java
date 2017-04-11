@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.ssj.feedback.behaviours;
+package hcm.ssj.feedback.conditions;
 
 import android.content.Context;
 
@@ -36,14 +36,17 @@ import hcm.ssj.core.event.Event;
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class Behaviour
+public class Condition
 {
     protected String _event;
     protected String _sender;
 
-    public static Behaviour create(XmlPullParser xml, Context context)
+    public float thres_lower = 0;
+    public float thres_upper = 0;
+
+    public static Condition create(XmlPullParser xml, Context context)
     {
-        Behaviour b = null;
+        Condition b = null;
         if (xml.getAttributeValue(null, "name").equalsIgnoreCase("SpeechRate"))
             b = new SpeechRate();
         else if (xml.getAttributeValue(null, "name").equalsIgnoreCase("Loudness"))
@@ -51,7 +54,7 @@ public class Behaviour
         else if (xml.getAttributeValue(null, "name").equalsIgnoreCase("KeyPress"))
             b = new KeyPress();
         else
-            b = new Behaviour();
+            b = new Condition();
 
         b.load(xml, context);
         return b;
@@ -61,7 +64,11 @@ public class Behaviour
     {
         if (event.name.equalsIgnoreCase(_event)
         && event.sender.equalsIgnoreCase(_sender))
-            return true;
+        {
+            float value = parseEvent(event);
+            if((value == thres_lower) || (value >= thres_lower && value < thres_upper))
+                return true;
+        }
 
         return false;
     }
@@ -96,10 +103,28 @@ public class Behaviour
     {
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "behaviour");
+            xml.require(XmlPullParser.START_TAG, null, "condition");
 
-            _event = xml.getAttributeValue(null, "ssjevent");
-            _sender = xml.getAttributeValue(null, "ssjsender");
+            _event = xml.getAttributeValue(null, "event");
+            _sender = xml.getAttributeValue(null, "sender");
+
+            String from = xml.getAttributeValue(null, "from");
+            String equals = xml.getAttributeValue(null, "equals");
+            String to = xml.getAttributeValue(null, "to");
+
+            if(equals != null)
+            {
+                thres_lower = Float.parseFloat(equals);
+            }
+            else if(from != null && to != null)
+            {
+                thres_lower = Float.parseFloat(from);
+                thres_upper = Float.parseFloat(to);
+            }
+            else
+            {
+                throw new IOException("threshold value(s) not set");
+            }
         }
         catch(IOException | XmlPullParserException e)
         {
