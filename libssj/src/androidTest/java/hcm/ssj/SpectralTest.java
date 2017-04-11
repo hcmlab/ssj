@@ -39,8 +39,8 @@ import hcm.ssj.file.FileWriter;
 import hcm.ssj.signal.Spectrogram;
 
 /**
- * Tests the SVM class.<br>
- * Created by Frank Gaibler on 13.01.2017.
+ * Tests the spectrogram.<br>
+ * Created by Ionut Damian on 01.04.2017.
  */
 public class SpectralTest extends ApplicationTestCase<Application>
 {

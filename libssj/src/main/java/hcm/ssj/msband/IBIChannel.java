@@ -74,8 +74,8 @@ public class IBIChannel extends SensorChannel
 		if(!_listener.isConnected())
 			return false;
 
-		double[] out = stream_out.ptrD();
-		out[0] = _listener.getInterBeatInterval();
+		float[] out = stream_out.ptrF();
+		out[0] = (float)_listener.getInterBeatInterval();
 
 		return true;
 	}
@@ -95,7 +95,7 @@ public class IBIChannel extends SensorChannel
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.DOUBLE;
+		return Cons.Type.FLOAT;
 	}
 
 	@Override
