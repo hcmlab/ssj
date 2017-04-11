@@ -83,6 +83,7 @@ public abstract class Feedback
         {
             ev.release();
         }
+        events.clear();
     }
 
     public Behaviour getBehaviour()

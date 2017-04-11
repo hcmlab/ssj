@@ -117,6 +117,7 @@ public class FeedbackManager extends EventHandler
         {
             f.release();
         }
+        classes.clear();
     }
 
     @Override

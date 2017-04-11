@@ -55,6 +55,7 @@ public class AudioFeedback extends Feedback
     public void release()
     {
         player.release();
+        super.release();
     }
 
     @Override

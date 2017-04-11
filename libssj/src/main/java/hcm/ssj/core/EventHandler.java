@@ -104,7 +104,7 @@ public abstract class EventHandler extends Component implements EventListener {
     /**
      * initialization specific to sensor implementation
      */
-    protected abstract void enter();
+    protected void enter() {};
 
     /**
      * thread processing method, alternative to notify(), called in loop
@@ -125,5 +125,5 @@ public abstract class EventHandler extends Component implements EventListener {
     /**
      * called once before termination
      */
-    protected abstract void flush();
+    protected void flush() {};
 }

@@ -40,7 +40,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
-import java.util.Arrays;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.feedback.events.Event;
@@ -70,11 +69,6 @@ public class VisualFeedback extends Feedback
         this.activity = activity;
         type = Type.Visual;
         isSetup = false;
-    }
-
-    public void release()
-    {
-        Arrays.fill(s_id, 0);
     }
 
     @Override

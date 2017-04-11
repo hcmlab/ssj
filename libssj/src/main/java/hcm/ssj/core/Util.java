@@ -651,7 +651,7 @@ public class Util
     }
 
     public static InetAddress getBroadcastAddress() throws IOException {
-        WifiManager wifi = (WifiManager)SSJApplication.getAppContext().getSystemService(Context.WIFI_SERVICE);
+        WifiManager wifi = (WifiManager)SSJApplication.getAppContext().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
         DhcpInfo dhcp = wifi.getDhcpInfo();
         if(dhcp == null)
             throw new IOException("dhcp is null");
