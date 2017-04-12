@@ -40,7 +40,7 @@
     </xs:complexType>
   </xs:element>
 
-  <!--Feedback-->
+  <!--Strategy-->
   <xs:element name="strategy">
     <xs:complexType>
       <xs:sequence>
@@ -49,9 +49,9 @@
             <xs:sequence>
               <xs:element name="condition" maxOccurs="1" minOccurs="1">
                 <xs:complexType>
-                  <xs:attribute name="name" type="xs:string" use="required" />
                   <xs:attribute name="event" type="xs:string" use="required" />
                   <xs:attribute name="sender" type="xs:string" use="required" />
+                  <xs:attribute name="type" type="xs:string" use="optional" />
                   <xs:attribute name="history" type="xs:unsignedByte" use="optional" />
                   <xs:attribute name="sum" type="xs:boolean" use="optional" />
                   <xs:attribute name="from" type="xs:decimal" use="required" />
