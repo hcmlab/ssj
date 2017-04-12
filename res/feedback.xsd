@@ -30,6 +30,19 @@
       <xs:enumeration value="MsBand" />
     </xs:restriction>
   </xs:simpleType>
+  <xs:simpleType name="vibration_type">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="NOTIFICATION_ONE_TONE" />
+      <xs:enumeration value="NOTIFICATION_TWO_TONE" />
+      <xs:enumeration value="NOTIFICATION_ALARM" />
+      <xs:enumeration value="NOTIFICATION_TIMER" />
+      <xs:enumeration value="ONE_TONE_HIGH" />
+      <xs:enumeration value="TWO_TONE_HIGH" />
+      <xs:enumeration value="THREE_TONE_HIGH" />
+      <xs:enumeration value="RAMP_UP" />
+      <xs:enumeration value="RAMP_DOWN" />
+    </xs:restriction>
+  </xs:simpleType>
   
   <!--The base element-->
   <xs:element name="ssj">
@@ -40,7 +53,7 @@
     </xs:complexType>
   </xs:element>
 
-  <!--Feedback-->
+  <!--Strategy-->
   <xs:element name="strategy">
     <xs:complexType>
       <xs:sequence>
@@ -49,9 +62,9 @@
             <xs:sequence>
               <xs:element name="condition" maxOccurs="1" minOccurs="1">
                 <xs:complexType>
-                  <xs:attribute name="name" type="xs:string" use="required" />
                   <xs:attribute name="event" type="xs:string" use="required" />
                   <xs:attribute name="sender" type="xs:string" use="required" />
+                  <xs:attribute name="type" type="xs:string" use="optional" />
                   <xs:attribute name="history" type="xs:unsignedByte" use="optional" />
                   <xs:attribute name="sum" type="xs:boolean" use="optional" />
                   <xs:attribute name="from" type="xs:decimal" use="required" />
@@ -66,6 +79,7 @@
                   <xs:attribute name="intensity" type="xs:string" use="optional" />
                   <xs:attribute name="duration" type="xs:string" use="optional" />
                   <xs:attribute name="brightness" type="xs:float" use="optional" />
+                  <xs:attribute name="type" type="vibration_type" use="optional" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
