@@ -75,9 +75,6 @@ public class TactileAction extends Action
 
             str = xml.getAttributeValue(null, "lockSelf");
             if(str != null) lockSelf = Integer.valueOf(str);
-
-            str = xml.getAttributeValue(null, "multiplier");
-            if(str != null) multiplier = Float.valueOf(str);
         }
         catch(IOException | XmlPullParserException e)
         {

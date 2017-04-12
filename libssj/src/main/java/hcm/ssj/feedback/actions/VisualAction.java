@@ -77,7 +77,7 @@ public class VisualAction extends Action
             if (bright_str != null)
                 brightness = Float.valueOf(bright_str);
 
-            String dur_str = xml.getAttributeValue(null, "dur");
+            String dur_str = xml.getAttributeValue(null, "duration");
             if (dur_str != null)
                 dur = Integer.valueOf(dur_str);
 

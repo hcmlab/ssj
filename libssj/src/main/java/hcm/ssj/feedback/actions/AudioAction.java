@@ -80,10 +80,6 @@ public class AudioAction extends Action
             lock_str = xml.getAttributeValue(null, "lockSelf");
             if(lock_str != null)
                 lockSelf = Integer.valueOf(lock_str);
-
-            String timeoutMult_str = xml.getAttributeValue(null, "multiplier");
-            if(timeoutMult_str != null)
-                multiplier = Float.valueOf(timeoutMult_str);
         }
         catch(IOException e)
         {
