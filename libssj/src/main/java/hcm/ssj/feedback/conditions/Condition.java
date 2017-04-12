@@ -47,11 +47,11 @@ public class Condition
     public static Condition create(XmlPullParser xml, Context context)
     {
         Condition b = null;
-        if (xml.getAttributeValue(null, "name").equalsIgnoreCase("SpeechRate"))
+        if (xml.getAttributeValue(null, "type").equalsIgnoreCase("SpeechRate"))
             b = new SpeechRate();
-        else if (xml.getAttributeValue(null, "name").equalsIgnoreCase("Loudness"))
+        else if (xml.getAttributeValue(null, "type").equalsIgnoreCase("Loudness"))
             b = new Loudness();
-        else if (xml.getAttributeValue(null, "name").equalsIgnoreCase("KeyPress"))
+        else if (xml.getAttributeValue(null, "type").equalsIgnoreCase("KeyPress"))
             b = new KeyPress();
         else
             b = new Condition();
