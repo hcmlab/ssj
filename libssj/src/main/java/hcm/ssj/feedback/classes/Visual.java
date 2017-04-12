@@ -53,16 +53,13 @@ public class Visual extends FeedbackClass
 {
     Activity activity;
 
-    protected static int s_id[] = new int[32]; //max levels
-    protected int id;
     protected ImageSwitcher img[];
-
-    protected Drawable defIcon[] = null;
-    protected float defBrightness = 0;
+    protected float defBrightness = 0.5f;
 
     protected long timeout = 0;
     protected long lock = 0;
     private boolean isSetup;
+    private int position = 0;
 
     public Visual(Activity activity)
     {
@@ -90,7 +87,7 @@ public class Visual extends FeedbackClass
         updateBrightness(ve.brightness);
 
         //set lock
-        if(ve.dur > 0 && ve.icons != defIcon)
+        if(ve.dur > 0)
             //return to default (first) event after dur milliseconds has passed
             timeout = System.currentTimeMillis() + (long) ve.dur;
         else
@@ -112,7 +109,7 @@ public class Visual extends FeedbackClass
 
         //if a lock is set, return icons to default configuration
         Log.i("restoring default icons");
-        updateIcons(defIcon);
+        updateIcons(new Drawable[]{null, null});
         updateBrightness(defBrightness);
         timeout = 0;
     }
@@ -161,7 +158,7 @@ public class Visual extends FeedbackClass
         {
             xml.require(XmlPullParser.START_TAG, null, "feedback");
 
-            layout_name = xml.getAttributeValue(null, "layout_id");
+            layout_name = xml.getAttributeValue(null, "layout");
             if(layout_name == null)
                 throw new InvalidParameterException("layout not set");
 
@@ -169,21 +166,11 @@ public class Visual extends FeedbackClass
             if (fade_str != null)
                 fade = Integer.valueOf(fade_str);
 
-            String res_str = xml.getAttributeValue(null, "res");
-            if (res_str != null)
-            {
-                String[] icon_names = res_str.split("\\s*,\\s*");
-                if(icon_names.length > 2)
-                    throw new IOException("unsupported amount of resources");
+            String pos_str = xml.getAttributeValue(null, "position");
+            if (pos_str != null)
+                position = Integer.valueOf(pos_str);
 
-                defIcon = new Drawable[icon_names.length];
-                for(int i = 0; i< icon_names.length; i++)
-                {
-                    defIcon[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i]), null);
-                }
-            }
-
-            String bright_str = xml.getAttributeValue(null, "brightness");
+            String bright_str = xml.getAttributeValue(null, "def_brightness");
             if (bright_str != null)
                 defBrightness = Float.valueOf(bright_str);
         }
@@ -193,7 +180,6 @@ public class Visual extends FeedbackClass
         }
 
         super.load(xml, context);
-        id = s_id[level]++;
 
         buildLayout(context, layout_name, fade);
     }
@@ -223,9 +209,9 @@ public class Visual extends FeedbackClass
                     tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
 
                     //if the image switcher has already been initialized by a class on previous level
-                    if(level > 0 && id < s_id[level-1])
+                    if(tr.getChildAt(position) != null)
                     {
-                        img[i] = (ImageSwitcher)tr.getChildAt(id);
+                        img[i] = (ImageSwitcher)tr.getChildAt(position);
                     }
                     else
                     {
@@ -249,14 +235,15 @@ public class Visual extends FeedbackClass
                             }
                         });
 
-                        tr.addView(img[i]);
+                        tr.addView(img[i], position);
                     }
                 }
 
                 isSetup = true;
 
                 //init view
-                execute(action);
+                updateIcons(new Drawable[]{null, null});
+                updateBrightness(defBrightness);
             }
         });
     }
