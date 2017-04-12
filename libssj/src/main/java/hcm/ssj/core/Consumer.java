@@ -162,7 +162,7 @@ public abstract class Consumer extends Component {
     /**
      * initialization specific to sensor implementation (called by framework on instantiation)
      */
-    protected void init(Stream stream_in[]) {}
+    protected void init(Stream stream_in[]) throws SSJException {}
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)

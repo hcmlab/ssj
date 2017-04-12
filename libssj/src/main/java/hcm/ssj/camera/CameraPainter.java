@@ -35,6 +35,7 @@ import android.view.SurfaceView;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -95,10 +96,10 @@ public class CameraPainter extends Consumer
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    protected void init(Stream[] stream_in)
+    protected void init(Stream[] stream_in) throws SSJException
     {
         super.init(stream_in);
         if (options.surfaceView.get() == null)

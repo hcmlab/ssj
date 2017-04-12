@@ -29,6 +29,7 @@ package hcm.ssj.mobileSSI;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
@@ -110,11 +111,13 @@ public class MobileSSIConsumer extends Consumer
     }
 
     @Override
-    public final void init(Stream stream_in[])
+	public final void init(Stream stream_in[]) throws SSJException
     {
         int t=0;
-        if(stream_in[0].type== Cons.Type.FLOAT)
-            t=9;
+		if (stream_in[0].type == Cons.Type.FLOAT)
+		{
+			t = 9;
+		}
         setStreamOptions(getId(), stream_in[0].num, stream_in[0].dim, t, stream_in[0].sr);
     }
 

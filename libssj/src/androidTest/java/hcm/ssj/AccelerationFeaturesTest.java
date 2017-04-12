@@ -39,7 +39,7 @@ import hcm.ssj.core.Provider;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.file.FileWriter;
-import hcm.ssj.ml.Classifier;
+import hcm.ssj.ml.ClassifierT;
 import hcm.ssj.test.Logger;
 
 /**
@@ -199,7 +199,7 @@ public class AccelerationFeaturesTest extends ApplicationTestCase<Application>
 		frame.addTransformer(gyrFeatures, gyrChannel, 2, 2);
 
 		// SVM
-		Classifier classifier = new Classifier();
+		ClassifierT classifier = new ClassifierT();
 		classifier.options.trainerPath.set("/sdcard/SSJ/Model/");
 		classifier.options.trainerFile.set("search_model_feature_fusion.trainer");
 		frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);

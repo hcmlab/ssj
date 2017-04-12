@@ -90,7 +90,7 @@
         <channelId id="1030095234" />
       </channelList>
     </transformer>
-    <transformer class="hcm.ssj.ml.Classifier" id="1" frameSize="1.0" delta="0.0">
+    <transformer class="hcm.ssj.ml.ClassifierT" id="1" frameSize="1.0" delta="0.0">
       <options>
         <option name="trainerFile" value="activity.NaiveBayes.trainer" />
         <option name="trainerPath" value="/storage/emulated/0/SSJ/Creator" />

@@ -27,24 +27,32 @@
 package hcm.ssj;
 
 import android.app.Application;
+import android.os.BatteryManager;
+import android.os.Environment;
 import android.test.ApplicationTestCase;
 
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.Provider;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
-import hcm.ssj.file.FileWriter;
-import hcm.ssj.ml.Classifier;
+import hcm.ssj.ml.ClassifierT;
+import hcm.ssj.msband.GSRChannel;
+import hcm.ssj.msband.HeartRateChannel;
+import hcm.ssj.msband.MSBand;
+import hcm.ssj.msband.SkinTempChannel;
 import hcm.ssj.signal.Butfilt;
+import hcm.ssj.signal.Derivative;
 import hcm.ssj.signal.FFTfeat;
 import hcm.ssj.signal.Functionals;
 import hcm.ssj.signal.Progress;
-import hcm.ssj.test.CPULoadChannel;
 import hcm.ssj.test.Logger;
-import hcm.ssj.test.Profiler;
+
+import static android.content.Context.BATTERY_SERVICE;
 
 /**
  * Tests the SVM class.<br>
@@ -120,7 +128,7 @@ public class SvmTest extends ApplicationTestCase<Application>
             frame.addTransformer(functionals, progress, 30, 30);
             transformers[i + SENSOR_TYPES.length] = functionals;
         }
-        Classifier classifier = new Classifier();
+        ClassifierT classifier = new ClassifierT();
         classifier.options.trainerFile.set(FILE);
         classifier.options.trainerPath.set(PATH);
         frame.addTransformer(classifier, transformers, 30, 30);
@@ -145,22 +153,22 @@ public class SvmTest extends ApplicationTestCase<Application>
         frame.release();
     }
 
-    public void testAudio() throws Exception
+    public void testPerformance() throws Exception
     {
-        double window = 0.5;
+        double window = 5.0;
 
         // Setup
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
-        frame.options.countdown.set(0);
+        frame.options.countdown.set(3);
+        frame.options.log.set(true);
 
         // Sensor
         FileReader file = new FileReader();
+        file.options.filePath.set(Environment.getExternalStorageDirectory().getPath() + "/SSJ/data/1");
         file.options.fileName.set("audio.stream");
         FileReaderChannel channel = new FileReaderChannel();
-        channel.setWatchInterval(0);
-        channel.setSyncInterval(0);
-        channel.options.chunk.set(1.0);
+        channel.options.chunk.set(0.032);
         frame.addSensor(file, channel);
 
         // Transformer
@@ -170,12 +178,8 @@ public class SvmTest extends ApplicationTestCase<Application>
         Functionals func = new Functionals();
         frame.addTransformer(func, fft, window, 0);
 
-        Butfilt gsrf = new Butfilt();
-        gsrf.options.type.set(Butfilt.Type.HIGH);
-        gsrf.options.high.set(0.001);
-        frame.addTransformer(gsrf, channel, 5, 5);
-
-        Classifier classifier = new Classifier();
+        ClassifierT classifier = new ClassifierT();
+        classifier.options.trainerPath.set("/sdcard/SSJ/data/model");
         classifier.options.trainerFile.set("johnny.trainer");
         frame.addTransformer(classifier, func, window, 0);
 
@@ -183,24 +187,27 @@ public class SvmTest extends ApplicationTestCase<Application>
         frame.addConsumer(log, channel, window, 0);
 
         //profile cpu load
-        Profiler profiler = new Profiler();
-        CPULoadChannel cpu = new CPULoadChannel();
-        cpu.options.sampleRate.set(2);
-        frame.addSensor(profiler, cpu);
-
-        FileWriter write = new FileWriter();
-        frame.addConsumer(write, cpu, 1, 0);
+//        Profiler profiler = new Profiler();
+//        CPULoadChannel cpu = new CPULoadChannel();
+//        cpu.options.sampleRate.set(2);
+//        frame.addSensor(profiler, cpu);
+//
+//        FileWriter write = new FileWriter();
+//        frame.addConsumer(write, cpu, 1, 0);
 
         // start framework
         frame.start();
 
-        // Run test
+        BatteryManager bm = (BatteryManager) SSJApplication.getAppContext().getSystemService(BATTERY_SERVICE);
         long end = System.currentTimeMillis() + TEST_LENGTH;
+
+        // Run test
         try
         {
+//            while (bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY) > 5)
             while (System.currentTimeMillis() < end)
             {
-                Thread.sleep(100);
+                Thread.sleep(1000);
             }
         }
         catch (Exception e)
@@ -211,5 +218,91 @@ public class SvmTest extends ApplicationTestCase<Application>
         // stop framework
         frame.stop();
         frame.clear();
+    }
+
+    public void testStressReco() throws Exception
+    {
+        double window = 5.0;
+
+        // Setup
+        Pipeline ssj = Pipeline.getInstance();
+        ssj.options.bufferSize.set(10.0f);
+        ssj.options.countdown.set(3);
+        ssj.options.log.set(true);
+
+        MSBand msBand = new MSBand();
+
+        /**
+         * Process HR
+         */
+        HeartRateChannel hr = new HeartRateChannel();
+        ssj.addSensor(msBand, hr);
+
+        Derivative hrd = new Derivative();
+        hrd.options.zero.set(false);
+        ssj.addTransformer(hrd, hr, 5, 5);
+
+        Functionals hrd_func = new Functionals();
+        ssj.addTransformer(hrd_func, hrd, 5, 5);
+
+        /**
+         * Process GSR
+         */
+        GSRChannel gsr = new GSRChannel();
+        ssj.addSensor(msBand, gsr);
+
+        Functionals gsr_func = new Functionals();
+        ssj.addTransformer(gsr_func, gsr, 5, 5);
+
+        Butfilt gsrf = new Butfilt();
+        gsrf.options.type.set(Butfilt.Type.HIGH);
+        gsrf.options.high.set(0.001);
+        ssj.addTransformer(gsrf, gsr, 5, 5);
+
+        Functionals gsrf_func = new Functionals();
+        ssj.addTransformer(gsrf_func, gsrf, 5, 5);
+
+        /**
+         * Process Temp
+         */
+        SkinTempChannel temp = new SkinTempChannel();
+        ssj.addSensor(msBand, temp);
+
+        Derivative tempd = new Derivative();
+        tempd.options.zero.set(false);
+        ssj.addTransformer(tempd, temp, 5, 5);
+
+        Functionals tempd_func = new Functionals();
+        ssj.addTransformer(tempd_func, tempd, 5, 5);
+
+        /**
+         * Classify
+         */
+        ClassifierT stress = new ClassifierT();
+        stress.options.trainerPath.set("/sdcard/Glassistant/model/");
+        stress.options.trainerFile.set("stress_model.trainer");
+        Provider[] input = new Provider[]{hrd_func, gsr_func, tempd_func, gsrf_func};
+        ssj.addTransformer(stress, input, 5, 5);
+
+        Logger log = new Logger();
+        ssj.addConsumer(log, stress, window, 0);
+
+        // Run test
+        long end = System.currentTimeMillis() + TEST_LENGTH;
+        try
+        {
+            while (System.currentTimeMillis() < end)
+            {
+                Thread.sleep(1000);
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        // stop framework
+        ssj.stop();
+        ssj.clear();
     }
 }

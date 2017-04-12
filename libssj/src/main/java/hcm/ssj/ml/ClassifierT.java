@@ -1,6 +1,6 @@
 /*
  * Classifier.java
- * Copyright (c) 2017
+ * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -36,10 +36,10 @@ import java.io.FileReader;
 import java.io.IOException;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
-import hcm.ssj.core.event.Event;
+import hcm.ssj.core.Transformer;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -50,7 +50,7 @@ import hcm.ssj.signal.Selector;
 /**
  * Generic classifier
  */
-public class Classifier extends Consumer
+public class ClassifierT extends Transformer
 {
     /**
      * All options for the transformer
@@ -60,9 +60,6 @@ public class Classifier extends Consumer
         public final Option<String> trainerPath = new Option<>("trainerPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
-        public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
-        public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
-        public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
 
         /**
          *
@@ -90,13 +87,17 @@ public class Classifier extends Consumer
     /**
      *
      */
-    public Classifier()
+    public ClassifierT()
     {
         _name = this.getClass().getSimpleName();
     }
 
+    /**
+     * @param frame   double
+     * @param delta   double
+     */
     @Override
-    public void init(Stream stream_in[]) throws SSJException
+    public void init(double frame, double delta) throws SSJException
     {
         try {
             load(getFile(options.trainerPath.get(), options.trainerFile.get()));
@@ -170,9 +171,10 @@ public class Classifier extends Consumer
 
     /**
      * @param stream_in  Stream[]
+     * @param stream_out Stream
      */
     @Override
-    public void enter(Stream[] stream_in)
+    public void enter(Stream[] stream_in, Stream stream_out)
     {
         if (stream_in.length > 1 && !options.merge.get())
         {
@@ -221,16 +223,14 @@ public class Classifier extends Consumer
             _stream_selected[0] = Stream.create(input[0].num, _selector.options.values.get().length, input[0].sr, input[0].type);
             _selector.enter(input, _stream_selected[0]);
         }
-
-        if(_evchannel_out == null)
-            Log.e("no outgoing event channel has been registered");
     }
 
     /**
      * @param stream_in  Stream[]
+     * @param stream_out Stream
      */
     @Override
-    public void consume(Stream[] stream_in)
+    public void transform(Stream[] stream_in, Stream stream_out)
     {
         Stream[] input = stream_in;
 
@@ -244,32 +244,75 @@ public class Classifier extends Consumer
         }
 
         float[] probs = _model.forward(input);
-
-        if(options.log.get())
+        if (probs != null)
         {
-            String[] class_names = _model.getClassNames();
-            StringBuilder stringBuilder = new StringBuilder();
+            float[] out = stream_out.ptrF();
             for (int i = 0; i < probs.length; i++)
             {
-                stringBuilder.append(class_names[i]);
-                stringBuilder.append(" = ");
-                stringBuilder.append(probs[i]);
-                stringBuilder.append("; ");
+                out[i] = probs[i];
             }
-
-            Log.i(stringBuilder.toString());
         }
+    }
 
-        Event ev = Event.create(Cons.Type.FLOAT);
-        ev.sender = options.sender.get();
-        ev.name = options.event.get();
-        ev.time = (int)(1000 * stream_in[0].time + 0.5);
-        double duration = stream_in[0].num / stream_in[0].sr;
-        ev.dur = (int)(1000 * duration + 0.5);
-        ev.state = Event.State.COMPLETED;
-        ev.setData(probs);
+    /**
+     * @param stream_in Stream[]
+     * @return int
+     */
+    @Override
+    public int getSampleDimension(Stream[] stream_in)
+    {
+        return _model.getNumClasses();
+    }
 
-        _evchannel_out.pushEvent(ev);
+    /**
+     * @param stream_in Stream[]
+     * @return int
+     */
+    @Override
+    public int getSampleBytes(Stream[] stream_in)
+    {
+        return Util.sizeOf(Cons.Type.FLOAT);
+    }
+
+    /**
+     * @param stream_in Stream[]
+     * @return Cons.Type
+     */
+    @Override
+    public Cons.Type getSampleType(Stream[] stream_in)
+    {
+        return Cons.Type.FLOAT;
+    }
+
+    /**
+     * @param sampleNumber_in int
+     * @return int
+     */
+    @Override
+    public int getSampleNumber(int sampleNumber_in)
+    {
+        return 1;
+    }
+
+    /**
+     * @param stream_in  Stream[]
+     * @param stream_out Stream
+     */
+    @Override
+    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    {
+        int overallDimension = getSampleDimension(stream_in);
+        stream_out.dataclass = new String[overallDimension];
+
+        if (_model.getClassNames() != null && overallDimension == _model.getNumClasses())
+        {
+            System.arraycopy(_model.getClassNames(), 0, stream_out.dataclass, 0, stream_out.dataclass.length);
+            return;
+        }
+        for (int i = 0; i < overallDimension; i++)
+        {
+            stream_out.dataclass[i] = "nb" + i;
+        }
     }
 
     /**
