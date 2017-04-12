@@ -56,8 +56,9 @@ public class Visual extends FeedbackClass
     protected ImageSwitcher img[];
     protected float defBrightness = 0.5f;
 
+	protected static long s_lock = 0;
+
     protected long timeout = 0;
-    protected long lock = 0;
     private boolean isSetup;
     private int position = 0;
 
@@ -74,30 +75,37 @@ public class Visual extends FeedbackClass
         if(!isSetup)
             return false;
 
-        VisualAction ve = (VisualAction) action;
+        VisualAction ev = (VisualAction) action;
 
-        //update only if the lock has passed
-        if(System.currentTimeMillis() < lock)
+        //check locks
+		//global
+        if(System.currentTimeMillis() < s_lock)
         {
-            Log.i("ignoring event, lock active for another " + (lock - System.currentTimeMillis()) + "ms");
+            Log.i("ignoring event, global lock active for another " + (s_lock - System.currentTimeMillis()) + "ms");
             return false;
         }
+		//local
+		if (System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf + ev.dur)
+		{
+			Log.i("ignoring event, self lock active for another " + (ev.lockSelf + ev.dur - (System.currentTimeMillis() - ev.lastExecutionTime)) + "ms");
+			return false;
+		}
 
-        updateIcons(ve.icons);
-        updateBrightness(ve.brightness);
+        updateIcons(ev.icons);
+        updateBrightness(ev.brightness);
 
-        //set lock
-        if(ve.dur > 0)
+        //set dur
+        if(ev.dur > 0)
             //return to default (first) event after dur milliseconds has passed
-            timeout = System.currentTimeMillis() + (long) ve.dur;
+            timeout = System.currentTimeMillis() + (long) ev.dur;
         else
             timeout = 0;
 
-        //set lock
-        if(ve.lock > 0)
-            lock = System.currentTimeMillis() + (long) ve.dur + (long) ve.lock;
+        //set global lock
+        if(ev.lock > 0)
+            s_lock = System.currentTimeMillis() + (long) ev.dur + (long) ev.lock;
         else
-            lock = 0;
+            s_lock = 0;
 
         return true;
     }
@@ -120,7 +128,7 @@ public class Visual extends FeedbackClass
         updateImageSwitcher(activity, img[0], icons[0]);
 
         //set quality icon
-        if(icons.length == 2 && img[1] != null)
+        if(icons.length == 2 && img.length == 2 && img[1] != null)
         {
             updateImageSwitcher(activity, img[1], icons[1]);
         }

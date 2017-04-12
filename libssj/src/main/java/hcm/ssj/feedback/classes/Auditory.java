@@ -60,19 +60,21 @@ public class Auditory extends FeedbackClass
     @Override
     public boolean execute(Action action)
     {
-        //update only if the global lock has passed
-        if(System.currentTimeMillis() < lock)
-        {
-            Log.i("ignoring event, lock active for another " + (lock - System.currentTimeMillis()) + "ms");
-            return false;
-        }
-
         AudioAction ev = (AudioAction) action;
 
-        //check self-lock
-        //only execute if enough time has passed since last execution of this instance
-        if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
-            return false;
+		//check locks
+		//global
+		if(System.currentTimeMillis() < lock)
+		{
+			Log.i("ignoring event, global lock active for another " + (lock - System.currentTimeMillis()) + "ms");
+			return false;
+		}
+		//local
+		if (System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+		{
+			Log.i("ignoring event, self lock active for another " + (ev.lockSelf - (System.currentTimeMillis() - ev.lastExecutionTime)) + "ms");
+			return false;
+		}
 
         player.play(ev.soundId, ev.intensity, ev.intensity, 1, 0, 1);
 

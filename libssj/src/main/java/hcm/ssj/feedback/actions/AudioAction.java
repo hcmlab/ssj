@@ -43,10 +43,6 @@ public class AudioAction extends Action
     public AssetFileDescriptor _afd = null;
 
     public float intensity = 1;
-    public int lock = 0;
-    public int lockSelf = 0;
-    public float multiplier = 1f; //in case of lock, intensity is multiplied
-
     public int soundId;
 
     public AudioAction()
@@ -72,14 +68,6 @@ public class AudioAction extends Action
             String intensity_str = xml.getAttributeValue(null, "intensity");
             if(intensity_str != null)
                 intensity = Float.valueOf(intensity_str);
-
-            String lock_str = xml.getAttributeValue(null, "lock");
-            if(lock_str != null)
-                lock = Integer.valueOf(lock_str);
-
-            lock_str = xml.getAttributeValue(null, "lockSelf");
-            if(lock_str != null)
-                lockSelf = Integer.valueOf(lock_str);
         }
         catch(IOException e)
         {

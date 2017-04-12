@@ -37,8 +37,10 @@ public class Action
     public long lastExecutionTime = 0;
     protected int id;
     protected FeedbackClass.Type type;
+	public int lock = 0;
+	public int lockSelf = 0;
 
-    protected Action()
+	protected Action()
     {
         id = s_id++;
     }
@@ -63,7 +65,15 @@ public class Action
     {}
 
     protected void load(XmlPullParser xml, Context context)
-    {}
+    {
+		String lock_str = xml.getAttributeValue(null, "lock");
+		if(lock_str != null)
+			lock = Integer.valueOf(lock_str);
+
+		lock_str = xml.getAttributeValue(null, "lockSelf");
+		if(lock_str != null)
+			lockSelf = Integer.valueOf(lock_str);
+    }
 
     public int[] parseIntArray(String str, String delim)
     {

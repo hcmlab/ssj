@@ -41,7 +41,6 @@ public class VisualAction extends Action
     public Drawable icons[];
 
     public int dur = 0;
-    public int lock = 0;
     public float brightness = 1;
 
     public VisualAction()
@@ -80,10 +79,6 @@ public class VisualAction extends Action
             String dur_str = xml.getAttributeValue(null, "duration");
             if (dur_str != null)
                 dur = Integer.valueOf(dur_str);
-
-            String lock_str = xml.getAttributeValue(null, "lock");
-            if (lock_str != null)
-                lock = Integer.valueOf(lock_str);
         }
         catch(IOException | XmlPullParserException e)
         {

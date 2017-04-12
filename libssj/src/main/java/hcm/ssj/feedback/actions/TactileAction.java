@@ -43,11 +43,6 @@ public class TactileAction extends Action
     public byte[] intensity = {(byte)150};
     public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
-    public int lock = 0;
-    public int lockSelf = 0;
-
-    public float multiplier = 1f; //in case of lock, intensity is multiplied
-
     public TactileAction()
     {
         type = FeedbackClass.Type.Tactile;
@@ -69,12 +64,6 @@ public class TactileAction extends Action
 
             str = xml.getAttributeValue(null, "type");
             if(str != null) vibrationType = VibrationType.valueOf(str);
-
-            str = xml.getAttributeValue(null, "lock");
-            if(str != null) lock = Integer.valueOf(str);
-
-            str = xml.getAttributeValue(null, "lockSelf");
-            if(str != null) lockSelf = Integer.valueOf(str);
         }
         catch(IOException | XmlPullParserException e)
         {

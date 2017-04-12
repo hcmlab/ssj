@@ -106,19 +106,21 @@ public class Tactile extends FeedbackClass
         if(firstCall)
             firstCall();
 
-        //update only if the global lock has passed
+        TactileAction ev = (TactileAction) action;
+
+        //check locks
+        //global
         if(System.currentTimeMillis() < lock)
         {
             Log.i("ignoring event, lock active for another " + (lock - System.currentTimeMillis()) + "ms");
             return false;
         }
-
-        TactileAction ev = (TactileAction) action;
-
-        //check self-lock
-        //only execute if enough time has passed since last execution of this instance
-        if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+        //local
+        if (System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+        {
+            Log.i("ignoring event, self lock active for another " + (ev.lockSelf - (System.currentTimeMillis() - ev.lastExecutionTime)) + "ms");
             return false;
+        }
 
         if(deviceType == Device.Myo) {
             Log.i("vibration " + ev.duration[0] + "/" + (int) ev.intensity[0]);
