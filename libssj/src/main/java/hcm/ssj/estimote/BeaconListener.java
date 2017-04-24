@@ -66,7 +66,7 @@ public class BeaconListener implements BeaconManager.RangingListener
 
 		for (Beacon beacon : list)
 		{
-			beaconDistances.put(getIdentifier(beacon), Utils.computeAccuracy(beacon));
+			beaconDistances.put(getIdentifier(beacon), calculateDistance(beacon));
 		}
 	}
 
@@ -92,6 +92,14 @@ public class BeaconListener implements BeaconManager.RangingListener
 		}
 
 		return distance;
+	}
+
+	private double calculateDistance(Beacon beacon)
+	{
+		double calculatedDistance = Math.pow(10d, ((double) beacon.getMeasuredPower() - beacon.getRssi()) / (10 * 4));
+		double estimoteDistance = Utils.computeAccuracy(beacon);
+
+		return (calculatedDistance + estimoteDistance) / 2.0;
 	}
 
 	private void dataReceived()

@@ -66,15 +66,15 @@ public class EstimoteBeaconTest extends ApplicationTestCase<Application>
 
 		// Channel
 		BeaconChannel channel = new BeaconChannel();
-		channel.options.identifier.set("B9407F30-F5F8-466E-AFF9-25556B57FE6D:1337:2259");
+		channel.options.identifier.set("B9407F30-F5F8-466E-AFF9-25556B57FE6D:1337:1000");
 		frame.addSensor(sensor, channel);
 
 		// Transformer
 		Butfilt filter = new Butfilt();
 		filter.options.zero.set(true);
 		filter.options.norm.set(false);
-		filter.options.low.set(0.1);
-		filter.options.order.set(3);
+		filter.options.low.set(0.3);
+		filter.options.order.set(1);
 		filter.options.type.set(Butfilt.Type.LOW);
 		frame.addTransformer(filter, channel, 0.2, 0);
 
