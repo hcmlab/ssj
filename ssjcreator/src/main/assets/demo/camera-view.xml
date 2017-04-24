@@ -10,9 +10,9 @@
 
   <sensorList>
     <sensor class="hcm.ssj.camera.CameraSensor" id="2">
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </sensor>
   </sensorList>
 
@@ -21,9 +21,9 @@
       <options>
         <option name="orientation" value="270" />
       </options>
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </consumer>
   </consumerList>
 

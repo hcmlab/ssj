@@ -95,6 +95,8 @@ public class Condition
                 return (float) event.ptrD()[0];
             case BOOL:
                 return (event.ptrBool()[0]) ? 1 : 0;
+            case EMPTY:
+                return 1;
             default:
                 throw new UnsupportedOperationException("unknown event");
         }

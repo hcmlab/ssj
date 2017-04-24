@@ -32,11 +32,14 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -79,8 +82,8 @@ public abstract class SaveLoad
     private final static String OPTION = "option";
     private final static String NAME = "name";
     private final static String VALUE = "value";
-    private final static String CHANNEL_ID = "channelId";
-    private final static String CHANNEL_LIST = "channelList";
+    private final static String CHANNEL_ID = "providerId";
+    private final static String CHANNEL_LIST = "providerList";
     private final static String FRAME_SIZE = "frameSize";
     private final static String DELTA = "delta";
 
@@ -170,43 +173,37 @@ public abstract class SaveLoad
     }
 
     /**
-     * @param file File
+     * @param File file
      * @return boolean
      */
     public static boolean load(File file)
     {
-        FileInputStream fileInputStream;
+        InputStream inputStream = null;
+
         try
         {
-            fileInputStream = new FileInputStream(file);
+            inputStream = new FileInputStream(file);
 
-        } catch (FileNotFoundException e)
-        {
-            Log.e("file not found");
-            return false;
-        }
-        return load(fileInputStream);
-    }
-
-    /**
-     * @param fileInputStream FileInputStream
-     * @return boolean
-     */
-    public static boolean load(FileInputStream fileInputStream)
-    {
-        try
-        {
             //check file version
             XmlPullParser parser = Xml.newPullParser();
             parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-            parser.setInput(fileInputStream, null);
+            parser.setInput(inputStream, null);
             parser.nextTag();
             if (parser.getName().equals(ROOT))
             {
                 String value = parser.getAttributeValue(null, VERSION);
-                if (!value.equals(VERSION_NUMBER))
+                float versionFile = Float.parseFloat(value);
+                float versionCurrent = Float.parseFloat(VERSION_NUMBER);
+                if (versionFile < versionCurrent)
                 {
-                    return false;
+                    Log.i("old file version detected, converting from v"+ versionFile + " to v" + versionCurrent);
+                    String text = convertOldVersion(file);
+                    inputStream.close();
+                    inputStream = new ByteArrayInputStream(text.getBytes());
+
+                    //reset stream
+                    parser.setInput(inputStream, null);
+                    parser.nextTag();
                 }
             } else
             {
@@ -320,7 +317,8 @@ public abstract class SaveLoad
         {
             try
             {
-                fileInputStream.close();
+                if(inputStream != null)
+                    inputStream.close();
             } catch (IOException ex)
             {
                 Log.e("could not close stream", ex);
@@ -413,5 +411,30 @@ public abstract class SaveLoad
     {
         int hash;
         ArrayList<Integer> hashes = new ArrayList<>();
+    }
+
+    private static String convertOldVersion(File file) throws IOException
+    {
+        int bufferSize = 10240;
+        char[] buffer = new char[bufferSize];
+
+        FileReader reader = new FileReader(file);
+        int len = reader.read(buffer);
+        buffer[len] = '\0';
+
+        String text = new String(buffer, 0, len);
+
+        //from v0.2 to v3
+        text = text.replace("Provider", "Channel");
+        text = text.replace("SimpleFile", "File");
+        text = text.replace("Classifier", "ClassifierT");
+        text = text.replace("option name=\"timeoutThread\"", "option name=\"waitThreadKill\"");
+        text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\""+VERSION_NUMBER+"\"");
+
+        java.io.FileWriter writer = new java.io.FileWriter(file);
+        writer.write(text);
+        writer.flush();
+
+        return text;
     }
 }

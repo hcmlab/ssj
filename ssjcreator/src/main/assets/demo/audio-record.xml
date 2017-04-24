@@ -24,9 +24,9 @@
   <sensorList>
     <sensor class="hcm.ssj.audio.Microphone" id="64672700">
       <options />
-      <channelList>
-        <channelId id="13000336" />
-      </channelList>
+      <providerList>
+        <providerId id="13000336" />
+      </providerList>
     </sensor>
   </sensorList>
   <transformerList />
@@ -47,9 +47,9 @@
         <option name="secondScaleStream" value="1" />
         <option name="size" value="20.0" />
       </options>
-      <channelList>
-        <channelId id="13000336" />
-      </channelList>
+      <providerList>
+        <providerId id="13000336" />
+      </providerList>
     </consumer>
     <consumer class="hcm.ssj.audio.AudioWriter" id="38948479" frameSize="1.0" delta="0.0">
       <options>
@@ -58,9 +58,9 @@
         <option name="audioFormat" value="ENCODING_DEFAULT" />
         <option name="mimeType" value="audio/mp4a-latm" />
       </options>
-      <channelList>
-        <channelId id="13000336" />
-      </channelList>
+      <providerList>
+        <providerId id="13000336" />
+      </providerList>
     </consumer>
   </consumerList>
 </ssjSaveFile>

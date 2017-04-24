@@ -15,25 +15,25 @@
   
   <sensorList>
     <sensor class="hcm.ssj.audio.Microphone" id="2">
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </sensor>
   </sensorList>
   
   <transformerList>
     <transformer class="hcm.ssj.audio.Energy" id="3" frameSize="0.2" delta="0.0">
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </transformer>
     <transformer class="hcm.ssj.audio.Pitch" id="4" frameSize="0.04" delta="0">
       <options>
         <option name="computeVoicedProb" value="false" />
       </options>
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </transformer>
   </transformerList>
   
@@ -43,10 +43,10 @@
         <option name="secondScaleMin" value="0" />
         <option name="secondScaleMax" value="500" />
       </options>
-      <channelList>
-        <channelId id="3" />
-        <channelId id="4" />
-      </channelList>
+      <providerList>
+        <providerId id="3" />
+        <providerId id="4" />
+      </providerList>
     </consumer>
   </consumerList>
   

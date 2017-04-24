@@ -25,17 +25,17 @@
       <options>
         <option name="sensorType" value="ACCELEROMETER" />
       </options>
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </sensor>
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="4">
       <options>
         <option name="sensorType" value="MAGNETIC_FIELD" />
       </options>
-      <channelList>
-        <channelId id="2" />
-      </channelList>
+      <providerList>
+        <providerId id="2" />
+      </providerList>
     </sensor>
   </sensorList>
 
@@ -45,30 +45,30 @@
         <option name="outputClass" value="[avgX, avgY, avgZ]" />
         <option name="var" value="false" />
       </options>
-      <channelList>
-        <channelId id="1" />
-      </channelList>
+      <providerList>
+        <providerId id="1" />
+      </providerList>
     </transformer>
     <transformer class="hcm.ssj.signal.MinMax" id="6" frameSize="0.1" delta="1.0">
       <options>
         <option name="outputClass" value="[minX, maxX, minY, maxY, minZ, maxZ]" />
       </options>
-      <channelList>
-        <channelId id="2" />
-      </channelList>
+      <providerList>
+        <providerId id="2" />
+      </providerList>
     </transformer>
   </transformerList>
 
   <consumerList>
     <consumer class="hcm.ssj.graphic.SignalPainter" id="7" frameSize="0.1" delta="0.0">
-      <channelList>
-        <channelId id="5" />
-      </channelList>
+      <providerList>
+        <providerId id="5" />
+      </providerList>
     </consumer>
     <consumer class="hcm.ssj.graphic.SignalPainter" id="8" frameSize="0.1" delta="0.0">
-      <channelList>
-        <channelId id="6" />
-      </channelList>
+      <providerList>
+        <providerId id="6" />
+      </providerList>
     </consumer>
   </consumerList>
 
