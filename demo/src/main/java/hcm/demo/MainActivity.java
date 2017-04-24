@@ -27,9 +27,14 @@
 
 package hcm.demo;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -49,6 +54,7 @@ public class MainActivity extends Activity implements ExceptionHandler
     private PipelineRunner _pipe = null;
     private String _ssj_version = null;
     private String _error_msg = null;
+    private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -60,6 +66,8 @@ public class MainActivity extends Activity implements ExceptionHandler
 
         TextView text = (TextView) findViewById(R.id.txt_ssj);
         text.setText(_ssj_version);
+
+        checkPermissions();
     }
 
     @Override
@@ -233,28 +241,29 @@ public class MainActivity extends Activity implements ExceptionHandler
 
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu)
-//    {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item)
-//    {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings)
-//        {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+    private void checkPermissions()
+    {
+        if (Build.VERSION.SDK_INT >= 23)
+        {
+            //dangerous permissions
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+                    != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED)
+            {
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.BODY_SENSORS,
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_DANGEROUS_PERMISSIONS);
+            }
+        }
+    }
 }

@@ -186,15 +186,6 @@ public class SvmTest extends ApplicationTestCase<Application>
         Logger log = new Logger();
         frame.addConsumer(log, channel, window, 0);
 
-        //profile cpu load
-//        Profiler profiler = new Profiler();
-//        CPULoadChannel cpu = new CPULoadChannel();
-//        cpu.options.sampleRate.set(2);
-//        frame.addSensor(profiler, cpu);
-//
-//        FileWriter write = new FileWriter();
-//        frame.addConsumer(write, cpu, 1, 0);
-
         // start framework
         frame.start();
 
