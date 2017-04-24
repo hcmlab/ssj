@@ -8,6 +8,9 @@ try {
     (fullVersionTag, versionBuild, shaGit, dirty) = longVersionName.tokenize('-')
     (versionMajor, versionMinor, versionPatch) = fullVersionTag.tokenize('.')
 
+    if (versionPatch == null)
+        versionPatch = "0"
+
     if (versionMajor.charAt(0) == 'v')
         versionMajor = versionMajor.substring(1)
     version = "$versionMajor.$versionMinor"
