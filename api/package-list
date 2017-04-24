@@ -2,6 +2,7 @@ hcm.ssj.androidSensor
 hcm.ssj.angelsensor
 hcm.ssj.audio
 hcm.ssj.biosig
+hcm.ssj.bleSensor
 hcm.ssj.body
 hcm.ssj.camera
 hcm.ssj.core
@@ -9,7 +10,12 @@ hcm.ssj.core.event
 hcm.ssj.core.option
 hcm.ssj.core.stream
 hcm.ssj.empatica
+hcm.ssj.estimote
 hcm.ssj.event
+hcm.ssj.feedback
+hcm.ssj.feedback.actions
+hcm.ssj.feedback.classes
+hcm.ssj.feedback.conditions
 hcm.ssj.file
 hcm.ssj.glass
 hcm.ssj.gps
@@ -21,5 +27,6 @@ hcm.ssj.msband
 hcm.ssj.myo
 hcm.ssj.praat
 hcm.ssj.praat.helper
+hcm.ssj.pressureMat
 hcm.ssj.signal
 hcm.ssj.test
