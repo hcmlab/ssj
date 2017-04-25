@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjCreator version="1">
+  <pipeLayout>
+    <component X="1" Y="5" />
+    <component X="5" Y="5" />
+    <component X="9" Y="5" />
+    <component X="5" Y="0" />
+    <component X="1" Y="10" />
+    <component X="5" Y="10" />
+    <component X="9" Y="10" />
+  </pipeLayout>
+  <annotation fileName="anno" filePath="/storage/emulated/0/SSJ/[time]" />
+</ssjCreator>
