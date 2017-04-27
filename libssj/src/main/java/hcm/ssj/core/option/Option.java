@@ -154,7 +154,7 @@ public class Option<T>
                 //arrays
                 if (type.isArray())
                 {
-                    String[] strings = value.replace("[", "").replace("]", "").split(", ");
+                    String[] strings = value.replace("[", "").replace("]", "").split("\\s*,\\s*");
                     //check strings for plausibility
                     if (strings.length <= 0)
                     {
