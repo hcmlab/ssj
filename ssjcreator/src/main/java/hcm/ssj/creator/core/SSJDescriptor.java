@@ -26,6 +26,12 @@
 
 package hcm.ssj.creator.core;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Build;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
@@ -72,6 +78,13 @@ public class SSJDescriptor
         return instance;
     }
 
+    private static SharedPreferences getMultiDexPreferences(Context context) {
+        return context.getSharedPreferences("multidex.version", Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ?
+                Context.MODE_PRIVATE :
+                Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
+    }
+
+
     /**
      * Parse classes.dex to find all implemented SSJ components.<br>
      * Based on code from stackoverflow (<a href="http://stackoverflow.com/a/31087947">one</a>
@@ -81,26 +94,28 @@ public class SSJDescriptor
     {
         try
         {
-            //scan main dex-file
-            scanDex(new DexFile(SSJApplication.getAppContext().getPackageCodePath()));
-            //scan dex-files in instant-run
-            File instantRunFilePath = new File(SSJApplication.getAppContext().getApplicationInfo().dataDir,
-                    "files" + File.separator + "instant-run" + File.separator + "dex");
-            if (instantRunFilePath.exists() && instantRunFilePath.isDirectory())
+            ApplicationInfo applicationInfo = SSJApplication.getAppContext().getPackageManager().getApplicationInfo(SSJApplication.getAppContext().getPackageName(), 0);
+
+            //get source directory
+            String dir = applicationInfo.sourceDir.substring(0, applicationInfo.sourceDir.lastIndexOf(File.separator));
+
+            //iterate through all .apk and .dex in the source directory
+            File[] files = new File(dir).listFiles();
+            for(File slice : files)
             {
-                File[] sliceFiles = instantRunFilePath.listFiles();
-                for (File sliceFile : sliceFiles)
-                {
-                    if (null != sliceFile && sliceFile.exists() && sliceFile.isFile() && sliceFile.getName().endsWith(".dex"))
-                    {
-                        scanDex(DexFile.loadDex(sliceFile.getAbsolutePath(), sliceFile.getAbsolutePath() + ".tmp", 0));
-                    }
-                }
+                if(!slice.isFile())
+                    continue;
+
+                String extension = slice.getName().substring(slice.getName().lastIndexOf("."));
+                if(extension.equalsIgnoreCase(".apk") || extension.equalsIgnoreCase(".dex"))
+                    scanDex(new DexFile(slice));
             }
-        } catch (IOException ex)
+
+        } catch (IOException | PackageManager.NameNotFoundException ex)
         {
             ex.printStackTrace();
         }
+
         //add classes
         PathClassLoader classLoader = (PathClassLoader) Thread.currentThread().getContextClassLoader();
         for (String className : hsClassNames)

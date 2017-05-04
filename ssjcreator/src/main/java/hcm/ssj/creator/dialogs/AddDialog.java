@@ -33,7 +33,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 
@@ -75,6 +74,7 @@ public class AddDialog extends DialogFragment
         {
             throw new RuntimeException();
         }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(titleMessage);
         builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener()
@@ -129,14 +129,13 @@ public class AddDialog extends DialogFragment
         listView = new ExpandableListView(getContext());
         listView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         setListListeners();
+
         if (hashMap != null && hashMap.size() > 0)
         {
             ListAdapter listAdapter = new ListAdapter(getContext(), hashMap);
             listView.setAdapter(listAdapter);
-        } else
-        {
-            listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_multiple_choice));
         }
+
         builder.setView(listView);
         return builder.create();
     }
