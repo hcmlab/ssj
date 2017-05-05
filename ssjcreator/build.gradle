@@ -28,8 +28,8 @@ apply plugin: 'com.android.application'
 apply from: '../version.gradle'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.3'
 
     lintOptions {
         abortOnError false
@@ -40,7 +40,7 @@ android {
     defaultConfig {
         applicationId "hcm.ssj.creator"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionName getVerName()
         versionCode getVerCode()
     }
@@ -57,8 +57,8 @@ repositories {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.3.0'
-    compile 'com.android.support:design:23.3.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
     compile project(path: ':libssj')
     compile 'com.github.paolorotolo:appintro:4.0.0'
 }

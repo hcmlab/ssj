@@ -100,7 +100,7 @@ public class Spectrogram extends Transformer
 		}
 
 		if(stream_in[0].num > options.nfft.get())
-			Log.w("nfft too small ("+options.nfft+") for input stream (num="+stream_in[0].num+"), extra samples will get ignored");
+			Log.w("nfft too small ("+options.nfft.get()+") for input stream (num="+stream_in[0].num+"), extra samples will get ignored");
 
 		_matrix_in = new Matrix<>(stream_in[0].num, 1);
 		_matrix_out = new Matrix<>(1, _filterbank.getCols());
@@ -138,7 +138,7 @@ public class Spectrogram extends Transformer
 
 		//copy data from matrix for fft
 		//if nfft to large, fill with zeroes
-		for(int i = 0; i < _matrix_in.getSize(); i++)
+		for(int i = 0; i < _data_in.length && i < _matrix_in.getSize(); i++)
 			_data_in[i] = _matrix_in.getData(i);
 		for(int i = _matrix_in.getSize(); i < _data_in.length; i++)
 			_data_in[i] = 0;

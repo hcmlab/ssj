@@ -1,6 +1,6 @@
 /*
- * build.gradle
- * Copyright (c) 2016
+ * TestCons.java
+ * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -24,21 +24,40 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package hcm.ssj;
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-    }
-}
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-allprojects {
-    repositories {
-        jcenter()
-    }
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+
+/**
+ * Created by Johnny on 04.05.2017.
+ */
+
+public class TestHelper
+{
+	public static final int DUR_TEST_LONG = 2 * 60 * 1000;
+	public static final int DUR_TEST_NORMAL = 30 * 1000;
+	public static final int DUR_TEST_SHORT = 10 * 1000;
+
+	public static void copyAssetToFile(String assetName, File dst) throws IOException
+	{
+		InputStream in = getInstrumentation().getContext().getResources().getAssets().open(assetName);
+		OutputStream out = new FileOutputStream(dst);
+
+		byte[] buffer = new byte[1024];
+		int read;
+		while ((read = in.read(buffer)) != -1)
+		{
+			out.write(buffer, 0, read);
+		}
+
+		in.close();
+		out.flush();
+		out.close();
+	}
 }

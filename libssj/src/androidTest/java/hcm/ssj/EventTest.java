@@ -1,5 +1,5 @@
 /*
- * testSockets.java
+ * testEvent.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -26,31 +26,73 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.Provider;
+import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
-import hcm.ssj.ioput.SocketChannel;
-import hcm.ssj.ioput.SocketEventWriter;
-import hcm.ssj.ioput.SocketReader;
+import hcm.ssj.event.ThresholdEventSender;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
-import hcm.ssj.test.Logger;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class testSockets extends ApplicationTestCase<Application> {
-    public testSockets() {
-        super(Application.class);
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class EventTest
+{
+    @Test
+    public void testFloatsEventSender() throws Exception
+    {
+        Pipeline frame = Pipeline.getInstance();
+        frame.options.bufferSize.set(10.0f);
+
+        AndroidSensor sensor = new AndroidSensor();
+        sensor.options.sensorType.set(SensorType.ACCELEROMETER);
+        AndroidSensorChannel acc = new AndroidSensorChannel();
+        acc.options.sampleRate.set(40);
+        frame.addSensor(sensor, acc);
+
+        FloatsEventSender evs = new FloatsEventSender();
+        evs.options.mean.set(true);
+        frame.addConsumer(evs, acc, 1.0, 0);
+        EventChannel channel = evs.getEventChannelOut();
+
+        EventLogger log = new EventLogger();
+        frame.registerEventListener(log, channel);
+
+        try {
+            frame.start();
+
+            long start = System.currentTimeMillis();
+            while(true)
+            {
+                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_NORMAL)
+                    break;
+
+                Thread.sleep(1);
+            }
+
+            frame.stop();
+            frame.release();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 
-    public void test() throws Exception
+
+    public void testThresholds() throws Exception
     {
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
@@ -61,81 +103,41 @@ public class testSockets extends ApplicationTestCase<Application> {
         audio.options.scale.set(true);
         frame.addSensor(mic,audio);
 
-
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
 
-        FloatsEventSender evs = new FloatsEventSender();
+        ThresholdEventSender vad = new ThresholdEventSender();
+        vad.options.thresin.set(new float[]{50.0f}); //SPL
+        vad.options.mindur.set(1.0);
+        vad.options.maxdur.set(9.0);
+        vad.options.hangin.set(3);
+        vad.options.hangout.set(5);
+        Provider[] vad_in = {energy};
+        frame.addConsumer(vad, vad_in, 1.0, 0);
+        EventChannel vad_channel = vad.getEventChannelOut();
+
+        FloatSegmentEventSender evs = new FloatSegmentEventSender();
         evs.options.mean.set(true);
-        frame.addConsumer(evs, energy, 1.0, 0);
+        frame.addConsumer(evs, energy, vad_channel);
         EventChannel channel = evs.getEventChannelOut();
 
         EventLogger log = new EventLogger();
         frame.registerEventListener(log, channel);
 
-        SocketEventWriter sock = new SocketEventWriter();
-        sock.options.port = 34300;
-        sock.options.ip = "192.168.0.101";
-        frame.registerEventListener(sock, channel);
-
         try {
             frame.start();
 
             long start = System.currentTimeMillis();
             while(true)
             {
-                if(System.currentTimeMillis() > start + 1 * 10 * 1000)
+                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_NORMAL)
                     break;
 
                 Thread.sleep(1);
             }
 
             frame.stop();
-            frame.clear();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    public void test2() throws Exception
-    {
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
-
-        SocketReader sock = new SocketReader();
-        sock.options.port.set(7777);
-        sock.options.ip.set("192.168.0.104");
-        sock.options.type.set(Cons.SocketType.TCP);
-
-
-        SocketChannel data = new SocketChannel();
-        data.options.dim.set(2);
-        data.options.bytes.set(4);
-        data.options.type.set(Cons.Type.FLOAT);
-        data.options.sr.set(50.);
-        data.options.num.set(10);
-        frame.addSensor(sock,data);
-
-        Logger log = new Logger();
-        frame.addConsumer(log, data, 0.2, 0);
-
-
-        try {
-            frame.start();
-
-            long start = System.currentTimeMillis();
-            while(true)
-            {
-                if(System.currentTimeMillis() > start + 10 * 60 * 1000)
-                    break;
-
-                Thread.sleep(1);
-            }
-
-            frame.stop();
-            frame.clear();
+            frame.release();
         }
         catch(Exception e)
         {

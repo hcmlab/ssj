@@ -26,55 +26,38 @@
 
 package hcm.ssj;
 
-import android.app.Application;
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.signal.AvgVar;
-import hcm.ssj.signal.Count;
-import hcm.ssj.signal.Median;
-import hcm.ssj.signal.MinMax;
-import hcm.ssj.signal.Progress;
 import hcm.ssj.test.Logger;
+
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
 /**
  * Tests all classes in the android sensor package.<br>
  * Created by Frank Gaibler on 13.08.2015.
  */
-public class AndroidSensorTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class AndroidSensorTest
 {
-    //test length in milliseconds
-    private final static int TEST_LENGTH = 1000 * 10;//2 * 60 * 1000;
-    //
-    private SensorType[] sensorTypes = {SensorType.ACCELEROMETER, SensorType.MAGNETIC_FIELD};
-
-    /**
-     *
-     */
-    public AndroidSensorTest()
-    {
-        super(Application.class);
-    }
-
-    /**
-     * @throws Exception
-     */
+    @Test
     public void testSensors() throws Exception
     {
-        Runtime rt = Runtime.getRuntime();
-        long maxMemory = rt.maxMemory();
-        Log.i("maxMemory: " + Long.toString(maxMemory));
-
         //test for every sensor type
         for (SensorType type : SensorType.values())
         {
-            SensorManager mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+            SensorManager mSensorManager = (SensorManager) getInstrumentation().getContext().getSystemService(Context.SENSOR_SERVICE);
             if (mSensorManager.getDefaultSensor(type.getType()) != null)
             {
                 //setup
@@ -91,7 +74,7 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 //start framework
                 frame.start();
                 //run test
-                long end = System.currentTimeMillis() + TEST_LENGTH;
+                long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
                 try
                 {
                     while (System.currentTimeMillis() < end)
@@ -109,207 +92,5 @@ public class AndroidSensorTest extends ApplicationTestCase<Application>
                 Log.i(type.getName() + " not present on device");
             }
         }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testMinMax() throws Exception
-    {
-        //test for a few setups
-        boolean[][] options = {
-                {true, true},
-                {true, false},
-                {false, true}
-        };
-        for (boolean[] option : options)
-        {
-            //setup
-            Pipeline frame = Pipeline.getInstance();
-            frame.options.bufferSize.set(10.0f);
-            //create channels
-            AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
-            for (int i = 0; i < sensorTypes.length; i++)
-            {
-                //sensor
-                AndroidSensor sensor = new AndroidSensor();
-                sensor.options.sensorType.set(sensorTypes[i]);
-                AndroidSensorChannel channel = new AndroidSensorChannel();
-                frame.addSensor(sensor, channel);
-                sensorChannels[i] = channel;
-            }
-            //transformer
-            MinMax transformer = new MinMax();
-            transformer.options.min.set(option[0]);
-            transformer.options.max.set(option[1]);
-            frame.addTransformer(transformer, sensorChannels, 1, 0);
-            //logger
-            Logger log = new Logger();
-            frame.addConsumer(log, transformer, 1, 0);
-            //start framework
-            frame.start();
-            //run test
-            long end = System.currentTimeMillis() + TEST_LENGTH;
-            try
-            {
-                while (System.currentTimeMillis() < end)
-                {
-                    Thread.sleep(1);
-                }
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            frame.stop();
-            frame.release();
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testAvgVar() throws Exception
-    {
-        //test for a few setups
-        boolean[][] options = {
-                {true, true},
-                {true, false},
-                {false, true}
-        };
-        for (boolean[] option : options)
-        {
-            //setup
-            Pipeline frame = Pipeline.getInstance();
-            frame.options.bufferSize.set(10.0f);
-            //create channels
-            AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
-            for (int i = 0; i < sensorTypes.length; i++)
-            {
-                //sensor
-                AndroidSensor sensor = new AndroidSensor();
-                sensor.options.sensorType.set(sensorTypes[i]);
-
-                //channel
-                AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
-                frame.addSensor(sensor,sensorChannel);
-                sensorChannels[i] = sensorChannel;
-            }
-            //transformer
-            AvgVar transformer = new AvgVar();
-            transformer.options.avg.set(option[0]);
-            transformer.options.var.set(option[1]);
-            frame.addTransformer(transformer, sensorChannels, 1, 0);
-            //logger
-            Logger log = new Logger();
-            frame.addConsumer(log, transformer, 1, 0);
-            //start framework
-            frame.start();
-            //run test
-            long end = System.currentTimeMillis() + TEST_LENGTH;
-            try
-            {
-                while (System.currentTimeMillis() < end)
-                {
-                    Thread.sleep(1);
-                }
-            } catch (Exception e)
-            {
-                e.printStackTrace();
-            }
-            frame.stop();
-            frame.release();
-        }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testProgressDistanceCount() throws Exception
-    {
-        //setup
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
-        //create channels
-        AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
-        for (int i = 0; i < sensorTypes.length; i++)
-        {
-            //sensor
-            AndroidSensor sensor = new AndroidSensor();
-            sensor.options.sensorType.set(sensorTypes[i]);
-
-            //channel
-            AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
-            frame.addSensor(sensor,sensorChannel);
-            sensorChannels[i] = sensorChannel;
-        }
-        //transformer
-        Progress transformer1 = new Progress();
-        frame.addTransformer(transformer1, sensorChannels, 1, 0);
-        Count transformer2 = new Count();
-        frame.addTransformer(transformer2, transformer1, 1, 0);
-        //logger
-        Logger log = new Logger();
-        frame.addConsumer(log, transformer2, 1, 0);
-        //start framework
-        frame.start();
-        //run test
-        long end = System.currentTimeMillis() + TEST_LENGTH;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        frame.stop();
-        frame.release();
-    }
-
-    /**
-     * @throws Exception
-     */
-    public void testMedian() throws Exception
-    {
-        //setup
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
-        //create channels
-        AndroidSensorChannel[] sensorChannels = new AndroidSensorChannel[sensorTypes.length];
-        for (int i = 0; i < sensorTypes.length; i++)
-        {
-            //sensor
-            AndroidSensor sensor = new AndroidSensor();
-            sensor.options.sensorType.set(sensorTypes[i]);
-
-            //channel
-            AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
-            frame.addSensor(sensor,sensorChannel);
-            sensorChannels[i] = sensorChannel;
-        }
-        //transformer
-        Median transformer = new Median();
-        frame.addTransformer(transformer, sensorChannels, 1, 0);
-        //logger
-        Logger log = new Logger();
-        frame.addConsumer(log, transformer, 1, 0);
-        //start framework
-        frame.start();
-        //run test
-        long end = System.currentTimeMillis() + TEST_LENGTH;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        frame.stop();
-        frame.release();
     }
 }

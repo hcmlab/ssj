@@ -26,62 +26,63 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
-import hcm.ssj.core.Cons;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.file.FileWriter;
+import hcm.ssj.msband.AccelerationChannel;
+import hcm.ssj.msband.AltimeterChannel;
+import hcm.ssj.msband.BarometerChannel;
+import hcm.ssj.msband.BrightnessChannel;
+import hcm.ssj.msband.CaloriesChannel;
 import hcm.ssj.msband.DistanceChannel;
+import hcm.ssj.msband.GSRChannel;
+import hcm.ssj.msband.GyroscopeChannel;
+import hcm.ssj.msband.HeartRateChannel;
+import hcm.ssj.msband.IBIChannel;
 import hcm.ssj.msband.MSBand;
+import hcm.ssj.msband.PedometerChannel;
+import hcm.ssj.msband.SkinTempChannel;
 import hcm.ssj.test.Logger;
 
 /**
- * Tests all classes in the android sensor package.<br>
- * Created by Frank Gaibler on 13.08.2015.
+ * Tests all channels of the MS Band.<br>
+ * Created by Ionut Damian
  */
-public class MSBandTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class MSBandTest
 {
-	//test length in milliseconds
-	private final static int TEST_LENGTH = 1000 * 300;//2 * 60 * 1000;
-
-	/**
-	 *
-	 */
-	public MSBandTest()
+	@Test
+	public void testChannels() throws Exception
 	{
-		super(Application.class);
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	public void testSensors() throws Exception
-	{
-		//test for every sensor type
-
 		//setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		MSBand sensor = new MSBand();
 
-		//channel
-		DistanceChannel sensorChannel = new DistanceChannel();
-		frame.addSensor(sensor,sensorChannel);
-		//logger
-		Logger log = new Logger();
-		frame.addConsumer(log, sensorChannel, 1, 0);
-
-		FileWriter write = new FileWriter();
-		write.options.type.set(Cons.FileType.ASCII);
-		frame.addConsumer(write, sensorChannel, 1, 0);
-
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new DistanceChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new BarometerChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new BrightnessChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new AccelerationChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new AltimeterChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new CaloriesChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new GSRChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new GyroscopeChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new HeartRateChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new IBIChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new PedometerChannel()), 1, 0);
+		frame.addConsumer(new Logger(), frame.addSensor(sensor, new SkinTempChannel()), 1, 0);
 
 		//start framework
 		frame.start();
+
 		//run test
-		long end = System.currentTimeMillis() + TEST_LENGTH;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
 		try
 		{
 			while (System.currentTimeMillis() < end)
@@ -93,6 +94,7 @@ public class MSBandTest extends ApplicationTestCase<Application>
 		{
 			e.printStackTrace();
 		}
+
 		frame.stop();
 		frame.clear();
 	}

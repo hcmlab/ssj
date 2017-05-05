@@ -26,8 +26,13 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 
@@ -42,33 +47,26 @@ import hcm.ssj.core.Provider;
 import hcm.ssj.event.ThresholdEventSender;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.signal.Avg;
-import hcm.ssj.signal.Merge;
 import hcm.ssj.test.EventLogger;
-import hcm.ssj.test.Logger;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class AudioTest extends ApplicationTestCase<Application>
+import static android.support.test.InstrumentationRegistry.getContext;
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class AudioTest
 {
-    public AudioTest()
-    {
-        super(Application.class);
-    }
-
-    /**
-     * @throws Exception
-     */
+    @Test
     public void testWriter() throws Exception
     {
-        final int TEST_LENGTH = 2 * 60 * 1000;
         //resources
         File dir = getContext().getFilesDir();
-        String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
+        String fileName = getClass().getSimpleName() + ".test";
         File file = new File(dir, fileName);
+
         //setup
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
+
         //sensor
         Microphone microphone = new Microphone();
         AudioChannel audio = new AudioChannel();
@@ -77,16 +75,18 @@ public class AudioTest extends ApplicationTestCase<Application>
         audio.options.sampleRate.set(8000);
         audio.options.scale.set(true);
         frame.addSensor(microphone, audio);
+
         //consumer
         AudioWriter audioWriter = new AudioWriter();
-        audioWriter.options.audioFormat.set(Cons.AudioFormat.ENCODING_PCM_16BIT);
         audioWriter.options.filePath.set(dir.getPath());
         audioWriter.options.fileName.set(fileName);
         frame.addConsumer(audioWriter, audio, 1, 0);
+
         //start framework
         frame.start();
+
         //run test
-        long end = System.currentTimeMillis() + TEST_LENGTH;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)
@@ -99,6 +99,11 @@ public class AudioTest extends ApplicationTestCase<Application>
         }
         frame.stop();
         frame.release();
+
+        //verify test
+        Assert.assertTrue(file.exists());
+        Assert.assertTrue(file.length() > 1000); //1Kb
+
         //cleanup
         if (file.exists())
         {
@@ -107,8 +112,10 @@ public class AudioTest extends ApplicationTestCase<Application>
                 throw new RuntimeException("File could not be deleted");
             }
         }
+
     }
 
+    @Test
     public void testSpeechrate() throws Exception
     {
         Pipeline frame = Pipeline.getInstance();
@@ -132,12 +139,6 @@ public class AudioTest extends ApplicationTestCase<Application>
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
-
-        Merge merge = new Merge();
-        frame.addTransformer(merge, new Provider[] {pitch, pitch_env}, 0.1, 0);
-
-        Logger logger = new Logger();
-        frame.addConsumer(logger, merge, 1, 0);
 
         //VAD
         ThresholdEventSender vad = new ThresholdEventSender();
@@ -163,10 +164,10 @@ public class AudioTest extends ApplicationTestCase<Application>
         {
             frame.start();
 
-            long start = System.currentTimeMillis();
+            long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
             while (true)
             {
-                if (System.currentTimeMillis() > start + 1 * 20 * 1000)
+                if (System.currentTimeMillis() > end)
                     break;
 
                 Thread.sleep(1);

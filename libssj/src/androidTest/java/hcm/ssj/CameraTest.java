@@ -26,10 +26,15 @@
 
 package hcm.ssj;
 
-import android.app.Application;
 import android.hardware.Camera;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.view.SurfaceView;
+
+import junit.framework.Assert;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 
@@ -39,15 +44,16 @@ import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.CameraWriter;
 import hcm.ssj.core.Pipeline;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+
 /**
  * Tests all camera sensor, channel and consumer.<br>
  * Created by Frank Gaibler on 28.01.2016.
  */
-public class CameraSensorTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class CameraTest
 {
-    //test length in milliseconds
-    private final static int TEST_LENGTH = 2 * 60 * 1000;
-
     /**
      * Test types
      */
@@ -56,33 +62,18 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         WRITER, PAINTER
     }
 
-    /**
-     *
-     */
-    public CameraSensorTest()
-    {
-        super(Application.class);
-    }
-
-    /**
-     * @throws Throwable
-     */
+    @Test
     public void testCameraWriter() throws Throwable
     {
         buildPipe(Type.WRITER);
     }
 
-    /**
-     * @throws Throwable
-     */
+    @Test
     public void testCameraPainter() throws Throwable
     {
         buildPipe(Type.PAINTER);
     }
 
-    /**
-     *
-     */
     private void buildPipe(Type type) throws Exception
     {
         //small values because of memory usage
@@ -106,13 +97,14 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         CameraChannel cameraChannel = new CameraChannel();
         cameraChannel.options.sampleRate.set((double) frameRate);
         frame.addSensor(cameraSensor,cameraChannel);
+
         //consumer
         switch (type)
         {
             case WRITER:
             {
                 //file
-                File dir = getContext().getFilesDir();
+                File dir = getInstrumentation().getContext().getFilesDir();
                 String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
                 //
                 CameraWriter cameraWriter = new CameraWriter();
@@ -129,7 +121,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
                 cameraPainter.options.width.set(width);
                 cameraPainter.options.height.set(height);
                 cameraPainter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
-                cameraPainter.options.surfaceView.set(new SurfaceView(this.getContext()));
+                cameraPainter.options.surfaceView.set(new SurfaceView(getInstrumentation().getContext()));
                 frame.addConsumer(cameraPainter, cameraChannel, 1 / frameRate, 0);
                 break;
             }
@@ -137,7 +129,7 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         //start framework
         frame.start();
         //run test
-        long end = System.currentTimeMillis() + TEST_LENGTH;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)
@@ -150,11 +142,14 @@ public class CameraSensorTest extends ApplicationTestCase<Application>
         }
         frame.stop();
         frame.release();
+
         //cleanup
         switch (type)
         {
             case WRITER:
             {
+                Assert.assertTrue(file.length() > 1000);
+
                 if (file.exists())
                 {
                     if (!file.delete())

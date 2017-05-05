@@ -26,8 +26,11 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.glass.BlinkDetection;
@@ -39,22 +42,11 @@ import hcm.ssj.test.Logger;
  * Tests all classes in the glass package.<br>
  * Created by Frank Gaibler on 13.08.2015.
  */
-public class GlassTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class GlassTest
 {
-    //test length in milliseconds
-    private final static int TEST_LENGTH = 2 * 60 * 1000;
-
-    /**
-     *
-     */
-    public GlassTest()
-    {
-        super(Application.class);
-    }
-
-    /**
-     * @throws Exception
-     */
+    @Test
     public void testInfrared() throws Exception
     {
         //setup
@@ -74,8 +66,9 @@ public class GlassTest extends ApplicationTestCase<Application>
         frame.addConsumer(log, sensorChannel, 1, 0);
         //start framework
         frame.start();
+
         //run for two minutes
-        long end = System.currentTimeMillis() + TEST_LENGTH;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)
@@ -86,6 +79,7 @@ public class GlassTest extends ApplicationTestCase<Application>
         {
             e.printStackTrace();
         }
+
         frame.stop();
         frame.release();
     }

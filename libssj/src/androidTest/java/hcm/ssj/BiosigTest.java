@@ -26,8 +26,11 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.biosig.GSRArousalEstimation;
 import hcm.ssj.core.Log;
@@ -39,22 +42,17 @@ import hcm.ssj.test.Logger;
 /**
  * Created by Michael Dietz on 15.04.2015.
  */
-public class ArousalTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class BiosigTest
 {
-	String _name = "Arousal";
-
-	public ArousalTest()
-	{
-		super(Application.class);
-	}
-
-	public void test() throws Exception {
+	@Test
+	public void testArousal() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		GSRChannel data = new GSRChannel();
 		frame.addSensor(empatica,data);
-
 
 		GSRArousalEstimation arousal = new GSRArousalEstimation();
 		frame.addTransformer(arousal, data, 0.25, 0);

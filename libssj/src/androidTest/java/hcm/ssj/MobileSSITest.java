@@ -26,9 +26,12 @@
 
 package hcm.ssj;
 
-import android.app.Application;
 import android.content.res.AssetManager;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
@@ -43,28 +46,19 @@ import static java.lang.System.loadLibrary;
  * Tests all classes in the android sensor package.<br>
  * Created by Frank Gaibler on 13.08.2015.
  */
-public class MobileSSITest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class MobileSSITest
 {
-    //test length in milliseconds
-    private final static int TEST_LENGTH = 1000 * 35;//2 * 60 * 1000;
-
     public native void startSSI(String path, AssetManager am, boolean extractFiles);
     public native void stopSSI();
 
     /**
-     *
-     */
-    public MobileSSITest()
-    {
-        super(Application.class);
-    }
-
-    /**
      * @throws Exception
      */
+    @Test
     public void testSensors() throws Exception
     {
-
         loadLibrary("ssiframe");
         loadLibrary("ssievent");
         loadLibrary("ssiioput");
@@ -73,7 +67,6 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         loadLibrary("ssisignal");
         loadLibrary("ssissjSensor");
         loadLibrary("android_xmlpipe");
-
 
         //test for every sensor type
         SensorType acc = SensorType.GYROSCOPE;
@@ -87,9 +80,6 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         sensor.options.sensorType.set(acc);
         AndroidSensor s2 = new AndroidSensor();
         s2.options.sensorType.set(mag);
-
-
-        frame.addSensor(s2);
 
         //channel
         AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
@@ -120,7 +110,7 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         mobileSSI.setSensor(sensorChannel, null, mobileSSI.getId());
         mobileSSI2.setSensor(sensorPmag, null, mobileSSI2.getId());
         //run test
-        long end = System.currentTimeMillis() + TEST_LENGTH;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)
@@ -134,9 +124,5 @@ public class MobileSSITest extends ApplicationTestCase<Application>
         stopSSI();
         frame.stop();
         frame.release();
-
-
     }
-
-
 }

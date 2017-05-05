@@ -26,10 +26,12 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 import android.util.Xml;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.xmlpull.v1.XmlPullParser;
 
 import java.io.StringReader;
@@ -38,15 +40,12 @@ import java.util.Arrays;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class UtilTest extends ApplicationTestCase<Application> {
 
-    public UtilTest() {
-        super(Application.class);
-    }
-
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class UtilTest
+{
+    @Test
     public void test() throws Exception
     {
         int[] x = new int[]{0, 2, 9, -20};
@@ -61,6 +60,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
                 throw new RuntimeException();
     }
 
+    @Test
     public void test2() throws Exception
     {
         long[] x = new long[]{0, 2, 9, -20};
@@ -75,6 +75,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
                 throw new RuntimeException();
     }
 
+    @Test
     public void test3() throws Exception
     {
         short[] x = new short[]{0, 2, 9, -20};
@@ -89,6 +90,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
                 throw new RuntimeException();
     }
 
+    @Test
     public void test4() throws Exception
     {
         int ITER = 100;
@@ -129,6 +131,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
 
     }
 
+    @Test
     public void test5() throws Exception
     {
         double[] x = new double[]{0.7985, 2, 9, -20.556999};
@@ -143,6 +146,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
                 throw new RuntimeException();
     }
 
+    @Test
     public void test6() throws Exception
     {
         char[] x = new char[]{0, 2, 9};
@@ -157,6 +161,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
                 throw new RuntimeException();
     }
 
+    @Test
     public void test7() throws Exception
     {
         boolean[] x = new boolean[]{true, false, true, true};
@@ -171,6 +176,7 @@ public class UtilTest extends ApplicationTestCase<Application> {
                 throw new RuntimeException();
     }
 
+    @Test
     public void testXmlToStr() throws Exception
     {
         String str = "<ssj><test attr=\"val\">text</test><test attr=\"val2\">text2</test></ssj>";

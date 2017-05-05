@@ -26,8 +26,11 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
@@ -42,15 +45,11 @@ import hcm.ssj.test.Logger;
 /**
  * Created by Michael Dietz on 15.04.2015.
  */
-public class EmpaticaTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class EmpaticaTest
 {
-	String _name = "Empatica";
-
-	public EmpaticaTest()
-	{
-		super(Application.class);
-	}
-
+	@Test
 	public void testAcc() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 
@@ -81,6 +80,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		Log.i("ACC test finished");
 	}
 
+	@Test
 	public void testGsr() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 
@@ -111,6 +111,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		Log.i("GSR test finished");
 	}
 
+	@Test
 	public void testIBI() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 
@@ -141,6 +142,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		Log.i("IBI test finished");
 	}
 
+	@Test
 	public void testTemp() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 
@@ -171,6 +173,7 @@ public class EmpaticaTest extends ApplicationTestCase<Application>
 		Log.i("Temp test finished");
 	}
 
+	@Test
 	public void testBVP() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 

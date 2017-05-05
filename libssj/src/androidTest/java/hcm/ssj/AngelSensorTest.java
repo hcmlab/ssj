@@ -26,38 +26,24 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.angelsensor.AngelSensor;
 import hcm.ssj.angelsensor.BVPAngelChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
-/**
- * Tests all classes in the android sensor package.<br>
- * Created by Frank Gaibler on 13.08.2015.
- */
-public class AngelSensorTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class AngelSensorTest
 {
-	//test length in milliseconds
-	private final static int TEST_LENGTH = 1000 * 300;//2 * 60 * 1000;
-
-	/**
-	 *
-	 */
-	public AngelSensorTest()
-	{
-		super(Application.class);
-	}
-
-	/**
-	 * @throws Exception
-	 */
+	@Test
 	public void testSensors() throws Exception
 	{
-		//test for every sensor type
-
 		//setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
@@ -70,10 +56,11 @@ public class AngelSensorTest extends ApplicationTestCase<Application>
 		//logger
 		Logger log = new Logger();
 		frame.addConsumer(log, sensorChannel, 1, 0);
+
 		//start framework
 		frame.start();
 		//run test
-		long end = System.currentTimeMillis() + TEST_LENGTH;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
 		try
 		{
 			while (System.currentTimeMillis() < end)
@@ -85,6 +72,7 @@ public class AngelSensorTest extends ApplicationTestCase<Application>
 		{
 			e.printStackTrace();
 		}
+
 		frame.stop();
 		frame.clear();
 	}

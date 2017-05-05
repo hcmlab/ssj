@@ -26,9 +26,12 @@
 
 package hcm.ssj;
 
-import android.app.Application;
 import android.os.Environment;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -46,26 +49,20 @@ import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.SimpleXmlParser;
 import hcm.ssj.test.Logger;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+
 /**
  * Tests all classes in the logging package.<br>
  * Created by Frank Gaibler on 09.09.2015.
  */
-public class LoggingTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class FileTest
 {
-    //test length in milliseconds
-    private final static int TEST_LENGTH = 2 * 5 * 1000;
-
-    /**
-     *
-     */
-    public LoggingTest()
-    {
-        super(Application.class);
-    }
-
     /**
      * @throws Exception
      */
+    @Test
     public void testInternalStorage() throws Exception
     {
         testWriteRead(true);
@@ -74,6 +71,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
     /**
      * @throws Exception
      */
+    @Test
     public void testExternalStorage() throws Exception
     {
         testWriteRead(false);
@@ -82,6 +80,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
     /**
      * @throws Exception
      */
+    @Test
     public void testXmlParserTag() throws Exception
     {
         String xmlString = "<?xml version=\"1.0\" ?>\n"
@@ -107,6 +106,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
     /**
      * @throws Exception
      */
+    @Test
     public void testXmlParserAttribute() throws Exception
     {
         String xmlString = "<?xml version=\"1.0\" ?>"
@@ -142,7 +142,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
      */
     private void testWriteRead(boolean internalStorage) throws Exception
     {
-        File dir = internalStorage ? getContext().getFilesDir()
+        File dir = internalStorage ? getInstrumentation().getContext().getFilesDir()
                 : Environment.getExternalStorageDirectory();
         String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
         File fileHeader = new File(dir, fileName);
@@ -188,7 +188,7 @@ public class LoggingTest extends ApplicationTestCase<Application>
         //start framework
         framework.start();
         //run for two minutes
-        long end = System.currentTimeMillis() + TEST_LENGTH;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)

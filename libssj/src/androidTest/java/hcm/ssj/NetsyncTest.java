@@ -1,5 +1,5 @@
 /*
- * testNetsyncMaster.java
+ * testNetsyncListen.java
  * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -26,8 +26,11 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
@@ -35,18 +38,71 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
-/**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
- */
-public class testNetsyncMaster extends ApplicationTestCase<Application> {
 
-    String _name = "NetyncMaster";
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class NetsyncTest {
 
-    public testNetsyncMaster() {
-        super(Application.class);
+    @Test
+    public void testListen() throws Exception
+    {
+        Pipeline frame = Pipeline.getInstance();
+        frame.options.bufferSize.set(10.0f);
+
+        frame.options.startSyncPort.set(55100);
+        frame.options.master.set("127.0.0.1");
+
+        Microphone mic = new Microphone();
+        AudioChannel audio = new AudioChannel();
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(true);
+        frame.addSensor(mic,audio);
+
+        Logger dummy = new Logger();
+        dummy.options.reduceNum.set(true);
+        frame.addConsumer(dummy, audio, 0.1, 0);
+
+//        BluetoothWriter blw = new BluetoothWriter();
+//        blw.options.connectionType = BluetoothConnection.Type.CLIENT;
+//        blw.options.serverAddr = "60:8F:5C:F2:D0:9D";
+//        blw.options.connectionName = "stream";
+//        frame.addConsumer(blw, audio, 0.1, 0);
+
+//        FloatsEventSender fes = new FloatsEventSender();
+//        frame.addConsumer(fes, audio, 1.0, 0);
+//        EventChannel ch = frame.registerEventChannel(fes);
+//
+//        BluetoothEventWriter blew = new BluetoothEventWriter();
+//        blew.options.connectionType = BluetoothConnection.Type.CLIENT;
+//        blew.options.serverAddr = "60:8F:5C:F2:D0:9D";
+//        blew.options.connectionName = "event";
+//        frame.registerEventListener(blew);
+//        frame.registerEventListener(blew, ch);
+
+        try {
+            frame.start();
+
+            long start = System.currentTimeMillis();
+            while(true)
+            {
+                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
+                    break;
+
+                Thread.sleep(1);
+            }
+
+            frame.stop();
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+
+        Log.i("test finished");
     }
 
-    public void test() throws Exception
+    @Test
+    public void testMaster() throws Exception
     {
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
@@ -70,7 +126,6 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
         audio.options.scale.set(true);
         frame.addSensor(mic,audio);
 
-
         Logger dummy = new Logger();
         dummy.options.reduceNum.set(true);
         frame.addConsumer(dummy, audio, 0.1, 0);
@@ -91,7 +146,7 @@ public class testNetsyncMaster extends ApplicationTestCase<Application> {
             long start = System.currentTimeMillis();
             while(true)
             {
-                if(System.currentTimeMillis() > start + 3 * 60 * 1000)
+                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
                     break;
 
                 Thread.sleep(1);

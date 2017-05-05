@@ -26,8 +26,11 @@
 
 package hcm.ssj;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.gps.GPSChannel;
@@ -37,22 +40,11 @@ import hcm.ssj.test.Logger;
 /**
  * Created by Michael Dietz on 05.07.2016.
  */
-public class GPSTest extends ApplicationTestCase<Application>
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class GPSTest
 {
-	// Test length in milliseconds
-	private final static int TEST_LENGTH = 2 * 60 * 1000;
-
-	/**
-	 *
-	 */
-	public GPSTest()
-	{
-		super(Application.class);
-	}
-
-	/**
-	 * @throws Exception
-	 */
+	@Test
 	public void testSensors() throws Exception
 	{
 		// Setup
@@ -61,7 +53,6 @@ public class GPSTest extends ApplicationTestCase<Application>
 
 		// Sensor
 		GPSSensor sensor = new GPSSensor();
-
 
 		// Channel
 		GPSChannel sensorChannel = new GPSChannel();
@@ -75,7 +66,7 @@ public class GPSTest extends ApplicationTestCase<Application>
 		frame.start();
 
 		// Run test
-		long end = System.currentTimeMillis() + TEST_LENGTH;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
 		try
 		{
 			while (System.currentTimeMillis() < end)
@@ -92,6 +83,4 @@ public class GPSTest extends ApplicationTestCase<Application>
 		frame.stop();
 		frame.clear();
 	}
-
-
 }

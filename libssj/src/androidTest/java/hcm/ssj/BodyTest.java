@@ -1,6 +1,6 @@
 /*
- * EstimoteBeaconTest.java
- * Copyright (c) 2017
+ * AccelerationFeaturesTest.java
+ * Copyright (c) 2016
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -29,57 +29,67 @@ package hcm.ssj;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import junit.framework.Assert;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
+import hcm.ssj.androidSensor.SensorType;
+import hcm.ssj.body.AccelerationFeatures;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.core.Provider;
-import hcm.ssj.estimote.BeaconChannel;
-import hcm.ssj.estimote.EstimoteBeacon;
-import hcm.ssj.signal.Butfilt;
-import hcm.ssj.signal.Merge;
+import hcm.ssj.file.FileWriter;
 import hcm.ssj.test.Logger;
 
-/**
- * Created by Michael Dietz on 08.03.2017.
- */
+import static android.support.test.InstrumentationRegistry.getContext;
+
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class EstimoteBeaconTest
+public class BodyTest
 {
 	@Test
-	public void testBeacons() throws Exception
+	public void testWriting() throws Exception
 	{
+		//resources
+		File dir = getContext().getFilesDir();
+		String fileName = getClass().getSimpleName() + ".test";
+		File file = new File(dir, fileName);
+		String fileName2 = getClass().getSimpleName() + "2.test";
+		File file2 = new File(dir, fileName2);
+
 		// Setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
-		frame.options.logtimeout.set(0.2);
 
 		// Sensor
-		EstimoteBeacon sensor = new EstimoteBeacon();
-		sensor.options.uuid.set("B9407F30-F5F8-466E-AFF9-25556B57FE6D");
-		sensor.options.major.set(1337);
+		AndroidSensor sensor = new AndroidSensor();
+		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 
 		// Channel
-		BeaconChannel channel = new BeaconChannel();
-		channel.options.identifier.set("B9407F30-F5F8-466E-AFF9-25556B57FE6D:1337:1000");
+		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sampleRate.set(40);
 		frame.addSensor(sensor, channel);
 
 		// Transformer
-		Butfilt filter = new Butfilt();
-		filter.options.zero.set(true);
-		filter.options.norm.set(false);
-		filter.options.low.set(0.3);
-		filter.options.order.set(1);
-		filter.options.type.set(Butfilt.Type.LOW);
-		frame.addTransformer(filter, channel, 0.2, 0);
-
-		Merge merge = new Merge();
-		frame.addTransformer(merge, new Provider[] {channel, filter}, 0.2, 0);
+		AccelerationFeatures features = new AccelerationFeatures();
+		frame.addTransformer(features, channel, 2, 2);
 
 		// Consumer
 		Logger log = new Logger();
-		frame.addConsumer(log, merge, 0.2, 0);
+		frame.addConsumer(log, features, 2, 0);
+
+		FileWriter rawWriter = new FileWriter();
+		rawWriter.options.filePath.set(dir.getAbsolutePath());
+		rawWriter.options.fileName.set(fileName);
+		frame.addConsumer(rawWriter, channel, 1, 0);
+
+		FileWriter featureWriter = new FileWriter();
+		featureWriter.options.filePath.set(dir.getAbsolutePath());
+		featureWriter.options.fileName.set(fileName2);
+		frame.addConsumer(featureWriter, features, 2, 0);
 
 		// Start framework
 		frame.start();
@@ -101,5 +111,20 @@ public class EstimoteBeaconTest
 		// Stop framework
 		frame.stop();
 		frame.clear();
+
+		//get data files
+		File data = new File(dir, fileName + "~");
+		File data2 = new File(dir, fileName + "~");
+
+		//verify
+		Assert.assertTrue(file.length() > 100);
+		Assert.assertTrue(file2.length() > 100);
+		Assert.assertTrue(data.length() > 100);
+		Assert.assertTrue(data2.length() > 100);
+
+		if(file.exists()) file.delete();
+		if(file2.exists()) file2.delete();
+		if(data.exists()) data.delete();
+		if(data2.exists()) data2.delete();
 	}
 }

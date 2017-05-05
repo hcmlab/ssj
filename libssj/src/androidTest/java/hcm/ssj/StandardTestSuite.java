@@ -1,6 +1,6 @@
 /*
- * build.gradle
- * Copyright (c) 2016
+ * StandardTestSuite.java
+ * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -24,21 +24,24 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package hcm.ssj;
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-    }
-}
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
+/**
+ * Runs all tests which do not require advanced setup (e.g. special hardware)
+ * Created by Johnny on 04.05.2017.
+ */
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+		AndroidSensorTest.class,
+		AudioTest.class,
+		BodyTest.class,
+		EventTest.class,
+		FileTest.class,
+		SignalTest.class,
+		SvmTest.class,
+		UtilTest.class})
+public class StandardTestSuite
+{}

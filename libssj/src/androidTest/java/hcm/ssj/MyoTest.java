@@ -26,104 +26,79 @@
 
 package hcm.ssj;
 
-import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
-import android.test.ApplicationTestCase;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
 
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.myo.AccelerationChannel;
 import hcm.ssj.myo.DynAccelerationChannel;
 import hcm.ssj.myo.EMGChannel;
 import hcm.ssj.myo.Vibrate2Command;
 import hcm.ssj.test.Logger;
 
+import static android.support.test.InstrumentationRegistry.getInstrumentation;
+
 /**
  * Created by Michael Dietz on 02.04.2015.
  */
-public class MyoTest extends ApplicationTestCase<Application> {
-
-    String _name = "Myo";
-
-    public MyoTest() {
-        super(Application.class);
-    }
-
-    public void testAcc() throws Exception {
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class MyoTest
+{
+    @Test
+    public void testChannels() throws Exception
+    {
+        //setup
         Pipeline frame = Pipeline.getInstance();
+        frame.options.bufferSize.set(10.0f);
+        //sensor
+        hcm.ssj.myo.Myo sensor = new hcm.ssj.myo.Myo();
 
-        hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
-        DynAccelerationChannel acc = new DynAccelerationChannel();
-        acc.options.sampleRate.set(10);
+        frame.addConsumer(new Logger(), frame.addSensor(sensor, new AccelerationChannel()), 1, 0);
+        frame.addConsumer(new Logger(), frame.addSensor(sensor, new DynAccelerationChannel()), 1, 0);
+        frame.addConsumer(new Logger(), frame.addSensor(sensor, new EMGChannel()), 1, 0);
 
-        frame.addSensor(myo,acc);
+        //start framework
+        frame.start();
 
-        Logger dummy = new Logger();
-        frame.addConsumer(dummy, acc, 0.1, 0);
-
-        try {
-            frame.start();
-
-            long start = System.currentTimeMillis();
-            while (true) {
-                if (System.currentTimeMillis() > start + 20 * 60 * 1000) {
-                    break;
-                }
-
+        //run test
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+        try
+        {
+            while (System.currentTimeMillis() < end)
+            {
                 Thread.sleep(1);
             }
-
-            frame.stop();
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
-        Log.i("ACC test finished");
-    }
 
-    public void testEmg() throws Exception {
-        Pipeline frame = Pipeline.getInstance();
-
-        hcm.ssj.myo.Myo myo = new hcm.ssj.myo.Myo();
-        EMGChannel emg = new EMGChannel();
-        emg.options.sampleRate.set(10);
-
-        frame.addSensor(myo,emg);
-
-        Logger dummy = new Logger();
-        frame.addConsumer(dummy, emg, 0.1, 0);
-
-        try {
-            frame.start();
-
-            long start = System.currentTimeMillis();
-            while (true) {
-                if (System.currentTimeMillis() > start + 10 * 1000) {
-                    break;
-                }
-
-                Thread.sleep(1);
-            }
-
-            frame.stop();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Log.i("emg test finished");
+        frame.stop();
+        frame.clear();
     }
 
     /**
      * Method to test the vibrate2-functionality of myo
      */
+    @Test
     public void testVibrate() {
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {
             public void run() {
                 final Hub hub = Hub.getInstance();
-                if (!hub.init(getContext(), getContext().getPackageName())) {
+                if (!hub.init(getInstrumentation().getContext(), getInstrumentation().getContext().getPackageName())) {
                     Log.e("error");
                 }
                 hub.setLockingPolicy(Hub.LockingPolicy.NONE);
