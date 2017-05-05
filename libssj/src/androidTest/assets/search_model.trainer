@@ -1,0 +1,39 @@
+<?xml version="1.0" ?>
+<trainer ssi-v="5">
+    <info trained="true" />
+    <streams>
+        <item byte="4" dim="104" sr="0.166667" type="FLOAT" />
+    </streams>
+    <classes>
+        <item name="Baseline" />
+        <item name="Search" />
+    </classes>
+    <users>
+        <item name="User_01" />
+        <item name="User_02" />
+        <item name="User_03" />
+        <item name="User_05" />
+        <item name="User_10" />
+        <item name="User_13" />
+        <item name="User_16" />
+        <item name="User_18" />
+        <item name="User_21" />
+        <item name="User_24" />
+        <item name="User_25" />
+        <item name="User_04" />
+        <item name="User_08" />
+        <item name="User_09" />
+        <item name="User_11" />
+        <item name="User_14" />
+        <item name="User_15" />
+        <item name="User_20" />
+        <item name="User_22" />
+        <item name="User_23" />
+        <item name="User_26" />
+        <item name="User_27" />
+    </users>
+    <select>
+        <item stream="0" size="35" select="13 100 72 98 86 42 65 16 91 99 82 76 6 21 10 47 63 26 33 88 58 30 23 36 66 78 31 11 71 15 102 4 37 28 7" />
+    </select>
+    <model create="SVM" stream="0" path="search_model.trainer.SVM" option="search_model.trainer.SVM" />
+</trainer>

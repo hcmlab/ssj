@@ -40,7 +40,6 @@ import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.AudioWriter;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
@@ -70,8 +69,6 @@ public class AudioTest
         //sensor
         Microphone microphone = new Microphone();
         AudioChannel audio = new AudioChannel();
-        audio.options.audioFormat.set(Cons.AudioFormat.ENCODING_PCM_16BIT);
-        audio.options.channelConfig.set(Cons.ChannelFormat.CHANNEL_IN_STEREO);
         audio.options.sampleRate.set(8000);
         audio.options.scale.set(true);
         frame.addSensor(microphone, audio);

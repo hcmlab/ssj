@@ -32,19 +32,23 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
-import hcm.ssj.audio.AudioChannel;
-import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.event.ThresholdEventSender;
+import hcm.ssj.file.FileReader;
+import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
+
+import static android.support.test.InstrumentationRegistry.getContext;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -94,14 +98,28 @@ public class EventTest
 
     public void testThresholds() throws Exception
     {
+        File dir = getContext().getFilesDir();
+        String fileName = "audio.stream";
+        File header = new File(dir, fileName);
+        TestHelper.copyAssetToFile(fileName, header);
+        File data = new File(dir, fileName + "~");
+        TestHelper.copyAssetToFile(fileName + "data", data); //android does not support "~" in asset files
+
+        // Setup
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
+        frame.options.countdown.set(0);
+        frame.options.log.set(true);
 
-        Microphone mic = new Microphone();
-        AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(true);
-        frame.addSensor(mic,audio);
+        // Sensor
+        FileReader file = new FileReader();
+        file.options.filePath.set(dir.getAbsolutePath());
+        file.options.fileName.set(fileName);
+        FileReaderChannel audio = new FileReaderChannel();
+        audio.options.chunk.set(0.032);
+        audio.setWatchInterval(0);
+        audio.setSyncInterval(0);
+        frame.addSensor(file, audio);
 
         Intensity energy = new Intensity();
         frame.addTransformer(energy, audio, 1.0, 0);
