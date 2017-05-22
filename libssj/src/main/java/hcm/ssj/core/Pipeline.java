@@ -113,6 +113,12 @@ public class Pipeline
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
 
+    /**
+     * Retrieve the SSJ pipeline instance.
+     * Only one SSJ pipeline instance per application is supported, yet it can contain multiple parallel branches.
+     *
+     * @return Pipeline the pipeline instance
+     */
     public static Pipeline getInstance()
     {
         if (instance == null)
@@ -121,11 +127,10 @@ public class Pipeline
         return instance;
     }
 
-    public static boolean isInstanced()
-    {
-        return instance != null;
-    }
-
+    /**
+     * Starts the SSJ pipeline.
+     * Automatically resets buffers and component states.
+     */
     public void start()
     {
         try
@@ -176,6 +181,15 @@ public class Pipeline
         }
     }
 
+    /**
+     * Adds a sensor with a corresponding channel to the pipeline and sets up the necessary output buffer.
+     * Calls init method of sensor and channel before setting up buffer.
+     *
+     * @param s the Sensor to be added
+     * @param c the corresponding channel
+     * @return the same SensorChannel which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the sensor
+     */
     public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException
     {
         s.addChannel(c);
@@ -203,12 +217,34 @@ public class Pipeline
         return c;
     }
 
+    /**
+     * Adds a transformer to the pipeline and sets up the necessary output buffer.
+     * init method of transformer is called before setting up buffer.
+     *
+     * @param t the Transformer to be added
+     * @param source the component which will provide data to the transformer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @return the Transformer which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public Provider addTransformer(Transformer t, Provider source, double frame, double delta) throws SSJException
     {
         Provider[] sources = {source};
         return addTransformer(t, sources, frame, delta);
     }
 
+    /**
+     * Adds a transformer to the pipeline and sets up the necessary output buffer.
+     * init method of transformer is called before setting up buffer.
+     *
+     * @param t the Transformer to be added
+     * @param sources the components which will provide data to the transformer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @return the Transformer which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws SSJException
     {
         t.setup(sources, frame, delta);
@@ -228,38 +264,102 @@ public class Pipeline
         return t;
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider source, double frame, double delta) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, frame, delta);
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param sources the components which will provide data to the consumer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException {
         c.setup(sources, frame, delta);
         components.add(c);
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @param channel an event channel which acts as a trigger. The consumer will only process data when an event is received.
+     *                The data window to be processed is defined by the timing information of the event.
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, channel);
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param sources the components which will provide data to the consumer
+     * @param channel an event channel which acts as a trigger. The consumer will only process data when an event is received.
+     *                The data window to be processed is defined by the timing information of the event.
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException {
         c.setup(sources);
         c.addEventChannelIn(channel);
         components.add(c);
     }
 
+    /**
+     * Registers a component as a listener to another component's events.
+     * Component is also added to the pipeline (if not already there)
+     * This component will be notified every time the "source" component pushes an event into its channel
+     *
+     * @param c the listener
+     * @param source the one being listened to
+     */
     public void registerEventListener(Component c, Component source)
     {
         registerEventListener(c, source.getEventChannelOut());
     }
 
+    /**
+     * Registers a component as a listener to a specific event channel.
+     * Component is also added to the pipeline (if not already there)
+     * This component will be notified every time a new event is pushed into the channel.
+     *
+     * @param c the listener
+     * @param channel the channel to be listened to
+     */
     public void registerEventListener(Component c, EventChannel channel)
     {
         components.add(c);
         c.addEventChannelIn(channel);
     }
 
+    /**
+     * Register a component as a listener to multiple event channels.
+     * Component is also added to the pipeline (if not already there)
+     * This component will be notified every time a new event is pushed a channel.
+     *
+     * @param c the listener
+     * @param channels the channel to be listened to
+     */
     public void registerEventListener(Component c, EventChannel[] channels)
     {
         components.add(c);
@@ -267,26 +367,20 @@ public class Pipeline
             c.addEventChannelIn(ch);
     }
 
+    /**
+     * Register a component as an event provider.
+     * Component is also added to the pipeline (if not already there)
+     *
+     * @param c the event provider
+     * @return the output channel of the component.
+     */
     public EventChannel registerEventProvider(Component c)
     {
         components.add(c);
         return c.getEventChannelOut();
     }
 
-    /**
-     * Adds an unspecific component to the framework.
-     * No initialization is performed and no buffers are allocated.
-     *
-     * @param c the component to be added
-     * @deprecated use registerEventProvider() or registerEventListener() instead
-     */
-    @Deprecated
-    public void addComponent(Component c)
-    {
-        components.add(c);
-    }
-
-    public void pushData(int buffer_id, Object data, int numBytes)
+    void pushData(int buffer_id, Object data, int numBytes)
     {
         if (!isRunning())
         {
@@ -299,7 +393,7 @@ public class Pipeline
         buffers.get(buffer_id).push(data, numBytes);
     }
 
-    public void pushZeroes(int buffer_id)
+    void pushZeroes(int buffer_id)
     {
         if (!isRunning())
         {
@@ -323,7 +417,7 @@ public class Pipeline
         }
     }
 
-    public void pushZeroes(int buffer_id, int num)
+    void pushZeroes(int buffer_id, int num)
     {
         if (!isRunning())
         {
@@ -336,7 +430,7 @@ public class Pipeline
         buffers.get(buffer_id).pushZeroes(num);
     }
 
-    public boolean getData(int buffer_id, Object data, double start_time, double duration)
+    boolean getData(int buffer_id, Object data, double start_time, double duration)
     {
         if (!isRunning)
         {
@@ -378,7 +472,7 @@ public class Pipeline
         return true;
     }
 
-    public boolean getData(int buffer_id, Object data, int startSample, int numSamples)
+    boolean getData(int buffer_id, Object data, int startSample, int numSamples)
     {
         if (!isRunning)
         {
@@ -423,6 +517,11 @@ public class Pipeline
         return true;
     }
 
+    /**
+     * Stops the pipeline.
+     * Closes all buffers and shuts down all components.
+     * Also writes log file to sd card (if configured).
+     */
     public void stop()
     {
         if (isStopping)
@@ -473,7 +572,7 @@ public class Pipeline
     }
 
     /**
-     * Invalidates framework instance and clear all local content
+     * Invalidates framework instance and clears all local content
      */
     public void release()
     {
@@ -488,7 +587,7 @@ public class Pipeline
     }
 
     /**
-     * Clears all local references but does not invalidate instance
+     * Clears all buffers, components and internal pipeline state, but does not invalidate instance.
      */
     public void clear()
     {
@@ -507,6 +606,9 @@ public class Pipeline
         startTime = 0;
     }
 
+    /**
+     * Resets pipeline "create" timestamp
+     */
     public void resetCreateTime()
     {
         createTime = System.currentTimeMillis();
@@ -520,7 +622,7 @@ public class Pipeline
         }
     }
 
-    public void crash(String location, String message, Throwable e)
+    void crash(String location, String message, Throwable e)
     {
         isRunning = false;
 
@@ -536,7 +638,7 @@ public class Pipeline
         }
     }
 
-    public void sync(int bufferID)
+    void sync(int bufferID)
     {
         if (!isRunning())
             return;
@@ -545,7 +647,7 @@ public class Pipeline
     }
 
     /**
-     * @return elapsed time since start of the pipeline
+     * @return elapsed time since start of the pipeline (in seconds)
      */
     public double getTime()
     {
@@ -553,7 +655,7 @@ public class Pipeline
     }
 
     /**
-     * @return elapsed time since start of the pipeline
+     * @return elapsed time since start of the pipeline (in milliseconds)
      */
     public long getTimeMs()
     {
@@ -577,28 +679,52 @@ public class Pipeline
     }
 
     /**
-     * @return system time at which the framework was created
+     * @return system time at which the pipeline instance was created.
+     * Timestamp can be modified using "resetCreateTime()"
      */
     public long getCreateTimeMs()
     {
         return createTime;
     }
 
+    /**
+     * @return true if SSJ has already been instanced, false otherwise
+     */
+    public static boolean isInstanced()
+    {
+        return instance != null;
+    }
+
+    /**
+     * @return true if pipeline is running, false otherwise
+     */
     public boolean isRunning()
     {
         return isRunning;
     }
 
+    /**
+     * @return true if pipeline shut down has been initiated, false otherwise
+     */
     public boolean isStopping()
     {
         return isStopping;
     }
 
+    /**
+     * @return current SSJ version
+     */
     public String getVersion()
     {
         return BuildConfig.VERSION_NAME;
     }
 
+    /**
+     * Sets a handler for SSJ errors and crashes.
+     * The handler is notified every time an SSJException happens at runtime.
+     *
+     * @param h a class which implements the ExceptionHandler interface
+     */
     public void setExceptionHandler(ExceptionHandler h)
     {
         exceptionHandler = h;
