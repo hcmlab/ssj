@@ -42,32 +42,39 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.file.LoggingConstants;
 
 /**
- * Created by Johnny on 05.03.2015.
+ * Main class for creating and interfacing with SSJ pipelines.
+ * Holds logic responsible for the setup and execution of pipelines.
  */
 public class Pipeline
 {
 
     public class Options extends OptionList
     {
-        public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "");
-        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "");
+		/** duration of pipeline start-up phase. Default: 3 */
+        public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "duration of pipeline start-up phase");
+		/** size of all inter-component buffers (in seconds). Default: 2.0 */
+        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "size of all inter-component buffers (in seconds)");
+		/** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
+		/** How long to wait for a sensor to connect. Default: 5.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
-
+		/** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
-
+		/** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
         public final Option<Integer> startSyncPort = new Option<>("startSyncPort", 0, Integer.class, "set port for synchronizing pipeline start over network (0 = disabled)"); //55100
+		/** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
         public final Option<Integer> clockSyncPort = new Option<>("clockSyncPort", 0, Integer.class, "set port for synchronizing pipeline clock over network (0 = disabled)"); //55101
+		/** define time between clock sync attempts. Default: 1.0 */
         public final Option<Float> clockSyncInterval = new Option<>("clockSyncInterval", 1.0f, Float.class, "define time between clock sync attempts");
-
+		/** write system log to file. Default: false */
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
+		/** location of log file. Default: /sdcard/SSJ/[time] */
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
+		/** show all logs >= level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
+		/** ignore repeated entries < timeout. Default: 5.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
 
-        /**
-         *
-         */
         private Options()
         {
             addOptions();
@@ -76,26 +83,23 @@ public class Pipeline
 
     public final Options options = new Options();
 
-    protected String _name = "SSJ_Framework";
-    protected boolean _isRunning = false;
-    protected boolean _isStopping = false;
+    protected String name = "SSJ_Framework";
+    protected boolean isRunning = false;
+    protected boolean isStopping = false;
 
-    private long _startTime = 0; //virtual clock
-    private long _startTimeSystem = 0; //real clock
-    private long _createTime = 0; //real clock
-    private long _timeOffset = 0;
-    private ClockSync _clockSync;
+    private long startTime = 0; //virtual clock
+    private long startTimeSystem = 0; //real clock
+    private long createTime = 0; //real clock
+    private long timeOffset = 0;
+    private ClockSync clockSync;
 
-    ThreadPool _threadPool;
-    ExceptionHandler _exceptionHandler = null;
+    ThreadPool threadPool;
+    ExceptionHandler exceptionHandler = null;
 
-    //components
-    protected HashSet<Component> _components = new HashSet<>();
+    private HashSet<Component> components = new HashSet<>();
+	private ArrayList<TimeBuffer> buffers = new ArrayList<>();
 
-    //buffers
-    protected ArrayList<TimeBuffer> _buffer = new ArrayList<>();
-
-    protected static Pipeline _instance = null;
+    protected static Pipeline instance = null;
 
     private Pipeline()
     {
@@ -104,22 +108,22 @@ public class Pipeline
         resetCreateTime();
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
-        _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+        threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
 
     public static Pipeline getInstance()
     {
-        if (_instance == null)
-            _instance = new Pipeline();
+        if (instance == null)
+            instance = new Pipeline();
 
-        return _instance;
+        return instance;
     }
 
     public static boolean isInstanced()
     {
-        return _instance != null;
+        return instance != null;
     }
 
     public void start()
@@ -131,14 +135,14 @@ public class Pipeline
                   "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
 
             Log.i("preparing buffers");
-            for (TimeBuffer b : _buffer)
+            for (TimeBuffer b : buffers)
                 b.reset();
 
-            for (Component c : _components)
+            for (Component c : components)
             {
                 Log.i("starting " + c.getComponentName());
                 c.reset();
-                _threadPool.execute(c);
+                threadPool.execute(c);
             }
 
             for (int i = 0; i < options.countdown.get(); i++)
@@ -155,15 +159,15 @@ public class Pipeline
                     ClockSync.listenForStartSignal(options.startSyncPort.get());
             }
 
-            _startTimeSystem = System.currentTimeMillis();
-            _startTime = SystemClock.elapsedRealtime();
-            _isRunning = true;
+            startTimeSystem = System.currentTimeMillis();
+            startTime = SystemClock.elapsedRealtime();
+            isRunning = true;
             Log.i("pipeline started");
 
             //start clock sync
             if (options.clockSyncPort.get() != 0) {
-                _clockSync = new ClockSync(options.master.get() == null, InetAddress.getByName(options.master.get()), options.clockSyncPort.get(), (int)(options.clockSyncInterval.get() * 1000));
-                _threadPool.execute(_clockSync);
+                clockSync = new ClockSync(options.master.get() == null, InetAddress.getByName(options.master.get()), options.clockSyncPort.get(), (int)(options.clockSyncInterval.get() * 1000));
+                threadPool.execute(clockSync);
             }
         }
         catch (Exception e)
@@ -187,14 +191,14 @@ public class Pipeline
 
         //add output buffer
         TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, c);
-        _buffer.add(buf);
-        int buffer_id = _buffer.size() - 1;
+        buffers.add(buf);
+        int buffer_id = buffers.size() - 1;
         c.setBufferID(buffer_id);
 
         c.setup();
 
-        _components.add(s);
-        _components.add(c);
+        components.add(s);
+        components.add(c);
 
         return c;
     }
@@ -216,11 +220,11 @@ public class Pipeline
 
         //add output buffer
         TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, t);
-        _buffer.add(buf);
-        int buffer_id = _buffer.size() - 1;
+        buffers.add(buf);
+        int buffer_id = buffers.size() - 1;
         t.setBufferID(buffer_id);
 
-        _components.add(t);
+        components.add(t);
         return t;
     }
 
@@ -231,7 +235,7 @@ public class Pipeline
 
     public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException {
         c.setup(sources, frame, delta);
-        _components.add(c);
+        components.add(c);
     }
 
     public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException {
@@ -242,7 +246,7 @@ public class Pipeline
     public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException {
         c.setup(sources);
         c.addEventChannelIn(channel);
-        _components.add(c);
+        components.add(c);
     }
 
     public void registerEventListener(Component c, Component source)
@@ -252,20 +256,20 @@ public class Pipeline
 
     public void registerEventListener(Component c, EventChannel channel)
     {
-        _components.add(c);
+        components.add(c);
         c.addEventChannelIn(channel);
     }
 
     public void registerEventListener(Component c, EventChannel[] channels)
     {
-        _components.add(c);
+        components.add(c);
         for(EventChannel ch : channels)
             c.addEventChannelIn(ch);
     }
 
     public EventChannel registerEventProvider(Component c)
     {
-        _components.add(c);
+        components.add(c);
         return c.getEventChannelOut();
     }
 
@@ -279,7 +283,7 @@ public class Pipeline
     @Deprecated
     public void addComponent(Component c)
     {
-        _components.add(c);
+        components.add(c);
     }
 
     public void pushData(int buffer_id, Object data, int numBytes)
@@ -289,10 +293,10 @@ public class Pipeline
             return;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
-        _buffer.get(buffer_id).push(data, numBytes);
+        buffers.get(buffer_id).push(data, numBytes);
     }
 
     public void pushZeroes(int buffer_id)
@@ -302,10 +306,10 @@ public class Pipeline
             return;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
-        TimeBuffer buf = _buffer.get(buffer_id);
+        TimeBuffer buf = buffers.get(buffer_id);
 
         double frame_time = getTime();
         double buffer_time = buf.getLastWrittenSampleTime();
@@ -326,23 +330,23 @@ public class Pipeline
             return;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
-        _buffer.get(buffer_id).pushZeroes(num);
+        buffers.get(buffer_id).pushZeroes(num);
     }
 
     public boolean getData(int buffer_id, Object data, double start_time, double duration)
     {
-        if (!_isRunning)
+        if (!isRunning)
         {
             return false;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot read from buffer " + buffer_id + ". Buffer does not exist.");
 
-        TimeBuffer buf = _buffer.get(buffer_id);
+        TimeBuffer buf = buffers.get(buffer_id);
         int res = buf.get(data, start_time, duration);
 
         switch (res)
@@ -366,7 +370,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown error occurred");
                 return false;
         }
@@ -376,15 +380,15 @@ public class Pipeline
 
     public boolean getData(int buffer_id, Object data, int startSample, int numSamples)
     {
-        if (!_isRunning)
+        if (!isRunning)
         {
             return false;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("Invalid buffer");
 
-        TimeBuffer buf = _buffer.get(buffer_id);
+        TimeBuffer buf = buffers.get(buffer_id);
         int res = buf.get(data, startSample, numSamples);
 
         switch (res)
@@ -411,7 +415,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown buffer error occurred");
                 return false;
         }
@@ -421,22 +425,22 @@ public class Pipeline
 
     public void stop()
     {
-        if (_isStopping)
+        if (isStopping)
             return;
 
-        _isStopping = true;
-        _isRunning = false;
+        isStopping = true;
+        isRunning = false;
 
         Log.i("stopping pipeline" + '\n' +
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
         try
         {
             Log.i("closing buffer");
-            for (TimeBuffer b : _buffer)
+            for (TimeBuffer b : buffers)
                 b.close();
 
             Log.i("closing components");
-            for (Component c : _components)
+            for (Component c : components)
             {
                 Log.i("closing " + c.getComponentName());
                 //try to close everything individually to free each sensor
@@ -450,21 +454,21 @@ public class Pipeline
             }
 
             Log.i("waiting for components to terminate");
-            _threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
+            threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
 
             Log.i("shut down completed");
         } catch (Exception e)
         {
             Log.e("Exception in closing framework", e);
 
-            if (_exceptionHandler != null)
-                _exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
+            if (exceptionHandler != null)
+                exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
             else
                 throw new RuntimeException(e);
         } finally
         {
             writeLogFile();
-            _isStopping = false;
+            isStopping = false;
         }
     }
 
@@ -480,7 +484,7 @@ public class Pipeline
         }
 
         clear();
-        _instance = null;
+        instance = null;
     }
 
     /**
@@ -494,18 +498,18 @@ public class Pipeline
             return;
         }
 
-        for (Component c : _components)
+        for (Component c : components)
             c.clear();
 
-        _components.clear();
-        _buffer.clear();
+        components.clear();
+        buffers.clear();
         Log.getInstance().clear();
-        _startTime = 0;
+        startTime = 0;
     }
 
     public void resetCreateTime()
     {
-        _createTime = System.currentTimeMillis();
+        createTime = System.currentTimeMillis();
     }
 
     private void writeLogFile()
@@ -518,14 +522,14 @@ public class Pipeline
 
     public void crash(String location, String message, Throwable e)
     {
-        _isRunning = false;
+        isRunning = false;
 
         Log.e(location, message, e);
         writeLogFile();
 
-        if (_exceptionHandler != null)
+        if (exceptionHandler != null)
         {
-            _exceptionHandler.handle(location, message, e);
+            exceptionHandler.handle(location, message, e);
         } else
         {
             throw new RuntimeException(e);
@@ -537,7 +541,7 @@ public class Pipeline
         if (!isRunning())
             return;
 
-        _buffer.get(bufferID).sync(getTime());
+        buffers.get(bufferID).sync(getTime());
     }
 
     /**
@@ -553,15 +557,15 @@ public class Pipeline
      */
     public long getTimeMs()
     {
-        if (_startTime == 0)
+        if (startTime == 0)
             return 0;
 
-        return SystemClock.elapsedRealtime() - _startTime + _timeOffset;
+        return SystemClock.elapsedRealtime() - startTime + timeOffset;
     }
 
     void adjustTime(long offset)
     {
-        _timeOffset += offset;
+        timeOffset += offset;
     }
 
     /**
@@ -569,7 +573,7 @@ public class Pipeline
      */
     public long getStartTimeMs()
     {
-        return _startTimeSystem;
+        return startTimeSystem;
     }
 
     /**
@@ -577,17 +581,17 @@ public class Pipeline
      */
     public long getCreateTimeMs()
     {
-        return _createTime;
+        return createTime;
     }
 
     public boolean isRunning()
     {
-        return _isRunning;
+        return isRunning;
     }
 
     public boolean isStopping()
     {
-        return _isStopping;
+        return isStopping;
     }
 
     public String getVersion()
@@ -597,6 +601,6 @@ public class Pipeline
 
     public void setExceptionHandler(ExceptionHandler h)
     {
-        _exceptionHandler = h;
+        exceptionHandler = h;
     }
 }
