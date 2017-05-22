@@ -1,6 +1,6 @@
 /*
- * Model.java
- * Copyright (c) 2016
+ * TensorFlowModel.java
+ * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -27,69 +27,88 @@
 package hcm.ssj.ml;
 
 import java.io.File;
+import java.io.FileInputStream;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
+import org.tensorflow.Tensor;
+import org.tensorflow.Graph;
+import org.tensorflow.Session;
+
 /**
- * Generic model for machine learning
- * Created by Ionut Damian on 10.10.2016.
+ * Created by hiwi on 19.05.2017.
  */
-public abstract class Model {
 
-    protected String _name = "Model";
-    protected boolean _isTrained = false;
+public class TensorFlowModel extends Model
+{
+	private final String DEBUG_TAG = "TF_MODEL_LOAD";
 
-    public static Model create(String name)
-    {
-        if(name.compareToIgnoreCase("NaiveBayes") == 0)
-            return new NaiveBayes();
-        else if (name.compareToIgnoreCase("SVM") == 0)
-            return new SVM();
-        else if (name.compareToIgnoreCase("PythonModel") == 0)
-            return new TensorFlowModel();
+	static
+	{
+		System.loadLibrary("tensorflow_inference");
+	}
 
-        Log.e("unknown model");
-        return null;
-    }
+	protected float[] forward(Stream[] stream)
+	{
+		return null;
+	}
 
+	@Override
+	void train(Stream[] stream)
+	{
+		Log.e("training not supported yet");
+	}
 
-    public String getName()
-    {
-        return _name;
-    }
+	protected void loadOption(File file)
+	{
+		// Empty implementation
+	}
 
-    /**
-     * @param stream Stream
-     * @return double[]
-     */
-    abstract float[] forward(Stream[] stream);
+	@Override
+	void save(File file)
+	{
+		Log.e("saving not supported yet");
+	}
 
-    /**
-     * @param stream Stream
-     * @return double[]
-     */
-    abstract void train(Stream[] stream);
+	@Override
+	int getNumClasses()
+	{
+		return 0;
+	}
 
-    /**
-     * Load data from model file
-     */
-    abstract void load(File file);
+	@Override
+	String[] getClassNames()
+	{
+		return null;
+	}
 
-    /**
-     * Load data from option file
-     */
-    abstract void loadOption(File file);
+	protected void load(File file)
+	{
+		FileInputStream fileInputStream;
+		byte[] fileBytes = new byte[(int) file.length()];
 
-    /**
-     * Load data from model file
-     */
-    abstract void save(File file);
+		try
+		{
+			fileInputStream = new FileInputStream(file);
+			fileInputStream.read(fileBytes);
+			fileInputStream.close();
+		}
+		catch (Exception e)
+		{
+			Log.e("TF_MODEL_LOAD", e.getMessage());
+			return;
+		}
 
-    public boolean isTrained() {
-        return _isTrained;
-    }
-
-    abstract int getNumClasses();
-    abstract String[] getClassNames();
+		try
+		{
+			Graph g = new Graph();
+			g.importGraphDef(fileBytes);
+			Session sess = new Session(g);
+			Log.d("TF_MODEL_LOAD", sess.toString());
+		} catch (Exception e)
+		{
+			Log.e("TF_MODEL_LOAD", e.getMessage());
+		}
+	}
 }
