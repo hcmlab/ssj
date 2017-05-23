@@ -32,7 +32,6 @@ import java.io.FileInputStream;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
-import org.tensorflow.Tensor;
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 
@@ -42,7 +41,11 @@ import org.tensorflow.Session;
 
 public class TensorFlowModel extends Model
 {
-	private final String DEBUG_TAG = "TF_MODEL_LOAD";
+	private Graph modelGraph;
+	private Session session;
+
+	private int classNum;
+	private String[] classNames;
 
 	static
 	{
@@ -74,13 +77,23 @@ public class TensorFlowModel extends Model
 	@Override
 	int getNumClasses()
 	{
-		return 0;
+		return classNum;
+	}
+
+	public void setNumClasses(int classNum)
+	{
+		this.classNum = classNum;
 	}
 
 	@Override
 	String[] getClassNames()
 	{
-		return null;
+		return classNames;
+	}
+
+	public void setClassNames(String[] classNames)
+	{
+		this.classNames = classNames;
 	}
 
 	protected void load(File file)
@@ -93,22 +106,17 @@ public class TensorFlowModel extends Model
 			fileInputStream = new FileInputStream(file);
 			fileInputStream.read(fileBytes);
 			fileInputStream.close();
+
+			modelGraph = new Graph();
+			modelGraph.importGraphDef(fileBytes);
+			session = new Session(modelGraph);
 		}
 		catch (Exception e)
 		{
-			Log.e("TF_MODEL_LOAD", e.getMessage());
+			Log.e("Error while importing the model: " + e.getMessage());
 			return;
 		}
 
-		try
-		{
-			Graph g = new Graph();
-			g.importGraphDef(fileBytes);
-			Session sess = new Session(g);
-			Log.d("TF_MODEL_LOAD", sess.toString());
-		} catch (Exception e)
-		{
-			Log.e("TF_MODEL_LOAD", e.getMessage());
-		}
+		_isTrained = true;
 	}
 }

@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+import java.util.ArrayList;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
@@ -84,6 +86,9 @@ public class ClassifierT extends Transformer
     private float sr = 0;
     private Cons.Type type = Cons.Type.UNDEF;
 
+    private int classNum = 0;
+    private ArrayList<String> classNames = new ArrayList<String>();
+
     /**
      *
      */
@@ -123,7 +128,6 @@ public class ClassifierT extends Transformer
         }
 
         while (parser.next() != XmlPullParser.END_DOCUMENT) {
-
             //STREAM
             if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams")) {
 
@@ -134,6 +138,22 @@ public class ClassifierT extends Transformer
                     dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
                     sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
                     type = Cons.Type.valueOf(parser.getAttributeValue(null, "type"));
+                }
+            }
+
+            // CLASS
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("classes"))
+            {
+                parser.nextTag();
+
+                while (parser.getName().equalsIgnoreCase("item"))
+                {
+                    if (parser.getEventType() == XmlPullParser.START_TAG)
+                    {
+                        classNum++;
+                        classNames.add(parser.getAttributeValue(null, "name"));
+                    }
+                    parser.nextTag();
                 }
             }
 
@@ -160,7 +180,15 @@ public class ClassifierT extends Transformer
             //MODEL
             else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
             {
-                _model = Model.create(parser.getAttributeValue(null, "create"));
+                String modelName = parser.getAttributeValue(null, "create");
+                _model = Model.create(modelName);
+
+                if (modelName.equalsIgnoreCase("PythonModel"))
+                {
+                    ((TensorFlowModel) _model).setNumClasses(classNum);
+                    ((TensorFlowModel) _model).setClassNames(classNames.toArray(new String[0]));
+                }
+
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
                 _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
