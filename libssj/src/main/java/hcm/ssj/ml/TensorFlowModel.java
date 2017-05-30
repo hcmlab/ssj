@@ -28,12 +28,15 @@ package hcm.ssj.ml;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.FloatBuffer;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
+import org.tensorflow.Tensor;
 
 /**
  * Created by hiwi on 19.05.2017.
@@ -54,7 +57,44 @@ public class TensorFlowModel extends Model
 
 	protected float[] forward(Stream[] stream)
 	{
-		return null;
+		if (stream.length != 1)
+		{
+			Log.w("only one input stream currently supported, consider using merge");
+			return null;
+		}
+		if (!_isTrained)
+		{
+			Log.w("not trained");
+			return null;
+		}
+		if (stream[0].type != Cons.Type.FLOAT) {
+			Log.w ("invalid stream type");
+			return null;
+		}
+
+		float[] ptr = stream[0].ptrF();
+
+		FloatBuffer fb = FloatBuffer.allocate(stream[0].dim);
+
+		for (float f : ptr)
+			fb.put(f);
+		fb.rewind();
+
+		Tensor inputTensor = Tensor.create(new long[] {stream[0].num, stream[0].dim}, fb);
+		Tensor resultTensor = session.runner()
+				.feed("input/x", inputTensor)
+				.fetch("Wx_plus_b/output")
+				.run().get(0);
+
+		float[][] probabilities = new float[1][classNum];
+		resultTensor.copyTo(probabilities);
+
+		for (int i = 0; i < probabilities[0].length; i++)
+		{
+			Log.d("TF_FORWARD", classNames[i] + " -> " + probabilities[0][i]);
+		}
+
+		return probabilities[0];
 	}
 
 	@Override

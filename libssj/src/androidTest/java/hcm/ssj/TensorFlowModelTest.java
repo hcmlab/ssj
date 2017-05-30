@@ -42,6 +42,7 @@ import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.ml.ClassifierT;
 import hcm.ssj.signal.Functionals;
+import hcm.ssj.signal.MvgNorm;
 import hcm.ssj.signal.Selector;
 import hcm.ssj.test.Logger;
 
@@ -74,11 +75,8 @@ public class TensorFlowModelTest
 		reader.options.fileName.set("mouse.stream");
 		SensorChannel mouse = frame.addSensor(reader, new FileReaderChannel());
 
-		Selector sel = new Selector();
-		sel.options.values.set(new int[]{0});
-		frame.addTransformer(sel, mouse, 0.1, 0);
-
 		Functionals functionals = new Functionals();
+		/*
 		functionals.options.energy.set(false);
 		functionals.options.len.set(false);
 		functionals.options.maxPos.set(false);
@@ -88,14 +86,19 @@ public class TensorFlowModelTest
 		functionals.options.range.set(false);
 		functionals.options.std.set(false);
 		functionals.options.zeros.set(false);
+		*/
+		frame.addTransformer(functionals, mouse, 2.0, 0);
 
-		frame.addTransformer(functionals, sel, 2.0, 0);
+		MvgNorm norm = new MvgNorm();
+		norm.options.norm.set(MvgNorm.Norm.MIN_MAX);
+		norm.options.windowSize.set(30f);
+		frame.addTransformer(norm, functionals, 2.0, 0);
 
 		// TensorFlowModel
 		ClassifierT classifier = new ClassifierT();
 		classifier.options.trainerPath.set(dir.getAbsolutePath());
 		classifier.options.trainerFile.set(modelName);
-		frame.addTransformer(classifier, functionals, 2, 0);
+		frame.addTransformer(classifier, norm, 2, 0);
 
 		// Consumer
 		Logger log = new Logger();
@@ -105,7 +108,7 @@ public class TensorFlowModelTest
 		frame.start();
 
 		// Run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_LONG;
 		try
 		{
 			while (System.currentTimeMillis() < end)
