@@ -29,8 +29,6 @@ package hcm.ssj;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
-import junit.framework.Assert;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,7 +41,6 @@ import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.ml.ClassifierT;
 import hcm.ssj.signal.Functionals;
 import hcm.ssj.signal.MvgNorm;
-import hcm.ssj.signal.Selector;
 import hcm.ssj.test.Logger;
 
 import static android.support.test.InstrumentationRegistry.getContext;
@@ -53,7 +50,7 @@ import static android.support.test.InstrumentationRegistry.getContext;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class TensorFlowModelTest
+public class TensorFlowTest
 {
 	@Test
 	public void TensorFlowModelTest() throws Exception

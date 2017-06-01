@@ -26,6 +26,10 @@
 
 package hcm.ssj.ml;
 
+import org.tensorflow.Graph;
+import org.tensorflow.Session;
+import org.tensorflow.Tensor;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
@@ -34,15 +38,15 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
-import org.tensorflow.Graph;
-import org.tensorflow.Session;
-import org.tensorflow.Tensor;
-
 /**
- * Created by hiwi on 19.05.2017.
+ * TensorFlow model.
+ * Supports prediction using tensor flow's Android API.
+ * Requires pre-trained frozen graph, e.g. using SSI.
+ *
+ * @author Vitaly Krumins
  */
 
-public class TensorFlowModel extends Model
+public class TensorFlow extends Model
 {
 	private Graph modelGraph;
 	private Session session;

@@ -34,7 +34,6 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-
 import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
@@ -185,8 +184,8 @@ public class ClassifierT extends Transformer
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
-                    ((TensorFlowModel) _model).setNumClasses(classNum);
-                    ((TensorFlowModel) _model).setClassNames(classNames.toArray(new String[0]));
+                    ((TensorFlow) _model).setNumClasses(classNum);
+                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
                 }
 
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
