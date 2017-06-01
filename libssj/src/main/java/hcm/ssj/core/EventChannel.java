@@ -149,7 +149,7 @@ public class EventChannel {
 
             // Notify event listeners
             for (final EventListener listener : _listeners) {
-                _frame._threadPool.execute(new Runnable() {
+                _frame.threadPool.execute(new Runnable() {
                     @Override
                     public void run() {
                         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ev" + ev.id + listener.toString());

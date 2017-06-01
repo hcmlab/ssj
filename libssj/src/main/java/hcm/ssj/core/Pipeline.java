@@ -42,32 +42,39 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.file.LoggingConstants;
 
 /**
- * Created by Johnny on 05.03.2015.
+ * Main class for creating and interfacing with SSJ pipelines.
+ * Holds logic responsible for the setup and execution of pipelines.
  */
 public class Pipeline
 {
 
     public class Options extends OptionList
     {
-        public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "");
-        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "");
+		/** duration of pipeline start-up phase. Default: 3 */
+        public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "duration of pipeline start-up phase");
+		/** size of all inter-component buffers (in seconds). Default: 2.0 */
+        public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "size of all inter-component buffers (in seconds)");
+		/** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
+		/** How long to wait for a sensor to connect. Default: 5.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
-
+		/** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
-
+		/** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
         public final Option<Integer> startSyncPort = new Option<>("startSyncPort", 0, Integer.class, "set port for synchronizing pipeline start over network (0 = disabled)"); //55100
+		/** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
         public final Option<Integer> clockSyncPort = new Option<>("clockSyncPort", 0, Integer.class, "set port for synchronizing pipeline clock over network (0 = disabled)"); //55101
+		/** define time between clock sync attempts. Default: 1.0 */
         public final Option<Float> clockSyncInterval = new Option<>("clockSyncInterval", 1.0f, Float.class, "define time between clock sync attempts");
-
+		/** write system log to file. Default: false */
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
+		/** location of log file. Default: /sdcard/SSJ/[time] */
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
+		/** show all logs >= level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
+		/** ignore repeated entries < timeout. Default: 5.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
 
-        /**
-         *
-         */
         private Options()
         {
             addOptions();
@@ -76,26 +83,23 @@ public class Pipeline
 
     public final Options options = new Options();
 
-    protected String _name = "SSJ_Framework";
-    protected boolean _isRunning = false;
-    protected boolean _isStopping = false;
+    protected String name = "SSJ_Framework";
+    protected boolean isRunning = false;
+    protected boolean isStopping = false;
 
-    private long _startTime = 0; //virtual clock
-    private long _startTimeSystem = 0; //real clock
-    private long _createTime = 0; //real clock
-    private long _timeOffset = 0;
-    private ClockSync _clockSync;
+    private long startTime = 0; //virtual clock
+    private long startTimeSystem = 0; //real clock
+    private long createTime = 0; //real clock
+    private long timeOffset = 0;
+    private ClockSync clockSync;
 
-    ThreadPool _threadPool;
-    ExceptionHandler _exceptionHandler = null;
+    ThreadPool threadPool;
+    ExceptionHandler exceptionHandler = null;
 
-    //components
-    protected HashSet<Component> _components = new HashSet<>();
+    private HashSet<Component> components = new HashSet<>();
+	private ArrayList<TimeBuffer> buffers = new ArrayList<>();
 
-    //buffers
-    protected ArrayList<TimeBuffer> _buffer = new ArrayList<>();
-
-    protected static Pipeline _instance = null;
+    protected static Pipeline instance = null;
 
     private Pipeline()
     {
@@ -104,24 +108,29 @@ public class Pipeline
         resetCreateTime();
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
-        _threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+        threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
 
+    /**
+     * Retrieve the SSJ pipeline instance.
+     * Only one SSJ pipeline instance per application is supported, yet it can contain multiple parallel branches.
+     *
+     * @return Pipeline the pipeline instance
+     */
     public static Pipeline getInstance()
     {
-        if (_instance == null)
-            _instance = new Pipeline();
+        if (instance == null)
+            instance = new Pipeline();
 
-        return _instance;
+        return instance;
     }
 
-    public static boolean isInstanced()
-    {
-        return _instance != null;
-    }
-
+    /**
+     * Starts the SSJ pipeline.
+     * Automatically resets buffers and component states.
+     */
     public void start()
     {
         try
@@ -131,14 +140,14 @@ public class Pipeline
                   "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
 
             Log.i("preparing buffers");
-            for (TimeBuffer b : _buffer)
+            for (TimeBuffer b : buffers)
                 b.reset();
 
-            for (Component c : _components)
+            for (Component c : components)
             {
                 Log.i("starting " + c.getComponentName());
                 c.reset();
-                _threadPool.execute(c);
+                threadPool.execute(c);
             }
 
             for (int i = 0; i < options.countdown.get(); i++)
@@ -155,15 +164,15 @@ public class Pipeline
                     ClockSync.listenForStartSignal(options.startSyncPort.get());
             }
 
-            _startTimeSystem = System.currentTimeMillis();
-            _startTime = SystemClock.elapsedRealtime();
-            _isRunning = true;
+            startTimeSystem = System.currentTimeMillis();
+            startTime = SystemClock.elapsedRealtime();
+            isRunning = true;
             Log.i("pipeline started");
 
             //start clock sync
             if (options.clockSyncPort.get() != 0) {
-                _clockSync = new ClockSync(options.master.get() == null, InetAddress.getByName(options.master.get()), options.clockSyncPort.get(), (int)(options.clockSyncInterval.get() * 1000));
-                _threadPool.execute(_clockSync);
+                clockSync = new ClockSync(options.master.get() == null, InetAddress.getByName(options.master.get()), options.clockSyncPort.get(), (int)(options.clockSyncInterval.get() * 1000));
+                threadPool.execute(clockSync);
             }
         }
         catch (Exception e)
@@ -172,6 +181,15 @@ public class Pipeline
         }
     }
 
+    /**
+     * Adds a sensor with a corresponding channel to the pipeline and sets up the necessary output buffer.
+     * Calls init method of sensor and channel before setting up buffer.
+     *
+     * @param s the Sensor to be added
+     * @param c the corresponding channel
+     * @return the same SensorChannel which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the sensor
+     */
     public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException
     {
         s.addChannel(c);
@@ -187,24 +205,46 @@ public class Pipeline
 
         //add output buffer
         TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, c);
-        _buffer.add(buf);
-        int buffer_id = _buffer.size() - 1;
+        buffers.add(buf);
+        int buffer_id = buffers.size() - 1;
         c.setBufferID(buffer_id);
 
         c.setup();
 
-        _components.add(s);
-        _components.add(c);
+        components.add(s);
+        components.add(c);
 
         return c;
     }
 
+    /**
+     * Adds a transformer to the pipeline and sets up the necessary output buffer.
+     * init method of transformer is called before setting up buffer.
+     *
+     * @param t the Transformer to be added
+     * @param source the component which will provide data to the transformer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @return the Transformer which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public Provider addTransformer(Transformer t, Provider source, double frame, double delta) throws SSJException
     {
         Provider[] sources = {source};
         return addTransformer(t, sources, frame, delta);
     }
 
+    /**
+     * Adds a transformer to the pipeline and sets up the necessary output buffer.
+     * init method of transformer is called before setting up buffer.
+     *
+     * @param t the Transformer to be added
+     * @param sources the components which will provide data to the transformer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @return the Transformer which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws SSJException
     {
         t.setup(sources, frame, delta);
@@ -216,96 +256,154 @@ public class Pipeline
 
         //add output buffer
         TimeBuffer buf = new TimeBuffer(options.bufferSize.get(), sr, dim, bytesPerValue, type, t);
-        _buffer.add(buf);
-        int buffer_id = _buffer.size() - 1;
+        buffers.add(buf);
+        int buffer_id = buffers.size() - 1;
         t.setBufferID(buffer_id);
 
-        _components.add(t);
+        components.add(t);
         return t;
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider source, double frame, double delta) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, frame, delta);
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param sources the components which will provide data to the consumer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException {
         c.setup(sources, frame, delta);
-        _components.add(c);
+        components.add(c);
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @param channel an event channel which acts as a trigger. The consumer will only process data when an event is received.
+     *                The data window to be processed is defined by the timing information of the event.
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException {
         Provider[] sources = {source};
         addConsumer(c, sources, channel);
     }
 
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param sources the components which will provide data to the consumer
+     * @param channel an event channel which acts as a trigger. The consumer will only process data when an event is received.
+     *                The data window to be processed is defined by the timing information of the event.
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
     public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException {
         c.setup(sources);
         c.addEventChannelIn(channel);
-        _components.add(c);
+        components.add(c);
     }
 
+    /**
+     * Registers a component as a listener to another component's events.
+     * Component is also added to the pipeline (if not already there)
+     * This component will be notified every time the "source" component pushes an event into its channel
+     *
+     * @param c the listener
+     * @param source the one being listened to
+     */
     public void registerEventListener(Component c, Component source)
     {
         registerEventListener(c, source.getEventChannelOut());
     }
 
+    /**
+     * Registers a component as a listener to a specific event channel.
+     * Component is also added to the pipeline (if not already there)
+     * This component will be notified every time a new event is pushed into the channel.
+     *
+     * @param c the listener
+     * @param channel the channel to be listened to
+     */
     public void registerEventListener(Component c, EventChannel channel)
     {
-        _components.add(c);
+        components.add(c);
         c.addEventChannelIn(channel);
     }
 
+    /**
+     * Register a component as a listener to multiple event channels.
+     * Component is also added to the pipeline (if not already there)
+     * This component will be notified every time a new event is pushed a channel.
+     *
+     * @param c the listener
+     * @param channels the channel to be listened to
+     */
     public void registerEventListener(Component c, EventChannel[] channels)
     {
-        _components.add(c);
+        components.add(c);
         for(EventChannel ch : channels)
             c.addEventChannelIn(ch);
     }
 
+    /**
+     * Register a component as an event provider.
+     * Component is also added to the pipeline (if not already there)
+     *
+     * @param c the event provider
+     * @return the output channel of the component.
+     */
     public EventChannel registerEventProvider(Component c)
     {
-        _components.add(c);
+        components.add(c);
         return c.getEventChannelOut();
     }
 
-    /**
-     * Adds an unspecific component to the framework.
-     * No initialization is performed and no buffers are allocated.
-     *
-     * @param c the component to be added
-     * @deprecated use registerEventProvider() or registerEventListener() instead
-     */
-    @Deprecated
-    public void addComponent(Component c)
-    {
-        _components.add(c);
-    }
-
-    public void pushData(int buffer_id, Object data, int numBytes)
+    void pushData(int buffer_id, Object data, int numBytes)
     {
         if (!isRunning())
         {
             return;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
-        _buffer.get(buffer_id).push(data, numBytes);
+        buffers.get(buffer_id).push(data, numBytes);
     }
 
-    public void pushZeroes(int buffer_id)
+    void pushZeroes(int buffer_id)
     {
         if (!isRunning())
         {
             return;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
-        TimeBuffer buf = _buffer.get(buffer_id);
+        TimeBuffer buf = buffers.get(buffer_id);
 
         double frame_time = getTime();
         double buffer_time = buf.getLastWrittenSampleTime();
@@ -319,30 +417,30 @@ public class Pipeline
         }
     }
 
-    public void pushZeroes(int buffer_id, int num)
+    void pushZeroes(int buffer_id, int num)
     {
         if (!isRunning())
         {
             return;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot push to buffer " + buffer_id + ". Buffer does not exist.");
 
-        _buffer.get(buffer_id).pushZeroes(num);
+        buffers.get(buffer_id).pushZeroes(num);
     }
 
-    public boolean getData(int buffer_id, Object data, double start_time, double duration)
+    boolean getData(int buffer_id, Object data, double start_time, double duration)
     {
-        if (!_isRunning)
+        if (!isRunning)
         {
             return false;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("cannot read from buffer " + buffer_id + ". Buffer does not exist.");
 
-        TimeBuffer buf = _buffer.get(buffer_id);
+        TimeBuffer buf = buffers.get(buffer_id);
         int res = buf.get(data, start_time, duration);
 
         switch (res)
@@ -366,7 +464,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown error occurred");
                 return false;
         }
@@ -374,17 +472,17 @@ public class Pipeline
         return true;
     }
 
-    public boolean getData(int buffer_id, Object data, int startSample, int numSamples)
+    boolean getData(int buffer_id, Object data, int startSample, int numSamples)
     {
-        if (!_isRunning)
+        if (!isRunning)
         {
             return false;
         }
 
-        if (buffer_id < 0 || buffer_id >= _buffer.size())
+        if (buffer_id < 0 || buffer_id >= buffers.size())
             Log.w("Invalid buffer");
 
-        TimeBuffer buf = _buffer.get(buffer_id);
+        TimeBuffer buf = buffers.get(buffer_id);
         int res = buf.get(data, startSample, numSamples);
 
         switch (res)
@@ -411,7 +509,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (_isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown buffer error occurred");
                 return false;
         }
@@ -419,24 +517,29 @@ public class Pipeline
         return true;
     }
 
+    /**
+     * Stops the pipeline.
+     * Closes all buffers and shuts down all components.
+     * Also writes log file to sd card (if configured).
+     */
     public void stop()
     {
-        if (_isStopping)
+        if (isStopping)
             return;
 
-        _isStopping = true;
-        _isRunning = false;
+        isStopping = true;
+        isRunning = false;
 
         Log.i("stopping pipeline" + '\n' +
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
         try
         {
             Log.i("closing buffer");
-            for (TimeBuffer b : _buffer)
+            for (TimeBuffer b : buffers)
                 b.close();
 
             Log.i("closing components");
-            for (Component c : _components)
+            for (Component c : components)
             {
                 Log.i("closing " + c.getComponentName());
                 //try to close everything individually to free each sensor
@@ -450,26 +553,26 @@ public class Pipeline
             }
 
             Log.i("waiting for components to terminate");
-            _threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
+            threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
 
             Log.i("shut down completed");
         } catch (Exception e)
         {
             Log.e("Exception in closing framework", e);
 
-            if (_exceptionHandler != null)
-                _exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
+            if (exceptionHandler != null)
+                exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
             else
                 throw new RuntimeException(e);
         } finally
         {
             writeLogFile();
-            _isStopping = false;
+            isStopping = false;
         }
     }
 
     /**
-     * Invalidates framework instance and clear all local content
+     * Invalidates framework instance and clears all local content
      */
     public void release()
     {
@@ -480,11 +583,11 @@ public class Pipeline
         }
 
         clear();
-        _instance = null;
+        instance = null;
     }
 
     /**
-     * Clears all local references but does not invalidate instance
+     * Clears all buffers, components and internal pipeline state, but does not invalidate instance.
      */
     public void clear()
     {
@@ -494,18 +597,21 @@ public class Pipeline
             return;
         }
 
-        for (Component c : _components)
+        for (Component c : components)
             c.clear();
 
-        _components.clear();
-        _buffer.clear();
+        components.clear();
+        buffers.clear();
         Log.getInstance().clear();
-        _startTime = 0;
+        startTime = 0;
     }
 
+    /**
+     * Resets pipeline "create" timestamp
+     */
     public void resetCreateTime()
     {
-        _createTime = System.currentTimeMillis();
+        createTime = System.currentTimeMillis();
     }
 
     private void writeLogFile()
@@ -516,32 +622,32 @@ public class Pipeline
         }
     }
 
-    public void crash(String location, String message, Throwable e)
+    void crash(String location, String message, Throwable e)
     {
-        _isRunning = false;
+        isRunning = false;
 
         Log.e(location, message, e);
         writeLogFile();
 
-        if (_exceptionHandler != null)
+        if (exceptionHandler != null)
         {
-            _exceptionHandler.handle(location, message, e);
+            exceptionHandler.handle(location, message, e);
         } else
         {
             throw new RuntimeException(e);
         }
     }
 
-    public void sync(int bufferID)
+    void sync(int bufferID)
     {
         if (!isRunning())
             return;
 
-        _buffer.get(bufferID).sync(getTime());
+        buffers.get(bufferID).sync(getTime());
     }
 
     /**
-     * @return elapsed time since start of the pipeline
+     * @return elapsed time since start of the pipeline (in seconds)
      */
     public double getTime()
     {
@@ -549,19 +655,19 @@ public class Pipeline
     }
 
     /**
-     * @return elapsed time since start of the pipeline
+     * @return elapsed time since start of the pipeline (in milliseconds)
      */
     public long getTimeMs()
     {
-        if (_startTime == 0)
+        if (startTime == 0)
             return 0;
 
-        return SystemClock.elapsedRealtime() - _startTime + _timeOffset;
+        return SystemClock.elapsedRealtime() - startTime + timeOffset;
     }
 
     void adjustTime(long offset)
     {
-        _timeOffset += offset;
+        timeOffset += offset;
     }
 
     /**
@@ -569,34 +675,58 @@ public class Pipeline
      */
     public long getStartTimeMs()
     {
-        return _startTimeSystem;
+        return startTimeSystem;
     }
 
     /**
-     * @return system time at which the framework was created
+     * @return system time at which the pipeline instance was created.
+     * Timestamp can be modified using "resetCreateTime()"
      */
     public long getCreateTimeMs()
     {
-        return _createTime;
+        return createTime;
     }
 
+    /**
+     * @return true if SSJ has already been instanced, false otherwise
+     */
+    public static boolean isInstanced()
+    {
+        return instance != null;
+    }
+
+    /**
+     * @return true if pipeline is running, false otherwise
+     */
     public boolean isRunning()
     {
-        return _isRunning;
+        return isRunning;
     }
 
+    /**
+     * @return true if pipeline shut down has been initiated, false otherwise
+     */
     public boolean isStopping()
     {
-        return _isStopping;
+        return isStopping;
     }
 
+    /**
+     * @return current SSJ version
+     */
     public String getVersion()
     {
         return BuildConfig.VERSION_NAME;
     }
 
+    /**
+     * Sets a handler for SSJ errors and crashes.
+     * The handler is notified every time an SSJException happens at runtime.
+     *
+     * @param h a class which implements the ExceptionHandler interface
+     */
     public void setExceptionHandler(ExceptionHandler h)
     {
-        _exceptionHandler = h;
+        exceptionHandler = h;
     }
 }
