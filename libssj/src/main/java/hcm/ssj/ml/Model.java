@@ -46,6 +46,8 @@ public abstract class Model {
             return new NaiveBayes();
         else if (name.compareToIgnoreCase("SVM") == 0)
             return new SVM();
+        else if (name.compareToIgnoreCase("PythonModel") == 0)
+            return new TensorFlowModel();
 
         Log.e("unknown model");
         return null;

@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<trainer ssi-v="5">
+    <info trained="true" />
+    <streams>
+        <item byte="4" dim="22" sr="0.500000" type="FLOAT" />
+    </streams>
+    <classes>
+        <item name="Play" />
+        <item name="Read" />
+    </classes>
+    <users>
+        <item name="user1" />
+        <item name="user2" />
+        <item name="user3" />
+    </users>
+    <model create="PythonModel" stream="0" path="my_model.trainer.PythonModel" option="my_model.trainer.PythonModel" />
+</trainer>
