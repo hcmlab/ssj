@@ -69,9 +69,6 @@ public class TensorFlowTest
 		TestHelper.copyAssetToFile(mouseStreamName, new File(dir, mouseStreamName));
 		TestHelper.copyAssetToFile(mouseStreamName + "data", new File(dir, mouseStreamName + '~'));
 
-		String outputFileName = getClass().getSimpleName() + ".test";
-		File outputFile = new File(dir, outputFileName);
-
 		// Setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
@@ -120,11 +117,5 @@ public class TensorFlowTest
 		// Stop framework
 		frame.stop();
 		frame.clear();
-
-		//get data file
-		File data = new File(dir, outputFileName + "~");
-
-		if(outputFile.exists()) outputFile.delete();
-		if(data.exists()) data.delete();
 	}
 }
