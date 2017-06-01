@@ -56,10 +56,19 @@ public class TensorFlowTest
 	public void TensorFlowModelTest() throws Exception
 	{
 		File dir = getContext().getFilesDir();
+
 		String modelName = "my_model.trainer";
+		String mouseStreamName = "mouse.stream";
+
+		// Load trainer files
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
 		TestHelper.copyAssetToFile(modelName + ".PythonModel.model", new File(dir, modelName + ".PythonModel.model"));
 		TestHelper.copyAssetToFile(modelName + ".PythonModel.option", new File(dir, modelName + ".PythonModel.option"));
+
+		// Load mouse stream data
+		TestHelper.copyAssetToFile(mouseStreamName, new File(dir, mouseStreamName));
+		TestHelper.copyAssetToFile(mouseStreamName + "data", new File(dir, mouseStreamName + '~'));
+
 		String outputFileName = getClass().getSimpleName() + ".test";
 		File outputFile = new File(dir, outputFileName);
 
@@ -69,21 +78,11 @@ public class TensorFlowTest
 
 		// Sensor
 		FileReader reader = new FileReader();
-		reader.options.fileName.set("mouse.stream");
+		reader.options.fileName.set(mouseStreamName);
+		reader.options.filePath.set(dir.getAbsolutePath());
 		SensorChannel mouse = frame.addSensor(reader, new FileReaderChannel());
 
 		Functionals functionals = new Functionals();
-		/*
-		functionals.options.energy.set(false);
-		functionals.options.len.set(false);
-		functionals.options.maxPos.set(false);
-		functionals.options.minPos.set(false);
-		functionals.options.path.set(false);
-		functionals.options.peaks.set(false);
-		functionals.options.range.set(false);
-		functionals.options.std.set(false);
-		functionals.options.zeros.set(false);
-		*/
 		frame.addTransformer(functionals, mouse, 2.0, 0);
 
 		MvgNorm norm = new MvgNorm();
@@ -124,10 +123,6 @@ public class TensorFlowTest
 
 		//get data file
 		File data = new File(dir, outputFileName + "~");
-
-		//verify
-		//Assert.assertTrue(outputFile.length() > 100);
-		//Assert.assertTrue(data.length() > 100);
 
 		if(outputFile.exists()) outputFile.delete();
 		if(data.exists()) data.delete();
