@@ -89,11 +89,6 @@ public class TensorFlowModel extends Model
 		float[][] probabilities = new float[1][classNum];
 		resultTensor.copyTo(probabilities);
 
-		for (int i = 0; i < probabilities[0].length; i++)
-		{
-			Log.d("TF_FORWARD", classNames[i] + " -> " + probabilities[0][i]);
-		}
-
 		return probabilities[0];
 	}
 
