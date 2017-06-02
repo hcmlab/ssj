@@ -149,7 +149,7 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
                 Thread.sleep(Cons.WAIT_BL_CONNECT); //give BL adapter some time to establish connection ...
             } catch (InterruptedException e) {}
 
-            if(_socket.isConnected())
+            if(_socket != null && _socket.isConnected())
             {
                 Log.i("connected to server");
                 setConnectedDevice(_socket.getRemoteDevice());
