@@ -94,7 +94,7 @@ public class TensorFlow extends Model
 		croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
 		rgb = new int[width * height];
 		cropToFrameTransform = new Matrix();
-		frameToCropTransform = getTransformationMatrix(
+		frameToCropTransform = ImageUtils.getTransformationMatrix(
 				width, height, INPUT_SIZE, INPUT_SIZE, 90, MAINTAIN_ASPECT
 		);
 		frameToCropTransform.invert(cropToFrameTransform);
@@ -140,7 +140,7 @@ public class TensorFlow extends Model
 */
 
 		// Decode yuv to rgb
-		yuvNv21ToRgb(rgb, stream[0].ptrB(), width, height);
+		ImageUtils.yuvNv21ToRgb(rgb, stream[0].ptrB(), width, height);
 
 		// Set bitmap pixels to those saved in argb
 		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
@@ -148,109 +148,9 @@ public class TensorFlow extends Model
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
 
 		// Save image to external storage
-		saveBitmap(croppedBitmap, new Date().toString() + "preview3.png");
+		ImageUtils.saveBitmap(croppedBitmap, new Date().toString() + "preview3.png");
 		rgb = new int[width * height];
 		return null;
-	}
-
-	private void yuvNv21ToRgb(int[] argb, byte[] yuv, int width, int height) {
-		final int frameSize = width * height;
-		final int ii = 0;
-		final int ij = 0;
-		final int di = +1;
-		final int dj = +1;
-
-		int a = 0;
-		for (int i = 0, ci = ii; i < height; ++i, ci += di) {
-			for (int j = 0, cj = ij; j < width; ++j, cj += dj) {
-				int y = (0xff & ((int) yuv[ci * width + cj]));
-				int v = (0xff & ((int) yuv[frameSize + (ci >> 1) * width + (cj & ~1) + 0]));
-				int u = (0xff & ((int) yuv[frameSize + (ci >> 1) * width + (cj & ~1) + 1]));
-				y = y < 16 ? 16 : y;
-
-				int r = (int) (1.164f * (y - 16) + 1.596f * (v - 128));
-				int g = (int) (1.164f * (y - 16) - 0.813f * (v - 128) - 0.391f * (u - 128));
-				int b = (int) (1.164f * (y - 16) + 2.018f * (u - 128));
-
-				r = r < 0 ? 0 : (r > 255 ? 255 : r);
-				g = g < 0 ? 0 : (g > 255 ? 255 : g);
-				b = b < 0 ? 0 : (b > 255 ? 255 : b);
-
-				argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
-			}
-		}
-	}
-
-	private void saveBitmap(final Bitmap bitmap, final String filename) {
-		final String root =
-				LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "tensorflow";
-		final File myDir = new File(root);
-
-		if (!myDir.mkdirs()) {
-			Log.i("Make dir failed");
-		}
-
-		final String fname = filename;
-		final File file = new File(myDir, fname);
-		if (file.exists()) {
-			file.delete();
-		}
-		try {
-			final FileOutputStream out = new FileOutputStream(file);
-			bitmap.compress(Bitmap.CompressFormat.PNG, 99, out);
-			out.flush();
-			out.close();
-		} catch (final Exception e) {
-			Log.e("tf_ssj", "Exception!");
-		}
-	}
-
-	private Matrix getTransformationMatrix(
-			final int srcWidth,
-			final int srcHeight,
-			final int dstWidth,
-			final int dstHeight,
-			final int applyRotation,
-			final boolean maintainAspectRatio) {
-		final Matrix matrix = new Matrix();
-
-		if (applyRotation != 0) {
-			// Translate so center of image is at origin.
-			matrix.postTranslate(-srcWidth / 2.0f, -srcHeight / 2.0f);
-
-			// Rotate around origin.
-			matrix.postRotate(applyRotation);
-		}
-
-		// Account for the already applied rotation, if any, and then determine how
-		// much scaling is needed for each axis.
-		final boolean transpose = (Math.abs(applyRotation) + 90) % 180 == 0;
-
-		final int inWidth = transpose ? srcHeight : srcWidth;
-		final int inHeight = transpose ? srcWidth : srcHeight;
-
-		// Apply scaling if necessary.
-		if (inWidth != dstWidth || inHeight != dstHeight) {
-			final float scaleFactorX = dstWidth / (float) inWidth;
-			final float scaleFactorY = dstHeight / (float) inHeight;
-
-			if (maintainAspectRatio) {
-				// Scale by minimum factor so that dst is filled completely while
-				// maintaining the aspect ratio. Some image may fall off the edge.
-				final float scaleFactor = Math.max(scaleFactorX, scaleFactorY);
-				matrix.postScale(scaleFactor, scaleFactor);
-			} else {
-				// Scale exactly to fill dst from src.
-				matrix.postScale(scaleFactorX, scaleFactorY);
-			}
-		}
-
-		if (applyRotation != 0) {
-			// Translate back from origin centered reference to destination frame.
-			matrix.postTranslate(dstWidth / 2.0f, dstHeight / 2.0f);
-		}
-
-		return matrix;
 	}
 
 	@Override
