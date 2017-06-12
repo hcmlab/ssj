@@ -66,8 +66,8 @@ public class InceptionTest
 
 		// Option parameters for camera sensor
 		double frameRate = 10.0;
-		int width = 176;
-		int height = 144;
+		int width = 640;
+		int height = 480;
 
 		// Load inception model and trainer file
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));

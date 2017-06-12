@@ -26,17 +26,23 @@
 
 package hcm.ssj.ml;
 
+import android.graphics.Bitmap;
+
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.FloatBuffer;
+import java.util.Date;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * TensorFlow model.
@@ -61,6 +67,7 @@ public class TensorFlow extends Model
 
 	protected float[] forward(Stream[] stream)
 	{
+/*
 		if (stream.length != 1)
 		{
 			Log.w("only one input stream currently supported, consider using merge");
@@ -94,6 +101,80 @@ public class TensorFlow extends Model
 		resultTensor.copyTo(probabilities);
 
 		return probabilities[0];
+*/
+		int width = 640;
+		int height = 480;
+
+		int[] argb = new int[width * height];
+
+		yuvNv21ToRgb(argb, stream[0].ptrB(), width, height);
+		Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		bmp.setPixels(argb, 0, width, 0, 0, width, height);
+		storeImage(bmp);
+
+		return null;
+	}
+
+	private void yuvNv21ToRgb(int[] argb, byte[] yuv, int width, int height) {
+		final int frameSize = width * height;
+		final int ii = 0;
+		final int ij = 0;
+		final int di = +1;
+		final int dj = +1;
+
+		int a = 0;
+		for (int i = 0, ci = ii; i < height; ++i, ci += di) {
+			for (int j = 0, cj = ij; j < width; ++j, cj += dj) {
+				int y = (0xff & ((int) yuv[ci * width + cj]));
+				int v = (0xff & ((int) yuv[frameSize + (ci >> 1) * width + (cj & ~1) + 0]));
+				int u = (0xff & ((int) yuv[frameSize + (ci >> 1) * width + (cj & ~1) + 1]));
+				y = y < 16 ? 16 : y;
+
+				int r = (int) (1.164f * (y - 16) + 1.596f * (v - 128));
+				int g = (int) (1.164f * (y - 16) - 0.813f * (v - 128) - 0.391f * (u - 128));
+				int b = (int) (1.164f * (y - 16) + 2.018f * (u - 128));
+
+				r = r < 0 ? 0 : (r > 255 ? 255 : r);
+				g = g < 0 ? 0 : (g > 255 ? 255 : g);
+				b = b < 0 ? 0 : (b > 255 ? 255 : b);
+
+				argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
+			}
+		}
+	}
+
+	private void storeImage(Bitmap image)
+	{
+		File pictureFile = getOutputMediaFile();
+		if (pictureFile == null) {
+			Log.d("tf_ssj", "Error creating media file");
+			return;
+		}
+		try {
+			FileOutputStream fos = new FileOutputStream(pictureFile);
+			image.compress(Bitmap.CompressFormat.PNG, 90, fos);
+			fos.close();
+		} catch (FileNotFoundException e) {
+			Log.d("tf_ssj", "File not found: " + e.getMessage());
+		} catch (IOException e) {
+			Log.d("tf_ssj", "Error accessing file: " + e.getMessage());
+		}
+	}
+
+	private File getOutputMediaFile(){
+		File mediaStorageDir = new File(LoggingConstants.SSJ_EXTERNAL_STORAGE + "/CamFiles");
+
+		if (! mediaStorageDir.exists()){
+			if (! mediaStorageDir.mkdirs()){
+				return null;
+			}
+		}
+		// Create a media file name
+		String timeStamp = new Date().toString();
+		File mediaFile;
+		String mImageName="MI_"+ timeStamp +".jpg";
+		mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
+		return mediaFile;
 	}
 
 	@Override
