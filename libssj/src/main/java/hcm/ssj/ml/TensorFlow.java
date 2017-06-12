@@ -67,21 +67,10 @@ public class TensorFlow extends Model
 	private final String OUTPUT_NAME = "output";
 	private final boolean MAINTAIN_ASPECT = true;
 
-	private Bitmap rgbBitmap;
-	private Bitmap croppedBitmap;
-
-	Canvas canvas;
-
-	Matrix cropToFrameTransform;
-	Matrix frameToCropTransform;
-
-	private int[] rgb;
-
-	int width = 640;
-	int height = 480;
-
 	private int classNum;
 	private String[] classNames;
+
+	private ImageData imageData;
 
 	static
 	{
@@ -90,15 +79,7 @@ public class TensorFlow extends Model
 
 	public TensorFlow()
 	{
-		rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-		croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
-		rgb = new int[width * height];
-		cropToFrameTransform = new Matrix();
-		frameToCropTransform = ImageUtils.getTransformationMatrix(
-				width, height, INPUT_SIZE, INPUT_SIZE, 90, MAINTAIN_ASPECT
-		);
-		frameToCropTransform.invert(cropToFrameTransform);
-		canvas = new Canvas(croppedBitmap);
+		imageData = new ImageData(INPUT_SIZE, MAINTAIN_ASPECT);
 	}
 
 	protected float[] forward(Stream[] stream)
@@ -137,10 +118,9 @@ public class TensorFlow extends Model
 		resultTensor.copyTo(probabilities);
 
 		return probabilities[0];
-*/
 
 		// Decode yuv to rgb
-		ImageUtils.yuvNv21ToRgb(rgb, stream[0].ptrB(), width, height);
+		ImageUtils.YUVNV21ToRgb(rgb, stream[0].ptrB(), width, height);
 
 		// Set bitmap pixels to those saved in argb
 		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
@@ -150,6 +130,14 @@ public class TensorFlow extends Model
 		// Save image to external storage
 		ImageUtils.saveBitmap(croppedBitmap, new Date().toString() + "preview3.png");
 		rgb = new int[width * height];
+		*/
+		long startTime = System.nanoTime();
+		imageData.createRgbBitmap(stream[0].ptrB());
+		long duration = System.nanoTime() - startTime;
+
+
+		Log.d("tf_ssj", "Execution time: " + duration / 1000000 + " ms");
+
 		return null;
 	}
 

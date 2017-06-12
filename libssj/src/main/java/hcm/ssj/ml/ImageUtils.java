@@ -43,7 +43,7 @@ import hcm.ssj.file.LoggingConstants;
 
 public class ImageUtils
 {
-	public static void yuvNv21ToRgb(int[] argb, byte[] yuv, int width, int height) {
+	public static void YUVNV21ToRgb(int[] argb, byte[] yuv, int width, int height) {
 		final int frameSize = width * height;
 		final int ii = 0;
 		final int ij = 0;
