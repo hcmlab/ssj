@@ -27,6 +27,8 @@
 package hcm.ssj.ml;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
@@ -57,12 +59,46 @@ public class TensorFlow extends Model
 	private Graph modelGraph;
 	private Session session;
 
+	// Constants for inception model evaluation
+	private final int INPUT_SIZE = 224;
+	private final int IMAGE_MEAN = 117;
+	private final float IMAGE_STD = 1;
+	private final String INPUT_NAME = "input";
+	private final String OUTPUT_NAME = "output";
+	private final boolean MAINTAIN_ASPECT = true;
+
+	private Bitmap rgbBitmap;
+	private Bitmap croppedBitmap;
+
+	Canvas canvas;
+
+	Matrix cropToFrameTransform;
+	Matrix frameToCropTransform;
+
+	private int[] rgb;
+
+	int width = 640;
+	int height = 480;
+
 	private int classNum;
 	private String[] classNames;
 
 	static
 	{
 		System.loadLibrary("tensorflow_inference");
+	}
+
+	public TensorFlow()
+	{
+		rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Bitmap.Config.ARGB_8888);
+		rgb = new int[width * height];
+		cropToFrameTransform = new Matrix();
+		frameToCropTransform = getTransformationMatrix(
+				width, height, INPUT_SIZE, INPUT_SIZE, 90, MAINTAIN_ASPECT
+		);
+		frameToCropTransform.invert(cropToFrameTransform);
+		canvas = new Canvas(croppedBitmap);
 	}
 
 	protected float[] forward(Stream[] stream)
@@ -102,16 +138,18 @@ public class TensorFlow extends Model
 
 		return probabilities[0];
 */
-		int width = 640;
-		int height = 480;
 
-		int[] argb = new int[width * height];
+		// Decode yuv to rgb
+		yuvNv21ToRgb(rgb, stream[0].ptrB(), width, height);
 
-		yuvNv21ToRgb(argb, stream[0].ptrB(), width, height);
-		Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-		bmp.setPixels(argb, 0, width, 0, 0, width, height);
-		storeImage(bmp);
+		// Set bitmap pixels to those saved in argb
+		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
 
+		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
+
+		// Save image to external storage
+		saveBitmap(croppedBitmap, new Date().toString() + "preview3.png");
+		rgb = new int[width * height];
 		return null;
 	}
 
@@ -143,38 +181,76 @@ public class TensorFlow extends Model
 		}
 	}
 
-	private void storeImage(Bitmap image)
-	{
-		File pictureFile = getOutputMediaFile();
-		if (pictureFile == null) {
-			Log.d("tf_ssj", "Error creating media file");
-			return;
+	private void saveBitmap(final Bitmap bitmap, final String filename) {
+		final String root =
+				LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "tensorflow";
+		final File myDir = new File(root);
+
+		if (!myDir.mkdirs()) {
+			Log.i("Make dir failed");
+		}
+
+		final String fname = filename;
+		final File file = new File(myDir, fname);
+		if (file.exists()) {
+			file.delete();
 		}
 		try {
-			FileOutputStream fos = new FileOutputStream(pictureFile);
-			image.compress(Bitmap.CompressFormat.PNG, 90, fos);
-			fos.close();
-		} catch (FileNotFoundException e) {
-			Log.d("tf_ssj", "File not found: " + e.getMessage());
-		} catch (IOException e) {
-			Log.d("tf_ssj", "Error accessing file: " + e.getMessage());
+			final FileOutputStream out = new FileOutputStream(file);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 99, out);
+			out.flush();
+			out.close();
+		} catch (final Exception e) {
+			Log.e("tf_ssj", "Exception!");
 		}
 	}
 
-	private File getOutputMediaFile(){
-		File mediaStorageDir = new File(LoggingConstants.SSJ_EXTERNAL_STORAGE + "/CamFiles");
+	private Matrix getTransformationMatrix(
+			final int srcWidth,
+			final int srcHeight,
+			final int dstWidth,
+			final int dstHeight,
+			final int applyRotation,
+			final boolean maintainAspectRatio) {
+		final Matrix matrix = new Matrix();
 
-		if (! mediaStorageDir.exists()){
-			if (! mediaStorageDir.mkdirs()){
-				return null;
+		if (applyRotation != 0) {
+			// Translate so center of image is at origin.
+			matrix.postTranslate(-srcWidth / 2.0f, -srcHeight / 2.0f);
+
+			// Rotate around origin.
+			matrix.postRotate(applyRotation);
+		}
+
+		// Account for the already applied rotation, if any, and then determine how
+		// much scaling is needed for each axis.
+		final boolean transpose = (Math.abs(applyRotation) + 90) % 180 == 0;
+
+		final int inWidth = transpose ? srcHeight : srcWidth;
+		final int inHeight = transpose ? srcWidth : srcHeight;
+
+		// Apply scaling if necessary.
+		if (inWidth != dstWidth || inHeight != dstHeight) {
+			final float scaleFactorX = dstWidth / (float) inWidth;
+			final float scaleFactorY = dstHeight / (float) inHeight;
+
+			if (maintainAspectRatio) {
+				// Scale by minimum factor so that dst is filled completely while
+				// maintaining the aspect ratio. Some image may fall off the edge.
+				final float scaleFactor = Math.max(scaleFactorX, scaleFactorY);
+				matrix.postScale(scaleFactor, scaleFactor);
+			} else {
+				// Scale exactly to fill dst from src.
+				matrix.postScale(scaleFactorX, scaleFactorY);
 			}
 		}
-		// Create a media file name
-		String timeStamp = new Date().toString();
-		File mediaFile;
-		String mImageName="MI_"+ timeStamp +".jpg";
-		mediaFile = new File(mediaStorageDir.getPath() + File.separator + mImageName);
-		return mediaFile;
+
+		if (applyRotation != 0) {
+			// Translate back from origin centered reference to destination frame.
+			matrix.postTranslate(dstWidth / 2.0f, dstHeight / 2.0f);
+		}
+
+		return matrix;
 	}
 
 	@Override
