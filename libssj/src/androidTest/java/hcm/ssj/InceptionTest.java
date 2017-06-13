@@ -66,8 +66,8 @@ public class InceptionTest
 
 		// Option parameters for camera sensor
 		double frameRate = 10.0;
-		int width = 640;
-		int height = 480;
+		int width = 320;
+		int height = 240;
 
 		// Load inception model and trainer file
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
@@ -79,11 +79,9 @@ public class InceptionTest
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_FRONT);
+		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
-		cameraSensor.options.previewFpsRangeMin.set(4 * 1000);
-		cameraSensor.options.previewFpsRangeMax.set(16 * 1000);
 
 		// Add sensor to the pipeline
 		CameraChannel cameraChannel = new CameraChannel();
@@ -108,7 +106,7 @@ public class InceptionTest
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
 		try
 		{
 			while (System.currentTimeMillis() < end)

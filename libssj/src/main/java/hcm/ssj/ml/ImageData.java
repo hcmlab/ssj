@@ -45,16 +45,22 @@ public class ImageData
 	private Bitmap rgbBitmap;
 	private Bitmap croppedBitmap;
 
-	Canvas canvas;
+	private Canvas canvas;
 
-	Matrix cropToFrameTransform;
-	Matrix frameToCropTransform;
+	private Matrix cropToFrameTransform;
+	private Matrix frameToCropTransform;
 
 	private int[] rgb;
 
-	int width = 640;
-	int height = 480;
+	private int width = 320;
+	private int height = 240;
 
+	/**
+	 * Initializes bitmaps, rgb array, canvas, and transform matrices.
+	 *
+	 * @param inputSize Acceptable image size for Inception model.
+	 * @param maintainAspectRatio Whether or not to retain aspect ratio of the image.
+	 */
 	public ImageData(int inputSize, boolean maintainAspectRatio)
 	{
 		// Create bitmap for rgb values
@@ -63,6 +69,7 @@ public class ImageData
 		// Create bitmap for cropped image
 		croppedBitmap = Bitmap.createBitmap(inputSize, inputSize, Bitmap.Config.ARGB_8888);
 
+		// RGB matrix
 		rgb = new int[width * height];
 
 		// Transform image to be of a quadratic form as Inception model only
@@ -75,6 +82,11 @@ public class ImageData
 		canvas = new Canvas(croppedBitmap);
 	}
 
+	/**
+	 * Decodes YUV/NV21 into a cropped rgb bitmap.
+	 *
+	 * @param data YUV byte stream coming from camera sensor.
+	 */
 	public Bitmap createRgbBitmap(byte[] data)
 	{
 		// Decode yuv to rgb
@@ -85,9 +97,6 @@ public class ImageData
 
 		// Crop bitmap to a quadratic form
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
-
-		// Save image to external storage
-		//ImageUtils.saveBitmap(croppedBitmap, new Date().toString() + "preview.png");
 
 		return croppedBitmap;
 	}

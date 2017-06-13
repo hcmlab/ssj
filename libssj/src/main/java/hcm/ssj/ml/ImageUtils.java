@@ -43,6 +43,14 @@ import hcm.ssj.file.LoggingConstants;
 
 public class ImageUtils
 {
+	/**
+	 * Decodes YUVNV21 color space into a regular RGB format.
+	 *
+	 * @param argb Output array for RGB values.
+	 * @param yuv YUV byte data to decode.
+	 * @param width Width of image in pixels.
+	 * @param height Height of image in pixels.
+	 */
 	public static void YUVNV21ToRgb(int[] argb, byte[] yuv, int width, int height) {
 		final int frameSize = width * height;
 		final int ii = 0;
@@ -71,6 +79,12 @@ public class ImageUtils
 		}
 	}
 
+	/**
+	 * Saved bitmap to external storage.
+	 *
+	 * @param bitmap Bitmap to save.
+	 * @param filename Name of the file to be saved as.
+	 */
 	public static void saveBitmap(final Bitmap bitmap, final String filename) {
 		final String root =
 				LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "tensorflow";
@@ -95,6 +109,20 @@ public class ImageUtils
 		}
 	}
 
+	/**
+	 * Returns a transformation matrix from one reference frame into another.
+	 * Handles cropping (if maintaining aspect ratio is desired) and rotation.
+	 *
+	 * @param srcWidth Width of source frame.
+	 * @param srcHeight Height of source frame.
+	 * @param dstWidth Width of destination frame.
+	 * @param dstHeight Height of destination frame.
+	 * @param applyRotation Amount of rotation to apply from one frame to another.
+	 *  Must be a multiple of 90.
+	 * @param maintainAspectRatio If true, will ensure that scaling in x and y remains constant,
+	 * cropping the image if necessary.
+	 * @return The transformation fulfilling the desired requirements.
+	 */
 	public static Matrix getTransformationMatrix(
 			final int srcWidth,
 			final int srcHeight,

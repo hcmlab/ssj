@@ -27,8 +27,6 @@
 package hcm.ssj.ml;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Matrix;
 
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
@@ -36,15 +34,11 @@ import org.tensorflow.Tensor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.FloatBuffer;
-import java.util.Date;
+import java.util.Arrays;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.LoggingConstants;
 
 /**
  * TensorFlow model.
@@ -54,9 +48,10 @@ import hcm.ssj.file.LoggingConstants;
  * @author Vitaly Krumins
  */
 
+// TODO: Encapsulate int/float-value arrays into ImageData class.
 public class TensorFlow extends Model
 {
-	private Graph modelGraph;
+	private Graph graph;
 	private Session session;
 
 	// Constants for inception model evaluation
@@ -66,6 +61,9 @@ public class TensorFlow extends Model
 	private final String INPUT_NAME = "input";
 	private final String OUTPUT_NAME = "output";
 	private final boolean MAINTAIN_ASPECT = true;
+
+	private int[] intValues;
+	private float[] floatValues;
 
 	private int classNum;
 	private String[] classNames;
@@ -77,68 +75,83 @@ public class TensorFlow extends Model
 		System.loadLibrary("tensorflow_inference");
 	}
 
+	/**
+	 * Initializes image data of proper size.
+	 */
 	public TensorFlow()
 	{
 		imageData = new ImageData(INPUT_SIZE, MAINTAIN_ASPECT);
+		intValues = new int[INPUT_SIZE * INPUT_SIZE];
+		floatValues = new float[INPUT_SIZE * INPUT_SIZE * 3];
 	}
 
 	protected float[] forward(Stream[] stream)
 	{
-/*
-		if (stream.length != 1)
-		{
-			Log.w("only one input stream currently supported, consider using merge");
-			return null;
-		}
-		if (!_isTrained)
-		{
-			Log.w("not trained");
-			return null;
-		}
-		if (stream[0].type != Cons.Type.FLOAT) {
-			Log.w ("invalid stream type");
-			return null;
-		}
+		// Create cropped bitmap for prediction.
+		Bitmap bitmap = imageData.createRgbBitmap(stream[0].ptrB());
 
-		float[] ptr = stream[0].ptrF();
+		// Get probability array.
+		float[] probabilities = recognizeImage(bitmap);
 
-		FloatBuffer fb = FloatBuffer.allocate(stream[0].dim);
-
-		for (float f : ptr)
-			fb.put(f);
-		fb.rewind();
-
-		Tensor inputTensor = Tensor.create(new long[] {stream[0].num, stream[0].dim}, fb);
-		Tensor resultTensor = session.runner()
-				.feed("input/x", inputTensor)
-				.fetch("Wx_plus_b/output")
-				.run().get(0);
-
-		float[][] probabilities = new float[1][classNum];
-		resultTensor.copyTo(probabilities);
-
-		return probabilities[0];
-
-		// Decode yuv to rgb
-		ImageUtils.YUVNV21ToRgb(rgb, stream[0].ptrB(), width, height);
-
-		// Set bitmap pixels to those saved in argb
-		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
-
-		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
-
-		// Save image to external storage
-		ImageUtils.saveBitmap(croppedBitmap, new Date().toString() + "preview3.png");
-		rgb = new int[width * height];
-		*/
-		long startTime = System.nanoTime();
-		imageData.createRgbBitmap(stream[0].ptrB());
-		long duration = System.nanoTime() - startTime;
-
-
-		Log.d("tf_ssj", "Execution time: " + duration / 1000000 + " ms");
+		// Make prediction.
+		int bestLabelIdx = maxIndex(probabilities);
+		Log.d("tf_ssj",
+			  String.format("BEST MATCH: %s (%.2f%% likely)",
+							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
 
 		return null;
+	}
+
+	/**
+	 * Makes prediction about the given image.
+	 *
+	 * @param bitmap Cropped bitmap to classify.
+	 * @return Probability array.
+	 */
+	private float[] recognizeImage(Bitmap bitmap)
+	{
+		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+		for (int i = 0; i <intValues.length; ++i)
+		{
+			final int val = intValues[i];
+			floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			floatValues[i * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+		}
+
+		Tensor input = Tensor.create(new long[] {1, INPUT_SIZE, INPUT_SIZE, 3}, FloatBuffer.wrap(floatValues));
+		Tensor result = session.runner()
+				.feed(INPUT_NAME, input)
+				.fetch(OUTPUT_NAME)
+				.run().get(0);
+
+		long[] rshape = result.shape();
+		if (result.numDimensions() != 2 || rshape[0] != 1)
+		{
+			throw new RuntimeException(
+					String.format(
+							"Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s",
+							Arrays.toString(rshape)));
+		}
+		int nlabels = (int) rshape[1];
+		return result.copyTo(new float[1][nlabels])[0];
+	}
+
+	/**
+	 * Returns index of element with the highest value in float array.
+	 *
+	 * @param probabilities Float array.
+	 * @return Index of element with the highest value.
+	 */
+	private int maxIndex(float[] probabilities) {
+		int best = 0;
+		for (int i = 1; i < probabilities.length; ++i) {
+			if (probabilities[i] > probabilities[best]) {
+				best = i;
+			}
+		}
+		return best;
 	}
 
 	@Override
@@ -191,9 +204,9 @@ public class TensorFlow extends Model
 			fileInputStream.read(fileBytes);
 			fileInputStream.close();
 
-			modelGraph = new Graph();
-			modelGraph.importGraphDef(fileBytes);
-			session = new Session(modelGraph);
+			graph = new Graph();
+			graph.importGraphDef(fileBytes);
+			session = new Session(graph);
 		}
 		catch (Exception e)
 		{
