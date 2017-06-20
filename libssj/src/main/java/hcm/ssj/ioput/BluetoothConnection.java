@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 
@@ -45,6 +46,8 @@ import hcm.ssj.core.SSJApplication;
  */
 public abstract class BluetoothConnection extends BroadcastReceiver
 {
+    private long _firstError = 0;
+
     public enum Type
     {
         CLIENT,
@@ -72,6 +75,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
         SSJApplication.getAppContext().registerReceiver(this, filter);
@@ -207,5 +211,21 @@ public abstract class BluetoothConnection extends BroadcastReceiver
                 _newDisconnection.notifyAll();
             }
         }
+    }
+
+    protected void notifyDataTranferResult(boolean value)
+    {
+        if(!value)
+        {
+            if(_firstError == 0)
+                _firstError = System.currentTimeMillis();
+            else if (System.currentTimeMillis() - _firstError > Cons.WAIT_BL_DISCONNECT)
+            {
+                Log.w("connection interrupted");
+                setConnectionStatus(false);
+            }
+        }
+        else
+            _firstError = 0;
     }
 }

@@ -74,6 +74,9 @@ public class BluetoothChannel extends SensorChannel
     @Override
     protected boolean process(Stream stream_out)
     {
+        if(!((BluetoothReader)_sensor).getConnection().isConnected())
+            return false;
+
         byte[] data = ((BluetoothReader)_sensor).getData(options.channel_id.get());
 
         if(data.length != stream_out.tot)

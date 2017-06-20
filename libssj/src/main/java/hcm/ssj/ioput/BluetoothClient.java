@@ -123,7 +123,7 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
         {
             try
             {
-                Log.i("setting up connection to " + _server.getName());
+                Log.i("setting up connection to " + _server.getName() + ", conn = " + _uuid.toString());
                 _socket = _server.createRfcommSocketToServiceRecord(_uuid);
 
                 Log.i("waiting for server ...");
@@ -151,7 +151,7 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
 
             if(_socket != null && _socket.isConnected())
             {
-                Log.i("connected to server");
+                Log.i("connected to server " + _server.getName() + ", conn = " + _uuid.toString());
                 setConnectedDevice(_socket.getRemoteDevice());
                 setConnectionStatus(true);
 

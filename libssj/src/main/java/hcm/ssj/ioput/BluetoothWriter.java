@@ -119,9 +119,11 @@ public class BluetoothWriter extends Consumer {
                 ((ObjectOutputStream)_conn.output()).reset();
                 ((ObjectOutputStream)_conn.output()).writeObject(stream_in);
             }
+            _conn.notifyDataTranferResult(true);
 
         } catch (IOException e) {
             Log.w("failed sending data", e);
+            _conn.notifyDataTranferResult(false);
         }
     }
 

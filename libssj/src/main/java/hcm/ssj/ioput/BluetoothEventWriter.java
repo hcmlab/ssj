@@ -155,11 +155,12 @@ public class BluetoothEventWriter extends EventHandler
             {
                 _conn.output().write(_buffer, 0, buf.position());
                 _conn.output().flush();
-
+                _conn.notifyDataTranferResult(true);
             }
             catch (IOException e)
             {
                 Log.w("failed sending data", e);
+                _conn.notifyDataTranferResult(false);
             }
         }
     }

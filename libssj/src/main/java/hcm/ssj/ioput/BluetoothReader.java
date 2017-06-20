@@ -128,10 +128,12 @@ public class BluetoothReader extends Sensor {
                 for(int i = 0; i< recvStreams.length && i < _recvData.length; ++i)
                     Util.arraycopy(recvStreams[i].ptr(), 0, _recvData[i], 0, _recvData[i].length);
             }
+            _conn.notifyDataTranferResult(true);
         }
         catch (IOException | ClassNotFoundException e)
         {
             Log.w("unable to read from data stream", e);
+            _conn.notifyDataTranferResult(false);
         }
     }
 
