@@ -65,7 +65,7 @@ public class InceptionTest
 		String outputFileName = getClass().getSimpleName() + ".test";
 
 		// Option parameters for camera sensor
-		double frameRate = 10.0;
+		double sampleRate = 1;
 		int width = 320;
 		int height = 240;
 
@@ -82,10 +82,12 @@ public class InceptionTest
 		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
+		cameraSensor.options.previewFpsRangeMin.set(15);
+		cameraSensor.options.previewFpsRangeMax.set(15);
 
 		// Add sensor to the pipeline
 		CameraChannel cameraChannel = new CameraChannel();
-		cameraChannel.options.sampleRate.set(frameRate);
+		cameraChannel.options.sampleRate.set(sampleRate);
 		frame.addSensor(cameraSensor, cameraChannel);
 
 		// Add classifier transformer to the pipeline
@@ -93,7 +95,7 @@ public class InceptionTest
 		classifier.options.trainerPath.set(dir.getAbsolutePath());
 		classifier.options.trainerFile.set(modelName);
 		classifier.options.merge.set(false);
-		frame.addTransformer(classifier, cameraChannel, 2, 0);
+		frame.addTransformer(classifier, cameraChannel, 1, 0);
 
 		// Add consumer to the pipeline
 		CameraWriter cameraWriter = new CameraWriter();
@@ -101,7 +103,7 @@ public class InceptionTest
 		cameraWriter.options.fileName.set(outputFileName);
 		cameraWriter.options.width.set(width);
 		cameraWriter.options.height.set(height);
-		frame.addConsumer(cameraWriter, cameraChannel, 1.0 / frameRate, 0);
+		frame.addConsumer(cameraWriter, cameraChannel, 1.0 / sampleRate, 0);
 
 		// Start pipeline
 		frame.start();
