@@ -70,9 +70,9 @@ public class Pipeline
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
 		/** location of log file. Default: /sdcard/SSJ/[time] */
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
-		/** show all logs >= level. Default: VERBOSE */
+		/** show all logs greater or equal than level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
-		/** ignore repeated entries < timeout. Default: 5.0 */
+		/** ignore repeated entries smaller than timeout. Default: 5.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
 
         private Options()
