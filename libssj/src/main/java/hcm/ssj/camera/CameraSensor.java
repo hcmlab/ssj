@@ -32,11 +32,14 @@ import android.hardware.Camera;
 import android.os.Build;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.List;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.ml.ImageUtils;
 
 /**
  * Camera sensor.<br>
@@ -59,6 +62,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         public final Option<Integer> previewFpsRangeMax = new Option<>("previewFpsRangeMax", 30 * 1000, Integer.class, "max preview rate for camera");
         public final Option<Integer> imageFormat = new Option<>("imageFormat", ImageFormat.NV21, Integer.class, "image format for camera");
         public final Option<Boolean> showSupportedValues = new Option<>("showSupportedValues", false, Boolean.class, "show supported values in log");
+        public final Option<Boolean> decodeToRgb = new Option<>("decodeToRgb", false, Boolean.class, "decode NV21 data to RGB");
 
         /**
          *
@@ -95,6 +99,10 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     protected final int getBufferSize()
     {
         int reqBuffSize = iRealWidth * iRealHeight;
+
+        if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
+            return reqBuffSize * 4;
+
         reqBuffSize += reqBuffSize >> 1;
         return reqBuffSize;
     }
@@ -123,6 +131,27 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             {
                 Log.e("Buffer read changed from " + bytes.length + " to " + byaSwapBuffer.length);
                 bytes = new byte[byaSwapBuffer.length];
+            }
+
+            if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
+            {
+                // Create empty rgb array
+                int rgb[] = new int[iRealWidth * iRealHeight];
+
+                // Put rgb pixel values inside rgb array
+                ImageUtils.YUVNV21ToRgb(rgb, byaSwapBuffer, iRealWidth, iRealHeight);
+
+                // Create byte buffer for rgb
+                ByteBuffer byteBuffer = ByteBuffer.allocate(rgb.length * 4);
+                IntBuffer intBuffer = byteBuffer.asIntBuffer();
+
+                // Put rgb array in integer buffer
+                intBuffer.put(rgb);
+
+                // Get raw rgb data
+                byte[] data = byteBuffer.array();
+
+                byaSwapBuffer = data;
             }
             System.arraycopy(byaSwapBuffer, 0, bytes, 0, byaSwapBuffer.length);
         }
