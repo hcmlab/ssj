@@ -1,5 +1,5 @@
 /*
- * ImageData.java
+ * CameraImageData.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,13 +24,11 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.ml;
+package hcm.ssj.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-
-import java.util.Date;
 
 /**
  * Encapsulates data necessary for camera image decoding.
@@ -40,7 +38,7 @@ import java.util.Date;
  * @author Vitaly
  */
 
-public class ImageData
+public class CameraImageCropper
 {
 	private Bitmap rgbBitmap;
 	private Bitmap croppedBitmap;
@@ -52,30 +50,35 @@ public class ImageData
 
 	private int[] rgb;
 
-	private int width = 320;
-	private int height = 240;
+	private int width;
+	private int height;
 
 	/**
 	 * Initializes bitmaps, rgb array, canvas, and transform matrices.
 	 *
+	 * @param width Image width in pixels.
+	 * @param height Image height in pixels.
 	 * @param inputSize Acceptable image size for Inception model.
 	 * @param maintainAspectRatio Whether or not to retain aspect ratio of the image.
 	 */
-	public ImageData(int inputSize, boolean maintainAspectRatio)
+	public CameraImageCropper(int[] rgb, int width, int height, int inputSize,
+							  boolean maintainAspectRatio)
 	{
+		// Cache input image sizes and rgb matrix
+		this.width = width;
+		this.height = height;
+		this.rgb = rgb;
+
 		// Create bitmap for rgb values
 		rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
 		// Create bitmap for cropped image
 		croppedBitmap = Bitmap.createBitmap(inputSize, inputSize, Bitmap.Config.ARGB_8888);
 
-		// RGB matrix
-		rgb = new int[width * height];
-
 		// Transform image to be of a quadratic form as Inception model only
 		// accepts images with the same width and height
 		cropToFrameTransform = new Matrix();
-		frameToCropTransform = ImageUtils.getTransformationMatrix(
+		frameToCropTransform = CameraUtil.getTransformationMatrix(
 				width, height, inputSize, inputSize, 90, maintainAspectRatio
 		);
 		frameToCropTransform.invert(cropToFrameTransform);
@@ -83,15 +86,12 @@ public class ImageData
 	}
 
 	/**
-	 * Decodes YUV/NV21 into a cropped rgb bitmap.
+	 * Forces an image to be of the same width and height.
 	 *
-	 * @param data YUV byte stream coming from camera sensor.
+	 * @return Cropped image.
 	 */
-	public Bitmap createRgbBitmap(byte[] data)
+	public Bitmap cropImage()
 	{
-		// Decode yuv to rgb
-		ImageUtils.YUVNV21ToRgb(rgb, data, width, height);
-
 		// Set bitmap pixels to those saved in rgb
 		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
 

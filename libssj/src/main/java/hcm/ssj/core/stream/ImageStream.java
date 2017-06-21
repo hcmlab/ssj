@@ -1,6 +1,6 @@
 /*
- * ByteStream.java
- * Copyright (c) 2016
+ * ImageStream.java
+ * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -26,59 +26,44 @@
 
 package hcm.ssj.core.stream;
 
+import android.graphics.ImageFormat;
+import android.media.Image;
+
 import hcm.ssj.core.Cons;
 
 /**
  * Created by Johnny on 11.06.2015.
  */
-public class ByteStream extends Stream
+public class ImageStream extends ByteStream
 {
-    protected byte[] _ptr;
+    public int width;
+    public int height;
+    public int format;
 
-    public ByteStream(int num, int dim, double sr)
+    public ImageStream(int num, int dim, double sr)
     {
-        this.num = num;
-        this.dim = dim;
-        this.bytes = 1;
-        this.type = Cons.Type.BYTE;
-        this.sr = sr;
-        this.step = 1.0 / sr;
-
-        tot = num * dim * bytes;
-        _ptr = new byte[tot];
+        super(num, dim, sr);
+        this.type = Cons.Type.IMAGE;
+        this.width = 0;
+        this.height = 0;
+        this.format = ImageFormat.NV21;
     }
 
-    @Override
-    public byte[] ptr()
-{
-    return _ptr;
-}
-    public byte[] ptrB()
+    public ImageStream(int num, int dim, double sr, int width, int height, int format)
     {
-        return _ptr;
+        super(num, dim, sr);
+        this.type = Cons.Type.IMAGE;
+        this.width = width;
+        this.height = height;
+        this.format = format;
     }
 
-    public void adjust(int num)
-    {
-        if(num < this.num)
-        {
-            this.num = num;
-            this.tot = num * dim * bytes;
-        }
-        else
-        {
-            this.num = num;
-            this.tot = num * dim * bytes;
-            _ptr = new byte[tot];
-        }
-    }
-
-    public ByteStream select(int[] new_dims)
+    public ImageStream select(int[] new_dims)
     {
         if(dim == new_dims.length)
             return this;
 
-        ByteStream slice = new ByteStream(num, new_dims.length, sr);
+        ImageStream slice = new ImageStream(num, new_dims.length, sr, width, height, format);
         slice.source = source;
 
         byte[] src = this.ptr();
@@ -95,12 +80,12 @@ public class ByteStream extends Stream
         return slice;
     }
 
-    public ByteStream select(int new_dim)
+    public ImageStream select(int new_dim)
     {
         if(dim == 1)
             return this;
 
-        ByteStream slice = new ByteStream(num, 1, sr);
+        ImageStream slice = new ImageStream(num, 1, sr, width, height, format);
         slice.source = source;
 
         byte[] src = this.ptr();
@@ -118,7 +103,7 @@ public class ByteStream extends Stream
     @Override
     public Stream clone()
     {
-        ByteStream copy = new ByteStream(num, dim, sr);
+        ImageStream copy = new ImageStream(num, dim, sr, width, height, format);
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;

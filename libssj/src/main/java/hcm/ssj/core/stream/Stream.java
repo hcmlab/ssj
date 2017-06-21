@@ -67,6 +67,8 @@ public abstract class Stream implements Serializable
                 return new DoubleStream(num, dim, sr);
             case BOOL:
                 return new BoolStream(num, dim, sr);
+            case IMAGE:
+                return new ImageStream(num, dim, sr);
             default:
                 throw new UnsupportedOperationException("Stream type not supported");
         }

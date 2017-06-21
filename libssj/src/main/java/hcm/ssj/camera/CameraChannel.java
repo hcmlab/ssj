@@ -31,6 +31,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -97,6 +98,10 @@ public class CameraChannel extends SensorChannel
         {
             Log.w("unsupported stream format. sample number = " + stream_out.num);
         }
+
+        ((ImageStream)stream_out).width = cameraSensor.getImageWidth();
+        ((ImageStream)stream_out).height = cameraSensor.getImageHeight();
+        ((ImageStream)stream_out).format = cameraSensor.getImageFormat();
     }
 
     /**
@@ -144,7 +149,7 @@ public class CameraChannel extends SensorChannel
     @Override
     public Cons.Type getSampleType()
     {
-        return Cons.Type.BYTE;
+        return Cons.Type.IMAGE;
     }
 
     /**

@@ -27,6 +27,7 @@
 package hcm.ssj.camera;
 
 import android.annotation.TargetApi;
+import android.graphics.ImageFormat;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -37,6 +38,7 @@ import java.nio.ByteBuffer;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.Mp4Writer;
 
@@ -115,12 +117,18 @@ public class CameraWriter extends Mp4Writer
             Log.e("Stream type not supported");
             return;
         }
+        if(stream_in[0].type != Cons.Type.IMAGE || ((ImageStream)stream_in[0]).format != ImageFormat.NV21)
+        {
+            Log.e("invalid input, writer only supports NV21 images");
+            return;
+        }
+
         dFrameRate = stream_in[0].sr;
         initFiles(stream_in[0], options);
         prepareEncoder(options.width.get(), options.height.get(), options.bitRate.get());
         bufferInfo = new MediaCodec.BufferInfo();
-        int reqBuffSize = options.width.get() * options.height.get();
-        reqBuffSize += reqBuffSize >> 1;
+
+        int reqBuffSize = stream_in[0].dim;
         aByShuffle = new byte[reqBuffSize];
         lFrameIndex = 0;
         colorSwitch = options.colorSwitch.get();

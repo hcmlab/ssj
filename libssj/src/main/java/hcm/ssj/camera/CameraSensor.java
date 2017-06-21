@@ -39,7 +39,6 @@ import java.util.List;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.ml.ImageUtils;
 
 /**
  * Camera sensor.<br>
@@ -100,6 +99,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     {
         int reqBuffSize = iRealWidth * iRealHeight;
 
+        // Quadruple the buffer size as we need 4 bytes per pixel
         if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
             return reqBuffSize * 4;
 
@@ -133,13 +133,14 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
                 bytes = new byte[byaSwapBuffer.length];
             }
 
+            // Transform raw NV21 byte data to RGB byte data
             if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
             {
                 // Create empty rgb array
                 int rgb[] = new int[iRealWidth * iRealHeight];
 
                 // Put rgb pixel values inside rgb array
-                ImageUtils.YUVNV21ToRgb(rgb, byaSwapBuffer, iRealWidth, iRealHeight);
+                CameraUtil.YUVNV21ToRgb(rgb, byaSwapBuffer, iRealWidth, iRealHeight);
 
                 // Create byte buffer for rgb
                 ByteBuffer byteBuffer = ByteBuffer.allocate(rgb.length * 4);
@@ -435,6 +436,21 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     {
         releaseCamera();
         releaseSurfaceTexture();
+    }
+
+    public int getImageWidth()
+    {
+        return iRealWidth;
+    }
+
+    public int getImageHeight()
+    {
+        return iRealHeight;
+    }
+
+    public int getImageFormat()
+    {
+        return 0;
     }
 }
 
