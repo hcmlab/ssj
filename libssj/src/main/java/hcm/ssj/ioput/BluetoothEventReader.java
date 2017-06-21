@@ -235,4 +235,12 @@ public class BluetoothEventReader extends EventHandler
         super.forcekill();
     }
 
+    @Override
+    public void clear()
+    {
+        _conn.clear();
+        _conn = null;
+        super.clear();
+    }
+
 }

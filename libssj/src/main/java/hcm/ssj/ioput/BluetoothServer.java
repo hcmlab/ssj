@@ -132,24 +132,29 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
                 waitForDisconnection();
             }
 
-            try
-            {
-                if(_server != null)
-                {
-                    _server.close();
-                    _server = null;
-                }
+            close();
+        }
+    }
 
-                if(_socket != null)
-                {
-                    _socket.close();
-                    _socket = null;
-                }
-            }
-            catch (IOException e)
+    private void close()
+    {
+        try
+        {
+            if(_server != null)
             {
-                Log.e("failed to close sockets", e);
+                _server.close();
+                _server = null;
             }
+
+            if(_socket != null)
+            {
+                _socket.close();
+                _socket = null;
+            }
+        }
+        catch (IOException e)
+        {
+            Log.e("failed to close sockets", e);
         }
     }
 
@@ -164,6 +169,8 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
         synchronized (_newDisconnection) {
             _newDisconnection.notifyAll();
         }
+
+        close(); //this will interrupted any waiting for connections
     }
 
     public BluetoothDevice getRemoteDevice()

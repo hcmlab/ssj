@@ -81,6 +81,11 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         SSJApplication.getAppContext().registerReceiver(this, filter);
     }
 
+    public void clear()
+    {
+        SSJApplication.getAppContext().unregisterReceiver(this);
+    }
+
     abstract void connect(boolean useObjectStreams) throws IOException;
     abstract void disconnect() throws IOException;
     abstract BluetoothDevice getRemoteDevice();
@@ -139,7 +144,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
 
     public void waitForConnection()
     {
-        while(!isConnected())
+        while(!isConnected() && !_terminate)
         {
             try
             {
@@ -154,7 +159,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
 
     public void waitForDisconnection()
     {
-        while(isConnected())
+        while(isConnected() && !_terminate)
         {
             try
             {

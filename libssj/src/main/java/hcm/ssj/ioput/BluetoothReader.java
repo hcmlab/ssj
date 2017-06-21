@@ -169,4 +169,12 @@ public class BluetoothReader extends Sensor {
     {
         return _recvData[channel_id];
     }
+
+    @Override
+    public void clear()
+    {
+        _conn.clear();
+        _conn = null;
+        super.clear();
+    }
 }

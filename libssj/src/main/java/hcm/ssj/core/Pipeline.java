@@ -195,7 +195,10 @@ public class Pipeline
         s.addChannel(c);
         c.setSensor(s);
 
-        s.init();
+        boolean isNewComponent = components.add(s);
+        if(isNewComponent)
+            s.init();
+
         c.init();
 
         int dim = c.getSampleDimension();
@@ -211,7 +214,6 @@ public class Pipeline
 
         c.setup();
 
-        components.add(s);
         components.add(c);
 
         return c;

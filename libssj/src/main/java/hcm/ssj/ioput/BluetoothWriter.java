@@ -149,4 +149,12 @@ public class BluetoothWriter extends Consumer {
 
         super.forcekill();
     }
+
+    @Override
+    public void clear()
+    {
+        _conn.clear();
+        _conn = null;
+        super.clear();
+    }
 }

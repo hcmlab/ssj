@@ -159,19 +159,25 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
                 waitForDisconnection();
             }
 
-            try
+            close();
+        }
+    }
+
+    private void close()
+    {
+        try
+        {
+            if(_socket != null)
             {
-                if(_socket != null)
-                {
-                    _socket.close();
-                    _socket = null;
-                }
-            }
-            catch (IOException e)
-            {
-                Log.e("failed to close socket", e);
+                _socket.close();
+                _socket = null;
             }
         }
+        catch (IOException e)
+        {
+            Log.e("failed to close socket", e);
+        }
+
     }
 
     public void disconnect() throws IOException
@@ -185,6 +191,8 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
         synchronized (_newDisconnection) {
             _newDisconnection.notifyAll();
         }
+
+        close();
     }
 
     public BluetoothDevice getRemoteDevice()
