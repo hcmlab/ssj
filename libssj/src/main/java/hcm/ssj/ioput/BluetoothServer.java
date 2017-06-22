@@ -44,20 +44,19 @@ import hcm.ssj.core.Log;
 /**
  * Created by Johnny on 07.04.2015.
  */
-public class BluetoothServer extends BluetoothConnection implements Runnable
+public class BluetoothServer extends BluetoothConnection
 {
-    private String _name = "SSJ_BluetoothServer";
-
     BluetoothAdapter _adapter = null;
     private BluetoothServerSocket _server = null;
     private BluetoothSocket _socket = null;
 
     private UUID _uuid;
     private String _serverName;
-    boolean _useObjectStreams = false;
 
     public BluetoothServer(UUID connID, String serverName) throws IOException
     {
+        _name = "BluetoothServer";
+
         _adapter = BluetoothAdapter.getDefaultAdapter();
         if (_adapter == null)
         {
@@ -74,18 +73,6 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
         _serverName = serverName;
         _uuid = connID;
         Log.i("server connection on " + _adapter.getName() + " @ " + _adapter.getAddress() + " initialized");
-    }
-
-    public void connect(boolean useObjectStreams)
-    {
-        _useObjectStreams = useObjectStreams;
-
-        _isConnected = false;
-        _terminate = false;
-        _thread = new Thread(this);
-        _thread.start();
-
-        waitForConnection();
     }
 
     public void run()
@@ -136,7 +123,7 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
         }
     }
 
-    private void close()
+    protected void close()
     {
         try
         {
@@ -156,21 +143,6 @@ public class BluetoothServer extends BluetoothConnection implements Runnable
         {
             Log.e("failed to close sockets", e);
         }
-    }
-
-    public void disconnect() throws IOException
-    {
-        _terminate = true;
-        _isConnected = false;
-
-        synchronized (_newConnection) {
-            _newConnection.notifyAll();
-        }
-        synchronized (_newDisconnection) {
-            _newDisconnection.notifyAll();
-        }
-
-        close(); //this will interrupted any waiting for connections
     }
 
     public BluetoothDevice getRemoteDevice()

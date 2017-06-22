@@ -39,24 +39,27 @@ import java.io.OutputStream;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.SSJApplication;
 
 /**
  * Created by Johnny on 07.04.2015.
  */
-public abstract class BluetoothConnection extends BroadcastReceiver
+public abstract class BluetoothConnection extends BroadcastReceiver implements Runnable
 {
-    private long _firstError = 0;
-
     public enum Type
     {
         CLIENT,
         SERVER
     }
 
+    protected String _name = "BluetoothConnection";
+    Pipeline pipe;
+
+    private long _firstError = 0;
+
     protected BluetoothDevice _connectedDevice = null;
 
-    Thread _thread;
     protected boolean _terminate = false;
     protected boolean _isConnected = false;
 
@@ -66,11 +69,15 @@ public abstract class BluetoothConnection extends BroadcastReceiver
     protected InputStream _in;
     protected OutputStream _out;
 
+    protected boolean _useObjectStreams = false;
+
     public InputStream input() {return _in;}
     public OutputStream output() {return _out;}
 
     public BluetoothConnection()
     {
+        pipe = Pipeline.getInstance();
+
         //register listener for BL status changes
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
@@ -86,8 +93,37 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         SSJApplication.getAppContext().unregisterReceiver(this);
     }
 
-    abstract void connect(boolean useObjectStreams) throws IOException;
-    abstract void disconnect() throws IOException;
+    public void connect(boolean useObjectStreams)
+    {
+        Log.i(_name + " connecting");
+        _useObjectStreams = useObjectStreams;
+
+        _isConnected = false;
+        _terminate = false;
+
+        pipe.executeRunnable(this);
+
+        waitForConnection();
+        Log.i(_name + " connected");
+    }
+
+    public void disconnect() throws IOException
+    {
+        Log.i(_name + " disconnecting");
+        _terminate = true;
+        _isConnected = false;
+
+        synchronized (_newConnection) {
+            _newConnection.notifyAll();
+        }
+        synchronized (_newDisconnection) {
+            _newDisconnection.notifyAll();
+        }
+
+        close();
+        Log.i(_name + " disconnected");
+    }
+
     abstract BluetoothDevice getRemoteDevice();
 
     public void onReceive(Context ctx, Intent intent) {
@@ -233,4 +269,6 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         else
             _firstError = 0;
     }
+
+    abstract protected void close();
 }

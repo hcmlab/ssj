@@ -44,19 +44,18 @@ import hcm.ssj.core.Log;
 /**
  * Created by Johnny on 07.04.2015.
  */
-public class BluetoothClient extends BluetoothConnection implements Runnable
+public class BluetoothClient extends BluetoothConnection
 {
-    private String _name = "SSJ_BluetoothClient";
-
     private BluetoothSocket _socket = null;
     private UUID _uuid;
-    boolean _useObjectStreams = false;
 
     BluetoothAdapter _adapter = null;
     BluetoothDevice _server = null;
 
     public BluetoothClient(UUID connID, String serverName, String serverAddr) throws IOException
     {
+        _name = "BluetoothClient";
+
         _adapter = BluetoothAdapter.getDefaultAdapter();
         if (_adapter == null)
         {
@@ -101,18 +100,6 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
 
         _uuid = connID;
         Log.i("client connection to " + _server.getName() + " initialized");
-    }
-
-    public void connect(boolean useObjectStreams)
-    {
-        _useObjectStreams = useObjectStreams;
-
-        _isConnected = false;
-        _terminate = false;
-        _thread = new Thread(this);
-        _thread.start();
-
-        waitForConnection();
     }
 
     public void run()
@@ -163,7 +150,7 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
         }
     }
 
-    private void close()
+    protected void close()
     {
         try
         {
@@ -178,21 +165,6 @@ public class BluetoothClient extends BluetoothConnection implements Runnable
             Log.e("failed to close socket", e);
         }
 
-    }
-
-    public void disconnect() throws IOException
-    {
-        _terminate = true;
-        _isConnected = false;
-
-        synchronized (_newConnection) {
-            _newConnection.notifyAll();
-        }
-        synchronized (_newDisconnection) {
-            _newDisconnection.notifyAll();
-        }
-
-        close();
     }
 
     public BluetoothDevice getRemoteDevice()

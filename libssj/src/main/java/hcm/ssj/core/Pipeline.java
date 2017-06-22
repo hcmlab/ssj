@@ -192,12 +192,20 @@ public class Pipeline
      */
     public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException
     {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return c;
+        }
+
         s.addChannel(c);
         c.setSensor(s);
 
-        boolean isNewComponent = components.add(s);
-        if(isNewComponent)
+        if(!components.contains(s))
+        {
+            components.add(s);
             s.init();
+        }
 
         c.init();
 
@@ -249,6 +257,12 @@ public class Pipeline
      */
     public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws SSJException
     {
+        if(components.contains(t))
+        {
+            Log.w("Component already added.");
+            return t;
+        }
+
         t.setup(sources, frame, delta);
 
         int dim = t.getOutputStream().dim;
@@ -291,7 +305,14 @@ public class Pipeline
      * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException {
+    public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException
+    {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
         c.setup(sources, frame, delta);
         components.add(c);
     }
@@ -306,7 +327,8 @@ public class Pipeline
      *                The data window to be processed is defined by the timing information of the event.
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException {
+    public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException
+    {
         Provider[] sources = {source};
         addConsumer(c, sources, channel);
     }
@@ -321,7 +343,14 @@ public class Pipeline
      *                The data window to be processed is defined by the timing information of the event.
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException {
+    public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException
+    {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
         c.setup(sources);
         c.addEventChannelIn(channel);
         components.add(c);
@@ -606,6 +635,14 @@ public class Pipeline
         buffers.clear();
         Log.getInstance().clear();
         startTime = 0;
+    }
+
+    /**
+     * Executes a runnable using the pipeline's thread pool
+     */
+    public void executeRunnable(Runnable r)
+    {
+        threadPool.execute(r);
     }
 
     /**
