@@ -81,11 +81,19 @@ public class Pipeline
         }
     }
 
+	public enum State
+	{
+		INACTIVE,
+		STARTING,
+		RUNNING,
+		STOPPING,
+		CRASH
+	}
+
     public final Options options = new Options();
 
     protected String name = "SSJ_Framework";
-    protected boolean isRunning = false;
-    protected boolean isStopping = false;
+	private State state;
 
     private long startTime = 0; //virtual clock
     private long startTimeSystem = 0; //real clock
@@ -103,7 +111,9 @@ public class Pipeline
 
     private Pipeline()
     {
-        //configure logger
+		state = State.INACTIVE;
+
+		//configure logger
         Log.getInstance().setFramework(this);
         resetCreateTime();
 
@@ -133,6 +143,7 @@ public class Pipeline
      */
     public void start()
     {
+		state = State.STARTING;
         try
         {
             Log.i("starting pipeline" + '\n' +
@@ -166,7 +177,7 @@ public class Pipeline
 
             startTimeSystem = System.currentTimeMillis();
             startTime = SystemClock.elapsedRealtime();
-            isRunning = true;
+			state = State.RUNNING;
             Log.i("pipeline started");
 
             //start clock sync
@@ -463,7 +474,7 @@ public class Pipeline
 
     boolean getData(int buffer_id, Object data, double start_time, double duration)
     {
-        if (!isRunning)
+        if (!isRunning())
         {
             return false;
         }
@@ -495,7 +506,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning()) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown error occurred");
                 return false;
         }
@@ -505,7 +516,7 @@ public class Pipeline
 
     boolean getData(int buffer_id, Object data, int startSample, int numSamples)
     {
-        if (!isRunning)
+        if (!isRunning())
         {
             return false;
         }
@@ -540,7 +551,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning()) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown buffer error occurred");
                 return false;
         }
@@ -555,11 +566,10 @@ public class Pipeline
      */
     public void stop()
     {
-        if (isStopping)
-            return;
+		if (state == State.STOPPING || state == State.INACTIVE)
+			return;
 
-        isStopping = true;
-        isRunning = false;
+		state = State.STOPPING;
 
         Log.i("stopping pipeline" + '\n' +
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
@@ -587,19 +597,25 @@ public class Pipeline
             threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
 
             Log.i("shut down completed");
-        } catch (Exception e)
-        {
-            Log.e("Exception in closing framework", e);
+		}
+		catch (Exception e)
+		{
+			Log.e("Exception in closing framework", e);
 
-            if (exceptionHandler != null)
-                exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
-            else
-                throw new RuntimeException(e);
-        } finally
-        {
-            writeLogFile();
-            isStopping = false;
-        }
+			if (exceptionHandler != null)
+			{
+				exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
+			}
+			else
+			{
+				state = State.INACTIVE;
+				throw new RuntimeException(e);
+			}
+		} finally
+		{
+			writeLogFile();
+			state = State.INACTIVE;
+		}
     }
 
     /**
@@ -622,7 +638,9 @@ public class Pipeline
      */
     public void clear()
     {
-        if (isRunning())
+		state = State.INACTIVE;
+
+		if (isRunning())
         {
             Log.w("Cannot clear. Framework still active.");
             return;
@@ -663,7 +681,7 @@ public class Pipeline
 
     void crash(String location, String message, Throwable e)
     {
-        isRunning = false;
+		state = State.CRASH;
 
         Log.e(location, message, e);
         writeLogFile();
@@ -673,6 +691,7 @@ public class Pipeline
             exceptionHandler.handle(location, message, e);
         } else
         {
+			state = State.INACTIVE;
             throw new RuntimeException(e);
         }
     }
@@ -735,11 +754,19 @@ public class Pipeline
     }
 
     /**
+     * @return current state of the framework
+     */
+    public State getState()
+    {
+        return state;
+    }
+
+    /**
      * @return true if pipeline is running, false otherwise
      */
     public boolean isRunning()
     {
-        return isRunning;
+        return state == State.RUNNING;
     }
 
     /**
@@ -747,7 +774,7 @@ public class Pipeline
      */
     public boolean isStopping()
     {
-        return isStopping;
+        return state == State.STOPPING;
     }
 
     /**

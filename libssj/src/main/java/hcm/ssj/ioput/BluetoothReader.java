@@ -96,14 +96,8 @@ public class BluetoothReader extends Sensor {
         for(int i=0; i< _provider.size(); ++i)
             _recvData[i] = new byte[_provider.get(i).getOutputStream().tot];
 
-        try {
-            //use object input streams if we expect more than one input
-            _conn.connect(_provider.size() > 1);
-        }
-        catch (IOException e) {
-            Log.e("error connecting over "+ options.connectionName, e);
-            return false;
-        }
+        //use object input streams if we expect more than one input
+        _conn.connect(_provider.size() > 1);
 
         BluetoothDevice dev = _conn.getConnectedDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
