@@ -50,29 +50,29 @@ public class Pipeline
 
     public class Options extends OptionList
     {
-		/** duration of pipeline start-up phase. Default: 3 */
+        /** duration of pipeline start-up phase. Default: 3 */
         public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "duration of pipeline start-up phase");
-		/** size of all inter-component buffers (in seconds). Default: 2.0 */
+        /** size of all inter-component buffers (in seconds). Default: 2.0 */
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "size of all inter-component buffers (in seconds)");
-		/** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
+        /** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
-		/** How long to wait for a sensor to connect. Default: 5.0 */
+        /** How long to wait for a sensor to connect. Default: 5.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
-		/** enter IP address of master pipeline (leave empty if this is the master). Default: null */
+        /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
-		/** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
+        /** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
         public final Option<Integer> startSyncPort = new Option<>("startSyncPort", 0, Integer.class, "set port for synchronizing pipeline start over network (0 = disabled)"); //55100
-		/** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
+        /** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
         public final Option<Integer> clockSyncPort = new Option<>("clockSyncPort", 0, Integer.class, "set port for synchronizing pipeline clock over network (0 = disabled)"); //55101
-		/** define time between clock sync attempts. Default: 1.0 */
+        /** define time between clock sync attempts. Default: 1.0 */
         public final Option<Float> clockSyncInterval = new Option<>("clockSyncInterval", 1.0f, Float.class, "define time between clock sync attempts");
-		/** write system log to file. Default: false */
+        /** write system log to file. Default: false */
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
-		/** location of log file. Default: /sdcard/SSJ/[time] */
+        /** location of log file. Default: /sdcard/SSJ/[time] */
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
-		/** show all logs greater or equal than level. Default: VERBOSE */
+        /** show all logs greater or equal than level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
-		/** ignore repeated entries smaller than timeout. Default: 5.0 */
+        /** ignore repeated entries smaller than timeout. Default: 5.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
 
         private Options()
@@ -81,19 +81,19 @@ public class Pipeline
         }
     }
 
-	public enum State
-	{
-		INACTIVE,
-		STARTING,
-		RUNNING,
-		STOPPING,
-		CRASH
-	}
+    public enum State
+    {
+        INACTIVE,
+        STARTING,
+        RUNNING,
+        STOPPING,
+        CRASH
+    }
 
     public final Options options = new Options();
 
     protected String name = "SSJ_Framework";
-	private State state;
+    private State state;
 
     private long startTime = 0; //virtual clock
     private long startTimeSystem = 0; //real clock
@@ -105,15 +105,15 @@ public class Pipeline
     ExceptionHandler exceptionHandler = null;
 
     private HashSet<Component> components = new HashSet<>();
-	private ArrayList<TimeBuffer> buffers = new ArrayList<>();
+    private ArrayList<TimeBuffer> buffers = new ArrayList<>();
 
     protected static Pipeline instance = null;
 
     private Pipeline()
     {
-		state = State.INACTIVE;
+        state = State.INACTIVE;
 
-		//configure logger
+        //configure logger
         Log.getInstance().setFramework(this);
         resetCreateTime();
 
@@ -143,7 +143,7 @@ public class Pipeline
      */
     public void start()
     {
-		state = State.STARTING;
+        state = State.STARTING;
         try
         {
             Log.i("starting pipeline" + '\n' +
@@ -177,7 +177,7 @@ public class Pipeline
 
             startTimeSystem = System.currentTimeMillis();
             startTime = SystemClock.elapsedRealtime();
-			state = State.RUNNING;
+            state = State.RUNNING;
             Log.i("pipeline started");
 
             //start clock sync
@@ -566,10 +566,10 @@ public class Pipeline
      */
     public void stop()
     {
-		if (state == State.STOPPING || state == State.INACTIVE)
-			return;
+        if (state == State.STOPPING || state == State.INACTIVE)
+            return;
 
-		state = State.STOPPING;
+        state = State.STOPPING;
 
         Log.i("stopping pipeline" + '\n' +
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
@@ -597,25 +597,25 @@ public class Pipeline
             threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
 
             Log.i("shut down completed");
-		}
-		catch (Exception e)
-		{
-			Log.e("Exception in closing framework", e);
+        }
+        catch (Exception e)
+        {
+            Log.e("Exception in closing framework", e);
 
-			if (exceptionHandler != null)
-			{
-				exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
-			}
-			else
-			{
-				state = State.INACTIVE;
-				throw new RuntimeException(e);
-			}
-		} finally
-		{
-			writeLogFile();
-			state = State.INACTIVE;
-		}
+            if (exceptionHandler != null)
+            {
+                exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
+            }
+            else
+            {
+                state = State.INACTIVE;
+                throw new RuntimeException(e);
+            }
+        } finally
+        {
+            writeLogFile();
+            state = State.INACTIVE;
+        }
     }
 
     /**
@@ -638,9 +638,9 @@ public class Pipeline
      */
     public void clear()
     {
-		state = State.INACTIVE;
+        state = State.INACTIVE;
 
-		if (isRunning())
+        if (isRunning())
         {
             Log.w("Cannot clear. Framework still active.");
             return;
@@ -681,7 +681,7 @@ public class Pipeline
 
     void crash(String location, String message, Throwable e)
     {
-		state = State.CRASH;
+        state = State.CRASH;
 
         Log.e(location, message, e);
         writeLogFile();
@@ -691,7 +691,7 @@ public class Pipeline
             exceptionHandler.handle(location, message, e);
         } else
         {
-			state = State.INACTIVE;
+            state = State.INACTIVE;
             throw new RuntimeException(e);
         }
     }
