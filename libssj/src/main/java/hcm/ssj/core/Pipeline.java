@@ -638,13 +638,13 @@ public class Pipeline
      */
     public void clear()
     {
-        state = State.INACTIVE;
-
         if (isRunning())
         {
             Log.w("Cannot clear. Framework still active.");
             return;
         }
+
+        state = State.INACTIVE;
 
         for (Component c : components)
             c.clear();
