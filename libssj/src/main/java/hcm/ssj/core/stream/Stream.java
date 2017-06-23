@@ -76,7 +76,16 @@ public abstract class Stream implements Serializable
 
     public static Stream create(Provider source, int num)
     {
-        Stream s = create(num, source.getOutputStream().dim, source.getOutputStream().sr, source.getOutputStream().type);
+        Stream s;
+        switch(source.getOutputStream().type)
+        {
+            case IMAGE:
+                ImageStream src = (ImageStream) source.getOutputStream();
+                s = new ImageStream(num, src.dim, src.sr, src.width, src.height, src.format);
+            default:
+                s = create(num, source.getOutputStream().dim, source.getOutputStream().sr, source.getOutputStream().type);
+        }
+
         s.source = source;
         s.dataclass = source.getOutputClasses();
         return s;

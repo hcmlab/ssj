@@ -126,7 +126,7 @@ class CameraUtil
      * @param width Width of image in pixels.
      * @param height Height of image in pixels.
      */
-    public static void YUVNV21ToRgb(int[] argb, byte[] yuv, int width, int height) {
+    public static void ConvertNV21ToRgb(int[] argb, byte[] yuv, int width, int height) {
         final int frameSize = width * height;
         final int ii = 0;
         final int ij = 0;

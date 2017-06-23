@@ -61,7 +61,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         public final Option<Integer> previewFpsRangeMax = new Option<>("previewFpsRangeMax", 30 * 1000, Integer.class, "max preview rate for camera");
         public final Option<Integer> imageFormat = new Option<>("imageFormat", ImageFormat.NV21, Integer.class, "image format for camera");
         public final Option<Boolean> showSupportedValues = new Option<>("showSupportedValues", false, Boolean.class, "show supported values in log");
-        public final Option<Boolean> decodeToRgb = new Option<>("decodeToRgb", false, Boolean.class, "decode NV21 data to RGB");
 
         /**
          *
@@ -98,11 +97,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     protected final int getBufferSize()
     {
         int reqBuffSize = iRealWidth * iRealHeight;
-
-        // Quadruple the buffer size as we need 4 bytes per pixel
-        if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
-            return reqBuffSize * 4;
-
         reqBuffSize += reqBuffSize >> 1;
         return reqBuffSize;
     }
@@ -132,6 +126,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
                 Log.e("Buffer read changed from " + bytes.length + " to " + byaSwapBuffer.length);
                 bytes = new byte[byaSwapBuffer.length];
             }
+/*
 
             // Transform raw NV21 byte data to RGB byte data
             if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
@@ -140,7 +135,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
                 int rgb[] = new int[iRealWidth * iRealHeight];
 
                 // Put rgb pixel values inside rgb array
-                CameraUtil.YUVNV21ToRgb(rgb, byaSwapBuffer, iRealWidth, iRealHeight);
+                CameraUtil.ConvertNV21ToRgb(rgb, byaSwapBuffer, iRealWidth, iRealHeight);
 
                 // Create byte buffer for rgb
                 ByteBuffer byteBuffer = ByteBuffer.allocate(rgb.length * 4);
@@ -154,6 +149,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
 
                 byaSwapBuffer = data;
             }
+*/
             System.arraycopy(byaSwapBuffer, 0, bytes, 0, byaSwapBuffer.length);
         }
     }
@@ -450,7 +446,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
 
     public int getImageFormat()
     {
-        return 0;
+        return camera.getParameters().getPreviewFormat();
     }
 }
 
