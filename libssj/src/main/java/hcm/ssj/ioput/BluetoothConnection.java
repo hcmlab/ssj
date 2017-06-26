@@ -37,13 +37,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.SSJApplication;
 
 /**
  * Created by Johnny on 07.04.2015.
  */
-public abstract class BluetoothConnection extends BroadcastReceiver
+public abstract class BluetoothConnection extends BroadcastReceiver implements Runnable
 {
     public enum Type
     {
@@ -51,9 +53,13 @@ public abstract class BluetoothConnection extends BroadcastReceiver
         SERVER
     }
 
+    protected String _name = "BluetoothConnection";
+    Pipeline pipe;
+
+    private long _firstError = 0;
+
     protected BluetoothDevice _connectedDevice = null;
 
-    Thread _thread;
     protected boolean _terminate = false;
     protected boolean _isConnected = false;
 
@@ -63,22 +69,61 @@ public abstract class BluetoothConnection extends BroadcastReceiver
     protected InputStream _in;
     protected OutputStream _out;
 
+    protected boolean _useObjectStreams = false;
+
     public InputStream input() {return _in;}
     public OutputStream output() {return _out;}
 
     public BluetoothConnection()
     {
+        pipe = Pipeline.getInstance();
+
         //register listener for BL status changes
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
         filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_CONNECTION_STATE_CHANGED);
         SSJApplication.getAppContext().registerReceiver(this, filter);
     }
 
-    abstract void connect(boolean useObjectStreams) throws IOException;
-    abstract void disconnect() throws IOException;
+    public void clear()
+    {
+        SSJApplication.getAppContext().unregisterReceiver(this);
+    }
+
+    public void connect(boolean useObjectStreams)
+    {
+        Log.i(_name + " connecting");
+        _useObjectStreams = useObjectStreams;
+
+        _isConnected = false;
+        _terminate = false;
+
+        pipe.executeRunnable(this);
+
+        waitForConnection();
+        Log.i(_name + " connected");
+    }
+
+    public void disconnect() throws IOException
+    {
+        Log.i(_name + " disconnecting");
+        _terminate = true;
+        _isConnected = false;
+
+        synchronized (_newConnection) {
+            _newConnection.notifyAll();
+        }
+        synchronized (_newDisconnection) {
+            _newDisconnection.notifyAll();
+        }
+
+        close();
+        Log.i(_name + " disconnected");
+    }
+
     abstract BluetoothDevice getRemoteDevice();
 
     public void onReceive(Context ctx, Intent intent) {
@@ -135,7 +180,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
 
     public void waitForConnection()
     {
-        while(!isConnected())
+        while(!isConnected() && !_terminate)
         {
             try
             {
@@ -150,7 +195,7 @@ public abstract class BluetoothConnection extends BroadcastReceiver
 
     public void waitForDisconnection()
     {
-        while(isConnected())
+        while(isConnected() && !_terminate)
         {
             try
             {
@@ -208,4 +253,22 @@ public abstract class BluetoothConnection extends BroadcastReceiver
             }
         }
     }
+
+    protected void notifyDataTranferResult(boolean value)
+    {
+        if(!value)
+        {
+            if(_firstError == 0)
+                _firstError = System.currentTimeMillis();
+            else if (System.currentTimeMillis() - _firstError > Cons.WAIT_BL_DISCONNECT)
+            {
+                Log.w("connection interrupted");
+                setConnectionStatus(false);
+            }
+        }
+        else
+            _firstError = 0;
+    }
+
+    abstract protected void close();
 }

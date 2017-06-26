@@ -50,29 +50,29 @@ public class Pipeline
 
     public class Options extends OptionList
     {
-		/** duration of pipeline start-up phase. Default: 3 */
+        /** duration of pipeline start-up phase. Default: 3 */
         public final Option<Integer> countdown = new Option<>("countdown", 3, Integer.class, "duration of pipeline start-up phase");
-		/** size of all inter-component buffers (in seconds). Default: 2.0 */
+        /** size of all inter-component buffers (in seconds). Default: 2.0 */
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "size of all inter-component buffers (in seconds)");
-		/** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
+        /** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
-		/** How long to wait for a sensor to connect. Default: 5.0 */
+        /** How long to wait for a sensor to connect. Default: 5.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
-		/** enter IP address of master pipeline (leave empty if this is the master). Default: null */
+        /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
-		/** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
+        /** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
         public final Option<Integer> startSyncPort = new Option<>("startSyncPort", 0, Integer.class, "set port for synchronizing pipeline start over network (0 = disabled)"); //55100
-		/** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
+        /** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
         public final Option<Integer> clockSyncPort = new Option<>("clockSyncPort", 0, Integer.class, "set port for synchronizing pipeline clock over network (0 = disabled)"); //55101
-		/** define time between clock sync attempts. Default: 1.0 */
+        /** define time between clock sync attempts. Default: 1.0 */
         public final Option<Float> clockSyncInterval = new Option<>("clockSyncInterval", 1.0f, Float.class, "define time between clock sync attempts");
-		/** write system log to file. Default: false */
+        /** write system log to file. Default: false */
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
-		/** location of log file. Default: /sdcard/SSJ/[time] */
+        /** location of log file. Default: /sdcard/SSJ/[time] */
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
-		/** show all logs >= level. Default: VERBOSE */
+        /** show all logs greater or equal than level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
-		/** ignore repeated entries < timeout. Default: 5.0 */
+        /** ignore repeated entries smaller than timeout. Default: 5.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
 
         private Options()
@@ -81,11 +81,19 @@ public class Pipeline
         }
     }
 
+    public enum State
+    {
+        INACTIVE,
+        STARTING,
+        RUNNING,
+        STOPPING,
+        CRASH
+    }
+
     public final Options options = new Options();
 
     protected String name = "SSJ_Framework";
-    protected boolean isRunning = false;
-    protected boolean isStopping = false;
+    private State state;
 
     private long startTime = 0; //virtual clock
     private long startTimeSystem = 0; //real clock
@@ -97,12 +105,14 @@ public class Pipeline
     ExceptionHandler exceptionHandler = null;
 
     private HashSet<Component> components = new HashSet<>();
-	private ArrayList<TimeBuffer> buffers = new ArrayList<>();
+    private ArrayList<TimeBuffer> buffers = new ArrayList<>();
 
     protected static Pipeline instance = null;
 
     private Pipeline()
     {
+        state = State.INACTIVE;
+
         //configure logger
         Log.getInstance().setFramework(this);
         resetCreateTime();
@@ -133,6 +143,7 @@ public class Pipeline
      */
     public void start()
     {
+        state = State.STARTING;
         try
         {
             Log.i("starting pipeline" + '\n' +
@@ -166,7 +177,7 @@ public class Pipeline
 
             startTimeSystem = System.currentTimeMillis();
             startTime = SystemClock.elapsedRealtime();
-            isRunning = true;
+            state = State.RUNNING;
             Log.i("pipeline started");
 
             //start clock sync
@@ -192,10 +203,21 @@ public class Pipeline
      */
     public SensorChannel addSensor(Sensor s, SensorChannel c) throws SSJException
     {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return c;
+        }
+
         s.addChannel(c);
         c.setSensor(s);
 
-        s.init();
+        if(!components.contains(s))
+        {
+            components.add(s);
+            s.init();
+        }
+
         c.init();
 
         int dim = c.getSampleDimension();
@@ -211,7 +233,6 @@ public class Pipeline
 
         c.setup();
 
-        components.add(s);
         components.add(c);
 
         return c;
@@ -247,6 +268,12 @@ public class Pipeline
      */
     public Provider addTransformer(Transformer t, Provider[] sources, double frame, double delta) throws SSJException
     {
+        if(components.contains(t))
+        {
+            Log.w("Component already added.");
+            return t;
+        }
+
         t.setup(sources, frame, delta);
 
         int dim = t.getOutputStream().dim;
@@ -289,7 +316,14 @@ public class Pipeline
      * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException {
+    public void addConsumer(Consumer c, Provider[] sources, double frame, double delta) throws SSJException
+    {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
         c.setup(sources, frame, delta);
         components.add(c);
     }
@@ -304,7 +338,8 @@ public class Pipeline
      *                The data window to be processed is defined by the timing information of the event.
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException {
+    public void addConsumer(Consumer c, Provider source, EventChannel channel) throws SSJException
+    {
         Provider[] sources = {source};
         addConsumer(c, sources, channel);
     }
@@ -319,7 +354,14 @@ public class Pipeline
      *                The data window to be processed is defined by the timing information of the event.
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException {
+    public void addConsumer(Consumer c, Provider[] sources, EventChannel channel) throws SSJException
+    {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
         c.setup(sources);
         c.addEventChannelIn(channel);
         components.add(c);
@@ -432,7 +474,7 @@ public class Pipeline
 
     boolean getData(int buffer_id, Object data, double start_time, double duration)
     {
-        if (!isRunning)
+        if (!isRunning())
         {
             return false;
         }
@@ -464,7 +506,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested duration too large");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning()) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown error occurred");
                 return false;
         }
@@ -474,7 +516,7 @@ public class Pipeline
 
     boolean getData(int buffer_id, Object data, int startSample, int numSamples)
     {
-        if (!isRunning)
+        if (!isRunning())
         {
             return false;
         }
@@ -509,7 +551,7 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "requested data is unknown, probably caused by a delayed sensor start");
                 return false;
             case TimeBuffer.STATUS_ERROR:
-                if (isRunning) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
+                if (isRunning()) //this means that either the framework shut down (in this case the behaviour is normal) or some other error occurred
                     Log.w(buf.getOwner().getComponentName(), "unknown buffer error occurred");
                 return false;
         }
@@ -524,11 +566,10 @@ public class Pipeline
      */
     public void stop()
     {
-        if (isStopping)
+        if (state == State.STOPPING || state == State.INACTIVE)
             return;
 
-        isStopping = true;
-        isRunning = false;
+        state = State.STOPPING;
 
         Log.i("stopping pipeline" + '\n' +
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
@@ -556,18 +597,24 @@ public class Pipeline
             threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
 
             Log.i("shut down completed");
-        } catch (Exception e)
+        }
+        catch (Exception e)
         {
             Log.e("Exception in closing framework", e);
 
             if (exceptionHandler != null)
+            {
                 exceptionHandler.handle("TheFramework.stop()", "Exception in closing framework", e);
+            }
             else
+            {
+                state = State.INACTIVE;
                 throw new RuntimeException(e);
+            }
         } finally
         {
             writeLogFile();
-            isStopping = false;
+            state = State.INACTIVE;
         }
     }
 
@@ -597,6 +644,8 @@ public class Pipeline
             return;
         }
 
+        state = State.INACTIVE;
+
         for (Component c : components)
             c.clear();
 
@@ -604,6 +653,14 @@ public class Pipeline
         buffers.clear();
         Log.getInstance().clear();
         startTime = 0;
+    }
+
+    /**
+     * Executes a runnable using the pipeline's thread pool
+     */
+    public void executeRunnable(Runnable r)
+    {
+        threadPool.execute(r);
     }
 
     /**
@@ -624,7 +681,7 @@ public class Pipeline
 
     void crash(String location, String message, Throwable e)
     {
-        isRunning = false;
+        state = State.CRASH;
 
         Log.e(location, message, e);
         writeLogFile();
@@ -634,6 +691,7 @@ public class Pipeline
             exceptionHandler.handle(location, message, e);
         } else
         {
+            state = State.INACTIVE;
             throw new RuntimeException(e);
         }
     }
@@ -696,11 +754,19 @@ public class Pipeline
     }
 
     /**
+     * @return current state of the framework
+     */
+    public State getState()
+    {
+        return state;
+    }
+
+    /**
      * @return true if pipeline is running, false otherwise
      */
     public boolean isRunning()
     {
-        return isRunning;
+        return state == State.RUNNING;
     }
 
     /**
@@ -708,7 +774,7 @@ public class Pipeline
      */
     public boolean isStopping()
     {
-        return isStopping;
+        return state == State.STOPPING;
     }
 
     /**

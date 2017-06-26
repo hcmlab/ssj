@@ -27,7 +27,6 @@
 package hcm.ssj.estimote;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -53,6 +52,11 @@ public class BeaconChannel extends SensorChannel
 	public final Options options = new Options();
 
 	BeaconListener listener;
+
+	public BeaconChannel()
+	{
+		_name = "BeaconChannel";
+	}
 
 	@Override
 	public void enter(Stream stream_out)

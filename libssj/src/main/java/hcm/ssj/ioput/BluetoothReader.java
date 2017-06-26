@@ -96,14 +96,8 @@ public class BluetoothReader extends Sensor {
         for(int i=0; i< _provider.size(); ++i)
             _recvData[i] = new byte[_provider.get(i).getOutputStream().tot];
 
-        try {
-            //use object input streams if we expect more than one input
-            _conn.connect(_provider.size() > 1);
-        }
-        catch (IOException e) {
-            Log.e("error connecting over "+ options.connectionName, e);
-            return false;
-        }
+        //use object input streams if we expect more than one input
+        _conn.connect(_provider.size() > 1);
 
         BluetoothDevice dev = _conn.getConnectedDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
@@ -128,10 +122,12 @@ public class BluetoothReader extends Sensor {
                 for(int i = 0; i< recvStreams.length && i < _recvData.length; ++i)
                     Util.arraycopy(recvStreams[i].ptr(), 0, _recvData[i], 0, _recvData[i].length);
             }
+            _conn.notifyDataTranferResult(true);
         }
         catch (IOException | ClassNotFoundException e)
         {
             Log.w("unable to read from data stream", e);
+            _conn.notifyDataTranferResult(false);
         }
     }
 
@@ -166,5 +162,13 @@ public class BluetoothReader extends Sensor {
     public byte[] getData(int channel_id)
     {
         return _recvData[channel_id];
+    }
+
+    @Override
+    public void clear()
+    {
+        _conn.clear();
+        _conn = null;
+        super.clear();
     }
 }

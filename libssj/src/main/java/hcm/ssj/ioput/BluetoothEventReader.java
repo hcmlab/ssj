@@ -27,6 +27,8 @@
 package hcm.ssj.ioput;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.os.PowerManager;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -39,6 +41,7 @@ import java.util.UUID;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
@@ -74,11 +77,16 @@ public class BluetoothEventReader extends EventHandler
     byte[] _buffer;
 
     XmlPullParser _parser;
+    PowerManager _mgr;
+    PowerManager.WakeLock _wakeLock;
 
     public BluetoothEventReader()
     {
         _name = "BluetoothEventReader";
-        _doWakeLock = true;
+
+        _doWakeLock = false; //disable SSJ's WL-manager, WL will be handled locally
+        _mgr = (PowerManager) SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
+        _wakeLock = _mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this._name);
     }
 
     @Override
@@ -139,13 +147,10 @@ public class BluetoothEventReader extends EventHandler
 
         try
         {
-            //we check whether there is any data as reads are blocking for bluetooth
-            if (_conn.input().available() == 0)
-                return;
-
             if (!options.parseXmlToEvent.get())
             {
                 int len = _conn.input().read(_buffer);
+                _wakeLock.acquire();
 
                 Event ev = Event.create(Cons.Type.STRING);
                 ev.setData(new String(_buffer, 0, len));
@@ -157,6 +162,9 @@ public class BluetoothEventReader extends EventHandler
 
                 //first element must be <events>
                 _parser.next();
+
+                _wakeLock.acquire();
+
                 if (_parser.getEventType() != XmlPullParser.START_TAG || !_parser.getName().equalsIgnoreCase("events"))
                 {
                     Log.w("unknown or malformed bluetooth message");
@@ -184,11 +192,21 @@ public class BluetoothEventReader extends EventHandler
                         break;
                 }
             }
+            _conn.notifyDataTranferResult(true);
         }
-        catch(IOException | XmlPullParserException e)
+        catch(IOException e)
         {
-            Log.w("failed to receive or parse package", e);
-            return;
+            Log.w("failed to receive BL data", e);
+            _conn.notifyDataTranferResult(false);
+        }
+        catch(XmlPullParserException e)
+        {
+            Log.w("failed to parse package", e);
+        }
+        finally
+        {
+            if(_wakeLock.isHeld())
+                _wakeLock.release();
         }
     }
 
@@ -215,6 +233,14 @@ public class BluetoothEventReader extends EventHandler
         }
 
         super.forcekill();
+    }
+
+    @Override
+    public void clear()
+    {
+        _conn.clear();
+        _conn = null;
+        super.clear();
     }
 
 }

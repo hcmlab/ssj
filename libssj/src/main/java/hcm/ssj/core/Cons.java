@@ -38,6 +38,7 @@ public class Cons
     public final static long TIMER_SYNC_ACCURACY = 100; //in ms
     public final static long SLEEP_ON_COMPONENT_IDLE = 5000; //in ms
     public final static long WAIT_BL_CONNECT = 1000; //in ms
+    public static final long WAIT_BL_DISCONNECT = 1000; //in ms
     public final static long WAIT_THREAD_TERMINATION = 60000; //in ms
     public final static int MAX_EVENT_SIZE = 4096; //in bytes
     public final static int MAX_NUM_EVENTS_PER_CHANNEL = 128; //in bytes
@@ -47,7 +48,8 @@ public class Cons
     public final static int THREAD_PRIORIIY_HIGH = -19; //nice scale, -20 highest priority, 19 lowest priority
 
     public final static String DEFAULT_BL_SERIAL_UUID = "00001101-0000-1000-8000-00805f9b34fb";
-    public enum Type {
+
+	public enum Type {
         UNDEF,
         BYTE,
         CHAR,
