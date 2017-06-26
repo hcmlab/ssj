@@ -26,8 +26,11 @@
 
 package hcm.ssj.camera;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -55,6 +58,18 @@ public class NV21ToRGBDecoder extends Transformer
 		}
 	}
 
+	// Constants for inception model evaluation
+	private static final int IMAGE_MEAN = 117;
+	private static final float IMAGE_STD = 1;
+
+	// Constants for buffer size initialization
+	private static final int BYTES_PER_INT = 4;
+	private static final int CHANNELS_PER_PIXEL = 3;
+
+	private int[] intValues;
+	private float[] floatValues;
+	private byte[] data;
+
 	//options
 	public final Options options = new Options();
 
@@ -71,27 +86,96 @@ public class NV21ToRGBDecoder extends Transformer
 	public void flush(Stream[] stream_in, Stream stream_out)
 	{
 		// Gets called at the end of process
+		// Empty on purpose
 	}
 
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
-		// Gets called at the beginning of the process
-		this.width = ((ImageStream)stream_in[0]).getWidth();
-		this.height = ((ImageStream)stream_in[0]).getHeight();
+		// Initialize image stream size
+		width = ((ImageStream)stream_in[0]).getWidth();
+		height = ((ImageStream)stream_in[0]).getHeight();
+
+		// Initialize rgb arrays
+		intValues = new int[width * height];
+		floatValues = new float[width * height * CHANNELS_PER_PIXEL];
 	}
 
 	@Override
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
-		// Gets called repeatedly
+		// Fetch raw NV21 pixel data
+		data = stream_in[0].ptrB();
+
+		// Put rgb pixel values inside rgb array
+		CameraUtil.convertNV21ToRgb(intValues, data, width, height);
+
+		ByteBuffer byteBuffer;
+
+		// Don't convert pixel data to float array
+		if (!options.prepareForInception.get())
+		{
+			// Initialize byte buffer for rgb
+			byteBuffer = ByteBuffer.allocate(intValues.length * BYTES_PER_INT);
+
+			// Create int buffer
+			IntBuffer intBuffer = byteBuffer.asIntBuffer();
+
+			// Put rgb array in integer buffer
+			intBuffer.put(intValues);
+		}
+		else
+		{
+			// Convert int rgb array to float rgb array
+			convertToFloatRGB();
+
+			int bufferSize = intValues.length * BYTES_PER_INT * CHANNELS_PER_PIXEL;
+
+			// Initialize byte buffer for rgb
+			byteBuffer = ByteBuffer.allocate(bufferSize);
+
+			// Create float buffer
+			FloatBuffer floatBuffer = byteBuffer.asFloatBuffer();
+
+			// Put rgb float values inside the buffer
+			floatBuffer.put(floatValues);
+		}
+
+		// Get raw rgb data
+		byte[] rgbData = byteBuffer.array();
+
+		// Get output stream
+		byte[] out = stream_out.ptrB();
+
+		// Write pixel data to output stream
+		for (int i = 0; i < out.length; i++)
+			out[i] = rgbData[i];
+	}
+
+	/**
+	 * Prepares pixel int data for inference with Inception model.
+	 *
+	 * @return float rgb array.
+	 */
+	private void convertToFloatRGB()
+	{
+		for (int i = 0; i <intValues.length; ++i)
+		{
+			final int val = intValues[i];
+			floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			floatValues[i * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+		}
 	}
 
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
 	{
-		int requiredBufferSize = (int)(stream_in[0].dim / 1.5) * 4;
-		return requiredBufferSize;
+		int requiredBufferSize = (int)(stream_in[0].dim / 1.5) * BYTES_PER_INT;
+
+		if (!options.prepareForInception.get())
+			return requiredBufferSize;
+		return requiredBufferSize * CHANNELS_PER_PIXEL;
 	}
 
 	@Override

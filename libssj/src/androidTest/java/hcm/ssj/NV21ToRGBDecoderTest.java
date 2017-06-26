@@ -33,16 +33,11 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
-import hcm.ssj.camera.CameraWriter;
 import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
-
-import static android.support.test.InstrumentationRegistry.getContext;
 
 /**
  * @author Vitaly
@@ -55,10 +50,6 @@ public class NV21ToRGBDecoderTest
 	@Test
 	public void decodeNV21() throws Exception
 	{
-		File dir = getContext().getFilesDir();
-
-		String outputFileName = getClass().getSimpleName() + ".test";
-
 		// Option parameters for camera sensor
 		double sampleRate = 1;
 		int width = 320;
@@ -81,7 +72,9 @@ public class NV21ToRGBDecoderTest
 		cameraChannel.options.sampleRate.set(sampleRate);
 		frame.addSensor(cameraSensor, cameraChannel);
 
+		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
+		decoder.options.prepareForInception.set(true);
 		frame.addTransformer(decoder, cameraChannel, 1, 0);
 
 		// Add consumer to the pipeline

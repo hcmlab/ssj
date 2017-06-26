@@ -124,30 +124,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
                 Log.e("Buffer read changed from " + bytes.length + " to " + byaSwapBuffer.length);
                 bytes = new byte[byaSwapBuffer.length];
             }
-/*
-
-            // Transform raw NV21 byte data to RGB byte data
-            if (options.decodeToRgb.get() && options.imageFormat.get() == ImageFormat.NV21)
-            {
-                // Create empty rgb array
-                int rgb[] = new int[iRealWidth * iRealHeight];
-
-                // Put rgb pixel values inside rgb array
-                CameraUtil.ConvertNV21ToRgb(rgb, byaSwapBuffer, iRealWidth, iRealHeight);
-
-                // Create byte buffer for rgb
-                ByteBuffer byteBuffer = ByteBuffer.allocate(rgb.length * 4);
-                IntBuffer intBuffer = byteBuffer.asIntBuffer();
-
-                // Put rgb array in integer buffer
-                intBuffer.put(rgb);
-
-                // Get raw rgb data
-                byte[] data = byteBuffer.array();
-
-                byaSwapBuffer = data;
-            }
-*/
             System.arraycopy(byaSwapBuffer, 0, bytes, 0, byaSwapBuffer.length);
         }
     }
