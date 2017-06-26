@@ -81,7 +81,8 @@ public abstract class Stream implements Serializable
         {
             case IMAGE:
                 ImageStream src = (ImageStream) source.getOutputStream();
-                s = new ImageStream(num, src.dim, src.sr, src.width, src.height, src.format);
+                s = new ImageStream(num, src.dim, src.sr, src.getWidth(), src.getHeight(), src.getFormat());
+                break;
             default:
                 s = create(num, source.getOutputStream().dim, source.getOutputStream().sr, source.getOutputStream().type);
         }

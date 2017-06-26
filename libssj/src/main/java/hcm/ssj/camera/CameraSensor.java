@@ -32,8 +32,6 @@ import android.hardware.Camera;
 import android.os.Build;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.List;
 
 import hcm.ssj.core.Log;

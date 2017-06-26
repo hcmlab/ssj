@@ -77,9 +77,8 @@ public class NV21ToRGBDecoder extends Transformer
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
 		// Gets called at the beginning of the process
-		this.width = ((ImageStream)stream_in[0]).width;
-		this.height = ((ImageStream)stream_in[0]).height;
-		stream_out = stream_in[0];
+		this.width = ((ImageStream)stream_in[0]).getWidth();
+		this.height = ((ImageStream)stream_in[0]).getHeight();
 	}
 
 	@Override

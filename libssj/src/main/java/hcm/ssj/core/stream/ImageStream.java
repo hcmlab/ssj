@@ -36,9 +36,9 @@ import hcm.ssj.core.Cons;
  */
 public class ImageStream extends ByteStream
 {
-    public int width;
-    public int height;
-    public int format;
+    private int width;
+    private int height;
+    private int format;
 
     public ImageStream(int num, int dim, double sr)
     {
@@ -107,5 +107,35 @@ public class ImageStream extends ByteStream
         System.arraycopy(_ptr, 0, copy._ptr, 0, _ptr.length);
 
         return copy;
+    }
+
+    public void setWidth(int width)
+    {
+        this.width = width;
+    }
+
+    public void setHeight(int height)
+    {
+        this.height = height;
+    }
+
+    public void setFormat(int format)
+    {
+        this.format = format;
+    }
+
+    public int getWidth()
+    {
+        return width;
+    }
+
+    public int getHeight()
+    {
+        return height;
+    }
+
+    public int getFormat()
+    {
+        return format;
     }
 }

@@ -98,10 +98,21 @@ public class CameraChannel extends SensorChannel
         {
             Log.w("unsupported stream format. sample number = " + stream_out.num);
         }
+    }
 
-        ((ImageStream)stream_out).width = cameraSensor.getImageWidth();
-        ((ImageStream)stream_out).height = cameraSensor.getImageHeight();
-        ((ImageStream)stream_out).format = cameraSensor.getImageFormat();
+    @Override
+    public void setup()
+    {
+        try
+        {
+            super.setup();
+        } catch (Exception e)
+        {
+            Log.e("error configuring component", e);
+        }
+
+        ((ImageStream)_stream_out).setWidth(cameraSensor.getImageWidth());
+        ((ImageStream)_stream_out).setHeight(cameraSensor.getImageHeight());
     }
 
     /**
