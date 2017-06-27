@@ -29,7 +29,6 @@ package hcm.ssj;
 import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.view.SurfaceView;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,14 +36,13 @@ import org.junit.runner.RunWith;
 import java.io.File;
 
 import hcm.ssj.camera.CameraChannel;
-import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.camera.CameraSensor;
-import hcm.ssj.camera.CameraWriter;
+import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.ClassifierT;
+import hcm.ssj.test.Logger;
 
 import static android.support.test.InstrumentationRegistry.getContext;
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
 
 /**
  * Created by Vitaly on 04.06.2017.
@@ -61,8 +59,6 @@ public class InceptionTest
 
 		// Neural network trainer file for classifying images
 		String modelName = "inception_model.trainer";
-
-		String outputFileName = getClass().getSimpleName() + ".test";
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
@@ -90,25 +86,26 @@ public class InceptionTest
 		cameraChannel.options.sampleRate.set(sampleRate);
 		frame.addSensor(cameraSensor, cameraChannel);
 
+		// Set up a NV21 decoder
+		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
+		decoder.options.prepareForInception.set(true);
+		frame.addTransformer(decoder, cameraChannel, 1, 0);
+
 		// Add classifier transformer to the pipeline
 		ClassifierT classifier = new ClassifierT();
 		classifier.options.trainerPath.set(dir.getAbsolutePath());
 		classifier.options.trainerFile.set(modelName);
 		classifier.options.merge.set(false);
-		frame.addTransformer(classifier, cameraChannel, 1, 0);
+		frame.addTransformer(classifier, decoder, 1, 0);
 
 		// Add consumer to the pipeline
-		CameraWriter cameraWriter = new CameraWriter();
-		cameraWriter.options.filePath.set(dir.getPath());
-		cameraWriter.options.fileName.set(outputFileName);
-		cameraWriter.options.width.set(width);
-		cameraWriter.options.height.set(height);
-		frame.addConsumer(cameraWriter, cameraChannel, 1.0 / sampleRate, 0);
+		Logger logger = new Logger();
+		frame.addConsumer(logger, decoder, 1.0 / sampleRate, 0);
 
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL * 100;
 		try
 		{
 			while (System.currentTimeMillis() < end)

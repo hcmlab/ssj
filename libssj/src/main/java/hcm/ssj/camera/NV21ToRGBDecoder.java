@@ -65,6 +65,7 @@ public class NV21ToRGBDecoder extends Transformer
 	private int[] intValues;
 	private float[] floatValues;
 	private byte[] nv21Data;
+	private int[] rgbBytes;
 
 	public final Options options = new Options();
 
@@ -89,9 +90,10 @@ public class NV21ToRGBDecoder extends Transformer
 		width = ((ImageStream)stream_in[0]).getWidth();
 		height = ((ImageStream)stream_in[0]).getHeight();
 
-		// Initialize rgb arrays
-		intValues = new int[width * height];
-		floatValues = new float[width * height * CHANNELS_PER_PIXEL];
+		// Initialize pixel arrays
+		intValues = new int[CROP_SIZE * CROP_SIZE];
+		floatValues = new float[CROP_SIZE * CROP_SIZE * CHANNELS_PER_PIXEL];
+		rgbBytes = new int[width * height];
 	}
 
 	@Override
@@ -100,12 +102,12 @@ public class NV21ToRGBDecoder extends Transformer
 		// Fetch raw NV21 pixel data
 		nv21Data = stream_in[0].ptrB();
 
-		// Convert NV21 to RGB and save the pixel data inside intValues
-		CameraUtil.convertNV21ToRgb(intValues, nv21Data, width, height);
+		// Convert NV21 to RGB and save the pixel data inside of rgbBytes
+		CameraUtil.convertNV21ToRgb(rgbBytes, nv21Data, width, height);
 
 		if (options.prepareForInception.get())
 		{
-			CameraImageCropper cropper = new CameraImageCropper(intValues, width, height,
+			CameraImageCropper cropper = new CameraImageCropper(rgbBytes, width, height,
 																CROP_SIZE, MAINTAIN_ASPECT);
 
 			// Forces image to be of a quadratic shape
@@ -141,7 +143,7 @@ public class NV21ToRGBDecoder extends Transformer
 	{
 		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
 
-		for (int i = 0; i <intValues.length; ++i)
+		for (int i = 0; i < intValues.length; ++i)
 		{
 			final int val = intValues[i];
 			floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
@@ -156,7 +158,7 @@ public class NV21ToRGBDecoder extends Transformer
 		int dimension = (int)(stream_in[0].dim / 1.5);
 
 		if (options.prepareForInception.get())
-			return dimension * CHANNELS_PER_PIXEL;
+			return CROP_SIZE * CROP_SIZE * CHANNELS_PER_PIXEL;
 		return dimension;
 	}
 

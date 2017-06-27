@@ -26,8 +26,6 @@
 
 package hcm.ssj.ml;
 
-import android.graphics.Bitmap;
-
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
@@ -48,7 +46,6 @@ import hcm.ssj.core.stream.Stream;
  * @author Vitaly Krumins
  */
 
-// TODO: Encapsulate int/float-value arrays into ImageData class.
 public class TensorFlow extends Model
 {
 	private Graph graph;
@@ -56,19 +53,11 @@ public class TensorFlow extends Model
 
 	// Constants for inception model evaluation
 	private final int INPUT_SIZE = 224;
-	private final int IMAGE_MEAN = 117;
-	private final float IMAGE_STD = 1;
 	private final String INPUT_NAME = "input";
 	private final String OUTPUT_NAME = "output";
-	private final boolean MAINTAIN_ASPECT = true;
-
-	private int[] intValues;
-	private float[] floatValues;
 
 	private int classNum;
 	private String[] classNames;
-
-	private ImageData imageData;
 
 	static
 	{
@@ -80,46 +69,30 @@ public class TensorFlow extends Model
 	 */
 	public TensorFlow()
 	{
-		imageData = new ImageData(INPUT_SIZE, MAINTAIN_ASPECT);
-		intValues = new int[INPUT_SIZE * INPUT_SIZE];
-		floatValues = new float[INPUT_SIZE * INPUT_SIZE * 3];
+		// ...
 	}
 
 	protected float[] forward(Stream[] stream)
 	{
-		// Create cropped bitmap for prediction.
-		Bitmap bitmap = imageData.createRgbBitmap(stream[0].ptrB());
-
-		// Get probability array.
-		float[] probabilities = recognizeImage(bitmap);
+		float[] floatValues = stream[0].ptrF();
+		float[] probabilities = makePrediction(floatValues);
 
 		// Make prediction.
 		int bestLabelIdx = maxIndex(probabilities);
 		Log.d("tf_ssj",
 			  String.format("BEST MATCH: %s (%.2f%% likely)",
 							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
-
 		return null;
 	}
 
 	/**
 	 * Makes prediction about the given image.
 	 *
-	 * @param bitmap Cropped bitmap to classify.
+	 * @param floatValues RGB float data.
 	 * @return Probability array.
 	 */
-	private float[] recognizeImage(Bitmap bitmap)
+	private float[] makePrediction(float[] floatValues)
 	{
-		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-		for (int i = 0; i <intValues.length; ++i)
-		{
-			final int val = intValues[i];
-			floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-			floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-			floatValues[i * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-		}
-
 		Tensor input = Tensor.create(new long[] {1, INPUT_SIZE, INPUT_SIZE, 3}, FloatBuffer.wrap(floatValues));
 		Tensor result = session.runner()
 				.feed(INPUT_NAME, input)
