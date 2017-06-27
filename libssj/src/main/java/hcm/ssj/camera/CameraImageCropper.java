@@ -40,6 +40,7 @@ import android.graphics.Matrix;
 
 public class CameraImageCropper
 {
+	private static final int ROTATION = 90;
 	private Bitmap rgbBitmap;
 	private Bitmap croppedBitmap;
 
@@ -56,6 +57,7 @@ public class CameraImageCropper
 	/**
 	 * Initializes bitmaps, rgb array, canvas, and transform matrices.
 	 *
+	 * @param rgb Image pixel data
 	 * @param width Image width in pixels.
 	 * @param height Image height in pixels.
 	 * @param inputSize Acceptable image size for Inception model.
@@ -69,17 +71,17 @@ public class CameraImageCropper
 		this.height = height;
 		this.rgb = rgb;
 
-		// Create bitmap for rgb values
+		// Create bitmap for the original image
 		rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		// Create bitmap for cropped image
+		// Create bitmap for the cropped image
 		croppedBitmap = Bitmap.createBitmap(inputSize, inputSize, Bitmap.Config.ARGB_8888);
 
 		// Transform image to be of a quadratic form as Inception model only
 		// accepts images with the same width and height
 		cropToFrameTransform = new Matrix();
 		frameToCropTransform = CameraUtil.getTransformationMatrix(
-				width, height, inputSize, inputSize, 90, maintainAspectRatio
+				width, height, inputSize, inputSize, ROTATION, maintainAspectRatio
 		);
 		frameToCropTransform.invert(cropToFrameTransform);
 		canvas = new Canvas(croppedBitmap);

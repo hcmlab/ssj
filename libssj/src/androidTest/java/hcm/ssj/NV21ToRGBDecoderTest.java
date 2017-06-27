@@ -50,6 +50,8 @@ public class NV21ToRGBDecoderTest
 	@Test
 	public void decodeNV21() throws Exception
 	{
+		final boolean PREPARE_FOR_INCEPTION = true;
+
 		// Option parameters for camera sensor
 		double sampleRate = 1;
 		int width = 320;
@@ -74,7 +76,7 @@ public class NV21ToRGBDecoderTest
 
 		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
-		decoder.options.prepareForInception.set(true);
+		decoder.options.prepareForInception.set(PREPARE_FOR_INCEPTION);
 		frame.addTransformer(decoder, cameraChannel, 1, 0);
 
 		// Add consumer to the pipeline
