@@ -28,6 +28,8 @@ package hcm.ssj.camera;
 
 import android.graphics.Bitmap;
 
+import java.util.Date;
+
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -43,9 +45,6 @@ import hcm.ssj.core.stream.Stream;
  */
 public class NV21ToRGBDecoder extends Transformer
 {
-	/**
-	 * All options for the decoder
-	 */
 	public class Options extends OptionList
 	{
 		public final Option<Boolean> prepareForInception = new Option<>("prepareForInception", false, Boolean.class, "prepare rgb int nv21Data for inference");
@@ -61,11 +60,10 @@ public class NV21ToRGBDecoder extends Transformer
 	private static final int CROP_SIZE = 224;
 	private static final boolean MAINTAIN_ASPECT = true;
 	private static final int CHANNELS_PER_PIXEL = 3;
+	private static final int BYTES_PER_INT = 4;
 
-	private int[] intValues;
-	private float[] floatValues;
 	private byte[] nv21Data;
-	private int[] rgbBytes;
+	private byte[] rgbBytes;
 
 	public final Options options = new Options();
 
@@ -90,10 +88,8 @@ public class NV21ToRGBDecoder extends Transformer
 		width = ((ImageStream)stream_in[0]).getWidth();
 		height = ((ImageStream)stream_in[0]).getHeight();
 
-		// Initialize pixel arrays
-		intValues = new int[CROP_SIZE * CROP_SIZE];
-		floatValues = new float[CROP_SIZE * CROP_SIZE * CHANNELS_PER_PIXEL];
-		rgbBytes = new int[width * height];
+		if (options.prepareForInception.get())
+			rgbBytes = new byte[width * height * BYTES_PER_INT];
 	}
 
 	@Override
@@ -102,53 +98,51 @@ public class NV21ToRGBDecoder extends Transformer
 		// Fetch raw NV21 pixel data
 		nv21Data = stream_in[0].ptrB();
 
-		// Convert NV21 to RGB and save the pixel data inside of rgbBytes
-		CameraUtil.convertNV21ToRgb(rgbBytes, nv21Data, width, height);
-
 		if (options.prepareForInception.get())
 		{
+			// Convert NV21 to RGB and save the pixel data inside of rgbBytes
+			CameraUtil.convertNV21ToRgb(rgbBytes, nv21Data, width, height);
+
 			CameraImageCropper cropper = new CameraImageCropper(rgbBytes, width, height,
 																CROP_SIZE, MAINTAIN_ASPECT);
 
 			// Forces image to be of a quadratic shape
 			Bitmap croppedBitmap = cropper.cropImage();
+			CameraUtil.saveBitmap(croppedBitmap, new Date().toString() + ".png");
 
 			// Converts RGB to float values and saves the data to floatValues array
-			convertToFloatRGB(croppedBitmap);
-
-			float out[] = stream_out.ptrF();
-
-			// Write data prepared for inception to the output stream
-			for (int i = 0; i < out.length; i++)
-			{
-				out[i] = floatValues[i];
-			}
+			//convertToFloatRGB(croppedBitmap, stream_out.ptrF());
 		}
 		else
 		{
-			int out[] = stream_out.ptrI();
+			// Convert NV21 to RGB and save the pixel data inside of rgbBytes
+			byte out[] = stream_out.ptrB();
+			CameraUtil.convertNV21ToRgb(out, nv21Data, width, height);
+
 
 			// Write RGB pixel data to the output stream
 			for (int i = 0; i < out.length; i++)
 			{
-				out[i] = intValues[i];
+				out[i] = rgbBytes[i];
 			}
 		}
 	}
 
 	/**
-	 * Prepares pixel nv21Data for inference with Inception model.
+	 * Prepares pixel data for inference with Inception model.
+	 * Pre-process the image data from 0-255 int to normalized float based values.
 	 */
-	private void convertToFloatRGB(Bitmap bitmap)
+	private void convertToFloatRGB(Bitmap bitmap, float[] out)
 	{
-		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-		for (int i = 0; i < intValues.length; ++i)
+		for (int x = 0; x < height; x++)
 		{
-			final int val = intValues[i];
-			floatValues[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-			floatValues[i * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-			floatValues[i * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			for (int y = 0; y < width; y++)
+			{
+				final int val = bitmap.getPixel(y, x);
+				out[(x * bitmap.getWidth() + y) * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+				out[(x * bitmap.getWidth() + y) * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+				out[(x * bitmap.getWidth() + y) * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			}
 		}
 	}
 
@@ -173,7 +167,7 @@ public class NV21ToRGBDecoder extends Transformer
 	{
 		if (options.prepareForInception.get())
 			return Cons.Type.FLOAT;
-		return Cons.Type.INT;
+		return Cons.Type.IMAGE;
 	}
 
 	@Override

@@ -49,7 +49,7 @@ public class CameraImageCropper
 	private Matrix cropToFrameTransform;
 	private Matrix frameToCropTransform;
 
-	private int[] rgb;
+	private byte[] rgb;
 
 	private int width;
 	private int height;
@@ -63,7 +63,7 @@ public class CameraImageCropper
 	 * @param inputSize Acceptable image size for Inception model.
 	 * @param maintainAspectRatio Whether or not to retain aspect ratio of the image.
 	 */
-	public CameraImageCropper(int[] rgb, int width, int height, int inputSize,
+	public CameraImageCropper(byte[] rgb, int width, int height, int inputSize,
 							  boolean maintainAspectRatio)
 	{
 		// Cache input image sizes and rgb matrix
@@ -95,8 +95,42 @@ public class CameraImageCropper
 	public Bitmap cropImage()
 	{
 		// Set bitmap pixels to those saved in rgb
-		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
+		int rgbi[] = new int[width*height];
+		for(int x = 0; x < height; x++)
+		{
+			for(int y = 0; y < width; y++)
+			{
+				//argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
+				int step = (x * width + y) * 4;
 
+				int r = rgb[step + 1];
+				int g = rgb[step + 2];
+				int b = rgb[step + 3];
+
+				if(r < 0) r += 256;
+				if(g < 0) g += 256;
+				if(b < 0) b += 256;
+
+				int pixel = 0xff000000 | r << 16 | g << 8 | b;
+				rgbi[x * width + y] = pixel;
+			}
+		}
+
+
+		rgbBitmap.setPixels(rgbi, 0, width, 0, 0, width, height);
+
+/*
+		for(int x = 0; x < height; x++)
+		{
+			for(int y = 0; y < width; y++)
+			{
+				//argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
+				int step = (x * width + y) * 4;
+				int pixel = 0xff000000 | rgb[step + 1] << 16 | rgb[step + 2] << 8 | rgb[step + 3];
+				rgbBitmap.setPixel(y, x, pixel);
+			}
+		}
+*/
 		// Crop bitmap to a quadratic form
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
 
