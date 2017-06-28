@@ -114,14 +114,14 @@ public class GyroscopeChannel extends SensorChannel
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream stream_out)
+	protected void describeOutput(Stream stream_out)
 	{
-		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "AngularVelX";
-		stream_out.dataclass[1] = "AngularVelY";
-		stream_out.dataclass[2] = "AngularVelZ";
-		stream_out.dataclass[3] = "AngularAccX";
-		stream_out.dataclass[4] = "AngularAccY";
-		stream_out.dataclass[5] = "AngularAccZ";
+		stream_out.desc = new String[stream_out.dim];
+		stream_out.desc[0] = "AngularVelX";
+		stream_out.desc[1] = "AngularVelY";
+		stream_out.desc[2] = "AngularVelZ";
+		stream_out.desc[3] = "AngularAccX";
+		stream_out.desc[4] = "AngularAccY";
+		stream_out.desc[5] = "AngularAccZ";
 	}
 }

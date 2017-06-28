@@ -397,13 +397,13 @@ public class Functionals extends Transformer
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    protected void describeOutput(Stream[] stream_in, Stream stream_out)
     {
         int overallDimension = getSampleDimension(stream_in);
-        stream_out.dataclass = new String[overallDimension];
+        stream_out.desc = new String[overallDimension];
         if (options.outputClass.get() != null && overallDimension == options.outputClass.get().length)
         {
-            System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
+            System.arraycopy(options.outputClass.get(), 0, stream_out.desc, 0, options.outputClass.get().length);
         } else
         {
             if (options.outputClass.get() != null && overallDimension != options.outputClass.get().length)
@@ -412,7 +412,7 @@ public class Functionals extends Transformer
             }
             for (int i = 0; i < overallDimension; i++)
             {
-                stream_out.dataclass[i] = "fnc" + i;
+                stream_out.desc[i] = "fnc" + i;
             }
         }
     }

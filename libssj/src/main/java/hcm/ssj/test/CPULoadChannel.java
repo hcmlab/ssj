@@ -150,9 +150,9 @@ public class CPULoadChannel extends SensorChannel
     }
 
     @Override
-    public void defineOutputClasses(Stream stream_out)
+    public void describeOutput(Stream stream_out)
     {
-        stream_out.dataclass = new String[1];
-        stream_out.dataclass[0] = "CPU";
+        stream_out.desc = new String[1];
+        stream_out.desc[0] = "CPU";
     }
 }

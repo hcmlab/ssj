@@ -202,19 +202,19 @@ public class Derivative extends Transformer
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    protected void describeOutput(Stream[] stream_in, Stream stream_out)
     {
         int overallDimension = getSampleDimension(stream_in);
-        stream_out.dataclass = new String[overallDimension];
+        stream_out.desc = new String[overallDimension];
 
         for (int i = 0; i < stream_in[0].dim; i++)
         {
             int j = 0;
-            if (options.zero.get()) stream_out.dataclass[j++] = stream_in[0].dataclass[i];
-            if (options.first.get()) stream_out.dataclass[j] = stream_in[0].dataclass[i] + ".d" + j++;
-            if (options.second.get()) stream_out.dataclass[j] = stream_in[0].dataclass[i] + ".d" + j++;
-            if (options.third.get()) stream_out.dataclass[j] = stream_in[0].dataclass[i] + ".d" + j++;
-            if (options.fourth.get()) stream_out.dataclass[j] = stream_in[0].dataclass[i] + ".d" + j;
+            if (options.zero.get()) stream_out.desc[j++] = stream_in[0].desc[i];
+            if (options.first.get()) stream_out.desc[j] = stream_in[0].desc[i] + ".d" + j++;
+            if (options.second.get()) stream_out.desc[j] = stream_in[0].desc[i] + ".d" + j++;
+            if (options.third.get()) stream_out.desc[j] = stream_in[0].desc[i] + ".d" + j++;
+            if (options.fourth.get()) stream_out.desc[j] = stream_in[0].desc[i] + ".d" + j;
         }
     }
 }

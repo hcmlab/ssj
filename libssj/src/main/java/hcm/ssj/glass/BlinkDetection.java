@@ -217,10 +217,10 @@ public class BlinkDetection extends Transformer
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    protected void describeOutput(Stream[] stream_in, Stream stream_out)
     {
-        stream_out.dataclass = new String[DIMENSION];
-        stream_out.dataclass[0] = options.countBlink.get() ? "blnkCnt" : "blnk";
+        stream_out.desc = new String[DIMENSION];
+        stream_out.desc[0] = options.countBlink.get() ? "blnkCnt" : "blnk";
     }
 
     /**

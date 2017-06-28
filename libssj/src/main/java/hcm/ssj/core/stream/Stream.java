@@ -45,7 +45,7 @@ public abstract class Stream implements Serializable
     public double step;
     public Cons.Type type;
     public transient Provider source;
-    public String[] dataclass = null;
+    public String[] desc = null;
 
     public static Stream create(int num, int dim, double sr, Cons.Type type)
     {
@@ -81,14 +81,14 @@ public abstract class Stream implements Serializable
         {
             case IMAGE:
                 ImageStream src = (ImageStream) source.getOutputStream();
-                s = new ImageStream(num, src.dim, src.sr, src.getWidth(), src.getHeight(), src.getFormat());
+                s = new ImageStream(num, src.dim, src.sr, src.width, src.height, src.format);
                 break;
             default:
                 s = create(num, source.getOutputStream().dim, source.getOutputStream().sr, source.getOutputStream().type);
         }
 
         s.source = source;
-        s.dataclass = source.getOutputClasses();
+        s.desc = source.getOutputDescription();
         return s;
     }
 
@@ -107,7 +107,7 @@ public abstract class Stream implements Serializable
     public void setSource(Provider source)
     {
         this.source = source;
-        this.dataclass = source.getOutputClasses();
+        this.desc = source.getOutputDescription();
     }
 
     public abstract Object ptr();
@@ -127,11 +127,11 @@ public abstract class Stream implements Serializable
 
     public int findDataClass(String name)
     {
-        if(dataclass == null || dataclass.length == 0)
+        if(desc == null || desc.length == 0)
             return -1;
 
-        for(int i = 0; i < dataclass.length; i++)
-            if(dataclass[i].equalsIgnoreCase(name))
+        for(int i = 0; i < desc.length; i++)
+            if(desc[i].equalsIgnoreCase(name))
                 return i;
 
         return -1;

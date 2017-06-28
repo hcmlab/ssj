@@ -103,11 +103,11 @@ public class EMGChannel extends SensorChannel
     }
 
 	@Override
-	protected void defineOutputClasses(Stream stream_out)
+	protected void describeOutput(Stream stream_out)
 	{
-		stream_out.dataclass = new String[stream_out.dim];
+		stream_out.desc = new String[stream_out.dim];
 
         for (int j = 0; j < stream_out.dim; j++)
-		    stream_out.dataclass[j] = "EMG";
+		    stream_out.desc[j] = "EMG";
 	}
 }

@@ -254,8 +254,8 @@ public class Spectrogram extends Transformer
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.dataclass = new String[]{"spectrogram"};
+		stream_out.desc = new String[]{"spectrogram"};
 	}
 }

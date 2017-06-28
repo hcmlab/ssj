@@ -82,8 +82,8 @@ public class BVPBLEChannel extends SensorChannel {
     }
 
     @Override
-    protected void defineOutputClasses(Stream stream_out) {
-        stream_out.dataclass = new String[stream_out.dim];
-        stream_out.dataclass[0] = "BVP";
+    protected void describeOutput(Stream stream_out) {
+        stream_out.desc = new String[stream_out.dim];
+        stream_out.desc[0] = "BVP";
     }
 }

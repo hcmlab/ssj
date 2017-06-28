@@ -153,8 +153,8 @@ public class AndroidSensorChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream stream_out)
+    protected void describeOutput(Stream stream_out)
     {
-        stream_out.dataclass = sensorType.getOutput();
+        stream_out.desc = sensorType.getOutput();
     }
 }

@@ -119,8 +119,8 @@ public class HRVSpectral extends Transformer
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.dataclass = new String[]{"VLF", "LF", "HF", "nVLF", "nLF", "nHF", "dLFHF", "SMI", "VMI", "SVI"};
+		stream_out.desc = new String[]{"VLF", "LF", "HF", "nVLF", "nLF", "nHF", "dLFHF", "SMI", "VMI", "SVI"};
 	}
 }

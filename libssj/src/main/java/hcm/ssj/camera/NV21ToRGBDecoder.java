@@ -27,8 +27,10 @@
 package hcm.ssj.camera;
 
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -59,16 +61,13 @@ public class NV21ToRGBDecoder extends Transformer
 	private static final boolean MAINTAIN_ASPECT = true;
 	private static final int CHANNELS_PER_PIXEL = 3;
 
-	private byte[] nv21Data;
-
-	int intValues[];
-
 	public final Options options = new Options();
+
+	private int intValues[];
+	private CameraImageResizer resizer;
 
 	private int width;
 	private int height;
-
-	CameraImageCropper cropper;
 
 	public NV21ToRGBDecoder()
 	{
@@ -85,13 +84,19 @@ public class NV21ToRGBDecoder extends Transformer
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
 		// Initialize image stream size
-		width = ((ImageStream)stream_in[0]).getWidth();
-		height = ((ImageStream)stream_in[0]).getHeight();
+		ImageStream imgstrm = (ImageStream)stream_in[0];
+		width = imgstrm.width;
+		height = imgstrm.height;
+
+		if(imgstrm.format != ImageFormat.NV21)
+		{
+			Log.e("Unsupported input video format. Expecting NV21.");
+		}
 
 		if (options.prepareForInception.get())
 		{
 			intValues = new int[width * height];
-			cropper = new CameraImageCropper(width, height, CROP_SIZE, MAINTAIN_ASPECT);
+			resizer = new CameraImageResizer(width, height, CROP_SIZE, MAINTAIN_ASPECT);
 		}
 	}
 
@@ -99,15 +104,15 @@ public class NV21ToRGBDecoder extends Transformer
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
 		// Fetch raw NV21 pixel data
-		nv21Data = stream_in[0].ptrB();
+		byte[] nv21Data = stream_in[0].ptrB();
 
 		if (options.prepareForInception.get())
 		{
 			// Convert NV21 to RGB and save the pixel data inside of intValues
-			CameraUtil.convertNV21ToRgbInt(intValues, nv21Data, width, height);
+			CameraUtil.convertNV21ToARGBInt(intValues, nv21Data, width, height);
 
 			// Forces image to be of a quadratic shape
-			Bitmap croppedBitmap = cropper.cropImage(intValues);
+			Bitmap croppedBitmap = resizer.cropImage(intValues);
 
 			// Converts RGB to float values and saves the data to the output stream
 			convertToFloatRGB(croppedBitmap, stream_out.ptrF());
@@ -116,7 +121,7 @@ public class NV21ToRGBDecoder extends Transformer
 		{
 			// Convert NV21 to RGB and save the pixel data to the output stream
 			byte out[] = stream_out.ptrB();
-			CameraUtil.convertNV21ToRgb(out, nv21Data, width, height);
+			CameraUtil.convertNV21ToRGB(out, nv21Data, width, height);
 		}
 	}
 
@@ -143,11 +148,11 @@ public class NV21ToRGBDecoder extends Transformer
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
 	{
-		int dimension = (int)(stream_in[0].dim / 1.5);
-
 		if (options.prepareForInception.get())
 			return CROP_SIZE * CROP_SIZE * CHANNELS_PER_PIXEL;
-		return dimension;
+
+		ImageStream imgstrm = (ImageStream)stream_in[0];
+		return imgstrm.width * imgstrm.height * 3; //RGB
 	}
 
 	@Override
@@ -159,8 +164,12 @@ public class NV21ToRGBDecoder extends Transformer
 	@Override
 	public Cons.Type getSampleType(Stream[] stream_in)
 	{
+		if(stream_in[0].type != Cons.Type.IMAGE)
+			Log.e("Input stream type (" +stream_in[0].type.toString()+ ") is unsupported. Expecting " + Cons.Type.IMAGE.toString());
+
 		if (options.prepareForInception.get())
 			return Cons.Type.FLOAT;
+
 		return Cons.Type.IMAGE;
 	}
 
@@ -171,9 +180,20 @@ public class NV21ToRGBDecoder extends Transformer
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.dataclass = new String[1];
-		stream_out.dataclass[0] = "RGB video";
+		stream_out.desc = new String[1];
+
+		if(options.prepareForInception.get())
+		{
+			stream_out.desc[0] = "video_inception";
+		}
+		else
+		{
+			stream_out.desc[0] = "video";
+			((ImageStream) stream_out).width = ((ImageStream) stream_in[0]).width;
+			((ImageStream) stream_out).height = ((ImageStream) stream_in[0]).height;
+			((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
+		}
 	}
 }

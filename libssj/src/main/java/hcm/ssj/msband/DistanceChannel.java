@@ -102,12 +102,12 @@ public class DistanceChannel extends SensorChannel
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream stream_out)
+	protected void describeOutput(Stream stream_out)
 	{
-		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "Distance";
-		stream_out.dataclass[1] = "Speed";
-		stream_out.dataclass[2] = "Pace";
-		stream_out.dataclass[3] = "MotionType";
+		stream_out.desc = new String[stream_out.dim];
+		stream_out.desc[0] = "Distance";
+		stream_out.desc[1] = "Speed";
+		stream_out.desc[2] = "Pace";
+		stream_out.desc[3] = "MotionType";
 	}
 }

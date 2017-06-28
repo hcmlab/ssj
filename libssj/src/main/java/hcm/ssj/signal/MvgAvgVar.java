@@ -138,10 +138,10 @@ public class MvgAvgVar extends Transformer
 	}
 
 	@Override
-	public void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+	public void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.dataclass = new String[stream_in[0].dim];
-		System.arraycopy(stream_in[0].dataclass, 0, stream_out.dataclass, 0, stream_in[0].dataclass.length);
+		stream_out.desc = new String[stream_in[0].dim];
+		System.arraycopy(stream_in[0].desc, 0, stream_out.desc, 0, stream_in[0].desc.length);
 	}
 
 	interface Implementation

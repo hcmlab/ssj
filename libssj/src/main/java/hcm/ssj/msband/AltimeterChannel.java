@@ -106,16 +106,16 @@ public class AltimeterChannel extends SensorChannel
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream stream_out)
+	protected void describeOutput(Stream stream_out)
 	{
-		stream_out.dataclass = new String[stream_out.dim];
-		stream_out.dataclass[0] = "FlightsAscended";
-		stream_out.dataclass[1] = "FlightsDescended";
-		stream_out.dataclass[2] = "SteppingGain";
-		stream_out.dataclass[3] = "SteppingLoss";
-		stream_out.dataclass[4] = "StepsAscended";
-		stream_out.dataclass[5] = "StepsDescended";
-		stream_out.dataclass[6] = "AltimeterGain";
-		stream_out.dataclass[7] = "AltimeterLoss";
+		stream_out.desc = new String[stream_out.dim];
+		stream_out.desc[0] = "FlightsAscended";
+		stream_out.desc[1] = "FlightsDescended";
+		stream_out.desc[2] = "SteppingGain";
+		stream_out.desc[3] = "SteppingLoss";
+		stream_out.desc[4] = "StepsAscended";
+		stream_out.desc[5] = "StepsDescended";
+		stream_out.desc[6] = "AltimeterGain";
+		stream_out.desc[7] = "AltimeterLoss";
 	}
 }

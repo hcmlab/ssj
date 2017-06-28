@@ -91,12 +91,12 @@ public class BVPAndisChannel extends SensorChannel {
     }
 
     @Override
-    protected void defineOutputClasses(Stream stream_out) {
-        stream_out.dataclass = new String[stream_out.dim];
-        stream_out.dataclass[0] = "Acc";
-        stream_out.dataclass[1] = "Tmp";
-        stream_out.dataclass[2] = "Bvp";
-        stream_out.dataclass[3] = "Rmssd"; //bvp raw values
-        stream_out.dataclass[4] = "gsr";
+    protected void describeOutput(Stream stream_out) {
+        stream_out.desc = new String[stream_out.dim];
+        stream_out.desc[0] = "Acc";
+        stream_out.desc[1] = "Tmp";
+        stream_out.desc[2] = "Bvp";
+        stream_out.desc[3] = "Rmssd"; //bvp raw values
+        stream_out.desc[4] = "gsr";
     }
 }

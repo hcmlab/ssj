@@ -104,11 +104,11 @@ public class BluetoothPressureMatChannel extends SensorChannel {
         return options.type.get();
     }
 
-    protected void defineOutputClasses(Stream stream_out) {
-        stream_out.dataclass = new String[stream_out.dim];
+    protected void describeOutput(Stream stream_out) {
+        stream_out.desc = new String[stream_out.dim];
 
-        for (int i = 0; i < stream_out.dataclass.length; i++) {
-            stream_out.dataclass[i] = "Press" + i;
+        for (int i = 0; i < stream_out.desc.length; i++) {
+            stream_out.desc[i] = "Press" + i;
 
         }
     }
