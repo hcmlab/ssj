@@ -407,5 +407,20 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         releaseCamera();
         releaseSurfaceTexture();
     }
+
+    public int getImageWidth()
+    {
+        return iRealWidth;
+    }
+
+    public int getImageHeight()
+    {
+        return iRealHeight;
+    }
+
+    public int getImageFormat()
+    {
+        return camera.getParameters().getPreviewFormat();
+    }
 }
 

@@ -60,6 +60,7 @@ public class Cons
         DOUBLE,
         BOOL,
         STRING,
+		IMAGE,
         EMPTY //only used for events
     }
 

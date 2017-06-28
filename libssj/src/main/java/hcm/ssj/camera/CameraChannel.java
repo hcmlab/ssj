@@ -31,6 +31,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -99,6 +100,21 @@ public class CameraChannel extends SensorChannel
         }
     }
 
+    @Override
+    public void setup()
+    {
+        try
+        {
+            super.setup();
+        } catch (Exception e)
+        {
+            Log.e("error configuring component", e);
+        }
+
+        ((ImageStream)_stream_out).setWidth(cameraSensor.getImageWidth());
+        ((ImageStream)_stream_out).setHeight(cameraSensor.getImageHeight());
+    }
+
     /**
      * @param stream_out Stream
      */
@@ -144,7 +160,7 @@ public class CameraChannel extends SensorChannel
     @Override
     public Cons.Type getSampleType()
     {
-        return Cons.Type.BYTE;
+        return Cons.Type.IMAGE;
     }
 
     /**

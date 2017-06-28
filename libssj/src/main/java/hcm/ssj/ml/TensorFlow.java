@@ -33,8 +33,8 @@ import org.tensorflow.Tensor;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
-import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 
@@ -48,8 +48,13 @@ import hcm.ssj.core.stream.Stream;
 
 public class TensorFlow extends Model
 {
-	private Graph modelGraph;
+	private Graph graph;
 	private Session session;
+
+	// Constants for inception model evaluation
+	private final int INPUT_SIZE = 224;
+	private final String INPUT_NAME = "input";
+	private final String OUTPUT_NAME = "output";
 
 	private int classNum;
 	private String[] classNames;
@@ -71,29 +76,60 @@ public class TensorFlow extends Model
 			Log.w("not trained");
 			return null;
 		}
-		if (stream[0].type != Cons.Type.FLOAT) {
-			Log.w ("invalid stream type");
-			return null;
-		}
 
-		float[] ptr = stream[0].ptrF();
+		float[] floatValues = stream[0].ptrF();
+		float[] probabilities = makePrediction(floatValues);
 
-		FloatBuffer fb = FloatBuffer.allocate(stream[0].dim);
+		// Show prediction probability
+		int bestLabelIdx = maxIndex(probabilities);
+		Log.d("tf_ssj",
+			  String.format("BEST MATCH: %s (%.2f%% likely)",
+							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
+		return probabilities;
+	}
 
-		for (float f : ptr)
-			fb.put(f);
-		fb.rewind();
+	/**
+	 * Makes prediction about the given image.
+	 *
+	 * @param floatValues RGB float data.
+	 * @return Probability array.
+	 */
+	private float[] makePrediction(float[] floatValues)
+	{
+		long[] shape = new long[] {1, INPUT_SIZE, INPUT_SIZE, 3};
 
-		Tensor inputTensor = Tensor.create(new long[] {stream[0].num, stream[0].dim}, fb);
-		Tensor resultTensor = session.runner()
-				.feed("input/x", inputTensor)
-				.fetch("Wx_plus_b/output")
+		Tensor input = Tensor.create(shape, FloatBuffer.wrap(floatValues));
+		Tensor result = session.runner()
+				.feed(INPUT_NAME, input)
+				.fetch(OUTPUT_NAME)
 				.run().get(0);
 
-		float[][] probabilities = new float[1][classNum];
-		resultTensor.copyTo(probabilities);
+		long[] rshape = result.shape();
+		if (result.numDimensions() != 2 || rshape[0] != 1)
+		{
+			throw new RuntimeException(
+					String.format(
+							"Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s",
+							Arrays.toString(rshape)));
+		}
+		int nlabels = (int) rshape[1];
+		return result.copyTo(new float[1][nlabels])[0];
+	}
 
-		return probabilities[0];
+	/**
+	 * Returns index of element with the highest value in float array.
+	 *
+	 * @param probabilities Float array.
+	 * @return Index of element with the highest value.
+	 */
+	private int maxIndex(float[] probabilities) {
+		int best = 0;
+		for (int i = 1; i < probabilities.length; ++i) {
+			if (probabilities[i] > probabilities[best]) {
+				best = i;
+			}
+		}
+		return best;
 	}
 
 	@Override
@@ -102,9 +138,10 @@ public class TensorFlow extends Model
 		Log.e("training not supported yet");
 	}
 
+	@Override
 	protected void loadOption(File file)
 	{
-		// Empty implementation
+		Log.e("loading option file is not supported yet");
 	}
 
 	@Override
@@ -146,9 +183,9 @@ public class TensorFlow extends Model
 			fileInputStream.read(fileBytes);
 			fileInputStream.close();
 
-			modelGraph = new Graph();
-			modelGraph.importGraphDef(fileBytes);
-			session = new Session(modelGraph);
+			graph = new Graph();
+			graph.importGraphDef(fileBytes);
+			session = new Session(graph);
 		}
 		catch (Exception e)
 		{

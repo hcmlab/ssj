@@ -33,7 +33,7 @@ import hcm.ssj.core.Cons;
  */
 public class ByteStream extends Stream
 {
-    private byte[] _ptr;
+    protected byte[] _ptr;
 
     public ByteStream(int num, int dim, double sr)
     {
