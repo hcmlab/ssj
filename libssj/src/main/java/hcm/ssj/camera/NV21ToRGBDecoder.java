@@ -58,7 +58,6 @@ public class NV21ToRGBDecoder extends Transformer
 	private static final int CROP_SIZE = 224;
 	private static final boolean MAINTAIN_ASPECT = true;
 	private static final int CHANNELS_PER_PIXEL = 3;
-	private static final int BYTES_PER_INT = 4;
 
 	private byte[] nv21Data;
 
