@@ -30,6 +30,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathEffect;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -42,7 +43,7 @@ import hcm.ssj.creator.R;
  */
 class ConnectionView extends View
 {
-    private static Paint paintConnection;
+    private Paint paintConnection;
     private final static float STROKE_WIDTH = 2.0f;
     private final static int ARROW_ANGLE = 35;
 
@@ -125,5 +126,10 @@ class ConnectionView extends View
             canvas.drawPath(path, paintConnection);
         }
         canvas.restore();
+    }
+
+    protected void setPathEffect(PathEffect pathEffect)
+    {
+        paintConnection.setPathEffect(pathEffect);
     }
 }

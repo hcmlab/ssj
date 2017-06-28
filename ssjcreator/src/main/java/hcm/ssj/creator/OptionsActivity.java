@@ -97,13 +97,21 @@ public class OptionsActivity extends AppCompatActivity
                 || innerObject instanceof Transformer
                 || innerObject instanceof Consumer))
         {
-            //add possible providers
-            TableRow tableRow = ProviderTable.createTable(this, innerObject,
+            //add possible stream providers
+            TableRow streamTableRow = ProviderTable.createStreamTable(this, innerObject,
                     (innerObject instanceof Transformer || innerObject instanceof Consumer)
                             || (innerObject instanceof Sensor && options != null && options.length > 0));
-            if (tableRow != null)
+            if (streamTableRow != null)
             {
-                tableLayout.addView(tableRow);
+                tableLayout.addView(streamTableRow);
+            }
+            //add possible event providers
+            TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
+                                                          (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                  || (innerObject instanceof Sensor && options != null && options.length > 0));
+            if (eventTableRow != null)
+            {
+                tableLayout.addView(eventTableRow);
             }
         }
     }

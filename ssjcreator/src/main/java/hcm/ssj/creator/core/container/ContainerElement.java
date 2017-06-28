@@ -39,7 +39,9 @@ public class ContainerElement<T>
     private T element;
     private double frameSize = 1;
     private double delta = 0;
-    private LinkedHashMap<Provider, Boolean> hmProviders = new LinkedHashMap<>();
+    private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
+    private LinkedHashMap<Provider, Boolean> hmEventProviders = new LinkedHashMap<>();
+
 
     /**
      * @param element T
@@ -92,26 +94,26 @@ public class ContainerElement<T>
     /**
      * @return LinkedHashMap
      */
-    public LinkedHashMap<Provider, Boolean> getHmProviders()
+    public LinkedHashMap<Provider, Boolean> getHmStreamProviders()
     {
-        return hmProviders;
+        return hmStreamProviders;
     }
 
     /**
      * @param provider Provider
      * @return boolean
      */
-    public boolean setAdded(Provider provider)
+    public boolean setStreamAdded(Provider provider)
     {
-        return hmProviders.containsKey(provider) && !hmProviders.put(provider, true);
+        return hmStreamProviders.containsKey(provider) && !hmStreamProviders.put(provider, true);
     }
 
     /**
      * @return boolean
      */
-    public boolean allAdded()
+    public boolean allStreamAdded()
     {
-        for (boolean value : hmProviders.values())
+        for (boolean value : hmStreamProviders.values())
         {
             if (!value)
             {
@@ -125,17 +127,67 @@ public class ContainerElement<T>
      * @param provider Provider
      * @return boolean
      */
-    public boolean addProvider(Provider provider)
+    public boolean addStreamProvider(Provider provider)
     {
-        return !hmProviders.containsKey(provider) && hmProviders.put(provider, false) == null;
+        return !hmStreamProviders.containsKey(provider) && hmStreamProviders.put(provider, false) == null;
     }
 
     /**
      * @param provider Provider
      * @return boolean
      */
-    public boolean removeProvider(Provider provider)
+    public boolean removeStreamProvider(Provider provider)
     {
-        return hmProviders.remove(provider) != null;
+        return hmStreamProviders.remove(provider) != null;
     }
+
+	/**
+	 * @return LinkedHashMap
+	 */
+	public LinkedHashMap<Provider, Boolean> getHmEventProviders()
+	{
+		return hmEventProviders;
+	}
+
+	/**
+	 * @param provider Provider
+	 * @return boolean
+	 */
+	public boolean setEventAdded(Provider provider)
+	{
+		return hmEventProviders.containsKey(provider) && !hmEventProviders.put(provider, true);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public boolean allEventAdded()
+	{
+		for (boolean value : hmEventProviders.values())
+		{
+			if (!value)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param provider Provider
+	 * @return boolean
+	 */
+	public boolean addEventProvider(Provider provider)
+	{
+		return !hmEventProviders.containsKey(provider) && hmEventProviders.put(provider, false) == null;
+	}
+
+	/**
+	 * @param provider Provider
+	 * @return boolean
+	 */
+	public boolean removeEventProvider(Provider provider)
+	{
+		return hmEventProviders.remove(provider) != null;
+	}
 }

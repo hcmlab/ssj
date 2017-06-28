@@ -30,7 +30,9 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.PathEffect;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -62,7 +64,8 @@ public class PipeView extends ViewGroup
     private ArrayList<ComponentView> componentViewsTransformer = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsConsumer = new ArrayList<>();
     //connections
-    private ArrayList<ConnectionView> connectionViews = new ArrayList<>();
+    private ArrayList<ConnectionView> streamConnectionViews = new ArrayList<>();
+    private ArrayList<ConnectionView> eventConnectionViews = new ArrayList<>();
     //colors
     private Paint paintElementGrid;
     private Paint paintElementShadow;
@@ -192,14 +195,24 @@ public class PipeView extends ViewGroup
      */
     protected void createElements()
     {
-        //cleanup
+        // clear views
         removeAllViews();
         //add connections
-        connectionViews.clear();
-        for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfConnections(); i++)
+        streamConnectionViews.clear();
+        for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfStreamConnections(); i++)
         {
-            connectionViews.add(new ConnectionView(getContext()));
-            addView(connectionViews.get(i));
+            ConnectionView connectionView = new ConnectionView(getContext());
+            connectionView.setPathEffect(new PathEffect());
+            streamConnectionViews.add(connectionView);
+            addView(streamConnectionViews.get(i));
+        }
+        eventConnectionViews.clear();
+        for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfEventConnections(); i++)
+        {
+            ConnectionView connectionView = new ConnectionView(getContext());
+            connectionView.setPathEffect(new DashPathEffect(new float[]{50f,  20f}, 0));
+            eventConnectionViews.add(connectionView);
+            addView(eventConnectionViews.get(i));
         }
         //add providers
         componentViewsProvider = fillList(componentViewsProvider, PipelineBuilder.Type.SensorChannel);
@@ -230,7 +243,8 @@ public class PipeView extends ViewGroup
                 if (v.getElement().equals(object))
                 {
                     found = true;
-                    v.setConnectionHashes(PipelineBuilder.getInstance().getConnectionHashes(object));
+                    v.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
+                    v.setStreamConnectionHashes(PipelineBuilder.getInstance().getStreamConnectionHashes(object));
                     alInterim.add(v);
                     break;
                 }
@@ -239,7 +253,8 @@ public class PipeView extends ViewGroup
             if (!found)
             {
                 ComponentView view = new ComponentView(getContext(), object);
-                view.setConnectionHashes(PipelineBuilder.getInstance().getConnectionHashes(object));
+                view.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
+                view.setStreamConnectionHashes(PipelineBuilder.getInstance().getStreamConnectionHashes(object));
                 alInterim.add(view);
             }
         }
@@ -269,27 +284,40 @@ public class PipeView extends ViewGroup
         initHeight += divider;
         setLayouts(componentViewsConsumer, initHeight);
         //connections
-        for (ConnectionView connectionView : connectionViews)
+        for (ConnectionView connectionView : streamConnectionViews)
         {
             connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
         }
-        int connections = 0;
+        for (ConnectionView connectionView : eventConnectionViews)
+        {
+            connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
+        }
+        int streamConnections = 0;
+        int eventConnections = 0;
         for (ComponentView componentViewSensor : componentViewsSensor)
         {
-            int[] hashes = componentViewSensor.getConnectionHashes();
-            connections = checkConnections(hashes, connections, componentViewSensor, componentViewsProvider, false);
+            int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsProvider, false);
+            int[] eventHashes = componentViewSensor.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsProvider, false);
         }
         for (ComponentView componentViewTransformer : componentViewsTransformer)
         {
-            int[] hashes = componentViewTransformer.getConnectionHashes();
-            connections = checkConnections(hashes, connections, componentViewTransformer, componentViewsProvider, true);
-            connections = checkConnections(hashes, connections, componentViewTransformer, componentViewsTransformer, true);
+            int[] streamHashes = componentViewTransformer.getStreamConnectionHashes();
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsProvider, true);
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsTransformer, true);
+            int[] eventHashes = componentViewTransformer.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsProvider, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsTransformer, true);
         }
         for (ComponentView componentViewConsumer : componentViewsConsumer)
         {
-            int[] hashes = componentViewConsumer.getConnectionHashes();
-            connections = checkConnections(hashes, connections, componentViewConsumer, componentViewsProvider, true);
-            connections = checkConnections(hashes, connections, componentViewConsumer, componentViewsTransformer, true);
+            int[] streamHashes = componentViewConsumer.getStreamConnectionHashes();
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsProvider, true);
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsTransformer, true);
+            int[] eventHashes = componentViewConsumer.getEventConnectionHashes();
+            eventConnections = checkStreamConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsProvider, true);
+            eventConnections = checkStreamConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsTransformer, true);
         }
     }
 
@@ -331,7 +359,7 @@ public class PipeView extends ViewGroup
      * @param standardOrientation boolean
      * @return int
      */
-    private int checkConnections(int[] hashes, int connections, View destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
+    private int checkStreamConnections(int[] hashes, int connections, View destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
     {
         if (hashes != null)
         {
@@ -341,7 +369,52 @@ public class PipeView extends ViewGroup
                 {
                     if (hash == componentView.getElementHash())
                     {
-                        ConnectionView connectionView = connectionViews.get(connections);
+                        ConnectionView connectionView = streamConnectionViews.get(connections);
+                        //arrow from child to parent (e.g. transformer to consumer)
+                        if (standardOrientation)
+                        {
+                            connectionView.setLine(
+                                    destination.getX(), destination.getY(),
+                                    componentView.getX(), componentView.getY(),
+                                    iGridBoxSize);
+                            connectionView.invalidate();
+                        } else
+                        //arrow from parent to child (e.g. sensor to sensorChannel)
+                        {
+                            connectionView.setLine(
+                                    componentView.getX(), componentView.getY(),
+                                    destination.getX(), destination.getY(),
+                                    iGridBoxSize);
+                            connectionView.invalidate();
+                        }
+                        connections++;
+                        break;
+                    }
+                }
+            }
+        }
+        return connections;
+    }
+
+    /**
+     * @param hashes              int[]
+     * @param connections         int
+     * @param destination         View
+     * @param componentViews      ArrayList
+     * @param standardOrientation boolean
+     * @return int
+     */
+    private int checkEventConnections(int[] hashes, int connections, View destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
+    {
+        if (hashes != null)
+        {
+            for (int hash : hashes)
+            {
+                for (ComponentView componentView : componentViews)
+                {
+                    if (hash == componentView.getElementHash())
+                    {
+                        ConnectionView connectionView = eventConnectionViews.get(connections);
                         //arrow from child to parent (e.g. transformer to consumer)
                         if (standardOrientation)
                         {
@@ -492,10 +565,10 @@ public class PipeView extends ViewGroup
             {
                 if (standard)
                 {
-                    PipelineBuilder.getInstance().addProvider(componentView.getElement(), (Provider) object);
+                    PipelineBuilder.getInstance().addStreamProvider(componentView.getElement(), (Provider) object);
                 } else
                 {
-                    PipelineBuilder.getInstance().addProvider(object, (Provider) componentView.getElement());
+                    PipelineBuilder.getInstance().addStreamProvider(object, (Provider) componentView.getElement());
                 }
                 return true;
             }

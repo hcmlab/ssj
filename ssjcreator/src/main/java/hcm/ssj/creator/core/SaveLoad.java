@@ -299,7 +299,7 @@ public abstract class SaveLoad
                         LinkContainer candidateValue = candidate.getValue();
                         if (candidateValue.hash == provider)
                         {
-                            PipelineBuilder.getInstance().addProvider(key, (Provider) candidateKey);
+                            PipelineBuilder.getInstance().addStreamProvider(key, (Provider) candidateKey);
                         }
                     }
                 }
@@ -392,7 +392,7 @@ public abstract class SaveLoad
             serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
         }
         addOptions(serializer, containerElement.getElement());
-        HashMap<Provider, Boolean> hashMap = containerElement.getHmProviders();
+        HashMap<Provider, Boolean> hashMap = containerElement.getHmStreamProviders();
         serializer.startTag(null, CHANNEL_LIST);
         for (Map.Entry<Provider, Boolean> element : hashMap.entrySet())
         {

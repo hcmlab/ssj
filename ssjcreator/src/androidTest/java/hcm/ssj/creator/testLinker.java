@@ -97,7 +97,7 @@ public class testLinker extends ApplicationTestCase<Application>
         {
             pipelineBuilder.add(sensor);
             pipelineBuilder.add(sensorChannel);
-            pipelineBuilder.addProvider(sensor, sensorChannel);
+            pipelineBuilder.addStreamProvider(sensor, sensorChannel);
             for (Class clazz : descriptor.consumers)
             {
                 if (clazz.equals(Logger.class))
@@ -109,7 +109,7 @@ public class testLinker extends ApplicationTestCase<Application>
             if (consumer != null)
             {
                 pipelineBuilder.add(consumer);
-                pipelineBuilder.addProvider(consumer, sensorChannel);
+                pipelineBuilder.addStreamProvider(consumer, sensorChannel);
                 pipelineBuilder.setFrameSize(consumer, 1);
                 pipelineBuilder.setDelta(consumer, 0);
             }

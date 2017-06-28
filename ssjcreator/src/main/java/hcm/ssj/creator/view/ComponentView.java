@@ -64,7 +64,10 @@ class ComponentView extends View
     private final static float STROKE_WIDTH = 0.25f;
     //
     private Object element;
-    private int[] connectionHashes;
+
+    private int[] streamConnectionHashes;
+    private int[] eventConnectionHashes;
+
     private String text;
     private int gridX = -1;
     private int gridY = -1;
@@ -140,17 +143,33 @@ class ComponentView extends View
     /**
      * @return int[]
      */
-    protected int[] getConnectionHashes()
+    protected int[] getStreamConnectionHashes()
     {
-        return connectionHashes;
+        return streamConnectionHashes;
     }
 
     /**
      * @param connectionHashes int[]
      */
-    protected void setConnectionHashes(int[] connectionHashes)
+    protected void setStreamConnectionHashes(int[] connectionHashes)
     {
-        this.connectionHashes = connectionHashes;
+        this.streamConnectionHashes = connectionHashes;
+    }
+
+    /**
+     * @return int[]
+     */
+    protected int[] getEventConnectionHashes()
+    {
+        return eventConnectionHashes;
+    }
+
+    /**
+     * @param connectionHashes int[]
+     */
+    protected void setEventConnectionHashes(int[] connectionHashes)
+    {
+        this.eventConnectionHashes = connectionHashes;
     }
 
     /**

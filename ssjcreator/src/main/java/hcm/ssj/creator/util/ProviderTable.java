@@ -55,7 +55,7 @@ public class ProviderTable
      * @param dividerTop boolean
      * @return TableRow
      */
-    public static TableRow createTable(Activity activity, final Object mainObject, boolean dividerTop)
+    public static TableRow createStreamTable(Activity activity, final Object mainObject, boolean dividerTop)
     {
         TableRow tableRow = new TableRow(activity);
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
@@ -67,7 +67,7 @@ public class ProviderTable
             linearLayout.addView(Util.addDivider(activity));
         }
         TextView textViewName = new TextView(activity);
-        textViewName.setText(R.string.str_channels);
+        textViewName.setText(R.string.str_sensor_channels);
         textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
@@ -79,7 +79,7 @@ public class ProviderTable
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
-                Object[] providers = PipelineBuilder.getInstance().getProviders(mainObject);
+                Object[] providers = PipelineBuilder.getInstance().getStreamProviders(mainObject);
                 if (providers != null) {
                     for (Object provider : providers) {
                         if (objects[i].equals(provider)) {
@@ -95,9 +95,73 @@ public class ProviderTable
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
-                            PipelineBuilder.getInstance().addProvider(mainObject, (Provider) o);
+                            PipelineBuilder.getInstance().addStreamProvider(mainObject, (Provider) o);
+                            PipelineBuilder.getInstance().removeEventProvider(mainObject, (Provider) o);
                         } else {
-                            PipelineBuilder.getInstance().removeProvider(mainObject, (Provider) o);
+                            PipelineBuilder.getInstance().removeStreamProvider(mainObject, (Provider) o);
+                        }
+                    }
+                });
+                linearLayout.addView(checkBox);
+            }
+        } else
+        {
+            return null;
+        }
+        tableRow.addView(linearLayout);
+        return tableRow;
+    }
+
+    /**
+     * @param activity   Activity
+     * @param mainObject Object
+     * @param dividerTop boolean
+     * @return TableRow
+     */
+    public static TableRow createEventTable(Activity activity, final Object mainObject, boolean dividerTop)
+    {
+        TableRow tableRow = new TableRow(activity);
+        tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        LinearLayout linearLayout = new LinearLayout(activity);
+        linearLayout.setOrientation(LinearLayout.VERTICAL);
+        if (dividerTop)
+        {
+            //add divider
+            linearLayout.addView(Util.addDivider(activity));
+        }
+        TextView textViewName = new TextView(activity);
+        textViewName.setText(R.string.str_event_channels);
+        textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
+        textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
+        linearLayout.addView(textViewName);
+        //get possible providers
+        final Object[] objects = getProvider(mainObject);
+        //
+        if (objects.length > 0) {
+            for (int i = 0; i < objects.length; i++) {
+                CheckBox checkBox = new CheckBox(activity);
+                checkBox.setText(objects[i].getClass().getSimpleName());
+                checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
+                Object[] providers = PipelineBuilder.getInstance().getEventProviders(mainObject);
+                if (providers != null) {
+                    for (Object provider : providers) {
+                        if (objects[i].equals(provider)) {
+                            checkBox.setChecked(true);
+                            break;
+                        }
+                    }
+                }
+                final int count = i;
+                checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    final Object o = objects[count];
+
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if (isChecked) {
+                            PipelineBuilder.getInstance().addEventProvider(mainObject, (Provider) o);
+                            PipelineBuilder.getInstance().removeStreamProvider(mainObject, (Provider) o);
+                        } else {
+                            PipelineBuilder.getInstance().removeEventProvider(mainObject, (Provider) o);
                         }
                     }
                 });
