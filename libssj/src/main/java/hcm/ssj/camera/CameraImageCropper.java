@@ -37,7 +37,7 @@ import android.graphics.Matrix;
  *
  * @author Vitaly
  */
-
+// TODO: Rewrite class into a function inside CameraUtil class. Refactor.
 public class CameraImageCropper
 {
 	private static final int ROTATION = 90;
@@ -94,43 +94,25 @@ public class CameraImageCropper
 	 */
 	public Bitmap cropImage()
 	{
-		// Set bitmap pixels to those saved in rgb
-		int rgbi[] = new int[width*height];
-		for(int x = 0; x < height; x++)
+		for(int y = 0; y < height; y++)
 		{
-			for(int y = 0; y < width; y++)
+			for(int x = 0; x < width; x++)
 			{
-				//argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
-				int step = (x * width + y) * 4;
+				int step = (y * width + x) * 4;
 
 				int r = rgb[step + 1];
 				int g = rgb[step + 2];
 				int b = rgb[step + 3];
 
-				if(r < 0) r += 256;
-				if(g < 0) g += 256;
-				if(b < 0) b += 256;
+				if (r < 0) r += 256;
+				if (g < 0) g += 256;
+				if (b < 0) b += 256;
 
 				int pixel = 0xff000000 | r << 16 | g << 8 | b;
-				rgbi[x * width + y] = pixel;
+				rgbBitmap.setPixel(x, y, pixel);
 			}
 		}
 
-
-		rgbBitmap.setPixels(rgbi, 0, width, 0, 0, width, height);
-
-/*
-		for(int x = 0; x < height; x++)
-		{
-			for(int y = 0; y < width; y++)
-			{
-				//argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
-				int step = (x * width + y) * 4;
-				int pixel = 0xff000000 | rgb[step + 1] << 16 | rgb[step + 2] << 8 | rgb[step + 3];
-				rgbBitmap.setPixel(y, x, pixel);
-			}
-		}
-*/
 		// Crop bitmap to a quadratic form
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
 

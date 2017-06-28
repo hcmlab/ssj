@@ -28,8 +28,6 @@ package hcm.ssj.camera;
 
 import android.graphics.Bitmap;
 
-import java.util.Date;
-
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -108,10 +106,9 @@ public class NV21ToRGBDecoder extends Transformer
 
 			// Forces image to be of a quadratic shape
 			Bitmap croppedBitmap = cropper.cropImage();
-			CameraUtil.saveBitmap(croppedBitmap, new Date().toString() + ".png");
 
 			// Converts RGB to float values and saves the data to floatValues array
-			//convertToFloatRGB(croppedBitmap, stream_out.ptrF());
+			convertToFloatRGB(croppedBitmap, stream_out.ptrF());
 		}
 		else
 		{
@@ -131,17 +128,20 @@ public class NV21ToRGBDecoder extends Transformer
 	/**
 	 * Prepares pixel data for inference with Inception model.
 	 * Pre-process the image data from 0-255 int to normalized float based values.
+	 *
+	 * @param bitmap Source image.
+	 * @param out Output stream.
 	 */
 	private void convertToFloatRGB(Bitmap bitmap, float[] out)
 	{
-		for (int x = 0; x < height; x++)
+		for (int y = 0; y < bitmap.getHeight(); y++)
 		{
-			for (int y = 0; y < width; y++)
+			for (int x = 0; x < bitmap.getWidth(); x++)
 			{
-				final int val = bitmap.getPixel(y, x);
-				out[(x * bitmap.getWidth() + y) * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-				out[(x * bitmap.getWidth() + y) * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-				out[(x * bitmap.getWidth() + y) * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+				final int val = bitmap.getPixel(x, y);
+				out[(y * bitmap.getWidth() + x) * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+				out[(y * bitmap.getWidth() + x) * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+				out[(y * bitmap.getWidth() + x) * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
 			}
 		}
 	}
