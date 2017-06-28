@@ -37,7 +37,6 @@ import android.graphics.Matrix;
  *
  * @author Vitaly
  */
-// TODO: Rewrite class into a function inside CameraUtil class. Refactor.
 public class CameraImageCropper
 {
 	private static final int ROTATION = 90;
@@ -49,27 +48,23 @@ public class CameraImageCropper
 	private Matrix cropToFrameTransform;
 	private Matrix frameToCropTransform;
 
-	private byte[] rgb;
-
 	private int width;
 	private int height;
 
 	/**
 	 * Initializes bitmaps, rgb array, canvas, and transform matrices.
 	 *
-	 * @param rgb Image pixel data
 	 * @param width Image width in pixels.
 	 * @param height Image height in pixels.
 	 * @param inputSize Acceptable image size for Inception model.
 	 * @param maintainAspectRatio Whether or not to retain aspect ratio of the image.
 	 */
-	public CameraImageCropper(byte[] rgb, int width, int height, int inputSize,
+	public CameraImageCropper(int width, int height, int inputSize,
 							  boolean maintainAspectRatio)
 	{
 		// Cache input image sizes and rgb matrix
 		this.width = width;
 		this.height = height;
-		this.rgb = rgb;
 
 		// Create bitmap for the original image
 		rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -92,26 +87,9 @@ public class CameraImageCropper
 	 *
 	 * @return Cropped image.
 	 */
-	public Bitmap cropImage()
+	public Bitmap cropImage(int[] rgb)
 	{
-		for(int y = 0; y < height; y++)
-		{
-			for(int x = 0; x < width; x++)
-			{
-				int step = (y * width + x) * 4;
-
-				int r = rgb[step + 1];
-				int g = rgb[step + 2];
-				int b = rgb[step + 3];
-
-				if (r < 0) r += 256;
-				if (g < 0) g += 256;
-				if (b < 0) b += 256;
-
-				int pixel = 0xff000000 | r << 16 | g << 8 | b;
-				rgbBitmap.setPixel(x, y, pixel);
-			}
-		}
+		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
 
 		// Crop bitmap to a quadratic form
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);

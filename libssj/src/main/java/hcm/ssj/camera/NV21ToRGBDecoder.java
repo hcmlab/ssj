@@ -61,12 +61,15 @@ public class NV21ToRGBDecoder extends Transformer
 	private static final int BYTES_PER_INT = 4;
 
 	private byte[] nv21Data;
-	private byte[] rgbBytes;
+
+	int intValues[];
 
 	public final Options options = new Options();
 
 	private int width;
 	private int height;
+
+	CameraImageCropper cropper;
 
 	public NV21ToRGBDecoder()
 	{
@@ -87,7 +90,10 @@ public class NV21ToRGBDecoder extends Transformer
 		height = ((ImageStream)stream_in[0]).getHeight();
 
 		if (options.prepareForInception.get())
-			rgbBytes = new byte[width * height * BYTES_PER_INT];
+		{
+			intValues = new int[width * height];
+			cropper = new CameraImageCropper(width, height, CROP_SIZE, MAINTAIN_ASPECT);
+		}
 	}
 
 	@Override
@@ -98,30 +104,20 @@ public class NV21ToRGBDecoder extends Transformer
 
 		if (options.prepareForInception.get())
 		{
-			// Convert NV21 to RGB and save the pixel data inside of rgbBytes
-			CameraUtil.convertNV21ToRgb(rgbBytes, nv21Data, width, height);
-
-			CameraImageCropper cropper = new CameraImageCropper(rgbBytes, width, height,
-																CROP_SIZE, MAINTAIN_ASPECT);
+			// Convert NV21 to RGB and save the pixel data inside of intValues
+			CameraUtil.convertNV21ToRgbInt(intValues, nv21Data, width, height);
 
 			// Forces image to be of a quadratic shape
-			Bitmap croppedBitmap = cropper.cropImage();
+			Bitmap croppedBitmap = cropper.cropImage(intValues);
 
-			// Converts RGB to float values and saves the data to floatValues array
+			// Converts RGB to float values and saves the data to the output stream
 			convertToFloatRGB(croppedBitmap, stream_out.ptrF());
 		}
 		else
 		{
-			// Convert NV21 to RGB and save the pixel data inside of rgbBytes
+			// Convert NV21 to RGB and save the pixel data to the output stream
 			byte out[] = stream_out.ptrB();
 			CameraUtil.convertNV21ToRgb(out, nv21Data, width, height);
-
-
-			// Write RGB pixel data to the output stream
-			for (int i = 0; i < out.length; i++)
-			{
-				out[i] = rgbBytes[i];
-			}
 		}
 	}
 
@@ -134,15 +130,14 @@ public class NV21ToRGBDecoder extends Transformer
 	 */
 	private void convertToFloatRGB(Bitmap bitmap, float[] out)
 	{
-		for (int y = 0; y < bitmap.getHeight(); y++)
+		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+		for (int i = 0; i < bitmap.getWidth() * bitmap.getHeight(); ++i)
 		{
-			for (int x = 0; x < bitmap.getWidth(); x++)
-			{
-				final int val = bitmap.getPixel(x, y);
-				out[(y * bitmap.getWidth() + x) * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-				out[(y * bitmap.getWidth() + x) * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-				out[(y * bitmap.getWidth() + x) * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
-			}
+			final int val = intValues[i];
+			out[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			out[i * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			out[i * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
 		}
 	}
 

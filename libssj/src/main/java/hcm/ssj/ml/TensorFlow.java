@@ -64,20 +64,12 @@ public class TensorFlow extends Model
 		System.loadLibrary("tensorflow_inference");
 	}
 
-	/**
-	 * Initializes image data of proper size.
-	 */
-	public TensorFlow()
-	{
-		// ...
-	}
-
 	protected float[] forward(Stream[] stream)
 	{
 		float[] floatValues = stream[0].ptrF();
 		float[] probabilities = makePrediction(floatValues);
 
-		// Make prediction.
+		// Show prediction probability
 		int bestLabelIdx = maxIndex(probabilities);
 		Log.d("tf_ssj",
 			  String.format("BEST MATCH: %s (%.2f%% likely)",
@@ -93,7 +85,9 @@ public class TensorFlow extends Model
 	 */
 	private float[] makePrediction(float[] floatValues)
 	{
-		Tensor input = Tensor.create(new long[] {1, INPUT_SIZE, INPUT_SIZE, 3}, FloatBuffer.wrap(floatValues));
+		long[] shape = new long[] {1, INPUT_SIZE, INPUT_SIZE, 3};
+
+		Tensor input = Tensor.create(shape, FloatBuffer.wrap(floatValues));
 		Tensor result = session.runner()
 				.feed(INPUT_NAME, input)
 				.fetch(OUTPUT_NAME)
@@ -133,9 +127,10 @@ public class TensorFlow extends Model
 		Log.e("training not supported yet");
 	}
 
+	@Override
 	protected void loadOption(File file)
 	{
-		// Empty implementation
+		Log.e("loading option file is not supported yet");
 	}
 
 	@Override
