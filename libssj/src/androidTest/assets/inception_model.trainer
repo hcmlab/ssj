@@ -1006,6 +1006,13 @@
 		<item name="stole" />
 		<item name="carbonara" />
 		<item name="dumbbell" />
+		<item name="empty" />
+		<item name="empty" />
+		<item name="empty" />
+		<item name="empty" />
+		<item name="empty" />
+		<item name="empty" />
+		<item name="empty" />
     </classes>
     <users>
         <item name="user1" />

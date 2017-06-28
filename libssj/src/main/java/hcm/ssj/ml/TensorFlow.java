@@ -66,6 +66,17 @@ public class TensorFlow extends Model
 
 	protected float[] forward(Stream[] stream)
 	{
+		if (stream.length != 1)
+		{
+			Log.w("only one input stream currently supported, consider using merge");
+			return null;
+		}
+		if (!_isTrained)
+		{
+			Log.w("not trained");
+			return null;
+		}
+
 		float[] floatValues = stream[0].ptrF();
 		float[] probabilities = makePrediction(floatValues);
 
@@ -74,7 +85,7 @@ public class TensorFlow extends Model
 		Log.d("tf_ssj",
 			  String.format("BEST MATCH: %s (%.2f%% likely)",
 							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
-		return null;
+		return probabilities;
 	}
 
 	/**
