@@ -36,6 +36,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -56,6 +57,11 @@ import hcm.ssj.creator.util.Util;
  */
 public class PipeView extends ViewGroup
 {
+    //layout
+    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
+    private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
+    private final int iGridWidthNumberOfBoxes = 50; //chosen box number
+    private final int iGridHeightNumberOfBoxes = 50; //chosen box number
     //elements
     private ArrayList<ComponentView> componentViewsSensor = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsProvider = new ArrayList<>();
@@ -67,15 +73,10 @@ public class PipeView extends ViewGroup
     //colors
     private Paint paintElementGrid;
     private Paint paintElementShadow;
-    //layout
-    private final static int LANDSCAPE_NUMBER_OF_BOXES = 10; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
-    private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
     private int iOrientation = Configuration.ORIENTATION_UNDEFINED;
     //grid
     private GridLayout gridLayout;
     private int iGridBoxSize = 0; //box size depends on screen width
-    private final int iGridWidthNumberOfBoxes = 50; //chosen box number
-    private final int iGridHeightNumberOfBoxes = 50; //chosen box number
     private int iGridPadWPix = 0; //left and right padding to center grid
     private int iGridPadHPix = 0; //top and bottom padding to center grid
     private int iSizeWidth = 0; //draw size width
@@ -703,5 +704,40 @@ public class PipeView extends ViewGroup
         iGridPadHPix = height % iGridBoxSize / 2;
         iSizeWidth = iGridBoxSize * iGridWidthNumberOfBoxes + (2 * iGridPadWPix);
         iSizeHeight = iGridBoxSize * iGridHeightNumberOfBoxes + (2 * iGridPadHPix);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent motionEvent)
+    {
+        Log.d("onInterceptTouchEvent");
+
+        for(int i = 0; i < getChildCount(); i++)
+        {
+            View child = getChildAt(i);
+            if(child instanceof ComponentView)
+            {
+                // Check if motionEvent occured on CompontenView
+                if( motionEvent.getX() >= child.getX() &&
+                        motionEvent.getX() <= child.getX() + child.getWidth() &&
+                        motionEvent.getY() >= child.getY() &&
+                        motionEvent.getY() <= child.getY() + child.getHeight())
+                {
+                    return false;
+                }
+            }
+        }
+
+        for(ConnectionView connectionView : streamConnectionViews)
+        {
+            if(connectionView.isOnPath(motionEvent))
+            {
+                Log.d("Touched a connection!");
+                connectionView.toggleConnectionType();
+                connectionView.invalidate();
+                return true;
+            }
+        }
+
+        return false;
     }
 }

@@ -27,12 +27,16 @@
 package hcm.ssj.creator.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
+
 
 /**
  * Draws connections between elements. Directions are shown with an arrow.<br>
@@ -46,6 +50,8 @@ class ConnectionView extends View
 
     //
     private Path path;
+    private Bitmap intersectionBitmap;
+    private ConnectionType connectionType;
 
     /**
      * @param context Context
@@ -115,6 +121,21 @@ class ConnectionView extends View
     @Override
     protected void onDraw(Canvas canvas)
     {
+        // Draw with double strokewith in a hidden bitmap.
+        intersectionBitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.RGB_565 );
+        Canvas intersectionCanvas = new Canvas(intersectionBitmap);
+        if (path != null)
+        {
+            int hitboxFactor = 5;
+			ConnectionType oldType = connectionType;
+			setConnectionType(ConnectionType.STREAMCONNECTION);
+			intersectionCanvas.drawColor(Color.WHITE);
+            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() * hitboxFactor);
+            intersectionCanvas.drawPath(path, paintConnection);
+            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() / hitboxFactor);
+			setConnectionType(oldType);
+        }
+
         super.onDraw(canvas);
         canvas.save();
         if (path != null)
@@ -126,9 +147,34 @@ class ConnectionView extends View
 
     protected void setConnectionType(ConnectionType connectionType)
 	{
+        this.connectionType = connectionType;
 		// PathEffect
 		paintConnection.setPathEffect(connectionType.getPathEffect());
 		//Color
 		paintConnection.setColor(getResources().getColor(connectionType.getColor()));
 	}
+
+    /**
+     *  Checks if the motionEvent is on the drawn hidden bitmap.
+     * @param motionEvent MotionEvent
+     * @return Motion event is on path.
+     */
+	protected boolean isOnPath(MotionEvent motionEvent)
+    {
+        int touchPointColor = intersectionBitmap.getPixel((int)motionEvent.getX(), (int) motionEvent.getY());
+
+        return touchPointColor != Color.WHITE;
+    }
+
+    protected void toggleConnectionType()
+    {
+        if(connectionType == ConnectionType.STREAMCONNECTION)
+        {
+            setConnectionType(ConnectionType.EVENTCONNECTION);
+        }
+        else
+        {
+            setConnectionType(ConnectionType.STREAMCONNECTION);
+        }
+    }
 }
