@@ -96,7 +96,6 @@ public class ProviderTable
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
                             PipelineBuilder.getInstance().addStreamProvider(mainObject, (Provider) o);
-                            PipelineBuilder.getInstance().removeEventProvider(mainObject, (Provider) o);
                         } else {
                             PipelineBuilder.getInstance().removeStreamProvider(mainObject, (Provider) o);
                         }
@@ -159,7 +158,6 @@ public class ProviderTable
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
                             PipelineBuilder.getInstance().addEventProvider(mainObject, (Provider) o);
-                            PipelineBuilder.getInstance().removeStreamProvider(mainObject, (Provider) o);
                         } else {
                             PipelineBuilder.getInstance().removeEventProvider(mainObject, (Provider) o);
                         }

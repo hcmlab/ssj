@@ -30,9 +30,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
-import android.graphics.PathEffect;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
@@ -202,7 +200,7 @@ public class PipeView extends ViewGroup
         for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfStreamConnections(); i++)
         {
             ConnectionView connectionView = new ConnectionView(getContext());
-            connectionView.setPathEffect(new PathEffect());
+            connectionView.setConnectionType(ConnectionType.STREAMCONNECTION);
             streamConnectionViews.add(connectionView);
             addView(streamConnectionViews.get(i));
         }
@@ -210,7 +208,7 @@ public class PipeView extends ViewGroup
         for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfEventConnections(); i++)
         {
             ConnectionView connectionView = new ConnectionView(getContext());
-            connectionView.setPathEffect(new DashPathEffect(new float[]{50f,  20f}, 0));
+            connectionView.setConnectionType(ConnectionType.EVENTCONNECTION);
             eventConnectionViews.add(connectionView);
             addView(eventConnectionViews.get(i));
         }

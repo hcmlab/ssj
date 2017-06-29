@@ -39,4 +39,6 @@
     <color name="colorConsumer">#29b6f6</color>
 
     <color name="colorConnectionStream">#9e9e9e</color>
+    <color name="colorConnectionEvent">#494949</color>
+
 </resources>

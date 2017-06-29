@@ -30,12 +30,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.PathEffect;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
-
-import hcm.ssj.creator.R;
 
 /**
  * Draws connections between elements. Directions are shown with an arrow.<br>
@@ -62,7 +59,6 @@ class ConnectionView extends View
             float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
             paintConnection = new Paint(Paint.ANTI_ALIAS_FLAG);
             paintConnection.setStyle(Paint.Style.STROKE);
-            paintConnection.setColor(getResources().getColor(R.color.colorConnectionStream));
             paintConnection.setStrokeWidth(strokeWidth);
         }
     }
@@ -128,8 +124,11 @@ class ConnectionView extends View
         canvas.restore();
     }
 
-    protected void setPathEffect(PathEffect pathEffect)
-    {
-        paintConnection.setPathEffect(pathEffect);
-    }
+    protected void setConnectionType(ConnectionType connectionType)
+	{
+		// PathEffect
+		paintConnection.setPathEffect(connectionType.getPathEffect());
+		//Color
+		paintConnection.setColor(getResources().getColor(connectionType.getColor()));
+	}
 }
