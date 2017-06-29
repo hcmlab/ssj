@@ -43,6 +43,7 @@ import android.view.ViewParent;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
@@ -711,6 +712,8 @@ public class PipeView extends ViewGroup
     {
         Log.d("onInterceptTouchEvent");
 
+        boolean returnValue = false;
+
         for(int i = 0; i < getChildCount(); i++)
         {
             View child = getChildAt(i);
@@ -726,18 +729,20 @@ public class PipeView extends ViewGroup
                 }
             }
         }
-
-        for(ConnectionView connectionView : streamConnectionViews)
+        List<ConnectionView> connectionViewList = new ArrayList<>();
+        connectionViewList.addAll(streamConnectionViews);
+        connectionViewList.addAll(eventConnectionViews);
+        for(ConnectionView connectionView : connectionViewList)
         {
             if(connectionView.isOnPath(motionEvent))
             {
                 Log.d("Touched a connection!");
                 connectionView.toggleConnectionType();
                 connectionView.invalidate();
-                return true;
+                returnValue = true;
             }
         }
 
-        return false;
+        return returnValue;
     }
 }
