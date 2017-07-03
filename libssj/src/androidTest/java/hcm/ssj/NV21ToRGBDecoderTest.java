@@ -36,6 +36,7 @@ import org.junit.runner.RunWith;
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.NV21ToRGBDecoder;
+import hcm.ssj.camera.Resizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
@@ -50,7 +51,7 @@ public class NV21ToRGBDecoderTest
 	@Test
 	public void decodeNV21() throws Exception
 	{
-		final boolean PREPARE_FOR_INCEPTION = true;
+		final boolean PREPARE_FOR_INCEPTION = false;
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
@@ -79,9 +80,13 @@ public class NV21ToRGBDecoderTest
 		decoder.options.prepareForInception.set(PREPARE_FOR_INCEPTION);
 		frame.addTransformer(decoder, cameraChannel, 1, 0);
 
+		Resizer resizer = new Resizer();
+		resizer.options.cropSize.set(224);
+		frame.addTransformer(resizer, decoder, 1, 0);
+
 		// Add consumer to the pipeline
 		Logger logger = new Logger();
-		frame.addConsumer(logger, decoder, 1.0 / sampleRate, 0);
+		frame.addConsumer(logger, resizer, 1.0 / sampleRate, 0);
 
 		// Start pipeline
 		frame.start();

@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
+import java.util.Locale;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
@@ -83,7 +84,7 @@ public class TensorFlow extends Model
 		// Show prediction probability
 		int bestLabelIdx = maxIndex(probabilities);
 		Log.d("tf_ssj",
-			  String.format("BEST MATCH: %s (%.2f%% likely)",
+			  String.format(Locale.US, "BEST MATCH: %s (%.2f%% likely)",
 							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
 		return probabilities;
 	}
@@ -99,10 +100,13 @@ public class TensorFlow extends Model
 		long[] shape = new long[] {1, INPUT_SIZE, INPUT_SIZE, 3};
 
 		Tensor input = Tensor.create(shape, FloatBuffer.wrap(floatValues));
+		long start = System.currentTimeMillis();
 		Tensor result = session.runner()
 				.feed(INPUT_NAME, input)
 				.fetch(OUTPUT_NAME)
 				.run().get(0);
+		long duration = System.currentTimeMillis() - start;
+		Log.d("tf_duration", "Execution time: " + duration + "ms");
 
 		long[] rshape = result.shape();
 		if (result.numDimensions() != 2 || rshape[0] != 1)

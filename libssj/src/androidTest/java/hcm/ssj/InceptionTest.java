@@ -45,7 +45,10 @@ import hcm.ssj.test.Logger;
 import static android.support.test.InstrumentationRegistry.getContext;
 
 /**
- * Created by Vitaly on 04.06.2017.
+ * Tests setting up, loading, and evaluating object classification
+ * with the Inception model.
+ *
+ * @author Vitaly
  */
 
 @RunWith(AndroidJUnit4.class)
