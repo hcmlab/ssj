@@ -112,7 +112,7 @@ public class NV21ToRGBDecoder extends Transformer
 			CameraUtil.convertNV21ToARGBInt(intValues, nv21Data, width, height);
 
 			// Forces image to be of a quadratic shape
-			Bitmap croppedBitmap = resizer.cropImage(intValues);
+			Bitmap croppedBitmap = resizer.resizeImage(intValues);
 
 			// Converts RGB to float values and saves the data to the output stream
 			convertToFloatRGB(croppedBitmap, stream_out.ptrF());
@@ -139,7 +139,7 @@ public class NV21ToRGBDecoder extends Transformer
 		for (int i = 0; i < bitmap.getWidth() * bitmap.getHeight(); ++i)
 		{
 			final int val = intValues[i];
-			out[i * 3 + 0] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
+			out[i * 3] = (((val >> 16) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
 			out[i * 3 + 1] = (((val >> 8) & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
 			out[i * 3 + 2] = ((val & 0xFF) - IMAGE_MEAN) / IMAGE_STD;
 		}

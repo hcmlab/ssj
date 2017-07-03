@@ -85,9 +85,10 @@ public class CameraImageResizer
 	/**
 	 * Forces an image to be of the same width and height.
 	 *
+	 * @param rgb RGB integer values.
 	 * @return Cropped image.
 	 */
-	public Bitmap cropImage(int[] rgb)
+	public Bitmap resizeImage(int[] rgb)
 	{
 		rgbBitmap.setPixels(rgb, 0, width, 0, 0, width, height);
 

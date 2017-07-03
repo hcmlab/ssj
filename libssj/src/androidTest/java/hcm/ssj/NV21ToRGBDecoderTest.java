@@ -52,6 +52,13 @@ public class NV21ToRGBDecoderTest
 	public void decodeNV21() throws Exception
 	{
 		final boolean PREPARE_FOR_INCEPTION = false;
+		final float BUFFER_SIZE = 10f;
+
+		final int CROP_SIZE = 2240;
+		final int MIN_FPS = 15;
+		final int MAX_FPS = 15;
+		final int DATA_WINDOW_SIZE = 1;
+		final int DATA_OVERLAP = 0;
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
@@ -60,15 +67,15 @@ public class NV21ToRGBDecoderTest
 
 		// Get pipeline instance
 		Pipeline frame = Pipeline.getInstance();
-		frame.options.bufferSize.set(10.0f);
+		frame.options.bufferSize.set(BUFFER_SIZE);
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
 		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
-		cameraSensor.options.previewFpsRangeMin.set(15);
-		cameraSensor.options.previewFpsRangeMax.set(15);
+		cameraSensor.options.previewFpsRangeMin.set(MIN_FPS);
+		cameraSensor.options.previewFpsRangeMax.set(MAX_FPS);
 
 		// Add sensor to the pipeline
 		CameraChannel cameraChannel = new CameraChannel();
@@ -78,15 +85,15 @@ public class NV21ToRGBDecoderTest
 		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
 		decoder.options.prepareForInception.set(PREPARE_FOR_INCEPTION);
-		frame.addTransformer(decoder, cameraChannel, 1, 0);
+		frame.addTransformer(decoder, cameraChannel, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		Resizer resizer = new Resizer();
-		resizer.options.cropSize.set(224);
-		frame.addTransformer(resizer, decoder, 1, 0);
+		resizer.options.cropSize.set(CROP_SIZE);
+		frame.addTransformer(resizer, decoder, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		// Add consumer to the pipeline
 		Logger logger = new Logger();
-		frame.addConsumer(logger, resizer, 1.0 / sampleRate, 0);
+		frame.addConsumer(logger, resizer, 1.0 / sampleRate, DATA_OVERLAP);
 
 		// Start pipeline
 		frame.start();

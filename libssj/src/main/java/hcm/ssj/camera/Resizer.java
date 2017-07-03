@@ -26,12 +26,10 @@
 
 package hcm.ssj.camera;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 
-import java.util.Date;
-
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -73,24 +71,41 @@ public class Resizer extends Transformer
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
+		// Get image dimensions
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
 
 		// Get user options
-		int cropSize = options.cropSize.get();
 		boolean maintainAspect = options.maintainAspect.get();
+		int cropSize = options.cropSize.get();
 
-		if (cropSize > 0)
-			imageResizer = new CameraImageResizer(width, height, cropSize, maintainAspect);
+		if (cropSize <= 0 || cropSize >= width || cropSize >= height)
+		{
+			Log.d("Invalid crop size. Crop size must be smaller than width and height.");
+			return;
+		}
+
+		imageResizer = new CameraImageResizer(width, height, cropSize, maintainAspect);
+		intValues = new int[cropSize * cropSize];
 	}
 
 	@Override
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
-		int[] rgb = decodeBytes(stream_in[0].ptrB());
-		Bitmap cropped = imageResizer.cropImage(rgb);
+		int cropSize = options.cropSize.get();
 
-		CameraUtil.saveBitmap(cropped, (counter++) + "-preview.png");
+		if (cropSize <= 0 || cropSize >= width || cropSize >= height)
+		{
+			Log.d("Invalid crop size. Crop size must be smaller than width and height.");
+			return;
+		}
+
+		// Convert byte array to integer array
+		int[] rgb = decodeBytes(stream_in[0].ptrB());
+
+		// Resize image and write byte array to output buffer
+		Bitmap cropped = imageResizer.resizeImage(rgb);
+		bitmapToByteArray(cropped, stream_out.ptrB());
 	}
 
 	@Override
@@ -108,7 +123,7 @@ public class Resizer extends Transformer
 	@Override
 	public Cons.Type getSampleType(Stream[] stream_in)
 	{
-		return stream_in[0].type;
+		return Cons.Type.BYTE;
 	}
 
 	@Override
@@ -150,5 +165,25 @@ public class Resizer extends Transformer
 		}
 
 		return rgb;
+	}
+
+	/**
+	 * Converts bitmap to corresponding byte array and writes it
+	 * to the output buffer.
+	 *
+	 * @param bitmap Bitmap to convert to byte array.
+	 * @param out Output buffer.
+	 */
+	private void bitmapToByteArray(Bitmap bitmap, byte[] out)
+	{
+		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+		for (int i = 0; i < bitmap.getWidth() * bitmap.getHeight(); ++i)
+		{
+			final int pixel = intValues[i];
+			out[i * 3] = (byte)((pixel >> 16) & 0xFF);
+			out[i * 3 + 1] = (byte)((pixel >> 8) & 0xFF);
+			out[i * 3 + 2] = (byte)(pixel & 0xFF);
+		}
 	}
 }
