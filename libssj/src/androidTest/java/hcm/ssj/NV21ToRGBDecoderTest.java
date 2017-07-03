@@ -54,7 +54,7 @@ public class NV21ToRGBDecoderTest
 		final boolean PREPARE_FOR_INCEPTION = false;
 		final float BUFFER_SIZE = 10f;
 
-		final int CROP_SIZE = 2240;
+		final int CROP_SIZE = 224;
 		final int MIN_FPS = 15;
 		final int MAX_FPS = 15;
 		final int DATA_WINDOW_SIZE = 1;

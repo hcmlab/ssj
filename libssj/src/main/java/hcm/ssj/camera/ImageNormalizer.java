@@ -1,5 +1,5 @@
 /*
- * ImageResizer.java
+ * ImageNormalizer.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -26,10 +26,7 @@
 
 package hcm.ssj.camera;
 
-import android.graphics.Bitmap;
-
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -37,16 +34,18 @@ import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Transformer that re-sizes image to necessary dimensions.
+ * Normalizes input image and prepares it for the inference with the
+ * Inception model.
+ *
  * @author Vitaly
  */
 
-public class Resizer extends Transformer
+public class ImageNormalizer extends Transformer
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> cropSize = new Option<>("cropSize", 224, Integer.class, "size of the cropped image");
-		public final Option<Boolean> maintainAspect = new Option<>("maintainAspect", true, Boolean.class, "maintain aspect ration");
+		public final Option<Integer> imageMean = new Option<>("imageMean", 0, Integer.class, "image mean");
+		public final Option<Float> imageStd = new Option<>("imageStd", 0f, Float.class, "image standard deviation");
 
 		private Options()
 		{
@@ -54,19 +53,16 @@ public class Resizer extends Transformer
 		}
 	}
 
-	public final Options options = new Options();
-	private CameraImageResizer imageResizer;
+	private int CHANNELS_PER_PIXEL = 3;
 
 	private int width;
 	private int height;
-	private int cropSize = 224;
-	private int counter = 0;
 
-	private int[] intValues;
+	public final Options options = new Options();
 
-	public Resizer()
+	public ImageNormalizer()
 	{
-		_name = "Resizer";
+		_name = "ImageNormalizer";
 	}
 
 	@Override
@@ -75,43 +71,23 @@ public class Resizer extends Transformer
 		// Get image dimensions
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
-
-		// Get user options
-		boolean maintainAspect = options.maintainAspect.get();
-		cropSize = options.cropSize.get();
-
-
-		if (cropSize <= 0 || cropSize >= width || cropSize >= height)
-		{
-			Log.d("Invalid crop size. Crop size must be smaller than width and height.");
-			return;
-		}
-
-		imageResizer = new CameraImageResizer(width, height, cropSize, maintainAspect);
-		intValues = new int[cropSize * cropSize];
 	}
 
 	@Override
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
-		if (cropSize <= 0 || cropSize >= width || cropSize >= height)
-		{
-			Log.d("Invalid crop size. Crop size must be smaller than width and height.");
-			return;
-		}
-
 		// Convert byte array to integer array
 		int[] rgb = CameraUtil.decodeBytes(stream_in[0].ptrB(), width, height);
 
-		// Resize image and write byte array to output buffer
-		Bitmap cropped = imageResizer.resizeImage(rgb);
-		bitmapToByteArray(cropped, stream_out.ptrB());
+		// Normalize image values and write result to the output buffer
+		normalizeImageValues(rgb, stream_out.ptrF());
 	}
 
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
 	{
-		return stream_in[0].dim;
+		ImageStream stream = ((ImageStream) stream_in[0]);
+		return stream.width * stream.height * CHANNELS_PER_PIXEL;
 	}
 
 	@Override
@@ -123,7 +99,7 @@ public class Resizer extends Transformer
 	@Override
 	public Cons.Type getSampleType(Stream[] stream_in)
 	{
-		return Cons.Type.IMAGE;
+		return Cons.Type.FLOAT;
 	}
 
 	@Override
@@ -135,29 +111,20 @@ public class Resizer extends Transformer
 	@Override
 	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.desc = new String[] { "Cropped video" };
-		((ImageStream) stream_out).width = cropSize;
-		((ImageStream) stream_out).height = cropSize;
-		((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
+		stream_out.desc = new String[] { "Normalized image float values" };
 	}
 
-	/**
-	 * Converts bitmap to corresponding byte array and writes it
-	 * to the output buffer.
-	 *
-	 * @param bitmap Bitmap to convert to byte array.
-	 * @param out Output buffer.
-	 */
-	private void bitmapToByteArray(Bitmap bitmap, byte[] out)
+	private void normalizeImageValues(int[] rgb, float[] out)
 	{
-		bitmap.getPixels(intValues, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+		int imageMean = options.imageMean.get();
+		float imageStd = options.imageStd.get();
 
-		for (int i = 0; i < bitmap.getWidth() * bitmap.getHeight(); ++i)
+		for (int i = 0; i < rgb.length; ++i)
 		{
-			final int pixel = intValues[i];
-			out[i * 3] = (byte)((pixel >> 16) & 0xFF);
-			out[i * 3 + 1] = (byte)((pixel >> 8) & 0xFF);
-			out[i * 3 + 2] = (byte)(pixel & 0xFF);
+			final int val = rgb[i];
+			out[i * 3] = (((val >> 16) & 0xFF) - imageMean) / imageStd;
+			out[i * 3 + 1] = (((val >> 8) & 0xFF) - imageMean) / imageStd;
+			out[i * 3 + 2] = ((val & 0xFF) - imageMean) / imageStd;
 		}
 	}
 }

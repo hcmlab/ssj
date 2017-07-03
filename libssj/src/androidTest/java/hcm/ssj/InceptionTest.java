@@ -37,7 +37,9 @@ import java.io.File;
 
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
+import hcm.ssj.camera.ImageNormalizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
+import hcm.ssj.camera.Resizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.ClassifierT;
 import hcm.ssj.test.Logger;
@@ -68,6 +70,11 @@ public class InceptionTest
 		int width = 320;
 		int height = 240;
 
+		final int IMAGE_MEAN = 117;
+		final float IMAGE_STD = 1;
+		final int CROP_SIZE = 224;
+		final boolean MAINTAIN_ASPECT = true;
+
 		// Load inception model and trainer file
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
 		TestHelper.copyAssetToFile(modelName + ".model", new File(dir, modelName + ".model"));
@@ -91,19 +98,31 @@ public class InceptionTest
 
 		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
-		decoder.options.prepareForInception.set(true);
+		decoder.options.prepareForInception.set(false);
 		frame.addTransformer(decoder, cameraChannel, 1, 0);
+
+		// Add image resizer to the pipeline
+		Resizer resizer = new Resizer();
+		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
+		resizer.options.cropSize.set(CROP_SIZE);
+		frame.addTransformer(resizer, decoder, 1, 0);
+
+		// Add image pixel value normalizer to the pipeline
+		ImageNormalizer imageNormalizer = new ImageNormalizer();
+		imageNormalizer.options.imageMean.set(IMAGE_MEAN);
+		imageNormalizer.options.imageStd.set(IMAGE_STD);
+		frame.addTransformer(imageNormalizer, resizer, 1, 0);
 
 		// Add classifier transformer to the pipeline
 		ClassifierT classifier = new ClassifierT();
 		classifier.options.trainerPath.set(dir.getAbsolutePath());
 		classifier.options.trainerFile.set(modelName);
 		classifier.options.merge.set(false);
-		frame.addTransformer(classifier, decoder, 1, 0);
+		frame.addTransformer(classifier, imageNormalizer, 1, 0);
 
 		// Add consumer to the pipeline
 		Logger logger = new Logger();
-		frame.addConsumer(logger, decoder, 1.0 / sampleRate, 0);
+		frame.addConsumer(logger, classifier, 1.0 / sampleRate, 0);
 
 		// Start pipeline
 		frame.start();
