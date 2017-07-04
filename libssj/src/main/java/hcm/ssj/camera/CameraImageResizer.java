@@ -97,4 +97,40 @@ public class CameraImageResizer
 
 		return croppedBitmap;
 	}
+
+	/**
+	 * Crops image into a quadratic shape.
+	 *
+	 * @param rgb RGB pixel values.
+	 * @param cropSize Final image size.
+	 * @return Cropped bitmap.
+	 */
+	public Bitmap cropImage(int[] rgb, int cropSize)
+	{
+		if (cropSize >= width || cropSize >= height)
+		{
+			return null;
+		}
+
+		// Create bitmap for the cropped image
+		Bitmap croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Bitmap.Config.ARGB_8888);
+
+		// Create integer array for cropped image pixel data
+		int[] croppedRgb = new int[cropSize * cropSize];
+
+		// Calculate matrix offsets
+		int heightMargin = (height - cropSize) / 2;
+		int widthMargin = (width - cropSize) / 2;
+
+		for (int y = heightMargin, cy = 0; y < height - heightMargin; y++, cy++)
+		{
+			for (int x = widthMargin, cx = 0; x < width - widthMargin; x++, cx++)
+			{
+				croppedRgb[cy * cropSize + cx] = rgb[y * width + x];
+			}
+		}
+
+		croppedBitmap.setPixels(croppedRgb, 0, cropSize, 0, 0, cropSize, cropSize);
+		return croppedBitmap;
+	}
 }

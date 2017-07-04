@@ -114,6 +114,12 @@ public class ImageNormalizer extends Transformer
 		stream_out.desc = new String[] { "Normalized image float values" };
 	}
 
+	/**
+	 * Prepares image for the classification with the Inception model.
+	 *
+	 * @param rgb Pixel values to normalize.
+	 * @param out Output stream.
+	 */
 	private void normalizeImageValues(int[] rgb, float[] out)
 	{
 		int imageMean = options.imageMean.get();
