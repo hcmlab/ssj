@@ -35,8 +35,8 @@ import org.junit.runner.RunWith;
 
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
+import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
-import hcm.ssj.camera.Resizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
@@ -85,7 +85,7 @@ public class NV21ToRGBDecoderTest
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
 		frame.addTransformer(decoder, cameraChannel, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
-		Resizer resizer = new Resizer();
+		ImageResizer resizer = new ImageResizer();
 		resizer.options.cropSize.set(CROP_SIZE);
 		frame.addTransformer(resizer, decoder, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
