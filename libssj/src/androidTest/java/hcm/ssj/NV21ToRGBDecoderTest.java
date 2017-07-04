@@ -51,7 +51,6 @@ public class NV21ToRGBDecoderTest
 	@Test
 	public void decodeNV21() throws Exception
 	{
-		final boolean PREPARE_FOR_INCEPTION = false;
 		final float BUFFER_SIZE = 10f;
 
 		final int CROP_SIZE = 224;
@@ -84,7 +83,6 @@ public class NV21ToRGBDecoderTest
 
 		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
-		decoder.options.prepareForInception.set(PREPARE_FOR_INCEPTION);
 		frame.addTransformer(decoder, cameraChannel, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		Resizer resizer = new Resizer();

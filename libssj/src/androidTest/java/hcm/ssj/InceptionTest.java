@@ -98,7 +98,6 @@ public class InceptionTest
 
 		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
-		decoder.options.prepareForInception.set(false);
 		frame.addTransformer(decoder, cameraChannel, 1, 0);
 
 		// Add image resizer to the pipeline
