@@ -45,7 +45,7 @@ public class Resizer extends Transformer
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> cropSize = new Option<>("cropSize", 224, Integer.class, "size of the cropped image");
+		public final Option<Integer> cropSize = new Option<>("cropSize", 0, Integer.class, "size of the cropped image");
 		public final Option<Boolean> maintainAspect = new Option<>("maintainAspect", true, Boolean.class, "maintain aspect ration");
 
 		private Options()
@@ -59,8 +59,7 @@ public class Resizer extends Transformer
 
 	private int width;
 	private int height;
-	private int cropSize = 224;
-	private int counter = 0;
+	private int cropSize;
 
 	private int[] intValues;
 
@@ -136,6 +135,8 @@ public class Resizer extends Transformer
 	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
 		stream_out.desc = new String[] { "Cropped video" };
+		int cropSize = options.cropSize.get();
+
 		((ImageStream) stream_out).width = cropSize;
 		((ImageStream) stream_out).height = cropSize;
 		((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
