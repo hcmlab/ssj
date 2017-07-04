@@ -39,7 +39,7 @@ import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageNormalizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
-import hcm.ssj.camera.Resizer;
+import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.ClassifierT;
 import hcm.ssj.test.Logger;
@@ -101,7 +101,7 @@ public class InceptionTest
 		frame.addTransformer(decoder, cameraChannel, 1, 0);
 
 		// Add image resizer to the pipeline
-		Resizer resizer = new Resizer();
+		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
 		resizer.options.cropSize.set(CROP_SIZE);
 		frame.addTransformer(resizer, decoder, 1, 0);
