@@ -316,8 +316,8 @@ public class PipeView extends ViewGroup
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsProvider, true);
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsTransformer, true);
             int[] eventHashes = componentViewConsumer.getEventConnectionHashes();
-            eventConnections = checkStreamConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsProvider, true);
-            eventConnections = checkStreamConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsProvider, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsTransformer, true);
         }
     }
 
