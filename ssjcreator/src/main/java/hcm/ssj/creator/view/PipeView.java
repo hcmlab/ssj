@@ -299,7 +299,19 @@ public class PipeView extends ViewGroup
             int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsProvider, false);
             int[] eventHashes = componentViewSensor.getEventConnectionHashes();
+            //@TODO: Last parameter determines connection direction. Should sensors handled like in streams or like other components?
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensor, false);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsProvider, false);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsTransformer, false);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsConsumer, false);
+        }
+        for (ComponentView componentViewProvider : componentViewsProvider)
+        {
+            int[] eventHashes = componentViewProvider.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsSensor, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsProvider, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsConsumer, true);
         }
         for (ComponentView componentViewTransformer : componentViewsTransformer)
         {
@@ -307,8 +319,10 @@ public class PipeView extends ViewGroup
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsProvider, true);
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsTransformer, true);
             int[] eventHashes = componentViewTransformer.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsSensor, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsProvider, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsConsumer, true);
         }
         for (ComponentView componentViewConsumer : componentViewsConsumer)
         {
@@ -316,8 +330,10 @@ public class PipeView extends ViewGroup
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsProvider, true);
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsTransformer, true);
             int[] eventHashes = componentViewConsumer.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsSensor, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsProvider, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsConsumer, true);
         }
     }
 

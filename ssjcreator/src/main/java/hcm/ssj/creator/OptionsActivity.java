@@ -105,10 +105,13 @@ public class OptionsActivity extends AppCompatActivity
             {
                 tableLayout.addView(streamTableRow);
             }
+        }
+        if(innerObject != null)
+        {
             //add possible event providers
             TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
-                                                          (innerObject instanceof Transformer || innerObject instanceof Consumer)
-                                                                  || (innerObject instanceof Sensor && options != null && options.length > 0));
+                                                                    (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                            || (innerObject instanceof Sensor && options != null && options.length > 0));
             if (eventTableRow != null)
             {
                 tableLayout.addView(eventTableRow);

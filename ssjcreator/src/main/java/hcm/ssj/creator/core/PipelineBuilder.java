@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
@@ -770,7 +771,7 @@ public class PipelineBuilder
      * @param provider Provider
      * @return boolean
      */
-    public boolean addEventProvider(Object o, Provider provider)
+    public boolean addEventProvider(Object o, Component provider)
     {
         //check for existence in
         //sensorChannels
@@ -839,7 +840,7 @@ public class PipelineBuilder
      * @param provider Provider
      * @return boolean
      */
-    public boolean removeEventProvider(Object o, Provider provider)
+    public boolean removeEventProvider(Object o, Component provider)
     {
         //check for existence in
         //sensorChannels

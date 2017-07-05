@@ -28,6 +28,7 @@ package hcm.ssj.creator.core.container;
 
 import java.util.LinkedHashMap;
 
+import hcm.ssj.core.Component;
 import hcm.ssj.core.Provider;
 
 /**
@@ -40,7 +41,7 @@ public class ContainerElement<T>
     private double frameSize = 1;
     private double delta = 0;
     private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
-    private LinkedHashMap<Provider, Boolean> hmEventProviders = new LinkedHashMap<>();
+    private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
 
 
     /**
@@ -144,7 +145,7 @@ public class ContainerElement<T>
 	/**
 	 * @return LinkedHashMap
 	 */
-	public LinkedHashMap<Provider, Boolean> getHmEventProviders()
+	public LinkedHashMap<Component, Boolean> getHmEventProviders()
 	{
 		return hmEventProviders;
 	}
@@ -177,7 +178,7 @@ public class ContainerElement<T>
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addEventProvider(Provider provider)
+	public boolean addEventProvider(Component provider)
 	{
 		return !hmEventProviders.containsKey(provider) && hmEventProviders.put(provider, false) == null;
 	}
@@ -186,7 +187,7 @@ public class ContainerElement<T>
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeEventProvider(Provider provider)
+	public boolean removeEventProvider(Component provider)
 	{
 		return hmEventProviders.remove(provider) != null;
 	}
