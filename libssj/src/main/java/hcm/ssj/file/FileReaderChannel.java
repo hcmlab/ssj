@@ -286,14 +286,14 @@ public class FileReaderChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream stream_out)
+    protected void describeOutput(Stream stream_out)
     {
-        stream_out.dataclass = new String[dimension];
+        stream_out.desc = new String[dimension];
         if (options.outputClass.get() != null)
         {
             if (dimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.desc, 0, options.outputClass.get().length);
                 return;
             } else
             {
@@ -302,7 +302,7 @@ public class FileReaderChannel extends SensorChannel
         }
         for (int i = 0; i < dimension; i++)
         {
-            stream_out.dataclass[i] = "SFRP" + i;
+            stream_out.desc[i] = "SFRP" + i;
         }
     }
 }

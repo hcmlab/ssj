@@ -112,12 +112,7 @@ public class CameraWriter extends Mp4Writer
             Log.e("Stream count not supported");
             return;
         }
-        if (stream_in[0].type != Cons.Type.IMAGE)
-        {
-            Log.e("Stream type not supported");
-            return;
-        }
-        if(stream_in[0].type != Cons.Type.IMAGE || ((ImageStream)stream_in[0]).getFormat() != ImageFormat.NV21)
+        if(stream_in[0].type != Cons.Type.IMAGE || ((ImageStream)stream_in[0]).format != ImageFormat.NV21)
         {
             Log.e("invalid input, writer only supports NV21 images");
             return;

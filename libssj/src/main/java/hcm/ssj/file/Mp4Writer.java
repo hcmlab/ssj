@@ -101,7 +101,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
 
         if (options.fileName.get() == null)
         {
-            String defaultName = TextUtils.join("_", in.dataclass) + ".mp4";
+            String defaultName = TextUtils.join("_", in.desc) + ".mp4";
             Log.w("file name not set, setting to " + defaultName);
             options.fileName.set(defaultName);
         }

@@ -850,231 +850,231 @@ public class AccelerationFeatures extends Transformer
 	}
 
 	@Override
-	protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.dataclass = new String[stream_out.dim];
+		stream_out.desc = new String[stream_out.dim];
 
 		int featureCount = 0;
 
 		if (options.meanX.get())
 		{
-			stream_out.dataclass[featureCount++] = "meanX";
+			stream_out.desc[featureCount++] = "meanX";
 		}
 		if (options.meanY.get())
 		{
-			stream_out.dataclass[featureCount++] = "meanY";
+			stream_out.desc[featureCount++] = "meanY";
 		}
 		if (options.meanZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "meanZ";
+			stream_out.desc[featureCount++] = "meanZ";
 		}
 		if (options.stdDeviationX.get())
 		{
-			stream_out.dataclass[featureCount++] = "stdDeviationX";
+			stream_out.desc[featureCount++] = "stdDeviationX";
 		}
 		if (options.stdDeviationY.get())
 		{
-			stream_out.dataclass[featureCount++] = "stdDeviationY";
+			stream_out.desc[featureCount++] = "stdDeviationY";
 		}
 		if (options.stdDeviationZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "stdDeviationZ";
+			stream_out.desc[featureCount++] = "stdDeviationZ";
 		}
 		if (options.energyX.get())
 		{
-			stream_out.dataclass[featureCount++] = "energyX";
+			stream_out.desc[featureCount++] = "energyX";
 		}
 		if (options.energyY.get())
 		{
-			stream_out.dataclass[featureCount++] = "energyY";
+			stream_out.desc[featureCount++] = "energyY";
 		}
 		if (options.energyZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "energyZ";
+			stream_out.desc[featureCount++] = "energyZ";
 		}
 		if (options.correlationXY.get())
 		{
-			stream_out.dataclass[featureCount++] = "correlationXY";
+			stream_out.desc[featureCount++] = "correlationXY";
 		}
 		if (options.correlationXZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "correlationXZ";
+			stream_out.desc[featureCount++] = "correlationXZ";
 		}
 		if (options.correlationYZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "correlationYZ";
+			stream_out.desc[featureCount++] = "correlationYZ";
 		}
 		if (options.displacementX.get())
 		{
-			stream_out.dataclass[featureCount++] = "displacementX";
+			stream_out.desc[featureCount++] = "displacementX";
 		}
 		if (options.displacementY.get())
 		{
-			stream_out.dataclass[featureCount++] = "displacementY";
+			stream_out.desc[featureCount++] = "displacementY";
 		}
 		if (options.displacementZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "displacementZ";
+			stream_out.desc[featureCount++] = "displacementZ";
 		}
 		if (options.entropyX.get())
 		{
-			stream_out.dataclass[featureCount++] = "entropyX";
+			stream_out.desc[featureCount++] = "entropyX";
 		}
 		if (options.entropyY.get())
 		{
-			stream_out.dataclass[featureCount++] = "entropyY";
+			stream_out.desc[featureCount++] = "entropyY";
 		}
 		if (options.entropyZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "entropyZ";
+			stream_out.desc[featureCount++] = "entropyZ";
 		}
 		if (options.skewX.get())
 		{
-			stream_out.dataclass[featureCount++] = "skewX";
+			stream_out.desc[featureCount++] = "skewX";
 		}
 		if (options.skewY.get())
 		{
-			stream_out.dataclass[featureCount++] = "skewY";
+			stream_out.desc[featureCount++] = "skewY";
 		}
 		if (options.skewZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "skewZ";
+			stream_out.desc[featureCount++] = "skewZ";
 		}
 		if (options.kurtosisX.get())
 		{
-			stream_out.dataclass[featureCount++] = "kurtosisX";
+			stream_out.desc[featureCount++] = "kurtosisX";
 		}
 		if (options.kurtosisY.get())
 		{
-			stream_out.dataclass[featureCount++] = "kurtosisY";
+			stream_out.desc[featureCount++] = "kurtosisY";
 		}
 		if (options.kurtosisZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "kurtosisZ";
+			stream_out.desc[featureCount++] = "kurtosisZ";
 		}
 		if (options.iqrX.get())
 		{
-			stream_out.dataclass[featureCount++] = "iqrX";
+			stream_out.desc[featureCount++] = "iqrX";
 		}
 		if (options.iqrY.get())
 		{
-			stream_out.dataclass[featureCount++] = "iqrY";
+			stream_out.desc[featureCount++] = "iqrY";
 		}
 		if (options.iqrZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "iqrZ";
+			stream_out.desc[featureCount++] = "iqrZ";
 		}
 		if (options.madX.get())
 		{
-			stream_out.dataclass[featureCount++] = "madX";
+			stream_out.desc[featureCount++] = "madX";
 		}
 		if (options.madY.get())
 		{
-			stream_out.dataclass[featureCount++] = "madY";
+			stream_out.desc[featureCount++] = "madY";
 		}
 		if (options.madZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "madZ";
+			stream_out.desc[featureCount++] = "madZ";
 		}
 		if (options.rmsX.get())
 		{
-			stream_out.dataclass[featureCount++] = "rmsX";
+			stream_out.desc[featureCount++] = "rmsX";
 		}
 		if (options.rmsY.get())
 		{
-			stream_out.dataclass[featureCount++] = "rmsY";
+			stream_out.desc[featureCount++] = "rmsY";
 		}
 		if (options.rmsZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "rmsZ";
+			stream_out.desc[featureCount++] = "rmsZ";
 		}
 		if (options.varianceX.get())
 		{
-			stream_out.dataclass[featureCount++] = "varianceX";
+			stream_out.desc[featureCount++] = "varianceX";
 		}
 		if (options.varianceY.get())
 		{
-			stream_out.dataclass[featureCount++] = "varianceY";
+			stream_out.desc[featureCount++] = "varianceY";
 		}
 		if (options.varianceZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "varianceZ";
+			stream_out.desc[featureCount++] = "varianceZ";
 		}
 		if (options.signalMagnitudeArea.get())
 		{
-			stream_out.dataclass[featureCount++] = "signalMagnitudeArea";
+			stream_out.desc[featureCount++] = "signalMagnitudeArea";
 		}
 		if (options.haarFilterX.get())
 		{
-			stream_out.dataclass[featureCount++] = "haarFilterX";
+			stream_out.desc[featureCount++] = "haarFilterX";
 		}
 		if (options.haarFilterY.get())
 		{
-			stream_out.dataclass[featureCount++] = "haarFilterY";
+			stream_out.desc[featureCount++] = "haarFilterY";
 		}
 		if (options.haarFilterZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "haarFilterZ";
+			stream_out.desc[featureCount++] = "haarFilterZ";
 		}
 		if (options.haarFilterBiaxialXY.get())
 		{
-			stream_out.dataclass[featureCount++] = "haarFilterBiaxialXY";
+			stream_out.desc[featureCount++] = "haarFilterBiaxialXY";
 		}
 		if (options.haarFilterBiaxialYZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "haarFilterBiaxialYZ";
+			stream_out.desc[featureCount++] = "haarFilterBiaxialYZ";
 		}
 		if (options.haarFilterBiaxialZX.get())
 		{
-			stream_out.dataclass[featureCount++] = "haarFilterBiaxialZX";
+			stream_out.desc[featureCount++] = "haarFilterBiaxialZX";
 		}
 		if (options.crestX.get())
 		{
-			stream_out.dataclass[featureCount++] = "crestX";
+			stream_out.desc[featureCount++] = "crestX";
 		}
 		if (options.crestY.get())
 		{
-			stream_out.dataclass[featureCount++] = "crestY";
+			stream_out.desc[featureCount++] = "crestY";
 		}
 		if (options.crestZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "crestZ";
+			stream_out.desc[featureCount++] = "crestZ";
 		}
 		if (options.spectralFluxX.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralFluxX";
+			stream_out.desc[featureCount++] = "spectralFluxX";
 		}
 		if (options.spectralFluxY.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralFluxY";
+			stream_out.desc[featureCount++] = "spectralFluxY";
 		}
 		if (options.spectralFluxZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralFluxZ";
+			stream_out.desc[featureCount++] = "spectralFluxZ";
 		}
 		if (options.spectralCentroidX.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralCentroidX";
+			stream_out.desc[featureCount++] = "spectralCentroidX";
 		}
 		if (options.spectralCentroidY.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralCentroidY";
+			stream_out.desc[featureCount++] = "spectralCentroidY";
 		}
 		if (options.spectralCentroidZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralCentroidZ";
+			stream_out.desc[featureCount++] = "spectralCentroidZ";
 		}
 		if (options.spectralRolloffX.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralRolloffX";
+			stream_out.desc[featureCount++] = "spectralRolloffX";
 		}
 		if (options.spectralRolloffY.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralRolloffY";
+			stream_out.desc[featureCount++] = "spectralRolloffY";
 		}
 		if (options.spectralRolloffZ.get())
 		{
-			stream_out.dataclass[featureCount++] = "spectralRolloffZ";
+			stream_out.desc[featureCount++] = "spectralRolloffZ";
 		}
 	}
 }

@@ -37,7 +37,7 @@ import android.graphics.Matrix;
  *
  * @author Vitaly
  */
-public class CameraImageCropper
+public class CameraImageResizer
 {
 	private static final int ROTATION = 90;
 	private Bitmap rgbBitmap;
@@ -59,7 +59,7 @@ public class CameraImageCropper
 	 * @param inputSize Acceptable image size for Inception model.
 	 * @param maintainAspectRatio Whether or not to retain aspect ratio of the image.
 	 */
-	public CameraImageCropper(int width, int height, int inputSize,
+	public CameraImageResizer(int width, int height, int inputSize,
 							  boolean maintainAspectRatio)
 	{
 		// Cache input image sizes and rgb matrix

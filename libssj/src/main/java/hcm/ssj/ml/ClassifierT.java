@@ -326,19 +326,19 @@ public class ClassifierT extends Transformer
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    protected void describeOutput(Stream[] stream_in, Stream stream_out)
     {
         int overallDimension = getSampleDimension(stream_in);
-        stream_out.dataclass = new String[overallDimension];
+        stream_out.desc = new String[overallDimension];
 
         if (_model.getClassNames() != null && overallDimension == _model.getNumClasses())
         {
-            System.arraycopy(_model.getClassNames(), 0, stream_out.dataclass, 0, stream_out.dataclass.length);
+            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
             return;
         }
         for (int i = 0; i < overallDimension; i++)
         {
-            stream_out.dataclass[i] = "nb" + i;
+            stream_out.desc[i] = "nb" + i;
         }
     }
 

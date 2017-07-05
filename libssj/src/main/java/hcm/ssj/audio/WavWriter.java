@@ -287,7 +287,7 @@ public class WavWriter extends Consumer implements IFileWriter
         }
         if (options.fileName.get() == null)
         {
-            String defaultName = TextUtils.join("_", in.dataclass) + ".wav";
+            String defaultName = TextUtils.join("_", in.desc) + ".wav";
             Log.w("file name not set, setting to " + defaultName);
             options.fileName.set(defaultName);
         }

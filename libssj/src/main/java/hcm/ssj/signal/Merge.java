@@ -236,24 +236,24 @@ public class Merge extends Transformer
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    protected void describeOutput(Stream[] stream_in, Stream stream_out)
     {
         int overallDimension = getSampleDimension(stream_in);
-        stream_out.dataclass = new String[overallDimension];
+        stream_out.desc = new String[overallDimension];
         if (options.outputClass.get() != null)
         {
             if (overallDimension == options.outputClass.get().length)
             {
-                System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
+                System.arraycopy(options.outputClass.get(), 0, stream_out.desc, 0, options.outputClass.get().length);
                 return;
             } else
             {
                 Log.w("invalid option outputClass length");
             }
         }
-        for (int i = 0; i < stream_out.dataclass.length; i++)
+        for (int i = 0; i < stream_out.desc.length; i++)
         {
-            stream_out.dataclass[i] = "slctr" + i;
+            stream_out.desc[i] = "slctr" + i;
         }
     }
 }

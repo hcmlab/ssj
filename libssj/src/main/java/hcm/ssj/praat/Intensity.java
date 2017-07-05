@@ -199,10 +199,10 @@ public class Intensity extends Transformer {
     }
 
     @Override
-    public void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    public void describeOutput(Stream[] stream_in, Stream stream_out)
     {
-        stream_out.dataclass = new String[stream_out.dim];
-        stream_out.dataclass[0] = "Intensity";
+        stream_out.desc = new String[stream_out.dim];
+        stream_out.desc[0] = "Intensity";
     }
 
     public static double computeWindowDuration(double minimumPitch)

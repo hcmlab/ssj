@@ -126,7 +126,7 @@ class CameraUtil
      * @param width Width of image in pixels.
      * @param height Height of image in pixels.
      */
-    public static void convertNV21ToRgb(byte[] argb, byte[] yuv, int width, int height) {
+    public static void convertNV21ToRGB(byte[] argb, byte[] yuv, int width, int height) {
         final int frameSize = width * height;
         final int ii = 0;
         final int ij = 0;
@@ -145,7 +145,6 @@ class CameraUtil
                 int g = (int) (1.164f * (y - 16) - 0.813f * (v - 128) - 0.391f * (u - 128));
                 int b = (int) (1.164f * (y - 16) + 2.018f * (u - 128));
 
-                argb[a++] = (byte)255; // alpha
                 argb[a++] = (byte)(r < 0 ? 0 : (r > 255 ? 255 : r)); // red
                 argb[a++] = (byte)(g < 0 ? 0 : (g > 255 ? 255 : g)); // green
                 argb[a++] = (byte)(b < 0 ? 0 : (b > 255 ? 255 : b)); // blue
@@ -161,7 +160,7 @@ class CameraUtil
      * @param width Width of image in pixels.
      * @param height Height of image in pixels.
      */
-    public static void convertNV21ToRgbInt(int[] argb, byte[] yuv, int width, int height) {
+    public static void convertNV21ToARGBInt(int[] argb, byte[] yuv, int width, int height) {
         final int frameSize = width * height;
         final int ii = 0;
         final int ij = 0;

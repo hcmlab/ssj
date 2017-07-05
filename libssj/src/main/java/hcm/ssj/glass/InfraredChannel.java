@@ -132,18 +132,18 @@ public class InfraredChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream stream_out)
+    protected void describeOutput(Stream stream_out)
     {
         int dimension = getSampleDimension();
-        stream_out.dataclass = new String[dimension];
+        stream_out.desc = new String[dimension];
         if (dimension == 1)
         {
-            stream_out.dataclass[0] = "Infrared";
+            stream_out.desc[0] = "Infrared";
         } else
         {
             for (int i = 0; i < dimension; i++)
             {
-                stream_out.dataclass[i] = "Infrared" + i;
+                stream_out.desc[i] = "Infrared" + i;
             }
         }
     }

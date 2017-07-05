@@ -196,15 +196,15 @@ public class Pitch extends Transformer {
     }
 
     @Override
-    public void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    public void describeOutput(Stream[] stream_in, Stream stream_out)
     {
-        stream_out.dataclass = new String[stream_out.dim];
+        stream_out.desc = new String[stream_out.dim];
 
         int i = 0;
-        if(options.computePitch.get()) stream_out.dataclass[i++] = "Pitch";
-        if(options.computePitchEnvelope.get()) stream_out.dataclass[i++] = "Pitch";
-        if(options.computeVoicedProb.get()) stream_out.dataclass[i++] = "VoicedProb";
-        if(options.computePitchedState.get()) stream_out.dataclass[i++] = "PitchedState";
+        if(options.computePitch.get()) stream_out.desc[i++] = "Pitch";
+        if(options.computePitchEnvelope.get()) stream_out.desc[i++] = "Pitch";
+        if(options.computeVoicedProb.get()) stream_out.desc[i++] = "VoicedProb";
+        if(options.computePitchedState.get()) stream_out.desc[i++] = "PitchedState";
     }
 
 }

@@ -346,7 +346,7 @@ public class SignalPainter extends Consumer
                     for (int j = 0; j < stream_in[i].dim; j++)
                     {
                         LineGraphSeries<DataPoint> s = new LineGraphSeries<>();
-                        s.setTitle(stream_in[i].dataclass[j]);
+                        s.setTitle(stream_in[i].desc[j]);
                         s.setColor(colors[color_id++ % colors.length]);
 
                         //define scale length

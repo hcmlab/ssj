@@ -115,7 +115,7 @@ public class FileWriter extends Consumer implements IFileWriter
 
         if (options.fileName.get() == null)
         {
-            String defaultName = TextUtils.join("_", stream_in[0].dataclass) + "." + FILE_EXTENSION_STREAM;
+            String defaultName = TextUtils.join("_", stream_in[0].desc) + "." + FILE_EXTENSION_STREAM;
             Log.w("file name not set, setting to " + defaultName);
             options.fileName.set(defaultName);
         }

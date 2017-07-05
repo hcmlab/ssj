@@ -146,11 +146,11 @@ public class AudioConvert extends Transformer {
     }
 
     @Override
-    public void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    public void describeOutput(Stream[] stream_in, Stream stream_out)
     {
-        stream_out.dataclass = new String[stream_out.dim];
+        stream_out.desc = new String[stream_out.dim];
 
         for(int i = 0; i < stream_out.dim; ++i)
-            stream_out.dataclass[i] = stream_in[0].dataclass[i];
+            stream_out.desc[i] = stream_in[0].desc[i];
     }
 }

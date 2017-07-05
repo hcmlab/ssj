@@ -162,7 +162,7 @@ public abstract class SensorChannel extends Provider {
 
             _stream_out = Stream.create(num_out, dim_out, sr_out, type_out);
 
-            defineOutputClasses(_stream_out);
+            describeOutput(_stream_out);
 
             // configure update rate
             _timer = new Timer((double)num_out / sr_out);
@@ -183,17 +183,17 @@ public abstract class SensorChannel extends Provider {
     }
 
     @Override
-    public String[] getOutputClasses()
+    public String[] getOutputDescription()
     {
         if(!_isSetup) {
             Log.e("not initialized");
             return null;
         }
 
-        String[] outputClass = new String[_stream_out.dataclass.length];
-        System.arraycopy(_stream_out.dataclass, 0, outputClass, 0, _stream_out.dataclass.length);
+        String[] desc = new String[_stream_out.desc.length];
+        System.arraycopy(_stream_out.desc, 0, desc, 0, _stream_out.desc.length);
 
-        return outputClass;
+        return desc;
     }
 
     protected abstract double getSampleRate();
@@ -214,7 +214,7 @@ public abstract class SensorChannel extends Provider {
         return 1;
     }
 
-    protected abstract void defineOutputClasses(Stream stream_out);
+    protected abstract void describeOutput(Stream stream_out);
 
     //how often should the watchdog check if the sensor is providing data (in seconds)
     public void setWatchInterval(float watchInterval)

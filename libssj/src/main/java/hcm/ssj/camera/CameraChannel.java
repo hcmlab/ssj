@@ -100,21 +100,6 @@ public class CameraChannel extends SensorChannel
         }
     }
 
-    @Override
-    public void setup()
-    {
-        try
-        {
-            super.setup();
-        } catch (Exception e)
-        {
-            Log.e("error configuring component", e);
-        }
-
-        ((ImageStream)_stream_out).setWidth(cameraSensor.getImageWidth());
-        ((ImageStream)_stream_out).setHeight(cameraSensor.getImageHeight());
-    }
-
     /**
      * @param stream_out Stream
      */
@@ -167,8 +152,11 @@ public class CameraChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected void defineOutputClasses(Stream stream_out)
+    protected void describeOutput(Stream stream_out)
     {
-        stream_out.dataclass = new String[]{"video"};
+        stream_out.desc = new String[]{"video"};
+
+        ((ImageStream)_stream_out).width = cameraSensor.getImageWidth();
+        ((ImageStream)_stream_out).height = cameraSensor.getImageHeight();
     }
 }

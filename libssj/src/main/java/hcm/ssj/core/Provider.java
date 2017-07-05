@@ -52,5 +52,5 @@ public abstract class Provider extends Component {
         return _stream_out;
     }
 
-    public abstract String[] getOutputClasses();
+    public abstract String[] getOutputDescription();
 }

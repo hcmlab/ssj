@@ -142,14 +142,14 @@ public class Energy extends Transformer {
     }
 
     @Override
-    public void defineOutputClasses(Stream[] stream_in, Stream stream_out)
+    public void describeOutput(Stream[] stream_in, Stream stream_out)
     {
-        stream_out.dataclass = new String[stream_out.dim];
+        stream_out.desc = new String[stream_out.dim];
 
         int i = 0;
-        if(options.computeRMS.get()) stream_out.dataclass[i++] = "RMS";
-        if(options.computeSPL.get()) stream_out.dataclass[i++] = "SPL";
-        if(options.computeSilence.get()) stream_out.dataclass[i++] = "Silence";
+        if(options.computeRMS.get()) stream_out.desc[i++] = "RMS";
+        if(options.computeSPL.get()) stream_out.desc[i++] = "SPL";
+        if(options.computeSilence.get()) stream_out.desc[i++] = "Silence";
     }
 
     /****************************************************

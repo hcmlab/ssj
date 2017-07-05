@@ -116,18 +116,18 @@ public class SocketChannel extends SensorChannel
     }
 
     @Override
-    public void defineOutputClasses(Stream stream_out)
+    public void describeOutput(Stream stream_out)
     {
-        stream_out.dataclass = new String[stream_out.dim];
+        stream_out.desc = new String[stream_out.dim];
         if(options.outputClass.get() == null || stream_out.dim != options.outputClass.get().length)
         {
             Log.w("incomplete definition of output classes");
-            for(int i = 0; i < stream_out.dataclass.length; i++)
-                stream_out.dataclass[i] = "SocketData";
+            for(int i = 0; i < stream_out.desc.length; i++)
+                stream_out.desc[i] = "SocketData";
         }
         else
         {
-            System.arraycopy(options.outputClass.get(), 0, stream_out.dataclass, 0, options.outputClass.get().length);
+            System.arraycopy(options.outputClass.get(), 0, stream_out.desc, 0, options.outputClass.get().length);
         }
     }
 }
