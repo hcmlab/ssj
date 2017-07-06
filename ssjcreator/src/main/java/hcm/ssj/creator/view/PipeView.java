@@ -228,6 +228,7 @@ public class PipeView extends ViewGroup
         componentViewsConsumer = fillList(componentViewsConsumer, PipelineBuilder.Type.Consumer);
         //add eventhandler
         componentViewsEventHandler = fillList(componentViewsEventHandler, PipelineBuilder.Type.EventHandler);
+
     }
 
     /**
