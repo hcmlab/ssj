@@ -92,15 +92,23 @@ public class OptionsActivity extends AppCompatActivity
                             || innerObject instanceof Consumer)));
         }
         //add possible providers for sensor, transformer or consumer
-        if (innerObject != null
-                && (innerObject instanceof Sensor
-                || innerObject instanceof Transformer
-                || innerObject instanceof Consumer))
+        if (innerObject != null && innerObject instanceof Sensor)
         {
             //add possible stream providers
             TableRow streamTableRow = ProviderTable.createStreamTable(this, innerObject,
-                    (innerObject instanceof Transformer || innerObject instanceof Consumer)
-                            || (innerObject instanceof Sensor && options != null && options.length > 0));
+                                                                      (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                              || (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_stream_output);
+            if (streamTableRow != null)
+            {
+                tableLayout.addView(streamTableRow);
+            }
+        }
+        if (innerObject != null && (innerObject instanceof Transformer || innerObject instanceof Consumer))
+        {
+            //add possible stream providers
+            TableRow streamTableRow = ProviderTable.createStreamTable(this, innerObject,
+                                                                      (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                              || (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_stream_input);
             if (streamTableRow != null)
             {
                 tableLayout.addView(streamTableRow);
@@ -111,7 +119,7 @@ public class OptionsActivity extends AppCompatActivity
             //add possible event providers
             TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
                                                                     (innerObject instanceof Transformer || innerObject instanceof Consumer)
-                                                                            || (innerObject instanceof Sensor && options != null && options.length > 0));
+                                                                            || (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
             if (eventTableRow != null)
             {
                 tableLayout.addView(eventTableRow);

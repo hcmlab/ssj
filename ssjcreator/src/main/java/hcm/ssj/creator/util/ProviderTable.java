@@ -57,7 +57,7 @@ public class ProviderTable
      * @param dividerTop boolean
      * @return TableRow
      */
-    public static TableRow createStreamTable(Activity activity, final Object mainObject, boolean dividerTop)
+    public static TableRow createStreamTable(Activity activity, final Object mainObject, boolean dividerTop, int heading)
     {
         TableRow tableRow = new TableRow(activity);
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
@@ -69,7 +69,7 @@ public class ProviderTable
             linearLayout.addView(Util.addDivider(activity));
         }
         TextView textViewName = new TextView(activity);
-        textViewName.setText(R.string.str_sensor_channels);
+        textViewName.setText(heading);
         textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
@@ -119,7 +119,7 @@ public class ProviderTable
      * @param dividerTop boolean
      * @return TableRow
      */
-    public static TableRow createEventTable(Activity activity, final Object mainObject, boolean dividerTop)
+    public static TableRow createEventTable(Activity activity, final Object mainObject, boolean dividerTop, int heading)
     {
         TableRow tableRow = new TableRow(activity);
         tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
@@ -131,7 +131,7 @@ public class ProviderTable
             linearLayout.addView(Util.addDivider(activity));
         }
         TextView textViewName = new TextView(activity);
-        textViewName.setText(R.string.str_event_channels);
+        textViewName.setText(R.string.str_event_input);
         textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
