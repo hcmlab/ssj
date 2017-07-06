@@ -41,6 +41,7 @@ import android.view.ViewGroup;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
@@ -54,8 +55,8 @@ import hcm.ssj.creator.R;
  */
 class ComponentView extends View
 {
-    private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer};
-    private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE};
+    private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler};
+    private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
 
     private static Paint[] paintsElementBox;
     private static Paint[] paintElementText;
@@ -270,6 +271,9 @@ class ComponentView extends View
         } else if (element instanceof Consumer)
         {
             paintType = 3;
+        } else if (element instanceof EventHandler)
+        {
+            paintType = 4;
         }
     }
 

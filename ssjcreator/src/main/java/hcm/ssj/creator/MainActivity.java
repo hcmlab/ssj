@@ -320,6 +320,11 @@ public class MainActivity extends AppCompatActivity
                 showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
                 return true;
             }
+            case R.id.action_eventhandlers:
+            {
+                showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
+                return true;
+            }
             case R.id.action_save:
             {
                 showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);

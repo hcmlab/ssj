@@ -186,6 +186,7 @@ public class ProviderTable
         alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.SensorChannel)));
         alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Transformer)));
         alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Consumer)));
+        alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.EventHandler)));
 
         alCandidates.remove(mainObject);
 

@@ -51,6 +51,10 @@
                 android:title="@string/str_consumers">
             </item>
             <item
+                android:id="@+id/action_eventhandlers"
+                android:title="@string/str_eventhandlers">
+            </item>
+            <item
                 android:id="@+id/action_clear"
                 android:title="@string/str_clear">
             </item>
