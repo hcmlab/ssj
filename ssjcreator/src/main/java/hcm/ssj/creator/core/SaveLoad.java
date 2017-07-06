@@ -76,6 +76,7 @@ public abstract class SaveLoad
     private final static String SENSOR = "sensor";
     private final static String TRANSFORMER = "transformer";
     private final static String CONSUMER = "consumer";
+    private final static String EVENT_HANDLER = "eventHandler";
     private final static String CLASS = "class";
     private final static String ID = "id";
     private final static String OPTIONS = "options";
@@ -121,13 +122,9 @@ public abstract class SaveLoad
             serializer.endTag(null, FRAMEWORK);
             //sensorChannels
             serializer.startTag(null, SENSOR_CHANNEL_LIST);
-            LinkedHashSet<SensorChannel> hsSensorChannels = PipelineBuilder.getInstance().hsSensorChannels;
-            for (SensorChannel sensorChannel : hsSensorChannels)
+            for (ContainerElement<SensorChannel> containerElement : PipelineBuilder.getInstance().hsSensorChannelElements)
             {
-                serializer.startTag(null, SENSOR_CHANNEL);
-                addStandard(serializer, sensorChannel);
-                addOptions(serializer, sensorChannel);
-                serializer.endTag(null, SENSOR_CHANNEL);
+                addContainerElement(serializer, SENSOR_CHANNEL, containerElement, false);
             }
             serializer.endTag(null, SENSOR_CHANNEL_LIST);
             //sensors
@@ -264,6 +261,7 @@ public abstract class SaveLoad
                         }
                         case TRANSFORMER:
                         case CONSUMER:
+                        case EVENT_HANDLER:
                         {
                             String clazz = parser.getAttributeValue(null, CLASS);
                             context = Class.forName(clazz).newInstance();

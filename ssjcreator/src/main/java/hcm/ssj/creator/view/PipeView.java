@@ -45,7 +45,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import hcm.ssj.core.Component;
+import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.core.PipelineBuilder;
@@ -65,9 +68,10 @@ public class PipeView extends ViewGroup
     private final int iGridHeightNumberOfBoxes = 50; //chosen box number
     //elements
     private ArrayList<ComponentView> componentViewsSensor = new ArrayList<>();
-    private ArrayList<ComponentView> componentViewsProvider = new ArrayList<>();
+    private ArrayList<ComponentView> componentViewsSensorChannel = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsTransformer = new ArrayList<>();
     private ArrayList<ComponentView> componentViewsConsumer = new ArrayList<>();
+    private ArrayList<ComponentView> componentViewsEventHandler = new ArrayList<>();
     //connections
     private ArrayList<ConnectionView> streamConnectionViews = new ArrayList<>();
     private ArrayList<ConnectionView> eventConnectionViews = new ArrayList<>();
@@ -136,8 +140,8 @@ public class PipeView extends ViewGroup
         {
             case SAVE:
             {
-                SaveLoad.save(o, componentViewsProvider, componentViewsSensor,
-                        componentViewsTransformer, componentViewsConsumer);
+                SaveLoad.save(o, componentViewsSensorChannel, componentViewsSensor,
+                              componentViewsTransformer, componentViewsConsumer, componentViewsEventHandler);
                 break;
             }
             case LOAD:
@@ -215,13 +219,15 @@ public class PipeView extends ViewGroup
             addView(eventConnectionViews.get(i));
         }
         //add providers
-        componentViewsProvider = fillList(componentViewsProvider, PipelineBuilder.Type.SensorChannel);
+        componentViewsSensorChannel = fillList(componentViewsSensorChannel, PipelineBuilder.Type.SensorChannel);
         //add sensors
         componentViewsSensor = fillList(componentViewsSensor, PipelineBuilder.Type.Sensor);
         //add transformers
         componentViewsTransformer = fillList(componentViewsTransformer, PipelineBuilder.Type.Transformer);
         //add consumers
         componentViewsConsumer = fillList(componentViewsConsumer, PipelineBuilder.Type.Consumer);
+        //add eventhandler
+        componentViewsConsumer = fillList(componentViewsEventHandler, PipelineBuilder.Type.EventHandler);
     }
 
     /**
@@ -243,8 +249,8 @@ public class PipeView extends ViewGroup
                 if (v.getElement().equals(object))
                 {
                     found = true;
-                    v.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
                     v.setStreamConnectionHashes(PipelineBuilder.getInstance().getStreamConnectionHashes(object));
+                    v.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
                     alInterim.add(v);
                     break;
                 }
@@ -253,8 +259,8 @@ public class PipeView extends ViewGroup
             if (!found)
             {
                 ComponentView view = new ComponentView(getContext(), object);
-                view.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
                 view.setStreamConnectionHashes(PipelineBuilder.getInstance().getStreamConnectionHashes(object));
+                view.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
                 alInterim.add(view);
             }
         }
@@ -278,11 +284,13 @@ public class PipeView extends ViewGroup
         int divider = 5;
         setLayouts(componentViewsSensor, initHeight);
         initHeight += divider;
-        setLayouts(componentViewsProvider, initHeight);
+        setLayouts(componentViewsSensorChannel, initHeight);
         initHeight += divider;
         setLayouts(componentViewsTransformer, initHeight);
         initHeight += divider;
         setLayouts(componentViewsConsumer, initHeight);
+        initHeight += divider;
+        setLayouts(componentViewsEventHandler, initHeight);
         //connections
         for (ConnectionView connectionView : streamConnectionViews)
         {
@@ -297,43 +305,56 @@ public class PipeView extends ViewGroup
         for (ComponentView componentViewSensor : componentViewsSensor)
         {
             int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
-            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsProvider, false);
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsSensorChannel, false);
             int[] eventHashes = componentViewSensor.getEventConnectionHashes();
-            //@TODO: Last parameter determines connection direction. Should sensors handled like in streams or like other components?
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensor, false);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsProvider, false);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsTransformer, false);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsConsumer, false);
+            //@TODO: Last parameter determines connection direction. Should sensors be handled like in streams or like other components?
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensor, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensorChannel, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsConsumer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsEventHandler, true);
         }
-        for (ComponentView componentViewProvider : componentViewsProvider)
+        for (ComponentView componentViewSensorChannel : componentViewsSensorChannel)
         {
-            int[] eventHashes = componentViewProvider.getEventConnectionHashes();
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsSensor, true);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsProvider, true);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsTransformer, true);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewProvider, componentViewsConsumer, true);
+            int[] eventHashes = componentViewSensorChannel.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensorChannel, componentViewsSensor, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensorChannel, componentViewsSensorChannel, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensorChannel, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensorChannel, componentViewsConsumer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensorChannel, componentViewsEventHandler, true);
         }
         for (ComponentView componentViewTransformer : componentViewsTransformer)
         {
             int[] streamHashes = componentViewTransformer.getStreamConnectionHashes();
-            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsProvider, true);
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsSensorChannel, true);
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewTransformer, componentViewsTransformer, true);
             int[] eventHashes = componentViewTransformer.getEventConnectionHashes();
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsSensor, true);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsProvider, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsSensorChannel, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsTransformer, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsConsumer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewTransformer, componentViewsEventHandler, true);
         }
         for (ComponentView componentViewConsumer : componentViewsConsumer)
         {
             int[] streamHashes = componentViewConsumer.getStreamConnectionHashes();
-            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsProvider, true);
+            streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsSensorChannel, true);
             streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewConsumer, componentViewsTransformer, true);
             int[] eventHashes = componentViewConsumer.getEventConnectionHashes();
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsSensor, true);
-            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsProvider, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsSensorChannel, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsTransformer, true);
             eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsConsumer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewConsumer, componentViewsEventHandler, true);
+        }
+        for (ComponentView componentViewEventHandler : componentViewsEventHandler)
+        {
+            int[] eventHashes = componentViewEventHandler.getEventConnectionHashes();
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsSensor, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsSensorChannel, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsTransformer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsConsumer, true);
+            eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsEventHandler, true);
         }
     }
 
@@ -345,10 +366,11 @@ public class PipeView extends ViewGroup
         if (alPoints != null)
         {
             int count = 0;
-            count = changeElementPositions(alPoints, componentViewsProvider, count);
+            count = changeElementPositions(alPoints, componentViewsSensorChannel, count);
             count = changeElementPositions(alPoints, componentViewsSensor, count);
             count = changeElementPositions(alPoints, componentViewsTransformer, count);
-            changeElementPositions(alPoints, componentViewsConsumer, count);
+            count = changeElementPositions(alPoints, componentViewsConsumer, count);
+            changeElementPositions(alPoints, componentViewsEventHandler, count);
         }
     }
 
@@ -550,14 +572,17 @@ public class PipeView extends ViewGroup
         boolean result = false;
         if (object instanceof Sensor)
         {
-            result = addCollisionConnection(object, x, y, componentViewsProvider, false);
-        } else if (object instanceof Provider)
+            result = addCollisionConnection(object, x, y, componentViewsSensorChannel, false);
+        } else if (object instanceof Provider || object instanceof EventHandler)
         {
-            boolean found = addCollisionConnection(object, x, y, componentViewsTransformer, true);
-            result = found;
-            if (!found)
+            result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
+            if (!result)
             {
-                result = addCollisionConnection(object, x, y, componentViewsConsumer, true);
+                result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
+            }
+            if (!result)
+            {
+                result = result || addCollisionConnection(object, x, y, componentViewsEventHandler, true);
             }
         }
         return result;
@@ -579,7 +604,11 @@ public class PipeView extends ViewGroup
             int colY = componentView.getGridY();
             if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
             {
-                if (standard)
+                if(componentView.getElement() instanceof EventHandler || object instanceof EventHandler)
+                {
+                    PipelineBuilder.getInstance().addEventProvider(componentView.getElement(), (Component) object);
+                }
+                else if (standard)
                 {
                     PipelineBuilder.getInstance().addStreamProvider(componentView.getElement(), (Provider) object);
                 } else

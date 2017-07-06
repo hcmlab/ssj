@@ -55,7 +55,7 @@ public class SSJDescriptor
     public ArrayList<Class> sensorChannels = new ArrayList<>();
     public ArrayList<Class> transformers = new ArrayList<>();
     public ArrayList<Class> consumers = new ArrayList<>();
-    public ArrayList<Class> eventConsumers = new ArrayList<>();
+    public ArrayList<Class> eventHandlers = new ArrayList<>();
     private HashSet<String> hsClassNames = new HashSet<>();
 
     /**
@@ -141,9 +141,9 @@ public class SSJDescriptor
                         } else if (parent.getSimpleName().compareToIgnoreCase("Consumer") == 0)
                         {
                             consumers.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("EventConsumer") == 0)
+                        } else if (parent.getSimpleName().compareToIgnoreCase("EventHandler") == 0)
                         {
-                            eventConsumers.add(aClass);
+                            eventHandlers.add(aClass);
                         }
                         parent = parent.getSuperclass();
                     }
