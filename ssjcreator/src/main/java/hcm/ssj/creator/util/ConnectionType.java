@@ -24,7 +24,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator.view;
+package hcm.ssj.creator.util;
 
 import android.graphics.DashPathEffect;
 import android.graphics.PathEffect;
@@ -35,7 +35,7 @@ import hcm.ssj.creator.R;
  * Created by Antonio Grieco on 29.06.2017.
  */
 
-enum ConnectionType{
+public enum ConnectionType{
 
 	STREAMCONNECTION(new PathEffect(), R.color.colorConnectionStream),
 	EVENTCONNECTION(new DashPathEffect(new float[]{40f,  30f}, 0), R.color.colorConnectionEvent);

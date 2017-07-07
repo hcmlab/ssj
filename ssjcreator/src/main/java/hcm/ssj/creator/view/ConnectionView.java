@@ -37,6 +37,8 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
+import hcm.ssj.creator.util.ConnectionType;
+
 
 /**
  * Draws connections between elements. Directions are shown with an arrow.<br>

@@ -48,11 +48,11 @@ import java.util.List;
 import hcm.ssj.core.Component;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
+import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -756,8 +756,6 @@ public class PipeView extends ViewGroup
     @Override
     public boolean onInterceptTouchEvent(MotionEvent motionEvent)
     {
-        Log.d("onInterceptTouchEvent");
-
         boolean returnValue = false;
 
         for(int i = 0; i < getChildCount(); i++)
@@ -782,7 +780,6 @@ public class PipeView extends ViewGroup
         {
             if(connectionView.isOnPath(motionEvent))
             {
-                Log.d("Touched a connection!");
                 connectionView.toggleConnectionType();
                 connectionView.invalidate();
                 returnValue = true;
