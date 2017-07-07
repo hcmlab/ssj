@@ -46,6 +46,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import hcm.ssj.core.Component;
+import hcm.ssj.core.Consumer;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
@@ -574,18 +575,37 @@ public class PipeView extends ViewGroup
         if (object instanceof Sensor)
         {
             result = addCollisionConnection(object, x, y, componentViewsSensorChannel, false);
-        } else if (object instanceof Provider || object instanceof EventHandler)
+        }
+        else if (object instanceof Provider)
         {
             result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
             if (!result)
             {
                 result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
             }
+        }
+        else if(object instanceof EventHandler)
+        {
+            result = result || addCollisionConnection(object, x, y, componentViewsSensor, true);
             if (!result)
             {
-                result = result || addCollisionConnection(object, x, y, componentViewsEventHandler, true);
+                result = result || addCollisionConnection(object, x, y, componentViewsSensorChannel, true);
+            }
+            if (!result)
+            {
+                result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
+            }
+            if (!result)
+            {
+                result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
             }
         }
+
+        if(!result)
+        {
+            result = result || addCollisionConnection(object, x, y, componentViewsEventHandler, true);
+        }
+
         return result;
     }
 
