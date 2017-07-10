@@ -127,10 +127,10 @@ public class ImageResizer extends Transformer
 		// Resize image and write byte array to output buffer
 		Bitmap bitmap;
 
-		if (!options.resize.get())
-			bitmap = cropImage(rgb);
-		else
+		if (options.resize.get())
 			bitmap = resizeImage(rgb);
+		else
+			bitmap = cropImage(rgb);
 
 		CameraUtil.saveBitmap(bitmap, new Date().toString() + ".png");
 		bitmapToByteArray(bitmap, stream_out.ptrB());
@@ -233,8 +233,19 @@ public class ImageResizer extends Transformer
 				intValues[cy * cropSize + cx] = rgb[y * width + x];
 			}
 		}
+
+		int[] cropped = new int[cropSize * cropSize];
+
+		for (int x = cropSize - 1, destX = 0; x > 0; x--, destX++)
+		{
+			for (int y = 0; y < cropSize; y++)
+			{
+				cropped[cropSize * y + x] = intValues[cropSize * destX + y];
+			}
+		}
 		// Set pixel values of the cropped image
-		croppedBitmap.setPixels(intValues, 0, cropSize, 0, 0, cropSize, cropSize);
+		//croppedBitmap.setPixels(intValues, 0, cropSize, 0, 0, cropSize, cropSize);
+		croppedBitmap.setPixels(cropped, 0, cropSize, 0, 0, cropSize, cropSize);
 
 		return croppedBitmap;
 	}

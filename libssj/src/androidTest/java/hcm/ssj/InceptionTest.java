@@ -126,7 +126,7 @@ public class InceptionTest
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
 		try
 		{
 			while (System.currentTimeMillis() < end)
