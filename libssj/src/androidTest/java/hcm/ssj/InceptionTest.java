@@ -104,6 +104,7 @@ public class InceptionTest
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
 		resizer.options.cropSize.set(CROP_SIZE);
+		resizer.options.resize.set(false);
 		frame.addTransformer(resizer, decoder, 1, 0);
 
 		// Add image pixel value normalizer to the pipeline

@@ -128,11 +128,14 @@ public class ImageResizer extends Transformer
 		Bitmap bitmap;
 
 		if (options.resize.get())
+		{
 			bitmap = resizeImage(rgb);
+		}
 		else
+		{
 			bitmap = cropImage(rgb);
+		}
 
-		CameraUtil.saveBitmap(bitmap, new Date().toString() + ".png");
 		bitmapToByteArray(bitmap, stream_out.ptrB());
 	}
 
@@ -222,30 +225,32 @@ public class ImageResizer extends Transformer
 		}
 
 		// Calculate matrix offsets
-		int heightMargin = (height - cropSize) / 2;
-		int widthMargin = (width - cropSize) / 2;
+		int heightOffset = (height - cropSize) / 2;
+		int widthOffset = (width - cropSize) / 2;
 
-		for (int y = heightMargin, cy = 0; y < height - heightMargin; y++, cy++)
+		for (int y = heightOffset, cy = 0; y < height - heightOffset; y++, cy++)
 		{
-			for (int x = widthMargin, cx = 0; x < width - widthMargin; x++, cx++)
+			for (int x = widthOffset, cx = 0; x < width - widthOffset; x++, cx++)
 			{
 				// Copy pixels from the original pixel matrix to the cropped one
 				intValues[cy * cropSize + cx] = rgb[y * width + x];
 			}
 		}
 
-		int[] cropped = new int[cropSize * cropSize];
+		// Pixel values of the final image
+		int[] rotatedImageData = new int[cropSize * cropSize];
 
 		for (int x = cropSize - 1, destX = 0; x > 0; x--, destX++)
 		{
 			for (int y = 0; y < cropSize; y++)
 			{
-				cropped[cropSize * y + x] = intValues[cropSize * destX + y];
+				// Copy pixels from the cropped image to the rotated one
+				rotatedImageData[cropSize * y + x] = intValues[cropSize * destX + y];
 			}
 		}
-		// Set pixel values of the cropped image
-		//croppedBitmap.setPixels(intValues, 0, cropSize, 0, 0, cropSize, cropSize);
-		croppedBitmap.setPixels(cropped, 0, cropSize, 0, 0, cropSize, cropSize);
+
+		// Set pixel values of the final image
+		croppedBitmap.setPixels(rotatedImageData, 0, cropSize, 0, 0, cropSize, cropSize);
 
 		return croppedBitmap;
 	}
