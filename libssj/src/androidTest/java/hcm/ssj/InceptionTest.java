@@ -41,8 +41,7 @@ import hcm.ssj.camera.ImageNormalizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.ml.ClassifierT;
-import hcm.ssj.test.Logger;
+import hcm.ssj.ml.Classifier;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
@@ -104,7 +103,6 @@ public class InceptionTest
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
 		resizer.options.cropSize.set(CROP_SIZE);
-		resizer.options.resize.set(false);
 		frame.addTransformer(resizer, decoder, 1, 0);
 
 		// Add image pixel value normalizer to the pipeline
@@ -114,20 +112,17 @@ public class InceptionTest
 		frame.addTransformer(imageNormalizer, resizer, 1, 0);
 
 		// Add classifier transformer to the pipeline
-		ClassifierT classifier = new ClassifierT();
+		Classifier classifier = new Classifier();
 		classifier.options.trainerPath.set(dir.getAbsolutePath());
 		classifier.options.trainerFile.set(modelName);
 		classifier.options.merge.set(false);
-		frame.addTransformer(classifier, imageNormalizer, 1, 0);
-
-		// Add consumer to the pipeline
-		Logger logger = new Logger();
-		frame.addConsumer(logger, classifier, 1.0 / sampleRate, 0);
+		classifier.options.showLabel.set(true);
+		frame.addConsumer(classifier, imageNormalizer, 1.0 / sampleRate, 0);
 
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
 		try
 		{
 			while (System.currentTimeMillis() < end)

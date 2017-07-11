@@ -81,11 +81,6 @@ public class TensorFlow extends Model
 		float[] floatValues = stream[0].ptrF();
 		float[] probabilities = makePrediction(floatValues);
 
-		// Show prediction probability
-		int bestLabelIdx = maxIndex(probabilities);
-		Log.d("tf_ssj",
-			  String.format(Locale.US, "BEST MATCH: %s (%.2f%% likely)",
-							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
 		return probabilities;
 	}
 
@@ -100,13 +95,10 @@ public class TensorFlow extends Model
 		long[] shape = new long[] {1, INPUT_SIZE, INPUT_SIZE, 3};
 
 		Tensor input = Tensor.create(shape, FloatBuffer.wrap(floatValues));
-		long start = System.currentTimeMillis();
 		Tensor result = session.runner()
 				.feed(INPUT_NAME, input)
 				.fetch(OUTPUT_NAME)
 				.run().get(0);
-		long duration = System.currentTimeMillis() - start;
-		Log.d("tf_duration", "Execution time: " + duration + "ms");
 
 		long[] rshape = result.shape();
 		if (result.numDimensions() != 2 || rshape[0] != 1)
@@ -126,7 +118,7 @@ public class TensorFlow extends Model
 	 * @param probabilities Float array.
 	 * @return Index of element with the highest value.
 	 */
-	private int maxIndex(float[] probabilities) {
+	public static int maxIndex(float[] probabilities) {
 		int best = 0;
 		for (int i = 1; i < probabilities.length; ++i) {
 			if (probabilities[i] > probabilities[best]) {

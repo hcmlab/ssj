@@ -123,7 +123,7 @@ public class CameraPainter extends Consumer
             Log.e("Stream count not supported");
             return;
         }
-        if (stream_in[0].type != Cons.Type.BYTE)
+        if (stream_in[0].type != Cons.Type.IMAGE)
         {
             Log.e("Stream type not supported");
             return;

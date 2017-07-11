@@ -50,9 +50,9 @@ public class ImageResizer extends Transformer
 	public class Options extends OptionList
 	{
 		public final Option<Integer> cropSize = new Option<>("cropSize", 0, Integer.class, "size of the cropped image");
-		public final Option<Integer> rotation = new Option<>("cropSize", 90, Integer.class, "rotation of the resulting image");
+		public final Option<Integer> rotation = new Option<>("rotation", 90, Integer.class, "rotation of the resulting image");
 		public final Option<Boolean> maintainAspect = new Option<>("maintainAspect", true, Boolean.class, "maintain aspect ration");
-		public final Option<Boolean> resize = new Option<>("maintainAspect", false, Boolean.class, "resize the image instead of cropping");
+		public final Option<Boolean> savePreview = new Option<>("savePreview", false, Boolean.class, "save preview image");
 
 		private Options()
 		{
@@ -125,16 +125,10 @@ public class ImageResizer extends Transformer
 		int[] rgb = CameraUtil.decodeBytes(stream_in[0].ptrB(), width, height);
 
 		// Resize image and write byte array to output buffer
-		Bitmap bitmap;
+		Bitmap bitmap = resizeImage(rgb);
 
-		if (options.resize.get())
-		{
-			bitmap = resizeImage(rgb);
-		}
-		else
-		{
-			bitmap = cropImage(rgb);
-		}
+		if (options.savePreview.get())
+			CameraUtil.saveBitmap(bitmap, new Date().toString() + ".png");
 
 		bitmapToByteArray(bitmap, stream_out.ptrB());
 	}
@@ -206,51 +200,6 @@ public class ImageResizer extends Transformer
 
 		// Resize bitmap to a quadratic form
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
-
-		return croppedBitmap;
-	}
-
-	/**
-	 * Crops image into a quadratic shape.
-	 *
-	 * @param rgb RGB pixel values.
-	 * @return Cropped bitmap.
-	 */
-	public Bitmap cropImage(int[] rgb)
-	{
-		if (cropSize >= width || cropSize >= height)
-		{
-			Log.e("Invalid crop size. Crop size must be smaller than width and height.");
-			return null;
-		}
-
-		// Calculate matrix offsets
-		int heightOffset = (height - cropSize) / 2;
-		int widthOffset = (width - cropSize) / 2;
-
-		for (int y = heightOffset, cy = 0; y < height - heightOffset; y++, cy++)
-		{
-			for (int x = widthOffset, cx = 0; x < width - widthOffset; x++, cx++)
-			{
-				// Copy pixels from the original pixel matrix to the cropped one
-				intValues[cy * cropSize + cx] = rgb[y * width + x];
-			}
-		}
-
-		// Pixel values of the final image
-		int[] rotatedImageData = new int[cropSize * cropSize];
-
-		for (int x = cropSize - 1, destX = 0; x > 0; x--, destX++)
-		{
-			for (int y = 0; y < cropSize; y++)
-			{
-				// Copy pixels from the cropped image to the rotated one
-				rotatedImageData[cropSize * y + x] = intValues[cropSize * destX + y];
-			}
-		}
-
-		// Set pixel values of the final image
-		croppedBitmap.setPixels(rotatedImageData, 0, cropSize, 0, 0, cropSize, cropSize);
 
 		return croppedBitmap;
 	}
