@@ -72,14 +72,14 @@
         android:onClick="onClosePressed"/>
 
     <com.jjoe64.graphview.GraphView
-        android:layout_width="match_parent"
-        android:layout_height="200dip"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_below="@+id/txt_ssj"
         android:id="@+id/graph" />
 
     <com.jjoe64.graphview.GraphView
-        android:layout_width="match_parent"
-        android:layout_height="200dip"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:layout_below="@+id/graph"
         android:id="@+id/graph2" />
 

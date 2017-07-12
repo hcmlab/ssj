@@ -362,6 +362,7 @@ public class Pipeline
             return;
         }
 
+        c.setTriggeredByEvent(true);
         c.setup(sources);
         c.addEventChannelIn(channel);
         components.add(c);

@@ -261,7 +261,6 @@ public class Classifier extends Consumer
     @Override
     public void consume(Stream[] stream_in)
     {
-        Log.getInstance().clear();
         Stream[] input = stream_in;
 
         if(options.merge.get()) {
@@ -299,17 +298,19 @@ public class Classifier extends Consumer
             Log.i(stringBuilder.toString());
         }
 
-        Event ev = Event.create(Cons.Type.FLOAT);
-        ev.sender = options.sender.get();
-        ev.name = options.event.get();
-        ev.time = (int)(1000 * stream_in[0].time + 0.5);
-        double duration = stream_in[0].num / stream_in[0].sr;
-        ev.dur = (int)(1000 * duration + 0.5);
-        ev.state = Event.State.COMPLETED;
-        ev.setData(probs);
+        if(_evchannel_out != null)
+        {
+            Event ev = Event.create(Cons.Type.FLOAT);
+            ev.sender = options.sender.get();
+            ev.name = options.event.get();
+            ev.time = (int)(1000 * stream_in[0].time + 0.5);
+            double duration = stream_in[0].num / stream_in[0].sr;
+            ev.dur = (int)(1000 * duration + 0.5);
+            ev.state = Event.State.COMPLETED;
+            //ev.setData(probs);
 
-        // TODO: Throws null pointer exception as output event channel is not initialized
-        //_evchannel_out.pushEvent(ev);
+            _evchannel_out.pushEvent(ev);
+        }
     }
 
     /**

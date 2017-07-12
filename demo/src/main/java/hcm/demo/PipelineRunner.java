@@ -94,8 +94,8 @@ public class PipelineRunner extends Thread {
 
 			// Option parameters for camera sensor
 			double sampleRate = 1;
-			int width = 320;
-			int height = 240;
+			int width = 320 * 2;
+			int height = 240 * 2;
 
 			final int IMAGE_MEAN = 117;
 			final float IMAGE_STD = 1;
@@ -153,7 +153,14 @@ public class PipelineRunner extends Thread {
 
 			CameraPainter painter = new CameraPainter();
 			painter.options.surfaceView.set((SurfaceView) _act.findViewById(R.id.video));
+			painter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
+			painter.options.scale.set(true);
+			painter.options.width.set(width);
+			painter.options.height.set(height);
 			_ssj.addConsumer(painter, cameraChannel, 0.1, 0);
+
+			_ssj.registerEventListener(painter, classifier);
+
         }
         catch(Exception e)
         {
