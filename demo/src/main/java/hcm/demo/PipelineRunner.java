@@ -26,17 +26,32 @@
 
 package hcm.demo;
 
+import android.hardware.Camera;
 import android.util.Log;
+import android.view.SurfaceView;
 
 import com.jjoe64.graphview.GraphView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
+import hcm.ssj.camera.CameraChannel;
+import hcm.ssj.camera.CameraPainter;
+import hcm.ssj.camera.CameraSensor;
+import hcm.ssj.camera.ImageNormalizer;
+import hcm.ssj.camera.ImageResizer;
+import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.graphic.SignalPainter;
+import hcm.ssj.ml.Classifier;
 
 public class PipelineRunner extends Thread {
 
@@ -71,33 +86,74 @@ public class PipelineRunner extends Thread {
             _ssj.options.countdown.set(1);
             _ssj.options.log.set(true);
 
-            //** connection to sensors
-            Microphone mic = new Microphone();
-            AudioChannel audio = new AudioChannel();
-            audio.options.sampleRate.set(16000);
-            audio.options.scale.set(true);
-            _ssj.addSensor(mic,audio);
+			//File dir = getContext().getFilesDir();
+			File dir = _act.getFilesDir();
 
-            //** transform data coming from sensors
-            Pitch pitch = new Pitch();
-            pitch.options.detector.set(Pitch.YIN);
-            pitch.options.computePitchedState.set(false);
-            pitch.options.computePitch.set(true);
-            pitch.options.computeVoicedProb.set(false);
-            pitch.options.computePitchEnvelope.set(false);
-            _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
+			// Neural network trainer file for classifying images
+			String modelName = "inception_model.trainer";
 
-            //** configure GUI
-            //paint audio
-            SignalPainter paint = new SignalPainter();
-            paint.options.manualBounds.set(true);
-            paint.options.min.set(0.);
-            paint.options.max.set(1.);
-            paint.options.renderMax.set(true);
-            paint.options.secondScaleMin.set(0.);
-            paint.options.secondScaleMax.set(500.);
-            paint.options.graphView.set(_graphs[0]);
-            _ssj.addConsumer(paint, new Provider[]{audio, pitch}, 0.032, 0);
+			// Option parameters for camera sensor
+			double sampleRate = 1;
+			int width = 320;
+			int height = 240;
+
+			final int IMAGE_MEAN = 117;
+			final float IMAGE_STD = 1;
+			final int CROP_SIZE = 224;
+			final boolean MAINTAIN_ASPECT = true;
+
+			// Load inception model and trainer file
+			copyAssetToFile(modelName, new File(dir, modelName));
+			copyAssetToFile(modelName + ".model", new File(dir, modelName + ".model"));
+
+			// Get pipeline instance
+			Pipeline frame = Pipeline.getInstance();
+			frame.options.bufferSize.set(10.0f);
+
+			// Instantiate camera sensor and set options
+			CameraSensor cameraSensor = new CameraSensor();
+			cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+			cameraSensor.options.width.set(width);
+			cameraSensor.options.height.set(height);
+			cameraSensor.options.previewFpsRangeMin.set(15);
+			cameraSensor.options.previewFpsRangeMax.set(15);
+
+			// Add sensor to the pipeline
+			CameraChannel classifierChannel = new CameraChannel();
+			classifierChannel.options.sampleRate.set(1.0);
+			frame.addSensor(cameraSensor, classifierChannel);
+
+			CameraChannel cameraChannel = new CameraChannel();
+			cameraChannel.options.sampleRate.set(15.0);
+			frame.addSensor(cameraSensor, cameraChannel);
+
+			// Set up a NV21 decoder
+			NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
+			frame.addTransformer(decoder, classifierChannel, 1, 0);
+
+			// Add image resizer to the pipeline
+			ImageResizer resizer = new ImageResizer();
+			resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
+			resizer.options.cropSize.set(CROP_SIZE);
+			frame.addTransformer(resizer, decoder, 1, 0);
+
+			// Add image pixel value normalizer to the pipeline
+			ImageNormalizer imageNormalizer = new ImageNormalizer();
+			imageNormalizer.options.imageMean.set(IMAGE_MEAN);
+			imageNormalizer.options.imageStd.set(IMAGE_STD);
+			frame.addTransformer(imageNormalizer, resizer, 1, 0);
+
+			// Add classifier transformer to the pipeline
+			Classifier classifier = new Classifier();
+			classifier.options.trainerPath.set(dir.getAbsolutePath());
+			classifier.options.trainerFile.set(modelName);
+			classifier.options.merge.set(false);
+			classifier.options.showLabel.set(true);
+			frame.addConsumer(classifier, imageNormalizer, 1.0 / sampleRate, 0);
+
+			CameraPainter painter = new CameraPainter();
+			painter.options.surfaceView.set((SurfaceView) _act.findViewById(R.id.video));
+			_ssj.addConsumer(painter, cameraChannel, 0.1, 0);
         }
         catch(Exception e)
         {
@@ -144,4 +200,22 @@ public class PipelineRunner extends Thread {
     {
         return _ssj.isRunning();
     }
+
+	public void copyAssetToFile(String assetName, File dst) throws IOException
+	{
+		InputStream in = _act.getAssets().open(assetName);
+		OutputStream out = new FileOutputStream(dst);
+
+		byte[] buffer = new byte[1024];
+		int read;
+		while ((read = in.read(buffer)) != -1)
+		{
+			out.write(buffer, 0, read);
+		}
+
+		in.close();
+		out.flush();
+		out.close();
+	}
+
 }

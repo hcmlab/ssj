@@ -83,4 +83,9 @@
         android:layout_below="@+id/graph"
         android:id="@+id/graph2" />
 
+    <SurfaceView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/video" />
+
 </RelativeLayout>
