@@ -1,5 +1,5 @@
 /*
- * NV21Decoder.java
+ * ImageNormalizer.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -26,62 +26,68 @@
 
 package hcm.ssj.camera;
 
-import android.graphics.ImageFormat;
-
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Transformer that is responsible for decoding of NV21 raw image data into
- * RGB color format.
+ * Normalizes input image and prepares it for the inference with the
+ * Inception model.
  *
  * @author Vitaly
  */
-public class NV21ToRGBDecoder extends Transformer
+
+public class ImageNormalizer extends Transformer
 {
-	private static final int CHANNELS_PER_PIXEL = 3;
+	public class Options extends OptionList
+	{
+		public final Option<Integer> imageMean = new Option<>("imageMean", 0, Integer.class, "image mean");
+		public final Option<Float> imageStd = new Option<>("imageStd", 0f, Float.class, "image standard deviation");
+
+		private Options()
+		{
+			addOptions();
+		}
+	}
+
+	private int CHANNELS_PER_PIXEL = 3;
 
 	private int width;
 	private int height;
 
-	public NV21ToRGBDecoder()
+	public final Options options = new Options();
+
+	public ImageNormalizer()
 	{
-		_name = "NV21ToRGBDecoder";
+		_name = "ImageNormalizer";
 	}
 
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
 	{
-		// Initialize image stream size
-		ImageStream imgstrm = (ImageStream)stream_in[0];
-		width = imgstrm.width;
-		height = imgstrm.height;
-
-		if(imgstrm.format != ImageFormat.NV21)
-		{
-			Log.e("Unsupported input video format. Expecting NV21.");
-		}
+		// Get image dimensions
+		width = ((ImageStream) stream_in[0]).width;
+		height = ((ImageStream) stream_in[0]).height;
 	}
 
 	@Override
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
-		// Fetch raw NV21 pixel data
-		byte[] nv21Data = stream_in[0].ptrB();
+		// Convert byte array to integer array
+		int[] rgb = CameraUtil.decodeBytes(stream_in[0].ptrB(), width, height);
 
-		// Convert NV21 to RGB and save the pixel data to the output stream
-		byte out[] = stream_out.ptrB();
-		CameraUtil.convertNV21ToRGB(out, nv21Data, width, height);
+		// Normalize image values and write result to the output buffer
+		normalizeImageValues(rgb, stream_out.ptrF());
 	}
 
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
 	{
-		ImageStream imgstrm = (ImageStream)stream_in[0];
-		return imgstrm.width * imgstrm.height * CHANNELS_PER_PIXEL; //RGB
+		ImageStream stream = ((ImageStream) stream_in[0]);
+		return stream.width * stream.height * CHANNELS_PER_PIXEL;
 	}
 
 	@Override
@@ -93,9 +99,7 @@ public class NV21ToRGBDecoder extends Transformer
 	@Override
 	public Cons.Type getSampleType(Stream[] stream_in)
 	{
-		if(stream_in[0].type != Cons.Type.IMAGE)
-			Log.e("Input stream type (" +stream_in[0].type.toString()+ ") is unsupported. Expecting " + Cons.Type.IMAGE.toString());
-		return Cons.Type.IMAGE;
+		return Cons.Type.FLOAT;
 	}
 
 	@Override
@@ -107,10 +111,26 @@ public class NV21ToRGBDecoder extends Transformer
 	@Override
 	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
-		stream_out.desc = new String[] { "video" };
+		stream_out.desc = new String[] { "Normalized image float values" };
+	}
 
-		((ImageStream) stream_out).width = ((ImageStream) stream_in[0]).width;
-		((ImageStream) stream_out).height = ((ImageStream) stream_in[0]).height;
-		((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
+	/**
+	 * Prepares image for the classification with the Inception model.
+	 *
+	 * @param rgb Pixel values to normalize.
+	 * @param out Output stream.
+	 */
+	private void normalizeImageValues(int[] rgb, float[] out)
+	{
+		int imageMean = options.imageMean.get();
+		float imageStd = options.imageStd.get();
+
+		for (int i = 0; i < rgb.length; ++i)
+		{
+			final int val = rgb[i];
+			out[i * 3] = (((val >> 16) & 0xFF) - imageMean) / imageStd;
+			out[i * 3 + 1] = (((val >> 8) & 0xFF) - imageMean) / imageStd;
+			out[i * 3 + 2] = ((val & 0xFF) - imageMean) / imageStd;
+		}
 	}
 }

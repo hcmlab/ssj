@@ -80,11 +80,6 @@ public class TensorFlow extends Model
 		float[] floatValues = stream[0].ptrF();
 		float[] probabilities = makePrediction(floatValues);
 
-		// Show prediction probability
-		int bestLabelIdx = maxIndex(probabilities);
-		Log.d("tf_ssj",
-			  String.format("BEST MATCH: %s (%.2f%% likely)",
-							classNames[bestLabelIdx], probabilities[bestLabelIdx] * 100f));
 		return probabilities;
 	}
 
@@ -122,7 +117,7 @@ public class TensorFlow extends Model
 	 * @param probabilities Float array.
 	 * @return Index of element with the highest value.
 	 */
-	private int maxIndex(float[] probabilities) {
+	public static int maxIndex(float[] probabilities) {
 		int best = 0;
 		for (int i = 1; i < probabilities.length; ++i) {
 			if (probabilities[i] > probabilities[best]) {

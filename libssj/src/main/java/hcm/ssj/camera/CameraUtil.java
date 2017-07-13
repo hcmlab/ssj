@@ -279,4 +279,33 @@ class CameraUtil
 
         return matrix;
     }
+
+    /**
+     * Converts RGB bytes to RGB ints.
+     *
+     * @param rgbBytes RGB color bytes.
+     * @return RGB color integers.
+     */
+    public static int[] decodeBytes(byte[] rgbBytes, int width, int height)
+    {
+        int[] rgb = new int[width * height];
+
+        for (int i = 0; i < width * height; i++)
+        {
+            int r = rgbBytes[i * 3];
+            int g = rgbBytes[i * 3 + 1];
+            int b = rgbBytes[i * 3 + 2];
+
+            if (r < 0)
+                r += 256;
+            if (g < 0)
+                g += 256;
+            if (b < 0)
+                b += 256;
+
+            rgb[i] = 0xff000000 | (r << 16) | (g << 8) | b;
+        }
+
+        return rgb;
+    }
 }

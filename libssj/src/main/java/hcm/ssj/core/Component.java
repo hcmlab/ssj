@@ -129,7 +129,9 @@ public abstract class Component implements Runnable
     public void clear()
     {
         if(_evchannel_in != null)
-            _evchannel_in.clear();
-        _evchannel_out = null;
+            for(EventChannel ch : _evchannel_in)
+                ch.clear();
+
+        _evchannel_in.clear();
     }
 }

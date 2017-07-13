@@ -39,7 +39,7 @@ import hcm.ssj.core.event.Event;
  */
 public class EventChannel {
 
-    protected String _name = "SSJ_EventChannel";
+    protected String _name = "EventChannel";
 
     private ArrayList<EventListener> _listeners = new ArrayList<>();
     private LinkedList<Event> _events = new LinkedList<>();
@@ -60,6 +60,10 @@ public class EventChannel {
         _terminate = false;
         _event_id = 0;
         _events.clear();
+    }
+
+    public void clear() {
+        _listeners.clear();
     }
 
     public void addEventListener(EventListener listener) {
