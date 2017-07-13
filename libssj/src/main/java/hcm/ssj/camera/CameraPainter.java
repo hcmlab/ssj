@@ -34,8 +34,11 @@ import android.view.SurfaceView;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.EventChannel;
+import hcm.ssj.core.EventListener;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -44,7 +47,7 @@ import hcm.ssj.core.stream.Stream;
  * Camera painter for SSJ.<br>
  * Created by Frank Gaibler on 21.01.2016.
  */
-public class CameraPainter extends Consumer
+public class CameraPainter extends Consumer implements EventListener
 {
     /**
      * All options for the camera painter
@@ -123,7 +126,7 @@ public class CameraPainter extends Consumer
             Log.e("Stream count not supported");
             return;
         }
-        if (stream_in[0].type != Cons.Type.BYTE)
+        if (stream_in[0].type != Cons.Type.IMAGE)
         {
             Log.e("Stream type not supported");
             return;
@@ -152,6 +155,11 @@ public class CameraPainter extends Consumer
         bitmap = Bitmap.createBitmap(options.width.get(), options.height.get(), conf);
         //get colorFormat
         colorFormat = options.colorFormat.get();
+
+        //register listener
+        if(_evchannel_in != null && _evchannel_in.size() != 0)
+            for(EventChannel ch : _evchannel_in)
+                ch.addEventListener(this);
     }
 
     /**
@@ -400,4 +408,12 @@ public class CameraPainter extends Consumer
             }
         }
     }
+
+    @Override
+    public void notify(Event event)
+    {
+		// ...
+        Log.d("notify_test", "event sent: " + event.name);
+    }
+
 }

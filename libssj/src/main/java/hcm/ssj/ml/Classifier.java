@@ -34,6 +34,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
@@ -61,6 +62,7 @@ public class Classifier extends Consumer
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
         public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
+        public final Option<Boolean> showLabel = new Option<>("showLabel", false, Boolean.class, "prints a single label in log");
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
         public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
 
@@ -81,6 +83,9 @@ public class Classifier extends Consumer
     private Selector _selector = null;
     private Stream[] _stream_selected;
     private Model _model;
+
+    private int classNum = 0;
+    private ArrayList<String> classNames = new ArrayList<String>();
 
     private int bytes = 0;
     private int dim = 0;
@@ -136,6 +141,22 @@ public class Classifier extends Consumer
                 }
             }
 
+            // CLASS
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("classes"))
+            {
+                parser.nextTag();
+
+                while (parser.getName().equalsIgnoreCase("item"))
+                {
+                    if (parser.getEventType() == XmlPullParser.START_TAG)
+                    {
+                        classNum++;
+                        classNames.add(parser.getAttributeValue(null, "name"));
+                    }
+                    parser.nextTag();
+                }
+            }
+
             //SELECT
             if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
 
@@ -159,7 +180,15 @@ public class Classifier extends Consumer
             //MODEL
             else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
             {
-                _model = Model.create(parser.getAttributeValue(null, "create"));
+                String modelName = parser.getAttributeValue(null, "create");
+                _model = Model.create(modelName);
+
+                if (modelName.equalsIgnoreCase("PythonModel"))
+                {
+                    ((TensorFlow) _model).setNumClasses(classNum);
+                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
+                }
+
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
                 _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
@@ -245,7 +274,16 @@ public class Classifier extends Consumer
 
         float[] probs = _model.forward(input);
 
-        if(options.log.get())
+        if (options.showLabel.get())
+        {
+            String[] class_names = _model.getClassNames();
+            int bestLabelIdx = TensorFlow.maxIndex(probs);
+            String bestMatch = String.format("BEST MATCH: %s (%.2f%% likely)",
+                          class_names[bestLabelIdx], probs[bestLabelIdx] * 100f);
+            Log.i(bestMatch);
+        }
+
+        if(options.log.get() && !options.showLabel.get())
         {
             String[] class_names = _model.getClassNames();
             StringBuilder stringBuilder = new StringBuilder();
@@ -260,16 +298,19 @@ public class Classifier extends Consumer
             Log.i(stringBuilder.toString());
         }
 
-        Event ev = Event.create(Cons.Type.FLOAT);
-        ev.sender = options.sender.get();
-        ev.name = options.event.get();
-        ev.time = (int)(1000 * stream_in[0].time + 0.5);
-        double duration = stream_in[0].num / stream_in[0].sr;
-        ev.dur = (int)(1000 * duration + 0.5);
-        ev.state = Event.State.COMPLETED;
-        ev.setData(probs);
+        if(_evchannel_out != null)
+        {
+            Event ev = Event.create(Cons.Type.FLOAT);
+            ev.sender = options.sender.get();
+            ev.name = options.event.get();
+            ev.time = (int)(1000 * stream_in[0].time + 0.5);
+            double duration = stream_in[0].num / stream_in[0].sr;
+            ev.dur = (int)(1000 * duration + 0.5);
+            ev.state = Event.State.COMPLETED;
+            //ev.setData(probs);
 
-        _evchannel_out.pushEvent(ev);
+            _evchannel_out.pushEvent(ev);
+        }
     }
 
     /**

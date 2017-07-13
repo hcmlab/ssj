@@ -46,6 +46,8 @@ public abstract class Consumer extends Component {
     private int[] _num_frame;
     private int[] _num_delta;
 
+    boolean _eventTrigger = false;
+
     private Timer _timer;
 
     protected Pipeline _frame;
@@ -68,12 +70,8 @@ public abstract class Consumer extends Component {
         PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
 
-        boolean eventTrigger = false;
         Event ev = null;
         int eventID = 0;
-
-        if(_evchannel_in != null && _evchannel_in.size() == 1)
-            eventTrigger = true;
 
         //clear data
         if(_readPos != null)
@@ -97,13 +95,13 @@ public abstract class Consumer extends Component {
         }
 
         //maintain update rate starting from now
-        if(!eventTrigger)
+        if(!_eventTrigger)
             _timer.reset();
 
         while(!_terminate && _frame.isRunning())
         {
             try {
-                if(eventTrigger) {
+                if(_eventTrigger) {
                     ev = _evchannel_in.get(0).getEvent(eventID++, true);
                     if (ev == null || ev.dur == 0)
                         continue;
@@ -116,7 +114,7 @@ public abstract class Consumer extends Component {
                 int pos, numSamples;
                 for(int i = 0; i < _bufferID_in.length; i++)
                 {
-                    if(eventTrigger)
+                    if(_eventTrigger)
                     {
                         pos = (int) ((ev.time / 1000.0) * _stream_in[i].sr + 0.5);
                         numSamples = ((int) (((ev.time + ev.dur) / 1000.0) * _stream_in[i].sr + 0.5)) - pos;
@@ -143,7 +141,7 @@ public abstract class Consumer extends Component {
                 if(_doWakeLock) wakeLock.release();
 
                 //maintain update rate
-                if(ok && !eventTrigger)
+                if(ok && !_eventTrigger)
                     _timer.sync();
 
             } catch(Exception e) {
@@ -178,6 +176,11 @@ public abstract class Consumer extends Component {
      * called once prior to termination
      */
     public void flush(Stream stream_in[]) {}
+
+    void setTriggeredByEvent(boolean value)
+    {
+        _eventTrigger = value;
+    }
 
     /**
      * initialization for continuous consumer
@@ -244,5 +247,4 @@ public abstract class Consumer extends Component {
 
         _isSetup = true;
     }
-
 }
