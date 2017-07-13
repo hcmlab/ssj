@@ -53,7 +53,26 @@ class ConnectionView extends View
     //
     private Path path;
     private Bitmap intersectionBitmap;
-    private ConnectionType connectionType;
+
+	private ConnectionType connectionType;
+
+	private ComponentView startComponentView;
+	private ComponentView destinationComponentView;
+
+	public ConnectionType getConnectionType()
+	{
+		return connectionType;
+	}
+
+	public ComponentView getStartComponentView()
+	{
+		return startComponentView;
+	}
+
+	public ComponentView getDestinationComponentView()
+	{
+		return destinationComponentView;
+	}
 
     /**
      * @param context Context
@@ -71,6 +90,16 @@ class ConnectionView extends View
         }
     }
 
+    protected void drawComponentViews(ComponentView start, ComponentView destination, final int boxSize)
+    {
+        this.startComponentView = start;
+        this.destinationComponentView = destination;
+
+        setLine(destinationComponentView.getX(), destinationComponentView.getY(),
+                startComponentView.getX(), startComponentView.getY(),
+                boxSize);
+    }
+
     /**
      * @param stopX   float
      * @param stopY   float
@@ -78,7 +107,7 @@ class ConnectionView extends View
      * @param startY  float
      * @param boxSize int
      */
-    protected void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
+    private void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
     {
         //calc triangle
         int arrowLength = (int) (boxSize / 1.42f + 0.5f);
@@ -123,7 +152,7 @@ class ConnectionView extends View
     @Override
     protected void onDraw(Canvas canvas)
     {
-        // Draw with double strokewith in a hidden bitmap.
+        // Draw with higher strokewith in a hidden bitmap.
         intersectionBitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.RGB_565 );
         Canvas intersectionCanvas = new Canvas(intersectionBitmap);
         if (path != null)

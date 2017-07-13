@@ -51,6 +51,8 @@ import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.SensorChannel;
+import hcm.ssj.core.Transformer;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.ConnectionType;
@@ -399,7 +401,7 @@ public class PipeView extends ViewGroup
      * @param standardOrientation boolean
      * @return int
      */
-    private int checkStreamConnections(int[] hashes, int connections, View destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
+    private int checkStreamConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
     {
         if (hashes != null)
         {
@@ -413,18 +415,12 @@ public class PipeView extends ViewGroup
                         //arrow from child to parent (e.g. transformer to consumer)
                         if (standardOrientation)
                         {
-                            connectionView.setLine(
-                                    destination.getX(), destination.getY(),
-                                    componentView.getX(), componentView.getY(),
-                                    iGridBoxSize);
+                            connectionView.drawComponentViews(componentView, destination, iGridBoxSize);
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorChannel)
                         {
-                            connectionView.setLine(
-                                    componentView.getX(), componentView.getY(),
-                                    destination.getX(), destination.getY(),
-                                    iGridBoxSize);
+                            connectionView.drawComponentViews(destination, componentView, iGridBoxSize);
                             connectionView.invalidate();
                         }
                         connections++;
@@ -444,7 +440,7 @@ public class PipeView extends ViewGroup
      * @param standardOrientation boolean
      * @return int
      */
-    private int checkEventConnections(int[] hashes, int connections, View destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
+    private int checkEventConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
     {
         if (hashes != null)
         {
@@ -458,18 +454,12 @@ public class PipeView extends ViewGroup
                         //arrow from child to parent (e.g. transformer to consumer)
                         if (standardOrientation)
                         {
-                            connectionView.setLine(
-                                    destination.getX(), destination.getY(),
-                                    componentView.getX(), componentView.getY(),
-                                    iGridBoxSize);
+                            connectionView.drawComponentViews(componentView, destination, iGridBoxSize);
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorChannel)
                         {
-                            connectionView.setLine(
-                                    componentView.getX(), componentView.getY(),
-                                    destination.getX(), destination.getY(),
-                                    iGridBoxSize);
+                            connectionView.drawComponentViews(destination, componentView, iGridBoxSize);
                             connectionView.invalidate();
                         }
                         connections++;
@@ -800,12 +790,78 @@ public class PipeView extends ViewGroup
         {
             if(connectionView.isOnPath(motionEvent))
             {
-                connectionView.toggleConnectionType();
-                connectionView.invalidate();
+                toggleConnectionType(connectionView);
                 returnValue = true;
             }
         }
 
         return returnValue;
+    }
+
+    private void toggleConnectionType(ConnectionView connectionView)
+    {
+        ComponentView start = connectionView.getStartComponentView();
+        ComponentView destination = connectionView.getDestinationComponentView();
+
+        Component startComponent = PipelineBuilder.getInstance().getComponentForHash(start.getElementHash());
+        Component destinationComponent = PipelineBuilder.getInstance().getComponentForHash(destination.getElementHash());
+
+        if(!isToggleable(startComponent, destinationComponent, connectionView.getConnectionType()))
+        {
+            return;
+        }
+
+        //Swap start and destination if sensor is involved, because then it's drawn the other way round.
+        switch (connectionView.getConnectionType())
+        {
+            case STREAMCONNECTION:
+                if(startComponent instanceof Sensor)
+                {
+                    PipelineBuilder.getInstance().removeStreamProvider(startComponent, (Provider)destinationComponent);
+                }
+                else {
+                    PipelineBuilder.getInstance().removeStreamProvider(destinationComponent, (Provider)startComponent);
+                }
+                PipelineBuilder.getInstance().addEventProvider(destinationComponent, startComponent);
+                break;
+
+            case EVENTCONNECTION:
+                PipelineBuilder.getInstance().removeEventProvider(destinationComponent, startComponent);
+                if(startComponent instanceof Sensor)
+                {
+                    PipelineBuilder.getInstance().addStreamProvider(startComponent, (Provider) destinationComponent);
+                }
+                else{
+                    PipelineBuilder.getInstance().addStreamProvider(destinationComponent, (Provider) startComponent);
+                }
+                break;
+            default:
+                throw new RuntimeException();
+        }
+
+        this.recalculate(Util.AppAction.DISPLAYED, null);
+    }
+
+    // Check for rules of pipeline building.
+    // Stream connections can only exist between certain components.
+    private boolean isToggleable(Component src, Component dst, ConnectionType type)
+    {
+        if(type == ConnectionType.STREAMCONNECTION)
+        {
+            return true;
+        }
+        if(src instanceof Sensor && dst instanceof SensorChannel)
+        {
+            return true;
+        }
+        if(src instanceof SensorChannel && (dst instanceof Transformer || dst instanceof Consumer))
+        {
+            return true;
+        }
+        if(src instanceof Transformer && dst instanceof Consumer)
+        {
+            return true;
+        }
+        return false;
     }
 }

@@ -96,6 +96,51 @@ public class PipelineBuilder
         hsEventHandlerElements.clear();
     }
 
+    public Component getComponentForHash(int hash)
+    {
+        for(ContainerElement containerElement : hsSensorElements)
+        {
+            Sensor element = (Sensor)containerElement.getElement();
+            if(element.hashCode() == hash)
+            {
+                return element;
+            }
+        }
+        for(ContainerElement containerElement : hsSensorChannelElements)
+        {
+            SensorChannel element = (SensorChannel)containerElement.getElement();
+            if(element.hashCode() == hash)
+            {
+                return element;
+            }
+        }
+        for(ContainerElement containerElement : hsTransformerElements)
+        {
+            Transformer element = (Transformer)containerElement.getElement();
+            if(element.hashCode() == hash)
+            {
+                return element;
+            }
+        }
+        for(ContainerElement containerElement : hsConsumerElements)
+        {
+            Consumer element = (Consumer)containerElement.getElement();
+            if(element.hashCode() == hash)
+            {
+                return element;
+            }
+        }
+        for(ContainerElement containerElement : hsEventHandlerElements)
+        {
+            EventHandler element = (EventHandler)containerElement.getElement();
+            if(element.hashCode() == hash)
+            {
+                return element;
+            }
+        }
+        return null;
+    }
+
     /**
      * @param o Object
      * @return Object[]
@@ -852,10 +897,6 @@ public class PipelineBuilder
         }
         return null;
     }
-
-
-
-    //------------------------------------------------------------
 
     /**
      * @param o        Object
