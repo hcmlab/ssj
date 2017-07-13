@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
-import java.util.Locale;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
