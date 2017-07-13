@@ -29,6 +29,7 @@ package hcm.ssj.creator.core.container;
 import java.util.LinkedHashMap;
 
 import hcm.ssj.core.Component;
+import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Provider;
 
 /**
@@ -150,18 +151,18 @@ public class ContainerElement<T>
 		return hmEventProviders;
 	}
 
-	/**
-	 * @param provider Provider
+/*	*//**
+	 * @param consumer Consumer
 	 * @return boolean
-	 */
-	public boolean setEventAdded(Provider provider)
+	 *//*
+	public boolean setEventAdded(Consumer consumer)
 	{
-		return hmEventProviders.containsKey(provider) && !hmEventProviders.put(provider, true);
+		return hmEventProviders.containsKey(consumer) && !hmEventProviders.put(consumer, true);
 	}
 
-	/**
+	*//**
 	 * @return boolean
-	 */
+	 *//*
 	public boolean allEventAdded()
 	{
 		for (boolean value : hmEventProviders.values())
@@ -172,7 +173,7 @@ public class ContainerElement<T>
 			}
 		}
 		return true;
-	}
+	}*/
 
 	/**
 	 * @param provider Provider

@@ -331,14 +331,12 @@ public class PipelineBuilder
     {
         for(ContainerElement<T> element : hsElements)
         {
-            if (element.getHmEventProviders().size() > 0 && element.allEventAdded())
+            if (element.getHmEventProviders().size() > 0)
             {
-                List<EventChannel> eventChannels = new ArrayList<>();
-                for(Provider provider : element.getHmStreamProviders().keySet())
+                for(Component provider : element.getHmEventProviders().keySet())
                 {
-                    eventChannels.add(provider.getEventChannelOut());
+                    framework.registerEventListener(element.getElement(), provider);
                 }
-                framework.registerEventListener(element.getElement(), eventChannels.toArray(new EventChannel[eventChannels.size()]));
             }
         }
     }

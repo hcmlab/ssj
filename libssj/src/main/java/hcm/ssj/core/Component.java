@@ -126,5 +126,10 @@ public abstract class Component implements Runnable
      * Clears component, may alter references with framework or other components
      * Called on framework clear()
      */
-    public void clear() {}
+    public void clear()
+    {
+        if(_evchannel_in != null)
+            _evchannel_in.clear();
+        _evchannel_out = null;
+    }
 }
