@@ -27,15 +27,12 @@
 package hcm.ssj.creator.core;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
-import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
@@ -786,6 +783,38 @@ public class PipelineBuilder
                 {
                     element.setDelta(delta);
                     return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
+    public boolean setEventTrigger(Object o, boolean eventTrigger)
+    {
+        if(o instanceof Consumer)
+        {
+            for (ContainerElement<Consumer> element : hsConsumerElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    element.setEventTrigger(eventTrigger);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean getEventTrigger(Object o)
+    {
+        if (o instanceof Consumer)
+        {
+            for (ContainerElement<Consumer> element : hsConsumerElements)
+            {
+                if (element.getElement().equals(o))
+                {
+                    return element.getEventTrigger();
                 }
             }
         }

@@ -41,6 +41,7 @@ public class ContainerElement<T>
     private T element;
     private double frameSize = 1;
     private double delta = 0;
+	private boolean eventTrigger = false;
     private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
     private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
 
@@ -92,6 +93,16 @@ public class ContainerElement<T>
     {
         this.delta = delta;
     }
+
+    public void setEventTrigger(boolean eventTrigger)
+	{
+		this.eventTrigger = eventTrigger;
+	}
+
+	public boolean getEventTrigger()
+	{
+		return eventTrigger;
+	}
 
     /**
      * @return LinkedHashMap

@@ -53,6 +53,7 @@
     <!--provider options-->
     <string name="str_frameSize">Frame size</string>
     <string name="str_delta">Delta</string>
+    <string name="str_eventrigger">Event triggered</string>
     <!--tabs-->
     <string name="str_pipe">Pipe</string>
     <string name="str_console">Console</string>

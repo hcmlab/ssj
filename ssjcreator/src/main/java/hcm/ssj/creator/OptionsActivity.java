@@ -31,6 +31,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.text.method.KeyListener;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -80,8 +85,15 @@ public class OptionsActivity extends AppCompatActivity
                 || innerObject instanceof Consumer))
         {
             //add frame size and delta
-            tableLayout.addView(createTextView(true));
-            tableLayout.addView(createTextView(false));
+            TableRow frameSizeTableRow = createTextView(true);
+            TableRow deltaTableRow = createTextView(false);
+            tableLayout.addView(frameSizeTableRow);
+            tableLayout.addView(deltaTableRow);
+
+            if(innerObject instanceof Consumer)
+            {
+                tableLayout.addView(createConsumerTextView(frameSizeTableRow, deltaTableRow));
+            }
         }
         //add options
         if (options != null && options.length > 0)
@@ -203,6 +215,68 @@ public class OptionsActivity extends AppCompatActivity
         tableRow.addView(linearLayout);
         return tableRow;
     }
+
+    /**
+     * @param isFrameSize boolean
+     * @return TableRow
+     */
+    private TableRow createConsumerTextView(final TableRow frameSizeTableRow, final TableRow deltaTableRow)
+    {
+        TableRow tableRow = new TableRow(this);
+        tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setWeightSum(1.0f);
+
+        CheckBox eventTriggerCheckbox = new CheckBox(this);
+        eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
+        eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            {
+                setActivatedRecursive(frameSizeTableRow, !isChecked);
+                setActivatedRecursive(deltaTableRow, !isChecked);
+                PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
+            }
+        });
+        linearLayout.addView(eventTriggerCheckbox);
+        TextView textView = new TextView(this);
+        textView.setText(R.string.str_eventrigger);
+        textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+        textView.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
+        linearLayout.addView(textView);
+        tableRow.addView(linearLayout);
+
+        return tableRow;
+    }
+
+    private void setActivatedRecursive(View view, boolean activated)
+    {
+        if(view instanceof ViewGroup)
+        {
+            ViewGroup viewGroup = (ViewGroup)view;
+            for(int i=0; i < viewGroup.getChildCount(); i++)
+            {
+                if(viewGroup.getChildAt(i) instanceof ViewGroup)
+                {
+                    setActivatedRecursive(viewGroup.getChildAt(i), activated);
+                }
+            }
+        }
+        else
+        {
+            if(view instanceof EditText)
+            {
+                ((EditText)view).setFocusable(activated);
+                ((EditText)view).setEnabled(activated);
+                ((EditText)view).setCursorVisible(activated);
+            }
+            view.setActivated(activated);
+        }
+    }
+
 
     /**
      * @param savedInstanceState Bundle

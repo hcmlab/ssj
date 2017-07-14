@@ -52,6 +52,7 @@ public class EventLogger extends EventHandler
     {
         _name = "EventLogger";
         _doWakeLock = true;
+        Log.d("Instantiated EventLogger "+this.hashCode());
     }
 
     int _lastBehavEventID;
