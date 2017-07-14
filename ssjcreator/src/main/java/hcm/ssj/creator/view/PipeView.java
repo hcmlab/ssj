@@ -803,6 +803,11 @@ public class PipeView extends ViewGroup
         ComponentView start = connectionView.getStartComponentView();
         ComponentView destination = connectionView.getDestinationComponentView();
 
+        if(start == null || destination == null)
+        {
+            return;
+        }
+
         Component startComponent = PipelineBuilder.getInstance().getComponentForHash(start.getElementHash());
         Component destinationComponent = PipelineBuilder.getInstance().getComponentForHash(destination.getElementHash());
 

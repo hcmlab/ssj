@@ -416,6 +416,9 @@ public class PipelineBuilder
      */
     public boolean remove(Object o)
     {
+
+        removeAllReferences((Component) o);
+
         //sensor
         if (o instanceof Sensor)
         {
@@ -434,25 +437,6 @@ public class PipelineBuilder
             {
                 if (element.getElement().equals(o))
                 {
-                    SensorChannel sensorChannel = (SensorChannel) o;
-                    //also remove in sensors
-                    for (ContainerElement<Sensor> element1 : hsSensorElements)
-                    {
-                        element1.removeStreamProvider(sensorChannel);
-                        element1.removeEventProvider(sensorChannel);
-                    }
-                    //also remove in transformers
-                    for (ContainerElement<Transformer> element2 : hsTransformerElements)
-                    {
-                        element2.removeStreamProvider(sensorChannel);
-                        element2.removeEventProvider(sensorChannel);
-                    }
-                    //also remove in consumers
-                    for (ContainerElement<Consumer> element3 : hsConsumerElements)
-                    {
-                        element3.removeStreamProvider(sensorChannel);
-                        element3.removeEventProvider(sensorChannel);
-                    }
                     return hsSensorChannelElements.remove(element);
                 }
             }
@@ -464,18 +448,6 @@ public class PipelineBuilder
             {
                 if (element.getElement().equals(o))
                 {
-                    //also remove in all other transformers
-                    for (ContainerElement<Transformer> element2 : hsTransformerElements)
-                    {
-                        element2.removeStreamProvider((Provider) o);
-                        element2.removeEventProvider((Component) o);
-                    }
-                    //also remove in consumers
-                    for (ContainerElement<Consumer> element3 : hsConsumerElements)
-                    {
-                        element3.removeStreamProvider((Provider) o);
-                        element3.removeEventProvider((Component) o);
-                    }
                     return hsTransformerElements.remove(element);
                 }
             }
@@ -503,6 +475,50 @@ public class PipelineBuilder
             }
         }
         return false;
+    }
+
+    private void removeAllReferences(Component component)
+    {
+        for (ContainerElement<Sensor> sensor : hsSensorElements)
+        {
+            if(component instanceof Provider)
+            {
+                sensor.removeStreamProvider((Provider) component);
+            }
+            sensor.removeEventProvider(component);
+        }
+        for (ContainerElement<SensorChannel> sensorChannel : hsSensorChannelElements)
+        {
+            if(component instanceof Provider)
+            {
+                sensorChannel.removeStreamProvider((Provider) component);
+            }
+            sensorChannel.removeEventProvider(component);
+        }
+        for (ContainerElement<Transformer> transformer : hsTransformerElements)
+        {
+            if(component instanceof Provider)
+            {
+                transformer.removeStreamProvider((Provider) component);
+            }
+            transformer.removeEventProvider(component);
+        }
+        for (ContainerElement<Consumer> consumer : hsConsumerElements)
+        {
+            if(component instanceof Provider)
+            {
+                consumer.removeStreamProvider((Provider) component);
+            }
+            consumer.removeEventProvider(component);
+        }
+        for (ContainerElement<EventHandler> eventHandler : hsEventHandlerElements)
+        {
+            if(component instanceof Provider)
+            {
+                eventHandler.removeStreamProvider((Provider) component);
+            }
+            eventHandler.removeEventProvider(component);
+        }
     }
 
     /**
