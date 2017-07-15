@@ -31,9 +31,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.text.method.KeyListener;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -92,6 +90,9 @@ public class OptionsActivity extends AppCompatActivity
 
             if(innerObject instanceof Consumer)
             {
+                boolean triggeredByEvent = PipelineBuilder.getInstance().getEventTrigger(innerObject);
+                frameSizeTableRow.setVisibility(!triggeredByEvent ? View.VISIBLE : View.GONE);
+                deltaTableRow.setVisibility(!triggeredByEvent ? View.VISIBLE : View.GONE);
                 tableLayout.addView(createConsumerTextView(frameSizeTableRow, deltaTableRow));
             }
         }
@@ -217,8 +218,9 @@ public class OptionsActivity extends AppCompatActivity
     }
 
     /**
-     * @param isFrameSize boolean
-     * @return TableRow
+     * @param frameSizeTableRow
+     * @param deltaTableRow
+     * @return
      */
     private TableRow createConsumerTextView(final TableRow frameSizeTableRow, final TableRow deltaTableRow)
     {
@@ -235,8 +237,8 @@ public class OptionsActivity extends AppCompatActivity
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
             {
-                setActivatedRecursive(frameSizeTableRow, !isChecked);
-                setActivatedRecursive(deltaTableRow, !isChecked);
+                frameSizeTableRow.setVisibility(!isChecked ? View.VISIBLE : View.GONE);
+                deltaTableRow.setVisibility(!isChecked ? View.VISIBLE : View.GONE);
                 PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
             }
         });
@@ -251,32 +253,6 @@ public class OptionsActivity extends AppCompatActivity
 
         return tableRow;
     }
-
-    private void setActivatedRecursive(View view, boolean activated)
-    {
-        if(view instanceof ViewGroup)
-        {
-            ViewGroup viewGroup = (ViewGroup)view;
-            for(int i=0; i < viewGroup.getChildCount(); i++)
-            {
-                if(viewGroup.getChildAt(i) instanceof ViewGroup)
-                {
-                    setActivatedRecursive(viewGroup.getChildAt(i), activated);
-                }
-            }
-        }
-        else
-        {
-            if(view instanceof EditText)
-            {
-                ((EditText)view).setFocusable(activated);
-                ((EditText)view).setEnabled(activated);
-                ((EditText)view).setCursorVisible(activated);
-            }
-            view.setActivated(activated);
-        }
-    }
-
 
     /**
      * @param savedInstanceState Bundle

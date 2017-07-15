@@ -314,6 +314,7 @@ public class PipelineBuilder
                 framework.addConsumer(element.getElement(),
                         element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
                         element.getFrameSize(), element.getDelta());
+                element.getElement().setTriggeredByEvent(element.getEventTrigger());
             }
         }
 
