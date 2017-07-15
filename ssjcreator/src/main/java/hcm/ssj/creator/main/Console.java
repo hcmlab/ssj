@@ -74,8 +74,22 @@ class Console implements ITab
             {
                 try
                 {
+
+                    //Check if scrollView is at the very bottom.
+                    boolean onBottom = false;
+                    if(view instanceof ScrollView)
+                    {
+                        onBottom = !view.canScrollVertically(1);
+                    }
+
                     handlerLog.post(runnableLog);
                     Thread.sleep(sleepTime);
+
+                    // Scroll to the bottom if it was on bottom before posting the new message
+                    if(view instanceof ScrollView && onBottom)
+                    {
+                        ((ScrollView) view).fullScroll(ScrollView.FOCUS_DOWN);
+                    }
                 } catch (InterruptedException ex)
                 {
                     ex.printStackTrace();
