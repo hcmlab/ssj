@@ -231,7 +231,7 @@ public class OptionsActivity extends AppCompatActivity
         linearLayout.setOrientation(LinearLayout.HORIZONTAL);
         linearLayout.setWeightSum(1.0f);
 
-        CheckBox eventTriggerCheckbox = new CheckBox(this);
+        final CheckBox eventTriggerCheckbox = new CheckBox(this);
         eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
         eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -248,6 +248,13 @@ public class OptionsActivity extends AppCompatActivity
         textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
         textView.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                eventTriggerCheckbox.toggle();
+            }
+        });
         linearLayout.addView(textView);
         tableRow.addView(linearLayout);
 
