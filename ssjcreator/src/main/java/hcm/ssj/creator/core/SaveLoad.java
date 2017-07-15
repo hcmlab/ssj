@@ -92,6 +92,7 @@ public abstract class SaveLoad
     private final static String EVENT_CHANNEL_LIST = "eventProviderList";
     private final static String FRAME_SIZE = "frameSize";
     private final static String DELTA = "delta";
+    private final static String EVENT_TRIGGER = "eventTrigger";
 
     /**
      * Saves the values in {@link PipelineBuilder}
@@ -280,6 +281,7 @@ public abstract class SaveLoad
                             PipelineBuilder.getInstance().add(context);
                             PipelineBuilder.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
                             PipelineBuilder.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
+                            PipelineBuilder.getInstance().setEventTrigger(context, Boolean.valueOf(parser.getAttributeValue(null, EVENT_TRIGGER)));
                             String hash = parser.getAttributeValue(null, ID);
                             LinkContainer container = new LinkContainer();
                             container.hash = Integer.parseInt(hash);
@@ -414,6 +416,7 @@ public abstract class SaveLoad
         {
             serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
             serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
+            serializer.attribute(null, EVENT_TRIGGER, String.valueOf(containerElement.getEventTrigger()));
         }
         addOptions(serializer, containerElement.getElement());
 
