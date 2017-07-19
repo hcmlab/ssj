@@ -177,7 +177,7 @@ public abstract class Consumer extends Component {
      */
     public void flush(Stream stream_in[]) {}
 
-    void setTriggeredByEvent(boolean value)
+    public void setTriggeredByEvent(boolean value)
     {
         _eventTrigger = value;
     }
