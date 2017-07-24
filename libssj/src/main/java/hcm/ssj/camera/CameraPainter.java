@@ -197,38 +197,50 @@ public class CameraPainter extends Consumer implements EventListener
     private void draw(final byte[] data)
     {
         Canvas canvas = null;
+
         if (surfaceHolder == null)
         {
             return;
         }
+
         try
         {
             synchronized (surfaceHolder)
             {
-                canvas = surfaceHolder.lockCanvas(null);
+                canvas = surfaceHolder.lockCanvas();
+
                 if (canvas != null)
                 {
                     int canvasWidth = canvas.getWidth();
                     int canvasHeight = canvas.getHeight();
+
                     int bitmapWidth = bitmap.getWidth();
                     int bitmapHeight = bitmap.getHeight();
+
                     //rotate canvas
                     canvas.rotate(options.orientation.get(), canvasWidth >> 1, canvasHeight >> 1);
+
                     //decode color format
                     decodeColor(data, bitmapWidth, bitmapHeight);
+
                     //fill bitmap with picture
                     bitmap.setPixels(iaRgbData, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
+
                     if (options.scale.get())
                     {
-                        //scale picture to surface size
-                        canvas.drawBitmap(bitmap, null, new Rect(0, 0, canvasWidth, canvasHeight), null);
+                        int offset = (canvasHeight - canvasWidth) / 2;
+
+                        Rect dest = new Rect(-offset, offset, canvasWidth + offset, canvasHeight - offset);
+
+                        // scale picture to surface size
+                        canvas.drawBitmap(bitmap, null, dest, null);
                     } else
                     {
                         //center picture on canvas
                         canvas.drawBitmap(bitmap,
-                                canvasWidth - ((bitmapWidth + canvasWidth) >> 1),
-                                canvasHeight - ((bitmapHeight + canvasHeight) >> 1),
-                                null);
+                                          canvasWidth - ((bitmapWidth + canvasWidth) >> 1),
+                                          canvasHeight - ((bitmapHeight + canvasHeight) >> 1),
+                                          null);
                     }
                 }
             }
