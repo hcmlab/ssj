@@ -27,12 +27,15 @@
 package hcm.ssj.creator.core;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
@@ -309,12 +312,25 @@ public class PipelineBuilder
         //consumers
         for (ContainerElement<Consumer> element : hsConsumerElements)
         {
+            element.getElement().setTriggeredByEvent(element.getEventTrigger());
+
             if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
             {
-                framework.addConsumer(element.getElement(),
-                        element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
-                        element.getFrameSize(), element.getDelta());
-                element.getElement().setTriggeredByEvent(element.getEventTrigger());
+                if(element.getEventTrigger()){
+                    List<EventChannel> eventChannels = new ArrayList<EventChannel>();
+                    for(Component c : element.getHmEventProviders().keySet())
+                    {
+                        eventChannels.add(framework.registerEventProvider(c));
+                    }
+                    framework.addConsumer(element.getElement(),
+                                          element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
+                                          eventChannels.toArray(new EventChannel[eventChannels.size()]));
+                }
+                else{
+                    framework.addConsumer(element.getElement(),
+                                          element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
+                                          element.getFrameSize(), element.getDelta());
+                }
             }
         }
 
@@ -329,7 +345,7 @@ public class PipelineBuilder
     {
         for(ContainerElement<T> element : hsElements)
         {
-            if (element.getHmEventProviders().size() > 0)
+            if (!element.getHmEventProviders().isEmpty())
             {
                 for(Component provider : element.getHmEventProviders().keySet())
                 {

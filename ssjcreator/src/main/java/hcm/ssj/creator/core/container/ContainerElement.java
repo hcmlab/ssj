@@ -162,30 +162,6 @@ public class ContainerElement<T>
 		return hmEventProviders;
 	}
 
-/*	*//**
-	 * @param consumer Consumer
-	 * @return boolean
-	 *//*
-	public boolean setEventAdded(Consumer consumer)
-	{
-		return hmEventProviders.containsKey(consumer) && !hmEventProviders.put(consumer, true);
-	}
-
-	*//**
-	 * @return boolean
-	 *//*
-	public boolean allEventAdded()
-	{
-		for (boolean value : hmEventProviders.values())
-		{
-			if (!value)
-			{
-				return false;
-			}
-		}
-		return true;
-	}*/
-
 	/**
 	 * @param provider Provider
 	 * @return boolean
