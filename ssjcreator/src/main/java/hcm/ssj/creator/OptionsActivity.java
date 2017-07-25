@@ -32,6 +32,7 @@ import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -91,8 +92,8 @@ public class OptionsActivity extends AppCompatActivity
             if(innerObject instanceof Consumer)
             {
                 boolean triggeredByEvent = PipelineBuilder.getInstance().getEventTrigger(innerObject);
-                frameSizeTableRow.setVisibility(!triggeredByEvent ? View.VISIBLE : View.GONE);
-                deltaTableRow.setVisibility(!triggeredByEvent ? View.VISIBLE : View.GONE);
+                setEnabledRecursive(frameSizeTableRow, !triggeredByEvent);
+                setEnabledRecursive(deltaTableRow, !triggeredByEvent);
                 tableLayout.addView(createConsumerTextView(frameSizeTableRow, deltaTableRow));
             }
         }
@@ -235,10 +236,10 @@ public class OptionsActivity extends AppCompatActivity
         eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
         eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
+            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked)
             {
-                frameSizeTableRow.setVisibility(!isChecked ? View.VISIBLE : View.GONE);
-                deltaTableRow.setVisibility(!isChecked ? View.VISIBLE : View.GONE);
+                setEnabledRecursive(frameSizeTableRow, !isChecked);
+                setEnabledRecursive(deltaTableRow, !isChecked);
                 PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
             }
         });
@@ -259,6 +260,25 @@ public class OptionsActivity extends AppCompatActivity
         tableRow.addView(linearLayout);
 
         return tableRow;
+    }
+
+    private void setEnabledRecursive(final View view, final boolean enabled) {
+        if(view instanceof ViewGroup)
+        {
+            for(int i=0; i < ((ViewGroup) view).getChildCount(); i++)
+            {
+                setEnabledRecursive(((ViewGroup) view).getChildAt(i), enabled);
+            }
+        }
+        else {
+            view.post(new Runnable() {
+                @Override
+                public void run()
+                {
+                    view.setEnabled(enabled);
+                }
+            });
+        }
     }
 
     /**
