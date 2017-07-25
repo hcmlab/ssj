@@ -333,4 +333,9 @@ public class Classifier extends Consumer
         }
         return new File(fileDirectory, fileName);
     }
+
+    public Model getModel()
+    {
+        return _model;
+    }
 }
