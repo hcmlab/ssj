@@ -181,20 +181,18 @@ public class Classifier extends Consumer
             if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
             {
                 String modelName = parser.getAttributeValue(null, "create");
-
                 _model = Model.create(modelName);
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
                     ((TensorFlow) _model).setNumClasses(classNum);
                     ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
-                    ((TensorFlow) _model).setInputNodeName(parser.getAttributeValue(null, "input_node"));
-                    ((TensorFlow) _model).setOutputNodeName(parser.getAttributeValue(null, "output_node"));
                 }
 
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
                 _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
+
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
                 break;
         }

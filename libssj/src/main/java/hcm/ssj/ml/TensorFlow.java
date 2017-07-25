@@ -26,12 +26,16 @@
 
 package hcm.ssj.ml;
 
+import android.util.Xml;
+
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
+import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
@@ -65,6 +69,61 @@ public class TensorFlow extends Model
 		System.loadLibrary("tensorflow_inference");
 	}
 
+
+	/**
+	 * Returns index of element with the highest value in float array.
+	 *
+	 * @param probabilities Float array.
+	 * @return Index of element with the highest value.
+	 */
+	public static int maxIndex(float[] probabilities) {
+		int best = 0;
+		for (int i = 1; i < probabilities.length; ++i) {
+			if (probabilities[i] > probabilities[best]) {
+				best = i;
+			}
+		}
+		return best;
+	}
+
+
+	/**
+	 * Set label count for the classifier.
+	 *
+	 * @param classNum amount of object classes to recognize.
+	 */
+	public void setNumClasses(int classNum)
+	{
+		this.classNum = classNum;
+	}
+
+
+	/**
+	 * Set label strings for the classifier.
+	 *
+	 * @param classNames recognized object classes.
+	 */
+	public void setClassNames(String[] classNames)
+	{
+		this.classNames = classNames;
+	}
+
+
+	@Override
+	public int getNumClasses()
+	{
+		return classNum;
+	}
+
+
+	@Override
+	public String[] getClassNames()
+	{
+		return classNames;
+	}
+
+
+	@Override
 	protected float[] forward(Stream[] stream)
 	{
 		if (stream.length != 1)
@@ -84,8 +143,98 @@ public class TensorFlow extends Model
 		return probabilities;
 	}
 
+
+	@Override
+	protected void train(Stream[] stream)
+	{
+		Log.e("training not supported yet");
+	}
+
+
+	@Override
+	protected void save(File file)
+	{
+		Log.e("saving not supported yet");
+	}
+
+
+	@Override
+	protected void loadOption(File file)
+	{
+		XmlPullParser parser = Xml.newPullParser();
+
+		try
+		{
+			parser.setInput(new FileReader(file));
+
+			parser.next();
+
+			// Check if option file is of the right format.
+			if (parser.getEventType() != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("options"))
+			{
+				Log.w("unknown or malformed trainer file");
+				return;
+			}
+
+			int eventType = parser.getEventType();
+
+			while (eventType != XmlPullParser.END_DOCUMENT)
+			{
+				if (eventType == XmlPullParser.START_TAG)
+				{
+					if (parser.getName().equalsIgnoreCase("item"))
+					{
+						String optionName = parser.getAttributeValue(null, "name");
+
+						if (optionName.equalsIgnoreCase("input"))
+						{
+							inputNode = parser.getAttributeValue(null, "value");
+						}
+
+						if (optionName.equalsIgnoreCase("output"))
+						{
+							outputNode = parser.getAttributeValue(null, "value");
+						}
+					}
+				}
+				eventType = parser.next();
+			}
+		}
+		catch (Exception e)
+		{
+			Log.e(e.getMessage());
+		}
+	}
+
+
+	@Override
+	protected void load(File file)
+	{
+		FileInputStream fileInputStream;
+		byte[] fileBytes = new byte[(int) file.length()];
+
+		try
+		{
+			fileInputStream = new FileInputStream(file);
+			fileInputStream.read(fileBytes);
+			fileInputStream.close();
+
+			graph = new Graph();
+			graph.importGraphDef(fileBytes);
+			session = new Session(graph);
+		}
+		catch (Exception e)
+		{
+			Log.e("Error while importing the model: " + e.getMessage());
+			return;
+		}
+
+		_isTrained = true;
+	}
+
+
 	/**
-	 * Makes prediction about the given image.
+	 * Make prediction about the given image data.
 	 *
 	 * @param floatValues RGB float data.
 	 * @return Probability array.
@@ -110,95 +259,5 @@ public class TensorFlow extends Model
 		}
 		int nlabels = (int) rshape[1];
 		return result.copyTo(new float[1][nlabels])[0];
-	}
-
-	/**
-	 * Returns index of element with the highest value in float array.
-	 *
-	 * @param probabilities Float array.
-	 * @return Index of element with the highest value.
-	 */
-	public static int maxIndex(float[] probabilities) {
-		int best = 0;
-		for (int i = 1; i < probabilities.length; ++i) {
-			if (probabilities[i] > probabilities[best]) {
-				best = i;
-			}
-		}
-		return best;
-	}
-
-	@Override
-	void train(Stream[] stream)
-	{
-		Log.e("training not supported yet");
-	}
-
-	@Override
-	protected void loadOption(File file)
-	{
-		Log.e("loading option file is not supported yet");
-	}
-
-	@Override
-	void save(File file)
-	{
-		Log.e("saving not supported yet");
-	}
-
-	@Override
-	int getNumClasses()
-	{
-		return classNum;
-	}
-
-	public void setNumClasses(int classNum)
-	{
-		this.classNum = classNum;
-	}
-
-	public void setInputNodeName(String nodeName)
-	{
-		inputNode = nodeName;
-	}
-
-	public void setOutputNodeName(String nodeName)
-	{
-		outputNode = nodeName;
-	}
-
-	@Override
-	String[] getClassNames()
-	{
-		return classNames;
-	}
-
-	public void setClassNames(String[] classNames)
-	{
-		this.classNames = classNames;
-	}
-
-	protected void load(File file)
-	{
-		FileInputStream fileInputStream;
-		byte[] fileBytes = new byte[(int) file.length()];
-
-		try
-		{
-			fileInputStream = new FileInputStream(file);
-			fileInputStream.read(fileBytes);
-			fileInputStream.close();
-
-			graph = new Graph();
-			graph.importGraphDef(fileBytes);
-			session = new Session(graph);
-		}
-		catch (Exception e)
-		{
-			Log.e("Error while importing the model: " + e.getMessage());
-			return;
-		}
-
-		_isTrained = true;
 	}
 }

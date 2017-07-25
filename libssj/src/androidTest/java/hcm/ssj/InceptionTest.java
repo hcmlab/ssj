@@ -77,6 +77,7 @@ public class InceptionTest
 		// Load inception model and trainer file
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
 		TestHelper.copyAssetToFile(modelName + ".model", new File(dir, modelName + ".model"));
+		TestHelper.copyAssetToFile(modelName + ".option", new File(dir, modelName + ".option"));
 
 		// Get pipeline instance
 		Pipeline frame = Pipeline.getInstance();
@@ -122,7 +123,7 @@ public class InceptionTest
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
 		try
 		{
 			while (System.currentTimeMillis() < end)
