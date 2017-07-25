@@ -37,6 +37,17 @@
     </sensor>
   </sensorList>
   <transformerList>
+    <transformer class="hcm.ssj.praat.Intensity" id="127327310" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="minPitch" value="50.0" />
+        <option name="subtractMeanPressure" value="true" />
+        <option name="timeStep" value="0.0" />
+      </options>
+      <providerList>
+        <providerId id="20253728" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
     <transformer class="hcm.ssj.audio.Pitch" id="206399309" frameSize="0.1" delta="0.0" eventTrigger="false">
       <options>
         <option name="computePitch" value="true" />
@@ -46,17 +57,6 @@
         <option name="detector" value="5" />
         <option name="maxPitch" value="620.0" />
         <option name="minPitch" value="52.0" />
-      </options>
-      <providerList>
-        <providerId id="20253728" />
-      </providerList>
-      <eventProviderList />
-    </transformer>
-    <transformer class="hcm.ssj.praat.Intensity" id="127327310" frameSize="1.0" delta="0.0" eventTrigger="false">
-      <options>
-        <option name="minPitch" value="50.0" />
-        <option name="subtractMeanPressure" value="true" />
-        <option name="timeStep" value="0.0" />
       </options>
       <providerList>
         <providerId id="20253728" />
