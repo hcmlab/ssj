@@ -55,14 +55,13 @@ public class TensorFlow extends Model
 	private Graph graph;
 	private Session session;
 
-	// Constants for inception model evaluation
-	private final int INPUT_SIZE = 224;
-
 	private int classNum;
 	private String[] classNames;
 
 	private String inputNode;
 	private String outputNode;
+
+	private long[] inputTensorShape;
 
 	static
 	{
@@ -166,17 +165,16 @@ public class TensorFlow extends Model
 		try
 		{
 			parser.setInput(new FileReader(file));
-
 			parser.next();
 
+			int eventType = parser.getEventType();
+
 			// Check if option file is of the right format.
-			if (parser.getEventType() != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("options"))
+			if (eventType != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("options"))
 			{
 				Log.w("unknown or malformed trainer file");
 				return;
 			}
-
-			int eventType = parser.getEventType();
 
 			while (eventType != XmlPullParser.END_DOCUMENT)
 			{
@@ -185,15 +183,25 @@ public class TensorFlow extends Model
 					if (parser.getName().equalsIgnoreCase("item"))
 					{
 						String optionName = parser.getAttributeValue(null, "name");
+						String optionValue = parser.getAttributeValue(null, "value");
 
+						// Set input node name.
 						if (optionName.equalsIgnoreCase("input"))
 						{
-							inputNode = parser.getAttributeValue(null, "value");
+							inputNode = optionValue;
 						}
 
+						// Set output node name.
 						if (optionName.equalsIgnoreCase("output"))
 						{
-							outputNode = parser.getAttributeValue(null, "value");
+							outputNode = optionValue;
+						}
+
+						// Set input tensor shape.
+						if (optionName.equalsIgnoreCase("shape"))
+						{
+							String shape = optionValue;
+							inputTensorShape = parseTensorShape(shape);
 						}
 					}
 				}
@@ -234,22 +242,21 @@ public class TensorFlow extends Model
 
 
 	/**
-	 * Make prediction about the given image data.
+	 * Makes prediction about the given image data.
 	 *
 	 * @param floatValues RGB float data.
 	 * @return Probability array.
 	 */
 	private float[] makePrediction(float[] floatValues)
 	{
-		long[] shape = new long[] {1, INPUT_SIZE, INPUT_SIZE, 3};
-
-		Tensor input = Tensor.create(shape, FloatBuffer.wrap(floatValues));
+		Tensor input = Tensor.create(inputTensorShape, FloatBuffer.wrap(floatValues));
 		Tensor result = session.runner()
 				.feed(inputNode, input)
 				.fetch(outputNode)
 				.run().get(0);
 
 		long[] rshape = result.shape();
+
 		if (result.numDimensions() != 2 || rshape[0] != 1)
 		{
 			throw new RuntimeException(
@@ -257,7 +264,33 @@ public class TensorFlow extends Model
 							"Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s",
 							Arrays.toString(rshape)));
 		}
+
 		int nlabels = (int) rshape[1];
 		return result.copyTo(new float[1][nlabels])[0];
+	}
+
+
+	/**
+	 * Parses string representation of input tensor shape.
+	 *
+	 * @param shape String that represents tensor shape.
+	 * @return shape of the input tensor as a n-dimensional array.
+	 */
+	private long[] parseTensorShape(String shape)
+	{
+		// Delete square brackets and white spaces.
+		String formatted = shape.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "");
+
+		// Separate each dimension value.
+		String[] shapeArray = formatted.split(",");
+
+		long[] tensorShape = new long[shapeArray.length];
+
+		for (int i = 0; i < shapeArray.length; i++)
+		{
+			tensorShape[i] = Integer.parseInt(shapeArray[i]);
+		}
+
+		return tensorShape;
 	}
 }
