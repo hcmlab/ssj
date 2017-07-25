@@ -53,11 +53,12 @@ public class TensorFlow extends Model
 
 	// Constants for inception model evaluation
 	private final int INPUT_SIZE = 224;
-	private final String INPUT_NAME = "input";
-	private final String OUTPUT_NAME = "output";
 
 	private int classNum;
 	private String[] classNames;
+
+	private String inputNode;
+	private String outputNode;
 
 	static
 	{
@@ -95,8 +96,8 @@ public class TensorFlow extends Model
 
 		Tensor input = Tensor.create(shape, FloatBuffer.wrap(floatValues));
 		Tensor result = session.runner()
-				.feed(INPUT_NAME, input)
-				.fetch(OUTPUT_NAME)
+				.feed(inputNode, input)
+				.fetch(outputNode)
 				.run().get(0);
 
 		long[] rshape = result.shape();
@@ -154,6 +155,16 @@ public class TensorFlow extends Model
 	public void setNumClasses(int classNum)
 	{
 		this.classNum = classNum;
+	}
+
+	public void setInputNodeName(String nodeName)
+	{
+		inputNode = nodeName;
+	}
+
+	public void setOutputNodeName(String nodeName)
+	{
+		outputNode = nodeName;
 	}
 
 	@Override
