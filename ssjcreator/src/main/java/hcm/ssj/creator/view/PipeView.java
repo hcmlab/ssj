@@ -863,7 +863,7 @@ public class PipeView extends ViewGroup
         {
             return true;
         }
-        if(src instanceof Transformer && dst instanceof Consumer)
+        if(src instanceof Transformer && (src instanceof Transformer || dst instanceof Consumer))
         {
             return true;
         }
