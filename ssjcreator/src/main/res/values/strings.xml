@@ -72,9 +72,11 @@
     <string name="slide2_text">To start, simply load one of the standard pipelines from the file menu</string>
     <string name="slide3_title">Create Your Own Pipeline</string>
     <string name="slide3_text">You can also create your own pipeline from scratch (or edit existing ones) by adding components from the paint menu</string>
-    <string name="slide4_title">Start the Pipeline</string>
-    <string name="slide4_text">Once you have a pipeline, press the play button to start it</string>
-    <string name="slide5_title">Enjoy</string>
-    <string name="slide5_text">You can check out your pipeline in action using the different views</string>
+    <string name="slide4_title">Change connection type</string>
+    <string name="slide4_text">To change the type of a connection, simply tap on it</string>
+    <string name="slide5_title">Start the Pipeline</string>
+    <string name="slide5_text">Once you have a pipeline, press the play button to start it</string>
+    <string name="slide6_title">Enjoy</string>
+    <string name="slide6_text">You can check out your pipeline in action using the different views</string>
     <string name="anno_msband">Annotate using MS Band 2</string>
 </resources>

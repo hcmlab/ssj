@@ -1,0 +1,124 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="3">
+  <framework>
+    <options>
+      <option name="bufferSize" value="10.0" />
+      <option name="clockSyncInterval" value="1.0" />
+      <option name="clockSyncPort" value="0" />
+      <option name="countdown" value="3" />
+      <option name="log" value="false" />
+      <option name="loglevel" value="VERBOSE" />
+      <option name="logtimeout" value="5.0" />
+      <option name="startSyncPort" value="0" />
+      <option name="waitSensorConnect" value="5.0" />
+      <option name="waitThreadKill" value="30.0" />
+    </options>
+  </framework>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.audio.AudioChannel" id="20253728">
+      <options>
+        <option name="audioFormat" value="ENCODING_PCM_16BIT" />
+        <option name="channelConfig" value="CHANNEL_IN_MONO" />
+        <option name="chunk" value="0.1" />
+        <option name="sampleRate" value="8000" />
+        <option name="scale" value="true" />
+      </options>
+      <providerList />
+      <eventProviderList />
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.audio.Microphone" id="78563916">
+      <options />
+      <providerList>
+        <providerId id="20253728" />
+      </providerList>
+      <eventProviderList />
+    </sensor>
+  </sensorList>
+  <transformerList>
+    <transformer class="hcm.ssj.audio.Pitch" id="206399309" frameSize="0.1" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="computePitch" value="true" />
+        <option name="computePitchEnvelope" value="false" />
+        <option name="computePitchedState" value="false" />
+        <option name="computeVoicedProb" value="true" />
+        <option name="detector" value="5" />
+        <option name="maxPitch" value="620.0" />
+        <option name="minPitch" value="52.0" />
+      </options>
+      <providerList>
+        <providerId id="20253728" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+    <transformer class="hcm.ssj.praat.Intensity" id="127327310" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="minPitch" value="50.0" />
+        <option name="subtractMeanPressure" value="true" />
+        <option name="timeStep" value="0.0" />
+      </options>
+      <providerList>
+        <providerId id="20253728" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+    <transformer class="hcm.ssj.signal.Avg" id="111107708" frameSize="0.1" delta="0.0" eventTrigger="false">
+      <options />
+      <providerList>
+        <providerId id="206399309" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+  </transformerList>
+  <consumerList>
+    <consumer class="hcm.ssj.event.ThresholdEventSender" id="95772332" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="eager" value="false" />
+        <option name="eall" value="true" />
+        <option name="event" value="event" />
+        <option name="hangin" value="3" />
+        <option name="hangout" value="5" />
+        <option name="hard" value="true" />
+        <option name="loffset" value="0.0" />
+        <option name="maxdur" value="9.0" />
+        <option name="mindur" value="1.0" />
+        <option name="sender" value="ThresholdEventSender" />
+        <option name="skip" value="false" />
+        <option name="thresin" value="[50.0]" />
+        <option name="thresout" value="[50.0]" />
+        <option name="uoffset" value="0.0" />
+      </options>
+      <providerList>
+        <providerId id="127327310" />
+      </providerList>
+      <eventProviderList />
+    </consumer>
+    <consumer class="hcm.ssj.audio.SpeechRate" id="91412292" frameSize="1.0" delta="0.0" eventTrigger="true">
+      <options>
+        <option name="event" value="SpeechRate" />
+        <option name="intensityIgnoranceLevel" value="1.0" />
+        <option name="minDipBetweenPeaks" value="3.0" />
+        <option name="sender" value="SpeechRate" />
+        <option name="thresholdVoicedProb" value="0.3" />
+        <option name="width" value="3" />
+      </options>
+      <providerList>
+        <providerId id="111107708" />
+        <providerId id="127327310" />
+      </providerList>
+      <eventProviderList>
+        <eventProviderId id="95772332" />
+      </eventProviderList>
+    </consumer>
+  </consumerList>
+  <eventHandlerList>
+    <eventHandler class="hcm.ssj.test.EventLogger" id="34902061" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options />
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="91412292" />
+      </eventProviderList>
+    </eventHandler>
+  </eventHandlerList>
+</ssjSaveFile>
