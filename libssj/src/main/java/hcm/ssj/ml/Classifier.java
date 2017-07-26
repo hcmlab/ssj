@@ -178,20 +178,21 @@ public class Classifier extends Consumer
             }
 
             //MODEL
-            else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
             {
                 String modelName = parser.getAttributeValue(null, "create");
                 _model = Model.create(modelName);
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
-                    ((TensorFlow) _model).setNumClasses(classNum);
-                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
+                    ((TensorFlow) _model).classNum = classNum;
+                    ((TensorFlow) _model).classNames = classNames.toArray(new String[0]);
                 }
 
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
                 _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
+
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
                 break;
         }
@@ -313,6 +314,11 @@ public class Classifier extends Consumer
         }
     }
 
+    public Model getModel()
+    {
+        return _model;
+    }
+
     /**
      * @param filePath Option
      * @param fileName Option
@@ -332,10 +338,5 @@ public class Classifier extends Consumer
             return null;
         }
         return new File(fileDirectory, fileName);
-    }
-
-    public Model getModel()
-    {
-        return _model;
     }
 }

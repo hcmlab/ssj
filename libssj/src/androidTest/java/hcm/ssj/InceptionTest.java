@@ -42,6 +42,7 @@ import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
+import hcm.ssj.ml.TensorFlow;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
@@ -117,12 +118,18 @@ public class InceptionTest
 		classifier.options.trainerFile.set(modelName);
 		classifier.options.merge.set(false);
 		classifier.options.showLabel.set(true);
+
 		frame.addConsumer(classifier, imageNormalizer, 1.0 / sampleRate, 0);
+
+		TensorFlow model = ((TensorFlow)classifier.getModel());
+		model.options.inputNode.set("input");
+		model.options.outputNode.set("output");
+		model.options.shape.set(new long[] {1, 224, 224, 3});
 
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
 		try
 		{
 			while (System.currentTimeMillis() < end)
