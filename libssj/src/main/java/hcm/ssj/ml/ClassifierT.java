@@ -126,13 +126,14 @@ public class ClassifierT extends Transformer
             return;
         }
 
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+        while (parser.next() != XmlPullParser.END_DOCUMENT)
+        {
             //STREAM
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams")) {
-
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams"))
+            {
                 parser.nextTag(); //item
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
+                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
+                {
                     bytes = Integer.valueOf(parser.getAttributeValue(null, "byte"));
                     dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
                     sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
@@ -157,11 +158,11 @@ public class ClassifierT extends Transformer
             }
 
             //SELECT
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
-
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select"))
+            {
                 parser.nextTag(); //item
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
+                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
+                {
                     int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
                     if (stream_id != 0)
                         Log.w("multiple input streams not supported");
@@ -177,20 +178,21 @@ public class ClassifierT extends Transformer
             }
 
             //MODEL
-            else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
             {
                 String modelName = parser.getAttributeValue(null, "create");
                 _model = Model.create(modelName);
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
-                    ((TensorFlow) _model).setNumClasses(classNum);
-                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
+                    ((TensorFlow) _model).classNum = classNum;
+                    ((TensorFlow) _model).classNames = classNames.toArray(new String[0]);
                 }
 
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
                 _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
+
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
                 break;
         }
