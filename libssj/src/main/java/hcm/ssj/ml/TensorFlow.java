@@ -26,20 +26,18 @@
 
 package hcm.ssj.ml;
 
-import android.util.Xml;
-
 import org.tensorflow.Graph;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
-import org.xmlpull.v1.XmlPullParser;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -52,16 +50,24 @@ import hcm.ssj.core.stream.Stream;
 
 public class TensorFlow extends Model
 {
+	public class Options extends OptionList
+	{
+		public final Option<String> inputNode = new Option<>("inputNode", "input", String.class, "name of the input node");
+		public final Option<String> outputNode = new Option<>("outputNode", "output", String.class, "name of the output node");
+		public final Option<long[]> shape = new Option<>("shape", null, long[].class, "shape of the input tensor");
+
+		private Options()
+		{
+			addOptions();
+		}
+	}
+
+	public final Options options = new Options();
+	public int classNum;
+	public String[] classNames;
+
 	private Graph graph;
 	private Session session;
-
-	private int classNum;
-	private String[] classNames;
-
-	private String inputNode;
-	private String outputNode;
-
-	private long[] inputTensorShape;
 
 	static
 	{
@@ -83,28 +89,6 @@ public class TensorFlow extends Model
 			}
 		}
 		return best;
-	}
-
-
-	/**
-	 * Set label count for the classifier.
-	 *
-	 * @param classNum amount of object classes to recognize.
-	 */
-	public void setNumClasses(int classNum)
-	{
-		this.classNum = classNum;
-	}
-
-
-	/**
-	 * Set label strings for the classifier.
-	 *
-	 * @param classNames recognized object classes.
-	 */
-	public void setClassNames(String[] classNames)
-	{
-		this.classNames = classNames;
 	}
 
 
@@ -160,58 +144,7 @@ public class TensorFlow extends Model
 	@Override
 	protected void loadOption(File file)
 	{
-		XmlPullParser parser = Xml.newPullParser();
-
-		try
-		{
-			parser.setInput(new FileReader(file));
-			parser.next();
-
-			int eventType = parser.getEventType();
-
-			// Check if option file is of the right format.
-			if (eventType != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("options"))
-			{
-				Log.w("unknown or malformed trainer file");
-				return;
-			}
-
-			while (eventType != XmlPullParser.END_DOCUMENT)
-			{
-				if (eventType == XmlPullParser.START_TAG)
-				{
-					if (parser.getName().equalsIgnoreCase("item"))
-					{
-						String optionName = parser.getAttributeValue(null, "name");
-						String optionValue = parser.getAttributeValue(null, "value");
-
-						// Set input node name.
-						if (optionName.equalsIgnoreCase("input"))
-						{
-							inputNode = optionValue;
-						}
-
-						// Set output node name.
-						if (optionName.equalsIgnoreCase("output"))
-						{
-							outputNode = optionValue;
-						}
-
-						// Set input tensor shape.
-						if (optionName.equalsIgnoreCase("shape"))
-						{
-							String shape = optionValue;
-							inputTensorShape = parseTensorShape(shape);
-						}
-					}
-				}
-				eventType = parser.next();
-			}
-		}
-		catch (Exception e)
-		{
-			Log.e(e.getMessage());
-		}
+		Log.e("option loading not supported yet");
 	}
 
 
@@ -249,10 +182,10 @@ public class TensorFlow extends Model
 	 */
 	private float[] makePrediction(float[] floatValues)
 	{
-		Tensor input = Tensor.create(inputTensorShape, FloatBuffer.wrap(floatValues));
+		Tensor input = Tensor.create(options.shape.get(), FloatBuffer.wrap(floatValues));
 		Tensor result = session.runner()
-				.feed(inputNode, input)
-				.fetch(outputNode)
+				.feed(options.inputNode.get(), input)
+				.fetch(options.outputNode.get())
 				.run().get(0);
 
 		long[] rshape = result.shape();
@@ -267,30 +200,5 @@ public class TensorFlow extends Model
 
 		int nlabels = (int) rshape[1];
 		return result.copyTo(new float[1][nlabels])[0];
-	}
-
-
-	/**
-	 * Parses string representation of input tensor shape.
-	 *
-	 * @param shape String that represents tensor shape.
-	 * @return shape of the input tensor as a n-dimensional array.
-	 */
-	private long[] parseTensorShape(String shape)
-	{
-		// Delete square brackets and white spaces.
-		String formatted = shape.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\\s", "");
-
-		// Separate each dimension value.
-		String[] shapeArray = formatted.split(",");
-
-		long[] tensorShape = new long[shapeArray.length];
-
-		for (int i = 0; i < shapeArray.length; i++)
-		{
-			tensorShape[i] = Integer.parseInt(shapeArray[i]);
-		}
-
-		return tensorShape;
 	}
 }

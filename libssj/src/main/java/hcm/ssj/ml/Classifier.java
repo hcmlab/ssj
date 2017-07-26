@@ -185,8 +185,8 @@ public class Classifier extends Consumer
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
-                    ((TensorFlow) _model).setNumClasses(classNum);
-                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
+                    ((TensorFlow) _model).classNum = classNum;
+                    ((TensorFlow) _model).classNames = classNames.toArray(new String[0]);
                 }
 
                 _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
@@ -314,6 +314,11 @@ public class Classifier extends Consumer
         }
     }
 
+    public Model getModel()
+    {
+        return _model;
+    }
+
     /**
      * @param filePath Option
      * @param fileName Option
@@ -333,10 +338,5 @@ public class Classifier extends Consumer
             return null;
         }
         return new File(fileDirectory, fileName);
-    }
-
-    public Model getModel()
-    {
-        return _model;
     }
 }
