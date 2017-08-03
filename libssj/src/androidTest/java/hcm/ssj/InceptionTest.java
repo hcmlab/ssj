@@ -119,12 +119,7 @@ public class InceptionTest
 		classifier.options.merge.set(false);
 		classifier.options.showLabel.set(true);
 
-		frame.addConsumer(classifier, imageNormalizer, 1.0 / sampleRate, 0);
-
-		TensorFlow model = ((TensorFlow)classifier.getModel());
-		model.options.inputNode.set("input");
-		model.options.outputNode.set("output");
-		model.options.shape.set(new long[] {1, 224, 224, 3});
+		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 
 		// Start pipeline
 		frame.start();
