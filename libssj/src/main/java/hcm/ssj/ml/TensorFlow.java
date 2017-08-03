@@ -57,12 +57,12 @@ public class TensorFlow extends Model
 	private Session session;
 
 	private int classNum;
-	private String[] classNames;
+	private long[] inputTensorShape;
 
+	private String[] classNames;
 	private String inputNode;
 	private String outputNode;
 
-	private long[] inputTensorShape;
 	private boolean optionsSet = false;
 
 	static
