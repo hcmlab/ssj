@@ -40,6 +40,7 @@ import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -62,6 +63,7 @@ public class TensorFlow extends Model
 	private String outputNode;
 
 	private long[] inputTensorShape;
+	private boolean optionsSet = false;
 
 	static
 	{
@@ -135,6 +137,11 @@ public class TensorFlow extends Model
 			Log.w("not trained");
 			return null;
 		}
+		if (!optionsSet)
+		{
+			Log.e("not all options were set");
+			return null;
+		}
 
 		float[] floatValues = stream[0].ptrF();
 		float[] probabilities = makePrediction(floatValues);
@@ -188,20 +195,25 @@ public class TensorFlow extends Model
 						// Set input node name.
 						if (optionName.equalsIgnoreCase("input"))
 						{
-							inputNode = optionValue;
+							Option<String> inputNode = new Option<>(optionName, "input", String.class, "name of the input node");
+							inputNode.set(optionValue);
+							options.add(inputNode);
 						}
 
 						// Set output node name.
 						if (optionName.equalsIgnoreCase("output"))
 						{
-							outputNode = optionValue;
+							Option<String> outputNode = new Option<>(optionName, "output", String.class, "name of the output node");
+							outputNode.set(optionValue);
+							options.add(outputNode);
 						}
 
 						// Set input tensor shape.
 						if (optionName.equalsIgnoreCase("shape"))
 						{
-							String shape = optionValue;
-							inputTensorShape = parseTensorShape(shape);
+							Option<long[]> shape = new Option<>(optionName, null, long[].class, "shape of the input tensor");
+							shape.set(parseTensorShape(optionValue));
+							options.add(shape);
 						}
 					}
 				}
@@ -212,6 +224,8 @@ public class TensorFlow extends Model
 		{
 			Log.e(e.getMessage());
 		}
+
+		setOptions();
 	}
 
 
@@ -292,5 +306,24 @@ public class TensorFlow extends Model
 		}
 
 		return tensorShape;
+	}
+
+
+	/**
+	 * Sets variable values necessary for prediction making.
+	 */
+	private void setOptions()
+	{
+		try
+		{
+			inputNode = (String)options.getOptionValue("input");
+			outputNode = (String)options.getOptionValue("output");
+			inputTensorShape = (long[])options.getOptionValue("shape");
+			optionsSet = true;
+		}
+		catch (Exception e)
+		{
+			Log.e("Error while parsing option values. " + e.getMessage());
+		}
 	}
 }

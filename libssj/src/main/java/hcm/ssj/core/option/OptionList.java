@@ -119,7 +119,7 @@ public abstract class OptionList
     /**
      * @param option Option
      */
-    private void add(Option option)
+    public void add(Option option)
     {
         hashSetOptions.add(option);
     }
