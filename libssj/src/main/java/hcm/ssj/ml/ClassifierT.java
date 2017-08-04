@@ -323,6 +323,11 @@ public class ClassifierT extends Transformer
         return 1;
     }
 
+    public Model getModel()
+    {
+        return _model;
+    }
+
     /**
      * @param stream_in  Stream[]
      * @param stream_out Stream

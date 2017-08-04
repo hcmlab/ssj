@@ -277,10 +277,12 @@ public class Classifier extends Consumer
 
         if (options.showLabel.get())
         {
-            String[] class_names = _model.getClassNames();
+            // Get array index of element with largest probability.
             int bestLabelIdx = TensorFlow.maxIndex(probs);
+
             String bestMatch = String.format("BEST MATCH: %s (%.2f%% likely)",
-                          class_names[bestLabelIdx], probs[bestLabelIdx] * 100f);
+                                             _model.getClassNames()[bestLabelIdx],
+                                             probs[bestLabelIdx] * 100f);
             Log.i(bestMatch);
         }
 
@@ -308,7 +310,6 @@ public class Classifier extends Consumer
             double duration = stream_in[0].num / stream_in[0].sr;
             ev.dur = (int)(1000 * duration + 0.5);
             ev.state = Event.State.COMPLETED;
-            //ev.setData(probs);
 
             _evchannel_out.pushEvent(ev);
         }
