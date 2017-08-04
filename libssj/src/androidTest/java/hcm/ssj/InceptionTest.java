@@ -42,7 +42,6 @@ import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
-import hcm.ssj.ml.TensorFlow;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
@@ -118,7 +117,6 @@ public class InceptionTest
 		classifier.options.trainerFile.set(modelName);
 		classifier.options.merge.set(false);
 		classifier.options.showLabel.set(true);
-
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 
 		// Start pipeline
