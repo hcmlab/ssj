@@ -62,9 +62,6 @@ public class ClassifierT extends Transformer
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
 
-        /**
-         *
-         */
         private Options()
         {
             addOptions();

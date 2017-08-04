@@ -44,6 +44,7 @@ import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileDownloader;
 import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
@@ -54,7 +55,7 @@ import hcm.ssj.signal.Selector;
 public class Classifier extends Consumer
 {
     /**
-     * All options for the transformer
+     * All options for the consumer
      */
     public class Options extends OptionList
     {
@@ -66,9 +67,6 @@ public class Classifier extends Consumer
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
         public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
 
-        /**
-         *
-         */
         private Options()
         {
             addOptions();
@@ -98,11 +96,28 @@ public class Classifier extends Consumer
     @Override
     public void init(Stream stream_in[]) throws SSJException
     {
-        try {
-            load(getFile(options.trainerPath.get(), options.trainerFile.get()));
-        } catch (XmlPullParserException | IOException e) {
+		String location = options.trainerPath.get().trim().toLowerCase();
+		boolean isURL = location.startsWith("http://") || location.startsWith("https://");
+        File modelFile;
+
+        if (isURL)
+        {
+			modelFile = FileDownloader.downloadFile(location);
+        }
+        else
+        {
+            modelFile = getFile(options.trainerPath.get(), options.trainerFile.get());
+        }
+
+        try
+        {
+            load(modelFile);
+        }
+        catch (XmlPullParserException | IOException e)
+        {
             throw new SSJException(e);
         }
+
     }
 
     /**
