@@ -58,7 +58,7 @@ public class BitalinoChannel extends SensorChannel
 	@Override
 	public void init()
 	{
-		((Bitalino)_sensor).configureChannel(options.channel.get(), true);
+		((Bitalino)_sensor).addChannel(options.channel.get());
 	}
 
 	@Override

@@ -30,6 +30,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.os.SystemClock;
 
+import java.util.LinkedList;
 import java.util.Set;
 
 import hcm.ssj.core.Cons;
@@ -59,10 +60,6 @@ public class Bitalino extends Sensor
 			addOptions();
 		}
 	}
-	public final Options options = new Options();
-
-	protected BITalinoCommunication client;
-	protected BitalinoListener listener;
 
 	public enum Channel
 	{
@@ -82,21 +79,28 @@ public class Bitalino extends Sensor
 		int getDataPosition() { return isAnalogue() ? id : id - 6;}
 	}
 
-	protected boolean channels[] = new boolean[Channel.values().length];
+	public final Options options = new Options();
 
-	public void configureChannel(Channel ch, boolean active)
+	protected BITalinoCommunication client;
+	protected BitalinoListener listener;
+
+	protected LinkedList<Channel> channels;
+
+	void addChannel(Channel ch)
 	{
-		channels[ch.id] = active;
+		channels.add(ch);
+	}
+
+	void removeChannel(Channel ch)
+	{
+		channels.remove(ch);
 	}
 
 	public Bitalino()
 	{
 		_name = "Bitalino";
 
-		for (int i = 0; i < channels.length; i++) {
-			channels[i] = false;
-		}
-
+		channels = new LinkedList<>();
 		listener = new BitalinoListener();
 	}
 
@@ -146,6 +150,8 @@ public class Bitalino extends Sensor
 				client = new BITalinoCommunicationFactory().getCommunication(options.connectionType.get(), SSJApplication.getAppContext(), listener);
 				connected = client.connect(address);
 
+				Log.i("waiting for connection ...");
+
 				//wait for connection
 				long time = SystemClock.elapsedRealtime();
 				while (!_terminate && !listener.hasReceivedData() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
@@ -155,15 +161,11 @@ public class Bitalino extends Sensor
 					} catch (InterruptedException e) {}
 				}
 
-				int numActive = 0;
-				for(int i = 0; i < channels.length; i++)
-					if(channels[i])
-						numActive++;
-
-				int[] ch = new int[numActive];
-				for(int i = 0, j = 0; i < channels.length; i++)
-					if(channels[i])
-						ch[j++] = i;
+				int[] analogue_channels = new int[channels.size()];
+				int i = 0;
+				for(Channel ch : channels)
+					if(ch.isAnalogue())
+						analogue_channels[i++] = ch.getDataPosition();
 
 				int sr = options.sr.get();
 				if(sr > 100)
@@ -173,7 +175,9 @@ public class Bitalino extends Sensor
 				else if(sr > 1)
 					sr = 10;
 
-				connected = client.start(ch, sr);
+				connected = client.start(analogue_channels, sr);
+
+				Log.i("connected to bitalino " + address);
 			}
 			catch (BITalinoException e)
 			{
@@ -197,6 +201,10 @@ public class Bitalino extends Sensor
 		{
 			try
 			{
+				client.stop();
+				try { Thread.sleep(100); }
+				catch (InterruptedException e) {}
+
 				client.disconnect();
 			}
 			catch (BITalinoException e)
@@ -206,5 +214,12 @@ public class Bitalino extends Sensor
 		}
 
 		client = null;
+	}
+
+	@Override
+	public void clear()
+	{
+		channels.clear();
+		super.clear();
 	}
 }

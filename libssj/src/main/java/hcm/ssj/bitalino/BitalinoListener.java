@@ -26,6 +26,7 @@
 
 package hcm.ssj.bitalino;
 
+import hcm.ssj.core.Log;
 import info.plux.pluxapi.bitalino.BITalinoFrame;
 import info.plux.pluxapi.bitalino.bth.OnBITalinoDataAvailable;
 
@@ -38,6 +39,9 @@ public class BitalinoListener implements OnBITalinoDataAvailable
 
 	BITalinoFrame lastDataFrame = null;
 	private long lastDataTimestamp = 0;
+
+	private int[] analog = new int[6];
+	private int[] digital = new int[4];
 
 	public BitalinoListener()
 	{
@@ -52,12 +56,12 @@ public class BitalinoListener implements OnBITalinoDataAvailable
 
 	public int getAnalogData(int pos)
 	{
-		return lastDataFrame.getAnalog(pos);
+		return analog[pos];
 	}
 
 	public int getDigitalData(int pos)
 	{
-		return lastDataFrame.getDigital(pos);
+		return digital[pos];
 	}
 
 	private synchronized void dataReceived()
@@ -78,7 +82,16 @@ public class BitalinoListener implements OnBITalinoDataAvailable
 	@Override
 	public void onBITalinoDataAvailable(BITalinoFrame biTalinoFrame)
 	{
-		dataReceived();
-		lastDataFrame = biTalinoFrame;
+		synchronized (this)
+		{
+			dataReceived();
+			Log.d(biTalinoFrame.toString());
+
+			for (int i = 0; i < analog.length; i++)
+				analog[i] = biTalinoFrame.getAnalog(i);
+
+			for (int i = 0; i < digital.length; i++)
+				digital[i] = biTalinoFrame.getDigital(i);
+		}
 	}
 }

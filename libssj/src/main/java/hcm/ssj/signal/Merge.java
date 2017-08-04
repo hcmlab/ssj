@@ -35,7 +35,7 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Selects specific values from a stream.<br>
+ * Merges multiple streams int one. Streams need to have same type, sr and num.<br>
  * Created by Frank Gaibler on 24.11.2015.
  */
 public class Merge extends Transformer
@@ -86,103 +86,40 @@ public class Merge extends Transformer
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        switch (stream_out.type)
+        for (int i = 0, z = 0; i < stream_in[0].num; i++)
         {
-            case BOOL:
+            for (int j = 0; j < stream_in.length; j++)
             {
-                boolean[] out = stream_out.ptrBool();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
+                for (int k = 0; k < stream_in[j].dim; k++)
                 {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
+                    switch (stream_out.type)
                     {
-                        out[z++] = stream_in[i].ptrBool()[j];
+                        case BOOL:
+                            stream_out.ptrBool()[z++] = stream_in[j].ptrBool()[i * stream_in[j].dim + k];
+                            break;
+                        case BYTE:
+                            stream_out.ptrB()[z++] = stream_in[j].ptrB()[i * stream_in[j].dim + k];
+                            break;
+                        case CHAR:
+                            stream_out.ptrC()[z++] = stream_in[j].ptrC()[i * stream_in[j].dim + k];
+                            break;
+                        case DOUBLE:
+                            stream_out.ptrD()[z++] = stream_in[j].ptrD()[i * stream_in[j].dim + k];
+                            break;
+                        case FLOAT:
+                            stream_out.ptrF()[z++] = stream_in[j].ptrF()[i * stream_in[j].dim + k];
+                            break;
+                        case INT:
+                            stream_out.ptrI()[z++] = stream_in[j].ptrI()[i * stream_in[j].dim + k];
+                            break;
+                        case LONG:
+                            stream_out.ptrL()[z++] = stream_in[j].ptrL()[i * stream_in[j].dim + k];
+                            break;
+                        case SHORT:
+                            stream_out.ptrS()[z++] = stream_in[j].ptrS()[i * stream_in[j].dim + k];
+                            break;
                     }
                 }
-                break;
-            }
-            case BYTE:
-            {
-                byte[] out = stream_out.ptrB();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrB()[j];
-                    }
-                }
-                break;
-            }
-            case CHAR:
-            {
-                char[] out = stream_out.ptrC();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrC()[j];
-                    }
-                }
-                break;
-            }
-            case DOUBLE:
-            {
-                double[] out = stream_out.ptrD();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrD()[j];
-                    }
-                }
-                break;
-            }
-            case FLOAT:
-            {
-                float[] out = stream_out.ptrF();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrF()[j];
-                    }
-                }
-                break;
-            }
-            case INT:
-            {
-                int[] out = stream_out.ptrI();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrI()[j];
-                    }
-                }
-                break;
-            }
-            case LONG:
-            {
-                long[] out = stream_out.ptrL();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrL()[j];
-                    }
-                }
-                break;
-            }
-            case SHORT:
-            {
-                short[] out = stream_out.ptrS();
-                for (int i = 0, z = 0; i < stream_in.length; i++)
-                {
-                    for (int j = 0; j < stream_in[i].num * stream_in[i].dim; j++)
-                    {
-                        out[z++] = stream_in[i].ptrS()[j];
-                    }
-                }
-                break;
             }
         }
     }
