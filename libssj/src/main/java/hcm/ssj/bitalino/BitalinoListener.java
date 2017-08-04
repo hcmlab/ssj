@@ -26,7 +26,6 @@
 
 package hcm.ssj.bitalino;
 
-import hcm.ssj.core.Log;
 import info.plux.pluxapi.bitalino.BITalinoFrame;
 import info.plux.pluxapi.bitalino.bth.OnBITalinoDataAvailable;
 
@@ -85,7 +84,6 @@ public class BitalinoListener implements OnBITalinoDataAvailable
 		synchronized (this)
 		{
 			dataReceived();
-			Log.d(biTalinoFrame.toString());
 
 			for (int i = 0; i < analog.length; i++)
 				analog[i] = biTalinoFrame.getAnalog(i);
