@@ -28,9 +28,8 @@ package hcm.ssj.file;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.ReadableByteChannel;
 
 import hcm.ssj.core.Log;
 
@@ -39,14 +38,42 @@ import hcm.ssj.core.Log;
  */
 public class FileDownloader
 {
-	public static File downloadFile(String location)
+	private static final int BUFFER_SIZE = 4096;
+	private static final int EOF = -1;
+
+	public static File downloadFile(String location, String fileName)
 	{
 		try
 		{
-			URL website = new URL(location);
-			ReadableByteChannel rbc = Channels.newChannel(website.openStream());
-			FileOutputStream fos = new FileOutputStream("trainer_file_name");
-			fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+			File destinationDir = new File(LoggingConstants.SSJ_EXTERNAL_STORAGE
+												   + File.separator
+												   + "tensorflow");
+
+			// Create folders on the SD card.
+			destinationDir.mkdirs();
+
+			File downloadedFile = new File(destinationDir.getAbsolutePath() + File.separator + fileName);
+
+			if (!downloadedFile.exists())
+			{
+				URL fileURL = new URL(location + File.separator + fileName);
+				InputStream input = fileURL.openStream();
+				FileOutputStream output = new FileOutputStream(downloadedFile);
+
+				byte[] buffer = new byte[BUFFER_SIZE];
+				int numberOfBytesRead;
+
+				while ((numberOfBytesRead = input.read(buffer)) != EOF)
+				{
+					output.write(buffer, 0, numberOfBytesRead);
+				}
+
+				// Close IO streams.
+				input.close();
+				output.close();
+
+				Log.i("File '" + downloadedFile + "' downloaded successfully.");
+			}
 		}
 		catch (Exception e)
 		{

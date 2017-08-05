@@ -96,13 +96,14 @@ public class Classifier extends Consumer
     @Override
     public void init(Stream stream_in[]) throws SSJException
     {
-		String location = options.trainerPath.get().trim().toLowerCase();
+		String location = options.trainerPath.get();
 		boolean isURL = location.startsWith("http://") || location.startsWith("https://");
+
         File modelFile;
 
         if (isURL)
         {
-			modelFile = FileDownloader.downloadFile(location);
+			modelFile = FileDownloader.downloadFile(location, options.trainerFile.get());
         }
         else
         {
