@@ -48,7 +48,7 @@ public class FileDownloader
 	/**
 	 * Downloads file from a given URL and saves it on the SD card with a given file name.
 	 *
-	 * @param location File URL.
+	 * @param location Folder URL where file is located.
 	 * @param fileName Name of the file after downloading.
 	 * @return Instance of the downloaded file.
 	 */
@@ -65,7 +65,7 @@ public class FileDownloader
 
 			if (!downloadedFile.exists())
 			{
-				URL fileURL = new URL(location);
+				URL fileURL = new URL(location + File.separator + fileName);
 
 				InputStream input = fileURL.openStream();
 				FileOutputStream output = new FileOutputStream(downloadedFile);

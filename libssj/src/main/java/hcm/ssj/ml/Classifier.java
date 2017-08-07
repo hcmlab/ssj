@@ -96,23 +96,11 @@ public class Classifier extends Consumer
     @Override
     public void init(Stream stream_in[]) throws SSJException
     {
-		String location = options.trainerPath.get();
-		boolean isURL = location.startsWith("http://") || location.startsWith("https://");
-
-        File modelFile;
-
-        if (isURL)
-        {
-			modelFile = FileDownloader.downloadFile(location, options.trainerFile.get());
-        }
-        else
-        {
-            modelFile = getFile(options.trainerPath.get(), options.trainerFile.get());
-        }
+        File trainerFile = getFile(options.trainerPath.get(), options.trainerFile.get());
 
         try
         {
-            load(modelFile);
+            load(trainerFile);
         }
         catch (XmlPullParserException | IOException e)
         {
@@ -337,6 +325,13 @@ public class Classifier extends Consumer
      */
     protected final File getFile(String filePath, String fileName)
     {
+        boolean isURL = filePath.startsWith("http://") || filePath.startsWith("https://");
+
+        if (isURL)
+        {
+			return FileDownloader.downloadFile(filePath, fileName);
+        }
+
         if (filePath == null)
         {
             Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
