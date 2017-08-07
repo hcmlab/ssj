@@ -1,5 +1,5 @@
 /*
- * FileDownloader.java
+ * FileDownloadTest.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
@@ -24,60 +24,49 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
+package hcm.ssj;
+
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.net.URL;
 
-import hcm.ssj.core.Log;
+import hcm.ssj.file.FileDownloader;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * @author Vitaly
  */
-public class FileDownloader
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class FileDownloadTest
 {
-	private static final int BUFFER_SIZE = 4096;
-	private static final int EOF = -1;
+	private static final String trainerURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/inception.trainer";
+	private static final String modelURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/inception.model";
+	private static final String optionURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/inception.option";
+	private static final String modelsDir = LoggingConstants.TENSORFLOW_MODELS_DIR;
 
 
-	public static File downloadFile(String location, String fileName)
+	@Test
+	public void downloadAllFiles()
 	{
-		try
+		downloadFile(trainerURL, "inception.trainer");
+		downloadFile(modelURL, "inception.model");
+		downloadFile(optionURL, "inception.option");
+	}
+
+
+	private void downloadFile(String url, String fileName)
+	{
+		File filePath = new File(modelsDir + File.separator + fileName);
+
+		if (!filePath.exists())
 		{
-			File destinationDir = new File(LoggingConstants.TENSORFLOW_MODELS_DIR);
-
-			// Create folders on the SD card.
-			destinationDir.mkdirs();
-
-			File downloadedFile = new File(destinationDir.getAbsolutePath(), fileName);
-
-			if (!downloadedFile.exists())
-			{
-				URL fileURL = new URL(location);
-
-				InputStream input = fileURL.openStream();
-				FileOutputStream output = new FileOutputStream(downloadedFile);
-
-				byte[] buffer = new byte[BUFFER_SIZE];
-				int numberOfBytesRead;
-
-				while ((numberOfBytesRead = input.read(buffer)) != EOF)
-				{
-					output.write(buffer, 0, numberOfBytesRead);
-				}
-
-				input.close();
-				output.close();
-
-				Log.i("File '" + downloadedFile + "' downloaded successfully.");
-			}
-			return downloadedFile;
-		}
-		catch (Exception e)
-		{
-			throw new RuntimeException("Error while downloading " + location, e);
+			FileDownloader.downloadFile(url, fileName);
 		}
 	}
 }
