@@ -106,7 +106,6 @@ public class Classifier extends Consumer
         {
             throw new SSJException(e);
         }
-
     }
 
     /**

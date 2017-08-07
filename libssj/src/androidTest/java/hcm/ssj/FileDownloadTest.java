@@ -58,7 +58,7 @@ public class FileDownloadTest
 	@Test
 	public void downloadTrainerFile()
 	{
-		File file = FileDownloader.downloadFile(assetsURL + trainer, trainer);
+		File file = FileDownloader.downloadFile(assetsURL, trainer);
 		assertTrue(file.exists());
 	}
 
@@ -66,7 +66,7 @@ public class FileDownloadTest
 	@Test
 	public void downloadModelFile()
 	{
-		File file = FileDownloader.downloadFile(assetsURL + model, model);
+		File file = FileDownloader.downloadFile(assetsURL, model);
 		assertTrue(file.exists());
 	}
 
@@ -74,7 +74,7 @@ public class FileDownloadTest
 	@Test
 	public void downloadOptionFile()
 	{
-		File file = FileDownloader.downloadFile(assetsURL + option, option);
+		File file = FileDownloader.downloadFile(assetsURL, option);
 		assertTrue(file.exists());
 	}
 }
