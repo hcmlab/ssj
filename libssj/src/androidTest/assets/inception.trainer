@@ -1019,5 +1019,5 @@
         <item name="user2" />
         <item name="user3" />
     </users>
-    <model create="PythonModel" stream="0" path="inception_model.trainer" option="inception_model.trainer" />
+    <model create="PythonModel" stream="0" path="inception" option="inception" />
 </trainer>
