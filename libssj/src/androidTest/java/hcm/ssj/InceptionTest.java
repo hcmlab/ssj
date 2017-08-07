@@ -61,8 +61,8 @@ public class InceptionTest
 	{
 		File dir = getContext().getFilesDir();
 
-		// Neural network trainer file for classifying images
-		String modelName = "inception_model.trainer";
+		String modelName = "inception.model";
+		String trainerName = "inception.trainer";
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
@@ -76,7 +76,7 @@ public class InceptionTest
 
 		// Load inception model and trainer file
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
-		TestHelper.copyAssetToFile(modelName + ".model", new File(dir, modelName + ".model"));
+		TestHelper.copyAssetToFile(trainerName, new File(dir, trainerName));
 
 		// Get pipeline instance
 		Pipeline frame = Pipeline.getInstance();
@@ -114,7 +114,7 @@ public class InceptionTest
 		// Add classifier transformer to the pipeline
 		Classifier classifier = new Classifier();
 		classifier.options.trainerPath.set(dir.getAbsolutePath());
-		classifier.options.trainerFile.set(modelName);
+		classifier.options.trainerFile.set(trainerName);
 		classifier.options.merge.set(false);
 		classifier.options.showLabel.set(true);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
