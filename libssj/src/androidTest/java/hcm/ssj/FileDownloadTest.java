@@ -32,12 +32,16 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 
 import hcm.ssj.file.FileDownloader;
-import hcm.ssj.file.LoggingConstants;
 
 /**
+ * Downloads necessary files for inference with Inception and tests whether
+ * they all are on SD card thereafter.
+ *
  * @author Vitaly
  */
 
@@ -45,28 +49,32 @@ import hcm.ssj.file.LoggingConstants;
 @SmallTest
 public class FileDownloadTest
 {
-	private static final String trainerURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/inception.trainer";
-	private static final String modelURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/inception.model";
-	private static final String optionURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/inception.option";
-	private static final String modelsDir = LoggingConstants.TENSORFLOW_MODELS_DIR;
+	private static final String assetsURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/";
+	private static final String trainer = "inception.trainer";
+	private static final String model = "inception.model";
+	private static final String option = "inception.option";
 
 
 	@Test
-	public void downloadAllFiles()
+	public void downloadTrainerFile()
 	{
-		downloadFile(trainerURL, "inception.trainer");
-		downloadFile(modelURL, "inception.model");
-		downloadFile(optionURL, "inception.option");
+		File file = FileDownloader.downloadFile(assetsURL + trainer, trainer);
+		assertTrue(file.exists());
 	}
 
 
-	private void downloadFile(String url, String fileName)
+	@Test
+	public void downloadModelFile()
 	{
-		File filePath = new File(modelsDir + File.separator + fileName);
+		File file = FileDownloader.downloadFile(assetsURL + model, model);
+		assertTrue(file.exists());
+	}
 
-		if (!filePath.exists())
-		{
-			FileDownloader.downloadFile(url, fileName);
-		}
+
+	@Test
+	public void downloadOptionFile()
+	{
+		File file = FileDownloader.downloadFile(assetsURL + option, option);
+		assertTrue(file.exists());
 	}
 }

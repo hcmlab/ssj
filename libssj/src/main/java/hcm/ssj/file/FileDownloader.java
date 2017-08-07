@@ -34,6 +34,9 @@ import java.net.URL;
 import hcm.ssj.core.Log;
 
 /**
+ * Allows to download files from a valid URL and saves them in a predetermined folder on
+ * the SD card.
+ *
  * @author Vitaly
  */
 public class FileDownloader
@@ -42,13 +45,20 @@ public class FileDownloader
 	private static final int EOF = -1;
 
 
+	/**
+	 * Downloads file from a given URL and saves it on the SD card with a given file name.
+	 *
+	 * @param location File URL.
+	 * @param fileName Name of the file after downloading.
+	 * @return Instance of the downloaded file.
+	 */
 	public static File downloadFile(String location, String fileName)
 	{
 		try
 		{
 			File destinationDir = new File(LoggingConstants.TENSORFLOW_MODELS_DIR);
 
-			// Create folders on the SD card.
+			// Create folders on the SD card if not already created.
 			destinationDir.mkdirs();
 
 			File downloadedFile = new File(destinationDir.getAbsolutePath(), fileName);
@@ -71,7 +81,7 @@ public class FileDownloader
 				input.close();
 				output.close();
 
-				Log.i("File '" + downloadedFile + "' downloaded successfully.");
+				Log.i("File '" + location + "' downloaded successfully.");
 			}
 			return downloadedFile;
 		}
