@@ -192,25 +192,25 @@ public class TensorFlow extends Model
 						String optionName = parser.getAttributeValue(null, "name");
 						String optionValue = parser.getAttributeValue(null, "value");
 
-						// Set input node name.
 						if (optionName.equalsIgnoreCase("input"))
 						{
+							// Create and add option for input tensor node name.
 							Option<String> inputNode = new Option<>(optionName, "input", String.class, "name of the input node");
 							inputNode.set(optionValue);
 							options.add(inputNode);
 						}
 
-						// Set output node name.
 						if (optionName.equalsIgnoreCase("output"))
 						{
+							// Create and add option for output tensor node name.
 							Option<String> outputNode = new Option<>(optionName, "output", String.class, "name of the output node");
 							outputNode.set(optionValue);
 							options.add(outputNode);
 						}
 
-						// Set input tensor shape.
 						if (optionName.equalsIgnoreCase("shape"))
 						{
+							// Create and add option for input tensor shape.
 							Option<long[]> shape = new Option<>(optionName, null, long[].class, "shape of the input tensor");
 							shape.set(parseTensorShape(optionValue));
 							options.add(shape);
@@ -225,7 +225,7 @@ public class TensorFlow extends Model
 			Log.e(e.getMessage());
 		}
 
-		setOptions();
+		setVariablesFromOptions();
 	}
 
 
@@ -312,13 +312,15 @@ public class TensorFlow extends Model
 	/**
 	 * Sets variable values necessary for prediction making.
 	 */
-	private void setOptions()
+	private void setVariablesFromOptions()
 	{
 		try
 		{
+			// Parse option values.
 			inputNode = (String)options.getOptionValue("input");
 			outputNode = (String)options.getOptionValue("output");
 			inputTensorShape = (long[])options.getOptionValue("shape");
+
 			optionsSet = true;
 		}
 		catch (Exception e)

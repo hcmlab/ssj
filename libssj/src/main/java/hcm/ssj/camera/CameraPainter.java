@@ -217,7 +217,7 @@ public class CameraPainter extends Consumer implements EventListener
                     int bitmapWidth = bitmap.getWidth();
                     int bitmapHeight = bitmap.getHeight();
 
-                    //rotate canvas
+					// Rotate canvas around the center of the image.
                     canvas.rotate(options.orientation.get(), canvasWidth >> 1, canvasHeight >> 1);
 
                     //decode color format
@@ -234,7 +234,8 @@ public class CameraPainter extends Consumer implements EventListener
 
                         // scale picture to surface size
                         canvas.drawBitmap(bitmap, null, dest, null);
-                    } else
+                    }
+                    else
                     {
                         //center picture on canvas
                         canvas.drawBitmap(bitmap,
@@ -422,10 +423,5 @@ public class CameraPainter extends Consumer implements EventListener
     }
 
     @Override
-    public void notify(Event event)
-    {
-		// ...
-        Log.d("notify_test", "event sent: " + event.name);
-    }
-
+    public void notify(Event event) {}
 }
