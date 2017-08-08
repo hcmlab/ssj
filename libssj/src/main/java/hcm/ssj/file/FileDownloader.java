@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Locale;
 
 import hcm.ssj.core.Log;
 
@@ -42,6 +43,7 @@ import hcm.ssj.core.Log;
 public class FileDownloader
 {
 	private static final int BUFFER_SIZE = 4096;
+	private static final int BYTES_IN_MEGABYTE = 1000000;
 	private static final int EOF = -1;
 
 
@@ -49,11 +51,13 @@ public class FileDownloader
 	 * Downloads file from a given URL and saves it on the SD card with a given file name.
 	 *
 	 * @param location Folder URL where file is located.
-	 * @param fileName Name of the file after downloading.
+	 * @param fileName Name of the file.
 	 * @return Instance of the downloaded file.
 	 */
 	public static File downloadFile(String location, String fileName)
 	{
+		float amountDownloaded = 0;
+
 		try
 		{
 			File destinationDir = new File(LoggingConstants.TENSORFLOW_MODELS_DIR);
@@ -65,6 +69,7 @@ public class FileDownloader
 
 			if (!downloadedFile.exists())
 			{
+				Log.i("Starting to download '" + fileName + "'...");
 				URL fileURL = new URL(location + File.separator + fileName);
 
 				InputStream input = fileURL.openStream();
@@ -76,12 +81,16 @@ public class FileDownloader
 				while ((numberOfBytesRead = input.read(buffer)) != EOF)
 				{
 					output.write(buffer, 0, numberOfBytesRead);
+
+					amountDownloaded += numberOfBytesRead;
+					String progress = String.format(Locale.US, "%.2f", amountDownloaded / BYTES_IN_MEGABYTE);
+					Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
 				}
 
 				input.close();
 				output.close();
 
-				Log.i("File '" + location + "' downloaded successfully.");
+				Log.i("File '" + fileName + "' downloaded successfully.");
 			}
 			return downloadedFile;
 		}
