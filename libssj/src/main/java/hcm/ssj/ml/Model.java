@@ -29,6 +29,7 @@ package hcm.ssj.ml;
 import java.io.File;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -39,6 +40,9 @@ public abstract class Model {
 
     protected String _name = "Model";
     protected boolean _isTrained = false;
+
+    public class Options extends OptionList {}
+    public final Options options = new Options();
 
     public static Model create(String name)
     {

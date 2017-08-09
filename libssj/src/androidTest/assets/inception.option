@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<options>
+    <item name="input" type="CHAR" num="1024" value="input" />
+    <item name="output" type="CHAR" num="1024" value="output" />
+    <item name="shape" type="CHAR" num="1024" value="[1, 224, 224, 3]" />
+</options>

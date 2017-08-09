@@ -38,12 +38,12 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileUtils;
 import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
@@ -60,11 +60,9 @@ public class ClassifierT extends Transformer
     {
         public final Option<String> trainerPath = new Option<>("trainerPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
+        public final Option<Integer> numClasses = new Option<>("numClasses", 0, Integer.class, "number of classification classes");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
 
-        /**
-         *
-         */
         private Options()
         {
             addOptions();
@@ -72,42 +70,23 @@ public class ClassifierT extends Transformer
     }
 
     public final Options options = new Options();
-    private String[] class_names = null;
 
-    private Merge _merge = null;
-    private Stream[] _stream_merged;
     private Selector _selector = null;
+    private Stream[] _stream_merged;
     private Stream[] _stream_selected;
+    private Merge _merge = null;
     private Model _model;
+    private Cons.Type type = Cons.Type.UNDEF;
+    private ArrayList<String> classNames = new ArrayList<>();
 
     private int bytes = 0;
     private int dim = 0;
     private float sr = 0;
-    private Cons.Type type = Cons.Type.UNDEF;
 
-    private int classNum = 0;
-    private ArrayList<String> classNames = new ArrayList<String>();
 
-    /**
-     *
-     */
     public ClassifierT()
     {
         _name = this.getClass().getSimpleName();
-    }
-
-    /**
-     * @param frame   double
-     * @param delta   double
-     */
-    @Override
-    public void init(double frame, double delta) throws SSJException
-    {
-        try {
-            load(getFile(options.trainerPath.get(), options.trainerFile.get()));
-        } catch (XmlPullParserException | IOException e) {
-            throw new SSJException(e);
-        }
     }
 
     /**
@@ -126,13 +105,14 @@ public class ClassifierT extends Transformer
             return;
         }
 
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+        while (parser.next() != XmlPullParser.END_DOCUMENT)
+        {
             //STREAM
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams")) {
-
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams"))
+            {
                 parser.nextTag(); //item
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
+                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
+                {
                     bytes = Integer.valueOf(parser.getAttributeValue(null, "byte"));
                     dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
                     sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
@@ -149,7 +129,6 @@ public class ClassifierT extends Transformer
                 {
                     if (parser.getEventType() == XmlPullParser.START_TAG)
                     {
-                        classNum++;
                         classNames.add(parser.getAttributeValue(null, "name"));
                     }
                     parser.nextTag();
@@ -157,11 +136,11 @@ public class ClassifierT extends Transformer
             }
 
             //SELECT
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
-
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select"))
+            {
                 parser.nextTag(); //item
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
+                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
+                {
                     int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
                     if (stream_id != 0)
                         Log.w("multiple input streams not supported");
@@ -177,20 +156,21 @@ public class ClassifierT extends Transformer
             }
 
             //MODEL
-            else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
+            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
             {
                 String modelName = parser.getAttributeValue(null, "create");
                 _model = Model.create(modelName);
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
-                    ((TensorFlow) _model).setNumClasses(classNum);
+                    ((TensorFlow) _model).setNumClasses(classNames.size());
                     ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
                 }
 
-                _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
-                _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
+                _model.load(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
+                _model.loadOption(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
+
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
                 break;
         }
@@ -203,6 +183,20 @@ public class ClassifierT extends Transformer
     @Override
     public void enter(Stream[] stream_in, Stream stream_out)
     {
+        //load model files
+        try {
+            load(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
+        } catch (IOException | XmlPullParserException e) {
+            Log.e("unable to load trainer file", e);
+        }
+
+        //define output stream
+        if (_model.getClassNames() != null && stream_out.dim == _model.getNumClasses())
+        {
+            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
+            return;
+        }
+
         if (stream_in.length > 1 && !options.merge.get())
         {
             Log.e("sources count not supported");
@@ -288,7 +282,7 @@ public class ClassifierT extends Transformer
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        return _model.getNumClasses();
+        return options.numClasses.get();
     }
 
     /**
@@ -321,6 +315,11 @@ public class ClassifierT extends Transformer
         return 1;
     }
 
+    public Model getModel()
+    {
+        return _model;
+    }
+
     /**
      * @param stream_in  Stream[]
      * @param stream_out Stream
@@ -331,35 +330,9 @@ public class ClassifierT extends Transformer
         int overallDimension = getSampleDimension(stream_in);
         stream_out.desc = new String[overallDimension];
 
-        if (_model.getClassNames() != null && overallDimension == _model.getNumClasses())
-        {
-            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
-            return;
-        }
         for (int i = 0; i < overallDimension; i++)
         {
-            stream_out.desc[i] = "nb" + i;
+            stream_out.desc[i] = "class" + i;
         }
-    }
-
-    /**
-     * @param filePath Option
-     * @param fileName Option
-     * @return File
-     */
-    protected final File getFile(String filePath, String fileName)
-    {
-        if (filePath == null)
-        {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            filePath = LoggingConstants.SSJ_EXTERNAL_STORAGE;
-        }
-        File fileDirectory = new File(filePath);
-        if (fileName == null)
-        {
-            Log.e("file name not set");
-            return null;
-        }
-        return new File(fileDirectory, fileName);
     }
 }
