@@ -1,6 +1,6 @@
 /*
- * LoggingConstants.java
- * Copyright (c) 2016
+ * FileDownloadTest.java
+ * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
@@ -24,24 +24,57 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
+package hcm.ssj;
 
-import android.os.Environment;
+import android.support.test.filters.SmallTest;
+import android.support.test.runner.AndroidJUnit4;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 
+import hcm.ssj.file.FileDownloader;
+
 /**
- * Constants used for the logging mechanisms.<br>
- * Created by Frank Gaibler on 31.08.2015.
+ * Downloads necessary files for inference with Inception and tests whether
+ * they all are on SD card thereafter.
+ *
+ * @author Vitaly
  */
-public class LoggingConstants
+
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class FileDownloadTest
 {
-    public static final String DELIMITER_ATTRIBUTE = " ";
-    public static final String DELIMITER_LINE = "\r\n"; //works on android and windows, System.getProperty("line.separator") might not
-    public static final String TAG_DATA_FILE = "~";
-    public static final String FILE_EXTENSION_STREAM = "stream";
-    public static final String FILE_EXTENSION_EVENT = "events";
-    public static final String FILE_EXTENSION_ANNO_PLAIN = "anno";
-    public static final String SSJ_EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory(), "SSJ").getPath();
-    public static final String TENSORFLOW_MODELS_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "tensorflow";
+	private static final String assetsURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/";
+	private static final String trainer = "inception.trainer";
+	private static final String model = "inception.model";
+	private static final String option = "inception.option";
+
+
+	@Test
+	public void downloadTrainerFile()
+	{
+		File file = FileDownloader.downloadFile(assetsURL, trainer);
+		assertTrue(file.exists());
+	}
+
+
+	@Test
+	public void downloadModelFile()
+	{
+		File file = FileDownloader.downloadFile(assetsURL, model);
+		assertTrue(file.exists());
+	}
+
+
+	@Test
+	public void downloadOptionFile()
+	{
+		File file = FileDownloader.downloadFile(assetsURL, option);
+		assertTrue(file.exists());
+	}
 }

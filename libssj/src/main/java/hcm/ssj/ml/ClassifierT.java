@@ -62,9 +62,6 @@ public class ClassifierT extends Transformer
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
 
-        /**
-         *
-         */
         private Options()
         {
             addOptions();
@@ -72,25 +69,20 @@ public class ClassifierT extends Transformer
     }
 
     public final Options options = new Options();
-    private String[] class_names = null;
 
-    private Merge _merge = null;
-    private Stream[] _stream_merged;
     private Selector _selector = null;
+    private Stream[] _stream_merged;
     private Stream[] _stream_selected;
+    private Merge _merge = null;
     private Model _model;
+    private Cons.Type type = Cons.Type.UNDEF;
+    private ArrayList<String> classNames = new ArrayList<>();
 
     private int bytes = 0;
     private int dim = 0;
     private float sr = 0;
-    private Cons.Type type = Cons.Type.UNDEF;
 
-    private int classNum = 0;
-    private ArrayList<String> classNames = new ArrayList<String>();
 
-    /**
-     *
-     */
     public ClassifierT()
     {
         _name = this.getClass().getSimpleName();
@@ -150,7 +142,6 @@ public class ClassifierT extends Transformer
                 {
                     if (parser.getEventType() == XmlPullParser.START_TAG)
                     {
-                        classNum++;
                         classNames.add(parser.getAttributeValue(null, "name"));
                     }
                     parser.nextTag();
@@ -185,7 +176,7 @@ public class ClassifierT extends Transformer
 
                 if (modelName.equalsIgnoreCase("PythonModel"))
                 {
-                    ((TensorFlow) _model).setNumClasses(classNum);
+                    ((TensorFlow) _model).setNumClasses(classNames.size());
                     ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
                 }
 
@@ -321,6 +312,11 @@ public class ClassifierT extends Transformer
     public int getSampleNumber(int sampleNumber_in)
     {
         return 1;
+    }
+
+    public Model getModel()
+    {
+        return _model;
     }
 
     /**

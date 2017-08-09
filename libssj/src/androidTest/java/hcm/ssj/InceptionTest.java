@@ -42,7 +42,6 @@ import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
-import hcm.ssj.ml.TensorFlow;
 
 import static android.support.test.InstrumentationRegistry.getContext;
 
@@ -60,10 +59,8 @@ public class InceptionTest
 	@Test
 	public void loadInceptionModel() throws Exception
 	{
-		File dir = getContext().getFilesDir();
-
-		// Neural network trainer file for classifying images
-		String modelName = "inception_model.trainer";
+		String trainerName = "inception.trainer";
+		String trainerURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets";
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
@@ -74,10 +71,6 @@ public class InceptionTest
 		final float IMAGE_STD = 1;
 		final int CROP_SIZE = 224;
 		final boolean MAINTAIN_ASPECT = true;
-
-		// Load inception model and trainer file
-		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
-		TestHelper.copyAssetToFile(modelName + ".model", new File(dir, modelName + ".model"));
 
 		// Get pipeline instance
 		Pipeline frame = Pipeline.getInstance();
@@ -114,11 +107,10 @@ public class InceptionTest
 
 		// Add classifier transformer to the pipeline
 		Classifier classifier = new Classifier();
-		classifier.options.trainerPath.set(dir.getAbsolutePath());
-		classifier.options.trainerFile.set(modelName);
+		classifier.options.trainerPath.set(trainerURL);
+		classifier.options.trainerFile.set(trainerName);
 		classifier.options.merge.set(false);
 		classifier.options.showLabel.set(true);
-
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 
 		// Start pipeline
