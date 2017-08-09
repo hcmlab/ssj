@@ -38,12 +38,12 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileUtils;
 import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
@@ -60,6 +60,7 @@ public class ClassifierT extends Transformer
     {
         public final Option<String> trainerPath = new Option<>("trainerPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
+        public final Option<Integer> numClasses = new Option<>("numClasses", 0, Integer.class, "number of classification classes");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
 
         private Options()
@@ -86,20 +87,6 @@ public class ClassifierT extends Transformer
     public ClassifierT()
     {
         _name = this.getClass().getSimpleName();
-    }
-
-    /**
-     * @param frame   double
-     * @param delta   double
-     */
-    @Override
-    public void init(double frame, double delta) throws SSJException
-    {
-        try {
-            load(getFile(options.trainerPath.get(), options.trainerFile.get()));
-        } catch (XmlPullParserException | IOException e) {
-            throw new SSJException(e);
-        }
     }
 
     /**
@@ -180,8 +167,8 @@ public class ClassifierT extends Transformer
                     ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
                 }
 
-                _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
-                _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
+                _model.load(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
+                _model.loadOption(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
 
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
@@ -196,6 +183,20 @@ public class ClassifierT extends Transformer
     @Override
     public void enter(Stream[] stream_in, Stream stream_out)
     {
+        //load model files
+        try {
+            load(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
+        } catch (IOException | XmlPullParserException e) {
+            Log.e("unable to load trainer file", e);
+        }
+
+        //define output stream
+        if (_model.getClassNames() != null && stream_out.dim == _model.getNumClasses())
+        {
+            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
+            return;
+        }
+
         if (stream_in.length > 1 && !options.merge.get())
         {
             Log.e("sources count not supported");
@@ -281,7 +282,7 @@ public class ClassifierT extends Transformer
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        return _model.getNumClasses();
+        return options.numClasses.get();
     }
 
     /**
@@ -329,35 +330,9 @@ public class ClassifierT extends Transformer
         int overallDimension = getSampleDimension(stream_in);
         stream_out.desc = new String[overallDimension];
 
-        if (_model.getClassNames() != null && overallDimension == _model.getNumClasses())
-        {
-            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
-            return;
-        }
         for (int i = 0; i < overallDimension; i++)
         {
-            stream_out.desc[i] = "nb" + i;
+            stream_out.desc[i] = "class" + i;
         }
-    }
-
-    /**
-     * @param filePath Option
-     * @param fileName Option
-     * @return File
-     */
-    protected final File getFile(String filePath, String fileName)
-    {
-        if (filePath == null)
-        {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            filePath = LoggingConstants.SSJ_EXTERNAL_STORAGE;
-        }
-        File fileDirectory = new File(filePath);
-        if (fileName == null)
-        {
-            Log.e("file name not set");
-            return null;
-        }
-        return new File(fileDirectory, fileName);
     }
 }

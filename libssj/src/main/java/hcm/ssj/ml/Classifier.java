@@ -39,12 +39,11 @@ import java.util.ArrayList;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.FileDownloader;
+import hcm.ssj.file.FileUtils;
 import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
@@ -91,21 +90,6 @@ public class Classifier extends Consumer
     public Classifier()
     {
         _name = this.getClass().getSimpleName();
-    }
-
-    @Override
-    public void init(Stream stream_in[]) throws SSJException
-    {
-        File trainerFile = getFile(options.trainerPath.get(), options.trainerFile.get());
-
-        try
-        {
-            load(trainerFile);
-        }
-        catch (XmlPullParserException | IOException e)
-        {
-            throw new SSJException(e);
-        }
     }
 
     /**
@@ -186,8 +170,8 @@ public class Classifier extends Consumer
                     ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
                 }
 
-                _model.load(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
-                _model.loadOption(getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
+                _model.load(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
+                _model.loadOption(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
             }
 
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
@@ -201,6 +185,16 @@ public class Classifier extends Consumer
     @Override
     public void enter(Stream[] stream_in)
     {
+        try
+        {
+            File trainerFile = FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get());
+            load(trainerFile);
+        }
+        catch (XmlPullParserException | IOException e)
+        {
+            Log.e("unable to load model");
+        }
+
         if (stream_in.length > 1 && !options.merge.get())
         {
             Log.e("sources count not supported");
@@ -315,33 +309,5 @@ public class Classifier extends Consumer
     public Model getModel()
     {
         return _model;
-    }
-
-    /**
-     * @param filePath Option
-     * @param fileName Option
-     * @return File
-     */
-    protected final File getFile(String filePath, String fileName)
-    {
-        boolean isURL = filePath.startsWith("http://") || filePath.startsWith("https://");
-
-        if (isURL)
-        {
-			return FileDownloader.downloadFile(filePath, fileName);
-        }
-
-        if (filePath == null)
-        {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            filePath = LoggingConstants.SSJ_EXTERNAL_STORAGE;
-        }
-        File fileDirectory = new File(filePath);
-        if (fileName == null)
-        {
-            Log.e("file name not set");
-            return null;
-        }
-        return new File(fileDirectory, fileName);
     }
 }

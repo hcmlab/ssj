@@ -43,5 +43,5 @@ public class LoggingConstants
     public static final String FILE_EXTENSION_EVENT = "events";
     public static final String FILE_EXTENSION_ANNO_PLAIN = "anno";
     public static final String SSJ_EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory(), "SSJ").getPath();
-    public static final String TENSORFLOW_MODELS_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "tensorflow";
+    public static final String DOWNLOAD_MODELS_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "models";
 }

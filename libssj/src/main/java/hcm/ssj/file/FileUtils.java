@@ -28,11 +28,13 @@ package hcm.ssj.file;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Locale;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 
 /**
  * Allows to download files from a valid URL and saves them in a predetermined folder on
@@ -40,12 +42,39 @@ import hcm.ssj.core.Log;
  *
  * @author Vitaly
  */
-public class FileDownloader
+public class FileUtils
 {
 	private static final int BUFFER_SIZE = 4096;
 	private static final int BYTES_IN_MEGABYTE = 1000000;
 	private static final int EOF = -1;
 
+	/**
+	 * @param filePath Option
+	 * @param fileName Option
+	 * @return File
+	 */
+	public static File getFile(String filePath, String fileName) throws IOException
+	{
+		boolean isURL = filePath.startsWith("http://") || filePath.startsWith("https://");
+
+		if (isURL)
+		{
+			return FileUtils.downloadFile(filePath, fileName);
+		}
+
+		if (filePath == null)
+		{
+			Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
+			filePath = LoggingConstants.SSJ_EXTERNAL_STORAGE;
+		}
+		File fileDirectory = new File(filePath);
+		if (fileName == null)
+		{
+			Log.e("file name not set");
+			return null;
+		}
+		return new File(fileDirectory, fileName);
+	}
 
 	/**
 	 * Downloads file from a given URL and saves it on the SD card with a given file name.
@@ -54,49 +83,45 @@ public class FileDownloader
 	 * @param fileName Name of the file.
 	 * @return Instance of the downloaded file.
 	 */
-	public static File downloadFile(String location, String fileName)
+	public static File downloadFile(String location, String fileName) throws IOException
 	{
 		float amountDownloaded = 0;
 
-		try
+		File destinationDir = new File(LoggingConstants.DOWNLOAD_MODELS_DIR);
+
+		// Create folders on the SD card if not already created.
+		destinationDir.mkdirs();
+
+		File downloadedFile = new File(destinationDir.getAbsolutePath(), fileName);
+
+		if (!downloadedFile.exists())
 		{
-			File destinationDir = new File(LoggingConstants.TENSORFLOW_MODELS_DIR);
+			Log.i("Starting to download '" + fileName + "'...");
+			URL fileURL = new URL(location + File.separator + fileName);
 
-			// Create folders on the SD card if not already created.
-			destinationDir.mkdirs();
+			InputStream input = fileURL.openStream();
+			FileOutputStream output = new FileOutputStream(downloadedFile);
 
-			File downloadedFile = new File(destinationDir.getAbsolutePath(), fileName);
+			byte[] buffer = new byte[BUFFER_SIZE];
+			int numberOfBytesRead;
 
-			if (!downloadedFile.exists())
+			Pipeline pipe = Pipeline.getInstance();
+			while ((numberOfBytesRead = input.read(buffer)) != EOF
+					&& (pipe.getState() == Pipeline.State.STARTING
+					|| pipe.getState() == Pipeline.State.RUNNING))
 			{
-				Log.i("Starting to download '" + fileName + "'...");
-				URL fileURL = new URL(location + File.separator + fileName);
+				output.write(buffer, 0, numberOfBytesRead);
 
-				InputStream input = fileURL.openStream();
-				FileOutputStream output = new FileOutputStream(downloadedFile);
-
-				byte[] buffer = new byte[BUFFER_SIZE];
-				int numberOfBytesRead;
-
-				while ((numberOfBytesRead = input.read(buffer)) != EOF)
-				{
-					output.write(buffer, 0, numberOfBytesRead);
-
-					amountDownloaded += numberOfBytesRead;
-					String progress = String.format(Locale.US, "%.2f", amountDownloaded / BYTES_IN_MEGABYTE);
-					Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
-				}
-
-				input.close();
-				output.close();
-
-				Log.i("File '" + fileName + "' downloaded successfully.");
+				amountDownloaded += numberOfBytesRead;
+				String progress = String.format(Locale.US, "%.2f", amountDownloaded / BYTES_IN_MEGABYTE);
+				Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
 			}
-			return downloadedFile;
+
+			input.close();
+			output.close();
+
+			Log.i("File '" + fileName + "' downloaded successfully.");
 		}
-		catch (Exception e)
-		{
-			throw new RuntimeException("Error while downloading " + location, e);
-		}
+		return downloadedFile;
 	}
 }
