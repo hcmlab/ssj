@@ -85,8 +85,6 @@ public class FileUtils
 	 */
 	public static File downloadFile(String location, String fileName) throws IOException
 	{
-		float amountDownloaded = 0;
-
 		File destinationDir = new File(LoggingConstants.DOWNLOAD_MODELS_DIR);
 
 		// Create folders on the SD card if not already created.
@@ -104,22 +102,29 @@ public class FileUtils
 
 			byte[] buffer = new byte[BUFFER_SIZE];
 			int numberOfBytesRead;
+			int totalBytesDownloaded = 0;
+			int counter = 0;
 
 			Pipeline pipe = Pipeline.getInstance();
-			while ((numberOfBytesRead = input.read(buffer)) != EOF
-					&& (pipe.getState() == Pipeline.State.STARTING
-					|| pipe.getState() == Pipeline.State.RUNNING))
+			while ((numberOfBytesRead = input.read(buffer)) != EOF)
 			{
 				output.write(buffer, 0, numberOfBytesRead);
 
-				amountDownloaded += numberOfBytesRead;
-				String progress = String.format(Locale.US, "%.2f", amountDownloaded / BYTES_IN_MEGABYTE);
-				Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
+				totalBytesDownloaded += numberOfBytesRead;
+
+				if (counter % 100 == 0)
+				{
+					String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / BYTES_IN_MEGABYTE);
+					Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
+					counter++;
+				}
 			}
 
 			input.close();
 			output.close();
 
+			String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / BYTES_IN_MEGABYTE);
+			Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
 			Log.i("File '" + fileName + "' downloaded successfully.");
 		}
 		return downloadedFile;
