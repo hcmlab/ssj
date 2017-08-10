@@ -310,6 +310,8 @@ public class PipelineBuilder
             }
         }
         //consumers
+        //Avoid reregistering consumers as eventlisteners if they are triggered by event
+        LinkedHashSet<ContainerElement<Consumer>> hsConsumerElementsNotTriggeredByEvent = new LinkedHashSet<>();
         for (ContainerElement<Consumer> element : hsConsumerElements)
         {
             element.getElement().setTriggeredByEvent(element.getEventTrigger());
@@ -317,10 +319,10 @@ public class PipelineBuilder
             if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
             {
                 if(element.getEventTrigger()){
-                    List<EventChannel> eventChannels = new ArrayList<EventChannel>();
+                    List<EventChannel> eventChannels = new ArrayList<>();
                     for(Component c : element.getHmEventProviders().keySet())
                     {
-                        eventChannels.add(framework.registerEventProvider(c));
+                        eventChannels.add(c.getEventChannelOut());
                     }
                     framework.addConsumer(element.getElement(),
                                           element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
@@ -330,6 +332,7 @@ public class PipelineBuilder
                     framework.addConsumer(element.getElement(),
                                           element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
                                           element.getFrameSize(), element.getDelta());
+                    hsConsumerElementsNotTriggeredByEvent.add(element);
                 }
             }
         }
@@ -337,7 +340,7 @@ public class PipelineBuilder
         buildEventPipeline(framework, hsSensorElements);
         buildEventPipeline(framework, hsSensorChannelElements);
         buildEventPipeline(framework, hsTransformerElements);
-        buildEventPipeline(framework, hsConsumerElements);
+        buildEventPipeline(framework, hsConsumerElementsNotTriggeredByEvent);
         buildEventPipeline(framework, hsEventHandlerElements);
     }
 
@@ -349,7 +352,7 @@ public class PipelineBuilder
             {
                 for(Component provider : element.getHmEventProviders().keySet())
                 {
-                    framework.registerEventListener(element.getElement(), provider);
+                    framework.registerEventListener(element.getElement(), provider.getEventChannelOut());
                 }
             }
         }
