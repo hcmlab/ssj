@@ -112,12 +112,13 @@ public class FileUtils
 
 				totalBytesDownloaded += numberOfBytesRead;
 
-				if (counter % 100 == 0)
+				if (counter % 200 == 0)
 				{
-					String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / BYTES_IN_MEGABYTE);
+					String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / (float)BYTES_IN_MEGABYTE);
 					Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
-					counter++;
 				}
+
+				counter++;
 			}
 
 			input.close();
