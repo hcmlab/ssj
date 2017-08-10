@@ -28,6 +28,8 @@ package hcm.ssj.creator.core.container;
 
 import java.util.LinkedHashMap;
 
+import hcm.ssj.core.Component;
+import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Provider;
 
 /**
@@ -39,7 +41,10 @@ public class ContainerElement<T>
     private T element;
     private double frameSize = 1;
     private double delta = 0;
-    private LinkedHashMap<Provider, Boolean> hmProviders = new LinkedHashMap<>();
+	private boolean eventTrigger = false;
+    private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
+    private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
+
 
     /**
      * @param element T
@@ -89,29 +94,39 @@ public class ContainerElement<T>
         this.delta = delta;
     }
 
+    public void setEventTrigger(boolean eventTrigger)
+	{
+		this.eventTrigger = eventTrigger;
+	}
+
+	public boolean getEventTrigger()
+	{
+		return eventTrigger;
+	}
+
     /**
      * @return LinkedHashMap
      */
-    public LinkedHashMap<Provider, Boolean> getHmProviders()
+    public LinkedHashMap<Provider, Boolean> getHmStreamProviders()
     {
-        return hmProviders;
+        return hmStreamProviders;
     }
 
     /**
      * @param provider Provider
      * @return boolean
      */
-    public boolean setAdded(Provider provider)
+    public boolean setStreamAdded(Provider provider)
     {
-        return hmProviders.containsKey(provider) && !hmProviders.put(provider, true);
+        return hmStreamProviders.containsKey(provider) && !hmStreamProviders.put(provider, true);
     }
 
     /**
      * @return boolean
      */
-    public boolean allAdded()
+    public boolean allStreamAdded()
     {
-        for (boolean value : hmProviders.values())
+        for (boolean value : hmStreamProviders.values())
         {
             if (!value)
             {
@@ -125,17 +140,43 @@ public class ContainerElement<T>
      * @param provider Provider
      * @return boolean
      */
-    public boolean addProvider(Provider provider)
+    public boolean addStreamProvider(Provider provider)
     {
-        return !hmProviders.containsKey(provider) && hmProviders.put(provider, false) == null;
+        return !hmStreamProviders.containsKey(provider) && hmStreamProviders.put(provider, false) == null;
     }
 
     /**
      * @param provider Provider
      * @return boolean
      */
-    public boolean removeProvider(Provider provider)
+    public boolean removeStreamProvider(Provider provider)
     {
-        return hmProviders.remove(provider) != null;
+        return hmStreamProviders.remove(provider) != null;
     }
+
+	/**
+	 * @return LinkedHashMap
+	 */
+	public LinkedHashMap<Component, Boolean> getHmEventProviders()
+	{
+		return hmEventProviders;
+	}
+
+	/**
+	 * @param provider Provider
+	 * @return boolean
+	 */
+	public boolean addEventProvider(Component provider)
+	{
+		return !hmEventProviders.containsKey(provider) && hmEventProviders.put(provider, false) == null;
+	}
+
+	/**
+	 * @param provider Provider
+	 * @return boolean
+	 */
+	public boolean removeEventProvider(Component provider)
+	{
+		return hmEventProviders.remove(provider) != null;
+	}
 }

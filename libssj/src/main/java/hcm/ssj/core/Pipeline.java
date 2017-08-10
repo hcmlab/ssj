@@ -349,6 +349,22 @@ public class Pipeline
      * init method of consumer is called after setting up internal input buffer.
      *
      * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @param channels the event channels which act as a trigger. The consumer will only process data when an event is received.
+     *                The data window to be processed is defined by the timing information of the event.
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addConsumer(Consumer c, Provider source, EventChannel[] channels) throws SSJException
+    {
+        Provider[] sources = {source};
+        addConsumer(c, sources, channels);
+    }
+
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
      * @param sources the components which will provide data to the consumer
      * @param channel an event channel which acts as a trigger. The consumer will only process data when an event is received.
      *                The data window to be processed is defined by the timing information of the event.
@@ -365,6 +381,31 @@ public class Pipeline
         c.setTriggeredByEvent(true);
         c.setup(sources);
         c.addEventChannelIn(channel);
+        components.add(c);
+    }
+
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param sources the components which will provide data to the consumer
+     * @param channels the event channels which act as a trigger. The consumer will only process data when an event is received.
+     *                The data window to be processed is defined by the timing information of the event.
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addConsumer(Consumer c, Provider[] sources, EventChannel[] channels) throws SSJException
+    {
+        if(components.contains(c))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
+        c.setTriggeredByEvent(true);
+        c.setup(sources);
+        for(EventChannel channel : channels)
+            c.addEventChannelIn(channel);
         components.add(c);
     }
 

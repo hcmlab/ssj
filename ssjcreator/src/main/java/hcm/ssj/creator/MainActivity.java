@@ -307,7 +307,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_providers:
             {
-                showAddDialog(R.string.str_channels, SSJDescriptor.getInstance().sensorChannels);
+                showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
                 return true;
             }
             case R.id.action_transformers:
@@ -318,6 +318,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_consumers:
             {
                 showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
+                return true;
+            }
+            case R.id.action_eventhandlers:
+            {
+                showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
                 return true;
             }
             case R.id.action_save:

@@ -52,13 +52,16 @@ public class EventLogger extends EventHandler
     {
         _name = "EventLogger";
         _doWakeLock = true;
+        Log.d("Instantiated EventLogger "+this.hashCode());
     }
 
-    int _lastBehavEventID = -1;
+    int _lastBehavEventID;
 
     @Override
     public void enter()
     {
+        _lastBehavEventID = -1;
+
         if(_evchannel_in == null || _evchannel_in.size() == 0)
             throw new RuntimeException("no input channels");
     }

@@ -40,7 +40,7 @@
             </item>
             <item
                 android:id="@+id/action_providers"
-                android:title="@string/str_channels">
+                android:title="@string/str_sensor_channels">
             </item>
             <item
                 android:id="@+id/action_transformers"
@@ -49,6 +49,10 @@
             <item
                 android:id="@+id/action_consumers"
                 android:title="@string/str_consumers">
+            </item>
+            <item
+                android:id="@+id/action_eventhandlers"
+                android:title="@string/str_eventhandlers">
             </item>
             <item
                 android:id="@+id/action_clear"

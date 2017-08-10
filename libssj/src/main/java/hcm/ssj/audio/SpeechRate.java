@@ -277,4 +277,15 @@ public class SpeechRate extends Consumer
             return data[index] > sum / (double)count + threshold;
         }
     }
+
+    @Override
+    public void clear()
+    {
+        super.clear();
+
+        _intensity = null;
+        _voiced = null;
+        _intensity_ind = -1;
+        _voiced_ind = -1;
+    }
 }
