@@ -49,10 +49,14 @@ class ConnectionView extends View
     private Paint paintConnection;
     private final static float STROKE_WIDTH = 2.0f;
     private final static int ARROW_ANGLE = 35;
+	private final static int HITBOX_FACTOR = 5;
+
 
     //
     private Path path;
-    private Bitmap intersectionBitmap;
+    private Bitmap intersectionBitmap = null;
+	private Canvas intersectionCanvas = null;
+	private Paint emptyCanvasFill;
 
 	private ConnectionType connectionType;
 
@@ -88,7 +92,10 @@ class ConnectionView extends View
             paintConnection.setStyle(Paint.Style.STROKE);
             paintConnection.setStrokeWidth(strokeWidth);
         }
-    }
+		emptyCanvasFill = new Paint();
+		emptyCanvasFill.setColor(Color.BLACK);
+		emptyCanvasFill.setStyle(Paint.Style.FILL);
+	}
 
     protected void drawComponentViews(ComponentView start, ComponentView destination, final int boxSize)
     {
@@ -152,18 +159,25 @@ class ConnectionView extends View
     @Override
     protected void onDraw(Canvas canvas)
     {
-        // Draw with higher strokewith in a hidden bitmap.
-        intersectionBitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.RGB_565 );
-        Canvas intersectionCanvas = new Canvas(intersectionBitmap);
-        if (path != null)
+		// Create intersection bitmap and canvas if not yet done.
+		if(intersectionBitmap == null || intersectionCanvas == null)
+		{
+			intersectionBitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.RGB_565);
+			intersectionCanvas = new Canvas(intersectionBitmap);
+		}
+
+		// Fill canvas with black. ("reset")
+		intersectionCanvas.drawPaint(emptyCanvasFill);
+
+		// Draw with higher strokewith in a hidden bitmap.
+		if (path != null)
         {
-            int hitboxFactor = 5;
 			ConnectionType oldType = connectionType;
 			setConnectionType(ConnectionType.STREAMCONNECTION);
 			intersectionCanvas.drawColor(Color.WHITE);
-            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() * hitboxFactor);
+            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() * HITBOX_FACTOR);
             intersectionCanvas.drawPath(path, paintConnection);
-            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() / hitboxFactor);
+            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() / HITBOX_FACTOR);
 			setConnectionType(oldType);
         }
 
@@ -195,17 +209,5 @@ class ConnectionView extends View
         int touchPointColor = intersectionBitmap.getPixel((int)motionEvent.getX(), (int) motionEvent.getY());
 
         return touchPointColor != Color.WHITE;
-    }
-
-    protected void toggleConnectionType()
-    {
-        if(connectionType == ConnectionType.STREAMCONNECTION)
-        {
-            setConnectionType(ConnectionType.EVENTCONNECTION);
-        }
-        else
-        {
-            setConnectionType(ConnectionType.STREAMCONNECTION);
-        }
     }
 }
