@@ -50,6 +50,7 @@ class ConnectionView extends View
     private final static float STROKE_WIDTH = 2.0f;
     private final static int ARROW_ANGLE = 35;
 	private final static int HITBOX_FACTOR = 5;
+	private final static float BEZIER_FACTOR = 35.0f;
 
 
     //
@@ -97,7 +98,7 @@ class ConnectionView extends View
 		emptyCanvasFill.setStyle(Paint.Style.FILL);
 	}
 
-    protected void drawComponentViews(ComponentView start, ComponentView destination, final int boxSize)
+    protected void drawConnectionViews(ComponentView start, ComponentView destination, final int boxSize)
     {
         this.startComponentView = start;
         this.destinationComponentView = destination;
@@ -128,8 +129,7 @@ class ConnectionView extends View
         startX += boxSize;
         startY += boxSize;
         path = new Path();
-        path.moveTo(stopX, stopY);
-        path.lineTo(startX, startY);
+
         //draw arrow
         //direction
         float dx = stopX - startX;
@@ -138,6 +138,25 @@ class ConnectionView extends View
         //get middle of line
         double middleX = (stopX + startX) / 2;
         double middleY = (stopY + startY) / 2;
+
+
+		path.moveTo(stopX, stopY);
+
+		// Draw connection as a curve if it's a event connection
+		if(connectionType == ConnectionType.EVENTCONNECTION)
+		{
+			float vLength = (float)Math.sqrt(dx*dx + dy*dy);
+			float normX = (dx / vLength) * boxSize * 2.0f;
+			float normY = (dy / vLength) * boxSize * 2.0f;
+			path.quadTo((float)(normY + middleX), (float)(-normX + middleY), startX, startY);
+			middleX += (normY/2.0);
+			middleY += (-normX/2.0);
+		}
+		else
+		{
+			path.lineTo(startX, startY);
+		}
+
         //position arrow in the middle
         middleX += triangleB / 2 * Math.cos(theta);
         middleY += triangleB / 2 * Math.sin(theta);
