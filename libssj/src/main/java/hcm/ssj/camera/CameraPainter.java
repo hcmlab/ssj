@@ -239,6 +239,9 @@ public class CameraPainter extends Consumer implements EventListener
 
                 if (canvas != null)
                 {
+                    // Clear canvas.
+                    canvas.drawColor(Color.BLACK);
+
                     int canvasWidth = canvas.getWidth();
                     int canvasHeight = canvas.getHeight();
 
@@ -274,10 +277,11 @@ public class CameraPainter extends Consumer implements EventListener
 
                     if (options.showBestMatch.get())
                     {
+                        // Draw label of the best match.
                         canvas.save();
                         canvas.rotate(270, canvasWidth / 2, canvasHeight / 2);
-                        canvas.drawText(bestMatch, 640 / 2, 480 / 2, exteriorPaint);
-                        canvas.drawText(bestMatch, 640 / 2, 480 / 2, interiorPaint);
+                        canvas.drawText(bestMatch, 25, 50, exteriorPaint);
+                        canvas.drawText(bestMatch, 25, 50, interiorPaint);
                         canvas.restore();
                     }
                 }

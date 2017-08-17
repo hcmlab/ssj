@@ -65,7 +65,6 @@ public class Classifier extends Consumer
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
         public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
-        public final Option<Boolean> showBestMatch = new Option<>("showBestMatch", false, Boolean.class, "show object label of the best match");
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
         public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
 
@@ -269,26 +268,41 @@ public class Classifier extends Consumer
 
         float[] probs = _model.forward(input);
 
-        if (_evchannel_out != null && options.showBestMatch.get())
+        if (_evchannel_out != null)
         {
-            // Get array index of element with largest probability.
-            int bestLabelIdx = TensorFlow.maxIndex(probs);
-            String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
-                                             _model.getClassNames()[bestLabelIdx],
-                                             probs[bestLabelIdx] * 100f);
+			if (_model.getName().equalsIgnoreCase("TensorFlow"))
+            {
+                // Get array index of element with largest probability.
+                int bestLabelIdx = TensorFlow.maxIndex(probs);
+                String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
+                                                 _model.getClassNames()[bestLabelIdx],
+                                                 probs[bestLabelIdx] * 100f);
 
-            Event ev = new StringEvent(bestMatch);
-            ev.sender = options.sender.get();
-            ev.name = options.event.get();
-            ev.time = (int)(1000 * stream_in[0].time + 0.5);
-            double duration = stream_in[0].num / stream_in[0].sr;
-            ev.dur = (int)(1000 * duration + 0.5);
-            ev.state = Event.State.COMPLETED;
+                Event ev = new StringEvent(bestMatch);
+                ev.sender = options.sender.get();
+                ev.name = options.event.get();
+                ev.time = (int)(1000 * stream_in[0].time + 0.5);
+                double duration = stream_in[0].num / stream_in[0].sr;
+                ev.dur = (int)(1000 * duration + 0.5);
+                ev.state = Event.State.COMPLETED;
 
-            _evchannel_out.pushEvent(ev);
+                _evchannel_out.pushEvent(ev);
+            }
+            else
+            {
+                Event ev = Event.create(Cons.Type.FLOAT);
+                ev.sender = options.sender.get();
+                ev.name = options.event.get();
+                ev.time = (int)(1000 * stream_in[0].time + 0.5);
+                double duration = stream_in[0].num / stream_in[0].sr;
+                ev.dur = (int)(1000 * duration + 0.5);
+                ev.state = Event.State.COMPLETED;
+
+                _evchannel_out.pushEvent(ev);
+            }
         }
 
-        if(options.log.get() && !options.showBestMatch.get())
+        if(options.log.get())
         {
             String[] class_names = _model.getClassNames();
             StringBuilder stringBuilder = new StringBuilder();
@@ -301,19 +315,6 @@ public class Classifier extends Consumer
             }
 
             Log.i(stringBuilder.toString());
-        }
-
-        if(_evchannel_out != null && !options.showBestMatch.get())
-        {
-            Event ev = Event.create(Cons.Type.FLOAT);
-            ev.sender = options.sender.get();
-            ev.name = options.event.get();
-            ev.time = (int)(1000 * stream_in[0].time + 0.5);
-            double duration = stream_in[0].num / stream_in[0].sr;
-            ev.dur = (int)(1000 * duration + 0.5);
-            ev.state = Event.State.COMPLETED;
-
-            _evchannel_out.pushEvent(ev);
         }
     }
 
