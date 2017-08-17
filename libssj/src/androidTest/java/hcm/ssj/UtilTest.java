@@ -93,7 +93,7 @@ public class UtilTest
     @Test
     public void test4() throws Exception
     {
-        int ITER = 100;
+        int ITER = 20;
         long start, delta, ff = 0, fb = 0, bf = 0;
         for (int i = 0; i < ITER; i++)
         {

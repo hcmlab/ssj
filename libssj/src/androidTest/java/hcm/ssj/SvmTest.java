@@ -96,6 +96,7 @@ public class SvmTest
         ClassifierT classifier = new ClassifierT();
         classifier.options.trainerPath.set(dir.getAbsolutePath());
         classifier.options.trainerFile.set(modelName);
+        classifier.options.numClasses.set(2);
         frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);
 
         // Consumer
