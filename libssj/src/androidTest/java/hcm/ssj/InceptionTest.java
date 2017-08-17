@@ -1,7 +1,8 @@
 /*
  * InceptionTest.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -33,17 +34,13 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageNormalizer;
-import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.camera.ImageResizer;
+import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
-
-import static android.support.test.InstrumentationRegistry.getContext;
 
 /**
  * Tests setting up, loading, and evaluating object classification

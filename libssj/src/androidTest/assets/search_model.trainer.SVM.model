@@ -714,3 +714,30 @@ SV
 -1 1:0.57223794 2:-0.88408896 3:-0.98622479 4:-0.69957948 5:-0.33611943 6:-0.47780451 7:0.11207851 8:-0.16887186 9:-0.31626804 10:-0.68958446 11:-0.59790402 12:0.25548026 13:-0.91589811 14:-0.54226895 15:-0.15906894 16:-0.57618532 17:-0.35081095 18:-0.13121254 19:-0.57329772 20:-0.38894487 21:-0.6153007 22:-0.91822598 23:-0.62762523 24:-0.71306778 25:-0.21545011 26:0.098800076 27:-0.85926325 28:0.78246215 29:-0.97819551 30:-0.15286715 31:-0.11111111 32:-0.4808547 33:-0.63979937 34:-0.50837883 35:-0.85984619 
 -1 1:0.7491195 2:-0.77716872 3:-0.77659116 4:-0.79726897 5:-0.35917503 6:-0.36514796 7:0.27064785 8:-0.24993537 9:-0.3024064 10:-0.63074026 11:-0.65535273 12:0.088788859 13:-0.74982498 14:-0.67901294 15:0.57958902 16:-0.45949198 17:-0.76679392 18:-0.17819867 19:-0.60001863 20:-0.60715267 21:-0.59519868 22:-0.74871296 23:-0.66815289 24:-0.66625769 25:0.10455805 26:-0.28980107 27:-0.90446614 28:-0.20343497 29:-0.73857155 30:-0.21573097 31:-0.20987654 32:-0.57496808 33:-0.72531666 34:-0.60169818 35:-0.90303535 
 -1 1:0.24182168 2:-0.78782408 3:-0.98266299 4:-0.87891468 5:0.021441627 6:-0.67881155 7:-0.032195895 8:-0.089429922 9:-0.37859039 10:-0.77347808 11:-0.45063229 12:0.52494166 13:-0.95614129 14:-0.78613543 15:0.044701117 16:-0.7219471 17:0.41818863 18:-0.1271718 19:-0.68491603 20:-0.58219152 21:-0.47213823 22:-0.95618014 23:-0.57153838 24:-0.62279174 25:-0.036118456 26:-0.13600686 27:-0.95407366 28:0.62201174 29:-0.97234406 30:-0.4038231 31:-0.33333333 32:-0.70993887 33:-0.79933367 34:-0.70561657 35:-0.93282673 
+<!--
+  ~ search_model.trainer.SVM.model
+  ~ Copyright (c) 2017
+  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+  ~ Vitalijs Krumins, Antonio Grieco
+  ~ ******************************************************
+  ~ This file is part of the Social Signal Interpretation for Java (SSJ) framework
+  ~ developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+  ~
+  ~ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+  ~ one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+  ~ to offer SSI's comprehensive functionality and performance (this is java after all).
+  ~ Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ This library is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, see <http://www.gnu.org/licenses/>.
+  -->
+

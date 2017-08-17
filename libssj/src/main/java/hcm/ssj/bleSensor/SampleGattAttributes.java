@@ -1,17 +1,28 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * SampleGattAttributes.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
+ * *****************************************************
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 3 of the License, or any later version.
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.bleSensor;
