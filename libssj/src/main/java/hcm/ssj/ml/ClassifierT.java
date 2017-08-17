@@ -1,7 +1,8 @@
 /*
- * Classifier.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * ClassifierT.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -190,25 +191,21 @@ public class ClassifierT extends Transformer
             Log.e("unable to load trainer file", e);
         }
 
-        //define output stream
-        if (_model.getClassNames() != null && stream_out.dim == _model.getNumClasses())
-        {
-            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
-            return;
-        }
-
-        if (stream_in.length > 1 && !options.merge.get())
-        {
-            Log.e("sources count not supported");
-        }
-
-        if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
-        {
-            Log.e("stream type not supported");
-        }
-
         if(_model == null || !_model.isTrained())
             Log.e("model not loaded");
+
+        if(stream_out.dim != _model.getNumClasses())
+            Log.e("specified num classes does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
+
+        //define output stream
+        if (_model.getClassNames() != null)
+            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
+
+        if (stream_in.length > 1 && !options.merge.get())
+            Log.e("sources count not supported");
+
+        if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
+            Log.e("stream type not supported");
 
         Stream[] input = stream_in;
         if(input[0].bytes != bytes || input[0].type != type) {
@@ -282,6 +279,9 @@ public class ClassifierT extends Transformer
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
+        if(options.numClasses.get() == 0)
+            Log.e("Number of classes not defined! It must be set in the options.");
+
         return options.numClasses.get();
     }
 

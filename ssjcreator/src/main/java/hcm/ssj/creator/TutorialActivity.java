@@ -1,7 +1,8 @@
 /*
- * Tutorial.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * TutorialActivity.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -49,8 +50,9 @@ public class TutorialActivity extends AppIntro
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide1_title), getResources().getString(R.string.slide1_text), R.drawable.logo, Color.parseColor("#0099CC")));
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide2_title), getResources().getString(R.string.slide2_text), R.drawable.file, Color.parseColor("#BB8930")));
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide3_title), getResources().getString(R.string.slide3_text), R.drawable.edit, Color.parseColor("#979797")));
-        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide4_title), getResources().getString(R.string.slide4_text), R.drawable.start, Color.parseColor("#4A82AE")));
-        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide5_title), getResources().getString(R.string.slide5_text), R.drawable.tabs, Color.parseColor("#4CAF50")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide4_title), getResources().getString(R.string.slide4_text), R.drawable.eventconnections, Color.parseColor("#FFD54F")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide5_title), getResources().getString(R.string.slide5_text), R.drawable.start, Color.parseColor("#4A82AE")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide6_title), getResources().getString(R.string.slide6_text), R.drawable.tabs, Color.parseColor("#963aff")));
 
         // OPTIONAL METHODS
         // Override bar/separator color.

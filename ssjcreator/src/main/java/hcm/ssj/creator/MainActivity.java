@@ -1,7 +1,8 @@
 /*
  * MainActivity.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -307,7 +308,7 @@ public class MainActivity extends AppCompatActivity
             }
             case R.id.action_providers:
             {
-                showAddDialog(R.string.str_channels, SSJDescriptor.getInstance().sensorChannels);
+                showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
                 return true;
             }
             case R.id.action_transformers:
@@ -318,6 +319,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_consumers:
             {
                 showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
+                return true;
+            }
+            case R.id.action_eventhandlers:
+            {
+                showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
                 return true;
             }
             case R.id.action_save:

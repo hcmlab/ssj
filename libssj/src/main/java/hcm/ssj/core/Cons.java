@@ -1,9 +1,10 @@
 /*
  * Cons.java
- * Copyright(android.media.AudioFormat.Copyright) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
- * This file is part of the Social Signal Interpretation for Java(android.media.AudioFormat.Java) framework
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
  * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a

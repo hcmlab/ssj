@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ colors.xml
-  ~ Copyright (c) 2016
-  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+  ~ Copyright (c) 2017
+  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+  ~ Vitalijs Krumins, Antonio Grieco
   ~ ******************************************************
   ~ This file is part of the Social Signal Interpretation for Java (SSJ) framework
   ~ developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -37,6 +38,9 @@
     <color name="colorProvider">#ed1c24</color>
     <color name="colorTransformer">#0F9D58</color>
     <color name="colorConsumer">#29b6f6</color>
+    <color name="colorEventHandler">#7c4dff</color>
 
     <color name="colorConnectionStream">#9e9e9e</color>
+    <color name="colorConnectionEvent">#383838</color>
+
 </resources>

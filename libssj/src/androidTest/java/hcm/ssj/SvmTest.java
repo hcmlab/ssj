@@ -1,7 +1,8 @@
 /*
- * AndroidSensorTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * SvmTest.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -96,6 +97,7 @@ public class SvmTest
         ClassifierT classifier = new ClassifierT();
         classifier.options.trainerPath.set(dir.getAbsolutePath());
         classifier.options.trainerFile.set(modelName);
+        classifier.options.numClasses.set(2);
         frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);
 
         // Consumer

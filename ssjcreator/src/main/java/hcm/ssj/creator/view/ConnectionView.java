@@ -1,7 +1,8 @@
 /*
  * ConnectionView.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -27,14 +28,18 @@
 package hcm.ssj.creator.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 
-import hcm.ssj.creator.R;
+import hcm.ssj.creator.util.ConnectionType;
+
 
 /**
  * Draws connections between elements. Directions are shown with an arrow.<br>
@@ -42,12 +47,37 @@ import hcm.ssj.creator.R;
  */
 class ConnectionView extends View
 {
-    private static Paint paintConnection;
+    private Paint paintConnection;
     private final static float STROKE_WIDTH = 2.0f;
     private final static int ARROW_ANGLE = 35;
+	private final static int HITBOX_FACTOR = 5;
+
 
     //
     private Path path;
+    private Bitmap intersectionBitmap = null;
+	private Canvas intersectionCanvas = null;
+	private Paint emptyCanvasFill;
+
+	private ConnectionType connectionType;
+
+	private ComponentView startComponentView;
+	private ComponentView destinationComponentView;
+
+	public ConnectionType getConnectionType()
+	{
+		return connectionType;
+	}
+
+	public ComponentView getStartComponentView()
+	{
+		return startComponentView;
+	}
+
+	public ComponentView getDestinationComponentView()
+	{
+		return destinationComponentView;
+	}
 
     /**
      * @param context Context
@@ -61,9 +91,21 @@ class ConnectionView extends View
             float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
             paintConnection = new Paint(Paint.ANTI_ALIAS_FLAG);
             paintConnection.setStyle(Paint.Style.STROKE);
-            paintConnection.setColor(getResources().getColor(R.color.colorConnectionStream));
             paintConnection.setStrokeWidth(strokeWidth);
         }
+		emptyCanvasFill = new Paint();
+		emptyCanvasFill.setColor(Color.BLACK);
+		emptyCanvasFill.setStyle(Paint.Style.FILL);
+	}
+
+    protected void drawComponentViews(ComponentView start, ComponentView destination, final int boxSize)
+    {
+        this.startComponentView = start;
+        this.destinationComponentView = destination;
+
+        setLine(destinationComponentView.getX(), destinationComponentView.getY(),
+                startComponentView.getX(), startComponentView.getY(),
+                boxSize);
     }
 
     /**
@@ -73,7 +115,7 @@ class ConnectionView extends View
      * @param startY  float
      * @param boxSize int
      */
-    protected void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
+    private void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
     {
         //calc triangle
         int arrowLength = (int) (boxSize / 1.42f + 0.5f);
@@ -118,6 +160,28 @@ class ConnectionView extends View
     @Override
     protected void onDraw(Canvas canvas)
     {
+		// Create intersection bitmap and canvas if not yet done.
+		if(intersectionBitmap == null || intersectionCanvas == null)
+		{
+			intersectionBitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.RGB_565);
+			intersectionCanvas = new Canvas(intersectionBitmap);
+		}
+
+		// Fill canvas with black. ("reset")
+		intersectionCanvas.drawPaint(emptyCanvasFill);
+
+		// Draw with higher strokewith in a hidden bitmap.
+		if (path != null)
+        {
+			ConnectionType oldType = connectionType;
+			setConnectionType(ConnectionType.STREAMCONNECTION);
+			intersectionCanvas.drawColor(Color.WHITE);
+            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() * HITBOX_FACTOR);
+            intersectionCanvas.drawPath(path, paintConnection);
+            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() / HITBOX_FACTOR);
+			setConnectionType(oldType);
+        }
+
         super.onDraw(canvas);
         canvas.save();
         if (path != null)
@@ -125,5 +189,26 @@ class ConnectionView extends View
             canvas.drawPath(path, paintConnection);
         }
         canvas.restore();
+    }
+
+    protected void setConnectionType(ConnectionType connectionType)
+	{
+        this.connectionType = connectionType;
+		// PathEffect
+		paintConnection.setPathEffect(connectionType.getPathEffect());
+		//Color
+		paintConnection.setColor(getResources().getColor(connectionType.getColor()));
+	}
+
+    /**
+     *  Checks if the motionEvent is on the drawn hidden bitmap.
+     * @param motionEvent MotionEvent
+     * @return Motion event is on path.
+     */
+	protected boolean isOnPath(MotionEvent motionEvent)
+    {
+        int touchPointColor = intersectionBitmap.getPixel((int)motionEvent.getX(), (int) motionEvent.getY());
+
+        return touchPointColor != Color.WHITE;
     }
 }

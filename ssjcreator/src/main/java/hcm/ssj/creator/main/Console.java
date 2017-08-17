@@ -1,7 +1,8 @@
 /*
  * Console.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -74,8 +75,22 @@ class Console implements ITab
             {
                 try
                 {
+
+                    //Check if scrollView is at the very bottom.
+                    boolean onBottom = false;
+                    if(view instanceof ScrollView)
+                    {
+                        onBottom = !view.canScrollVertically(1);
+                    }
+
                     handlerLog.post(runnableLog);
                     Thread.sleep(sleepTime);
+
+                    // Scroll to the bottom if it was on bottom before posting the new message
+                    if(view instanceof ScrollView && onBottom)
+                    {
+                        ((ScrollView) view).fullScroll(ScrollView.FOCUS_DOWN);
+                    }
                 } catch (InterruptedException ex)
                 {
                     ex.printStackTrace();

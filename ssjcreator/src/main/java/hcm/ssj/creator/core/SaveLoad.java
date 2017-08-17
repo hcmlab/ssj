@@ -1,7 +1,8 @@
 /*
  * SaveLoad.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -44,11 +45,12 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
@@ -57,6 +59,7 @@ import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.core.container.ContainerElement;
+import hcm.ssj.creator.util.ConnectionType;
 
 /**
  * Save and load files in a {@link PipelineBuilder} friendly format.<br>
@@ -72,10 +75,12 @@ public abstract class SaveLoad
     private final static String SENSOR_LIST = "sensorList";
     private final static String TRANSFORMER_LIST = "transformerList";
     private final static String CONSUMER_LIST = "consumerList";
+    private final static String EVENT_HANDLER_LIST = "eventHandlerList";
     private final static String SENSOR_CHANNEL = "sensorChannel";
     private final static String SENSOR = "sensor";
     private final static String TRANSFORMER = "transformer";
     private final static String CONSUMER = "consumer";
+    private final static String EVENT_HANDLER = "eventHandler";
     private final static String CLASS = "class";
     private final static String ID = "id";
     private final static String OPTIONS = "options";
@@ -84,8 +89,11 @@ public abstract class SaveLoad
     private final static String VALUE = "value";
     private final static String CHANNEL_ID = "providerId";
     private final static String CHANNEL_LIST = "providerList";
+    private final static String EVENT_CHANNEL_ID = "eventProviderId";
+    private final static String EVENT_CHANNEL_LIST = "eventProviderList";
     private final static String FRAME_SIZE = "frameSize";
     private final static String DELTA = "delta";
+    private final static String EVENT_TRIGGER = "eventTrigger";
 
     /**
      * Saves the values in {@link PipelineBuilder}
@@ -121,13 +129,9 @@ public abstract class SaveLoad
             serializer.endTag(null, FRAMEWORK);
             //sensorChannels
             serializer.startTag(null, SENSOR_CHANNEL_LIST);
-            LinkedHashSet<SensorChannel> hsSensorChannels = PipelineBuilder.getInstance().hsSensorChannels;
-            for (SensorChannel sensorChannel : hsSensorChannels)
+            for (ContainerElement<SensorChannel> containerElement : PipelineBuilder.getInstance().hsSensorChannelElements)
             {
-                serializer.startTag(null, SENSOR_CHANNEL);
-                addStandard(serializer, sensorChannel);
-                addOptions(serializer, sensorChannel);
-                serializer.endTag(null, SENSOR_CHANNEL);
+                addContainerElement(serializer, SENSOR_CHANNEL, containerElement, false);
             }
             serializer.endTag(null, SENSOR_CHANNEL_LIST);
             //sensors
@@ -151,6 +155,13 @@ public abstract class SaveLoad
                 addContainerElement(serializer, CONSUMER, containerElement, true);
             }
             serializer.endTag(null, CONSUMER_LIST);
+            //eventhandler
+            serializer.startTag(null, EVENT_HANDLER_LIST);
+            for (ContainerElement<EventHandler> containerElement : PipelineBuilder.getInstance().hsEventHandlerElements)
+            {
+                addContainerElement(serializer, EVENT_HANDLER, containerElement, true);
+            }
+            serializer.endTag(null, EVENT_HANDLER_LIST);
             //finish document
             serializer.endTag(null, ROOT);
             serializer.endDocument();
@@ -264,12 +275,14 @@ public abstract class SaveLoad
                         }
                         case TRANSFORMER:
                         case CONSUMER:
+                        case EVENT_HANDLER:
                         {
                             String clazz = parser.getAttributeValue(null, CLASS);
                             context = Class.forName(clazz).newInstance();
                             PipelineBuilder.getInstance().add(context);
                             PipelineBuilder.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
                             PipelineBuilder.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
+                            PipelineBuilder.getInstance().setEventTrigger(context, Boolean.valueOf(parser.getAttributeValue(null, EVENT_TRIGGER)));
                             String hash = parser.getAttributeValue(null, ID);
                             LinkContainer container = new LinkContainer();
                             container.hash = Integer.parseInt(hash);
@@ -279,27 +292,41 @@ public abstract class SaveLoad
                         case CHANNEL_ID:
                         {
                             String hash = parser.getAttributeValue(null, ID);
-                            map.get(context).hashes.add(Integer.parseInt(hash));
+                            map.get(context).typedHashes.put(Integer.parseInt(hash), ConnectionType.STREAMCONNECTION);
+                            break;
+                        }
+                        case EVENT_CHANNEL_ID:
+                        {
+                            String hash = parser.getAttributeValue(null, ID);
+                            map.get(context).typedHashes.put(Integer.parseInt(hash), ConnectionType.EVENTCONNECTION);
                             break;
                         }
                     }
                 }
                 parser.nextTag();
             }
-            //set connections
+            //set stream connections
             for (Map.Entry<Object, LinkContainer> entry : map.entrySet())
             {
                 Object key = entry.getKey();
                 LinkContainer value = entry.getValue();
-                for (int provider : value.hashes)
+
+                for (int provider : value.typedHashes.keySet())
                 {
                     for (Map.Entry<Object, LinkContainer> candidate : map.entrySet())
                     {
                         Object candidateKey = candidate.getKey();
                         LinkContainer candidateValue = candidate.getValue();
-                        if (candidateValue.hash == provider)
+                        if(candidateValue.hash == provider)
                         {
-                            PipelineBuilder.getInstance().addProvider(key, (Provider) candidateKey);
+                            if (value.typedHashes.get(provider).equals(ConnectionType.STREAMCONNECTION))
+                            {
+                                PipelineBuilder.getInstance().addStreamProvider(key, (Provider) candidateKey);
+                            }
+                            if (value.typedHashes.get(provider).equals(ConnectionType.EVENTCONNECTION))
+                            {
+                                PipelineBuilder.getInstance().addEventProvider(key, (Component) candidateKey);
+                            }
                         }
                     }
                 }
@@ -390,17 +417,30 @@ public abstract class SaveLoad
         {
             serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
             serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
+            serializer.attribute(null, EVENT_TRIGGER, String.valueOf(containerElement.getEventTrigger()));
         }
         addOptions(serializer, containerElement.getElement());
-        HashMap<Provider, Boolean> hashMap = containerElement.getHmProviders();
+
+        HashMap<Provider, Boolean> streamHashMap = containerElement.getHmStreamProviders();
         serializer.startTag(null, CHANNEL_LIST);
-        for (Map.Entry<Provider, Boolean> element : hashMap.entrySet())
+        for (Map.Entry<Provider, Boolean> element : streamHashMap.entrySet())
         {
             serializer.startTag(null, CHANNEL_ID);
             serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
             serializer.endTag(null, CHANNEL_ID);
         }
         serializer.endTag(null, CHANNEL_LIST);
+
+        HashMap<Component, Boolean> eventHashMap = containerElement.getHmEventProviders();
+        serializer.startTag(null, EVENT_CHANNEL_LIST);
+        for (Map.Entry<Component, Boolean> element : eventHashMap.entrySet())
+        {
+            serializer.startTag(null, EVENT_CHANNEL_ID);
+            serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+            serializer.endTag(null, EVENT_CHANNEL_ID);
+        }
+        serializer.endTag(null, EVENT_CHANNEL_LIST);
+
         serializer.endTag(null, tag);
     }
 
@@ -410,7 +450,7 @@ public abstract class SaveLoad
     private static class LinkContainer
     {
         int hash;
-        ArrayList<Integer> hashes = new ArrayList<>();
+        Map<Integer, ConnectionType> typedHashes = new HashMap<>();
     }
 
     private static String convertOldVersion(File file) throws IOException

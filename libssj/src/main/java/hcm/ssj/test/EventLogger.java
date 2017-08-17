@@ -1,7 +1,8 @@
 /*
  * EventLogger.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -52,13 +53,16 @@ public class EventLogger extends EventHandler
     {
         _name = "EventLogger";
         _doWakeLock = true;
+        Log.d("Instantiated EventLogger "+this.hashCode());
     }
 
-    int _lastBehavEventID = -1;
+    int _lastBehavEventID;
 
     @Override
     public void enter()
     {
+        _lastBehavEventID = -1;
+
         if(_evchannel_in == null || _evchannel_in.size() == 0)
             throw new RuntimeException("no input channels");
     }

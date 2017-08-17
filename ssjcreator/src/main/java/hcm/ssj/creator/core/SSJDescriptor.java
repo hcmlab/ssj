@@ -1,7 +1,8 @@
 /*
- * Builder.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * SSJDescriptor.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -55,7 +56,7 @@ public class SSJDescriptor
     public ArrayList<Class> sensorChannels = new ArrayList<>();
     public ArrayList<Class> transformers = new ArrayList<>();
     public ArrayList<Class> consumers = new ArrayList<>();
-    public ArrayList<Class> eventConsumers = new ArrayList<>();
+    public ArrayList<Class> eventHandlers = new ArrayList<>();
     private HashSet<String> hsClassNames = new HashSet<>();
 
     /**
@@ -141,9 +142,9 @@ public class SSJDescriptor
                         } else if (parent.getSimpleName().compareToIgnoreCase("Consumer") == 0)
                         {
                             consumers.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("EventConsumer") == 0)
+                        } else if (parent.getSimpleName().compareToIgnoreCase("EventHandler") == 0)
                         {
-                            eventConsumers.add(aClass);
+                            eventHandlers.add(aClass);
                         }
                         parent = parent.getSuperclass();
                     }

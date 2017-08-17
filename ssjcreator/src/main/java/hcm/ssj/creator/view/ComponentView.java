@@ -1,7 +1,8 @@
 /*
- * ElementView.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * ComponentView.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -41,6 +42,7 @@ import android.view.ViewGroup;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
@@ -54,8 +56,8 @@ import hcm.ssj.creator.R;
  */
 class ComponentView extends View
 {
-    private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer};
-    private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE};
+    private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler};
+    private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
 
     private static Paint[] paintsElementBox;
     private static Paint[] paintElementText;
@@ -64,7 +66,10 @@ class ComponentView extends View
     private final static float STROKE_WIDTH = 0.25f;
     //
     private Object element;
-    private int[] connectionHashes;
+
+    private int[] streamConnectionHashes;
+    private int[] eventConnectionHashes;
+
     private String text;
     private int gridX = -1;
     private int gridY = -1;
@@ -140,17 +145,33 @@ class ComponentView extends View
     /**
      * @return int[]
      */
-    protected int[] getConnectionHashes()
+    protected int[] getStreamConnectionHashes()
     {
-        return connectionHashes;
+        return streamConnectionHashes;
     }
 
     /**
      * @param connectionHashes int[]
      */
-    protected void setConnectionHashes(int[] connectionHashes)
+    protected void setStreamConnectionHashes(int[] connectionHashes)
     {
-        this.connectionHashes = connectionHashes;
+        this.streamConnectionHashes = connectionHashes;
+    }
+
+    /**
+     * @return int[]
+     */
+    protected int[] getEventConnectionHashes()
+    {
+        return eventConnectionHashes;
+    }
+
+    /**
+     * @param connectionHashes int[]
+     */
+    protected void setEventConnectionHashes(int[] connectionHashes)
+    {
+        this.eventConnectionHashes = connectionHashes;
     }
 
     /**
@@ -251,6 +272,9 @@ class ComponentView extends View
         } else if (element instanceof Consumer)
         {
             paintType = 3;
+        } else if (element instanceof EventHandler)
+        {
+            paintType = 4;
         }
     }
 

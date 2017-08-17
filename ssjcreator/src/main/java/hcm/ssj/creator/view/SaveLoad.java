@@ -1,7 +1,8 @@
 /*
  * SaveLoad.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -74,7 +75,8 @@ abstract class SaveLoad
      */
     static boolean save(Object o,
                         ArrayList<ComponentView> providers, ArrayList<ComponentView> sensors,
-                        ArrayList<ComponentView> transformers, ArrayList<ComponentView> consumers)
+                        ArrayList<ComponentView> transformers, ArrayList<ComponentView> consumers,
+                        ArrayList<ComponentView> eventHandlers)
     {
         File fileOrig = (File) o;
         File file = new File(fileOrig.getParentFile().getPath(), fileOrig.getName().replace(Util.SUFFIX, "") + SUFFIX);
@@ -126,6 +128,11 @@ abstract class SaveLoad
             }
             //consumers
             for (ComponentView componentView : consumers)
+            {
+                addComponentView(serializer, componentView);
+            }
+            //eventHandlers
+            for (ComponentView componentView : eventHandlers)
             {
                 addComponentView(serializer, componentView);
             }

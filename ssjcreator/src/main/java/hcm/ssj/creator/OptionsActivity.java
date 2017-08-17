@@ -1,7 +1,8 @@
 /*
  * OptionsActivity.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -31,6 +32,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -80,8 +85,18 @@ public class OptionsActivity extends AppCompatActivity
                 || innerObject instanceof Consumer))
         {
             //add frame size and delta
-            tableLayout.addView(createTextView(true));
-            tableLayout.addView(createTextView(false));
+            TableRow frameSizeTableRow = createTextView(true);
+            TableRow deltaTableRow = createTextView(false);
+            tableLayout.addView(frameSizeTableRow);
+            tableLayout.addView(deltaTableRow);
+
+            if(innerObject instanceof Consumer)
+            {
+                boolean triggeredByEvent = PipelineBuilder.getInstance().getEventTrigger(innerObject);
+                setEnabledRecursive(frameSizeTableRow, !triggeredByEvent);
+                setEnabledRecursive(deltaTableRow, !triggeredByEvent);
+                tableLayout.addView(createConsumerTextView(frameSizeTableRow, deltaTableRow));
+            }
         }
         //add options
         if (options != null && options.length > 0)
@@ -92,18 +107,37 @@ public class OptionsActivity extends AppCompatActivity
                             || innerObject instanceof Consumer)));
         }
         //add possible providers for sensor, transformer or consumer
-        if (innerObject != null
-                && (innerObject instanceof Sensor
-                || innerObject instanceof Transformer
-                || innerObject instanceof Consumer))
+        if (innerObject != null && innerObject instanceof Sensor)
         {
-            //add possible providers
-            TableRow tableRow = ProviderTable.createTable(this, innerObject,
-                    (innerObject instanceof Transformer || innerObject instanceof Consumer)
-                            || (innerObject instanceof Sensor && options != null && options.length > 0));
-            if (tableRow != null)
+            //add possible stream providers
+            TableRow streamTableRow = ProviderTable.createStreamTable(this, innerObject,
+                                                                      (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                              || (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_stream_output);
+            if (streamTableRow != null)
             {
-                tableLayout.addView(tableRow);
+                tableLayout.addView(streamTableRow);
+            }
+        }
+        if (innerObject != null && (innerObject instanceof Transformer || innerObject instanceof Consumer))
+        {
+            //add possible stream providers
+            TableRow streamTableRow = ProviderTable.createStreamTable(this, innerObject,
+                                                                      (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                              || (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_stream_input);
+            if (streamTableRow != null)
+            {
+                tableLayout.addView(streamTableRow);
+            }
+        }
+        if(innerObject != null)
+        {
+            //add possible event providers
+            TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
+                                                                    (innerObject instanceof Transformer || innerObject instanceof Consumer)
+                                                                            || (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
+            if (eventTableRow != null)
+            {
+                tableLayout.addView(eventTableRow);
             }
         }
     }
@@ -183,6 +217,69 @@ public class OptionsActivity extends AppCompatActivity
         linearLayout.addView(textView);
         tableRow.addView(linearLayout);
         return tableRow;
+    }
+
+    /**
+     * @param frameSizeTableRow
+     * @param deltaTableRow
+     * @return
+     */
+    private TableRow createConsumerTextView(final TableRow frameSizeTableRow, final TableRow deltaTableRow)
+    {
+        TableRow tableRow = new TableRow(this);
+        tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
+        LinearLayout linearLayout = new LinearLayout(this);
+        linearLayout.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT));
+        linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+        linearLayout.setWeightSum(1.0f);
+
+        final CheckBox eventTriggerCheckbox = new CheckBox(this);
+        eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
+        eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked)
+            {
+                setEnabledRecursive(frameSizeTableRow, !isChecked);
+                setEnabledRecursive(deltaTableRow, !isChecked);
+                PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
+            }
+        });
+        linearLayout.addView(eventTriggerCheckbox);
+        TextView textView = new TextView(this);
+        textView.setText(R.string.str_eventrigger);
+        textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
+        textView.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v)
+            {
+                eventTriggerCheckbox.toggle();
+            }
+        });
+        linearLayout.addView(textView);
+        tableRow.addView(linearLayout);
+
+        return tableRow;
+    }
+
+    private void setEnabledRecursive(final View view, final boolean enabled) {
+        if(view instanceof ViewGroup)
+        {
+            for(int i=0; i < ((ViewGroup) view).getChildCount(); i++)
+            {
+                setEnabledRecursive(((ViewGroup) view).getChildAt(i), enabled);
+            }
+        }
+        else {
+            view.post(new Runnable() {
+                @Override
+                public void run()
+                {
+                    view.setEnabled(enabled);
+                }
+            });
+        }
     }
 
     /**

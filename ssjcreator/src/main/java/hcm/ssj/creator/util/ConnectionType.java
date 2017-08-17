@@ -1,5 +1,5 @@
 /*
- * ExceptionHandler.java
+ * ConnectionType.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,12 +25,38 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core;
+package hcm.ssj.creator.util;
+
+import android.graphics.DashPathEffect;
+import android.graphics.PathEffect;
+
+import hcm.ssj.creator.R;
 
 /**
- * Created by damia on 06.04.2016.
+ * Created by Antonio Grieco on 29.06.2017.
  */
-public interface ExceptionHandler {
 
-    void handle(String location, String msg, Throwable t);
+public enum ConnectionType{
+
+	STREAMCONNECTION(new PathEffect(), R.color.colorConnectionStream),
+	EVENTCONNECTION(new DashPathEffect(new float[]{20f,  30f}, 0), R.color.colorConnectionEvent);
+
+	private final PathEffect pathEffect;
+	private final int color;
+
+	ConnectionType(PathEffect pathEffect, int color)
+	{
+		this.pathEffect = pathEffect;
+		this.color = color;
+	}
+
+	public PathEffect getPathEffect()
+	{
+		return pathEffect;
+	}
+
+	public int getColor()
+	{
+		return color;
+	}
 }
