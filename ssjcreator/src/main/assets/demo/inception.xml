@@ -1,0 +1,104 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="3">
+  <framework>
+    <options>
+      <option name="bufferSize" value="2.0" />
+      <option name="clockSyncInterval" value="1.0" />
+      <option name="clockSyncPort" value="0" />
+      <option name="countdown" value="3" />
+      <option name="log" value="false" />
+      <option name="loglevel" value="INFO" />
+      <option name="logpath" value="/storage/emulated/0/SSJ/[time]" />
+      <option name="logtimeout" value="5.0" />
+      <option name="startSyncPort" value="0" />
+      <option name="waitSensorConnect" value="5.0" />
+      <option name="waitThreadKill" value="30.0" />
+    </options>
+  </framework>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="268144268">
+      <options>
+        <option name="sampleRate" value="1.0" />
+      </options>
+    </sensorChannel>
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="39962090">
+      <options>
+        <option name="sampleRate" value="15.0" />
+      </options>
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.camera.CameraSensor" id="91123795">
+      <options>
+        <option name="cameraInfo" value="0" />
+        <option name="height" value="480" />
+        <option name="imageFormat" value="17" />
+        <option name="previewFpsRangeMax" value="15" />
+        <option name="previewFpsRangeMin" value="15" />
+        <option name="showSupportedValues" value="false" />
+        <option name="width" value="640" />
+      </options>
+      <providerList>
+        <providerId id="268144268" />
+        <providerId id="39962090" />
+      </providerList>
+    </sensor>
+  </sensorList>
+  <transformerList>
+    <transformer class="hcm.ssj.camera.NV21ToRGBDecoder" id="138417801" frameSize="1.0" delta="0.0">
+      <options />
+      <providerList>
+        <providerId id="268144268" />
+      </providerList>
+    </transformer>
+    <transformer class="hcm.ssj.camera.ImageResizer" id="211369640" frameSize="1.0" delta="0.0">
+      <options>
+        <option name="cropImage" value="false" />
+        <option name="maintainAspect" value="true" />
+        <option name="rotation" value="90" />
+        <option name="savePreview" value="false" />
+        <option name="size" value="224" />
+      </options>
+      <providerList>
+        <providerId id="138417801" />
+      </providerList>
+    </transformer>
+    <transformer class="hcm.ssj.camera.ImageNormalizer" id="177708372" frameSize="1.0" delta="0.0">
+      <options>
+        <option name="imageMean" value="117" />
+        <option name="imageStd" value="1.0" />
+      </options>
+      <providerList>
+        <providerId id="211369640" />
+      </providerList>
+    </transformer>
+  </transformerList>
+  <consumerList>
+    <consumer class="hcm.ssj.ml.Classifier" id="189634229" frameSize="1.0" delta="0.0">
+      <options>
+        <option name="event" value="Result" />
+        <option name="log" value="true" />
+        <option name="merge" value="false" />
+        <option name="sender" value="Classifier" />
+        <option name="showLabel" value="true" />
+        <option name="trainerFile" value="inception.trainer" />
+        <option name="trainerPath" value="/storage/emulated/0/SSJ/models" />
+      </options>
+      <providerList>
+        <providerId id="177708372" />
+      </providerList>
+    </consumer>
+    <consumer class="hcm.ssj.camera.CameraPainter" id="229042029" frameSize="0.1" delta="0.0">
+      <options>
+        <option name="colorFormat" value="NV21_UV_SWAPPED" />
+        <option name="height" value="480" />
+        <option name="orientation" value="90" />
+        <option name="scale" value="true" />
+        <option name="width" value="640" />
+      </options>
+      <providerList>
+        <providerId id="39962090" />
+      </providerList>
+    </consumer>
+  </consumerList>
+</ssjSaveFile>
