@@ -197,7 +197,7 @@ class CameraUtil
      */
     public static void saveBitmap(final Bitmap bitmap, final String filename) {
         final String root =
-                LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "tensorflow";
+                LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "previews";
         final File myDir = new File(root);
 
         if (!myDir.mkdirs()) {

@@ -87,7 +87,7 @@ public class NV21ToRGBDecoderTest
 		frame.addTransformer(decoder, cameraChannel, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		ImageResizer resizer = new ImageResizer();
-		resizer.options.cropSize.set(CROP_SIZE);
+		resizer.options.size.set(CROP_SIZE);
 		frame.addTransformer(resizer, decoder, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		// Add consumer to the pipeline

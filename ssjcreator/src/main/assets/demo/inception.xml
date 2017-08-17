@@ -1,0 +1,115 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="3">
+  <framework>
+    <options>
+      <option name="bufferSize" value="2.0" />
+      <option name="clockSyncInterval" value="1.0" />
+      <option name="clockSyncPort" value="0" />
+      <option name="countdown" value="3" />
+      <option name="log" value="false" />
+      <option name="loglevel" value="INFO" />
+      <option name="logpath" value="/storage/emulated/0/SSJ/[time]" />
+      <option name="logtimeout" value="5.0" />
+      <option name="startSyncPort" value="0" />
+      <option name="waitSensorConnect" value="5.0" />
+      <option name="waitThreadKill" value="30.0" />
+    </options>
+  </framework>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="113176145">
+      <options>
+        <option name="sampleRate" value="1.0" />
+      </options>
+      <providerList />
+      <eventProviderList />
+    </sensorChannel>
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="9642788">
+      <options>
+        <option name="sampleRate" value="15.0" />
+      </options>
+      <providerList />
+      <eventProviderList />
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.camera.CameraSensor" id="51024453">
+      <options>
+        <option name="cameraInfo" value="0" />
+        <option name="height" value="480" />
+        <option name="imageFormat" value="17" />
+        <option name="previewFpsRangeMax" value="15" />
+        <option name="previewFpsRangeMin" value="15" />
+        <option name="showSupportedValues" value="false" />
+        <option name="width" value="640" />
+      </options>
+      <providerList>
+        <providerId id="9642788" />
+        <providerId id="113176145" />
+      </providerList>
+      <eventProviderList />
+    </sensor>
+  </sensorList>
+  <transformerList>
+    <transformer class="hcm.ssj.camera.NV21ToRGBDecoder" id="148477643" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options />
+      <providerList>
+        <providerId id="113176145" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+    <transformer class="hcm.ssj.camera.ImageResizer" id="131606002" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="cropImage" value="false" />
+        <option name="maintainAspect" value="true" />
+        <option name="rotation" value="90" />
+        <option name="savePreview" value="false" />
+        <option name="size" value="224" />
+      </options>
+      <providerList>
+        <providerId id="148477643" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+    <transformer class="hcm.ssj.camera.ImageNormalizer" id="104771390" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="imageMean" value="117" />
+        <option name="imageStd" value="1.0" />
+      </options>
+      <providerList>
+        <providerId id="131606002" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+  </transformerList>
+  <consumerList>
+    <consumer class="hcm.ssj.ml.Classifier" id="22689175" frameSize="1.0" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="event" value="Result" />
+        <option name="log" value="true" />
+        <option name="merge" value="false" />
+        <option name="sender" value="Classifier" />
+        <option name="showLabel" value="true" />
+        <option name="trainerFile" value="inception.trainer" />
+        <option name="trainerPath" value="https://raw.githubusercontent.com/hcmlab/ssj/master/models" />
+      </options>
+      <providerList>
+        <providerId id="104771390" />
+      </providerList>
+      <eventProviderList />
+    </consumer>
+    <consumer class="hcm.ssj.camera.CameraPainter" id="180895887" frameSize="0.1" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="colorFormat" value="NV21_UV_SWAPPED" />
+        <option name="height" value="480" />
+        <option name="orientation" value="90" />
+        <option name="scale" value="true" />
+        <option name="width" value="640" />
+      </options>
+      <providerList>
+        <providerId id="9642788" />
+      </providerList>
+      <eventProviderList />
+    </consumer>
+  </consumerList>
+  <eventHandlerList />
+</ssjSaveFile>
