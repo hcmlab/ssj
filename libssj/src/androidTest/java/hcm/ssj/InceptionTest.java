@@ -57,12 +57,12 @@ public class InceptionTest
 	public void loadInceptionModel() throws Exception
 	{
 		String trainerName = "inception.trainer";
-		String trainerURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets";
+		String trainerURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/models";
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
-		int width = 320;
-		int height = 240;
+		int width = 640;
+		int height = 480;
 
 		final int IMAGE_MEAN = 117;
 		final float IMAGE_STD = 1;
@@ -93,6 +93,7 @@ public class InceptionTest
 		// Add image resizer to the pipeline
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
+		resizer.options.cropImage.set(true);
 		resizer.options.size.set(CROP_SIZE);
 		frame.addTransformer(resizer, decoder, 1, 0);
 

@@ -48,6 +48,7 @@ public class FileUtils
 	private static final int BUFFER_SIZE = 4096;
 	private static final int BYTES_IN_MEGABYTE = 1000000;
 	private static final int EOF = -1;
+	private static final int LOG_STEP = 200;
 
 	/**
 	 * @param filePath Option
@@ -107,13 +108,20 @@ public class FileUtils
 			int counter = 0;
 
 			Pipeline pipe = Pipeline.getInstance();
+
 			while ((numberOfBytesRead = input.read(buffer)) != EOF)
 			{
+				if (!(pipe.getState() == Pipeline.State.STARTING || pipe.getState() == Pipeline.State.RUNNING))
+				{
+					Log.i("Download interrupted.");
+					return null;
+				}
+
 				output.write(buffer, 0, numberOfBytesRead);
 
 				totalBytesDownloaded += numberOfBytesRead;
 
-				if (counter % 200 == 0)
+				if (counter % LOG_STEP == 0)
 				{
 					String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / (float)BYTES_IN_MEGABYTE);
 					Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");

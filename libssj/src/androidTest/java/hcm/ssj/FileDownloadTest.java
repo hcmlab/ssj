@@ -51,7 +51,7 @@ import static org.junit.Assert.assertTrue;
 @SmallTest
 public class FileDownloadTest
 {
-	private static final String assetsURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/";
+	private static final String assetsURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/models";
 	private static final String trainer = "inception.trainer";
 	private static final String model = "inception.model";
 	private static final String option = "inception.option";
