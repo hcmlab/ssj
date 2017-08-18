@@ -27,17 +27,19 @@
 
 package hcm.demo;
 
+import android.hardware.Camera;
 import android.util.Log;
+import android.view.SurfaceView;
 
-import com.jjoe64.graphview.GraphView;
-
-import hcm.ssj.audio.AudioChannel;
-import hcm.ssj.audio.Microphone;
-import hcm.ssj.audio.Pitch;
+import hcm.ssj.camera.CameraChannel;
+import hcm.ssj.camera.CameraPainter;
+import hcm.ssj.camera.CameraSensor;
+import hcm.ssj.camera.ImageNormalizer;
+import hcm.ssj.camera.ImageResizer;
+import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.core.Provider;
-import hcm.ssj.graphic.SignalPainter;
+import hcm.ssj.ml.Classifier;
 
 public class PipelineRunner extends Thread {
 
@@ -45,17 +47,17 @@ public class PipelineRunner extends Thread {
     private Pipeline _ssj;
 
     private MainActivity _act = null;
-    private GraphView _graphs[] = null;
 
-    public PipelineRunner(MainActivity a, GraphView[] graphs)
+
+    public PipelineRunner(MainActivity a)
     {
         _act = a;
-        _graphs = graphs;
 
         if(Pipeline.isInstanced())
             Pipeline.getInstance().clear();
         _ssj = Pipeline.getInstance();
     }
+
 
     public void setExceptionHandler(ExceptionHandler h)
     {
@@ -65,6 +67,7 @@ public class PipelineRunner extends Thread {
         _ssj.setExceptionHandler(h);
     }
 
+
     public void run()
     {
         try {
@@ -72,33 +75,72 @@ public class PipelineRunner extends Thread {
             _ssj.options.countdown.set(1);
             _ssj.options.log.set(true);
 
-            //** connection to sensors
-            Microphone mic = new Microphone();
-            AudioChannel audio = new AudioChannel();
-            audio.options.sampleRate.set(16000);
-            audio.options.scale.set(true);
-            _ssj.addSensor(mic,audio);
+            String trainerName = "inception.trainer";
+            String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
 
-            //** transform data coming from sensors
-            Pitch pitch = new Pitch();
-            pitch.options.detector.set(Pitch.YIN);
-            pitch.options.computePitchedState.set(false);
-            pitch.options.computePitch.set(true);
-            pitch.options.computeVoicedProb.set(false);
-            pitch.options.computePitchEnvelope.set(false);
-            _ssj.addTransformer(pitch, audio, 0.032, 0); //512 samples
+            final int PREVIEW_WIDTH = 640;
+            final int PREVIEW_HEIGHT = 480;
+            final int IMAGE_MEAN = 117;
+            final int CROP_SIZE = 224;
+            final int MIN_FPS = 15;
+			final int MAX_FPS = 15;
 
-            //** configure GUI
-            //paint audio
-            SignalPainter paint = new SignalPainter();
-            paint.options.manualBounds.set(true);
-            paint.options.min.set(0.);
-            paint.options.max.set(1.);
-            paint.options.renderMax.set(true);
-            paint.options.secondScaleMin.set(0.);
-            paint.options.secondScaleMax.set(500.);
-            paint.options.graphView.set(_graphs[0]);
-            _ssj.addConsumer(paint, new Provider[]{audio, pitch}, 0.032, 0);
+            final float IMAGE_STD = 1;
+            final float DELTA = 0;
+
+            final boolean MAINTAIN_ASPECT = true;
+            final boolean SCALE_IMAGE = true;
+            final boolean SHOW_BEST_MATCH = true;
+
+            // Instantiate camera sensor and set options.
+            CameraSensor cameraSensor = new CameraSensor();
+            cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+            cameraSensor.options.width.set(PREVIEW_WIDTH);
+            cameraSensor.options.height.set(PREVIEW_HEIGHT);
+            cameraSensor.options.previewFpsRangeMin.set(MIN_FPS);
+            cameraSensor.options.previewFpsRangeMax.set(MAX_FPS);
+
+            CameraChannel channelForPainter = new CameraChannel();
+            channelForPainter.options.sampleRate.set(15.0);
+            _ssj.addSensor(cameraSensor, channelForPainter);
+
+            CameraPainter cameraPainter = new CameraPainter();
+			cameraPainter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
+            cameraPainter.options.scale.set(SCALE_IMAGE);
+            cameraPainter.options.showBestMatch.set(SHOW_BEST_MATCH);
+            cameraPainter.options.surfaceView.set((SurfaceView) _act.findViewById(R.id.video));
+            _ssj.addConsumer(cameraPainter, channelForPainter, 0.1, DELTA);
+
+            // Add sensor to the pipeline.
+            CameraChannel channelForClassifier = new CameraChannel();
+            channelForClassifier.options.sampleRate.set(1.0);
+            _ssj.addSensor(cameraSensor, channelForClassifier);
+
+            // Set up a NV21 decoder.
+            NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
+            _ssj.addTransformer(decoder, channelForClassifier, 1, DELTA);
+
+            // Add image resizer to the pipeline.
+            ImageResizer resizer = new ImageResizer();
+            resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
+            resizer.options.size.set(CROP_SIZE);
+            _ssj.addTransformer(resizer, decoder, 1, DELTA);
+
+            // Add image pixel value normalizer to the pipeline.
+            ImageNormalizer imageNormalizer = new ImageNormalizer();
+            imageNormalizer.options.imageMean.set(IMAGE_MEAN);
+            imageNormalizer.options.imageStd.set(IMAGE_STD);
+            _ssj.addTransformer(imageNormalizer, resizer, 1, DELTA);
+
+            // Add classifier transformer to the pipeline.
+            Classifier classifier = new Classifier();
+            classifier.options.trainerPath.set(trainerURL);
+            classifier.options.trainerFile.set(trainerName);
+            classifier.options.merge.set(false);
+            _ssj.addConsumer(classifier, imageNormalizer, 1, DELTA);
+
+            // Send label of the best match to the camera painter.
+            _ssj.registerEventListener(cameraPainter, classifier);
         }
         catch(Exception e)
         {

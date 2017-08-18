@@ -39,23 +39,15 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jjoe64.graphview.GraphView;
-import com.thalmic.myo.Hub;
-import com.thalmic.myo.Myo;
-
 import hcm.ssj.core.ExceptionHandler;
-import hcm.ssj.core.Pipeline;
-import hcm.ssj.myo.Vibrate2Command;
 
 public class MainActivity extends Activity implements ExceptionHandler
 {
     private PipelineRunner _pipe = null;
-    private String _ssj_version = null;
-    private String _error_msg = null;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -63,13 +55,9 @@ public class MainActivity extends Activity implements ExceptionHandler
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        _ssj_version = "SSJ v" + Pipeline.getInstance().getVersion();
-
-        TextView text = (TextView) findViewById(R.id.txt_ssj);
-        text.setText(_ssj_version);
-
         checkPermissions();
     }
+
 
     @Override
     protected void onDestroy()
@@ -81,6 +69,7 @@ public class MainActivity extends Activity implements ExceptionHandler
         Log.i("LogueWorker", "destroyed");
     }
 
+
     /**
      * Prevent activity from being destroyed once back button is pressed
      */
@@ -88,6 +77,7 @@ public class MainActivity extends Activity implements ExceptionHandler
     {
         moveTaskToBack(true);
     }
+
 
     public void onStartPressed(View v)
     {
@@ -98,33 +88,20 @@ public class MainActivity extends Activity implements ExceptionHandler
 
         AssetManager am = getApplicationContext().getAssets();
         getAssets();
-        TextView text = (TextView) findViewById(R.id.txt_ssj);
 
         if(_pipe == null || !_pipe.isRunning())
         {
-            text.setText(_ssj_version + " - starting");
 
-
-
-            GraphView graph = (GraphView) findViewById(R.id.graph);
-            graph.removeAllSeries();
-//            graph.getSecondScale().removeAllSeries(); //not implemented in GraphView 4.0.1
-            GraphView graph2 = (GraphView) findViewById(R.id.graph2);
-            graph2.removeAllSeries();
-//            graph2.getSecondScale().removeAllSeries(); //not implemented in GraphView 4.0.1
-
-            GraphView graphs[] = new GraphView[]{graph, graph2};
-
-            _pipe = new PipelineRunner(this, graphs);
+            _pipe = new PipelineRunner(this);
             _pipe.setExceptionHandler(this);
             _pipe.start();
         }
         else
         {
-            text.setText(_ssj_version + " - stopping");
             _pipe.terminate();
         }
     }
+
 
     public void notifyPipeState(final boolean running)
     {
@@ -133,23 +110,14 @@ public class MainActivity extends Activity implements ExceptionHandler
             public void run()
             {
                 Button btn = (Button) findViewById(R.id.btn_start);
-                TextView text = (TextView) findViewById(R.id.txt_ssj);
 
                 if (running)
                 {
-                    text.setText(_ssj_version + " - running");
                     btn.setText(R.string.stop);
                     btn.setEnabled(true);
                     btn.setAlpha(1.0f);
                 } else
                 {
-                    text.setText(_ssj_version + " - not running");
-                    if(_error_msg != null)
-                    {
-                        String str = text.getText() + "\nERROR: " + _error_msg;
-                        text.setText(str);
-                    }
-
                     btn.setText(R.string.start);
                     btn.setEnabled(true);
                     btn.setAlpha(1.0f);
@@ -158,78 +126,16 @@ public class MainActivity extends Activity implements ExceptionHandler
         });
     }
 
+
     public void onClosePressed(View v)
     {
         finish();
     }
 
-    public void onDemoPressed(View v)
-    {
-        final Hub hub = Hub.getInstance();
-        Thread t1 = new Thread(new Runnable() {
-            public void run() {
-                if(hub.getConnectedDevices().isEmpty())
-                {
-                    Log.e("Logue_SSJ", "device not found");
-                }
-                else
-                {
-                    com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
-                    startVibrate(myo, hub);
-                }
-            }
-        });
-        t1.start();
-    }
-
-    private void startVibrate(Myo myo, Hub hub) {
-        String _name = "test";
-        Log.i(_name, "connected");
-        try {
-            Vibrate2Command vibrate2Command = new Vibrate2Command(hub);
-
-            Log.i(_name, "vibrate 1...");
-            myo.vibrate(Myo.VibrationType.MEDIUM);
-            Thread.sleep(3000);
-
-            Log.i(_name, "vibrate 2...");
-            //check strength 50
-            vibrate2Command.vibrate(myo, 1000, (byte) 50);
-            Thread.sleep(3000);
-
-            Log.i(_name, "vibrate 3 ...");
-            //check strength 100
-            vibrate2Command.vibrate(myo, 1000, (byte) 100);
-            Thread.sleep(3000);
-
-            Log.i(_name, "vibrate 4 ...");
-            //check strength 100
-            vibrate2Command.vibrate(myo, 1000, (byte) 150);
-            Thread.sleep(3000);
-
-            Log.i(_name, "vibrate 5...");
-            //check strength 250
-            vibrate2Command.vibrate(myo, 1000, (byte) 200);
-            Thread.sleep(3000);
-
-            Log.i(_name, "vibrate 6...");
-            //check strength 250
-            vibrate2Command.vibrate(myo, 1000, (byte) 250);
-            Thread.sleep(3000);
-
-            Log.i(_name, "vibrate pattern...");
-            //check vibrate pattern
-            vibrate2Command.vibrate(myo, new int[]{500, 500, 500, 500, 500, 500}, new byte[]{25, 50, 100, (byte) 150, (byte) 200, (byte) 250});
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            Log.e(_name, "exception in vibrate test", e);
-        }
-    }
 
     @Override
     public void handle(final String location, final String msg, final Throwable t) {
 
-        _error_msg = msg;
         _pipe.terminate(); //attempt to shut down framework
 
         this.runOnUiThread(
@@ -241,6 +147,7 @@ public class MainActivity extends Activity implements ExceptionHandler
                });
 
     }
+
 
     private void checkPermissions()
     {
