@@ -246,9 +246,6 @@ public class Classifier extends Consumer
             _stream_selected[0] = Stream.create(input[0].num, _selector.options.values.get().length, input[0].sr, input[0].type);
             _selector.enter(input, _stream_selected[0]);
         }
-
-        if(_evchannel_out == null)
-            Log.e("no outgoing event channel has been registered");
     }
 
     /**
