@@ -2,7 +2,7 @@
 <trainer ssi-v="5">
     <info trained="true" />
     <streams>
-        <item byte="4" dim="224" sr="0.500000" type="BYTE" />
+        <item byte="4" dim="224" sr="0.500000" type="FLOAT" />
     </streams>
     <classes>
         <item name="dummy" />

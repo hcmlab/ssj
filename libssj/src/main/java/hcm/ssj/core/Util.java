@@ -835,4 +835,20 @@ public class Util
             }
         }
     }
+
+    /**
+     * Returns index of element with the highest value in float array.
+     *
+     * @param array Float array.
+     * @return Index of element with the highest value.
+     */
+    public static int maxIndex(float[] array) {
+        int best = 0;
+        for (int i = 1; i < array.length; ++i) {
+            if (array[i] > array[best]) {
+                best = i;
+            }
+        }
+        return best;
+    }
 }

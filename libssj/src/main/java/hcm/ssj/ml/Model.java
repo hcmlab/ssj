@@ -65,29 +65,30 @@ public abstract class Model {
     }
 
     /**
+     * forward data to the model for classification/inference
      * @param stream Stream
-     * @return double[]
+     * @return double[] classification/inference probabilities as outputed by the model
      */
     abstract float[] forward(Stream[] stream);
 
     /**
+     * Train model with data from the stream
      * @param stream Stream
-     * @return double[]
      */
     abstract void train(Stream[] stream);
 
     /**
-     * Load data from model file
+     * Load model from file
      */
     abstract void load(File file);
 
     /**
-     * Load data from option file
+     * Load model options from file
      */
     abstract void loadOption(File file);
 
     /**
-     * Load data from model file
+     * Save model to file
      */
     abstract void save(File file);
 

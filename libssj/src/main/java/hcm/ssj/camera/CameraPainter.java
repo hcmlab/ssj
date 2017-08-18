@@ -466,6 +466,9 @@ public class CameraPainter extends Consumer implements EventListener
     @Override
     public void notify(Event event)
     {
-        bestMatch = event.ptrStr();
+        if(event.type == Cons.Type.STRING)
+            bestMatch = event.ptrStr();
+        else
+            Log.w("unsupported event format (" + event.type.toString() + "). Expecting STRING events.");
     }
 }

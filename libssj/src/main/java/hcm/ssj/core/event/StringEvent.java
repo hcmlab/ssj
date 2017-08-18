@@ -42,6 +42,7 @@ public class StringEvent extends Event {
     }
 
     public StringEvent(String data) {
+        type = Cons.Type.STRING;
         this.data = data;
     }
 

@@ -79,23 +79,6 @@ public class TensorFlow extends Model
 
 
 	/**
-	 * Returns index of element with the highest value in float array.
-	 *
-	 * @param probabilities Float array.
-	 * @return Index of element with the highest value.
-	 */
-	public static int maxIndex(float[] probabilities) {
-		int best = 0;
-		for (int i = 1; i < probabilities.length; ++i) {
-			if (probabilities[i] > probabilities[best]) {
-				best = i;
-			}
-		}
-		return best;
-	}
-
-
-	/**
 	 * Set label count for the classifier.
 	 *
 	 * @param classNum amount of object classes to recognize.
