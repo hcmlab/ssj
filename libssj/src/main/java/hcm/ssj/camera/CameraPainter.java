@@ -29,6 +29,8 @@ package hcm.ssj.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -60,6 +62,7 @@ public class CameraPainter extends Consumer implements EventListener
         public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height of input picture");
         public final Option<Integer> orientation = new Option<>("orientation", 90, Integer.class, "orientation of input picture");
         public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "scale picture to match surface size");
+        public final Option<Boolean> showBestMatch = new Option<>("showBestMatch", false, Boolean.class, "show object label of the best match");
         public final Option<ColorFormat> colorFormat = new Option<>("colorFormat", ColorFormat.NV21_DEFAULT, ColorFormat.class, "change color format");
         public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, SurfaceView.class, "the view on which the painter is drawn");
 
@@ -90,6 +93,12 @@ public class CameraPainter extends Consumer implements EventListener
     private SurfaceHolder surfaceHolder;
     //
     private ColorFormat colorFormat;
+
+    private String bestMatch;
+    private int textSize = 35;
+
+    private Paint interiorPaint;
+    private Paint exteriorPaint;
 
     /**
      *
@@ -161,6 +170,24 @@ public class CameraPainter extends Consumer implements EventListener
         if(_evchannel_in != null && _evchannel_in.size() != 0)
             for(EventChannel ch : _evchannel_in)
                 ch.addEventListener(this);
+
+        if (options.showBestMatch.get())
+        {
+            interiorPaint = new Paint();
+            interiorPaint.setTextSize(textSize);
+            interiorPaint.setColor(Color.WHITE);
+            interiorPaint.setStyle(Paint.Style.FILL);
+            interiorPaint.setAntiAlias(false);
+            interiorPaint.setAlpha(255);
+
+            exteriorPaint = new Paint();
+            exteriorPaint.setTextSize(textSize);
+            exteriorPaint.setColor(Color.BLACK);
+            exteriorPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            exteriorPaint.setStrokeWidth(textSize / 8);
+            exteriorPaint.setAntiAlias(false);
+            exteriorPaint.setAlpha(255);
+        }
     }
 
     /**
@@ -212,6 +239,9 @@ public class CameraPainter extends Consumer implements EventListener
 
                 if (canvas != null)
                 {
+                    // Clear canvas.
+                    canvas.drawColor(Color.BLACK);
+
                     int canvasWidth = canvas.getWidth();
                     int canvasHeight = canvas.getHeight();
 
@@ -243,6 +273,16 @@ public class CameraPainter extends Consumer implements EventListener
                                           canvasWidth - ((bitmapWidth + canvasWidth) >> 1),
                                           canvasHeight - ((bitmapHeight + canvasHeight) >> 1),
                                           null);
+                    }
+
+                    if (options.showBestMatch.get())
+                    {
+                        // Draw label of the best match.
+                        canvas.save();
+                        canvas.rotate(270, canvasWidth / 2, canvasHeight / 2);
+                        canvas.drawText(bestMatch, 25, 50, exteriorPaint);
+                        canvas.drawText(bestMatch, 25, 50, interiorPaint);
+                        canvas.restore();
                     }
                 }
             }
@@ -424,5 +464,8 @@ public class CameraPainter extends Consumer implements EventListener
     }
 
     @Override
-    public void notify(Event event) {}
+    public void notify(Event event)
+    {
+        bestMatch = event.ptrStr();
+    }
 }

@@ -108,7 +108,6 @@ public class InceptionTest
 		classifier.options.trainerPath.set(trainerURL);
 		classifier.options.trainerFile.set(trainerName);
 		classifier.options.merge.set(false);
-		classifier.options.showLabel.set(true);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 
 		// Start pipeline

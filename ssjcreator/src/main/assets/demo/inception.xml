@@ -16,14 +16,14 @@
     </options>
   </framework>
   <sensorChannelList>
-    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="113176145">
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="38647293">
       <options>
         <option name="sampleRate" value="1.0" />
       </options>
       <providerList />
       <eventProviderList />
     </sensorChannel>
-    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="9642788">
+    <sensorChannel class="hcm.ssj.camera.CameraChannel" id="103063488">
       <options>
         <option name="sampleRate" value="15.0" />
       </options>
@@ -32,7 +32,7 @@
     </sensorChannel>
   </sensorChannelList>
   <sensorList>
-    <sensor class="hcm.ssj.camera.CameraSensor" id="51024453">
+    <sensor class="hcm.ssj.camera.CameraSensor" id="101911089">
       <options>
         <option name="cameraInfo" value="0" />
         <option name="height" value="480" />
@@ -43,21 +43,21 @@
         <option name="width" value="640" />
       </options>
       <providerList>
-        <providerId id="9642788" />
-        <providerId id="113176145" />
+        <providerId id="103063488" />
+        <providerId id="38647293" />
       </providerList>
       <eventProviderList />
     </sensor>
   </sensorList>
   <transformerList>
-    <transformer class="hcm.ssj.camera.NV21ToRGBDecoder" id="148477643" frameSize="1.0" delta="0.0" eventTrigger="false">
+    <transformer class="hcm.ssj.camera.NV21ToRGBDecoder" id="181321367" frameSize="1.0" delta="0.0" eventTrigger="false">
       <options />
       <providerList>
-        <providerId id="113176145" />
+        <providerId id="38647293" />
       </providerList>
       <eventProviderList />
     </transformer>
-    <transformer class="hcm.ssj.camera.ImageResizer" id="131606002" frameSize="1.0" delta="0.0" eventTrigger="false">
+    <transformer class="hcm.ssj.camera.ImageResizer" id="247795950" frameSize="1.0" delta="0.0" eventTrigger="false">
       <options>
         <option name="cropImage" value="false" />
         <option name="maintainAspect" value="true" />
@@ -66,49 +66,51 @@
         <option name="size" value="224" />
       </options>
       <providerList>
-        <providerId id="148477643" />
+        <providerId id="181321367" />
       </providerList>
       <eventProviderList />
     </transformer>
-    <transformer class="hcm.ssj.camera.ImageNormalizer" id="104771390" frameSize="1.0" delta="0.0" eventTrigger="false">
+    <transformer class="hcm.ssj.camera.ImageNormalizer" id="242568698" frameSize="1.0" delta="0.0" eventTrigger="false">
       <options>
         <option name="imageMean" value="117" />
         <option name="imageStd" value="1.0" />
       </options>
       <providerList>
-        <providerId id="131606002" />
+        <providerId id="247795950" />
       </providerList>
       <eventProviderList />
     </transformer>
   </transformerList>
   <consumerList>
-    <consumer class="hcm.ssj.ml.Classifier" id="22689175" frameSize="1.0" delta="0.0" eventTrigger="false">
+    <consumer class="hcm.ssj.ml.Classifier" id="268149330" frameSize="1.0" delta="0.0" eventTrigger="false">
       <options>
         <option name="event" value="Result" />
-        <option name="log" value="true" />
+        <option name="log" value="false" />
         <option name="merge" value="false" />
         <option name="sender" value="Classifier" />
-        <option name="showLabel" value="true" />
         <option name="trainerFile" value="inception.trainer" />
         <option name="trainerPath" value="https://raw.githubusercontent.com/hcmlab/ssj/master/models" />
       </options>
       <providerList>
-        <providerId id="104771390" />
+        <providerId id="242568698" />
       </providerList>
       <eventProviderList />
     </consumer>
-    <consumer class="hcm.ssj.camera.CameraPainter" id="180895887" frameSize="0.1" delta="0.0" eventTrigger="false">
+    <consumer class="hcm.ssj.camera.CameraPainter" id="263764379" frameSize="0.1" delta="0.0" eventTrigger="false">
       <options>
         <option name="colorFormat" value="NV21_UV_SWAPPED" />
         <option name="height" value="480" />
         <option name="orientation" value="90" />
         <option name="scale" value="true" />
+        <option name="showBestMatch" value="true" />
         <option name="width" value="640" />
       </options>
       <providerList>
-        <providerId id="9642788" />
+        <providerId id="103063488" />
       </providerList>
-      <eventProviderList />
+      <eventProviderList>
+        <eventProviderId id="268149330" />
+      </eventProviderList>
     </consumer>
   </consumerList>
   <eventHandlerList />

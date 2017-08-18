@@ -72,6 +72,12 @@ public class TensorFlow extends Model
 	}
 
 
+	public TensorFlow()
+	{
+		_name = "TensorFlow";
+	}
+
+
 	/**
 	 * Returns index of element with the highest value in float array.
 	 *
