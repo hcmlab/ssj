@@ -509,23 +509,22 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run()
             {
-                String preference = "firstStart";
-                //initialize SharedPreferences
-                SharedPreferences getPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
-                //create a new boolean and preference and set it to true
-                firstStart = getPrefs.getBoolean(preference, true);
-                //  If the activity has never started before...
+                SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+                //  check if the activity has started before on this app version...
+                String name = "LAST_VERSION";
+                String ssjVersion = Pipeline.getVersion();
+                firstStart = !getPrefs.getString(name, "").equalsIgnoreCase(ssjVersion);
+
                 if (firstStart)
                 {
                     //launch app intro
                     Intent i = new Intent(MainActivity.this, TutorialActivity.class);
                     startActivity(i);
-                    //make a new preferences editor
+
+                    //save current version in preferences so the next time this won't run again
                     SharedPreferences.Editor e = getPrefs.edit();
-                    //edit preference to make it false because we don't want this to run again
-                    e.putBoolean(preference, false);
-                    //apply changes
+                    e.putString(name, ssjVersion);
                     e.apply();
                 }
             }
