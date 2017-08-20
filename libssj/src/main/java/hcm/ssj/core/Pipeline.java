@@ -823,7 +823,7 @@ public class Pipeline
     /**
      * @return current SSJ version
      */
-    public String getVersion()
+    public static String getVersion()
     {
         return BuildConfig.VERSION_NAME;
     }

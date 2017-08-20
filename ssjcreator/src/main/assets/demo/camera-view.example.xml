@@ -19,7 +19,9 @@
   <consumerList>
     <consumer class="hcm.ssj.camera.CameraPainter" id="3" frameSize="0.1" delta="0.0">
       <options>
-        <option name="orientation" value="270" />
+        <option name="orientation" value="90" />
+        <option name="scale" value="true" />
+        <option name="colorFormat" value="NV21_UV_SWAPPED" />
       </options>
       <providerList>
         <providerId id="1" />

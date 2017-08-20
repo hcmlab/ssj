@@ -196,7 +196,7 @@ public class Classifier extends Consumer
         }
         catch (XmlPullParserException | IOException e)
         {
-            Log.e("unable to load model");
+            Log.e("unable to load model", e);
         }
 
         if (stream_in.length > 1 && !options.merge.get())
