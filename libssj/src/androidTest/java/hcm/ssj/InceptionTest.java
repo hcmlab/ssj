@@ -75,7 +75,7 @@ public class InceptionTest
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+		cameraSensor.options.cameraID.set(Camera.CameraInfo.CAMERA_FACING_BACK);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
 		cameraSensor.options.previewFpsRangeMin.set(15);
