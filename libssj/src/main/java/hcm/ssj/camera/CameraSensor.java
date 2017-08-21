@@ -27,7 +27,6 @@
 
 package hcm.ssj.camera;
 
-import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.os.Build;
@@ -35,6 +34,7 @@ import android.os.Build;
 import java.io.IOException;
 import java.util.List;
 
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -52,13 +52,13 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      */
     public class Options extends OptionList
     {
-        public final Option<Integer> cameraInfo = new Option<>("cameraInfo", Camera.CameraInfo.CAMERA_FACING_FRONT, Integer.class, "chosen camera device");
+        public final Option<Integer> cameraID = new Option<>("cameraID", Camera.CameraInfo.CAMERA_FACING_FRONT, Integer.class, "which camera to use (0 = back, 1 = front)");
         //arbitrary but popular values
         public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width in pixel");
         public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height in pixel");
         public final Option<Integer> previewFpsRangeMin = new Option<>("previewFpsRangeMin", 30 * 1000, Integer.class, "min preview rate for camera");
         public final Option<Integer> previewFpsRangeMax = new Option<>("previewFpsRangeMax", 30 * 1000, Integer.class, "max preview rate for camera");
-        public final Option<Integer> imageFormat = new Option<>("imageFormat", ImageFormat.NV21, Integer.class, "image format for camera");
+        public final Option<Cons.ImageFormat> imageFormat = new Option<>("imageFormat", Cons.ImageFormat.NV21, Cons.ImageFormat.class, "image format for camera");
         public final Option<Boolean> showSupportedValues = new Option<>("showSupportedValues", false, Boolean.class, "show supported values in log");
 
         /**
@@ -155,7 +155,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
             }
         }
         //set preview format
-        parameters.setPreviewFormat(options.imageFormat.get());
+        parameters.setPreviewFormat(options.imageFormat.get().val);
         //set preview fps range
         choosePreviewFpsRange(parameters, options.previewFpsRangeMin.get(), options.previewFpsRangeMax.get());
         //optimizations for more fps
@@ -212,7 +212,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         for (int i = 0; i < numCameras; i++)
         {
             Camera.getCameraInfo(i, info);
-            if (info.facing == options.cameraInfo.get())
+            if (info.facing == options.cameraID.get())
             {
                 camera = Camera.open(i);
                 break;
