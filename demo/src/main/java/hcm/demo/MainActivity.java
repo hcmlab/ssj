@@ -234,11 +234,11 @@ public class MainActivity extends Activity implements ExceptionHandler
 
         this.runOnUiThread(
                 new Runnable() {
-                   @Override
-                   public void run() {
-                       Toast.makeText(getApplicationContext(), "Exception in Pipeline\n" + msg, Toast.LENGTH_LONG).show();
-                   }
-               });
+                    @Override
+                    public void run() {
+                        Toast.makeText(getApplicationContext(), "Exception in Pipeline\n" + msg, Toast.LENGTH_LONG).show();
+                    }
+                });
 
     }
 
