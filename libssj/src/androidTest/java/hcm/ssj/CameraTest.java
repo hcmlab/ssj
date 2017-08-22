@@ -88,7 +88,7 @@ public class CameraTest
         frame.options.bufferSize.set(10.0f);
         //sensor
         CameraSensor cameraSensor = new CameraSensor();
-        cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraSensor.options.cameraID.set(Camera.CameraInfo.CAMERA_FACING_BACK);
         cameraSensor.options.width.set(width);
         cameraSensor.options.height.set(height);
         cameraSensor.options.previewFpsRangeMin.set(4 * 1000);
@@ -119,9 +119,6 @@ public class CameraTest
             case PAINTER:
             {
                 CameraPainter cameraPainter = new CameraPainter();
-                cameraPainter.options.width.set(width);
-                cameraPainter.options.height.set(height);
-                cameraPainter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
                 cameraPainter.options.surfaceView.set(new SurfaceView(getInstrumentation().getContext()));
                 frame.addConsumer(cameraPainter, cameraChannel, 1 / frameRate, 0);
                 break;
