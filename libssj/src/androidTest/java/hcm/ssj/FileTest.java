@@ -213,10 +213,10 @@ public class FileTest
     {
         //sensor
         AndroidSensor sensorConnection = new AndroidSensor();
-        sensorConnection.options.sensorType.set(SensorType.ACCELEROMETER);
 
         //channel
         AndroidSensorChannel sensorConnectionChannel = new AndroidSensorChannel();
+        sensorConnectionChannel.options.sensorType.set(SensorType.ACCELEROMETER);
         frame.addSensor(sensorConnection,sensorConnectionChannel);
         //consumer
         FileWriter fileWriter = new FileWriter();

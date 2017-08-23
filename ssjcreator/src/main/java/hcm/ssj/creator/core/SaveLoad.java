@@ -45,6 +45,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -229,7 +230,7 @@ public abstract class SaveLoad
             String tag;
             Object context = null;
             Option[] options = null;
-            HashMap<Object, LinkContainer> map = new HashMap<>();
+            LinkedHashMap<Object, LinkContainer> map = new LinkedHashMap<>();
             while (!(tag = parser.getName()).equals(ROOT))
             {
                 if (parser.getEventType() == XmlPullParser.START_TAG)
@@ -454,7 +455,7 @@ public abstract class SaveLoad
     private static class LinkContainer
     {
         int hash;
-        Map<Integer, ConnectionType> typedHashes = new HashMap<>();
+        LinkedHashMap<Integer, ConnectionType> typedHashes = new LinkedHashMap<>();
     }
 
     private static String convertOldVersion(File file) throws IOException

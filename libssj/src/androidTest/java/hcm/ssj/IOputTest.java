@@ -68,15 +68,15 @@ public class IOputTest {
         frame.options.bufferSize.set(10.0f);
 
         AndroidSensor sensor = new AndroidSensor();
-        sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 
         AndroidSensorChannel acc = new AndroidSensorChannel();
+        acc.options.sensorType.set(SensorType.ACCELEROMETER);
         acc.options.sampleRate.set(50);
         frame.addSensor(sensor,acc);
 
         AndroidSensor sensor2 = new AndroidSensor();
-        sensor2.options.sensorType.set(SensorType.GRAVITY);
         AndroidSensorChannel gyr = new AndroidSensorChannel();
+        gyr.options.sensorType.set(SensorType.GRAVITY);
         gyr.options.sampleRate.set(50);
         frame.addSensor(sensor2,gyr);
 

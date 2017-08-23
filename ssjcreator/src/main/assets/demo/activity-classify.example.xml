@@ -14,16 +14,19 @@
   <sensorproviderList>
     <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="911435374">
       <options>
+        <option name="sensorType" value="ACCELEROMETER" />
         <option name="sampleRate" value="50" />
       </options>
     </sensorChannel>
     <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="317348773">
       <options>
+        <option name="sensorType" value="GYROSCOPE" />
         <option name="sampleRate" value="50" />
       </options>
     </sensorChannel>
     <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="428273451">
       <options>
+        <option name="sensorType" value="MAGNETIC_FIELD" />
         <option name="sampleRate" value="50" />
       </options>
     </sensorChannel>
@@ -32,27 +35,10 @@
     <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="943085472">
       <options>
         <option name="sensorDelay" value="0" />
-        <option name="sensorType" value="ACCELEROMETER" />
       </options>
       <providerList>
         <providerId id="911435374" />
-      </providerList>
-    </sensor>
-    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="356077004">
-      <options>
-        <option name="sensorDelay" value="0" />
-        <option name="sensorType" value="GYROSCOPE" />
-      </options>
-      <providerList>
         <providerId id="317348773" />
-      </providerList>
-    </sensor>
-    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="663976632">
-      <options>
-        <option name="sensorDelay" value="0" />
-        <option name="sensorType" value="MAGNETIC_FIELD" />
-      </options>
-      <providerList>
         <providerId id="428273451" />
       </providerList>
     </sensor>
@@ -94,6 +80,7 @@
       <options>
         <option name="trainerFile" value="activity.NaiveBayes.trainer" />
         <option name="trainerPath" value="/storage/emulated/0/SSJ/Creator" />
+        <option name="numClasses" value="3" />
       </options>
       <providerList>
         <providerId id="168988805" />
