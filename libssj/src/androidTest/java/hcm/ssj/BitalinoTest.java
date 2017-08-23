@@ -34,9 +34,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import hcm.ssj.bitalino.Bitalino;
-import hcm.ssj.bitalino.BitalinoChannel;
+import hcm.ssj.bitalino.LUXChannel;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.signal.Merge;
 import hcm.ssj.test.Logger;
 
 /**
@@ -55,35 +54,13 @@ public class BitalinoTest
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		Bitalino sensor = new Bitalino();
+		sensor.options.sr.set(10);
 		sensor.options.name.set("BITalino-17-44");
-		BitalinoChannel ch[] = new BitalinoChannel[6];
-		int i = 0;
 
-		ch[i] = new BitalinoChannel();
-		ch[i].options.channel.set(Bitalino.Channel.A1_EMG);
-		frame.addSensor(sensor, ch[i++]);
+		LUXChannel lux = new LUXChannel();
+		frame.addSensor(sensor, lux);
 
-		ch[i] = new BitalinoChannel();
-		ch[i].options.channel.set(Bitalino.Channel.A2_ECG);
-		frame.addSensor(sensor, ch[i++]);
-
-		ch[i] = new BitalinoChannel();
-		ch[i].options.channel.set(Bitalino.Channel.A3_EDA);
-		frame.addSensor(sensor, ch[i++]);
-
-		ch[i] = new BitalinoChannel();
-		ch[i].options.channel.set(Bitalino.Channel.A4_EEG);
-		frame.addSensor(sensor, ch[i++]);
-
-		ch[i] = new BitalinoChannel();
-		ch[i].options.channel.set(Bitalino.Channel.A5_ACC);
-		frame.addSensor(sensor, ch[i++]);
-
-		ch[i] = new BitalinoChannel();
-		ch[i].options.channel.set(Bitalino.Channel.A6_LUX);
-		frame.addSensor(sensor, ch[i++]);
-
-		frame.addConsumer(new Logger(), frame.addTransformer(new Merge(), ch, 1, 0), 1, 0);
+		frame.addConsumer(new Logger(), lux, 0.1, 0);
 
 		//start framework
 		frame.start();

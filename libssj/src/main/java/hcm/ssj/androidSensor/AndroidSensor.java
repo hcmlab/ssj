@@ -31,6 +31,8 @@ import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
+import java.util.ArrayList;
+
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
@@ -58,7 +60,6 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
          * SENSOR_DELAY_NORMAL = 3 = 200000µs
          */
         public final Option<Integer> sensorDelay = new Option<>("sensorDelay", SensorManager.SENSOR_DELAY_FASTEST, Integer.class, "see android documentation");
-        public final Option<SensorType> sensorType = new Option<>("sensorType", SensorType.ACCELEROMETER, SensorType.class, "android sensor type");
 
         /**
          *
@@ -70,45 +71,25 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     }
 
     public final Options options = new Options();
-    private SensorManager mSensorManager;
-    private Sensor mSensor;
-    protected SensorListener listener;
-    private SensorType sensorType;
-    private final SensorType sensorTypeDefault = SensorType.ACCELEROMETER;
-    private boolean initialized = false;
-
+    protected SensorManager manager;
+    protected ArrayList<SensorListener> listeners;
     /**
      *
      */
     public AndroidSensor()
     {
         super();
-        _name = "Android";
+        _name = "AndroidSensor";
+
+        listeners = new ArrayList<>();
     }
 
     /**
-     *
+     * register a channel to this sensor
      */
-    protected void init()
+    void register(SensorListener listener)
     {
-        if (!initialized)
-        {
-            initialized = true;
-            if (options.sensorType.get() == null)
-            {
-                Log.w("sensor type not set, setting to default " + sensorTypeDefault.getName());
-                options.sensorType.set(sensorTypeDefault);
-            }
-            sensorType = options.sensorType.get();
-            _name = this.sensorType.getName();
-            listener = new SensorListener(this.sensorType);
-            mSensorManager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
-            mSensor = mSensorManager.getDefaultSensor(this.sensorType.getType());
-            if (mSensor == null)
-            {
-                Log.e(this.sensorType.getName() + " not found on device");
-            }
-        }
+        listeners.add(listener);
     }
 
     /**
@@ -117,13 +98,24 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     @Override
     protected boolean connect()
     {
-        init();
-        if (mSensor != null)
+        manager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
+
+        boolean ok = true;
+        for(SensorListener l : listeners)
         {
-            mSensorManager.registerListener(listener, mSensor, options.sensorDelay.get());
-            return true;
+            Sensor s = manager.getDefaultSensor(l.getType().getType());
+            if (s == null)
+            {
+                Log.e(l.getType().getName() + " not found on device");
+                ok = false;
+            }
+            else
+            {
+                ok &= manager.registerListener(l, s, options.sensorDelay.get());
+            }
         }
-        return false;
+
+        return ok;
     }
 
     /**
@@ -132,27 +124,14 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     @Override
     protected void disconnect()
     {
-        if (mSensor != null)
-        {
-            mSensorManager.unregisterListener(listener);
-        }
-        initialized = false;
+        for(int i = 0; i < listeners.size(); i++)
+            manager.unregisterListener(listeners.get(i));
     }
 
-    /**
-     * @return SensorData
-     */
-    protected SensorData getData()
-    {
-        return listener.getData();
-    }
-
-    /**
-     * @return SensorType
-     */
-    protected SensorType getSensorType()
-    {
-        return sensorType;
-    }
+     @Override
+     public void clear()
+     {
+         listeners.clear();
+     }
 }
 

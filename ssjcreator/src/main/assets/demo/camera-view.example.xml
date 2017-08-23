@@ -21,7 +21,6 @@
       <options>
         <option name="orientation" value="90" />
         <option name="scale" value="true" />
-        <option name="colorFormat" value="NV21_UV_SWAPPED" />
       </options>
       <providerList>
         <providerId id="1" />

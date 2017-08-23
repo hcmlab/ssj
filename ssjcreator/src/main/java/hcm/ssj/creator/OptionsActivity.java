@@ -160,9 +160,10 @@ public class OptionsActivity extends AppCompatActivity
         editText.setEms(10);
         editText.setLayoutParams(new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f));
-        editText.setText(String.valueOf(isFrameSize
-                ? PipelineBuilder.getInstance().getFrameSize(innerObject)
-                : PipelineBuilder.getInstance().getDelta(innerObject)));
+        editText.setHint(R.string.str_frameSizeSmallest);
+        editText.setText(isFrameSize
+                ? ((PipelineBuilder.getInstance().getFrameSize(innerObject) != null) ? String.valueOf(PipelineBuilder.getInstance().getFrameSize(innerObject)) : null )
+                : String.valueOf(PipelineBuilder.getInstance().getDelta(innerObject)));
         editText.addTextChangedListener(new TextWatcher()
         {
             @Override
@@ -182,10 +183,17 @@ public class OptionsActivity extends AppCompatActivity
                 {
                     try
                     {
-                        double d = Double.parseDouble(s.toString());
-                        if (d > 0)
+                        if(s == null || s.length() == 0)
                         {
-                            PipelineBuilder.getInstance().setFrameSize(innerObject, d);
+                            PipelineBuilder.getInstance().setFrameSize(innerObject, null);
+                        }
+                        else
+                        {
+                            double d = Double.parseDouble(s.toString());
+                            if (d > 0)
+                            {
+                                PipelineBuilder.getInstance().setFrameSize(innerObject, d);
+                            }
                         }
                     } catch (NumberFormatException ex)
                     {

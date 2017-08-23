@@ -129,4 +129,18 @@ public class Cons
         UDP,
         TCP
     }
+
+    public enum ImageFormat {
+        NV21(android.graphics.ImageFormat.NV21),
+        FLEX_RGBA_8888(0x2A), //android.graphics.ImageFormat.FLEX_RGBA_8888
+        FLEX_RGB_888(0x29), //android.graphics.ImageFormat.FLEX_RGB_888
+        YUV_420_888(0x23), //android.graphics.ImageFormat.YUV_420_888)
+        YV12(android.graphics.ImageFormat.YV12);
+
+        public int val;
+        ImageFormat(int value)
+        {
+            val = value;
+        }
+    }
 }

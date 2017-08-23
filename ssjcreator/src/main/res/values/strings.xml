@@ -52,9 +52,10 @@
     <string name="str_loadError">Could not load file</string>
     <string name="str_deleteError">Could not delete file</string>
     <!--provider options-->
-    <string name="str_frameSize">Frame size</string>
-    <string name="str_delta">Delta</string>
+    <string name="str_frameSize">Frame size (s)</string>
+    <string name="str_delta">Delta (s)</string>
     <string name="str_eventrigger">Event triggered</string>
+    <string name="str_frameSizeSmallest">smallest</string>
     <!--tabs-->
     <string name="str_pipe">Pipe</string>
     <string name="str_console">Console</string>

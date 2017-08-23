@@ -67,10 +67,10 @@ public class BodyTest
 
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 
 		// Channel
 		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sensorType.set(SensorType.ACCELEROMETER);
 		channel.options.sampleRate.set(40);
 		frame.addSensor(sensor, channel);
 

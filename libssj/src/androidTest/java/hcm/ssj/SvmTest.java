@@ -72,17 +72,16 @@ public class SvmTest
 
         // Sensor
         AndroidSensor accSensor = new AndroidSensor();
-        accSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-
         AndroidSensor gyrSensor = new AndroidSensor();
-        gyrSensor.options.sensorType.set(SensorType.GYROSCOPE);
 
         // Channel
         AndroidSensorChannel accChannel = new AndroidSensorChannel();
+        accChannel.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
         accChannel.options.sampleRate.set(40);
         frame.addSensor(accSensor, accChannel);
 
         AndroidSensorChannel gyrChannel = new AndroidSensorChannel();
+        gyrChannel.options.sensorType.set(SensorType.GYROSCOPE);
         gyrChannel.options.sampleRate.set(40);
         frame.addSensor(gyrSensor, gyrChannel);
 

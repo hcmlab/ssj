@@ -122,12 +122,12 @@ class CameraUtil
     /**
      * Decodes YUVNV21 color space into a regular RGB format.
      *
-     * @param argb Output array for RGB values.
+     * @param rgb Output array for RGB values.
      * @param yuv YUV byte data to decode.
      * @param width Width of image in pixels.
      * @param height Height of image in pixels.
      */
-    public static void convertNV21ToRGB(byte[] argb, byte[] yuv, int width, int height) {
+    public static void convertNV21ToRGB_slow(byte[] rgb, byte[] yuv, int width, int height) {
         final int frameSize = width * height;
         final int ii = 0;
         final int ij = 0;
@@ -146,22 +146,15 @@ class CameraUtil
                 int g = (int) (1.164f * (y - 16) - 0.813f * (v - 128) - 0.391f * (u - 128));
                 int b = (int) (1.164f * (y - 16) + 2.018f * (u - 128));
 
-                argb[a++] = (byte)(r < 0 ? 0 : (r > 255 ? 255 : r)); // red
-                argb[a++] = (byte)(g < 0 ? 0 : (g > 255 ? 255 : g)); // green
-                argb[a++] = (byte)(b < 0 ? 0 : (b > 255 ? 255 : b)); // blue
+                rgb[a++] = (byte)(r < 0 ? 0 : (r > 255 ? 255 : r)); // red
+                rgb[a++] = (byte)(g < 0 ? 0 : (g > 255 ? 255 : g)); // green
+                rgb[a++] = (byte)(b < 0 ? 0 : (b > 255 ? 255 : b)); // blue
             }
         }
     }
 
-    /**
-     * Decodes YUVNV21 color space into a regular RGB format.
-     *
-     * @param argb Output array for RGB values.
-     * @param yuv YUV byte data to decode.
-     * @param width Width of image in pixels.
-     * @param height Height of image in pixels.
-     */
-    public static void convertNV21ToARGBInt(int[] argb, byte[] yuv, int width, int height) {
+    public static void convertNV21ToARGBInt_slow(int[] argb, byte[] yuv, int width, int height)
+    {
         final int frameSize = width * height;
         final int ii = 0;
         final int ij = 0;
@@ -185,6 +178,180 @@ class CameraUtil
                  b = b < 0 ? 0 : (b > 255 ? 255 : b);
 
                  argb[a++] = 0xff000000 | (r << 16) | (g << 8) | b;
+            }
+        }
+    }
+
+    /**
+     * Decodes YUVNV21 color space into a regular RGB format.
+     *
+     * @param rgb Output array for RGB values.
+     * @param yuv YUV byte data to decode.
+     * @param width Width of image in pixels.
+     * @param height Height of image in pixels.
+     */
+    public static void convertNV21ToRGB(byte[] rgb, byte[] yuv, int width, int height)
+    {
+        convertNV21ToRGB(rgb, yuv, width, height, true);
+    }
+
+    /**
+     * Decodes YUVNV21 color space into a regular RGB format.
+     *
+     * @param out Output array for RGB values.
+     * @param yuv YUV byte data to decode.
+     * @param width Width of image in pixels.
+     * @param height Height of image in pixels.
+     * @param swap swap U with V (default = true)
+     */
+    public static void convertNV21ToRGB(byte[] out, byte[] yuv, int width, int height, boolean swap)
+    {
+        int sz = width * height;
+        int i, j;
+        int Y, Cr = 0, Cb = 0;
+        int outPtr = 0;
+        for (j = 0; j < height; j++)
+        {
+            int pixPtr = j * width;
+            final int jDiv2 = j >> 1;
+            for (i = 0; i < width; i++)
+            {
+                Y = yuv[pixPtr];
+                if (Y < 0)
+                    Y += 255;
+                if ((i & 0x1) != 1)
+                {
+                    final int cOff = sz + jDiv2 * width + (i >> 1) * 2;
+                    Cb = yuv[cOff + (swap ? 0 : 1)];
+                    if (Cb < 0)
+                    {
+                        Cb += 127;
+                    } else
+                    {
+                        Cb -= 128;
+                    }
+                    Cr = yuv[cOff + (swap ? 1 : 0)];
+                    if (Cr < 0)
+                    {
+                        Cr += 127;
+                    } else
+                    {
+                        Cr -= 128;
+                    }
+                }
+                int R = Y + Cr + (Cr >> 2) + (Cr >> 3) + (Cr >> 5);
+                if (R < 0)
+                {
+                    R = 0;
+                } else if (R > 255)
+                {
+                    R = 255;
+                }
+                int G = Y - (Cb >> 2) + (Cb >> 4) + (Cb >> 5) - (Cr >> 1) + (Cr >> 3) + (Cr >> 4) + (Cr >> 5);
+                if (G < 0)
+                {
+                    G = 0;
+                } else if (G > 255)
+                {
+                    G = 255;
+                }
+                int B = Y + Cb + (Cb >> 1) + (Cb >> 2) + (Cb >> 6);
+                if (B < 0)
+                {
+                    B = 0;
+                } else if (B > 255)
+                {
+                    B = 255;
+                }
+                pixPtr++;
+                out[outPtr++] = (byte)R;
+                out[outPtr++] = (byte)G;
+                out[outPtr++] = (byte)B;
+            }
+        }
+    }
+
+    /**
+     * Decodes YUVNV21 color space into a regular RGB format.
+     *
+     * @param argb Output array for RGB values.
+     * @param yuv YUV byte data to decode.
+     * @param width Width of image in pixels.
+     * @param height Height of image in pixels.
+     */
+    public static void convertNV21ToARGBInt(int[] argb, byte[] yuv, int width, int height)
+    {
+        convertNV21ToARGBInt(argb, yuv, width, height, true);
+    }
+
+    /**
+     * Decodes YUVNV21 color space into a regular RGB format.
+     *
+     * @param out Output array for RGB values.
+     * @param yuv YUV byte data to decode.
+     * @param width Width of image in pixels.
+     * @param height Height of image in pixels.
+     * @param swap swap U with V (default = true)
+     */
+    public static void convertNV21ToARGBInt(int[] out, byte[] yuv, int width, int height, boolean swap)
+    {
+        int sz = width * height;
+        int i, j;
+        int Y, Cr = 0, Cb = 0;
+        for (j = 0; j < height; j++)
+        {
+            int pixPtr = j * width;
+            final int jDiv2 = j >> 1;
+            for (i = 0; i < width; i++)
+            {
+                Y = yuv[pixPtr];
+                if (Y < 0)
+                    Y += 255;
+                if ((i & 0x1) != 1)
+                {
+                    final int cOff = sz + jDiv2 * width + (i >> 1) * 2;
+                    Cb = yuv[cOff + (swap ? 0 : 1)];
+                    if (Cb < 0)
+                    {
+                        Cb += 127;
+                    } else
+                    {
+                        Cb -= 128;
+                    }
+                    Cr = yuv[cOff + (swap ? 1 : 0)];
+                    if (Cr < 0)
+                    {
+                        Cr += 127;
+                    } else
+                    {
+                        Cr -= 128;
+                    }
+                }
+                int R = Y + Cr + (Cr >> 2) + (Cr >> 3) + (Cr >> 5);
+                if (R < 0)
+                {
+                    R = 0;
+                } else if (R > 255)
+                {
+                    R = 255;
+                }
+                int G = Y - (Cb >> 2) + (Cb >> 4) + (Cb >> 5) - (Cr >> 1) + (Cr >> 3) + (Cr >> 4) + (Cr >> 5);
+                if (G < 0)
+                {
+                    G = 0;
+                } else if (G > 255)
+                {
+                    G = 255;
+                }
+                int B = Y + Cb + (Cb >> 1) + (Cb >> 2) + (Cb >> 6);
+                if (B < 0)
+                {
+                    B = 0;
+                } else if (B > 255)
+                {
+                    B = 255;
+                }
+                out[pixPtr++] = 0xff000000 + (B << 16) + (G << 8) + R;
             }
         }
     }

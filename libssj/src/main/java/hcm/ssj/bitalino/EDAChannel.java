@@ -1,5 +1,5 @@
 /*
- * BitalinoChannel.java
+ * EDAChannel.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -34,13 +34,16 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
- * Created by Michael Dietz on 06.07.2016.
+ * Created by Ionut Damian on 06.07.2016.
+ * outputs EDA value in micro Siemens
  */
-public class BitalinoChannel extends SensorChannel
+public class EDAChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Bitalino.Channel> channel = new Option<>("channel", Bitalino.Channel.A6_LUX, Bitalino.Channel.class, "channel type to use");
+		public final Option<Integer> channel = new Option<>("channel", 2, Integer.class, "channel id (between 0 and 5)");
+		public final Option<Integer> numBits = new Option<>("numBits", 10, Integer.class, "the first 4 channels are sampled using 10-bit resolution, the last two may be sampled using 6-bit");
+		public final Option<Float> vcc = new Option<>("vcc", 3.3f, Float.class, "voltage at the common collector (default 3.3)");
 
 		private Options()
 		{
@@ -51,9 +54,9 @@ public class BitalinoChannel extends SensorChannel
 
 	protected BitalinoListener _listener;
 
-	public BitalinoChannel()
+	public EDAChannel()
 	{
-		_name = "Bitalino_Channel";
+		_name = "Bitalino_EDAChannel";
 	}
 
 	@Override
@@ -74,12 +77,10 @@ public class BitalinoChannel extends SensorChannel
 		if(!_listener.isConnected())
 			return false;
 
-		int[] out = stream_out.ptrI();
+		float[] out = stream_out.ptrF();
 
-		if(options.channel.get().isAnalogue())
-			out[0] = _listener.getAnalogData(options.channel.get().getDataPosition());
-		else
-			out[0] = _listener.getDigitalData(options.channel.get().getDataPosition());
+		float adc = _listener.getAnalogData(options.channel.get());
+		out[0] = (float)(((adc / (2 << options.numBits.get() - 1)) * options.vcc.get() - 0.574) / 0.132);
 
 		return true;
 	}
@@ -99,13 +100,13 @@ public class BitalinoChannel extends SensorChannel
 	@Override
 	protected Cons.Type getSampleType()
 	{
-		return Cons.Type.INT;
+		return Cons.Type.FLOAT;
 	}
 
 	@Override
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = options.channel.get().toString();
+		stream_out.desc[0] = "EDA";
 	}
 }

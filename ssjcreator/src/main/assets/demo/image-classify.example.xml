@@ -34,9 +34,9 @@
   <sensorList>
     <sensor class="hcm.ssj.camera.CameraSensor" id="101911089">
       <options>
-        <option name="cameraInfo" value="0" />
+        <option name="cameraID" value="0" />
         <option name="height" value="480" />
-        <option name="imageFormat" value="17" />
+        <option name="imageFormat" value="NV21" />
         <option name="previewFpsRangeMax" value="15" />
         <option name="previewFpsRangeMin" value="15" />
         <option name="showSupportedValues" value="false" />
@@ -98,12 +98,9 @@
     </consumer>
     <consumer class="hcm.ssj.camera.CameraPainter" id="263764379" frameSize="0.1" delta="0.0" eventTrigger="false">
       <options>
-        <option name="colorFormat" value="NV21_UV_SWAPPED" />
-        <option name="height" value="480" />
         <option name="orientation" value="90" />
         <option name="scale" value="true" />
         <option name="showBestMatch" value="true" />
-        <option name="width" value="640" />
       </options>
       <providerList>
         <providerId id="103063488" />
