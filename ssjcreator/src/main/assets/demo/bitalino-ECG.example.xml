@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="3">
+  <framework/>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.bitalino.ECGChannel" id="57560173">
+      <options>
+        <option name="channelID" value="1" />
+        <option name="numBits" value="10" />
+      </options>
+      <providerList />
+      <eventProviderList />
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.bitalino.Bitalino" id="196866317">
+      <options>
+        <option name="connectionType" value="BTH" />
+        <option name="name" value="ENTER NAME OF BOARD HERE" />
+        <option name="sr" value="100" />
+      </options>
+      <providerList>
+        <providerId id="57560173" />
+      </providerList>
+      <eventProviderList />
+    </sensor>
+  </sensorList>
+  <transformerList />
+  <consumerList>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="260425922" frameSize="0.01" delta="0.0" eventTrigger="false">
+      <providerList>
+        <providerId id="57560173" />
+      </providerList>
+      <eventProviderList />
+    </consumer>
+  </consumerList>
+  <eventHandlerList />
+</ssjSaveFile>
