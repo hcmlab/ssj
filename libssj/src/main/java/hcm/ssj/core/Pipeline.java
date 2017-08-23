@@ -245,6 +245,37 @@ public class Pipeline
      *
      * @param t the Transformer to be added
      * @param source the component which will provide data to the transformer
+     * @return the Transformer which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public Provider addTransformer(Transformer t, Provider source) throws SSJException
+    {
+        Provider[] sources = {source};
+        return addTransformer(t, sources, source.getOutputStream().num / source.getOutputStream().sr, 0);
+    }
+
+    /**
+     * Adds a transformer to the pipeline and sets up the necessary output buffer.
+     * init method of transformer is called before setting up buffer.
+     *
+     * @param t the Transformer to be added
+     * @param source the component which will provide data to the transformer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @return the Transformer which was passed as parameter
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public Provider addTransformer(Transformer t, Provider source, double frame) throws SSJException
+    {
+        Provider[] sources = {source};
+        return addTransformer(t, sources, frame, 0);
+    }
+
+    /**
+     * Adds a transformer to the pipeline and sets up the necessary output buffer.
+     * init method of transformer is called before setting up buffer.
+     *
+     * @param t the Transformer to be added
+     * @param source the component which will provide data to the transformer
      * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
      * @param delta the amount of input data which overlaps with the previous window (in seconds). Provided in addition to the primary window ("frame").
      * @return the Transformer which was passed as parameter
@@ -290,6 +321,33 @@ public class Pipeline
 
         components.add(t);
         return t;
+    }
+
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addConsumer(Consumer c, Provider source) throws SSJException {
+        Provider[] sources = {source};
+        addConsumer(c, sources, source.getOutputStream().num / source.getOutputStream().sr, 0);
+    }
+
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param source the component which will provide data to the consumer
+     * @param frame the size of the data window which is provided every iteration to the transformer (in seconds)
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addConsumer(Consumer c, Provider source, double frame) throws SSJException {
+        Provider[] sources = {source};
+        addConsumer(c, sources, frame, 0);
     }
 
     /**

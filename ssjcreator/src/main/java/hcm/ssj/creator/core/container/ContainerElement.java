@@ -39,7 +39,7 @@ import hcm.ssj.core.Provider;
 public class ContainerElement<T>
 {
     private T element;
-    private double frameSize = 1;
+    private Double frameSize = null;
     private double delta = 0;
 	private boolean eventTrigger = false;
     private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
@@ -63,9 +63,9 @@ public class ContainerElement<T>
     }
 
     /**
-     * @return double
+     * @return Double
      */
-    public double getFrameSize()
+    public Double getFrameSize()
     {
         return frameSize;
     }
@@ -73,7 +73,7 @@ public class ContainerElement<T>
     /**
      * @param frameSize double
      */
-    public void setFrameSize(double frameSize)
+    public void setFrameSize(Double frameSize)
     {
         this.frameSize = frameSize;
     }

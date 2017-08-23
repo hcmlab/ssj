@@ -222,6 +222,8 @@ public abstract class SaveLoad
             }
             //clear previous content
             Pipeline.getInstance().clear();
+            PipelineBuilder.getInstance().clear();
+
             //load classes
             parser.nextTag();
             String tag;
@@ -280,7 +282,8 @@ public abstract class SaveLoad
                             String clazz = parser.getAttributeValue(null, CLASS);
                             context = Class.forName(clazz).newInstance();
                             PipelineBuilder.getInstance().add(context);
-                            PipelineBuilder.getInstance().setFrameSize(context, Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)));
+                            Double frame = (parser.getAttributeValue(null, FRAME_SIZE) != null) ? Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)) : null;
+                            PipelineBuilder.getInstance().setFrameSize(context, frame);
                             PipelineBuilder.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
                             PipelineBuilder.getInstance().setEventTrigger(context, Boolean.valueOf(parser.getAttributeValue(null, EVENT_TRIGGER)));
                             String hash = parser.getAttributeValue(null, ID);
@@ -415,7 +418,8 @@ public abstract class SaveLoad
         addStandard(serializer, containerElement.getElement());
         if (withAttributes)
         {
-            serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
+            if(containerElement.getFrameSize() != null)
+                serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
             serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
             serializer.attribute(null, EVENT_TRIGGER, String.valueOf(containerElement.getEventTrigger()));
         }

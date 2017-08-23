@@ -111,7 +111,7 @@ public class testLinker extends ApplicationTestCase<Application>
             {
                 pipelineBuilder.add(consumer);
                 pipelineBuilder.addStreamProvider(consumer, sensorChannel);
-                pipelineBuilder.setFrameSize(consumer, 1);
+                pipelineBuilder.setFrameSize(consumer, 1.0);
                 pipelineBuilder.setDelta(consumer, 0);
             }
         }
