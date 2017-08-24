@@ -78,42 +78,6 @@ public class TensorFlow extends Model
 	}
 
 
-	/**
-	 * Set label count for the classifier.
-	 *
-	 * @param classNum amount of object classes to recognize.
-	 */
-	public void setNumClasses(int classNum)
-	{
-		this.classNum = classNum;
-	}
-
-
-	/**
-	 * Set label strings for the classifier.
-	 *
-	 * @param classNames recognized object classes.
-	 */
-	public void setClassNames(String[] classNames)
-	{
-		this.classNames = classNames;
-	}
-
-
-	@Override
-	public int getNumClasses()
-	{
-		return classNum;
-	}
-
-
-	@Override
-	public String[] getClassNames()
-	{
-		return classNames;
-	}
-
-
 	@Override
 	protected float[] forward(Stream[] stream)
 	{
