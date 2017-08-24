@@ -91,4 +91,9 @@ class SensorListener implements SensorEventListener
         }
         return d;
     }
+
+    public SensorType getType()
+    {
+        return sensorType;
+    }
 }

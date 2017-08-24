@@ -66,8 +66,8 @@ public class AndroidSensorTest
                 frame.options.bufferSize.set(10.0f);
                 //sensor
                 AndroidSensor sensor = new AndroidSensor();
-                sensor.options.sensorType.set(type);
                 AndroidSensorChannel channel = new AndroidSensorChannel();
+                channel.options.sensorType.set(type);
                 frame.addSensor(sensor, channel);
                 //logger
                 Logger log = new Logger();

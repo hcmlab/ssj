@@ -264,6 +264,7 @@ class CameraUtil
                 {
                     B = 255;
                 }
+                pixPtr++;
                 out[outPtr++] = (byte)R;
                 out[outPtr++] = (byte)G;
                 out[outPtr++] = (byte)B;

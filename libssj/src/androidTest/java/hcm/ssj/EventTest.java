@@ -62,8 +62,8 @@ public class EventTest
         frame.options.bufferSize.set(10.0f);
 
         AndroidSensor sensor = new AndroidSensor();
-        sensor.options.sensorType.set(SensorType.ACCELEROMETER);
         AndroidSensorChannel acc = new AndroidSensorChannel();
+        acc.options.sensorType.set(SensorType.ACCELEROMETER);
         acc.options.sampleRate.set(40);
         frame.addSensor(sensor, acc);
 

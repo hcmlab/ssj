@@ -46,6 +46,8 @@ public class AndroidSensorChannel extends SensorChannel
      */
     public class Options extends OptionList
     {
+        public final Option<SensorType> sensorType = new Option<>("sensorType", SensorType.ACCELEROMETER, SensorType.class, "android sensor type");
+
         /**
          * The rate in which the provider samples data from the sensor.<br>
          * <b>Attention!</b> The sensor will provide new data according to its sensor delay.
@@ -62,7 +64,7 @@ public class AndroidSensorChannel extends SensorChannel
     }
 
     public final Options options = new Options();
-    protected SensorListener _listener;
+    protected SensorListener listener;
     private SensorType sensorType;
 
     /**
@@ -71,7 +73,7 @@ public class AndroidSensorChannel extends SensorChannel
     public AndroidSensorChannel()
     {
         super();
-        _name = "Android";
+        _name = "AndroidSensorChannel";
     }
 
     /**
@@ -80,9 +82,17 @@ public class AndroidSensorChannel extends SensorChannel
     @Override
     public void init()
     {
-        ((AndroidSensor) _sensor).init();
-        this.sensorType = ((AndroidSensor) _sensor).getSensorType();
-        _name = sensorType.getName();
+        if (options.sensorType.get() == null)
+        {
+            Log.e("sensor type not set");
+            return;
+        }
+
+        sensorType = options.sensorType.get();
+        _name = this.sensorType.getName();
+
+        listener = new SensorListener(sensorType);
+        ((AndroidSensor) _sensor).register(listener);
     }
 
     /**
@@ -91,7 +101,6 @@ public class AndroidSensorChannel extends SensorChannel
     @Override
     public void enter(Stream stream_out)
     {
-        _listener = ((AndroidSensor) _sensor).listener;
         if (stream_out.num != 1)
         {
             Log.w("[" + sensorType.getName() + "] unsupported stream format. sample number = " + stream_out.num);
@@ -108,7 +117,7 @@ public class AndroidSensorChannel extends SensorChannel
         float[] out = stream_out.ptrF();
         for (int k = 0; k < dimension; k++)
         {
-            out[k] = _listener.getData().getData(k);
+            out[k] = listener.getData().getData(k);
         }
 
         return true;
