@@ -229,6 +229,9 @@ public class CameraPainter extends Consumer implements EventListener
 
                 if (canvas != null)
                 {
+                    // Clear canvas.
+                    canvas.drawColor(Color.BLACK);
+
                     int canvasWidth = canvas.getWidth();
                     int canvasHeight = canvas.getHeight();
 

@@ -42,6 +42,9 @@ public abstract class Model {
     protected String _name = "Model";
     protected boolean _isTrained = false;
 
+    protected int n_classes;
+    protected String[] class_names = null;
+
     public class Options extends OptionList {}
     public final Options options = new Options();
 
@@ -96,6 +99,33 @@ public abstract class Model {
         return _isTrained;
     }
 
-    abstract int getNumClasses();
-    abstract String[] getClassNames();
+    /**
+     * Set label count for the classifier.
+     *
+     * @param classNum amount of object classes to recognize.
+     */
+    public void setNumClasses(int classNum)
+    {
+        this.n_classes = classNum;
+    }
+
+    /**
+     * Set label strings for the classifier.
+     *
+     * @param classNames recognized object classes.
+     */
+    public void setClassNames(String[] classNames)
+    {
+        this.class_names = classNames;
+    }
+
+    public int getNumClasses()
+    {
+        return n_classes;
+    }
+
+    public String[] getClassNames()
+    {
+        return class_names;
+    }
 }

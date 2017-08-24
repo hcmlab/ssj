@@ -137,7 +137,8 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 
 		if(!listener.receivedData) {
-			Log.e("unable to connect to empatica");
+			Log.e("Unable to connect to empatica. Make sure it is on and NOT paired to your smartphone.");
+			disconnect();
 			return false;
 		}
 
@@ -259,7 +260,9 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	@Override
 	public void disconnect()
 	{
+		Log.i("disconnecting...");
 		deviceManager.disconnect();
+		deviceManager.cleanUp();
 	}
 
 	@Override
@@ -303,7 +306,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public void didDiscoverDevice(BluetoothDevice bluetoothDevice, int rssi, boolean allowed)
+	public void didDiscoverDevice(BluetoothDevice bluetoothDevice, String deviceName, int rssi, boolean allowed)
 	{
 		// Stop scanning. The first allowed device will do.
 		if (allowed)
@@ -325,6 +328,10 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 			{
 				Log.e("Can't connect to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
 			}
+		}
+		else
+		{
+			Log.w("Device " + deviceName + " not linked to specified api key");
 		}
 	}
 
