@@ -34,6 +34,7 @@ import android.media.MediaCodecList;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Date;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.file.LoggingConstants;
@@ -359,9 +360,8 @@ class CameraUtil
      * Saved bitmap to external storage.
      *
      * @param bitmap Bitmap to save.
-     * @param filename Name of the file to be saved as.
      */
-    public static void saveBitmap(final Bitmap bitmap, final String filename) {
+    public static void saveBitmap(final Bitmap bitmap) {
         final String root =
                 LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "previews";
         final File myDir = new File(root);
@@ -370,7 +370,7 @@ class CameraUtil
             Log.i("Make dir failed");
         }
 
-        final String fname = filename;
+        final String fname = new Date().toString().replaceAll(" ", "_").replaceAll(":", "_") + ".png";
         final File file = new File(myDir, fname);
         if (file.exists()) {
             file.delete();
