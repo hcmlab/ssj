@@ -205,6 +205,8 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
+                    //change button text
+                    changeImageButton(android.R.drawable.ic_popup_sync, false);
                     //save framework options
                     Pipeline pipeline = Pipeline.getInstance();
                     //remove old content
@@ -226,10 +228,11 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
                         ready = true;
+                        changeImageButton(android.R.drawable.ic_media_play, true);
                         return;
                     }
                     //change button text
-                    changeImageButton(android.R.drawable.ic_media_pause);
+                    changeImageButton(android.R.drawable.ic_media_pause, true);
                     //notify tabs
                     tabHandler.preStart();
                     //start framework
@@ -247,7 +250,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     ready = true;
                     //change button text
-                    changeImageButton(android.R.drawable.ic_media_play);
+                    changeImageButton(android.R.drawable.ic_media_play, true);
                 }
             }.start();
         } else
@@ -259,7 +262,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * @param idImage int
      */
-    private void changeImageButton(final int idImage)
+    private void changeImageButton(final int idImage, final boolean enabled)
     {
         final ImageButton imageButton = (ImageButton) findViewById(R.id.id_imageButton);
         if (imageButton != null)
@@ -269,6 +272,7 @@ public class MainActivity extends AppCompatActivity
                 public void run()
                 {
                     imageButton.setImageResource(idImage);
+                    imageButton.setEnabled(enabled);
                 }
             });
         }
@@ -446,7 +450,7 @@ public class MainActivity extends AppCompatActivity
         actualizeContent(Util.AppAction.DISPLAYED, null);
         if (!ready)
         {
-            changeImageButton(android.R.drawable.ic_media_pause);
+            changeImageButton(android.R.drawable.ic_media_pause, true);
         }
     }
 

@@ -135,6 +135,8 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.5'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    //compile 'com.squareup.okhttp:okhttp:2.5.0'
 }
 
 //upload to library bintray

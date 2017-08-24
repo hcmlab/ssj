@@ -65,9 +65,7 @@ public class SVM extends Model
     }
 
     public final Options options = new Options();
-    private int n_classes;
     private int n_features;
-    private String[] class_names = null;
     private double[] max = null;
     private double[] min = null;
     private svm_model model;
@@ -168,16 +166,6 @@ public class SVM extends Model
         Log.e("saving not supported yet");
     }
 
-    @Override
-    int getNumClasses() {
-        return n_classes;
-    }
-
-    @Override
-    String[] getClassNames() {
-        return class_names;
-    }
-
     /**
      * Load data from model file
      */
@@ -204,7 +192,9 @@ public class SVM extends Model
             //read num class and num features
             String token[] = line.split("\t");
             if (token.length > 0) {
-                n_classes = Integer.valueOf(token[0]);
+                int classNum = Integer.valueOf(token[0]);
+                if(classNum != n_classes)
+                    Log.w("model definition (n_classes) mismatch between trainer and model file: " + classNum +" != "+ n_classes);
             } else {
                 throw new IOException("can't read number of classes from classifier file " + file.getName() + "!");
             }
@@ -220,7 +210,15 @@ public class SVM extends Model
             } while (line.startsWith("#") || line.charAt(0) == '\n');
 
             // read class names
-            class_names = line.split(" ");
+            String[] names = line.split(" ");
+            for(int i = 0; i < names.length; i++)
+            {
+                if (!names[i].equalsIgnoreCase(class_names[i]))
+                {
+                    Log.w("model definition (name of class " + i + ") mismatch between trainer and model file:" + names[i] + " != " + class_names[i]);
+                    class_names[i] = names[i];
+                }
+            }
 
             max = new double[n_features];
             min = new double[n_features];

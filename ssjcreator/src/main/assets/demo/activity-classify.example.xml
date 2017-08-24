@@ -80,7 +80,6 @@
       <options>
         <option name="trainerFile" value="activity.NaiveBayes.trainer" />
         <option name="trainerPath" value="/storage/emulated/0/SSJ/Creator" />
-        <option name="numClasses" value="3" />
       </options>
       <providerList>
         <providerId id="168988805" />

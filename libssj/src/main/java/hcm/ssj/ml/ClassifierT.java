@@ -39,6 +39,7 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -54,6 +55,7 @@ import hcm.ssj.signal.Selector;
  */
 public class ClassifierT extends Transformer
 {
+
     /**
      * All options for the transformer
      */
@@ -61,7 +63,6 @@ public class ClassifierT extends Transformer
     {
         public final Option<String> trainerPath = new Option<>("trainerPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
-        public final Option<Integer> numClasses = new Option<>("numClasses", 0, Integer.class, "number of classification classes");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
 
         private Options()
@@ -76,9 +77,10 @@ public class ClassifierT extends Transformer
     private Stream[] _stream_merged;
     private Stream[] _stream_selected;
     private Merge _merge = null;
-    private Model _model;
+    private Model _model = null;
+    private String _modelfile;
+    private String _modeloptionsfile;
     private Cons.Type type = Cons.Type.UNDEF;
-    private ArrayList<String> classNames = new ArrayList<>();
 
     private int bytes = 0;
     private int dim = 0;
@@ -90,10 +92,17 @@ public class ClassifierT extends Transformer
         _name = this.getClass().getSimpleName();
     }
 
-    /**
-     * Load data from option file
-     */
+
     public void load(File file) throws XmlPullParserException, IOException
+    {
+        loadHeader(file);
+        loadModel();
+    }
+
+    /**
+     * Load trainer file
+     */
+    public void loadHeader(File file) throws XmlPullParserException, IOException
     {
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -105,6 +114,8 @@ public class ClassifierT extends Transformer
             Log.w("unknown or malformed trainer file");
             return;
         }
+
+        ArrayList<String> classNames = new ArrayList<>();
 
         while (parser.next() != XmlPullParser.END_DOCUMENT)
         {
@@ -162,18 +173,31 @@ public class ClassifierT extends Transformer
                 String modelName = parser.getAttributeValue(null, "create");
                 _model = Model.create(modelName);
 
-                if (modelName.equalsIgnoreCase("PythonModel"))
-                {
-                    ((TensorFlow) _model).setNumClasses(classNames.size());
-                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
-                }
+                _model.setNumClasses(classNames.size());
+                _model.setClassNames(classNames.toArray(new String[0]));
 
-                _model.load(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
-                _model.loadOption(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
+                _modelfile = parser.getAttributeValue(null, "path") + ".model";
+                _modeloptionsfile = parser.getAttributeValue(null, "option") + ".option";
             }
 
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
                 break;
+        }
+    }
+
+    public void loadModel() throws IOException
+    {
+        _model.load(FileUtils.getFile(options.trainerPath.get(), _modelfile));
+        _model.loadOption(FileUtils.getFile(options.trainerPath.get(), _modeloptionsfile));
+    }
+
+    @Override
+    public void init(double frame, double delta) throws SSJException
+    {
+        try {
+            loadHeader(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
+        } catch (IOException | XmlPullParserException e) {
+            Log.e("unable to load trainer file", e);
         }
     }
 
@@ -186,20 +210,16 @@ public class ClassifierT extends Transformer
     {
         //load model files
         try {
-            load(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
-        } catch (IOException | XmlPullParserException e) {
-            Log.e("unable to load trainer file", e);
+            loadModel();
+        } catch (IOException e) {
+            Log.e("unable to load model file", e);
         }
 
         if(_model == null || !_model.isTrained())
             Log.e("model not loaded");
 
         if(stream_out.dim != _model.getNumClasses())
-            Log.e("specified num classes does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
-
-        //define output stream
-        if (_model.getClassNames() != null)
-            System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
+            Log.e("stream out does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
 
         if (stream_in.length > 1 && !options.merge.get())
             Log.e("sources count not supported");
@@ -279,10 +299,13 @@ public class ClassifierT extends Transformer
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        if(options.numClasses.get() == 0)
-            Log.e("Number of classes not defined! It must be set in the options.");
+        if(_model == null)
+        {
+            Log.e("model header not loaded, cannot determine num classes.");
+            return 0;
+        }
 
-        return options.numClasses.get();
+        return _model.getNumClasses();
     }
 
     /**
@@ -330,9 +353,18 @@ public class ClassifierT extends Transformer
         int overallDimension = getSampleDimension(stream_in);
         stream_out.desc = new String[overallDimension];
 
-        for (int i = 0; i < overallDimension; i++)
+        if(_model != null)
         {
-            stream_out.desc[i] = "class" + i;
+            //define output stream
+            if (_model.getClassNames() != null)
+                System.arraycopy(_model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
+        }
+        else
+        {
+            for (int i = 0; i < overallDimension; i++)
+            {
+                stream_out.desc[i] = "class" + i;
+            }
         }
     }
 }
