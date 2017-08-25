@@ -30,6 +30,7 @@ package hcm.ssj.feedback.classes;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -56,8 +57,6 @@ import hcm.ssj.feedback.actions.VisualAction;
  */
 public class Visual extends FeedbackClass
 {
-    Activity activity;
-
     protected ImageSwitcher img[];
     protected float defBrightness = 0.5f;
 
@@ -67,9 +66,11 @@ public class Visual extends FeedbackClass
     private boolean isSetup;
     private int position = 0;
 
-    public Visual(Activity activity)
+    private Activity activity;
+
+    public Visual(Context context)
     {
-        this.activity = activity;
+        this.context = context;
         type = Type.Visual;
         isSetup = false;
     }
@@ -130,12 +131,12 @@ public class Visual extends FeedbackClass
     protected void updateIcons(Drawable icons[])
     {
         //set feedback icon
-        updateImageSwitcher(activity, img[0], icons[0]);
+        updateImageSwitcher(img[0], icons[0]);
 
         //set quality icon
         if(icons.length == 2 && img.length == 2 && img[1] != null)
         {
-            updateImageSwitcher(activity, img[1], icons[1]);
+            updateImageSwitcher(img[1], icons[1]);
         }
     }
 
@@ -152,9 +153,9 @@ public class Visual extends FeedbackClass
         });
     }
 
-    protected void updateImageSwitcher(final Activity act, final ImageSwitcher view, final Drawable img)
+    protected void updateImageSwitcher(final ImageSwitcher view, final Drawable img)
     {
-        act.runOnUiThread(new Runnable()
+        view.post(new Runnable()
         {
             public void run()
             {
@@ -199,7 +200,8 @@ public class Visual extends FeedbackClass
 
     private void buildLayout(final Context context, final String layout_name, final int fade)
     {
-        activity.runOnUiThread(new Runnable()
+        Handler handler = new Handler(context.getMainLooper());
+        handler.post(new Runnable()
         {
             @Override
             public void run()
@@ -207,6 +209,8 @@ public class Visual extends FeedbackClass
                 int layout_id = activity.getResources().getIdentifier(layout_name, "id", context.getPackageName());
                 TableLayout table = (TableLayout) activity.findViewById(layout_id);
                 table.setStretchAllColumns(true);
+
+                activity = (Activity) table.findViewById(android.R.id.content).getContext();
 
                 int rows = ((VisualAction) action).icons.length;
                 img = new ImageSwitcher[rows];
