@@ -58,24 +58,28 @@ public abstract class DemoHandler
     public static void copyFiles(Context context)
     {
         AssetManager assetManager = context.getAssets();
+
+        copyFiles(assetManager,
+                  Util.DEMO,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2);
+        copyFiles(assetManager,
+                  Util.DEMO + File.separator + Util.RES,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2  + File.separator + Util.RES);
+    }
+
+    public static void copyFiles(AssetManager assetManager, String src_dir, String dst_dir)
+    {
+        String[] filenames;
         try
         {
-            copyFiles(assetManager,
-                      Util.DEMO,
-                      Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2);
-            copyFiles(assetManager,
-                      Util.DEMO + File.separator + Util.RES,
-                      Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2  + File.separator + Util.RES);
+            filenames = assetManager.list(src_dir);
         }
         catch (IOException e)
         {
-            Log.e(e.getMessage());
+            Log.e("error accessing asset folder: " + src_dir, e);
+            return;
         }
-    }
 
-    public static void copyFiles(AssetManager assetManager, String src_dir, String dst_dir) throws IOException
-    {
-        String[] filenames = assetManager.list(src_dir);
         for (String file : filenames)
         {
             try
@@ -89,10 +93,10 @@ public abstract class DemoHandler
                 in.close();
                 out.flush();
                 out.close();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
-                e.printStackTrace();
-                Log.e(e.getMessage());
+                Log.i("skipping copying file: " + file);
             }
         }
     }
