@@ -27,7 +27,7 @@
 
 package hcm.ssj.feedback;
 
-import android.app.Activity;
+import android.content.Context;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -41,10 +41,12 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.feedback.classes.FeedbackClass;
 import hcm.ssj.feedback.classes.FeedbackListener;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 02.12.2014.
@@ -55,14 +57,20 @@ public class FeedbackManager extends EventHandler
 
     public class Options extends OptionList
     {
-        public final Option<String> strategy = new Option<>("strategy", "", String.class, "feedback strategy file");
+        public final Option<String> strategyFilePath = new Option<>("strategyFilePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "location of strategy file");
+        public final Option<String> strategyFileName = new Option<>("strategyFileName", null, String.class, "name of strategy file");
         public final Option<Boolean> fromAsset = new Option<>("fromAsset", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
         public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
+
+        private Options()
+        {
+            addOptions();
+        }
     }
     public Options options = new Options();
 
-    protected Activity activity;
+    protected Context context;
 
     protected ArrayList<FeedbackClass> classes = new ArrayList<FeedbackClass>();
 
@@ -73,9 +81,10 @@ public class FeedbackManager extends EventHandler
     private long progressionTimeout;
     private long regressionTimeout;
 
-    public FeedbackManager(Activity act)
+    public FeedbackManager()
     {
-        activity = act;
+        context = SSJApplication.getAppContext();
+        _name = "FeedbackManager";
     }
 
     public ArrayList<FeedbackClass> getClasses()
@@ -93,7 +102,11 @@ public class FeedbackManager extends EventHandler
 
         try
         {
-            load(options.strategy.get(), options.fromAsset.get());
+            String file = options.strategyFileName.get();
+            if(!options.fromAsset.get())
+                file = options.strategyFilePath.get() + File.separator + options.strategyFileName.get();
+
+            load(file, options.fromAsset.get());
         }
         catch (IOException | XmlPullParserException e)
         {
@@ -174,7 +187,7 @@ public class FeedbackManager extends EventHandler
         if(!fromAsset)
             in = new FileInputStream(new File(filename));
         else
-            in = activity.getAssets().open(filename);
+            in = context.getAssets().open(filename);
 
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -214,7 +227,7 @@ public class FeedbackManager extends EventHandler
             if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
             {
                 //parse feedback classes
-                FeedbackClass c = FeedbackClass.create(parser, activity);
+                FeedbackClass c = FeedbackClass.create(parser, context);
                 classes.add(c);
             }
             else if(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))

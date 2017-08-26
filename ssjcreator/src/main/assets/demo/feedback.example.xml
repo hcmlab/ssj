@@ -1,0 +1,94 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="3">
+  <framework>
+    <options>
+      <option name="bufferSize" value="9.0" />
+      <option name="clockSyncInterval" value="1.0" />
+      <option name="clockSyncPort" value="0" />
+      <option name="countdown" value="3" />
+      <option name="log" value="false" />
+      <option name="loglevel" value="VERBOSE" />
+      <option name="logpath" value="/storage/emulated/0/SSJ/[time]" />
+      <option name="logtimeout" value="5.0" />
+      <option name="startSyncPort" value="0" />
+      <option name="waitSensorConnect" value="5.0" />
+      <option name="waitThreadKill" value="30.0" />
+    </options>
+  </framework>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="157863552">
+      <options>
+        <option name="sampleRate" value="50" />
+        <option name="sensorType" value="LINEAR_ACCELERATION" />
+      </options>
+      <providerList />
+      <eventProviderList />
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="197939884">
+      <options>
+        <option name="sensorDelay" value="0" />
+      </options>
+      <providerList>
+        <providerId id="157863552" />
+      </providerList>
+      <eventProviderList />
+    </sensor>
+  </sensorList>
+  <transformerList>
+    <transformer class="hcm.ssj.body.OverallActivation" id="222131978" frameSize="0.1" delta="5.0" eventTrigger="false">
+      <options />
+      <providerList>
+        <providerId id="157863552" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+    <transformer class="hcm.ssj.signal.MvgAvgVar" id="169133143" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="format" value="AVERAGE" />
+        <option name="method" value="MOVING" />
+        <option name="window" value="10.0" />
+      </options>
+      <providerList>
+        <providerId id="222131978" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+  </transformerList>
+  <consumerList>
+    <consumer class="hcm.ssj.event.FloatsEventSender" id="264269230" frameSize="0.5" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="event" value="OverallActivation" />
+        <option name="mean" value="true" />
+        <option name="sender" value="SSJ" />
+      </options>
+      <providerList>
+        <providerId id="169133143" />
+      </providerList>
+      <eventProviderList />
+    </consumer>
+  </consumerList>
+  <eventHandlerList>
+    <eventHandler class="hcm.ssj.feedback.FeedbackManager" id="323937" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="fromAsset" value="false" />
+        <option name="progression" value="12.0" />
+        <option name="regression" value="60.0" />
+        <option name="strategyFileName" value="strategy.xml" />
+        <option name="strategyFilePath" value="/storage/emulated/0/SSJ/Creator/res" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="264269230" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.test.EventLogger" id="95192198" delta="0.0" eventTrigger="false">
+      <options />
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="264269230" />
+      </eventProviderList>
+    </eventHandler>
+  </eventHandlerList>
+</ssjSaveFile>

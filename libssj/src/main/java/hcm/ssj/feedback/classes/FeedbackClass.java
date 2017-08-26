@@ -27,7 +27,6 @@
 
 package hcm.ssj.feedback.classes;
 
-import android.app.Activity;
 import android.content.Context;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -48,26 +47,27 @@ import hcm.ssj.feedback.conditions.Condition;
 public abstract class FeedbackClass
 {
     protected Type type;
+    protected Context context;
     protected Condition condition = null;
     protected Action action = null;
     protected int level = 0;
     protected FeedbackClass.Valence valence;
     private ArrayList<FeedbackListener> listeners = new ArrayList<>();
 
-    public static FeedbackClass create(XmlPullParser xml, Activity activity)
+    public static FeedbackClass create(XmlPullParser xml, Context context)
     {
         FeedbackClass f = null;
 
         if(xml.getAttributeValue(null, "type").equalsIgnoreCase("visual"))
-            f = new Visual(activity);
+            f = new Visual(context);
         else if(xml.getAttributeValue(null, "type").equalsIgnoreCase("tactile"))
-            f = new Tactile(activity);
+            f = new Tactile(context);
         else if(xml.getAttributeValue(null, "type").equalsIgnoreCase("audio"))
-            f = new Auditory(activity);
+            f = new Auditory(context);
         else
             throw new UnsupportedOperationException("feedback type "+ xml.getAttributeValue(null, "type") +" not yet implemented");
 
-        f.load(xml, activity.getApplicationContext());
+        f.load(xml, context);
         return f;
     }
 

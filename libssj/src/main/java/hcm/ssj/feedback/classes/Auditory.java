@@ -27,7 +27,6 @@
 
 package hcm.ssj.feedback.classes;
 
-import android.app.Activity;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -44,15 +43,13 @@ import hcm.ssj.feedback.actions.AudioAction;
  */
 public class Auditory extends FeedbackClass
 {
-    Activity activity;
-
     long lock = 0;
 
     SoundPool player;
 
-    public Auditory(Activity activity)
+    public Auditory(Context context)
     {
-        this.activity = activity;
+        this.context = context;
         type = Type.Audio;
     }
 
