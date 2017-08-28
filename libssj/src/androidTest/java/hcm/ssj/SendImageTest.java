@@ -134,6 +134,10 @@ public class SendImageTest
 		bluetoothChannel.options.type.set(Cons.Type.IMAGE);
 		bluetoothChannel.options.sr.set(1.0);
 		bluetoothChannel.options.num.set(1);
+		bluetoothChannel.options.imageHeight.set(height);
+		bluetoothChannel.options.imageWidth.set(width);
+		bluetoothChannel.options.imageFormat.set(Cons.ImageFormat.NV21);
+
 		bluetoothChannel.setSyncInterval(20);
 		bluetoothChannel.setWatchInterval(10);
 		frame.addSensor(bluetoothReader, bluetoothChannel);
@@ -144,6 +148,7 @@ public class SendImageTest
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(true);
 		resizer.options.size.set(224);
+		resizer.options.savePreview.set(true);
 		frame.addTransformer(resizer, decoder, frameSize, delta);
 
 		// Add image pixel value normalizer to the pipeline
