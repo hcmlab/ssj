@@ -30,9 +30,11 @@ package hcm.ssj.feedback.actions;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.SoundPool;
+import android.os.Environment;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
@@ -45,10 +47,11 @@ public class AudioAction extends Action
 {
     Context _context = null;
 
-    public AssetFileDescriptor _afd = null;
+    public AssetFileDescriptor fd = null;
 
     public float intensity = 1;
     public int soundId;
+    private String res;
 
     public AudioAction()
     {
@@ -62,13 +65,18 @@ public class AudioAction extends Action
 
         try
         {
-            String res = xml.getAttributeValue(null, "res");
-            if(res != null)
+            res = xml.getAttributeValue(null, "res");
+            if(res == null)
+                throw new IOException("no sound defined");
+
+            if(res.startsWith("assets:"))
             {
-                _afd =  context.getAssets().openFd(res);
+                fd =  context.getAssets().openFd(res.substring(7));
             }
             else
-                throw new IOException("no sound defined");
+            {
+                res = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + res;
+            }
 
             String intensity_str = xml.getAttributeValue(null, "intensity");
             if(intensity_str != null)
@@ -84,8 +92,15 @@ public class AudioAction extends Action
     {
         try
         {
-            soundId = player.load(_afd, 1);
-            _afd.close();
+            if(fd != null)
+            {
+                soundId = player.load(fd, 1);
+                fd.close();
+            }
+            else
+            {
+                soundId = player.load(res, 1);
+            }
         }
         catch (IOException e)
         {

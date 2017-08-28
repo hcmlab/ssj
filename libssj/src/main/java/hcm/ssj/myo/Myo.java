@@ -117,8 +117,9 @@ public class Myo extends Sensor
 					}
 					else
 					{
-						Log.i("Connecting to nearest myo");
-						hub.attachToAdjacentMyo();
+						//Log.i("Connecting to nearest myo");
+						//hub.attachToAdjacentMyo(); //buggy, not usable
+						Log.e("Cannot connect, please specify MAC address of Myo.");
 					}
 				}
 			}

@@ -58,20 +58,34 @@ public abstract class DemoHandler
     public static void copyFiles(Context context)
     {
         AssetManager assetManager = context.getAssets();
-        String[] files = null;
+
+        copyFiles(assetManager,
+                  Util.DEMO,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2);
+        copyFiles(assetManager,
+                  Util.DEMO + File.separator + Util.RES,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2  + File.separator + Util.RES);
+    }
+
+    public static void copyFiles(AssetManager assetManager, String src_dir, String dst_dir)
+    {
+        String[] filenames;
         try
         {
-            files = assetManager.list(Util.DEMO);
-        } catch (IOException e)
-        {
-            Log.e(e.getMessage());
+            filenames = assetManager.list(src_dir);
         }
-        for (String file : files)
+        catch (IOException e)
+        {
+            Log.e("error accessing asset folder: " + src_dir, e);
+            return;
+        }
+
+        for (String file : filenames)
         {
             try
             {
-                InputStream in = assetManager.open(Util.DEMO + File.separator + file);
-                File dir = new File(Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2);
+                InputStream in = assetManager.open(src_dir + File.separator + file);
+                File dir = new File(dst_dir);
                 if(!dir.exists())
                     dir.mkdirs();
                 OutputStream out = new FileOutputStream(new File(dir, file));
@@ -79,10 +93,10 @@ public abstract class DemoHandler
                 in.close();
                 out.flush();
                 out.close();
-            } catch (Exception e)
+            }
+            catch (Exception e)
             {
-                e.printStackTrace();
-                Log.e(e.getMessage());
+                Log.i("skipping copying file: " + file);
             }
         }
     }

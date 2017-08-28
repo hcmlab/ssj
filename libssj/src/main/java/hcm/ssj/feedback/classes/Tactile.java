@@ -27,7 +27,6 @@
 
 package hcm.ssj.feedback.classes;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.SystemClock;
 
@@ -42,6 +41,7 @@ import java.security.InvalidParameterException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.feedback.BandComm;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.actions.TactileAction;
@@ -59,30 +59,42 @@ public class Tactile extends FeedbackClass
         MsBand
     }
 
-    Activity activity;
-
     boolean firstCall = true;
-    Myo myo = null;
-    BandComm msband = null;
-    Vibrate2Command cmd = null;
+    boolean connected = false;
 
-    long lock = 0;
+    private Myo myo = null;
+    private hcm.ssj.myo.Myo myoConnector = null;
+    private String deviceId;
+    private BandComm msband = null;
+    private Vibrate2Command cmd = null;
 
-    Device deviceType = Device.Myo;
+    private long lock = 0;
 
-    public Tactile(Activity activity)
+    private Device deviceType = Device.Myo;
+
+    public Tactile(Context context)
     {
-        this.activity = activity;
+        this.context = context;
         type = Type.Tactile;
     }
 
     public void firstCall()
     {
+        firstCall = false;
+        connected = false;
+
         if(deviceType == Device.Myo) {
             Hub hub = Hub.getInstance();
 
+            if (hub.getConnectedDevices().isEmpty())
+            {
+                myoConnector = new hcm.ssj.myo.Myo();
+                myoConnector.options.macAddress.set(deviceId);
+                myoConnector.connect();
+            }
+
             long time = SystemClock.elapsedRealtime();
-            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_BL_CONNECT) {
+            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Pipeline.getInstance().options.waitSensorConnect.get() * 1000) {
                 try {
                     Thread.sleep(Cons.SLEEP_IN_LOOP);
                 } catch (InterruptedException e) {
@@ -94,15 +106,15 @@ public class Tactile extends FeedbackClass
 
             Log.i("connected to Myo");
 
+            connected = true;
             myo = hub.getConnectedDevices().get(0);
             cmd = new Vibrate2Command(hub);
         }
         else if(deviceType == Device.MsBand)
         {
-            msband = new BandComm();
+            int id = deviceId == null ? 0 : Integer.valueOf(deviceId);
+            msband = new BandComm(id);
         }
-
-        firstCall = false;
     }
 
     @Override
@@ -111,6 +123,10 @@ public class Tactile extends FeedbackClass
         if(firstCall)
             firstCall();
 
+        if(!connected)
+            return false;
+
+        Log.i("execute");
         TactileAction ev = (TactileAction) action;
 
         //check locks
@@ -171,6 +187,8 @@ public class Tactile extends FeedbackClass
             if (device_name != null) {
                 deviceType = Device.valueOf(device_name);
             }
+
+            deviceId = xml.getAttributeValue(null, "deviceId");
         }
         catch(IOException | XmlPullParserException | InvalidParameterException e)
         {
@@ -178,5 +196,16 @@ public class Tactile extends FeedbackClass
         }
 
         super.load(xml, context);
+    }
+
+    @Override
+    public void release()
+    {
+        connected = false;
+        firstCall = true;
+
+        if(myoConnector != null)
+            myoConnector.disconnect();
+        super.release();
     }
 }
