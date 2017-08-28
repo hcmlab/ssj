@@ -56,8 +56,8 @@ public class SendImageTest
 	private int width = 320 * 2;
 	private int height = 240 * 2;
 
-	private String trainerName = "inception.trainer";
-	private String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
+	private float frameSize = 1;
+	private int delta = 0;
 
 
 	@Test
@@ -68,10 +68,8 @@ public class SendImageTest
 
 		int minFps = 15;
 		int maxFps = 15;
-		int delta = 0;
 
 		double sampleRate = 1;
-		float frameSize = 1;
 
 		String serverName = "Hcm Lab (Galaxy S5)";
 
@@ -122,6 +120,9 @@ public class SendImageTest
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
+		String trainerName = "inception.trainer";
+		String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
+
 		BluetoothReader bluetoothReader = new BluetoothReader();
 		bluetoothReader.options.connectionType.set(BluetoothConnection.Type.SERVER);
 		bluetoothReader.options.connectionName.set("stream");
@@ -137,28 +138,26 @@ public class SendImageTest
 		bluetoothChannel.setWatchInterval(10);
 		frame.addSensor(bluetoothReader, bluetoothChannel);
 
-		/*
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
-		frame.addTransformer(decoder, bluetoothChannel, frameSize / sampleRate, delta);
+		frame.addTransformer(decoder, bluetoothChannel, frameSize, delta);
 
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(true);
 		resizer.options.size.set(224);
-		frame.addTransformer(resizer, decoder, frameSize / sampleRate, delta);
+		frame.addTransformer(resizer, decoder, frameSize, delta);
 
 		// Add image pixel value normalizer to the pipeline
 		ImageNormalizer imageNormalizer = new ImageNormalizer();
 		imageNormalizer.options.imageMean.set(117);
 		imageNormalizer.options.imageStd.set(1f);
-		frame.addTransformer(imageNormalizer, resizer, frameSize / sampleRate, delta);
+		frame.addTransformer(imageNormalizer, resizer, frameSize, delta);
 
 		Classifier classifier = new Classifier();
 		classifier.options.trainerPath.set(trainerURL);
 		classifier.options.trainerFile.set(trainerName);
 		classifier.options.merge.set(false);
 		classifier.options.log.set(true);
-		frame.addConsumer(classifier, imageNormalizer, frameSize / sampleRate, delta);
-		*/
+		frame.addConsumer(classifier, imageNormalizer, frameSize, delta);
 
 		Logger logger = new Logger();
 		frame.addConsumer(logger, bluetoothChannel);
