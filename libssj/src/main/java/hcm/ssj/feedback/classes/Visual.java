@@ -29,6 +29,7 @@ package hcm.ssj.feedback.classes;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.view.View;
@@ -48,6 +49,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.actions.VisualAction;
 
@@ -68,9 +70,10 @@ public class Visual extends FeedbackClass
 
     private Activity activity;
 
-    public Visual(Context context)
+    public Visual(Context context, FeedbackManager.Options options)
     {
         this.context = context;
+        this.options = options;
         type = Type.Visual;
         isSetup = false;
     }
@@ -166,15 +169,10 @@ public class Visual extends FeedbackClass
 
     protected void load(XmlPullParser xml, final Context context)
     {
-        String layout_name = null;
         int fade = 0;
         try
         {
             xml.require(XmlPullParser.START_TAG, null, "feedback");
-
-            layout_name = xml.getAttributeValue(null, "layout");
-            if(layout_name == null)
-                throw new InvalidParameterException("layout not set");
 
             String fade_str = xml.getAttributeValue(null, "fade");
             if (fade_str != null)
@@ -195,22 +193,29 @@ public class Visual extends FeedbackClass
 
         super.load(xml, context);
 
-        buildLayout(context, layout_name, fade);
+        buildLayout(context, fade);
     }
 
-    private void buildLayout(final Context context, final String layout_name, final int fade)
+    private void buildLayout(final Context context, final int fade)
     {
+        if(options.layout.get() == null)
+        {
+            Log.e("layout not set, cannot render visual feedback");
+            return;
+        }
+
         Handler handler = new Handler(context.getMainLooper());
         handler.post(new Runnable()
         {
             @Override
             public void run()
             {
-                int layout_id = activity.getResources().getIdentifier(layout_name, "id", context.getPackageName());
-                TableLayout table = (TableLayout) activity.findViewById(layout_id);
+                TableLayout table = options.layout.get();
                 table.setStretchAllColumns(true);
 
-                activity = (Activity) table.findViewById(android.R.id.content).getContext();
+                activity = getActivity(table);
+                if(activity == null)
+                    Log.w("unable to get activity from layout");
 
                 int rows = ((VisualAction) action).icons.length;
                 img = new ImageSwitcher[rows];
@@ -263,5 +268,23 @@ public class Visual extends FeedbackClass
                 updateBrightness(defBrightness);
             }
         });
+    }
+
+    private Activity getActivity(View view)
+    {
+        Context context = view.getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+
+        //alternative method
+        View content = view.findViewById(android.R.id.content);
+        if(content != null)
+            return (Activity) content.getContext();
+        else
+            return null;
     }
 }

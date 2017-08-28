@@ -34,6 +34,7 @@ import android.media.SoundPool;
 import org.xmlpull.v1.XmlPullParser;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.actions.AudioAction;
 
@@ -47,9 +48,10 @@ public class Auditory extends FeedbackClass
 
     SoundPool player;
 
-    public Auditory(Context context)
+    public Auditory(Context context, FeedbackManager.Options options)
     {
         this.context = context;
+		this.options = options;
         type = Type.Audio;
     }
 

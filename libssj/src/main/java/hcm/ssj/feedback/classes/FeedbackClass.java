@@ -37,6 +37,7 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.conditions.Condition;
 
@@ -53,17 +54,18 @@ public abstract class FeedbackClass
     protected int level = 0;
     protected FeedbackClass.Valence valence;
     private ArrayList<FeedbackListener> listeners = new ArrayList<>();
+    protected FeedbackManager.Options options;
 
-    public static FeedbackClass create(XmlPullParser xml, Context context)
+    public static FeedbackClass create(XmlPullParser xml, Context context, FeedbackManager.Options options)
     {
         FeedbackClass f = null;
 
         if(xml.getAttributeValue(null, "type").equalsIgnoreCase("visual"))
-            f = new Visual(context);
+            f = new Visual(context, options);
         else if(xml.getAttributeValue(null, "type").equalsIgnoreCase("tactile"))
-            f = new Tactile(context);
+            f = new Tactile(context, options);
         else if(xml.getAttributeValue(null, "type").equalsIgnoreCase("audio"))
-            f = new Auditory(context);
+            f = new Auditory(context, options);
         else
             throw new UnsupportedOperationException("feedback type "+ xml.getAttributeValue(null, "type") +" not yet implemented");
 
