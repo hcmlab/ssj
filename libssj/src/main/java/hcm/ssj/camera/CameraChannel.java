@@ -159,5 +159,6 @@ public class CameraChannel extends SensorChannel
 
         ((ImageStream)_stream_out).width = cameraSensor.getImageWidth();
         ((ImageStream)_stream_out).height = cameraSensor.getImageHeight();
+        ((ImageStream)_stream_out).format = cameraSensor.getImageFormat();
     }
 }
