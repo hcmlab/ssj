@@ -73,8 +73,8 @@ public class Pipeline
         public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
         /** show all logs greater or equal than level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
-        /** ignore repeated entries smaller than timeout. Default: 5.0 */
-        public final Option<Double> logtimeout = new Option<>("logtimeout", 5.0, Double.class, "ignore repeated entries < timeout");
+        /** repeated log entries with a duration delta smaller than the timeout value are ignored. Default: 1.0 */
+        public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
 
         private Options()
         {
