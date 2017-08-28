@@ -53,8 +53,8 @@ import hcm.ssj.test.Logger;
 @SmallTest
 public class SendImageTest
 {
-	private int width = 640;
-	private int height = 480;
+	private int width = 320 * 2;
+	private int height = 240 * 2;
 
 	private String trainerName = "inception.trainer";
 	private String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
@@ -66,8 +66,8 @@ public class SendImageTest
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
-		int minFps = 5;
-		int maxFps = 5;
+		int minFps = 15;
+		int maxFps = 15;
 		int delta = 0;
 
 		double sampleRate = 1;
@@ -90,7 +90,7 @@ public class SendImageTest
 		bluetoothWriter.options.connectionType.set(BluetoothConnection.Type.CLIENT);
 		bluetoothWriter.options.serverName.set(serverName);
 		bluetoothWriter.options.connectionName.set("stream");
-		frame.addConsumer(bluetoothWriter, cameraChannel, frameSize / sampleRate, delta);
+		frame.addConsumer(bluetoothWriter, cameraChannel, frameSize, delta);
 
 		try
 		{
@@ -132,7 +132,9 @@ public class SendImageTest
 		bluetoothChannel.options.bytes.set(1);
 		bluetoothChannel.options.type.set(Cons.Type.IMAGE);
 		bluetoothChannel.options.sr.set(1.0);
-		bluetoothChannel.options.num.set(50);
+		bluetoothChannel.options.num.set(1);
+		bluetoothChannel.setSyncInterval(20);
+		bluetoothChannel.setWatchInterval(10);
 		frame.addSensor(bluetoothReader, bluetoothChannel);
 
 		/*
