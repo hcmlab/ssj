@@ -1,5 +1,5 @@
 /*
- * SendImageTest.java
+ * IOputTest.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -36,41 +36,51 @@ import org.junit.runner.RunWith;
 
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
+import hcm.ssj.camera.ImageNormalizer;
+import hcm.ssj.camera.ImageResizer;
+import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.ioput.BluetoothChannel;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothReader;
 import hcm.ssj.ioput.BluetoothWriter;
+import hcm.ssj.ml.Classifier;
 import hcm.ssj.test.Logger;
-
-/**
- * Created by hiwi on 22.08.2017.
- */
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SendImageTest
 {
+	private int width = 640;
+	private int height = 480;
+
+	private String trainerName = "inception.trainer";
+	private String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
+
+
 	@Test
-	public void sendImageViaBluetooth() throws SSJException
+	public void testBluetoothClient() throws Exception
 	{
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
-		int imageWidth = 640;
-		int imageHeight = 480;
+		int minFps = 5;
+		int maxFps = 5;
+		int delta = 0;
 
 		double sampleRate = 1;
+		float frameSize = 1;
+
+		String serverName = "Hcm Lab (Galaxy S5)";
 
 		CameraSensor cameraSensor = new CameraSensor();
 		cameraSensor.options.cameraID.set(Camera.CameraInfo.CAMERA_FACING_BACK);
-		cameraSensor.options.width.set(imageWidth);
-		cameraSensor.options.height.set(imageHeight);
-		cameraSensor.options.previewFpsRangeMin.set(15);
-		cameraSensor.options.previewFpsRangeMax.set(15);
+		cameraSensor.options.width.set(width);
+		cameraSensor.options.height.set(height);
+		cameraSensor.options.previewFpsRangeMin.set(minFps);
+		cameraSensor.options.previewFpsRangeMax.set(maxFps);
 
 		CameraChannel cameraChannel = new CameraChannel();
 		cameraChannel.options.sampleRate.set(sampleRate);
@@ -78,36 +88,87 @@ public class SendImageTest
 
 		BluetoothWriter bluetoothWriter = new BluetoothWriter();
 		bluetoothWriter.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-		bluetoothWriter.options.serverName.set("Hcm Lab (Galaxy S5)");
-		bluetoothWriter.options.connectionName.set("image-stream");
-		frame.addConsumer(bluetoothWriter, cameraChannel, sampleRate, 0);
+		bluetoothWriter.options.serverName.set(serverName);
+		bluetoothWriter.options.connectionName.set("stream");
+		frame.addConsumer(bluetoothWriter, cameraChannel, frameSize / sampleRate, delta);
 
-		BluetoothReader bluetoothReader = new BluetoothReader();
-		bluetoothReader.options.connectionType.set(BluetoothConnection.Type.SERVER);
-		bluetoothReader.options.connectionName.set("image-stream");
-
-		BluetoothChannel bluetoothChannel = new BluetoothChannel();
-		bluetoothChannel.options.channel_id.set(0);
-		bluetoothChannel.options.dim.set((int)(imageWidth * imageHeight * 1.5));
-		bluetoothChannel.options.bytes.set(1);
-		bluetoothChannel.options.type.set(Cons.Type.IMAGE);
-		bluetoothChannel.options.sr.set(sampleRate);
-		bluetoothChannel.options.num.set(50);
-		frame.addSensor(bluetoothReader, bluetoothChannel);
-
-		Logger logger = new Logger();
-		logger.options.reduceNum.set(true);
-		frame.addConsumer(logger, bluetoothChannel, sampleRate, 0);
-
-		frame.registerEventListener(bluetoothReader, bluetoothWriter);
-
-		try {
+		try
+		{
 			frame.start();
 
 			long start = System.currentTimeMillis();
 			while(true)
 			{
-				if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_SHORT)
+				if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
+					break;
+
+				Thread.sleep(1);
+			}
+
+			frame.stop();
+		}
+		catch(Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		Log.i("test finished");
+	}
+
+
+	@Test
+	public void testBluetoothServer() throws Exception
+	{
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
+
+		BluetoothReader bluetoothReader = new BluetoothReader();
+		bluetoothReader.options.connectionType.set(BluetoothConnection.Type.SERVER);
+		bluetoothReader.options.connectionName.set("stream");
+
+		BluetoothChannel bluetoothChannel = new BluetoothChannel();
+		bluetoothChannel.options.channel_id.set(0);
+		bluetoothChannel.options.dim.set((int)(width * height * 1.5));
+		bluetoothChannel.options.bytes.set(1);
+		bluetoothChannel.options.type.set(Cons.Type.IMAGE);
+		bluetoothChannel.options.sr.set(1.0);
+		bluetoothChannel.options.num.set(50);
+		frame.addSensor(bluetoothReader, bluetoothChannel);
+
+		/*
+		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
+		frame.addTransformer(decoder, bluetoothChannel, frameSize / sampleRate, delta);
+
+		ImageResizer resizer = new ImageResizer();
+		resizer.options.maintainAspect.set(true);
+		resizer.options.size.set(224);
+		frame.addTransformer(resizer, decoder, frameSize / sampleRate, delta);
+
+		// Add image pixel value normalizer to the pipeline
+		ImageNormalizer imageNormalizer = new ImageNormalizer();
+		imageNormalizer.options.imageMean.set(117);
+		imageNormalizer.options.imageStd.set(1f);
+		frame.addTransformer(imageNormalizer, resizer, frameSize / sampleRate, delta);
+
+		Classifier classifier = new Classifier();
+		classifier.options.trainerPath.set(trainerURL);
+		classifier.options.trainerFile.set(trainerName);
+		classifier.options.merge.set(false);
+		classifier.options.log.set(true);
+		frame.addConsumer(classifier, imageNormalizer, frameSize / sampleRate, delta);
+		*/
+
+		Logger logger = new Logger();
+		frame.addConsumer(logger, bluetoothChannel);
+
+		try
+		{
+			frame.start();
+
+			long start = System.currentTimeMillis();
+			while(true)
+			{
+				if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
 					break;
 
 				Thread.sleep(1);
