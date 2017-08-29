@@ -43,6 +43,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.feedback.BandComm;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.actions.TactileAction;
 import hcm.ssj.myo.Vibrate2Command;
@@ -72,9 +73,10 @@ public class Tactile extends FeedbackClass
 
     private Device deviceType = Device.Myo;
 
-    public Tactile(Context context)
+    public Tactile(Context context, FeedbackManager.Options options)
     {
         this.context = context;
+        this.options = options;
         type = Type.Tactile;
     }
 

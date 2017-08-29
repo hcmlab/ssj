@@ -29,6 +29,7 @@ package hcm.ssj.feedback;
 
 import android.content.Context;
 import android.util.Xml;
+import android.widget.TableLayout;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -62,6 +63,7 @@ public class FeedbackManager extends EventHandler
         public final Option<Boolean> fromAsset = new Option<>("fromAsset", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
         public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
+        public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
 
         private Options()
         {
@@ -227,7 +229,7 @@ public class FeedbackManager extends EventHandler
             if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
             {
                 //parse feedback classes
-                FeedbackClass c = FeedbackClass.create(parser, context);
+                FeedbackClass c = FeedbackClass.create(parser, context, options);
                 classes.add(c);
             }
             else if(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
