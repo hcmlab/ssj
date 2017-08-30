@@ -27,7 +27,6 @@
 
 package hcm.ssj;
 
-import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.SurfaceView;
@@ -43,6 +42,7 @@ import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.CameraWriter;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
@@ -88,7 +88,7 @@ public class CameraTest
         frame.options.bufferSize.set(10.0f);
         //sensor
         CameraSensor cameraSensor = new CameraSensor();
-        cameraSensor.options.cameraID.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraSensor.options.cameraType.set(Cons.CameraType.FRONT_CAMERA);
         cameraSensor.options.width.set(width);
         cameraSensor.options.height.set(height);
         cameraSensor.options.previewFpsRangeMin.set(4 * 1000);

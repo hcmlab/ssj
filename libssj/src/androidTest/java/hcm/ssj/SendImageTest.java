@@ -27,7 +27,6 @@
 
 package hcm.ssj;
 
-import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -74,7 +73,7 @@ public class SendImageTest
 		String serverName = "Hcm Lab (Galaxy S5)";
 
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraID.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+		cameraSensor.options.cameraType.set(Cons.CameraType.BACK_CAMERA);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
 		cameraSensor.options.previewFpsRangeMin.set(minFps);

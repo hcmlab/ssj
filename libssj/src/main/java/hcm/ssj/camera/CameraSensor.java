@@ -52,7 +52,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      */
     public class Options extends OptionList
     {
-        public final Option<Integer> cameraID = new Option<>("cameraID", Camera.CameraInfo.CAMERA_FACING_FRONT, Integer.class, "which camera to use (0 = back, 1 = front)");
+        public final Option<Cons.CameraType> cameraType = new Option<>("cameraType", Cons.CameraType.BACK_CAMERA, Cons.CameraType.class, "which camera to use (front or back)");
         //arbitrary but popular values
         public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width in pixel");
         public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height in pixel");
@@ -212,7 +212,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         for (int i = 0; i < numCameras; i++)
         {
             Camera.getCameraInfo(i, info);
-            if (info.facing == options.cameraID.get())
+            if (info.facing == options.cameraType.get().val)
             {
                 camera = Camera.open(i);
                 break;

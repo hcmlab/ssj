@@ -27,7 +27,6 @@
 
 package hcm.ssj;
 
-import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -38,6 +37,7 @@ import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
@@ -71,7 +71,7 @@ public class NV21ToRGBDecoderTest
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraID.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+		cameraSensor.options.cameraType.set(Cons.CameraType.BACK_CAMERA);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
 		cameraSensor.options.previewFpsRangeMin.set(MIN_FPS);
