@@ -138,7 +138,7 @@ public class ImageResizer extends Transformer
 			bitmap = resizeImage(rgb);
 
 		if (options.savePreview.get())
-			CameraUtil.saveBitmap(bitmap, new Date().toString() + ".png");
+			CameraUtil.saveBitmap(bitmap);
 
 		bitmapToByteArray(bitmap, stream_out.ptrB());
 	}

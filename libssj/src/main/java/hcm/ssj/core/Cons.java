@@ -143,4 +143,17 @@ public class Cons
             val = value;
         }
     }
+
+    public enum CameraType
+	{
+        BACK_CAMERA(0),
+        FRONT_CAMERA(1);
+
+		public final int val;
+
+		CameraType(int val)
+		{
+			this.val = val;
+		}
+	}
 }

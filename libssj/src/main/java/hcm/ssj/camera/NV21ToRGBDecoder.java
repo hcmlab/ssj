@@ -75,7 +75,7 @@ public class NV21ToRGBDecoder extends Transformer
 
 		// Convert NV21 to RGB and save the pixel data to the output stream
 		byte out[] = stream_out.ptrB();
-		CameraUtil.convertNV21ToRGB(out, nv21Data, width, height);
+		CameraUtil.convertNV21ToRGB(out, nv21Data, width, height, false);
 	}
 
 	@Override
