@@ -32,6 +32,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TabHost;
+import android.widget.TableLayout;
 
 import com.jjoe64.graphview.GraphView;
 
@@ -44,6 +45,7 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
 
@@ -221,6 +223,23 @@ public class TabHandler
                 }
             }
         }
+
+        Object[] eventHandlers = PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.EventHandler);
+        for (Object object : eventHandlers)
+        {
+            if (object instanceof FeedbackManager)
+            {
+                TableLayout tableLayout = ((FeedbackManager) object).options.layout.get();
+                if (tableLayout == null)
+                {
+                    tableLayout = new TableLayout(activity);
+                    ((FeedbackManager) object).options.layout.set(tableLayout);
+                    addTab(tableLayout, ((FeedbackManager) object).getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+                    alAdditionalTabs.add(object);
+                }
+            }
+        }
+
         //remove obsolete tabs
         //remove annotation
         if (counterAnno <= 0 && annotationExists)
@@ -228,11 +247,13 @@ public class TabHandler
             annotationExists = false;
             removeTab(FIX_TAB_NUMBER);
         }
+
         //remove signal and camera
-        List list = Arrays.asList(consumers);
+        List consumerList = Arrays.asList(consumers);
+        List eventHandlerList = Arrays.asList(eventHandlers);
         for (int i = alAdditionalTabs.size() - 1; i >= 0; i--)
         {
-            if (!list.contains(alAdditionalTabs.get(i)))
+            if (!consumerList.contains(alAdditionalTabs.get(i)) && ! eventHandlerList.contains(alAdditionalTabs.get(i)))
             {
                 alAdditionalTabs.remove(i);
                 removeTab(i + FIX_TAB_NUMBER + (annotationExists ? 1 : 0));
