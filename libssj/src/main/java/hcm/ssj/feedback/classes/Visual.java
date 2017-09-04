@@ -1,30 +1,37 @@
 /*
- * VisualFeedback.java
- * Copyright (c) 2015
- * Author: Ionut Damian
+ * Visual.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
- * This file is part of the Logue project developed at the Lab for Human Centered Multimedia
- * of the University of Augsburg.
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
- * The applications and libraries are free software; you can redistribute them and/or modify them
- * under the terms of the GNU General Public License as published by the Free Software
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 3 of the License, or any later version.
  *
- * The software is distributed in the hope that it will be useful, but WITHOUT
+ * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.feedback.classes;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -42,6 +49,7 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.actions.VisualAction;
 
@@ -51,8 +59,6 @@ import hcm.ssj.feedback.actions.VisualAction;
  */
 public class Visual extends FeedbackClass
 {
-    Activity activity;
-
     protected ImageSwitcher img[];
     protected float defBrightness = 0.5f;
 
@@ -62,9 +68,12 @@ public class Visual extends FeedbackClass
     private boolean isSetup;
     private int position = 0;
 
-    public Visual(Activity activity)
+    private Activity activity;
+
+    public Visual(Context context, FeedbackManager.Options options)
     {
-        this.activity = activity;
+        this.context = context;
+        this.options = options;
         type = Type.Visual;
         isSetup = false;
     }
@@ -125,12 +134,12 @@ public class Visual extends FeedbackClass
     protected void updateIcons(Drawable icons[])
     {
         //set feedback icon
-        updateImageSwitcher(activity, img[0], icons[0]);
+        updateImageSwitcher(img[0], icons[0]);
 
         //set quality icon
         if(icons.length == 2 && img.length == 2 && img[1] != null)
         {
-            updateImageSwitcher(activity, img[1], icons[1]);
+            updateImageSwitcher(img[1], icons[1]);
         }
     }
 
@@ -147,9 +156,9 @@ public class Visual extends FeedbackClass
         });
     }
 
-    protected void updateImageSwitcher(final Activity act, final ImageSwitcher view, final Drawable img)
+    protected void updateImageSwitcher(final ImageSwitcher view, final Drawable img)
     {
-        act.runOnUiThread(new Runnable()
+        view.post(new Runnable()
         {
             public void run()
             {
@@ -160,15 +169,10 @@ public class Visual extends FeedbackClass
 
     protected void load(XmlPullParser xml, final Context context)
     {
-        String layout_name = null;
         int fade = 0;
         try
         {
             xml.require(XmlPullParser.START_TAG, null, "feedback");
-
-            layout_name = xml.getAttributeValue(null, "layout");
-            if(layout_name == null)
-                throw new InvalidParameterException("layout not set");
 
             String fade_str = xml.getAttributeValue(null, "fade");
             if (fade_str != null)
@@ -189,19 +193,29 @@ public class Visual extends FeedbackClass
 
         super.load(xml, context);
 
-        buildLayout(context, layout_name, fade);
+        buildLayout(context, fade);
     }
 
-    private void buildLayout(final Context context, final String layout_name, final int fade)
+    private void buildLayout(final Context context, final int fade)
     {
-        activity.runOnUiThread(new Runnable()
+        if(options.layout.get() == null)
+        {
+            Log.e("layout not set, cannot render visual feedback");
+            return;
+        }
+
+        Handler handler = new Handler(context.getMainLooper());
+        handler.post(new Runnable()
         {
             @Override
             public void run()
             {
-                int layout_id = activity.getResources().getIdentifier(layout_name, "id", context.getPackageName());
-                TableLayout table = (TableLayout) activity.findViewById(layout_id);
+                TableLayout table = options.layout.get();
                 table.setStretchAllColumns(true);
+
+                activity = getActivity(table);
+                if(activity == null)
+                    Log.w("unable to get activity from layout");
 
                 int rows = ((VisualAction) action).icons.length;
                 img = new ImageSwitcher[rows];
@@ -254,5 +268,23 @@ public class Visual extends FeedbackClass
                 updateBrightness(defBrightness);
             }
         });
+    }
+
+    private Activity getActivity(View view)
+    {
+        Context context = view.getContext();
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity)context;
+            }
+            context = ((ContextWrapper)context).getBaseContext();
+        }
+
+        //alternative method
+        View content = view.findViewById(android.R.id.content);
+        if(content != null)
+            return (Activity) content.getContext();
+        else
+            return null;
     }
 }

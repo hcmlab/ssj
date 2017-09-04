@@ -1,7 +1,8 @@
 /*
- * CameraProvider.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * CameraChannel.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -158,5 +159,6 @@ public class CameraChannel extends SensorChannel
 
         ((ImageStream)_stream_out).width = cameraSensor.getImageWidth();
         ((ImageStream)_stream_out).height = cameraSensor.getImageHeight();
+        //((ImageStream)_stream_out).format = cameraSensor.getImageFormat();
     }
 }

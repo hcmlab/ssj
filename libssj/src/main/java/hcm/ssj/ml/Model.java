@@ -1,7 +1,8 @@
 /*
  * Model.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -41,6 +42,9 @@ public abstract class Model {
     protected String _name = "Model";
     protected boolean _isTrained = false;
 
+    protected int n_classes;
+    protected String[] class_names = null;
+
     public class Options extends OptionList {}
     public final Options options = new Options();
 
@@ -64,29 +68,30 @@ public abstract class Model {
     }
 
     /**
+     * forward data to the model for classification/inference
      * @param stream Stream
-     * @return double[]
+     * @return double[] classification/inference probabilities as outputed by the model
      */
     abstract float[] forward(Stream[] stream);
 
     /**
+     * Train model with data from the stream
      * @param stream Stream
-     * @return double[]
      */
     abstract void train(Stream[] stream);
 
     /**
-     * Load data from model file
+     * Load model from file
      */
     abstract void load(File file);
 
     /**
-     * Load data from option file
+     * Load model options from file
      */
     abstract void loadOption(File file);
 
     /**
-     * Load data from model file
+     * Save model to file
      */
     abstract void save(File file);
 
@@ -94,6 +99,33 @@ public abstract class Model {
         return _isTrained;
     }
 
-    abstract int getNumClasses();
-    abstract String[] getClassNames();
+    /**
+     * Set label count for the classifier.
+     *
+     * @param classNum amount of object classes to recognize.
+     */
+    public void setNumClasses(int classNum)
+    {
+        this.n_classes = classNum;
+    }
+
+    /**
+     * Set label strings for the classifier.
+     *
+     * @param classNames recognized object classes.
+     */
+    public void setClassNames(String[] classNames)
+    {
+        this.class_names = classNames;
+    }
+
+    public int getNumClasses()
+    {
+        return n_classes;
+    }
+
+    public String[] getClassNames()
+    {
+        return class_names;
+    }
 }

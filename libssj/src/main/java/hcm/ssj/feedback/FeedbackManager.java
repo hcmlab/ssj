@@ -1,29 +1,35 @@
 /*
  * FeedbackManager.java
- * Copyright (c) 2015
- * Author: Ionut Damian
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
- * This file is part of the Logue project developed at the Lab for Human Centered Multimedia
- * of the University of Augsburg.
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
- * The applications and libraries are free software; you can redistribute them and/or modify them
- * under the terms of the GNU General Public License as published by the Free Software
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 3 of the License, or any later version.
  *
- * The software is distributed in the hope that it will be useful, but WITHOUT
+ * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.feedback;
 
-import android.app.Activity;
+import android.content.Context;
 import android.util.Xml;
+import android.widget.TableLayout;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -36,10 +42,12 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.feedback.classes.FeedbackClass;
 import hcm.ssj.feedback.classes.FeedbackListener;
+import hcm.ssj.file.LoggingConstants;
 
 /**
  * Created by Johnny on 02.12.2014.
@@ -50,14 +58,21 @@ public class FeedbackManager extends EventHandler
 
     public class Options extends OptionList
     {
-        public final Option<String> strategy = new Option<>("strategy", "", String.class, "feedback strategy file");
+        public final Option<String> strategyFilePath = new Option<>("strategyFilePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "location of strategy file");
+        public final Option<String> strategyFileName = new Option<>("strategyFileName", null, String.class, "name of strategy file");
         public final Option<Boolean> fromAsset = new Option<>("fromAsset", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
         public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
+        public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
+
+        private Options()
+        {
+            addOptions();
+        }
     }
     public Options options = new Options();
 
-    protected Activity activity;
+    protected Context context;
 
     protected ArrayList<FeedbackClass> classes = new ArrayList<FeedbackClass>();
 
@@ -68,9 +83,10 @@ public class FeedbackManager extends EventHandler
     private long progressionTimeout;
     private long regressionTimeout;
 
-    public FeedbackManager(Activity act)
+    public FeedbackManager()
     {
-        activity = act;
+        context = SSJApplication.getAppContext();
+        _name = "FeedbackManager";
     }
 
     public ArrayList<FeedbackClass> getClasses()
@@ -88,7 +104,11 @@ public class FeedbackManager extends EventHandler
 
         try
         {
-            load(options.strategy.get(), options.fromAsset.get());
+            String file = options.strategyFileName.get();
+            if(!options.fromAsset.get())
+                file = options.strategyFilePath.get() + File.separator + options.strategyFileName.get();
+
+            load(file, options.fromAsset.get());
         }
         catch (IOException | XmlPullParserException e)
         {
@@ -169,7 +189,7 @@ public class FeedbackManager extends EventHandler
         if(!fromAsset)
             in = new FileInputStream(new File(filename));
         else
-            in = activity.getAssets().open(filename);
+            in = context.getAssets().open(filename);
 
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -209,7 +229,7 @@ public class FeedbackManager extends EventHandler
             if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
             {
                 //parse feedback classes
-                FeedbackClass c = FeedbackClass.create(parser, activity);
+                FeedbackClass c = FeedbackClass.create(parser, context, options);
                 classes.add(c);
             }
             else if(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))

@@ -1,7 +1,8 @@
 /*
  * Empatica.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -33,7 +34,6 @@ import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Base64;
 
-import com.empatica.empalink.ConnectionNotAllowedException;
 import com.empatica.empalink.EmpaDeviceManager;
 import com.empatica.empalink.config.EmpaSensorStatus;
 import com.empatica.empalink.config.EmpaSensorType;
@@ -112,11 +112,18 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		{
 			public void run()
 			{
-				// Create device manager
-				deviceManager = new EmpaDeviceManager(SSJApplication.getAppContext(), listener, Empatica.this);
+				try
+				{
+					// Create device manager
+					deviceManager = new EmpaDeviceManager(SSJApplication.getAppContext(), listener, Empatica.this);
 
-				// Register the device manager using your API key. You need to have Internet access at this point.
-				deviceManager.authenticateWithAPIKey(options.apiKey.get());
+					// Register the device manager using your API key. You need to have Internet access at this point.
+					deviceManager.authenticateWithAPIKey(options.apiKey.get());
+				}
+				catch(Exception e)
+				{
+					Log.e("unable to create empatica device manager, is your api key correct?", e);
+				}
 			}
 		}, 1);
 
@@ -130,7 +137,8 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 
 		if(!listener.receivedData) {
-			Log.e("unable to connect to empatica");
+			Log.e("Unable to connect to empatica. Make sure it is on and NOT paired to your smartphone.");
+			disconnect();
 			return false;
 		}
 
@@ -252,7 +260,9 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	@Override
 	public void disconnect()
 	{
+		Log.i("disconnecting...");
 		deviceManager.disconnect();
+		deviceManager.cleanUp();
 	}
 
 	@Override
@@ -260,25 +270,32 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	{
 		Log.i("Empatica status: " + empaStatus);
 
-		switch (empaStatus)
+		try
 		{
-			case READY:
-				// Start scanning
-				deviceManager.startScanning();
-				break;
+			switch (empaStatus)
+			{
+				case READY:
+					// Start scanning
+					deviceManager.startScanning();
+					break;
 
-			case DISCONNECTED:
-				listener.reset();
-				break;
+				case DISCONNECTED:
+					listener.reset();
+					break;
 
-			case CONNECTING:
-				break;
-			case CONNECTED:
-				break;
-			case DISCONNECTING:
-				break;
-			case DISCOVERING:
-				break;
+				case CONNECTING:
+					break;
+				case CONNECTED:
+					break;
+				case DISCONNECTING:
+					break;
+				case DISCOVERING:
+					break;
+			}
+		}
+		catch(Exception e)
+		{
+			Log.e("error reacting to status update", e);
 		}
 	}
 
@@ -289,15 +306,15 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public void didDiscoverDevice(BluetoothDevice bluetoothDevice, int rssi, boolean allowed)
+	public void didDiscoverDevice(BluetoothDevice bluetoothDevice, String deviceName, int rssi, boolean allowed)
 	{
 		// Stop scanning. The first allowed device will do.
 		if (allowed)
 		{
-			deviceManager.stopScanning();
-
 			try
 			{
+				deviceManager.stopScanning();
+
 				// Connect to the device
 				Log.i("Connecting to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
 
@@ -307,10 +324,14 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 
 				empaticaInitialized = true;
 			}
-			catch (ConnectionNotAllowedException e)
+			catch (Exception e)
 			{
 				Log.e("Can't connect to device: " + bluetoothDevice.getName() + "(MAC: " + bluetoothDevice.getAddress() + ")");
 			}
+		}
+		else
+		{
+			Log.w("Device " + deviceName + " not linked to specified api key");
 		}
 	}
 

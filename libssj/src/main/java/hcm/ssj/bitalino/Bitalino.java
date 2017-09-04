@@ -1,7 +1,8 @@
 /*
- * MSBand.java
+ * Bitalino.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -61,37 +62,19 @@ public class Bitalino extends Sensor
 		}
 	}
 
-	public enum Channel
-	{
-		A1_EMG(0),
-		A2_ECG(1),
-		A3_EDA(2),
-		A4_EEG(3),
-		A5_ACC(4),
-		A6_LUX(5),
-		D1_LED(6),
-		D2_BUZ(7);
-
-		int id;
-		Channel(int id) {this.id = id;}
-
-		boolean isAnalogue() {return id <= 5;}
-		int getDataPosition() { return isAnalogue() ? id : id - 6;}
-	}
-
 	public final Options options = new Options();
 
 	protected BITalinoCommunication client;
 	protected BitalinoListener listener;
 
-	protected LinkedList<Channel> channels;
+	protected LinkedList<Integer> channels;
 
-	void addChannel(Channel ch)
+	void addChannel(Integer ch)
 	{
 		channels.add(ch);
 	}
 
-	void removeChannel(Channel ch)
+	void removeChannel(Integer ch)
 	{
 		channels.remove(ch);
 	}
@@ -163,9 +146,8 @@ public class Bitalino extends Sensor
 
 				int[] analogue_channels = new int[channels.size()];
 				int i = 0;
-				for(Channel ch : channels)
-					if(ch.isAnalogue())
-						analogue_channels[i++] = ch.getDataPosition();
+				for(Integer ch : channels)
+					analogue_channels[i++] = ch;
 
 				int sr = options.sr.get();
 				if(sr > 100)

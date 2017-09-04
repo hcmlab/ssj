@@ -1,7 +1,8 @@
 /*
- * Linker.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * PipelineBuilder.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -288,10 +289,13 @@ public class PipelineBuilder
                 {
                     if (element.allStreamAdded())
                     {
-                        framework.addTransformer(element.getElement(),
-                                element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
-                                element.getFrameSize(), element.getDelta());
+                        Provider[] sources = new Provider[element.getHmStreamProviders().size()];
+                        element.getHmStreamProviders().keySet().toArray(sources);
+                        double frame = (element.getFrameSize() != null) ? element.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
+
+                        framework.addTransformer(element.getElement(), sources, frame, element.getDelta());
                         count++;
+
                         //activate in transformer
                         for (ContainerElement<Transformer> element2 : hsTransformerElements)
                         {
@@ -318,20 +322,20 @@ public class PipelineBuilder
 
             if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
             {
+                Provider[] sources = new Provider[element.getHmStreamProviders().size()];
+                element.getHmStreamProviders().keySet().toArray(sources);
+                double frame = (element.getFrameSize() != null) ? element.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
+
                 if(element.getEventTrigger()){
                     List<EventChannel> eventChannels = new ArrayList<>();
                     for(Component c : element.getHmEventProviders().keySet())
                     {
                         eventChannels.add(c.getEventChannelOut());
                     }
-                    framework.addConsumer(element.getElement(),
-                                          element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
-                                          eventChannels.toArray(new EventChannel[eventChannels.size()]));
+                    framework.addConsumer(element.getElement(), sources, eventChannels.toArray(new EventChannel[eventChannels.size()]));
                 }
                 else{
-                    framework.addConsumer(element.getElement(),
-                                          element.getHmStreamProviders().keySet().toArray(new Provider[element.getHmStreamProviders().size()]),
-                                          element.getFrameSize(), element.getDelta());
+                    framework.addConsumer(element.getElement(), sources, frame, element.getDelta());
                     hsConsumerElementsNotTriggeredByEvent.add(element);
                 }
             }
@@ -693,9 +697,9 @@ public class PipelineBuilder
 
     /**
      * @param o Object
-     * @return double
+     * @return Double
      */
-    public double getFrameSize(Object o)
+    public Double getFrameSize(Object o)
     {
         if (o instanceof Transformer)
         {
@@ -716,15 +720,15 @@ public class PipelineBuilder
                 }
             }
         }
-        return 0;
+        return null;
     }
 
     /**
      * @param o         Object
-     * @param frameSize double
+     * @param frameSize Double
      * @return boolean
      */
-    public boolean setFrameSize(Object o, double frameSize)
+    public boolean setFrameSize(Object o, Double frameSize)
     {
         if (o instanceof Transformer)
         {

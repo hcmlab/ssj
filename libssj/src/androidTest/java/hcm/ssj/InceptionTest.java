@@ -1,7 +1,8 @@
 /*
  * InceptionTest.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -26,24 +27,20 @@
 
 package hcm.ssj;
 
-import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.File;
-
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageNormalizer;
-import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.camera.ImageResizer;
+import hcm.ssj.camera.NV21ToRGBDecoder;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
-
-import static android.support.test.InstrumentationRegistry.getContext;
 
 /**
  * Tests setting up, loading, and evaluating object classification
@@ -60,12 +57,12 @@ public class InceptionTest
 	public void loadInceptionModel() throws Exception
 	{
 		String trainerName = "inception.trainer";
-		String trainerURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets";
+		String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;
-		int width = 320;
-		int height = 240;
+		int width = 640;
+		int height = 480;
 
 		final int IMAGE_MEAN = 117;
 		final float IMAGE_STD = 1;
@@ -78,7 +75,7 @@ public class InceptionTest
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+		cameraSensor.options.cameraType.set(Cons.CameraType.BACK_CAMERA);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
 		cameraSensor.options.previewFpsRangeMin.set(15);
@@ -96,7 +93,8 @@ public class InceptionTest
 		// Add image resizer to the pipeline
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
-		resizer.options.cropSize.set(CROP_SIZE);
+		resizer.options.cropImage.set(true);
+		resizer.options.size.set(CROP_SIZE);
 		frame.addTransformer(resizer, decoder, 1, 0);
 
 		// Add image pixel value normalizer to the pipeline
@@ -110,7 +108,6 @@ public class InceptionTest
 		classifier.options.trainerPath.set(trainerURL);
 		classifier.options.trainerFile.set(trainerName);
 		classifier.options.merge.set(false);
-		classifier.options.showLabel.set(true);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 
 		// Start pipeline

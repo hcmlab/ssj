@@ -1,7 +1,8 @@
 /*
- * AndroidSensorTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * SvmTest.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -71,17 +72,16 @@ public class SvmTest
 
         // Sensor
         AndroidSensor accSensor = new AndroidSensor();
-        accSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-
         AndroidSensor gyrSensor = new AndroidSensor();
-        gyrSensor.options.sensorType.set(SensorType.GYROSCOPE);
 
         // Channel
         AndroidSensorChannel accChannel = new AndroidSensorChannel();
+        accChannel.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
         accChannel.options.sampleRate.set(40);
         frame.addSensor(accSensor, accChannel);
 
         AndroidSensorChannel gyrChannel = new AndroidSensorChannel();
+        gyrChannel.options.sensorType.set(SensorType.GYROSCOPE);
         gyrChannel.options.sampleRate.set(40);
         frame.addSensor(gyrSensor, gyrChannel);
 

@@ -1,7 +1,8 @@
 /*
- * FFTTest.java
+ * SignalTest.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -124,8 +125,8 @@ public class SignalTest
 
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sensorType.set(SensorType.ACCELEROMETER);
 		channel.options.sampleRate.set(40);
 		frame.addSensor(sensor, channel);
 
@@ -166,10 +167,10 @@ public class SignalTest
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 
 		//channel
 		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+		sensorChannel.options.sensorType.set(SensorType.ACCELEROMETER);
 		frame.addSensor(sensor,sensorChannel);
 		//transformer
 		Functionals transformer = new Functionals();
@@ -265,10 +266,10 @@ public class SignalTest
 		frame.options.bufferSize.set(10.0f);
 		//sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.LIGHT);
 
 		//channel
 		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+		sensorChannel.options.sensorType.set(SensorType.LIGHT);
 		frame.addSensor(sensor,sensorChannel);
 		//transformer
 		PSD transformer = new PSD();

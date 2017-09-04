@@ -1,7 +1,8 @@
 /*
  * BandComm.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -45,7 +46,19 @@ import hcm.ssj.core.SSJApplication;
 
 public class BandComm {
 
+
     private BandClient client;
+    private int id;
+
+    public BandComm()
+    {
+        this.id = 0;
+    }
+
+    public BandComm(int id)
+    {
+        this.id = id;
+    }
 
     public void vibrate(VibrationType type)
     {
@@ -84,12 +97,12 @@ public class BandComm {
     private boolean getConnectedBandClient() throws InterruptedException, BandException {
         if (client == null) {
             BandInfo[] devices = BandClientManager.getInstance().getPairedBands();
-            if (devices.length == 0) {
-                Log.e("Band isn't paired with your phone.");
+            if (devices.length == 0 || id >= devices.length) {
+                Log.e("Requested Band isn't paired with your phone.");
                 return false;
             }
             Context c = SSJApplication.getAppContext();
-            client = BandClientManager.getInstance().create(c, devices[0]);
+            client = BandClientManager.getInstance().create(c, devices[id]);
         } else if (ConnectionState.CONNECTED == client.getConnectionState()) {
             return true;
         }

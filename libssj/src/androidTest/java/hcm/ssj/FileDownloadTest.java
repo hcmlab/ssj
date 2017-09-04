@@ -1,7 +1,8 @@
 /*
  * FileDownloadTest.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -50,7 +51,7 @@ import static org.junit.Assert.assertTrue;
 @SmallTest
 public class FileDownloadTest
 {
-	private static final String assetsURL = "https://raw.githubusercontent.com/vitaly-krumins/ssj/master/libssj/src/androidTest/assets/";
+	private static final String assetsURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
 	private static final String trainer = "inception.trainer";
 	private static final String model = "inception.model";
 	private static final String option = "inception.option";

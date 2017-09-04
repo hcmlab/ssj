@@ -1,7 +1,8 @@
 /*
  * Log.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -32,8 +33,10 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Locale;
+import java.util.Map;
 
 import hcm.ssj.BuildConfig;
 
@@ -42,6 +45,8 @@ import hcm.ssj.BuildConfig;
  */
 public class Log
 {
+    private final int RECENT_HISTORY_SIZE = 10;
+
     public enum Level
     {
         VERBOSE(2), DEBUG(3), INFO(4), WARNING(5), ERROR(6), NONE(99);
@@ -74,6 +79,14 @@ public class Log
     private static Log instance = null;
     //
     private static HashSet<LogListener> hsLogListener = new HashSet<>();
+    //
+    private LinkedHashMap<String, Double> recent = new LinkedHashMap<String, Double>()
+    {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String,Double> eldest) {
+            return size() > RECENT_HISTORY_SIZE;
+        }
+    };
 
     Log() {}
 
@@ -95,6 +108,7 @@ public class Log
         synchronized (this)
         {
             buffer.clear();
+            recent.clear();
         }
     }
 
@@ -178,12 +192,15 @@ public class Log
         double time = (frame == null) ? 0 : frame.getTime();
         str = buildEntry(caller, msg, tr);
 
-        if(buffer.size() != 0
-                && time - buffer.getLast().t < ((frame == null) ? 1.0 : frame.options.logtimeout.get())
-                && str.equals(buffer.getLast().msg))
+        //check if entry is in our recent history
+        Double lastTime = recent.get(str);
+        if(lastTime != null && time - lastTime < ((frame == null) ? 1.0 : frame.options.logtimeout.get()))
             return;
 
         android.util.Log.println(type, Cons.LOGTAG, str);
+
+        //save in recent
+        recent.put(str, time);
 
         //send message to listeners
         if (hsLogListener.size() > 0) {

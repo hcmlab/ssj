@@ -1,7 +1,8 @@
 /*
- * LoggingTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * FileTest.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -212,10 +213,10 @@ public class FileTest
     {
         //sensor
         AndroidSensor sensorConnection = new AndroidSensor();
-        sensorConnection.options.sensorType.set(SensorType.ACCELEROMETER);
 
         //channel
         AndroidSensorChannel sensorConnectionChannel = new AndroidSensorChannel();
+        sensorConnectionChannel.options.sensorType.set(SensorType.ACCELEROMETER);
         frame.addSensor(sensorConnection,sensorConnectionChannel);
         //consumer
         FileWriter fileWriter = new FileWriter();

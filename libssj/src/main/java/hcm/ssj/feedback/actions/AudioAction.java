@@ -1,23 +1,28 @@
 /*
- * VisualInstance.java
- * Copyright (c) 2015
- * Author: Ionut Damian
+ * AudioAction.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
- * This file is part of the Logue project developed at the Lab for Human Centered Multimedia
- * of the University of Augsburg.
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
- * The applications and libraries are free software; you can redistribute them and/or modify them
- * under the terms of the GNU General Public License as published by the Free Software
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 3 of the License, or any later version.
  *
- * The software is distributed in the hope that it will be useful, but WITHOUT
+ * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.feedback.actions;
@@ -25,9 +30,11 @@ package hcm.ssj.feedback.actions;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.media.SoundPool;
+import android.os.Environment;
 
 import org.xmlpull.v1.XmlPullParser;
 
+import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
@@ -40,10 +47,11 @@ public class AudioAction extends Action
 {
     Context _context = null;
 
-    public AssetFileDescriptor _afd = null;
+    public AssetFileDescriptor fd = null;
 
     public float intensity = 1;
     public int soundId;
+    private String res;
 
     public AudioAction()
     {
@@ -57,13 +65,18 @@ public class AudioAction extends Action
 
         try
         {
-            String res = xml.getAttributeValue(null, "res");
-            if(res != null)
+            res = xml.getAttributeValue(null, "res");
+            if(res == null)
+                throw new IOException("no sound defined");
+
+            if(res.startsWith("assets:"))
             {
-                _afd =  context.getAssets().openFd(res);
+                fd =  context.getAssets().openFd(res.substring(7));
             }
             else
-                throw new IOException("no sound defined");
+            {
+                res = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + res;
+            }
 
             String intensity_str = xml.getAttributeValue(null, "intensity");
             if(intensity_str != null)
@@ -79,8 +92,15 @@ public class AudioAction extends Action
     {
         try
         {
-            soundId = player.load(_afd, 1);
-            _afd.close();
+            if(fd != null)
+            {
+                soundId = player.load(fd, 1);
+                fd.close();
+            }
+            else
+            {
+                soundId = player.load(res, 1);
+            }
         }
         catch (IOException e)
         {

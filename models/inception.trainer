@@ -2,7 +2,7 @@
 <trainer ssi-v="5">
     <info trained="true" />
     <streams>
-        <item byte="4" dim="224" sr="0.500000" type="BYTE" />
+        <item byte="4" dim="150528" sr="1.0" type="FLOAT" />
     </streams>
     <classes>
         <item name="dummy" />
@@ -1014,10 +1014,5 @@
 		<item name="empty" />
 		<item name="empty" />
     </classes>
-    <users>
-        <item name="user1" />
-        <item name="user2" />
-        <item name="user3" />
-    </users>
     <model create="PythonModel" stream="0" path="inception" option="inception" />
 </trainer>

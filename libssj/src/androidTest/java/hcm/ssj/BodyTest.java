@@ -1,7 +1,8 @@
 /*
- * AccelerationFeaturesTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * BodyTest.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -66,10 +67,10 @@ public class BodyTest
 
 		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
-		sensor.options.sensorType.set(SensorType.ACCELEROMETER);
 
 		// Channel
 		AndroidSensorChannel channel = new AndroidSensorChannel();
+		channel.options.sensorType.set(SensorType.ACCELEROMETER);
 		channel.options.sampleRate.set(40);
 		frame.addSensor(sensor, channel);
 

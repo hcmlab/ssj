@@ -1,7 +1,8 @@
 /*
  * NV21ToRGBDecoderTest.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -26,7 +27,6 @@
 
 package hcm.ssj;
 
-import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -37,6 +37,7 @@ import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
@@ -70,7 +71,7 @@ public class NV21ToRGBDecoderTest
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+		cameraSensor.options.cameraType.set(Cons.CameraType.BACK_CAMERA);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
 		cameraSensor.options.previewFpsRangeMin.set(MIN_FPS);
@@ -86,7 +87,7 @@ public class NV21ToRGBDecoderTest
 		frame.addTransformer(decoder, cameraChannel, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		ImageResizer resizer = new ImageResizer();
-		resizer.options.cropSize.set(CROP_SIZE);
+		resizer.options.size.set(CROP_SIZE);
 		frame.addTransformer(resizer, decoder, DATA_WINDOW_SIZE, DATA_OVERLAP);
 
 		// Add consumer to the pipeline

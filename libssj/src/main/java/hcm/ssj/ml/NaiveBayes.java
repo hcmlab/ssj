@@ -1,7 +1,8 @@
 /*
  * NaiveBayes.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -65,9 +66,7 @@ public class NaiveBayes extends Model
     private boolean userLogNormalDistribution = true;
     private boolean usePriorProbability = false;
     //helper variables
-    private int n_classes;
     private int n_features;
-    private String[] class_names = null;
     private double[] class_probs = null;
     private double[][] means = null;
     private double[][] std_dev = null;
@@ -217,23 +216,13 @@ public class NaiveBayes extends Model
         } catch (Exception e)
         {
             e.printStackTrace();
-            Log.e("file could not be parsed");
+            Log.e("file could not be parsed", e);
         }
     }
 
     @Override
     void save(File file) {
         Log.e("saving not supported yet");
-    }
-
-    @Override
-    int getNumClasses() {
-        return n_classes;
-    }
-
-    @Override
-    String[] getClassNames() {
-        return class_names;
     }
 
     /**
@@ -265,8 +254,11 @@ public class NaiveBayes extends Model
         String token[] = line.split("\t");
         if (token.length > 0)
         {
-            n_classes = Integer.valueOf(token[0]);
-        } else
+            int classNum = Integer.valueOf(token[0]);
+            if(classNum != n_classes)
+                Log.w("model definition (n_classes) mismatch between trainer and model file: " + classNum +" != "+ n_classes);
+        }
+        else
         {
             Log.w("can't read number of classes from classifier file " + file.getName() + "!");
             return;
@@ -280,7 +272,6 @@ public class NaiveBayes extends Model
             return;
         }
         class_probs = new double[n_classes];
-        class_names = new String[n_classes];
         means = new double[n_classes][];
         std_dev = new double[n_classes][];
         for (int nclass = 0; nclass < n_classes; nclass++)
@@ -301,7 +292,14 @@ public class NaiveBayes extends Model
                 line = readLine(reader);
             } while (line.isEmpty() || line.startsWith("#"));
             token = line.split("\t");
-            class_names[nclass] = token[0];
+
+            String name = token[0];
+            if(!name.equalsIgnoreCase(class_names[nclass]))
+            {
+                Log.w("model definition (name of class " + nclass + ") mismatch between trainer and model file:" + name + " != " + class_names[nclass]);
+                class_names[nclass] = name;
+            }
+
             class_probs[nclass] = Double.valueOf(token[1]);
             for (int nfeat = 0; nfeat < n_features; nfeat++)
             {

@@ -1,7 +1,8 @@
 /*
  * Classifier.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -35,11 +36,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.event.StringEvent;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -61,8 +65,8 @@ public class Classifier extends Consumer
         public final Option<String> trainerPath = new Option<>("trainerPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
+        public final Option<Boolean> bestMatchOnly = new Option<>("bestMatchOnly", true, Boolean.class, "print or send class with highest result only");
         public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
-        public final Option<Boolean> showLabel = new Option<>("showLabel", false, Boolean.class, "prints a single label in log");
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
         public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
 
@@ -192,7 +196,7 @@ public class Classifier extends Consumer
         }
         catch (XmlPullParserException | IOException e)
         {
-            Log.e("unable to load model");
+            Log.e("unable to load model", e);
         }
 
         if (stream_in.length > 1 && !options.merge.get())
@@ -242,9 +246,6 @@ public class Classifier extends Consumer
             _stream_selected[0] = Stream.create(input[0].num, _selector.options.values.get().length, input[0].sr, input[0].type);
             _selector.enter(input, _stream_selected[0]);
         }
-
-        if(_evchannel_out == null)
-            Log.e("no outgoing event channel has been registered");
     }
 
     /**
@@ -266,43 +267,62 @@ public class Classifier extends Consumer
 
         float[] probs = _model.forward(input);
 
-        if (options.showLabel.get())
+        if(options.bestMatchOnly.get())
         {
             // Get array index of element with largest probability.
-            int bestLabelIdx = TensorFlow.maxIndex(probs);
-
-            String bestMatch = String.format("BEST MATCH: %s (%.2f%% likely)",
+            int bestLabelIdx = Util.maxIndex(probs);
+            String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
                                              _model.getClassNames()[bestLabelIdx],
                                              probs[bestLabelIdx] * 100f);
-            Log.i(bestMatch);
-        }
 
-        if(options.log.get() && !options.showLabel.get())
-        {
-            String[] class_names = _model.getClassNames();
-            StringBuilder stringBuilder = new StringBuilder();
-            for (int i = 0; i < probs.length; i++)
+            if (_evchannel_out != null)
             {
-                stringBuilder.append(class_names[i]);
-                stringBuilder.append(" = ");
-                stringBuilder.append(probs[i]);
-                stringBuilder.append("; ");
+                Event ev = new StringEvent(bestMatch);
+                ev.sender = options.sender.get();
+                ev.name = options.event.get();
+                ev.time = (int) (1000 * stream_in[0].time + 0.5);
+                double duration = stream_in[0].num / stream_in[0].sr;
+                ev.dur = (int) (1000 * duration + 0.5);
+                ev.state = Event.State.COMPLETED;
+
+                _evchannel_out.pushEvent(ev);
             }
 
-            Log.i(stringBuilder.toString());
+            if (options.log.get())
+            {
+                Log.i(bestMatch);
+            }
         }
-
-        if(_evchannel_out != null)
+        else
         {
-            Event ev = Event.create(Cons.Type.FLOAT);
-            ev.sender = options.sender.get();
-            ev.name = options.event.get();
-            ev.time = (int)(1000 * stream_in[0].time + 0.5);
-            double duration = stream_in[0].num / stream_in[0].sr;
-            ev.dur = (int)(1000 * duration + 0.5);
-            ev.state = Event.State.COMPLETED;
+            if (_evchannel_out != null)
+            {
+                Event ev = Event.create(Cons.Type.FLOAT);
+                ev.sender = options.sender.get();
+                ev.name = options.event.get();
+                ev.time = (int) (1000 * stream_in[0].time + 0.5);
+                double duration = stream_in[0].num / stream_in[0].sr;
+                ev.dur = (int) (1000 * duration + 0.5);
+                ev.state = Event.State.COMPLETED;
+                ev.setData(probs);
 
-            _evchannel_out.pushEvent(ev);
+                _evchannel_out.pushEvent(ev);
+            }
+
+            if (options.log.get())
+            {
+                String[] class_names = _model.getClassNames();
+                StringBuilder stringBuilder = new StringBuilder();
+                for (int i = 0; i < probs.length; i++)
+                {
+                    stringBuilder.append(class_names[i]);
+                    stringBuilder.append(" = ");
+                    stringBuilder.append(probs[i]);
+                    stringBuilder.append("; ");
+                }
+
+                Log.i(stringBuilder.toString());
+            }
         }
     }
 

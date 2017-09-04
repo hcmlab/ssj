@@ -1,7 +1,8 @@
 /*
- * TensorFlowModel.java
+ * TensorFlow.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -71,56 +72,9 @@ public class TensorFlow extends Model
 	}
 
 
-	/**
-	 * Returns index of element with the highest value in float array.
-	 *
-	 * @param probabilities Float array.
-	 * @return Index of element with the highest value.
-	 */
-	public static int maxIndex(float[] probabilities) {
-		int best = 0;
-		for (int i = 1; i < probabilities.length; ++i) {
-			if (probabilities[i] > probabilities[best]) {
-				best = i;
-			}
-		}
-		return best;
-	}
-
-
-	/**
-	 * Set label count for the classifier.
-	 *
-	 * @param classNum amount of object classes to recognize.
-	 */
-	public void setNumClasses(int classNum)
+	public TensorFlow()
 	{
-		this.classNum = classNum;
-	}
-
-
-	/**
-	 * Set label strings for the classifier.
-	 *
-	 * @param classNames recognized object classes.
-	 */
-	public void setClassNames(String[] classNames)
-	{
-		this.classNames = classNames;
-	}
-
-
-	@Override
-	public int getNumClasses()
-	{
-		return classNum;
-	}
-
-
-	@Override
-	public String[] getClassNames()
-	{
-		return classNames;
+		_name = "TensorFlow";
 	}
 
 

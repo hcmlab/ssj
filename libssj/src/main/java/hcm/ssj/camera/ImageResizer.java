@@ -1,7 +1,8 @@
 /*
  * ImageResizer.java
  * Copyright (c) 2017
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -49,10 +50,11 @@ public class ImageResizer extends Transformer
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> cropSize = new Option<>("cropSize", 0, Integer.class, "size of the cropped image");
+		public final Option<Integer> size = new Option<>("size", 0, Integer.class, "size of the image after resizing");
 		public final Option<Integer> rotation = new Option<>("rotation", 90, Integer.class, "rotation of the resulting image");
 		public final Option<Boolean> maintainAspect = new Option<>("maintainAspect", true, Boolean.class, "maintain aspect ration");
 		public final Option<Boolean> savePreview = new Option<>("savePreview", false, Boolean.class, "save preview image");
+		public final Option<Boolean> cropImage = new Option<>("cropImage", false, Boolean.class, "crop image instead of resizing");
 
 		private Options()
 		{
@@ -60,22 +62,25 @@ public class ImageResizer extends Transformer
 		}
 	}
 
+
 	public final Options options = new Options();
 
 	private int width;
 	private int height;
-	private int cropSize;
+	private int size;
 	private int[] intValues;
 
 	private Bitmap rgbBitmap;
-	private Bitmap croppedBitmap;
+	private Bitmap finalBitmap;
 	private Canvas canvas;
 	private Matrix frameToCropTransform;
+
 
 	public ImageResizer()
 	{
 		_name = "ImageResizer";
 	}
+
 
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out)
@@ -87,35 +92,36 @@ public class ImageResizer extends Transformer
 		// Create bitmap for the original image
 		rgbBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		// Get user options
-		cropSize = options.cropSize.get();
+		size = options.size.get();
 
-		if (cropSize <= 0 || cropSize >= width || cropSize >= height)
+		// Size of the final image can't be larger than that of the original.
+		if (size <= 0 || size >= width || size >= height)
 		{
 			Log.e("Invalid crop size. Crop size must be smaller than width and height.");
 			return;
 		}
 
-		intValues = new int[cropSize * cropSize];
+		intValues = new int[size * size];
 
 		// Create bitmap for the cropped image
-		croppedBitmap = Bitmap.createBitmap(cropSize, cropSize, Bitmap.Config.ARGB_8888);
+		finalBitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
 
 		// Transform image to be of a quadratic form as Inception model only
 		// accepts images with the same width and height
 		frameToCropTransform = CameraUtil.getTransformationMatrix(
-				width, height, cropSize, cropSize,
+				width, height, size, size,
 				options.rotation.get(), options.maintainAspect.get());
 
 		Matrix cropToFrameTransform = new Matrix();
 		frameToCropTransform.invert(cropToFrameTransform);
-		canvas = new Canvas(croppedBitmap);
+		canvas = new Canvas(finalBitmap);
 	}
+
 
 	@Override
 	public void transform(Stream[] stream_in, Stream stream_out)
 	{
-		if (cropSize <= 0 || cropSize >= width || cropSize >= height)
+		if (size <= 0 || size >= width || size >= height)
 		{
 			Log.e("Invalid crop size. Crop size must be smaller than width and height.");
 			return;
@@ -124,14 +130,19 @@ public class ImageResizer extends Transformer
 		// Convert byte array to integer array
 		int[] rgb = CameraUtil.decodeBytes(stream_in[0].ptrB(), width, height);
 
-		// Resize image and write byte array to output buffer
-		Bitmap bitmap = resizeImage(rgb);
+		Bitmap bitmap;
+
+		if (options.cropImage.get())
+			bitmap = cropImage(rgb);
+		else
+			bitmap = resizeImage(rgb);
 
 		if (options.savePreview.get())
-			CameraUtil.saveBitmap(bitmap, new Date().toString() + ".png");
+			CameraUtil.saveBitmap(bitmap);
 
 		bitmapToByteArray(bitmap, stream_out.ptrB());
 	}
+
 
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
@@ -139,11 +150,13 @@ public class ImageResizer extends Transformer
 		return stream_in[0].dim;
 	}
 
+
 	@Override
 	public int getSampleBytes(Stream[] stream_in)
 	{
 		return stream_in[0].bytes;
 	}
+
 
 	@Override
 	public Cons.Type getSampleType(Stream[] stream_in)
@@ -151,22 +164,25 @@ public class ImageResizer extends Transformer
 		return Cons.Type.IMAGE;
 	}
 
+
 	@Override
 	public int getSampleNumber(int sampleNumber_in)
 	{
 		return sampleNumber_in;
 	}
 
+
 	@Override
 	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
 		stream_out.desc = new String[] { "Cropped video" };
-		int cropSize = options.cropSize.get();
+		int cropSize = options.size.get();
 
 		((ImageStream) stream_out).width = cropSize;
 		((ImageStream) stream_out).height = cropSize;
 		((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
 	}
+
 
 	/**
 	 * Converts bitmap to corresponding byte array and writes it
@@ -188,6 +204,7 @@ public class ImageResizer extends Transformer
 		}
 	}
 
+
 	/**
 	 * Forces an image to be of the same width and height.
 	 *
@@ -201,6 +218,53 @@ public class ImageResizer extends Transformer
 		// Resize bitmap to a quadratic form
 		canvas.drawBitmap(rgbBitmap, frameToCropTransform, null);
 
-		return croppedBitmap;
+		return finalBitmap;
+	}
+
+
+	/**
+	 * Crops out the center of the given image.
+	 *
+	 * @param rgb RGB pixel values of an image.
+	 * @return Cropped bitmap.
+	 */
+	public Bitmap cropImage(int[] rgb)
+	{
+		// Size of the final image can't be larger than that of the original.
+		if (size >= width || size >= height)
+		{
+			Log.e("Invalid crop size. Crop size must be smaller than width and height.");
+			return null;
+		}
+
+		// Calculate matrix offsets
+		int heightMargin = (height - size) / 2;
+		int widthMargin = (width - size) / 2;
+
+		// Cut out the center of the original image.
+		for (int y = heightMargin, cy = 0; y < height - heightMargin; y++, cy++)
+		{
+			for (int x = widthMargin, cx = 0; x < width - widthMargin; x++, cx++)
+			{
+				// Copy pixels from the original pixel matrix to the cropped one
+				intValues[cy * size + cx] = rgb[y * width + x];
+			}
+		}
+
+		int[] cropped = new int[size * size];
+
+		// Rotate the final image 90 degrees.
+		for (int x = size - 1, destX = 0; x > 0; x--, destX++)
+		{
+			for (int y = 0; y < size; y++)
+			{
+				cropped[size * y + x] = intValues[size * destX + y];
+			}
+		}
+
+		// Set pixel values of the cropped image
+		finalBitmap.setPixels(cropped, 0, size, 0, 0, size, size);
+
+		return finalBitmap;
 	}
 }

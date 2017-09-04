@@ -1,7 +1,8 @@
 /*
  * MainActivity.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -204,6 +205,8 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void run()
                 {
+                    //change button text
+                    changeImageButton(android.R.drawable.ic_popup_sync, false);
                     //save framework options
                     Pipeline pipeline = Pipeline.getInstance();
                     //remove old content
@@ -225,10 +228,11 @@ public class MainActivity extends AppCompatActivity
                             }
                         });
                         ready = true;
+                        changeImageButton(android.R.drawable.ic_media_play, true);
                         return;
                     }
                     //change button text
-                    changeImageButton(android.R.drawable.ic_media_pause);
+                    changeImageButton(android.R.drawable.ic_media_pause, true);
                     //notify tabs
                     tabHandler.preStart();
                     //start framework
@@ -246,7 +250,7 @@ public class MainActivity extends AppCompatActivity
                     }
                     ready = true;
                     //change button text
-                    changeImageButton(android.R.drawable.ic_media_play);
+                    changeImageButton(android.R.drawable.ic_media_play, true);
                 }
             }.start();
         } else
@@ -258,7 +262,7 @@ public class MainActivity extends AppCompatActivity
     /**
      * @param idImage int
      */
-    private void changeImageButton(final int idImage)
+    private void changeImageButton(final int idImage, final boolean enabled)
     {
         final ImageButton imageButton = (ImageButton) findViewById(R.id.id_imageButton);
         if (imageButton != null)
@@ -268,6 +272,7 @@ public class MainActivity extends AppCompatActivity
                 public void run()
                 {
                     imageButton.setImageResource(idImage);
+                    imageButton.setEnabled(enabled);
                 }
             });
         }
@@ -445,7 +450,7 @@ public class MainActivity extends AppCompatActivity
         actualizeContent(Util.AppAction.DISPLAYED, null);
         if (!ready)
         {
-            changeImageButton(android.R.drawable.ic_media_pause);
+            changeImageButton(android.R.drawable.ic_media_pause, true);
         }
     }
 
@@ -508,23 +513,22 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void run()
             {
-                String preference = "firstStart";
-                //initialize SharedPreferences
-                SharedPreferences getPrefs = PreferenceManager
-                        .getDefaultSharedPreferences(getBaseContext());
-                //create a new boolean and preference and set it to true
-                firstStart = getPrefs.getBoolean(preference, true);
-                //  If the activity has never started before...
+                SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+
+                //  check if the activity has started before on this app version...
+                String name = "LAST_VERSION";
+                String ssjVersion = Pipeline.getVersion();
+                firstStart = !getPrefs.getString(name, "").equalsIgnoreCase(ssjVersion);
+
                 if (firstStart)
                 {
                     //launch app intro
                     Intent i = new Intent(MainActivity.this, TutorialActivity.class);
                     startActivity(i);
-                    //make a new preferences editor
+
+                    //save current version in preferences so the next time this won't run again
                     SharedPreferences.Editor e = getPrefs.edit();
-                    //edit preference to make it false because we don't want this to run again
-                    e.putBoolean(preference, false);
-                    //apply changes
+                    e.putString(name, ssjVersion);
                     e.apply();
                 }
             }

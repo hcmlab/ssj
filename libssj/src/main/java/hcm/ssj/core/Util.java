@@ -1,7 +1,8 @@
 /*
  * Util.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -833,5 +834,21 @@ public class Util
                 out[i / 2] = (float) Math.sqrt(Math.pow(in[i], 2) + Math.pow(in[i + 1], 2));
             }
         }
+    }
+
+    /**
+     * Returns index of element with the highest value in float array.
+     *
+     * @param array Float array.
+     * @return Index of element with the highest value.
+     */
+    public static int maxIndex(float[] array) {
+        int best = 0;
+        for (int i = 1; i < array.length; ++i) {
+            if (array[i] > array[best]) {
+                best = i;
+            }
+        }
+        return best;
     }
 }

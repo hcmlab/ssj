@@ -1,7 +1,8 @@
 /*
  * UtilTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -93,7 +94,7 @@ public class UtilTest
     @Test
     public void test4() throws Exception
     {
-        int ITER = 100;
+        int ITER = 20;
         long start, delta, ff = 0, fb = 0, bf = 0;
         for (int i = 0; i < ITER; i++)
         {

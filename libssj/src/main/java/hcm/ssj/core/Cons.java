@@ -1,9 +1,10 @@
 /*
  * Cons.java
- * Copyright(android.media.AudioFormat.Copyright) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
- * This file is part of the Social Signal Interpretation for Java(android.media.AudioFormat.Java) framework
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
  * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
@@ -128,4 +129,31 @@ public class Cons
         UDP,
         TCP
     }
+
+    public enum ImageFormat {
+        NV21(android.graphics.ImageFormat.NV21),
+        FLEX_RGBA_8888(0x2A), //android.graphics.ImageFormat.FLEX_RGBA_8888
+        FLEX_RGB_888(0x29), //android.graphics.ImageFormat.FLEX_RGB_888
+        YUV_420_888(0x23), //android.graphics.ImageFormat.YUV_420_888)
+        YV12(android.graphics.ImageFormat.YV12);
+
+        public int val;
+        ImageFormat(int value)
+        {
+            val = value;
+        }
+    }
+
+    public enum CameraType
+	{
+        BACK_CAMERA(0),
+        FRONT_CAMERA(1);
+
+		public final int val;
+
+		CameraType(int val)
+		{
+			this.val = val;
+		}
+	}
 }

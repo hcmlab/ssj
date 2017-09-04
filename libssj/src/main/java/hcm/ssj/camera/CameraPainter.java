@@ -1,7 +1,8 @@
 /*
  * CameraPainter.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -28,6 +29,9 @@ package hcm.ssj.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ImageFormat;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -41,6 +45,7 @@ import hcm.ssj.core.SSJException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -55,11 +60,9 @@ public class CameraPainter extends Consumer implements EventListener
     public class Options extends OptionList
     {
         //values should be the same as in camera
-        public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width of input picture");
-        public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height of input picture");
         public final Option<Integer> orientation = new Option<>("orientation", 90, Integer.class, "orientation of input picture");
         public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "scale picture to match surface size");
-        public final Option<ColorFormat> colorFormat = new Option<>("colorFormat", ColorFormat.NV21_DEFAULT, ColorFormat.class, "change color format");
+        public final Option<Boolean> showBestMatch = new Option<>("showBestMatch", false, Boolean.class, "show object label of the best match");
         public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, SurfaceView.class, "the view on which the painter is drawn");
 
         /**
@@ -71,14 +74,6 @@ public class CameraPainter extends Consumer implements EventListener
         }
     }
 
-    /**
-     * Switches color before encoding happens
-     */
-    public enum ColorFormat
-    {
-        DEFAULT, YV12_PLANAR, YV12_PACKED_SEMI, NV21_DEFAULT, NV21_UV_SWAPPED
-    }
-
     public final Options options = new Options();
     //buffers
     private byte[] byaShuffle;
@@ -87,8 +82,12 @@ public class CameraPainter extends Consumer implements EventListener
     //
     private SurfaceView surfaceViewInner = null;
     private SurfaceHolder surfaceHolder;
-    //
-    private ColorFormat colorFormat;
+
+    private String bestMatch;
+    private int textSize = 35;
+
+    private Paint interiorPaint;
+    private Paint exteriorPaint;
 
     /**
      *
@@ -145,21 +144,40 @@ public class CameraPainter extends Consumer implements EventListener
                 }
             }
         }
-        int reqBuffSize = options.width.get() * options.height.get();
+
+        ImageStream in = (ImageStream)stream_in[0];
+
+        int reqBuffSize = in.width * in.height;
         reqBuffSize += reqBuffSize >> 1;
         byaShuffle = new byte[reqBuffSize];
         surfaceHolder = surfaceViewInner.getHolder();
-        iaRgbData = new int[options.width.get() * options.height.get()];
+        iaRgbData = new int[in.width * in.height];
         //set bitmap
         Bitmap.Config conf = Bitmap.Config.ARGB_8888;
-        bitmap = Bitmap.createBitmap(options.width.get(), options.height.get(), conf);
-        //get colorFormat
-        colorFormat = options.colorFormat.get();
+        bitmap = Bitmap.createBitmap(in.width, in.height, conf);
 
         //register listener
         if(_evchannel_in != null && _evchannel_in.size() != 0)
             for(EventChannel ch : _evchannel_in)
                 ch.addEventListener(this);
+
+        if (options.showBestMatch.get())
+        {
+            interiorPaint = new Paint();
+            interiorPaint.setTextSize(textSize);
+            interiorPaint.setColor(Color.WHITE);
+            interiorPaint.setStyle(Paint.Style.FILL);
+            interiorPaint.setAntiAlias(false);
+            interiorPaint.setAlpha(255);
+
+            exteriorPaint = new Paint();
+            exteriorPaint.setTextSize(textSize);
+            exteriorPaint.setColor(Color.BLACK);
+            exteriorPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            exteriorPaint.setStrokeWidth(textSize / 8);
+            exteriorPaint.setAntiAlias(false);
+            exteriorPaint.setAlpha(255);
+        }
     }
 
     /**
@@ -173,7 +191,7 @@ public class CameraPainter extends Consumer implements EventListener
         if (in.length >= byaShuffle.length)
         {
             System.arraycopy(in, 0, byaShuffle, 0, byaShuffle.length);
-            draw(byaShuffle);
+            draw(byaShuffle, ((ImageStream)stream_in[0]).format);
         }
     }
 
@@ -194,7 +212,7 @@ public class CameraPainter extends Consumer implements EventListener
     /**
      * @param data byte[]
      */
-    private void draw(final byte[] data)
+    private void draw(final byte[] data, int format)
     {
         Canvas canvas = null;
 
@@ -211,6 +229,9 @@ public class CameraPainter extends Consumer implements EventListener
 
                 if (canvas != null)
                 {
+                    // Clear canvas.
+                    canvas.drawColor(Color.BLACK);
+
                     int canvasWidth = canvas.getWidth();
                     int canvasHeight = canvas.getHeight();
 
@@ -221,7 +242,7 @@ public class CameraPainter extends Consumer implements EventListener
                     canvas.rotate(options.orientation.get(), canvasWidth >> 1, canvasHeight >> 1);
 
                     //decode color format
-                    decodeColor(data, bitmapWidth, bitmapHeight);
+                    decodeColor(data, bitmapWidth, bitmapHeight, format);
 
                     //fill bitmap with picture
                     bitmap.setPixels(iaRgbData, 0, bitmapWidth, 0, 0, bitmapWidth, bitmapHeight);
@@ -243,6 +264,14 @@ public class CameraPainter extends Consumer implements EventListener
                                           canvasHeight - ((bitmapHeight + canvasHeight) >> 1),
                                           null);
                     }
+
+                    if (options.showBestMatch.get())
+                    {
+                        // Draw label of the best match.
+                        canvas.rotate(-1 * options.orientation.get(), canvasWidth / 2, canvasHeight / 2);
+                        canvas.drawText(bestMatch, 25, 50, exteriorPaint);
+                        canvas.drawText(bestMatch, 25, 50, interiorPaint);
+                    }
                 }
             }
         } catch (Exception e)
@@ -261,39 +290,23 @@ public class CameraPainter extends Consumer implements EventListener
     /**
      * @param data byte[]
      */
-    private void decodeColor(final byte[] data, int width, int height)
+    private void decodeColor(final byte[] data, int width, int height, int format)
     {
         //@todo implement missing conversions
-        switch (colorFormat)
+        switch (format)
         {
-            case DEFAULT:
+            case ImageFormat.YV12:
             {
                 throw new UnsupportedOperationException("Not implemented, yet");
             }
-            case YV12_PLANAR:
-            {
-                throw new UnsupportedOperationException("Not implemented, yet");
-            }
-            case YV12_PACKED_SEMI:
+            case ImageFormat.YUV_420_888: //YV12_PACKED_SEMI
             {
                 decodeYV12PackedSemi(iaRgbData, data, width, height);
                 break;
             }
-            case NV21_DEFAULT:
+            case ImageFormat.NV21:
             {
-                decodeNV21(iaRgbData, data, width, height, false);
-                break;
-            }
-            case NV21_UV_SWAPPED:
-            {
-//                //perfect conversion, but uses "new"
-//                ByteArrayOutputStream out = new ByteArrayOutputStream();
-//                YuvImage yuv = new YuvImage(data, ImageFormat.NV21, width, height, null);
-//                //data is the byte array of your YUV image, that you want to convert
-//                yuv.compressToJpeg(new Rect(0, 0, width, height), 100, out);
-//                byte[] bytes = out.toByteArray();
-//                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                decodeNV21(iaRgbData, data, width, height, true);
+                CameraUtil.convertNV21ToARGBInt(iaRgbData, data, width, height);
                 break;
             }
             default:
@@ -423,5 +436,11 @@ public class CameraPainter extends Consumer implements EventListener
     }
 
     @Override
-    public void notify(Event event) {}
+    public void notify(Event event)
+    {
+        if(event.type == Cons.Type.STRING)
+            bestMatch = event.ptrStr();
+        else
+            Log.w("unsupported event format (" + event.type.toString() + "). Expecting STRING events.");
+    }
 }

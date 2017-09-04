@@ -1,7 +1,8 @@
 /*
  * Myo.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -116,8 +117,9 @@ public class Myo extends Sensor
 					}
 					else
 					{
-						Log.i("Connecting to nearest myo");
-						hub.attachToAdjacentMyo();
+						//Log.i("Connecting to nearest myo");
+						//hub.attachToAdjacentMyo(); //buggy, not usable
+						Log.e("Cannot connect, please specify MAC address of Myo.");
 					}
 				}
 			}

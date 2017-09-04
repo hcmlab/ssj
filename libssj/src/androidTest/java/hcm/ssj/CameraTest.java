@@ -1,7 +1,8 @@
 /*
- * CameraSensorTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * CameraTest.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -26,7 +27,6 @@
 
 package hcm.ssj;
 
-import android.hardware.Camera;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 import android.view.SurfaceView;
@@ -42,6 +42,7 @@ import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.CameraWriter;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
@@ -87,7 +88,7 @@ public class CameraTest
         frame.options.bufferSize.set(10.0f);
         //sensor
         CameraSensor cameraSensor = new CameraSensor();
-        cameraSensor.options.cameraInfo.set(Camera.CameraInfo.CAMERA_FACING_BACK);
+        cameraSensor.options.cameraType.set(Cons.CameraType.FRONT_CAMERA);
         cameraSensor.options.width.set(width);
         cameraSensor.options.height.set(height);
         cameraSensor.options.previewFpsRangeMin.set(4 * 1000);
@@ -118,9 +119,6 @@ public class CameraTest
             case PAINTER:
             {
                 CameraPainter cameraPainter = new CameraPainter();
-                cameraPainter.options.width.set(width);
-                cameraPainter.options.height.set(height);
-                cameraPainter.options.colorFormat.set(CameraPainter.ColorFormat.NV21_UV_SWAPPED);
                 cameraPainter.options.surfaceView.set(new SurfaceView(getInstrumentation().getContext()));
                 frame.addConsumer(cameraPainter, cameraChannel, 1 / frameRate, 0);
                 break;

@@ -1,28 +1,32 @@
 /*
- * TactileFeedback.java
- * Copyright (c) 2015
- * Author: Ionut Damian
+ * Tactile.java
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
- * This file is part of the Logue project developed at the Lab for Human Centered Multimedia
- * of the University of Augsburg.
+ * This file is part of the Social Signal Interpretation for Java (SSJ) framework
+ * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
  *
- * The applications and libraries are free software; you can redistribute them and/or modify them
- * under the terms of the GNU General Public License as published by the Free Software
+ * SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+ * one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+ * to offer SSI's comprehensive functionality and performance (this is java after all).
+ * Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+ *
+ * This library is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 3 of the License, or any later version.
  *
- * The software is distributed in the hope that it will be useful, but WITHOUT
+ * This library is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along
- * with this library; if not, write to the Free Software Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 package hcm.ssj.feedback.classes;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.SystemClock;
 
@@ -37,7 +41,9 @@ import java.security.InvalidParameterException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.feedback.BandComm;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.actions.Action;
 import hcm.ssj.feedback.actions.TactileAction;
 import hcm.ssj.myo.Vibrate2Command;
@@ -54,30 +60,43 @@ public class Tactile extends FeedbackClass
         MsBand
     }
 
-    Activity activity;
-
     boolean firstCall = true;
-    Myo myo = null;
-    BandComm msband = null;
-    Vibrate2Command cmd = null;
+    boolean connected = false;
 
-    long lock = 0;
+    private Myo myo = null;
+    private hcm.ssj.myo.Myo myoConnector = null;
+    private String deviceId;
+    private BandComm msband = null;
+    private Vibrate2Command cmd = null;
 
-    Device deviceType = Device.Myo;
+    private long lock = 0;
 
-    public Tactile(Activity activity)
+    private Device deviceType = Device.Myo;
+
+    public Tactile(Context context, FeedbackManager.Options options)
     {
-        this.activity = activity;
+        this.context = context;
+        this.options = options;
         type = Type.Tactile;
     }
 
     public void firstCall()
     {
+        firstCall = false;
+        connected = false;
+
         if(deviceType == Device.Myo) {
             Hub hub = Hub.getInstance();
 
+            if (hub.getConnectedDevices().isEmpty())
+            {
+                myoConnector = new hcm.ssj.myo.Myo();
+                myoConnector.options.macAddress.set(deviceId);
+                myoConnector.connect();
+            }
+
             long time = SystemClock.elapsedRealtime();
-            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_BL_CONNECT) {
+            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Pipeline.getInstance().options.waitSensorConnect.get() * 1000) {
                 try {
                     Thread.sleep(Cons.SLEEP_IN_LOOP);
                 } catch (InterruptedException e) {
@@ -89,15 +108,15 @@ public class Tactile extends FeedbackClass
 
             Log.i("connected to Myo");
 
+            connected = true;
             myo = hub.getConnectedDevices().get(0);
             cmd = new Vibrate2Command(hub);
         }
         else if(deviceType == Device.MsBand)
         {
-            msband = new BandComm();
+            int id = deviceId == null ? 0 : Integer.valueOf(deviceId);
+            msband = new BandComm(id);
         }
-
-        firstCall = false;
     }
 
     @Override
@@ -106,6 +125,10 @@ public class Tactile extends FeedbackClass
         if(firstCall)
             firstCall();
 
+        if(!connected)
+            return false;
+
+        Log.i("execute");
         TactileAction ev = (TactileAction) action;
 
         //check locks
@@ -166,6 +189,8 @@ public class Tactile extends FeedbackClass
             if (device_name != null) {
                 deviceType = Device.valueOf(device_name);
             }
+
+            deviceId = xml.getAttributeValue(null, "deviceId");
         }
         catch(IOException | XmlPullParserException | InvalidParameterException e)
         {
@@ -173,5 +198,16 @@ public class Tactile extends FeedbackClass
         }
 
         super.load(xml, context);
+    }
+
+    @Override
+    public void release()
+    {
+        connected = false;
+        firstCall = true;
+
+        if(myoConnector != null)
+            myoConnector.disconnect();
+        super.release();
     }
 }

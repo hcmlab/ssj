@@ -1,7 +1,8 @@
 /*
  * ContainerElement.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -29,7 +30,6 @@ package hcm.ssj.creator.core.container;
 import java.util.LinkedHashMap;
 
 import hcm.ssj.core.Component;
-import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Provider;
 
 /**
@@ -39,7 +39,7 @@ import hcm.ssj.core.Provider;
 public class ContainerElement<T>
 {
     private T element;
-    private double frameSize = 1;
+    private Double frameSize = null;
     private double delta = 0;
 	private boolean eventTrigger = false;
     private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
@@ -63,9 +63,9 @@ public class ContainerElement<T>
     }
 
     /**
-     * @return double
+     * @return Double
      */
-    public double getFrameSize()
+    public Double getFrameSize()
     {
         return frameSize;
     }
@@ -73,7 +73,7 @@ public class ContainerElement<T>
     /**
      * @param frameSize double
      */
-    public void setFrameSize(double frameSize)
+    public void setFrameSize(Double frameSize)
     {
         this.frameSize = frameSize;
     }

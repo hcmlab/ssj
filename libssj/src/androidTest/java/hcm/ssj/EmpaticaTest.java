@@ -1,7 +1,8 @@
 /*
  * EmpaticaTest.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -49,11 +50,14 @@ import hcm.ssj.test.Logger;
 @SmallTest
 public class EmpaticaTest
 {
+	String APIKEY = "";
+
 	@Test
 	public void testAcc() throws Exception {
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
+		empatica.options.apiKey.set(APIKEY);
 		AccelerationChannel acc = new AccelerationChannel();
 		frame.addSensor(empatica,acc);
 
@@ -85,6 +89,7 @@ public class EmpaticaTest
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
+		empatica.options.apiKey.set(APIKEY);
 		GSRChannel data = new GSRChannel();
 		frame.addSensor(empatica,data);
 
@@ -116,6 +121,7 @@ public class EmpaticaTest
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
+		empatica.options.apiKey.set(APIKEY);
 		IBIChannel data = new IBIChannel();
 		frame.addSensor(empatica,data);
 
@@ -147,6 +153,7 @@ public class EmpaticaTest
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
+		empatica.options.apiKey.set(APIKEY);
 		TemperatureChannel data = new TemperatureChannel();
 		frame.addSensor(empatica,data);
 
@@ -178,6 +185,7 @@ public class EmpaticaTest
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
+		empatica.options.apiKey.set(APIKEY);
 		BVPChannel data = new BVPChannel();
 		frame.addSensor(empatica,data);
 

@@ -1,7 +1,8 @@
 /*
  * testLinker.java
- * Copyright (c) 2016
- * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura
+ * Copyright (c) 2017
+ * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+ * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
  * This file is part of the Social Signal Interpretation for Java (SSJ) framework
  * developed at the Lab for Human Centered Multimedia of the University of Augsburg.
@@ -110,7 +111,7 @@ public class testLinker extends ApplicationTestCase<Application>
             {
                 pipelineBuilder.add(consumer);
                 pipelineBuilder.addStreamProvider(consumer, sensorChannel);
-                pipelineBuilder.setFrameSize(consumer, 1);
+                pipelineBuilder.setFrameSize(consumer, 1.0);
                 pipelineBuilder.setDelta(consumer, 0);
             }
         }
