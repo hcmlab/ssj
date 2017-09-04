@@ -416,12 +416,12 @@ public class PipeView extends ViewGroup
                         //arrow from child to parent (e.g. transformer to consumer)
                         if (standardOrientation)
                         {
-                            connectionView.drawComponentViews(componentView, destination, iGridBoxSize);
+                            connectionView.drawConnectionViews(componentView, destination, iGridBoxSize);
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorChannel)
                         {
-                            connectionView.drawComponentViews(destination, componentView, iGridBoxSize);
+                            connectionView.drawConnectionViews(destination, componentView, iGridBoxSize);
                             connectionView.invalidate();
                         }
                         connections++;
@@ -455,12 +455,12 @@ public class PipeView extends ViewGroup
                         //arrow from child to parent (e.g. transformer to consumer)
                         if (standardOrientation)
                         {
-                            connectionView.drawComponentViews(componentView, destination, iGridBoxSize);
+                            connectionView.drawConnectionViews(componentView, destination, iGridBoxSize);
                             connectionView.invalidate();
                         } else
                         //arrow from parent to child (e.g. sensor to sensorChannel)
                         {
-                            connectionView.drawComponentViews(destination, componentView, iGridBoxSize);
+                            connectionView.drawConnectionViews(destination, componentView, iGridBoxSize);
                             connectionView.invalidate();
                         }
                         connections++;
