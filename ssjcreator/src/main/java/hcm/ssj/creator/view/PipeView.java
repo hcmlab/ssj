@@ -562,37 +562,29 @@ public class PipeView extends ViewGroup
      */
     protected boolean checkCollisionConnection(Object object, int x, int y)
     {
-        boolean result = false;
+        boolean result;
         if (object instanceof Sensor)
         {
             result = addCollisionConnection(object, x, y, componentViewsSensorChannel, false);
         }
-        else if (object instanceof Provider)
+        else
         {
-            result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
-            if (!result)
-            {
-                result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
-            }
-        }
-        else if(object instanceof EventHandler)
-        {
-            result = result || addCollisionConnection(object, x, y, componentViewsSensor, true);
-            if (!result)
-            {
-                result = result || addCollisionConnection(object, x, y, componentViewsSensorChannel, true);
-            }
-            if (!result)
-            {
-                result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
-            }
-            if (!result)
-            {
-                result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
-            }
+            result = addCollisionConnection(object, x, y, componentViewsSensorChannel, true);
         }
 
-        if(!result)
+        if (!result)
+        {
+            result = result || addCollisionConnection(object, x, y, componentViewsSensor, true);
+        }
+        if (!result)
+        {
+            result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
+        }
+        if (!result)
+        {
+            result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
+        }
+        if (!result)
         {
             result = result || addCollisionConnection(object, x, y, componentViewsEventHandler, true);
         }
@@ -616,16 +608,19 @@ public class PipeView extends ViewGroup
             int colY = componentView.getGridY();
             if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
             {
-                if(componentView.getElement() instanceof EventHandler || object instanceof EventHandler)
+                if(isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
+                {
+                    if (standard)
+                    {
+                        PipelineBuilder.getInstance().addStreamProvider(componentView.getElement(), (Provider) object);
+                    } else
+                    {
+                        PipelineBuilder.getInstance().addStreamProvider(object, (Provider) componentView.getElement());
+                    }
+                }
+                else
                 {
                     PipelineBuilder.getInstance().addEventProvider(componentView.getElement(), (Component) object);
-                }
-                else if (standard)
-                {
-                    PipelineBuilder.getInstance().addStreamProvider(componentView.getElement(), (Provider) object);
-                } else
-                {
-                    PipelineBuilder.getInstance().addStreamProvider(object, (Provider) componentView.getElement());
                 }
                 return true;
             }
@@ -812,7 +807,10 @@ public class PipeView extends ViewGroup
         Component startComponent = PipelineBuilder.getInstance().getComponentForHash(start.getElementHash());
         Component destinationComponent = PipelineBuilder.getInstance().getComponentForHash(destination.getElementHash());
 
-        if(!isToggleable(startComponent, destinationComponent, connectionView.getConnectionType()))
+        // Check if the toggled connection would be valid.
+        if(!isValidConnection(startComponent,
+                             destinationComponent,
+                             connectionView.getConnectionType() == ConnectionType.EVENTCONNECTION ? ConnectionType.STREAMCONNECTION : ConnectionType.EVENTCONNECTION ))
         {
             return;
         }
@@ -848,11 +846,9 @@ public class PipeView extends ViewGroup
         this.recalculate(Util.AppAction.DISPLAYED, null);
     }
 
-    // Check for rules of pipeline building.
-    // Stream connections can only exist between certain components.
-    private boolean isToggleable(Component src, Component dst, ConnectionType type)
+    private boolean isValidConnection(Component src, Component dst, ConnectionType type)
     {
-        if(type == ConnectionType.STREAMCONNECTION)
+        if(type == ConnectionType.EVENTCONNECTION)
         {
             return true;
         }
@@ -864,7 +860,7 @@ public class PipeView extends ViewGroup
         {
             return true;
         }
-        if(src instanceof Transformer && (src instanceof Transformer || dst instanceof Consumer))
+        if(src instanceof Transformer && (dst instanceof Transformer || dst instanceof Consumer))
         {
             return true;
         }
