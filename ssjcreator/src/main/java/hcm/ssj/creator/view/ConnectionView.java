@@ -47,27 +47,45 @@ import hcm.ssj.creator.util.ConnectionType;
  */
 class ConnectionView extends View
 {
-    private Paint paintConnection;
-    private final static float STROKE_WIDTH = 2.0f;
-    private final static int ARROW_ANGLE = 35;
+	private final static float STROKE_WIDTH = 2.0f;
+	private final static int ARROW_ANGLE = 35;
 	private final static int HITBOX_FACTOR = 5;
-	private final static float BEZIER_FACTOR = 35.0f;
-
-
-    //
-    private Path path;
-    private Bitmap intersectionBitmap = null;
-	private Canvas intersectionCanvas = null;
-	private Paint emptyCanvasFill;
-
+	private static Bitmap intersectionBitmap;
+	private static Canvas intersectionCanvas;
+	private Paint paintConnection;
+	private Path path;
 	private ConnectionType connectionType;
-
 	private ComponentView startComponentView;
 	private ComponentView destinationComponentView;
+
+	/**
+	 * @param context Context
+	 */
+	protected ConnectionView(Context context)
+	{
+		super(context);
+		if (paintConnection == null)
+		{
+			DisplayMetrics dm = getResources().getDisplayMetrics();
+			float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
+			paintConnection = new Paint(Paint.ANTI_ALIAS_FLAG);
+			paintConnection.setStyle(Paint.Style.STROKE);
+			paintConnection.setStrokeWidth(strokeWidth);
+		}
+	}
 
 	public ConnectionType getConnectionType()
 	{
 		return connectionType;
+	}
+
+	protected void setConnectionType(ConnectionType connectionType)
+	{
+		this.connectionType = connectionType;
+		// PathEffect
+		paintConnection.setPathEffect(connectionType.getPathEffect());
+		//Color
+		paintConnection.setColor(getResources().getColor(connectionType.getColor()));
 	}
 
 	public ComponentView getStartComponentView()
@@ -80,154 +98,137 @@ class ConnectionView extends View
 		return destinationComponentView;
 	}
 
-    /**
-     * @param context Context
-     */
-    protected ConnectionView(Context context)
-    {
-        super(context);
-        if (paintConnection == null)
-        {
-            DisplayMetrics dm = getResources().getDisplayMetrics();
-            float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
-            paintConnection = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paintConnection.setStyle(Paint.Style.STROKE);
-            paintConnection.setStrokeWidth(strokeWidth);
-        }
-		emptyCanvasFill = new Paint();
-		emptyCanvasFill.setColor(Color.BLACK);
-		emptyCanvasFill.setStyle(Paint.Style.FILL);
+	protected void drawConnectionViews(ComponentView start, ComponentView destination, final int boxSize)
+	{
+		this.startComponentView = start;
+		this.destinationComponentView = destination;
+
+		setLine(destinationComponentView.getX(), destinationComponentView.getY(),
+				startComponentView.getX(), startComponentView.getY(),
+				boxSize);
 	}
 
-    protected void drawConnectionViews(ComponentView start, ComponentView destination, final int boxSize)
-    {
-        this.startComponentView = start;
-        this.destinationComponentView = destination;
+	/**
+	 * @param stopX   float
+	 * @param stopY   float
+	 * @param startX  float
+	 * @param startY  float
+	 * @param boxSize int
+	 */
+	private void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
+	{
+		//calc triangle
+		int arrowLength = (int) (boxSize / 1.42f + 0.5f);
+		double triangleA = arrowLength * Math.cos(Math.toRadians(90 - ARROW_ANGLE));
+		double triangleB = Math.sqrt(Math.pow(arrowLength, 2) - Math.pow(triangleA, 2));
+		double triangleAlpha = Math.toRadians(ARROW_ANGLE);
+		//draw line
+		//start and end are in the middle of the element box
+		stopX += boxSize;
+		stopY += boxSize;
+		startX += boxSize;
+		startY += boxSize;
+		path = new Path();
 
-        setLine(destinationComponentView.getX(), destinationComponentView.getY(),
-                startComponentView.getX(), startComponentView.getY(),
-                boxSize);
-    }
-
-    /**
-     * @param stopX   float
-     * @param stopY   float
-     * @param startX  float
-     * @param startY  float
-     * @param boxSize int
-     */
-    private void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
-    {
-        //calc triangle
-        int arrowLength = (int) (boxSize / 1.42f + 0.5f);
-        double triangleA = arrowLength * Math.cos(Math.toRadians(90 - ARROW_ANGLE));
-        double triangleB = Math.sqrt(Math.pow(arrowLength, 2) - Math.pow(triangleA, 2));
-        double triangleAlpha = Math.toRadians(ARROW_ANGLE);
-        //draw line
-        //start and end are in the middle of the element box
-        stopX += boxSize;
-        stopY += boxSize;
-        startX += boxSize;
-        startY += boxSize;
-        path = new Path();
-
-        //draw arrow
-        //direction
-        float dx = stopX - startX;
-        float dy = stopY - startY;
-        double theta = Math.atan2(dy, dx);
-        //get middle of line
-        double middleX = (stopX + startX) / 2;
-        double middleY = (stopY + startY) / 2;
+		//draw arrow
+		//direction
+		float dx = stopX - startX;
+		float dy = stopY - startY;
+		double theta = Math.atan2(dy, dx);
+		//get middle of line
+		double middleX = (stopX + startX) / 2;
+		double middleY = (stopY + startY) / 2;
 
 
 		path.moveTo(stopX, stopY);
 
 		// Draw connection as a curve if it's a event connection
-		if(connectionType == ConnectionType.EVENTCONNECTION)
+		if (connectionType == ConnectionType.EVENTCONNECTION)
 		{
-			float vLength = (float)Math.sqrt(dx*dx + dy*dy);
+			float vLength = (float) Math.sqrt(dx * dx + dy * dy);
 			float normX = (dx / vLength) * boxSize * 2.0f;
 			float normY = (dy / vLength) * boxSize * 2.0f;
-			path.quadTo((float)(normY + middleX), (float)(-normX + middleY), startX, startY);
-			middleX += (normY/2.0);
-			middleY += (-normX/2.0);
+			path.quadTo((float) (normY + middleX), (float) (-normX + middleY), startX, startY);
+			middleX += (normY / 2.0);
+			middleY += (-normX / 2.0);
 		}
 		else
 		{
 			path.lineTo(startX, startY);
 		}
 
-        //position arrow in the middle
-        middleX += triangleB / 2 * Math.cos(theta);
-        middleY += triangleB / 2 * Math.sin(theta);
-        //draw first line
-        double x = middleX - arrowLength * Math.cos(theta + triangleAlpha);
-        double y = middleY - arrowLength * Math.sin(theta + triangleAlpha);
-        path.moveTo((float) middleX, (float) middleY);
-        path.lineTo((float) x, (float) y);
-        //draw second line
-        double x2 = middleX - arrowLength * Math.cos(theta - triangleAlpha);
-        double y2 = middleY - arrowLength * Math.sin(theta - triangleAlpha);
-        path.moveTo((float) middleX, (float) middleY);
-        path.lineTo((float) x2, (float) y2);
-    }
+		//position arrow in the middle
+		middleX += triangleB / 2 * Math.cos(theta);
+		middleY += triangleB / 2 * Math.sin(theta);
+		//draw first line
+		double x = middleX - arrowLength * Math.cos(theta + triangleAlpha);
+		double y = middleY - arrowLength * Math.sin(theta + triangleAlpha);
+		path.moveTo((float) middleX, (float) middleY);
+		path.lineTo((float) x, (float) y);
+		//draw second line
+		double x2 = middleX - arrowLength * Math.cos(theta - triangleAlpha);
+		double y2 = middleY - arrowLength * Math.sin(theta - triangleAlpha);
+		path.moveTo((float) middleX, (float) middleY);
+		path.lineTo((float) x2, (float) y2);
+	}
 
-    /**
-     * @param canvas Canvas
-     */
-    @Override
-    protected void onDraw(Canvas canvas)
-    {
-		// Create intersection bitmap and canvas if not yet done.
-		if(intersectionBitmap == null || intersectionCanvas == null)
+	/**
+	 * @param canvas Canvas
+	 */
+	@Override
+	protected void onDraw(Canvas canvas)
+	{
+		super.onDraw(canvas);
+		canvas.save();
+		if (path != null)
 		{
-			intersectionBitmap = Bitmap.createBitmap(canvas.getWidth(), canvas.getHeight(), Bitmap.Config.RGB_565);
+			canvas.drawPath(path, paintConnection);
+		}
+		canvas.restore();
+	}
+
+	/**
+	 * Checks if the motionEvent is on the drawn hidden bitmap.
+	 *
+	 * @param motionEvent MotionEvent
+	 * @return Motion event is on path.
+	 */
+	protected boolean isOnPath(MotionEvent motionEvent)
+	{
+		if (path == null)
+		{
+			return false;
+		}
+
+		// Create intersection bitmap and canvas if not yet done.
+		if (intersectionBitmap == null || intersectionCanvas == null)
+		{
+			intersectionBitmap = Bitmap.createBitmap(this.getWidth(), this.getHeight(), Bitmap.Config.RGB_565);
 			intersectionCanvas = new Canvas(intersectionBitmap);
 		}
 
-		// Fill canvas with black. ("reset")
-		intersectionCanvas.drawPaint(emptyCanvasFill);
+		// Fill bitmap with white. ("reset")
+		intersectionBitmap.eraseColor(Color.WHITE);
 
 		// Draw with higher strokewith in a hidden bitmap.
-		if (path != null)
-        {
-			ConnectionType oldType = connectionType;
-			setConnectionType(ConnectionType.STREAMCONNECTION);
-			intersectionCanvas.drawColor(Color.WHITE);
-            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() * HITBOX_FACTOR);
-            intersectionCanvas.drawPath(path, paintConnection);
-            paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() / HITBOX_FACTOR);
-			setConnectionType(oldType);
-        }
+		ConnectionType oldType = connectionType;
+		setConnectionType(ConnectionType.STREAMCONNECTION);
+		paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() * HITBOX_FACTOR);
+		intersectionCanvas.drawPath(path, paintConnection);
+		paintConnection.setStrokeWidth(paintConnection.getStrokeWidth() / HITBOX_FACTOR);
+		setConnectionType(oldType);
 
-        super.onDraw(canvas);
-        canvas.save();
-        if (path != null)
-        {
-            canvas.drawPath(path, paintConnection);
-        }
-        canvas.restore();
-    }
-
-    protected void setConnectionType(ConnectionType connectionType)
-	{
-        this.connectionType = connectionType;
-		// PathEffect
-		paintConnection.setPathEffect(connectionType.getPathEffect());
-		//Color
-		paintConnection.setColor(getResources().getColor(connectionType.getColor()));
+		// Get color of the touched point and check whether it's WHITE or not.
+		int touchPointColor = intersectionBitmap.getPixel((int) motionEvent.getX(), (int) motionEvent.getY());
+		return touchPointColor != Color.WHITE;
 	}
 
-    /**
-     *  Checks if the motionEvent is on the drawn hidden bitmap.
-     * @param motionEvent MotionEvent
-     * @return Motion event is on path.
-     */
-	protected boolean isOnPath(MotionEvent motionEvent)
-    {
-        int touchPointColor = intersectionBitmap.getPixel((int)motionEvent.getX(), (int) motionEvent.getY());
+	@Override
+	protected void onSizeChanged(int w, int h, int oldw, int oldh)
+	{
+		// set intersectionBitmap and -Canvas to null,  to have them reinstantiated on resize
+		intersectionBitmap = null;
+		intersectionCanvas = null;
+	}
 
-        return touchPointColor != Color.WHITE;
-    }
 }
