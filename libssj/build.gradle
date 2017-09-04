@@ -105,20 +105,25 @@ def adb = android.getAdbExe().toString()
 def recipient = "hcm.ssj.test"
 
 def grantPermissionsTask = tasks.create("grant permissions") << {
-    printf("grant permissions for unit tests\n")
-    "${adb} shell pm grant ${recipient} android.permission.RECORD_AUDIO".execute()
-    "${adb} shell pm grant ${recipient} android.permission.WRITE_EXTERNAL_STORAGE".execute()
-    "${adb} shell pm grant ${recipient} android.permission.READ_EXTERNAL_STORAGE".execute()
-    "${adb} shell pm grant ${recipient} android.permission.CAMERA".execute()
-    "${adb} shell pm grant ${recipient} android.permission.INTERNET".execute()
-    "${adb} shell pm grant ${recipient} android.permission.WAKE_LOCK".execute()
-    "${adb} shell pm grant ${recipient} android.permission.ACCESS_FINE_LOCATION".execute()
-    "${adb} shell pm grant ${recipient} android.permission.ACCESS_COARSE_LOCATION".execute()
-    "${adb} shell pm grant ${recipient} android.permission.BODY_SENSORS".execute()
-    "${adb} shell pm grant ${recipient} android.permission.BLUETOOTH".execute()
-    "${adb} shell pm grant ${recipient} android.permission.BLUETOOTH_ADMIN".execute()
-    "${adb} shell pm grant ${recipient} com.microsoft.band.service.access.BIND_BAND_SERVICE".execute()
-    "${adb} shell pm grant ${recipient} android.permission.ACCESS_WIFI_STATE".execute()
+    "${adb} devices".execute().text.eachLine {
+        if (it.endsWith("device")) {
+            def device = it.split()[0]
+            println "Granting permissions on device: ${device}"
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.RECORD_AUDIO".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.WRITE_EXTERNAL_STORAGE".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.READ_EXTERNAL_STORAGE".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.CAMERA".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.INTERNET".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.WAKE_LOCK".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.ACCESS_FINE_LOCATION".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.ACCESS_COARSE_LOCATION".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.BODY_SENSORS".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.BLUETOOTH".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.BLUETOOTH_ADMIN".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} com.microsoft.band.service.access.BIND_BAND_SERVICE".execute()
+            "${adb} -s ${device} shell pm grant ${recipient} android.permission.ACCESS_WIFI_STATE".execute()
+        }
+    }
 }
 grantPermissionsTask.description = "Grants permissions for Marshmallow"
 
