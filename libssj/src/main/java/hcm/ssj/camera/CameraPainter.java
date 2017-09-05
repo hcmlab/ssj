@@ -76,7 +76,6 @@ public class CameraPainter extends Consumer implements EventListener
 
     public final Options options = new Options();
     //buffers
-    private byte[] byaShuffle;
     private int[] iaRgbData;
     private Bitmap bitmap;
     //
@@ -147,9 +146,6 @@ public class CameraPainter extends Consumer implements EventListener
 
         ImageStream in = (ImageStream)stream_in[0];
 
-        int reqBuffSize = in.width * in.height;
-        reqBuffSize += reqBuffSize >> 1;
-        byaShuffle = new byte[reqBuffSize];
         surfaceHolder = surfaceViewInner.getHolder();
         iaRgbData = new int[in.width * in.height];
         //set bitmap
@@ -186,13 +182,8 @@ public class CameraPainter extends Consumer implements EventListener
     @Override
     protected final void consume(Stream[] stream_in)
     {
-        byte[] in = stream_in[0].ptrB();
         //only draw first frame per call, since drawing multiple frames doesn't make sense without delay
-        if (in.length >= byaShuffle.length)
-        {
-            System.arraycopy(in, 0, byaShuffle, 0, byaShuffle.length);
-            draw(byaShuffle, ((ImageStream)stream_in[0]).format);
-        }
+        draw(stream_in[0].ptrB(), ((ImageStream)stream_in[0]).format);
     }
 
     /**
@@ -203,7 +194,6 @@ public class CameraPainter extends Consumer implements EventListener
     {
         surfaceViewInner = null;
         iaRgbData = null;
-        byaShuffle = null;
         surfaceHolder = null;
         bitmap.recycle();
         bitmap = null;
@@ -301,7 +291,7 @@ public class CameraPainter extends Consumer implements EventListener
             }
             case ImageFormat.YUV_420_888: //YV12_PACKED_SEMI
             {
-                decodeYV12PackedSemi(iaRgbData, data, width, height);
+                CameraUtil.decodeYV12PackedSemi(iaRgbData, data, width, height);
                 break;
             }
             case ImageFormat.NV21:
@@ -309,128 +299,15 @@ public class CameraPainter extends Consumer implements EventListener
                 CameraUtil.convertNV21ToARGBInt(iaRgbData, data, width, height);
                 break;
             }
+            case ImageFormat.FLEX_RGB_888:
+            {
+                CameraUtil.convertRGBToARGBInt(iaRgbData, data, width, height);
+                break;
+            }
             default:
             {
                 Log.e("Wrong color format");
                 throw new RuntimeException();
-            }
-        }
-    }
-
-    /**
-     * Decodes YUV frame to a RGB buffer
-     *
-     * @param rgba     int[]
-     * @param yuv420sp byte[]
-     * @param width    width
-     * @param height   height
-     */
-    private void decodeYV12PackedSemi(int[] rgba, byte[] yuv420sp, int width, int height)
-    {
-        //@todo untested
-        final int frameSize = width * height;
-        int r, g, b, y1192, y, i, uvp, u, v;
-        for (int j = 0, yp = 0; j < height; j++)
-        {
-            uvp = frameSize + (j >> 1) * width;
-            u = 0;
-            v = 0;
-            for (i = 0; i < width; i++, yp++)
-            {
-                y = (0xff & ((int) yuv420sp[yp])) - 16;
-                if (y < 0)
-                    y = 0;
-                if ((i & 1) == 0)
-                {
-                    v = (0xff & yuv420sp[uvp++]) - 128;
-                    u = (0xff & yuv420sp[uvp++]) - 128;
-                }
-                y1192 = 1192 * y;
-                r = (y1192 + 1634 * v);
-                g = (y1192 - 833 * v - 400 * u);
-                b = (y1192 + 2066 * u);
-                //
-                r = Math.max(0, Math.min(r, 262143));
-                g = Math.max(0, Math.min(g, 262143));
-                b = Math.max(0, Math.min(b, 262143));
-                // rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) &
-                // 0xff00) | ((b >> 10) & 0xff);
-                // rgba, divide 2^10 ( >> 10)
-                rgba[yp] = ((r << 14) & 0xff000000) | ((g << 6) & 0xff0000)
-                        | ((b >> 2) | 0xff00);
-            }
-        }
-    }
-
-    /**
-     * Decodes YUV frame to a RGB buffer
-     *
-     * @param out    int[]
-     * @param yuv    byte[]
-     * @param width  int
-     * @param height int
-     * @param swap   boolean
-     */
-    private void decodeNV21(int[] out, byte[] yuv, int width, int height, boolean swap)
-    {
-        //@todo correct colors
-        int sz = width * height;
-        int i, j;
-        int Y, Cr = 0, Cb = 0;
-        for (j = 0; j < height; j++)
-        {
-            int pixPtr = j * width;
-            final int jDiv2 = j >> 1;
-            for (i = 0; i < width; i++)
-            {
-                Y = yuv[pixPtr];
-                if (Y < 0)
-                    Y += 255;
-                if ((i & 0x1) != 1)
-                {
-                    final int cOff = sz + jDiv2 * width + (i >> 1) * 2;
-                    Cb = yuv[cOff + (swap ? 0 : 1)];
-                    if (Cb < 0)
-                    {
-                        Cb += 127;
-                    } else
-                    {
-                        Cb -= 128;
-                    }
-                    Cr = yuv[cOff + (swap ? 1 : 0)];
-                    if (Cr < 0)
-                    {
-                        Cr += 127;
-                    } else
-                    {
-                        Cr -= 128;
-                    }
-                }
-                int R = Y + Cr + (Cr >> 2) + (Cr >> 3) + (Cr >> 5);
-                if (R < 0)
-                {
-                    R = 0;
-                } else if (R > 255)
-                {
-                    R = 255;
-                }
-                int G = Y - (Cb >> 2) + (Cb >> 4) + (Cb >> 5) - (Cr >> 1) + (Cr >> 3) + (Cr >> 4) + (Cr >> 5);
-                if (G < 0)
-                {
-                    G = 0;
-                } else if (G > 255)
-                {
-                    G = 255;
-                }
-                int B = Y + Cb + (Cb >> 1) + (Cb >> 2) + (Cb >> 6);
-                if (B < 0)
-                {
-                    B = 0;
-                } else if (B > 255)
-                {
-                    B = 255;
-                }
-                out[pixPtr++] = 0xff000000 + (B << 16) + (G << 8) + R;
             }
         }
     }
