@@ -29,10 +29,13 @@ package hcm.ssj.feedback.actions;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Environment;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
@@ -74,7 +77,15 @@ public class VisualAction extends Action
 
             for(int i = 0; i< icon_names.length; i++)
             {
-                icons[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i]), null);
+                String assetsString = "assets:";
+                if(icon_names[i].startsWith(assetsString))
+                {
+                    icons[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i].substring(assetsString.length())), null);
+                }
+                else {
+                    String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + icon_names[i];
+                    icons[i] =  Drawable.createFromStream(new FileInputStream(path), null);
+                }
             }
 
             String bright_str = xml.getAttributeValue(null, "brightness");

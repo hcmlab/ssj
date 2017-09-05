@@ -91,7 +91,7 @@ public class SpeechRate extends Condition
         }
         catch (XmlPullParserException | IOException e)
         {
-            throw new RuntimeException(e);
+            throw new RuntimeException("failed parsing event", e);
         }
 
         float value = getAvg(_sr);

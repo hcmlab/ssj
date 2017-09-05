@@ -179,7 +179,16 @@ public class FeedbackManager extends EventHandler
         for(FeedbackClass i : classes)
         {
             if(i.getLevel() == level)
-                i.process(behavEvent);
+            {
+                try
+                {
+                    i.process(behavEvent);
+                }
+                catch (Exception e)
+                {
+                    Log.e("error processing event", e);
+                }
+            }
         }
     }
 
