@@ -50,7 +50,7 @@ public class TutorialActivity extends AppIntro
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide1_title), getResources().getString(R.string.slide1_text), R.drawable.logo, Color.parseColor("#0099CC")));
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide2_title), getResources().getString(R.string.slide2_text), R.drawable.file, Color.parseColor("#BB8930")));
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide3_title), getResources().getString(R.string.slide3_text), R.drawable.edit, Color.parseColor("#979797")));
-        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide4_title), getResources().getString(R.string.slide4_text), R.drawable.eventconnections, Color.parseColor("#FFD54F")));
+        addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide4_title), getResources().getString(R.string.slide4_text), R.drawable.eventconnections, Color.parseColor("#0F9D58")));
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide5_title), getResources().getString(R.string.slide5_text), R.drawable.start, Color.parseColor("#4A82AE")));
         addSlide(AppIntroFragment.newInstance(getResources().getString(R.string.slide6_title), getResources().getString(R.string.slide6_text), R.drawable.tabs, Color.parseColor("#963aff")));
 
