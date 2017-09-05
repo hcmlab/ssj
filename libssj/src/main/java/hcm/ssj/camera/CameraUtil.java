@@ -476,4 +476,72 @@ class CameraUtil
 
         return rgb;
     }
+
+	public static void convertRGBToARGBInt(int[] argb, byte[] rgb, int width, int height)
+    {
+        int cnt_out = 0;
+        int cnt_in = 0;
+        int r,g,b;
+
+        for(int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                r = rgb[cnt_in++];
+                g = rgb[cnt_in++];
+                b = rgb[cnt_in++];
+
+                if (r < 0) r += 256;
+                if (g < 0) g += 256;
+                if (b < 0) b += 256;
+
+                argb[cnt_out++] = 0xff000000 | (r << 16) | (g << 8) | b;
+            }
+        }
+    }
+
+    /**
+     * Decodes YUV frame to a RGB buffer
+     *
+     * @param rgba     int[]
+     * @param yuv420sp byte[]
+     * @param width    width
+     * @param height   height
+     */
+    public static void decodeYV12PackedSemi(int[] rgba, byte[] yuv420sp, int width, int height)
+    {
+        //@todo untested
+        final int frameSize = width * height;
+        int r, g, b, y1192, y, i, uvp, u, v;
+        for (int j = 0, yp = 0; j < height; j++)
+        {
+            uvp = frameSize + (j >> 1) * width;
+            u = 0;
+            v = 0;
+            for (i = 0; i < width; i++, yp++)
+            {
+                y = (0xff & ((int) yuv420sp[yp])) - 16;
+                if (y < 0)
+                    y = 0;
+                if ((i & 1) == 0)
+                {
+                    v = (0xff & yuv420sp[uvp++]) - 128;
+                    u = (0xff & yuv420sp[uvp++]) - 128;
+                }
+                y1192 = 1192 * y;
+                r = (y1192 + 1634 * v);
+                g = (y1192 - 833 * v - 400 * u);
+                b = (y1192 + 2066 * u);
+                //
+                r = Math.max(0, Math.min(r, 262143));
+                g = Math.max(0, Math.min(g, 262143));
+                b = Math.max(0, Math.min(b, 262143));
+                // rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) &
+                // 0xff00) | ((b >> 10) & 0xff);
+                // rgba, divide 2^10 ( >> 10)
+                rgba[yp] = ((r << 14) & 0xff000000) | ((g << 6) & 0xff0000)
+                        | ((b >> 2) | 0xff00);
+            }
+        }
+    }
 }
