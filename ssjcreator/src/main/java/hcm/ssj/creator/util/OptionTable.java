@@ -106,7 +106,7 @@ public class OptionTable
      */
     private static LinearLayout addOption(final Activity activity, final Option option)
     {
-        Object value = option.get();
+        final Object value = option.get();
         // Set up the view
         LinearLayout linearLayout = new LinearLayout(activity);
         linearLayout.setBackgroundColor(activity.getResources().getColor(R.color.colorBackground));
@@ -206,7 +206,15 @@ public class OptionTable
                     int length = Array.getLength(value);
                     for (int i = 0; i < length; i++)
                     {
-                        ar.add(Array.get(value, i));
+                        if(value.getClass().getComponentType() == byte.class || value.getClass().getComponentType() == Byte.class)
+                        {
+                            // Apply mask to int value to avoid bad representation as there is no unsigned byte in java.
+                            ar.add((Byte)(Array.get(value, i))& 0xFF);
+                        }
+                        else
+                        {
+                            ar.add(Array.get(value, i));
+                        }
                     }
                     objects = ar.toArray();
                     ((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
@@ -243,6 +251,20 @@ public class OptionTable
                 {
                     try
                     {
+                        if(value.getClass().getComponentType() == byte.class || value.getClass().getComponentType() == Byte.class)
+                        {
+                            String[] strings = s.toString().replace("[", "").replace("]", "").split("\\s*,\\s*");
+                            byte[] ar = new byte[strings.length];
+                            for (int i = 0; i < strings.length; i++)
+                            {
+                                ar[i] = Byte.parseByte(strings[i]);
+                            }
+                            option.setValue(ar.toString());
+                        }
+                        else
+                        {
+                            option.setValue(s.toString());
+                        }
                         option.setValue(s.toString());
                     } catch (IllegalArgumentException e)
                     {
