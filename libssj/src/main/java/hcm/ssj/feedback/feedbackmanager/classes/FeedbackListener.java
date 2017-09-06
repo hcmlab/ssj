@@ -25,9 +25,9 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.classes;
+package hcm.ssj.feedback.feedbackmanager.classes;
 
-import hcm.ssj.feedback.actions.Action;
+import hcm.ssj.feedback.feedbackmanager.actions.Action;
 
 /**
  * Created by Johnny on 03.06.2016.

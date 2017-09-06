@@ -1,5 +1,5 @@
 /*
- * VisualAction.java
+ * TactileAction.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,35 +25,32 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.actions;
+package hcm.ssj.feedback.feedbackmanager.actions;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.os.Environment;
+
+import com.microsoft.band.notifications.VibrationType;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.FeedbackClass;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class VisualAction extends Action
+public class TactileAction extends Action
 {
-    public Drawable icons[];
+    public int[] duration = {500};
+    public byte[] intensity = {(byte)150};
+    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
-    public int dur = 0;
-    public float brightness = 1;
-
-    public VisualAction()
+    public TactileAction()
     {
-        type = FeedbackClass.Type.Visual;
+        type = FeedbackClass.Type.Tactile;
     }
 
     protected void load(XmlPullParser xml, Context context)
@@ -64,37 +61,14 @@ public class VisualAction extends Action
         {
             xml.require(XmlPullParser.START_TAG, null, "action");
 
-            String res_str = xml.getAttributeValue(null, "res");
-            if(res_str == null)
-                throw new IOException("event resource not defined");
+            String str = xml.getAttributeValue(null, "intensity");
+            if(str != null) intensity = parseByteArray(str, ",");
 
-            String[] icon_names = res_str.split("\\s*,\\s*");
-            if(icon_names.length > 2)
-                throw new IOException("unsupported amount of resources");
+            str = xml.getAttributeValue(null, "duration");
+            if(str != null) duration = parseIntArray(str, ",");
 
-            int num = icon_names.length;
-            icons = new Drawable[num];
-
-            for(int i = 0; i< icon_names.length; i++)
-            {
-                String assetsString = "assets:";
-                if(icon_names[i].startsWith(assetsString))
-                {
-                    icons[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i].substring(assetsString.length())), null);
-                }
-                else {
-                    String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + icon_names[i];
-                    icons[i] =  Drawable.createFromStream(new FileInputStream(path), null);
-                }
-            }
-
-            String bright_str = xml.getAttributeValue(null, "brightness");
-            if (bright_str != null)
-                brightness = Float.valueOf(bright_str);
-
-            String dur_str = xml.getAttributeValue(null, "duration");
-            if (dur_str != null)
-                dur = Integer.valueOf(dur_str);
+            str = xml.getAttributeValue(null, "type");
+            if(str != null) vibrationType = VibrationType.valueOf(str);
         }
         catch(IOException | XmlPullParserException e)
         {

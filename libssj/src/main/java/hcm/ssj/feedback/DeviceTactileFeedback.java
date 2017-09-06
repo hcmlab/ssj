@@ -1,5 +1,5 @@
 /*
- * Loudness.java
+ * DeviceTactileFeedback.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,68 +25,67 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.conditions;
+package hcm.ssj.feedback;
 
 import android.content.Context;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-import java.util.LinkedList;
+import android.os.Vibrator;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.Option;
 
 /**
- * Created by Johnny on 01.12.2014.
+ * Created by Antonio Grieco on 06.09.2017.
  */
-public class Loudness extends Condition
+
+public class DeviceTactileFeedback extends Feedback
 {
+	public class Options extends Feedback.Options
+	{
+		public final Option<long[]> vibrationPattern = new Option<>("vibrationPattern", new long[]{0, 500}, long[].class, "vibration pattern (starts with delay)");
 
-    LinkedList<Float> _loudness = new LinkedList<Float>();
-    int _history_size;
+		private Options()
+		{
+			super();
+			addOptions();
+		}
+	}
 
-    @Override
-    public float parseEvent(Event event)
-    {
-        float loudness = Float.parseFloat(event.ptrStr());
+	protected DeviceTactileFeedback.Options options = new DeviceTactileFeedback.Options();
 
-        _loudness.add(loudness);
-        if (_loudness.size() > _history_size)
-            _loudness.removeFirst();
+	private Vibrator vibrator = null;
 
-        float value = getAvg(_loudness);
-        Log.d("Loudness = " + value);
-        return value;
-    }
+	public DeviceTactileFeedback()
+	{
+		_name = "DeviceTactileFeedback";
+		Log.d("Instantiated DeviceTactileFeedback " + this.hashCode());
+	}
 
-    private float getAvg(LinkedList<Float> vec)
-    {
-        if(vec.size() == 0)
-            return 0;
+	@Override
+	public void enter()
+	{
+		vibrator = (Vibrator) SSJApplication.getAppContext().getSystemService(Context.VIBRATOR_SERVICE);
+		if (!vibrator.hasVibrator())
+		{
+			throw new RuntimeException("device can't vibrate");
+		}
+	}
 
-        float sum = 0;
-        for(float i : vec)
-        {
-            sum += i;
-        }
-        return sum / vec.size();
-    }
+	@Override
+	public void notify(Event event)
+	{
+		// Execute only if lock has expired
+		if (checkLock(options.lock.get()))
+		{
+			Log.i("vibration " + options.vibrationPattern.get());
+			vibrator.vibrate(options.vibrationPattern.get(), -1);
+		}
+	}
 
-    @Override
-    protected void load(XmlPullParser xml, Context context)
-    {
-        try
-        {
-            xml.require(XmlPullParser.START_TAG, null, "condition");
-        }
-        catch (XmlPullParserException | IOException e)
-        {
-            Log.e("error parsing config file", e);
-        }
-
-        _history_size = Integer.getInteger(xml.getAttributeValue(null, "history"), 5);
-        super.load(xml, context);
-    }
+	@Override
+	public void flush()
+	{
+		vibrator.cancel();
+	}
 }

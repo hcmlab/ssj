@@ -45,8 +45,8 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.feedback.classes.FeedbackClass;
-import hcm.ssj.feedback.classes.FeedbackListener;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackListener;
 import hcm.ssj.file.LoggingConstants;
 
 /**

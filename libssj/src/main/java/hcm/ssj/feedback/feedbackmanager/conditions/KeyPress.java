@@ -1,5 +1,5 @@
 /*
- * SpeechDuration.java
+ * KeyPress.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.conditions;
+package hcm.ssj.feedback.feedbackmanager.conditions;
 
 import android.content.Context;
 
@@ -37,31 +37,22 @@ import java.io.IOException;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.event.Event;
 
+
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class SpeechDuration extends Condition
+public class KeyPress extends Condition
 {
-
-    float _dur = 0;
-    boolean _shouldSum= false;
-
-    @Override
-    public float parseEvent(Event event)
-    {
-        if(_shouldSum)
-            _dur += event.dur / 1000.0f;
-        else
-            _dur = event.dur / 1000.0f;
-
-        return _dur;
-    }
+    protected String _text;
+    protected boolean _isToggle;
+    protected float _lastValue = 0;
 
     public boolean checkEvent(Event event)
     {
         if (event.name.equalsIgnoreCase(_event)
-            && event.sender.equalsIgnoreCase(_sender)
-            && event.state == Event.State.COMPLETED)
+        && event.sender.equalsIgnoreCase(_sender)
+        && (_text == null || event.ptrStr().equalsIgnoreCase(_text))
+        && (!_isToggle || event.state == Event.State.COMPLETED))
         {
             float value = parseEvent(event);
             if((value == thres_lower) || (value >= thres_lower && value < thres_upper))
@@ -71,19 +62,45 @@ public class SpeechDuration extends Condition
         return false;
     }
 
-    @Override
+    public float parseEvent(Event event)
+    {
+        float value;
+        if(_isToggle)
+        {
+            value = 1 - _lastValue;
+            _lastValue = value;
+        }
+        else
+        {
+            value = (event.state == Event.State.COMPLETED) ? 0 : 1;
+        }
+
+        return value;
+    }
+
     protected void load(XmlPullParser xml, Context context)
     {
         try
         {
             xml.require(XmlPullParser.START_TAG, null, "condition");
+            _text = xml.getAttributeValue(null, "text");
+
+            String toggle = xml.getAttributeValue(null, "toggle");
+            if(toggle == null || toggle.compareToIgnoreCase("false") == 0)
+                _isToggle = false;
+            else
+                _isToggle = true;
         }
-        catch (XmlPullParserException | IOException e)
+        catch(IOException | XmlPullParserException e)
         {
             Log.e("error parsing config file", e);
         }
 
-        _shouldSum = Boolean.getBoolean(xml.getAttributeValue(null, "sum"));
         super.load(xml, context);
+    }
+
+    public float getLastValue()
+    {
+        return _lastValue;
     }
 }

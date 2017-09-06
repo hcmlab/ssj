@@ -68,14 +68,7 @@ public class AuditoryFeedback extends Feedback
 	public AuditoryFeedback()
 	{
 		_name = "AuditoryFeedback";
-		//_doWakeLock = true; // TODO: Determine if neccessary
 		Log.d("Instantiated AuditoryFeedback "+this.hashCode());
-	}
-
-	@Override
-	protected Feedback.Options getOptions()
-	{
-		return options;
 	}
 
 	@Override
@@ -111,7 +104,7 @@ public class AuditoryFeedback extends Feedback
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if(checkLock())
+		if(checkLock(options.lock.get()))
 		{
 			player.play(this.soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
 		}

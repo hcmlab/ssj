@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.classes;
+package hcm.ssj.feedback.feedbackmanager.classes;
 
 import android.content.Context;
 import android.os.SystemClock;
@@ -44,8 +44,8 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.feedback.BandComm;
 import hcm.ssj.feedback.FeedbackManager;
-import hcm.ssj.feedback.actions.Action;
-import hcm.ssj.feedback.actions.TactileAction;
+import hcm.ssj.feedback.feedbackmanager.actions.Action;
+import hcm.ssj.feedback.feedbackmanager.actions.TactileAction;
 import hcm.ssj.myo.Vibrate2Command;
 
 

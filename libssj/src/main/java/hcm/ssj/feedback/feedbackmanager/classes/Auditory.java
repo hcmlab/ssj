@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.classes;
+package hcm.ssj.feedback.feedbackmanager.classes;
 
 import android.content.Context;
 import android.media.AudioManager;
@@ -35,8 +35,8 @@ import org.xmlpull.v1.XmlPullParser;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.feedback.FeedbackManager;
-import hcm.ssj.feedback.actions.Action;
-import hcm.ssj.feedback.actions.AudioAction;
+import hcm.ssj.feedback.feedbackmanager.actions.Action;
+import hcm.ssj.feedback.feedbackmanager.actions.AudioAction;
 
 
 /**

@@ -1,5 +1,5 @@
 /*
- * FeedbackAction.java
+ * Feedback.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -49,13 +49,11 @@ public abstract class Feedback extends EventHandler
 		}
 	}
 
-	protected abstract Options getOptions();
-
-	protected boolean checkLock()
+	protected boolean checkLock(Integer lock)
 	{
-		if (System.currentTimeMillis() - lastExecutionTime < getOptions().lock.get())
+		if (System.currentTimeMillis() - lastExecutionTime < lock)
 		{
-			Log.i("ignoring event, lock active for another " + (getOptions().lock.get() - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
+			Log.i("ignoring event, lock active for another " + (lock - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
 			return false;
 		}
 		else{

@@ -1,5 +1,5 @@
 /*
- * TactileAction.java
+ * MSBandTactileFeedback.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,54 +25,62 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.actions;
-
-import android.content.Context;
+package hcm.ssj.feedback;
 
 import com.microsoft.band.notifications.VibrationType;
 
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.FeedbackClass;
+import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.Option;
 
 /**
- * Created by Johnny on 01.12.2014.
+ * Created by Antonio Grieco on 06.09.2017.
  */
-public class TactileAction extends Action
+
+public class MSBandTactileFeedback extends Feedback
 {
-    public int[] duration = {500};
-    public byte[] intensity = {(byte)150};
-    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
+	public class Options extends Feedback.Options
+	{
+		public final Option<int[]> duration = new Option<>("duration", new int[]{500}, int[].class, "duration of tactile feedback");
+		public final Option<VibrationType> vibrationType = new Option<>("vibrationType", VibrationType.NOTIFICATION_ONE_TONE, VibrationType.class, "vibration type");
+		public final Option<Integer> deviceId = new Option<>("deviceId", 0, Integer.class, "device Id");
 
-    public TactileAction()
-    {
-        type = FeedbackClass.Type.Tactile;
-    }
+		private Options()
+		{
+			super();
+			addOptions();
+		}
+	}
 
-    protected void load(XmlPullParser xml, Context context)
-    {
-        super.load(xml, context);
+	protected MSBandTactileFeedback.Options options = new MSBandTactileFeedback.Options();
 
-        try
-        {
-            xml.require(XmlPullParser.START_TAG, null, "action");
+	private BandComm msband = null;
 
-            String str = xml.getAttributeValue(null, "intensity");
-            if(str != null) intensity = parseByteArray(str, ",");
+	public MSBandTactileFeedback()
+	{
+		_name = "MSBandTactileFeedback";
+		Log.d("Instantiated MSBandTactileFeedback " + this.hashCode());
+	}
 
-            str = xml.getAttributeValue(null, "duration");
-            if(str != null) duration = parseIntArray(str, ",");
+	@Override
+	public void enter()
+	{
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
+			throw new RuntimeException("no input channels");
+		}
+		msband = new BandComm(options.deviceId.get());
+	}
 
-            str = xml.getAttributeValue(null, "type");
-            if(str != null) vibrationType = VibrationType.valueOf(str);
-        }
-        catch(IOException | XmlPullParserException e)
-        {
-            Log.e("error parsing config file", e);
-        }
-    }
+	@Override
+	public void notify(Event event)
+	{
+		// Execute only if lock has expired
+		if (checkLock(options.lock.get()))
+		{
+
+			Log.i("vibration " + options.vibrationType.get());
+			msband.vibrate(options.vibrationType.get());
+		}
+	}
 }
