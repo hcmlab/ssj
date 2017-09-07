@@ -59,8 +59,7 @@ public class AuditoryFeedback extends Feedback
 			addOptions();
 		}
 	}
-
-	protected AuditoryFeedback.Options options = new AuditoryFeedback.Options();
+	public final Options options = new Options();
 
 	private SoundPool player;
 	private int soundId;

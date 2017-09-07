@@ -57,8 +57,7 @@ public class MyoTactileFeedback extends Feedback
 			addOptions();
 		}
 	}
-
-	protected MyoTactileFeedback.Options options = new MyoTactileFeedback.Options();
+	public final Options options = new Options();
 
 
 	private Myo myo = null;

@@ -51,8 +51,7 @@ public class MSBandTactileFeedback extends Feedback
 			addOptions();
 		}
 	}
-
-	protected MSBandTactileFeedback.Options options = new MSBandTactileFeedback.Options();
+	public final Options options = new Options();
 
 	private BandComm msband = null;
 

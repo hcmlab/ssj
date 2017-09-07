@@ -51,8 +51,7 @@ public class DeviceTactileFeedback extends Feedback
 			addOptions();
 		}
 	}
-
-	protected DeviceTactileFeedback.Options options = new DeviceTactileFeedback.Options();
+	public final Options options = new Options();
 
 	private Vibrator vibrator = null;
 
