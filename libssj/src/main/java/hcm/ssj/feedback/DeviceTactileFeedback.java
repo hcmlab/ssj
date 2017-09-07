@@ -65,6 +65,9 @@ public class DeviceTactileFeedback extends Feedback
 	@Override
 	public void enter()
 	{
+		if(_evchannel_in == null || _evchannel_in.size() == 0)
+			throw new RuntimeException("no input channels");
+
 		vibrator = (Vibrator) SSJApplication.getAppContext().getSystemService(Context.VIBRATOR_SERVICE);
 		if (!vibrator.hasVibrator())
 		{
