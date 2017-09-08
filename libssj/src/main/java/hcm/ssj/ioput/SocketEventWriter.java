@@ -40,7 +40,7 @@ import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -135,7 +135,7 @@ public class SocketEventWriter extends EventHandler
 
             //build event
             Util.eventToXML(_builder, ev);
-            _builder.append(LoggingConstants.DELIMITER_LINE);
+            _builder.append(FileCons.DELIMITER_LINE);
         }
 
         if(count > 0)

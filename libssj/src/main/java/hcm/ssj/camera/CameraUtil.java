@@ -37,7 +37,7 @@ import java.io.FileOutputStream;
 import java.util.Date;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Utility class for the camera. <br>
@@ -364,7 +364,7 @@ class CameraUtil
      */
     public static void saveBitmap(final Bitmap bitmap) {
         final String root =
-                LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "previews";
+                FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "previews";
         final File myDir = new File(root);
 
         if (!myDir.mkdirs()) {

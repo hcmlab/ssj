@@ -95,8 +95,8 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
     {
         if (options.filePath.get() == null)
         {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
         }
         File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
 

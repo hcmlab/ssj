@@ -44,8 +44,8 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
-import static hcm.ssj.file.LoggingConstants.FILE_EXTENSION_ANNO_PLAIN;
-import static hcm.ssj.file.LoggingConstants.FILE_EXTENSION_EVENT;
+import static hcm.ssj.file.FileCons.FILE_EXTENSION_ANNO_PLAIN;
+import static hcm.ssj.file.FileCons.FILE_EXTENSION_EVENT;
 
 /**
  * writes events to file
@@ -92,8 +92,8 @@ public class FileEventWriter extends EventHandler implements IFileWriter
         //create file
         if (options.filePath.get() == null)
         {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
         }
         File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
 
@@ -130,7 +130,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
             _builder.append("<events ssi-v=\"2\" ssj-v=\"");
             _builder.append(_frame.getVersion());
             _builder.append("\">");
-            _builder.append(LoggingConstants.DELIMITER_LINE);
+            _builder.append(FileCons.DELIMITER_LINE);
 
             SimpleDateFormat sdf = new SimpleDateFormat(SimpleHeader.DATE_FORMAT, Locale.getDefault());
 
@@ -141,7 +141,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
             String system = sdf.format(date);
 
             _builder.append("<time ms=\"").append(_frame.getStartTimeMs()).append("\" local=\"").append(local).append("\" system=\"").append(system).append("\"/>");
-            _builder.append(LoggingConstants.DELIMITER_LINE);
+            _builder.append(FileCons.DELIMITER_LINE);
 
             write(_builder.toString(), fileOutputStream);
             headerWritten = true;
@@ -152,7 +152,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
         if(options.format.get() == Format.EVENT)
         {
             Util.eventToXML(_builder, event);
-            _builder.append(LoggingConstants.DELIMITER_LINE);
+            _builder.append(FileCons.DELIMITER_LINE);
 
             write(_builder.toString(), fileOutputStream);
         }
@@ -262,7 +262,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
         {
             try
             {
-                line += LoggingConstants.DELIMITER_LINE;
+                line += FileCons.DELIMITER_LINE;
                 stream.write(line.getBytes());
             } catch (IOException e)
             {

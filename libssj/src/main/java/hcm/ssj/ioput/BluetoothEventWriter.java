@@ -41,7 +41,7 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 05.03.2015.
@@ -139,7 +139,7 @@ public class BluetoothEventWriter extends EventHandler
 
             //build event
             Util.eventToXML(_builder, ev);
-            _builder.append(LoggingConstants.DELIMITER_LINE);
+            _builder.append(FileCons.DELIMITER_LINE);
         }
 
         if(count > 0)
