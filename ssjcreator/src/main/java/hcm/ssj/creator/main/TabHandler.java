@@ -38,10 +38,12 @@ import com.jjoe64.graphview.GraphView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import hcm.ssj.camera.CameraPainter;
-import hcm.ssj.core.EventHandler;
+import hcm.ssj.core.Component;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
@@ -60,8 +62,8 @@ public class TabHandler
 	private Activity activity;
 	//tabs
 	private TabHost tabHost = null;
-	private ArrayList<Object> alAdditionalTabs = new ArrayList<>();
-	private ArrayList<TabHost.TabSpec> alTabSpecs = new ArrayList<>();
+	private Set<Object> alAdditionalTabs = new HashSet<>();
+	private List<TabHost.TabSpec> alTabSpecs = new ArrayList<>();
 	private final static int FIX_TAB_NUMBER = 2;
 	//canvas
 	private Canvas canvas;
@@ -70,7 +72,12 @@ public class TabHandler
 	//annotation
 	private boolean annotationExists = false;
 
+	//visual feedback tab index
+	private int visualFeedbackTabIndex = Integer.MIN_VALUE;
+
 	private AnnotationTab annotationTab = null;
+
+	private Component[] visualFeedbackComponents = null;
 
 	/**
 	 * @param activity Activity
@@ -184,82 +191,75 @@ public class TabHandler
 	 */
 	private void checkAdditionalTabs()
 	{
-		Object[] consumers = PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Consumer);
+		List<Component> additionalTabComponents = new ArrayList<>();
 		int counterAnno = 0;
-		//add additional tabs
-		for (Object object : consumers)
+
+		for(Component iFileWriter : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IFileWriter.class))
 		{
-			//annotation
-			if (object instanceof IFileWriter)
+			additionalTabComponents.add(iFileWriter);
+			counterAnno++;
+			if (!annotationExists)
 			{
-				counterAnno++;
-				if (!annotationExists)
-				{
-					annotationExists = true;
-					annotationTab = new AnnotationTab(this.activity);
-					addTabAnno(annotationTab.getView(), annotationTab.getTitle(), annotationTab.getIcon());
-				}
-			}
-			//signals
-			else if (object instanceof SignalPainter)
-			{
-				GraphView graphView = ((SignalPainter) object).options.graphView.get();
-				if (graphView == null)
-				{
-					graphView = new GraphView(activity);
-					((SignalPainter) object).options.graphView.set(graphView);
-					addTab(graphView, ((SignalPainter) object).getComponentName(), android.R.drawable.ic_menu_view);
-					alAdditionalTabs.add(object);
-				}
-			}
-			//camera
-			else if (object instanceof CameraPainter)
-			{
-				SurfaceView surfaceView = ((CameraPainter) object).options.surfaceView.get();
-				if (surfaceView == null)
-				{
-					surfaceView = new SurfaceView(activity);
-					((CameraPainter) object).options.surfaceView.set(surfaceView);
-					addTab(surfaceView, ((CameraPainter) object).getComponentName(), android.R.drawable.ic_menu_camera);
-					alAdditionalTabs.add(object);
-				}
+				annotationExists = true;
+				annotationTab = new AnnotationTab(this.activity);
+				addTabAnno(annotationTab.getView(), annotationTab.getTitle(), annotationTab.getIcon());
 			}
 		}
 
-		Object[] eventHandlers = PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.EventHandler);
-		List<EventHandler> visualFeedbackEventHandlers = new ArrayList<>();
-		TableLayout visualFeedbackTableLayout = null;
-		for (Object object : eventHandlers)
+		for(Component signalPainter : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, SignalPainter.class))
 		{
-			if (object instanceof FeedbackManager)
+			additionalTabComponents.add(signalPainter);
+			GraphView graphView = ((SignalPainter) signalPainter).options.graphView.get();
+			if (graphView == null)
 			{
-				visualFeedbackEventHandlers.add((EventHandler)object);
-				TableLayout tableLayout = ((FeedbackManager) object).options.layout.get();
-				if (tableLayout == null)
-				{
-					continue;
-				}
-				else
-				{
-					if(visualFeedbackTableLayout == null)
-					{
-						visualFeedbackTableLayout = tableLayout;
-					}
-				}
-			}
-			if (object instanceof VisualFeedback)
-			{
-				visualFeedbackEventHandlers.add((EventHandler) object);
+				graphView = new GraphView(activity);
+				((SignalPainter) signalPainter).options.graphView.set(graphView);
+				addTab(graphView, signalPainter.getComponentName(), android.R.drawable.ic_menu_view);
+				alAdditionalTabs.add(signalPainter);
 			}
 		}
-		for(EventHandler visualFeedbackEventHandler : visualFeedbackEventHandlers)
-		{
 
+		for(Component cameraPainter : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, CameraPainter.class))
+		{
+			additionalTabComponents.add(cameraPainter);
+			SurfaceView surfaceView = ((CameraPainter) cameraPainter).options.surfaceView.get();
+			if (surfaceView == null)
+			{
+				surfaceView = new SurfaceView(activity);
+				((CameraPainter) cameraPainter).options.surfaceView.set(surfaceView);
+				addTab(surfaceView, cameraPainter.getComponentName(), android.R.drawable.ic_menu_camera);
+				alAdditionalTabs.add(cameraPainter);
+			}
 		}
 
+		for(Component feedBackManager : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackManager.class))
+		{
+			additionalTabComponents.add(feedBackManager);
+			TableLayout tableLayout = ((FeedbackManager) feedBackManager).options.layout.get();
+			if (tableLayout == null)
+			{
+				tableLayout = new TableLayout(activity);
+				((FeedbackManager) feedBackManager).options.layout.set(tableLayout);
+				addTab(tableLayout, feedBackManager.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+				alAdditionalTabs.add(feedBackManager);
+			}
+		}
 
+		Component[] currentVisualFeedbackComponents = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, VisualFeedback.class);
+		if(currentVisualFeedbackComponents.length > 0)
+		{
+			TableLayout newLayout = getTableLayoutForVisualFeedback(currentVisualFeedbackComponents);
+			for(Component visualFeedback : currentVisualFeedbackComponents)
+			{
+				((VisualFeedback) visualFeedback).options.layout.set(newLayout);
+			}
+			Component addedComponent = addVisualFeedbackTab(newLayout, currentVisualFeedbackComponents, android.R.drawable.ic_menu_compass); // TODO: Change icon.
+			additionalTabComponents.add(addedComponent);
+		}
+		else{
+			visualFeedbackTabIndex = Integer.MIN_VALUE;
+		}
 
-		//remove obsolete tabs
 		//remove annotation
 		if (counterAnno <= 0 && annotationExists)
 		{
@@ -267,17 +267,48 @@ public class TabHandler
 			removeTab(FIX_TAB_NUMBER);
 		}
 
-		//remove signal and camera
-		List consumerList = Arrays.asList(consumers);
-		List eventHandlerList = Arrays.asList(eventHandlers);
-		for (int i = alAdditionalTabs.size() - 1; i >= 0; i--)
+		//remove obsolete tabs
+		Object[] alAdditionalTabsList = alAdditionalTabs.toArray();
+		for (int i = alAdditionalTabsList.length - 1; i >= 0; i--)
 		{
-			if (!consumerList.contains(alAdditionalTabs.get(i)) && !eventHandlerList.contains(alAdditionalTabs.get(i)))
+			if (!additionalTabComponents.contains(alAdditionalTabsList[i]))
 			{
 				alAdditionalTabs.remove(i);
 				removeTab(i + FIX_TAB_NUMBER + (annotationExists ? 1 : 0));
 			}
 		}
+	}
+
+	private Component addVisualFeedbackTab(TableLayout newLayout, Component[] newVisualFeedbackComponents, int drawable) {
+
+		if(visualFeedbackComponents != null)
+		{
+			for (Component visualFeedBackComponent : visualFeedbackComponents)
+			{
+				alAdditionalTabs.remove(visualFeedBackComponent);
+			}
+		}
+		VisualFeedback firstComponent = ((VisualFeedback) newVisualFeedbackComponents[0]);
+		addTab(firstComponent.options.layout.get(), firstComponent.getComponentName(), drawable);
+		visualFeedbackComponents = newVisualFeedbackComponents;
+
+		return firstComponent;
+	}
+
+	// Check if any visual feedback has already an layout. if yes set all layouts to this one.
+	// otherwise make a new one. if there are visual feedback components with different layouts set a new one to all.
+	private TableLayout getTableLayoutForVisualFeedback(Component[] visualFeedbackComponents) {
+		List<TableLayout> layouts = new ArrayList<>();
+		for(Component visualFeedback : visualFeedbackComponents)
+		{
+			TableLayout currentLayout = ((VisualFeedback)visualFeedback).options.layout.get();
+			if(currentLayout != null && !layouts.contains(currentLayout))
+			{
+				layouts.add(currentLayout);
+			}
+
+		}
+		return (layouts.size() == 1) ? layouts.get(0) :  new TableLayout(activity);
 	}
 
 	/**

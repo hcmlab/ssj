@@ -179,6 +179,20 @@ public class PipelineBuilder
         return null;
     }
 
+    public Component[] getComponentsOfClass(Type type, Class componentClass)
+    {
+        List<Component> componentList = new ArrayList<>();
+        Object[] componentsOfType = getAll(type);
+        for(Object component : componentsOfType)
+        {
+            if(componentClass.isInstance(component))
+            {
+                componentList.add((Component)component);
+            }
+        }
+        return componentList.toArray(new Component[componentList.size()]);
+    }
+
     /**
      * @param type Type
      */
