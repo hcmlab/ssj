@@ -82,8 +82,8 @@ public class SSITransformer extends Transformer
         String path;
         ApplicationInfo info = SSJApplication.getAppContext().getApplicationInfo();
 
-        if(options.libdir.get().startsWith(info.nativeLibraryDir)
-        || options.libdir.get().startsWith(info.dataDir))
+        if(options.libdir.get() != null &&
+            (options.libdir.get().startsWith(info.nativeLibraryDir)|| options.libdir.get().startsWith(info.dataDir)))
         {
             //file is already in internal memory
             path = options.libdir.get();
@@ -107,18 +107,21 @@ public class SSITransformer extends Transformer
             Log.e("error creating SSI transformer");
 
         //set options
-        for(String option : options.ssioptions.get())
+        if(options.ssioptions.get() != null)
         {
-            String[] pair = option.split("->");
-            if(pair.length != 2)
+            for (String option : options.ssioptions.get())
             {
-                Log.w("misformed ssi option: " + option + ". Should be 'name->pair'.");
-                continue;
-            }
+                String[] pair = option.split("->");
+                if (pair.length != 2)
+                {
+                    Log.w("misformed ssi option: " + option + ". Should be 'name->pair'.");
+                    continue;
+                }
 
-            if(!SSI.setOption(ssi_object, pair[0], pair[1]))
-            {
-                Log.w("unable to set option " + pair[0] + " to value " + pair[1]);
+                if (!SSI.setOption(ssi_object, pair[0], pair[1]))
+                {
+                    Log.w("unable to set option " + pair[0] + " to value " + pair[1]);
+                }
             }
         }
     }

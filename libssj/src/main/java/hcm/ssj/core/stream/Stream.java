@@ -39,6 +39,8 @@ public abstract class Stream implements Serializable
 {
     public int dim;
     public int num;
+    public int num_frame;
+    public int num_delta;
     public int bytes;
     public int tot;
     public double sr;
@@ -75,6 +77,14 @@ public abstract class Stream implements Serializable
         }
     }
 
+    public static Stream create(Provider source, int num_frame, int num_delta)
+    {
+        Stream s = create(source, num_frame + num_delta);
+        s.num_frame = num_frame;
+        s.num_delta = num_delta;
+        return s;
+    }
+
     public static Stream create(Provider source, int num)
     {
         Stream s;
@@ -101,6 +111,8 @@ public abstract class Stream implements Serializable
         sr = 0;
         step = 0;
         num = 0;
+        num_frame = 0;
+        num_delta = 0;
         tot = 0;
         time = 0;
     }

@@ -182,7 +182,7 @@ public abstract class Transformer extends Provider {
             //allocate local input buffer
             for (int i = 0; i < sources.length; i++) {
                 _bufferID_in[i] = sources[i].getBufferID();
-                _stream_in[i] = Stream.create(sources[i], _num_frame[i] + _num_delta[i]);
+                _stream_in[i] = Stream.create(sources[i], _num_frame[i], _num_delta[i]);
             }
 
             // figure out properties of output signal based on first input stream
