@@ -29,7 +29,7 @@ apply plugin: 'com.android.library'
 apply from: '../version.gradle'
 
 //this will include the mobile SSI classes in the library
-def mobileSSI = false
+def buildSSIXmlPipe = false
 
 ext {
     bintrayRepo = 'maven'
@@ -85,15 +85,15 @@ android {
     sourceSets {
         main {
             java {
-                if (!mobileSSI) {
+                if (!buildSSIXmlPipe) {
                     exclude '**/MobileSSIConsumer.java'
                 }
             }
         }
         androidTest {
             java {
-                if (!mobileSSI) {
-                    exclude '**/MobileSSITest.java'
+                if (!buildSSIXmlPipe) {
+                    exclude '**/SSIXmlPipeTest.java'
                 }
             }
         }
@@ -140,8 +140,6 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.5'
 
     compile fileTree(dir: 'libs', include: ['*.jar'])
-
-    //compile 'com.squareup.okhttp:okhttp:2.5.0'
 }
 
 //upload to library bintray

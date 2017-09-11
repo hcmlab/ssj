@@ -47,7 +47,7 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 import hcm.ssj.feedback.feedbackmanager.classes.FeedbackListener;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 02.12.2014.
@@ -58,7 +58,7 @@ public class FeedbackManager extends EventHandler
 
     public class Options extends OptionList
     {
-        public final Option<String> strategyFilePath = new Option<>("strategyFilePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "location of strategy file");
+        public final Option<String> strategyFilePath = new Option<>("strategyFilePath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of strategy file");
         public final Option<String> strategyFileName = new Option<>("strategyFileName", null, String.class, "name of strategy file");
         public final Option<Boolean> fromAsset = new Option<>("fromAsset", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");

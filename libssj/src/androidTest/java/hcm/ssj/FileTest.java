@@ -43,10 +43,10 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.file.FileWriter;
-import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.SimpleXmlParser;
 import hcm.ssj.test.Logger;
 
@@ -158,7 +158,7 @@ public class FileTest
             {
                 throw new RuntimeException("Header file could not be deleted");
             }
-            File fileReal = new File(dir, fileName + LoggingConstants.FILE_EXTENSION_STREAM);
+            File fileReal = new File(dir, fileName + FileCons.FILE_EXTENSION_STREAM);
             if (fileReal.exists())
             {
                 if (!fileReal.delete())

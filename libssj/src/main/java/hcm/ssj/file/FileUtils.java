@@ -28,14 +28,13 @@
 package hcm.ssj.file;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.util.Locale;
+import java.io.OutputStream;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Pipeline;
 
 /**
  * Allows to download files from a valid URL and saves them in a predetermined folder on
@@ -45,11 +44,6 @@ import hcm.ssj.core.Pipeline;
  */
 public class FileUtils
 {
-	private static final int BUFFER_SIZE = 4096;
-	private static final int BYTES_IN_MEGABYTE = 1000000;
-	private static final int EOF = -1;
-	private static final int LOG_STEP = 200;
-
 	/**
 	 * @param filePath Option
 	 * @param fileName Option
@@ -61,13 +55,14 @@ public class FileUtils
 
 		if (isURL)
 		{
-			return FileUtils.downloadFile(filePath, fileName);
+//			return FileUtils.downloadFile(fileName, filePath, FileCons.DOWNLOAD_DIR);
+			FileDownloader.getInstance().addToQueue(fileName, filePath, FileCons.DOWNLOAD_DIR, true);
 		}
 
 		if (filePath == null)
 		{
-			Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-			filePath = LoggingConstants.SSJ_EXTERNAL_STORAGE;
+			Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+			filePath = FileCons.SSJ_EXTERNAL_STORAGE;
 		}
 		File fileDirectory = new File(filePath);
 		if (fileName == null)
@@ -79,64 +74,32 @@ public class FileUtils
 	}
 
 	/**
-	 * Downloads file from a given URL and saves it on the SD card with a given file name.
-	 *
-	 * @param location Folder URL where file is located.
-	 * @param fileName Name of the file.
-	 * @return Instance of the downloaded file.
+	 * @throws IOException
 	 */
-	public static File downloadFile(String location, String fileName) throws IOException
+	public static void copyFile(String filename, String from, String to) throws IOException
 	{
-		File destinationDir = new File(LoggingConstants.DOWNLOAD_MODELS_DIR);
+		InputStream in = new FileInputStream(new File(from, filename));
 
-		// Create folders on the SD card if not already created.
-		destinationDir.mkdirs();
+		File dir = new File(to);
+		if (!dir.exists())
+			dir.mkdirs();
+		OutputStream out = new FileOutputStream(new File(dir, filename));
 
-		File downloadedFile = new File(destinationDir.getAbsolutePath(), fileName);
+		copyFile(in, out);
+	}
 
-		if (!downloadedFile.exists())
+	/**
+	 * @param in  InputStream
+	 * @param out OutputStream
+	 * @throws IOException
+	 */
+	public static void copyFile(InputStream in, OutputStream out) throws IOException
+	{
+		byte[] buffer = new byte[1024];
+		int read;
+		while ((read = in.read(buffer)) != -1)
 		{
-			Log.i("Starting to download '" + fileName + "'...");
-			URL fileURL = new URL(location + File.separator + fileName);
-
-			InputStream input = fileURL.openStream();
-			FileOutputStream output = new FileOutputStream(downloadedFile);
-
-			byte[] buffer = new byte[BUFFER_SIZE];
-			int numberOfBytesRead;
-			int totalBytesDownloaded = 0;
-			int counter = 0;
-
-			Pipeline pipe = Pipeline.getInstance();
-
-			while ((numberOfBytesRead = input.read(buffer)) != EOF)
-			{
-				if (!(pipe.getState() == Pipeline.State.STARTING || pipe.getState() == Pipeline.State.RUNNING))
-				{
-					Log.i("Download interrupted.");
-					return null;
-				}
-
-				output.write(buffer, 0, numberOfBytesRead);
-
-				totalBytesDownloaded += numberOfBytesRead;
-
-				if (counter % LOG_STEP == 0)
-				{
-					String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / (float)BYTES_IN_MEGABYTE);
-					Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
-				}
-
-				counter++;
-			}
-
-			input.close();
-			output.close();
-
-			String progress = String.format(Locale.US, "%.2f", (float)totalBytesDownloaded / BYTES_IN_MEGABYTE);
-			Log.i("File '" + fileName + "' " + progress + " Mb downloaded.");
-			Log.i("File '" + fileName + "' downloaded successfully.");
+			out.write(buffer, 0, read);
 		}
-		return downloadedFile;
 	}
 }

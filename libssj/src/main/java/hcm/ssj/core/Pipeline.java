@@ -40,7 +40,9 @@ import hcm.ssj.BuildConfig;
 import hcm.ssj.R;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
+import hcm.ssj.file.FileDownloader;
+import hcm.ssj.mobileSSI.SSI;
 
 /**
  * Main class for creating and interfacing with SSJ pipelines.
@@ -70,7 +72,7 @@ public class Pipeline
         /** write system log to file. Default: false */
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
         /** location of log file. Default: /sdcard/SSJ/[time] */
-        public final Option<String> logpath = new Option<>("logpath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
+        public final Option<String> logpath = new Option<>("logpath", FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "location of log file");
         /** show all logs greater or equal than level. Default: VERBOSE */
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
         /** repeated log entries with a duration delta smaller than the timeout value are ignored. Default: 1.0 */
@@ -108,6 +110,8 @@ public class Pipeline
     private HashSet<Component> components = new HashSet<>();
     private ArrayList<TimeBuffer> buffers = new ArrayList<>();
 
+    private FileDownloader downloader;
+
     protected static Pipeline instance = null;
 
     private Pipeline()
@@ -120,6 +124,8 @@ public class Pipeline
 
         int coreThreads = Runtime.getRuntime().availableProcessors();
         threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
+
+        downloader = FileDownloader.getInstance();
 
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
@@ -731,6 +737,7 @@ public class Pipeline
         }
 
         clear();
+        downloader.terminate();
         instance = null;
     }
 
@@ -754,6 +761,8 @@ public class Pipeline
         buffers.clear();
         Log.getInstance().clear();
         startTime = 0;
+
+        SSI.clear();
     }
 
     /**

@@ -89,7 +89,7 @@
         <option name="merge" value="false" />
         <option name="sender" value="Classifier" />
         <option name="trainerFile" value="inception.trainer" />
-        <option name="trainerPath" value="https://raw.githubusercontent.com/hcmlab/ssj/master/models" />
+        <option name="trainerPath" value="https://hcm-lab.de/downloads/ssj/model" />
       </options>
       <providerList>
         <providerId id="242568698" />

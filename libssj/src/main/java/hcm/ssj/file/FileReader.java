@@ -53,7 +53,7 @@ public class FileReader extends Sensor
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "file path");
+        public final Option<String> filePath = new Option<>("filePath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "file path");
         public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
         public final Option<Boolean> loop = new Option<>("loop", true, Boolean.class, "");
 
@@ -93,8 +93,8 @@ public class FileReader extends Sensor
             initialized = true;
             if (options.filePath.get() == null)
             {
-                Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-                options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+                Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+                options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
             }
             File fileDirectory = new File(options.filePath.get());
             if (!fileDirectory.exists())
@@ -173,17 +173,17 @@ public class FileReader extends Sensor
     private void setFiles()
     {
         String path = fileHeader.getPath();
-        if (path.endsWith(LoggingConstants.TAG_DATA_FILE))
+        if (path.endsWith(FileCons.TAG_DATA_FILE))
         {
             fileReal = fileHeader;
             fileHeader = new File(path.substring(0, path.length() - 1));
         } else if (fileHeader.getName().contains("."))
         {
-            fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
+            fileReal = new File(path + FileCons.TAG_DATA_FILE);
         } else
         {
-            fileHeader = new File(path + "." + LoggingConstants.FILE_EXTENSION_STREAM);
-            fileReal = new File(path + "." + LoggingConstants.FILE_EXTENSION_STREAM + LoggingConstants.TAG_DATA_FILE);
+            fileHeader = new File(path + "." + FileCons.FILE_EXTENSION_STREAM);
+            fileReal = new File(path + "." + FileCons.FILE_EXTENSION_STREAM + FileCons.TAG_DATA_FILE);
         }
     }
 

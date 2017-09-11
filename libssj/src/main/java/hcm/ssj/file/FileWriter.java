@@ -47,7 +47,7 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 
-import static hcm.ssj.file.LoggingConstants.FILE_EXTENSION_STREAM;
+import static hcm.ssj.file.FileCons.FILE_EXTENSION_STREAM;
 
 /**
  * File writer for SSJ.<br>
@@ -60,7 +60,7 @@ public class FileWriter extends Consumer implements IFileWriter
      */
     public class Options extends IFileWriter.Options
     {
-        public final Option<String> separator = new Option<>("separator", LoggingConstants.DELIMITER_ATTRIBUTE, String.class, "");
+        public final Option<String> separator = new Option<>("separator", FileCons.DELIMITER_ATTRIBUTE, String.class, "");
         public final Option<Cons.FileType> type = new Option<>("type", Cons.FileType.ASCII, Cons.FileType.class, "file type (ASCII or BINARY)");
 
         /**
@@ -109,8 +109,8 @@ public class FileWriter extends Consumer implements IFileWriter
         //create file
         if (options.filePath.get() == null)
         {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
         }
         File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
 
@@ -134,17 +134,17 @@ public class FileWriter extends Consumer implements IFileWriter
         File fileHeader = file;
         File fileReal;
         String path = fileHeader.getPath();
-        if (path.endsWith(LoggingConstants.TAG_DATA_FILE))
+        if (path.endsWith(FileCons.TAG_DATA_FILE))
         {
             fileReal = fileHeader;
             fileHeader = new File(path.substring(0, path.length() - 1));
         } else if (fileHeader.getName().contains("."))
         {
-            fileReal = new File(path + LoggingConstants.TAG_DATA_FILE);
+            fileReal = new File(path + FileCons.TAG_DATA_FILE);
         } else
         {
             fileHeader = new File(path + "." + FILE_EXTENSION_STREAM);
-            fileReal = new File(path + "." + FILE_EXTENSION_STREAM + LoggingConstants.TAG_DATA_FILE);
+            fileReal = new File(path + "." + FILE_EXTENSION_STREAM + FileCons.TAG_DATA_FILE);
         }
         fileOutputStreamHeader = getFileConnection(fileHeader, fileOutputStreamHeader);
 
@@ -181,7 +181,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -197,7 +197,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -213,7 +213,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -229,7 +229,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -245,7 +245,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -261,7 +261,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -277,7 +277,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -293,7 +293,7 @@ public class FileWriter extends Consumer implements IFileWriter
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
-                        stringBuilder.append(LoggingConstants.DELIMITER_LINE);
+                        stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
                     sampleCount += stream_in[0].num;
                     write(stringBuilder.toString(), fileOutputStream);
@@ -449,7 +449,7 @@ public class FileWriter extends Consumer implements IFileWriter
         {
             try
             {
-                line += LoggingConstants.DELIMITER_LINE;
+                line += FileCons.DELIMITER_LINE;
                 stream.write(line.getBytes());
             } catch (IOException e)
             {
