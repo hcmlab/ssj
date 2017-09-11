@@ -43,7 +43,7 @@ public interface IFileWriter
      */
     class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", LoggingConstants.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "file path");
+        public final Option<String> filePath = new Option<>("filePath", FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]", String.class, "file path");
         public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
 
         /**

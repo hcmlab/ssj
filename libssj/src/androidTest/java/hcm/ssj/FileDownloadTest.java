@@ -34,9 +34,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.IOException;
 
-import hcm.ssj.file.FileUtils;
+import hcm.ssj.file.FileCons;
+import hcm.ssj.file.FileDownloader;
 
 import static org.junit.Assert.assertTrue;
 
@@ -61,14 +61,10 @@ public class FileDownloadTest
 	public void downloadTrainerFile()
 	{
 		File file = null;
-		try
-		{
-			file = FileUtils.downloadFile(assetsURL, trainer);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException();
-		}
+		boolean result = FileDownloader.getInstance().addToQueue(trainer, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		if(result)
+			file = new File(FileCons.DOWNLOAD_DIR, trainer);
+
 		assertTrue(file.exists());
 	}
 
@@ -77,14 +73,10 @@ public class FileDownloadTest
 	public void downloadModelFile()
 	{
 		File file = null;
-		try
-		{
-			file = FileUtils.downloadFile(assetsURL, model);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException();
-		}
+		boolean result = FileDownloader.getInstance().addToQueue(model, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		if(result)
+			file = new File(FileCons.DOWNLOAD_DIR, model);
+
 		assertTrue(file.exists());
 	}
 
@@ -93,14 +85,10 @@ public class FileDownloadTest
 	public void downloadOptionFile()
 	{
 		File file = null;
-		try
-		{
-			file = FileUtils.downloadFile(assetsURL, option);
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException();
-		}
+		boolean result = FileDownloader.getInstance().addToQueue(option, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		if(result)
+			file = new File(FileCons.DOWNLOAD_DIR, option);
+
 		assertTrue(file.exists());
 	}
 }

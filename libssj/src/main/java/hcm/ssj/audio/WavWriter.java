@@ -47,8 +47,8 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.file.IFileWriter;
-import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.file.Mp4Writer;
 
 /**
@@ -274,8 +274,8 @@ public class WavWriter extends Consumer implements IFileWriter
     {
         if (options.filePath.get() == null)
         {
-            Log.w("file path not set, setting to default " + LoggingConstants.SSJ_EXTERNAL_STORAGE);
-            options.filePath.set(LoggingConstants.SSJ_EXTERNAL_STORAGE);
+            Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
         }
         File fileDirectory = new File(options.filePath.parseWildcards());
         if (!fileDirectory.exists())

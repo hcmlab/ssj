@@ -130,15 +130,9 @@ public class MobileSSIConsumer extends Consumer
     public int getId()
     {return id;}
 
-static{
-    loadLibrary("ssiframe");
-    loadLibrary("ssievent");
-    loadLibrary("ssiioput");
-    loadLibrary("ssiandroidsensors");
-    loadLibrary("ssimodel");
-    loadLibrary("ssisignal");
+static
+{
     loadLibrary("ssissjSensor");
-    loadLibrary("android_xmlpipe");
 }
     public native void setSensor(Object sensor, Stream[] stream, int id);
     public native void pushData(Stream stream, int id);

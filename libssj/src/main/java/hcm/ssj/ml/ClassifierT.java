@@ -45,8 +45,8 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileUtils;
-import hcm.ssj.file.LoggingConstants;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
 
@@ -61,7 +61,7 @@ public class ClassifierT extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<String> trainerPath = new Option<>("trainerPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
+        public final Option<String> trainerPath = new Option<>("trainerPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
 
