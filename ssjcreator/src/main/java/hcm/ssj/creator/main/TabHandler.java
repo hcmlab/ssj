@@ -36,11 +36,12 @@ import android.widget.TableLayout;
 
 import com.jjoe64.graphview.GraphView;
 
+import java.io.ObjectStreamException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import hcm.ssj.camera.CameraPainter;
 import hcm.ssj.core.Component;
@@ -53,35 +54,23 @@ import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
 
-/**
- * ITab handler for main activity.<br>
- * Created by Frank Gaibler on 23.09.2016.
- */
+
 public class TabHandler
 {
 	private Activity activity;
 	//tabs
 	private TabHost tabHost = null;
-	private Set<Object> alAdditionalTabs = new HashSet<>();
-	private List<TabHost.TabSpec> alTabSpecs = new ArrayList<>();
-	private final static int FIX_TAB_NUMBER = 2;
-	//canvas
+	private LinkedHashMap<ITab, TabHost.TabSpec> firstTabs = new LinkedHashMap<>();
+	private LinkedHashMap<Object, TabHost.TabSpec> additionalTabs = new LinkedHashMap<>();
+
 	private Canvas canvas;
-	//console
 	private Console console;
-	//annotation
+
+	//REMOVE!
 	private boolean annotationExists = false;
-
-	//visual feedback tab index
-	private int visualFeedbackTabIndex = Integer.MIN_VALUE;
-
 	private AnnotationTab annotationTab = null;
 
-	private Component[] visualFeedbackComponents = null;
 
-	/**
-	 * @param activity Activity
-	 */
 	public TabHandler(Activity activity)
 	{
 		this.activity = activity;
@@ -91,10 +80,10 @@ public class TabHandler
 			tabHost.setup();
 			//canvas
 			canvas = new Canvas(this.activity);
-			addTab(canvas.getView(), canvas.getTitle(), canvas.getIcon());
+			firstTabs.put(canvas, getTabSpecForITab(canvas));
 			//console
 			console = new Console(this.activity);
-			addTab(console.getView(), console.getTitle(), console.getIcon());
+			firstTabs.put(console, getTabSpecForITab(console));
 			//init tabs
 			canvas.init(new PipeListener()
 			{
@@ -108,196 +97,87 @@ public class TabHandler
 		}
 	}
 
-	/**
-	 * @param view    View
-	 * @param tabName String
-	 * @param image   int
-	 */
-	private void addTab(final View view, final String tabName, int image)
-	{
-		final TabHost.TabSpec tabSpec = tabHost.newTabSpec(tabName);
-		tabSpec.setContent(new TabHost.TabContentFactory()
-		{
-			/**
-			 * @param tag String
-			 * @return View
-			 */
-			public View createTabContent(String tag)
-			{
-				return view;
-			}
-		});
-		tabSpec.setIndicator("", ContextCompat.getDrawable(activity, image));
-		tabHost.addTab(tabSpec);
-		//necessary to reset tab strip
-		int tab = tabHost.getCurrentTab();
-		tabHost.setCurrentTab(tabHost.getTabWidget().getTabCount() - 1);
-		tabHost.setCurrentTab(tab);
-		alTabSpecs.add(tabSpec);
-	}
+	private void checkAdditionalTabs() {
 
-	/**
-	 * Adds annotation tab after fixed tabs
-	 *
-	 * @param view    View
-	 * @param tabName String
-	 * @param image   int
-	 */
-	private void addTabAnno(final View view, final String tabName, int image)
-	{
-		final TabHost.TabSpec tabSpec = tabHost.newTabSpec(tabName);
-		tabSpec.setContent(new TabHost.TabContentFactory()
+/*
+		List<Component> iFileWriters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IFileWriter.class);
+		removeTabsOfClass(IFileWriter.class);
+		if(!containsOfClass(firstTabs, IFileWriter.class))
 		{
-			/**
-			 * @param tag String
-			 * @return View
-			 */
-			public View createTabContent(String tag)
-			{
-				return view;
-			}
-		});
-		tabSpec.setIndicator("", ContextCompat.getDrawable(activity, image));
-		alTabSpecs.add(FIX_TAB_NUMBER, tabSpec);
-		//
-		int current = tabHost.getCurrentTab();
-		tabHost.setCurrentTab(0);
-		tabHost.clearAllTabs();
-		for (TabHost.TabSpec tab : alTabSpecs)
-		{
-			tabHost.addTab(tab);
+
 		}
-		tabHost.setCurrentTab(current == 1 ? 1 : 0);
-	}
+*/
 
-	/**
-	 * @param tab int
-	 */
-	private void removeTab(final int tab)
-	{
-		int current = tabHost.getCurrentTab();
-		alTabSpecs.remove(tab);
-		tabHost.setCurrentTab(0);
-		tabHost.clearAllTabs();
-		for (TabHost.TabSpec tabSpec : alTabSpecs)
+
+
+		List<Component> signalPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, SignalPainter.class);
+		removeObsoleteTabsOfClass(signalPainters, SignalPainter.class);
+		for(Component signalPainter : signalPainters)
 		{
-			tabHost.addTab(tabSpec);
-		}
-		tabHost.setCurrentTab(current == 1 ? 1 : 0);
-	}
+			if(additionalTabs.containsKey(signalPainter))
+				continue;
 
-	/**
-	 * Add or remove additional tabs
-	 */
-	private void checkAdditionalTabs()
-	{
-		List<Component> additionalTabComponents = new ArrayList<>();
-		int counterAnno = 0;
-
-		for(Component iFileWriter : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IFileWriter.class))
-		{
-			additionalTabComponents.add(iFileWriter);
-			counterAnno++;
-			if (!annotationExists)
-			{
-				annotationExists = true;
-				annotationTab = new AnnotationTab(this.activity);
-				addTabAnno(annotationTab.getView(), annotationTab.getTitle(), annotationTab.getIcon());
-			}
-		}
-
-		for(Component signalPainter : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, SignalPainter.class))
-		{
-			additionalTabComponents.add(signalPainter);
 			GraphView graphView = ((SignalPainter) signalPainter).options.graphView.get();
 			if (graphView == null)
 			{
 				graphView = new GraphView(activity);
 				((SignalPainter) signalPainter).options.graphView.set(graphView);
-				addTab(graphView, signalPainter.getComponentName(), android.R.drawable.ic_menu_view);
-				alAdditionalTabs.add(signalPainter);
 			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(graphView, signalPainter.getComponentName(), android.R.drawable.ic_menu_view);
+			additionalTabs.put(signalPainter, tabSpec);
 		}
 
-		for(Component cameraPainter : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, CameraPainter.class))
+		List<Component> cameraPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, CameraPainter.class);
+		removeObsoleteTabsOfClass(cameraPainters, CameraPainter.class);
+		for(Component cameraPainter : cameraPainters)
 		{
-			additionalTabComponents.add(cameraPainter);
+			if(additionalTabs.containsKey(cameraPainter))
+				continue;
+
 			SurfaceView surfaceView = ((CameraPainter) cameraPainter).options.surfaceView.get();
 			if (surfaceView == null)
 			{
 				surfaceView = new SurfaceView(activity);
 				((CameraPainter) cameraPainter).options.surfaceView.set(surfaceView);
-				addTab(surfaceView, cameraPainter.getComponentName(), android.R.drawable.ic_menu_camera);
-				alAdditionalTabs.add(cameraPainter);
 			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, cameraPainter.getComponentName(), android.R.drawable.ic_menu_camera);
+			additionalTabs.put(cameraPainter, tabSpec);
 		}
 
-		for(Component feedBackManager : PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackManager.class))
+		List<Component> feedbackManagers = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackManager.class);
+		removeObsoleteTabsOfClass(feedbackManagers, FeedbackManager.class);
+		for(Component feedbackManager : feedbackManagers)
 		{
-			additionalTabComponents.add(feedBackManager);
-			TableLayout tableLayout = ((FeedbackManager) feedBackManager).options.layout.get();
+			if(additionalTabs.containsKey(feedbackManager))
+				continue;
+
+			TableLayout tableLayout = ((FeedbackManager) feedbackManager).options.layout.get();
 			if (tableLayout == null)
 			{
 				tableLayout = new TableLayout(activity);
-				((FeedbackManager) feedBackManager).options.layout.set(tableLayout);
-				addTab(tableLayout, feedBackManager.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
-				alAdditionalTabs.add(feedBackManager);
+				((FeedbackManager) feedbackManager).options.layout.set(tableLayout);
 			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackManager.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+			additionalTabs.put(feedbackManager, tabSpec);
 		}
 
-		Component[] currentVisualFeedbackComponents = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, VisualFeedback.class);
-		if(currentVisualFeedbackComponents.length > 0)
+		List<Component> visualFeedbacks = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, VisualFeedback.class);
+		removeTabsOfClass(VisualFeedback.class);
+		if(!visualFeedbacks.isEmpty())
 		{
-			TableLayout newLayout = getTableLayoutForVisualFeedback(currentVisualFeedbackComponents);
-			for(Component visualFeedback : currentVisualFeedbackComponents)
+			TableLayout visualFeedbackLayout = getTableLayoutForVisualFeedback(visualFeedbacks);
+			for (Component visualFeedback : visualFeedbacks)
 			{
-				((VisualFeedback) visualFeedback).options.layout.set(newLayout);
+				((VisualFeedback) visualFeedback).options.layout.set(visualFeedbackLayout);
 			}
-			Component addedComponent = addVisualFeedbackTab(newLayout, currentVisualFeedbackComponents, android.R.drawable.ic_menu_compass); // TODO: Change icon.
-			additionalTabComponents.add(addedComponent);
-		}
-		else{
-			visualFeedbackTabIndex = Integer.MIN_VALUE;
+			TabHost.TabSpec tabSpec = getNewTabSpec(visualFeedbackLayout, visualFeedbacks.get(0).getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+			additionalTabs.put(visualFeedbacks.get(0), tabSpec);
 		}
 
-		//remove annotation
-		if (counterAnno <= 0 && annotationExists)
-		{
-			annotationExists = false;
-			removeTab(FIX_TAB_NUMBER);
-		}
-
-		//remove obsolete tabs
-		Object[] alAdditionalTabsList = alAdditionalTabs.toArray();
-		for (int i = alAdditionalTabsList.length - 1; i >= 0; i--)
-		{
-			if (!additionalTabComponents.contains(alAdditionalTabsList[i]))
-			{
-				alAdditionalTabs.remove(i);
-				removeTab(i + FIX_TAB_NUMBER + (annotationExists ? 1 : 0));
-			}
-		}
+		buildTabs();
 	}
 
-	private Component addVisualFeedbackTab(TableLayout newLayout, Component[] newVisualFeedbackComponents, int drawable) {
-
-		if(visualFeedbackComponents != null)
-		{
-			for (Component visualFeedBackComponent : visualFeedbackComponents)
-			{
-				alAdditionalTabs.remove(visualFeedBackComponent);
-			}
-		}
-		VisualFeedback firstComponent = ((VisualFeedback) newVisualFeedbackComponents[0]);
-		addTab(firstComponent.options.layout.get(), firstComponent.getComponentName(), drawable);
-		visualFeedbackComponents = newVisualFeedbackComponents;
-
-		return firstComponent;
-	}
-
-	// Check if any visual feedback has already an layout. if yes set all layouts to this one.
-	// otherwise make a new one. if there are visual feedback components with different layouts set a new one to all.
-	private TableLayout getTableLayoutForVisualFeedback(Component[] visualFeedbackComponents) {
+	private TableLayout getTableLayoutForVisualFeedback(List<Component> visualFeedbackComponents) {
 		List<TableLayout> layouts = new ArrayList<>();
 		for(Component visualFeedback : visualFeedbackComponents)
 		{
@@ -311,9 +191,67 @@ public class TabHandler
 		return (layouts.size() == 1) ? layouts.get(0) :  new TableLayout(activity);
 	}
 
-	/**
-	 *
-	 */
+	private void removeTabsOfClass(Class componentClass)
+	{
+		removeObsoleteTabsOfClass(new ArrayList<Component>(), componentClass);
+	}
+
+	private void removeObsoleteTabsOfClass(List<Component> components, Class componentClass)
+	{
+		Iterator<Object> iterator = additionalTabs.keySet().iterator();
+		while (iterator.hasNext())
+		{
+			Object additionalTabObject = iterator.next();
+			if(!components.contains(additionalTabObject) && componentClass.isInstance(additionalTabObject))
+			{
+				iterator.remove();
+			}
+		}
+	}
+
+	private<T,S> boolean containsOfClass(Map<T,S> map, Class clazz)
+	{
+		for(Map.Entry<T,S> entry : map.entrySet())
+		{
+			if (clazz.isInstance(entry.getKey()))
+				return true;
+		}
+		return false;
+	}
+
+	private void buildTabs() {
+		tabHost.setCurrentTab(0);
+		tabHost.clearAllTabs();
+
+		for(TabHost.TabSpec spec : firstTabs.values())
+		{
+			tabHost.addTab(spec);
+		}
+
+		for(TabHost.TabSpec spec : additionalTabs.values())
+		{
+			tabHost.addTab(spec);
+		}
+	}
+
+	private TabHost.TabSpec getTabSpecForITab(ITab iTab) {
+		return getNewTabSpec(iTab.getView(), iTab.getTitle(), iTab.getIcon());
+	}
+
+	private TabHost.TabSpec getNewTabSpec(final View view, String title, int icon) {
+		final TabHost.TabSpec tabSpec = tabHost.newTabSpec(title);
+		tabSpec.setContent(new TabHost.TabContentFactory()
+		{
+			public View createTabContent(String tag)
+			{
+				return view;
+			}
+		});
+		tabSpec.setIndicator("", ContextCompat.getDrawable(activity, icon));
+		return tabSpec;
+	}
+
+
 	public void preStart()
 	{
 		console.clear();
@@ -324,9 +262,6 @@ public class TabHandler
 		}
 	}
 
-	/**
-	 *
-	 */
 	public void preStop()
 	{
 		if (annotationExists && annotationTab != null)
@@ -335,29 +270,20 @@ public class TabHandler
 		}
 	}
 
-	/**
-	 * @param appAction Util.AppAction
-	 * @param o         Object
-	 */
 	public void actualizeContent(Util.AppAction appAction, Object o)
 	{
 		canvas.actualizeContent(appAction, o);
 	}
 
-	/**
-	 *
-	 */
 	public void cleanUp()
 	{
 		console.cleanUp();
 		canvas.cleanUp();
 	}
 
-	/**
-	 * @return Annotation
-	 */
 	public AnnotationTab getAnnotation()
 	{
 		return annotationTab;
 	}
+
 }

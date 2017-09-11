@@ -179,7 +179,7 @@ public class PipelineBuilder
         return null;
     }
 
-    public Component[] getComponentsOfClass(Type type, Class componentClass)
+    public List<Component> getComponentsOfClass(Type type, Class componentClass)
     {
         List<Component> componentList = new ArrayList<>();
         Object[] componentsOfType = getAll(type);
@@ -190,7 +190,7 @@ public class PipelineBuilder
                 componentList.add((Component)component);
             }
         }
-        return componentList.toArray(new Component[componentList.size()]);
+        return componentList;
     }
 
     /**
