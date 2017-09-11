@@ -38,7 +38,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -50,7 +50,7 @@ public class AuditoryFeedback extends Feedback
 	{
 		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
 		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load  audio file from assets");
-		public final Option<String> audioFilePath = new Option<>("audioFilePath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "location of audio file");
+		public final Option<String> audioFilePath = new Option<>("audioFilePath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of audio file");
 		public final Option<String> audioFileName = new Option<>("audioFileName", "Creator/res/blop.mp3", String.class, "name of audio file");
 
 		private Options()

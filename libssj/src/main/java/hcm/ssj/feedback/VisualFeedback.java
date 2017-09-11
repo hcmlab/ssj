@@ -51,7 +51,7 @@ import java.util.List;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -62,7 +62,7 @@ public class VisualFeedback extends Feedback
 	public class Options extends Feedback.Options
 	{
 		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load iconList from assets");
-		public final Option<String> iconPath = new Option<>("iconPath", LoggingConstants.SSJ_EXTERNAL_STORAGE, String.class, "location of icon files");
+		public final Option<String> iconPath = new Option<>("iconPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of icon files");
 		public final Option<String[]> iconFiles = new Option<>("iconFiles", null, String[].class, "names of icon files");
 
 		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
