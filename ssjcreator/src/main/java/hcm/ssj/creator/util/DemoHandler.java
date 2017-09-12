@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.file.FileUtils;
 
 /**
  * Handle demo files.<br>
@@ -89,7 +90,7 @@ public abstract class DemoHandler
                 if(!dir.exists())
                     dir.mkdirs();
                 OutputStream out = new FileOutputStream(new File(dir, file));
-                copyFile(in, out);
+                FileUtils.copyFile(in, out);
                 in.close();
                 out.flush();
                 out.close();
@@ -98,21 +99,6 @@ public abstract class DemoHandler
             {
                 Log.i("skipping copying file: " + file);
             }
-        }
-    }
-
-    /**
-     * @param in  InputStream
-     * @param out OutputStream
-     * @throws IOException
-     */
-    private static void copyFile(InputStream in, OutputStream out) throws IOException
-    {
-        byte[] buffer = new byte[1024];
-        int read;
-        while ((read = in.read(buffer)) != -1)
-        {
-            out.write(buffer, 0, read);
         }
     }
 }

@@ -58,7 +58,7 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.util.Util;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Annotation tab for main activity.<br>
@@ -297,7 +297,7 @@ public class AnnotationTab implements ITab
                         } else
                         {
                             String name = ((TextView) (((ViewGroup) (buttonView.getParent())).getChildAt(0))).getText().toString();
-                            Util.appendFile(fileAnno, curAnnoStartTime + " " + time + " " + name + LoggingConstants.DELIMITER_LINE);
+                            Util.appendFile(fileAnno, curAnnoStartTime + " " + time + " " + name + FileCons.DELIMITER_LINE);
                             curAnnoStartTime = 0;
                         }
                     }

@@ -37,7 +37,7 @@ import android.widget.TextView;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.creator.R;
-import hcm.ssj.file.LoggingConstants;
+import hcm.ssj.file.FileCons;
 
 /**
  * Console tab for main activity.<br>
@@ -110,12 +110,12 @@ class Console implements ITab
          */
         public void msg(int type, String msg)
         {
-            strLogMsg += (type > 0 && type < tags.length ? tags[type] : type) + "/" + Cons.LOGTAG + ": " + msg + LoggingConstants.DELIMITER_LINE;
+            strLogMsg += (type > 0 && type < tags.length ? tags[type] : type) + "/" + Cons.LOGTAG + ": " + msg + FileCons.DELIMITER_LINE;
             int length = strLogMsg.length();
             if (length > max)
             {
                 strLogMsg = strLogMsg.substring(length - interim);
-                strLogMsg = strLogMsg.substring(strLogMsg.indexOf(LoggingConstants.DELIMITER_LINE) + LoggingConstants.DELIMITER_LINE.length());
+                strLogMsg = strLogMsg.substring(strLogMsg.indexOf(FileCons.DELIMITER_LINE) + FileCons.DELIMITER_LINE.length());
             }
         }
     };
