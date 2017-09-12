@@ -65,7 +65,7 @@ public class VisualFeedback extends Feedback
 		public final Option<String> iconPath = new Option<>("iconPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of icon files");
 		public final Option<String[]> iconFiles = new Option<>("iconFiles", null, String[].class, "names of icon files");
 
-		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
+		public final Option<Float> brightness = new Option<>("brightness", .01f, Float.class, "screen brightness");
 		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until iconList fade");
 		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "duration until iconList fade");
 
@@ -102,6 +102,8 @@ public class VisualFeedback extends Feedback
 		activity = getActivity(options.layout.get());
 		if(activity == null)
 			throw new RuntimeException("unable to get activity from layout");
+
+		imageSwitcherList = new ArrayList<>();
 
 		loadIcons();
 		buildLayout();
@@ -148,7 +150,7 @@ public class VisualFeedback extends Feedback
 	@Override
 	public void flush()
 	{
-
+		clearIcons();
 	}
 
 	private void clearIcons()
@@ -228,13 +230,9 @@ public class VisualFeedback extends Feedback
 				TableLayout table = options.layout.get();
 				table.setStretchAllColumns(true);
 
-				//if this is the first visual class, init rows
-				if (table.getChildCount() == 0)
-					for (int i = 0; i < iconList.size(); ++i)
+				if (table.getChildCount() < iconList.size())
+					for (int i = table.getChildCount(); i < iconList.size(); ++i)
 						table.addView(new TableRow(activity), i);
-
-				if (imageSwitcherList == null)
-					imageSwitcherList = new ArrayList<>();
 
 				for (int i = 0; i < iconList.size(); ++i)
 				{
@@ -248,8 +246,8 @@ public class VisualFeedback extends Feedback
 					}
 					else
 					{
-						imageSwitcherList.get(i).setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
 						ImageSwitcher imageSwitcher = new ImageSwitcher(activity);
+						imageSwitcher.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
 
 						Animation in = AnimationUtils.loadAnimation(activity, android.R.anim.fade_in);
 						in.setDuration(options.fade.get());
