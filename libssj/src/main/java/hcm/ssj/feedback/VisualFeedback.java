@@ -295,7 +295,7 @@ public class VisualFeedback extends Feedback
 					tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
 
 					//if the image switcher has already been initialized by a class on previous level
-					if (tr.getChildAt(options.position.get()) != null)
+					if (tr.getChildAt(options.position.get()) instanceof ImageSwitcher)
 					{
 						imageSwitcherList.add((ImageSwitcher) tr.getChildAt(options.position.get()));
 					}
@@ -323,6 +323,15 @@ public class VisualFeedback extends Feedback
 							}
 						});
 
+						// Fill with empty views to match position
+						for(int columnCount = 0; columnCount <= options.position.get(); columnCount++)
+						{
+							if (tr.getChildAt(columnCount) == null)
+							{
+								tr.addView(new View(activity), columnCount);
+							}
+						}
+						tr.removeViewAt(options.position.get());
 						tr.addView(imageSwitcher, options.position.get());
 						imageSwitcherList.add(imageSwitcher);
 					}
