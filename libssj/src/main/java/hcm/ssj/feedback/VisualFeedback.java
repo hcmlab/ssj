@@ -61,28 +61,33 @@ public class VisualFeedback extends Feedback
 {
 	public class Options extends Feedback.Options
 	{
+
 		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load iconList from assets");
 		public final Option<String> iconPath = new Option<>("iconPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of icon files");
 		public final Option<String[]> iconFiles = new Option<>("iconFiles", null, String[].class, "names of icon files");
-
 		public final Option<Float> brightness = new Option<>("brightness", .01f, Float.class, "screen brightness");
+
 		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until iconList fade");
 		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "duration until iconList fade");
-
 		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the iconList");
-		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
 
+		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
 		private Options()
 		{
 			super();
 			addOptions();
 		}
+
 	}
 	public final Options options = new Options();
 
 	private List<Drawable> iconList;
+
 	private List<ImageSwitcher> imageSwitcherList;
 	private Activity activity = null;
+	private long timeout = 0;
+	private float defaultBrightness;
+	private final int TIMEOUT_CHECK_DELAY = 100;
 
 	public VisualFeedback()
 	{
@@ -93,31 +98,38 @@ public class VisualFeedback extends Feedback
 	@Override
 	public void enter()
 	{
-		if(_evchannel_in == null || _evchannel_in.size() == 0)
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
 			throw new RuntimeException("no input channels");
+		}
 
-		if(options.layout.get() == null)
+		if (options.layout.get() == null)
+		{
 			throw new RuntimeException("layout not set, cannot render visual feedback");
+		}
 
 		activity = getActivity(options.layout.get());
-		if(activity == null)
+		if (activity == null)
+		{
 			throw new RuntimeException("unable to get activity from layout");
+		}
 
 		imageSwitcherList = new ArrayList<>();
 
+		getDefaultBrightness();
 		loadIcons();
 		buildLayout();
 		//init view
 		clearIcons();
-		updateBrightness();
 	}
 
-	private void loadIcons() {
+	private void loadIcons()
+	{
 		try
 		{
 			iconList = new ArrayList<>();
 
-			for(String iconFile : options.iconFiles.get())
+			for (String iconFile : options.iconFiles.get())
 			{
 				if (options.fromAssets.get())
 				{
@@ -141,10 +153,37 @@ public class VisualFeedback extends Feedback
 		// Execute only if lock has expired
 		if (checkLock(options.lock.get()))
 		{
-			//TODO: Check timeout
+			if (options.duration.get() > 0)
+			{
+				timeout = System.currentTimeMillis() + options.duration.get();
+			}
+
 			updateIcons();
-			updateBrightness();
+			updateBrightness(options.brightness.get());
 		}
+	}
+
+	@Override
+	public void process()
+	{
+		try
+		{
+			Thread.sleep(TIMEOUT_CHECK_DELAY);
+		}
+		catch (InterruptedException e)
+		{
+			throw new RuntimeException("timeout interrupted", e);
+		}
+
+		if (timeout == 0 || System.currentTimeMillis() < timeout)
+		{
+			return;
+		}
+
+		Log.i("clearing icons");
+		clearIcons();
+		updateBrightness(defaultBrightness);
+		timeout = 0;
 	}
 
 	@Override
@@ -155,7 +194,7 @@ public class VisualFeedback extends Feedback
 
 	private void clearIcons()
 	{
-		for(ImageSwitcher imageSwitcher : imageSwitcherList)
+		for (ImageSwitcher imageSwitcher : imageSwitcherList)
 		{
 			updateImageSwitcher(imageSwitcher, null);
 		}
@@ -165,7 +204,7 @@ public class VisualFeedback extends Feedback
 	{
 		int minimal = Math.min(imageSwitcherList.size(), iconList.size());
 
-		for(int i = 0; i < minimal; i++)
+		for (int i = 0; i < minimal; i++)
 		{
 			updateImageSwitcher(imageSwitcherList.get(i), iconList.get(i));
 		}
@@ -182,14 +221,20 @@ public class VisualFeedback extends Feedback
 		});
 	}
 
-	private void updateBrightness()
+	private void getDefaultBrightness()
+	{
+		WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
+		defaultBrightness = lp.screenBrightness;
+	}
+
+	private void updateBrightness(final float brightness)
 	{
 		activity.runOnUiThread(new Runnable()
 		{
 			public void run()
 			{
 				WindowManager.LayoutParams lp = activity.getWindow().getAttributes();
-				lp.screenBrightness = options.brightness.get();
+				lp.screenBrightness = brightness;
 				activity.getWindow().setAttributes(lp);
 			}
 		});
@@ -198,19 +243,25 @@ public class VisualFeedback extends Feedback
 	private Activity getActivity(View view)
 	{
 		Context context = view.getContext();
-		while (context instanceof ContextWrapper) {
-			if (context instanceof Activity) {
-				return (Activity)context;
+		while (context instanceof ContextWrapper)
+		{
+			if (context instanceof Activity)
+			{
+				return (Activity) context;
 			}
-			context = ((ContextWrapper)context).getBaseContext();
+			context = ((ContextWrapper) context).getBaseContext();
 		}
 
 		//alternative method
 		View content = view.findViewById(android.R.id.content);
-		if(content != null)
+		if (content != null)
+		{
 			return (Activity) content.getContext();
+		}
 		else
+		{
 			return null;
+		}
 	}
 
 	private void buildLayout()
@@ -231,8 +282,12 @@ public class VisualFeedback extends Feedback
 				table.setStretchAllColumns(true);
 
 				if (table.getChildCount() < iconList.size())
+				{
 					for (int i = table.getChildCount(); i < iconList.size(); ++i)
+					{
 						table.addView(new TableRow(activity), i);
+					}
+				}
 
 				for (int i = 0; i < iconList.size(); ++i)
 				{
