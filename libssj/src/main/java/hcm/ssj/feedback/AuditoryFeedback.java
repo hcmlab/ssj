@@ -30,15 +30,16 @@ package hcm.ssj.feedback;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.SoundPool;
+import android.net.Uri;
 
-import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.file.FileCons;
+
+import static android.R.attr.data;
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -49,9 +50,8 @@ public class AuditoryFeedback extends Feedback
 	public class Options extends Feedback.Options
 	{
 		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
+		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
 		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load  audio file from assets");
-		public final Option<String> audioFilePath = new Option<>("audioFilePath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of audio file");
-		public final Option<String> audioFileName = new Option<>("audioFileName", "Creator/res/blop.mp3", String.class, "name of audio file");
 
 		private Options()
 		{
@@ -59,6 +59,7 @@ public class AuditoryFeedback extends Feedback
 			addOptions();
 		}
 	}
+
 	public final Options options = new Options();
 
 	private SoundPool player;
@@ -67,33 +68,35 @@ public class AuditoryFeedback extends Feedback
 	public AuditoryFeedback()
 	{
 		_name = "AuditoryFeedback";
-		Log.d("Instantiated AuditoryFeedback "+this.hashCode());
+		Log.d("Instantiated AuditoryFeedback " + this.hashCode());
 	}
 
 	@Override
 	public void enter()
 	{
-		if(_evchannel_in == null || _evchannel_in.size() == 0)
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
 			throw new RuntimeException("no input channels");
+		}
 
 		player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
 
 		try
 		{
-			if(options.fromAssets.get())
+			AssetFileDescriptor fd;
+			if (options.fromAssets.get())
 			{
-				AssetFileDescriptor fd =  SSJApplication.getAppContext().getAssets().openFd(options.audioFileName.get());
-				soundId = player.load(fd, 1);
-				fd.close();
+				fd = SSJApplication.getAppContext().getAssets().openFd(options.audioFile.get().getPath());
 			}
 			else
 			{
-				String path = options.audioFilePath.get() + File.separator + options.audioFileName.get();
-				soundId = player.load(path, 1);
+				fd = SSJApplication.getAppContext().getContentResolver().openAssetFileDescriptor(options.audioFile.get(), "r");
 			}
+			soundId = player.load(fd, 1);
+			fd.close();
 
 		}
-		catch(IOException e)
+		catch (IOException e)
 		{
 			Log.e("error parsing config file", e);
 		}
@@ -103,12 +106,11 @@ public class AuditoryFeedback extends Feedback
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if(checkLock(options.lock.get()))
+		if (checkLock(options.lock.get()))
 		{
 			player.play(this.soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
 		}
 	}
-
 
 
 	@Override

@@ -28,6 +28,10 @@
 package hcm.ssj.creator.util;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -38,6 +42,7 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
@@ -48,7 +53,9 @@ import android.widget.Toast;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.R;
@@ -65,6 +72,9 @@ public class OptionTable
 	 * @param dividerTop boolean
 	 * @return TableRow
 	 */
+
+	public static final Map<Integer, TextView> mapRequestCodesTextViews = new HashMap<>();
+
 	public static TableRow createTable(Activity activity, Option[] options, boolean dividerTop)
 	{
 		TableRow tableRow = new TableRow(activity);
@@ -125,6 +135,7 @@ public class OptionTable
 		textViewName.setText(option.getName());
 		textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
 		linearLayoutDescription.addView(textViewName);
+
 		//help
 		final String helpText = option.getHelp();
 		if (!helpText.isEmpty())
@@ -184,8 +195,13 @@ public class OptionTable
 		}
 		else
 		{
+			LinearLayout linearLayoutInput = new LinearLayout(activity);
+			linearLayoutDescription.setOrientation(LinearLayout.HORIZONTAL);
+
 			//normal text view for everything else
 			inputView = new EditText(activity);
+			LinearLayout.LayoutParams layoutParamsinputView = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+			inputView.setLayoutParams(layoutParamsinputView);
 			((EditText) inputView).setMaxWidth(linearLayout.getWidth()); //workaround for bug in layout params
 
 			//specify the expected input type
@@ -236,6 +252,27 @@ public class OptionTable
 					((TextView) inputView).setText(value.toString(), TextView.BufferType.NORMAL);
 				}
 			}
+			else if (type == Uri.class)
+			{
+				((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
+				((TextView) inputView).setText(value != null ? ((Uri) value).getPath() : "", TextView.BufferType.NORMAL);
+
+				// FileChooserButton
+				ImageButton fileChooserButton = new ImageButton(activity);
+				fileChooserButton.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_insert_drive_file_black_24dp));
+				final TextView innerInputView = (TextView) inputView;
+				fileChooserButton.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View v)
+					{
+						int newRequestCode = mapRequestCodesTextViews.size();
+						mapRequestCodesTextViews.put(newRequestCode, innerInputView);
+						performFileSearch(activity, newRequestCode);
+					}
+				});
+				linearLayoutInput.addView(fileChooserButton);
+			}
 			else
 			{
 				((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
@@ -280,9 +317,26 @@ public class OptionTable
 					}
 				}
 			});
+			linearLayoutInput.addView(inputView);
+			inputView = linearLayoutInput;
 		}
 		linearLayout.addView(inputView);
 		return linearLayout;
+	}
+
+	public static void performFileSearch(final Activity activity, int requestCode)
+	{
+		Intent intent;
+		if (Build.VERSION.SDK_INT < 19) {
+			intent = new Intent();
+			intent.setAction(Intent.ACTION_GET_CONTENT);
+			intent.setType("*/*");
+		} else {
+			intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+			intent.addCategory(Intent.CATEGORY_OPENABLE);
+			intent.setType("*/*");
+		}
+		activity.startActivityForResult(intent, requestCode);
 	}
 
 	private static byte getByteFromUnsignedStringRepresentation(String s) throws NumberFormatException
