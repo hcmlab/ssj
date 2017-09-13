@@ -41,19 +41,21 @@ public class MSBandTactileFeedback extends Feedback
 {
 	public class Options extends Feedback.Options
 	{
+
 		public final Option<int[]> duration = new Option<>("duration", new int[]{500}, int[].class, "duration of tactile feedback");
 		public final Option<VibrationType> vibrationType = new Option<>("vibrationType", VibrationType.NOTIFICATION_ONE_TONE, VibrationType.class, "vibration type");
 		public final Option<Integer> deviceId = new Option<>("deviceId", 0, Integer.class, "device Id");
-
 		private Options()
 		{
 			super();
 			addOptions();
 		}
+
 	}
 	public final Options options = new Options();
 
 	private BandComm msband = null;
+	private VibrationType vibrationType;
 
 	public MSBandTactileFeedback()
 	{
@@ -68,18 +70,20 @@ public class MSBandTactileFeedback extends Feedback
 		{
 			throw new RuntimeException("no input channels");
 		}
+		lock = options.lock.get();
 		msband = new BandComm(options.deviceId.get());
+		vibrationType = options.vibrationType.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
+		if (checkLock())
 		{
 
-			Log.i("vibration " + options.vibrationType.get());
-			msband.vibrate(options.vibrationType.get());
+			Log.i("vibration " + vibrationType);
+			msband.vibrate(vibrationType);
 		}
 	}
 }

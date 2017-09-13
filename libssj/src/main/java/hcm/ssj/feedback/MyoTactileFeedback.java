@@ -63,6 +63,8 @@ public class MyoTactileFeedback extends Feedback
 	private Myo myo = null;
 	private hcm.ssj.myo.Myo myoConnector = null;
 	private Vibrate2Command cmd = null;
+	private int[] duration;
+	private byte[] intensity;
 
 	public MyoTactileFeedback()
 	{
@@ -110,16 +112,20 @@ public class MyoTactileFeedback extends Feedback
 
 		myo = hub.getConnectedDevices().get(0);
 		cmd = new Vibrate2Command(hub);
+
+		lock = options.lock.get();
+		duration = options.duration.get();
+		intensity = options.intensity.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
+		if (checkLock())
 		{
-			Log.i("vibration " + options.duration.get()[0] + "/" + (int) options.intensity.get()[0]);
-			cmd.vibrate(myo, options.duration.get(), options.intensity.get());
+			Log.i("vibration " + duration[0] + "/" + (int) intensity[0]);
+			cmd.vibrate(myo, duration, intensity);
 		}
 	}
 

@@ -28,6 +28,7 @@
 package hcm.ssj.feedback;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Xml;
 import android.widget.TableLayout;
 
@@ -39,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
@@ -58,8 +60,8 @@ public class FeedbackManager extends EventHandler
 
     public class Options extends OptionList
     {
-        public final Option<String> strategyFilePath = new Option<>("strategyFilePath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of strategy file");
-        public final Option<String> strategyFileName = new Option<>("strategyFileName", null, String.class, "name of strategy file");
+
+        public final Option<Uri> strategyFile = new Option<>("strategyFile", null, Uri.class, "strategy file");
         public final Option<Boolean> fromAsset = new Option<>("fromAsset", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
         public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
@@ -74,7 +76,7 @@ public class FeedbackManager extends EventHandler
 
     protected Context context;
 
-    protected ArrayList<FeedbackClass> classes = new ArrayList<FeedbackClass>();
+    protected List<FeedbackClass> classes = new ArrayList<>();
 
     protected int level = 0;
     private int max_level = 3;
@@ -89,7 +91,7 @@ public class FeedbackManager extends EventHandler
         _name = "FeedbackManager";
     }
 
-    public ArrayList<FeedbackClass> getClasses()
+    public List<FeedbackClass> getClasses()
     {
         return classes;
     }
@@ -104,11 +106,7 @@ public class FeedbackManager extends EventHandler
 
         try
         {
-            String file = options.strategyFileName.get();
-            if(!options.fromAsset.get())
-                file = options.strategyFilePath.get() + File.separator + options.strategyFileName.get();
-
-            load(file, options.fromAsset.get());
+            load(options.strategyFile.get(), options.fromAsset.get());
         }
         catch (IOException | XmlPullParserException e)
         {
@@ -192,13 +190,13 @@ public class FeedbackManager extends EventHandler
         }
     }
 
-    private void load(String filename, boolean fromAsset) throws IOException, XmlPullParserException
+    private void load(Uri uri, boolean fromAsset) throws IOException, XmlPullParserException
     {
         InputStream in;
-        if(!fromAsset)
-            in = new FileInputStream(new File(filename));
+        if(fromAsset)
+            in = SSJApplication.getAppContext().getAssets().open(uri.getPath());
         else
-            in = context.getAssets().open(filename);
+            in = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
 
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);

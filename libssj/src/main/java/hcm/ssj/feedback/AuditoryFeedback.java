@@ -64,6 +64,7 @@ public class AuditoryFeedback extends Feedback
 
 	private SoundPool player;
 	private int soundId;
+	private float intensity;
 
 	public AuditoryFeedback()
 	{
@@ -94,21 +95,22 @@ public class AuditoryFeedback extends Feedback
 			}
 			soundId = player.load(fd, 1);
 			fd.close();
-
 		}
 		catch (IOException e)
 		{
 			Log.e("error parsing config file", e);
 		}
+		lock = options.lock.get();
+		intensity = options.intensity.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
+		if (checkLock())
 		{
-			player.play(this.soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
+			player.play(soundId, intensity, intensity, 1, 0, 1);
 		}
 	}
 

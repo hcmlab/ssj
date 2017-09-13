@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
@@ -44,11 +45,14 @@ import android.widget.ViewSwitcher;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.file.FileCons;
@@ -61,17 +65,17 @@ public class VisualFeedback extends Feedback
 {
 	public class Options extends Feedback.Options
 	{
+		public final Option<Uri> feedbackIcon = new Option<>("feedbackIcon", null, Uri.class, "feedback icon file");
+		public final Option<Boolean> feedbackIconfromAssets = new Option<>("fromAssets", false, Boolean.class, "load feedback icon from assets");
+		public final Option<Uri> qualityIcon = new Option<>("qualityIcon", null, Uri.class, "quality icon file");
+		public final Option<Boolean> qualityIconfromAssets = new Option<>("qualityIconfromAssets", false, Boolean.class, "load quality icon from assets");
 
-		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load iconList from assets");
-		public final Option<String> iconPath = new Option<>("iconPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "location of icon files");
-		public final Option<String[]> iconFiles = new Option<>("iconFiles", null, String[].class, "names of icon files");
-		public final Option<Float> brightness = new Option<>("brightness", .01f, Float.class, "screen brightness");
-
+		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
 		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until iconList fade");
 		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "duration until iconList fade");
 		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the iconList");
-
 		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
+
 		private Options()
 		{
 			super();
@@ -82,12 +86,13 @@ public class VisualFeedback extends Feedback
 	public final Options options = new Options();
 
 	private List<Drawable> iconList;
-
 	private List<ImageSwitcher> imageSwitcherList;
 	private Activity activity = null;
 	private long timeout = 0;
 	private float defaultBrightness;
 	private final int TIMEOUT_CHECK_DELAY = 100;
+	private float brightness;
+	private int duration;
 
 	public VisualFeedback()
 	{
@@ -114,12 +119,15 @@ public class VisualFeedback extends Feedback
 			throw new RuntimeException("unable to get activity from layout");
 		}
 
+		lock = options.lock.get();
+		duration = options.duration.get();
+		brightness = options.brightness.get();
+
 		imageSwitcherList = new ArrayList<>();
 
 		getDefaultBrightness();
 		loadIcons();
 		buildLayout();
-		//init view
 		clearIcons();
 	}
 
@@ -129,21 +137,35 @@ public class VisualFeedback extends Feedback
 		{
 			iconList = new ArrayList<>();
 
-			for (String iconFile : options.iconFiles.get())
-			{
-				if (options.fromAssets.get())
-				{
-					iconList.add(Drawable.createFromStream(activity.getAssets().open(iconFile), null));
-				}
-				else
-				{
-					iconList.add(Drawable.createFromStream(new FileInputStream(options.iconPath.get() + File.separator + iconFile), null));
-				}
-			}
+			Drawable feedbackDrawable = getDrawable(options.feedbackIcon.get(), options.feedbackIconfromAssets.get());
+			if(feedbackDrawable != null)
+				iconList.add(feedbackDrawable);
+
+			Drawable qualityDrawable = getDrawable(options.qualityIcon.get(), options.qualityIconfromAssets.get());
+			if(qualityDrawable != null)
+				iconList.add(qualityDrawable);
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("iconList could not be loaded", e);
+			throw new RuntimeException("icons could not be loaded", e);
+		}
+	}
+
+	public Drawable getDrawable(Uri uri, boolean fromAssets) throws IOException
+	{
+		if(uri.toString().isEmpty())
+			return null;
+
+		if (fromAssets)
+		{
+			return Drawable.createFromStream(activity.getAssets().open(uri.getPath()), uri.toString());
+		}
+		else
+		{
+			InputStream inputStream = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
+			Drawable drawable = Drawable.createFromStream(inputStream, uri.toString());
+			inputStream.close();
+			return drawable;
 		}
 	}
 
@@ -151,15 +173,15 @@ public class VisualFeedback extends Feedback
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
+		if (checkLock())
 		{
-			if (options.duration.get() > 0)
+			if (duration > 0)
 			{
-				timeout = System.currentTimeMillis() + options.duration.get();
+				timeout = System.currentTimeMillis() + duration;
 			}
 
 			updateIcons();
-			updateBrightness(options.brightness.get());
+			updateBrightness(brightness);
 		}
 	}
 
