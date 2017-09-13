@@ -25,28 +25,28 @@
 
         <feedback type="audio">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
-            <action res="SSJ/Creator/res/blop.mp3" intensity="0.0" lockSelf="1000"/>
+            <action res="Creator/res/blop.mp3" intensity="0.0" lockSelf="1000"/>
         </feedback>
         <feedback type="audio">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="12"/>
-            <action res="SSJ/Creator/res/blop.mp3" intensity="0.5" lockSelf="1000"/>
+            <action res="Creator/res/blop.mp3" intensity="0.5" lockSelf="1000"/>
         </feedback>
         <feedback type="audio">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12" to="999"/>
-            <action res="SSJ/Creator/res/blop.mp3" intensity="1.0" lockSelf="1000"/>
+            <action res="Creator/res/blop.mp3" intensity="1.0" lockSelf="1000"/>
         </feedback>
 
         <feedback type="visual" position="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3.0"/>
-            <action res="SSJ/Creator/res/orientation_low.png, SSJ/Creator/res/thumb_negative.png"/>
+            <action res="Creator/res/orientation_low.png, Creator/res/thumb_negative.png"/>
         </feedback>
         <feedback type="visual" position="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="12.0"/>
-            <action res="SSJ/Creator/res/orientation_med.png, SSJ/Creator/res/thumb_positive.png"/>
+            <action res="Creator/res/orientation_med.png, Creator/res/thumb_positive.png"/>
         </feedback>
         <feedback type="visual" position="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12.0" to="999.0"/>
-            <action res="SSJ/Creator/res/orientation_high.png, SSJ/Creator/res/thumb_negative.png"/>
+            <action res="Creator/res/orientation_high.png, Creator/res/thumb_negative.png"/>
         </feedback>
 
     </strategy>
