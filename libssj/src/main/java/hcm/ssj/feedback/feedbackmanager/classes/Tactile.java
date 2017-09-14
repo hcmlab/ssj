@@ -29,6 +29,7 @@ package hcm.ssj.feedback.feedbackmanager.classes;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.os.Vibrator;
 
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
@@ -54,20 +55,23 @@ import hcm.ssj.myo.Vibrate2Command;
  */
 public class Tactile extends FeedbackClass
 {
+
+
     enum Device
     {
         Myo,
-        MsBand
+        MsBand,
+        Android
     }
-
     boolean firstCall = true;
     boolean connected = false;
-
     private Myo myo = null;
+
     private hcm.ssj.myo.Myo myoConnector = null;
     private String deviceId;
     private BandComm msband = null;
     private Vibrate2Command cmd = null;
+    private Vibrator vibrator = null;
 
     private long lock = 0;
 
@@ -116,6 +120,16 @@ public class Tactile extends FeedbackClass
         {
             int id = deviceId == null ? 0 : Integer.valueOf(deviceId);
             msband = new BandComm(id);
+            connected = true;
+        }
+        else if(deviceType == Device.Android)
+        {
+            vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            if (!vibrator.hasVibrator())
+            {
+                throw new RuntimeException("device can't vibrate");
+            }
+            connected = true;
         }
     }
 
@@ -152,6 +166,14 @@ public class Tactile extends FeedbackClass
         else if(deviceType == Device.MsBand) {
             Log.i("vibration " + ev.vibrationType);
             msband.vibrate(ev.vibrationType);
+        } else if(deviceType == Device.Android) {
+            Log.i("vibration on android");
+            long[] longDuration = new long[ev.duration.length];
+            for(int i=0; i < longDuration.length; ++i)
+            {
+                longDuration[i] = ev.duration[i];
+            }
+            vibrator.vibrate(longDuration, -1);
         }
 
         //set lock
