@@ -39,6 +39,7 @@ import java.io.IOException;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 01.12.2014.
@@ -75,7 +76,7 @@ public class AudioAction extends Action
             }
             else
             {
-                res = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + res;
+                res = FileCons.SSJ_EXTERNAL_STORAGE + File.separator + res;
             }
 
             String intensity_str = xml.getAttributeValue(null, "intensity");

@@ -30,6 +30,8 @@ package hcm.ssj.feedback;
 import android.content.Context;
 import android.os.Vibrator;
 
+import java.util.Arrays;
+
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
@@ -43,17 +45,19 @@ public class DeviceTactileFeedback extends Feedback
 {
 	public class Options extends Feedback.Options
 	{
-		public final Option<long[]> vibrationPattern = new Option<>("vibrationPattern", new long[]{0, 500}, long[].class, "vibration pattern (starts with delay)");
 
+		public final Option<long[]> vibrationPattern = new Option<>("vibrationPattern", new long[]{0, 500}, long[].class, "vibration pattern (starts with delay)");
 		private Options()
 		{
 			super();
 			addOptions();
 		}
+
 	}
 	public final Options options = new Options();
 
 	private Vibrator vibrator = null;
+	private long[] vibrationPattern;
 
 	public DeviceTactileFeedback()
 	{
@@ -72,16 +76,19 @@ public class DeviceTactileFeedback extends Feedback
 		{
 			throw new RuntimeException("device can't vibrate");
 		}
+
+		lock = options.lock.get();
+		vibrationPattern = options.vibrationPattern.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
 		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
+		if (checkLock())
 		{
-			Log.i("vibration " + options.vibrationPattern.get());
-			vibrator.vibrate(options.vibrationPattern.get(), -1);
+			Log.i("vibration " + Arrays.toString(vibrationPattern));
+			vibrator.vibrate(vibrationPattern, -1);
 		}
 	}
 

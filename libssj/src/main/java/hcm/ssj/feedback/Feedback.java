@@ -39,6 +39,7 @@ import hcm.ssj.core.option.OptionList;
 public abstract class Feedback extends EventHandler
 {
 	protected long lastExecutionTime = 0;
+	protected int lock = 0;
 
 	public class Options extends OptionList
 	{
@@ -49,7 +50,7 @@ public abstract class Feedback extends EventHandler
 		}
 	}
 
-	protected boolean checkLock(Integer lock)
+	protected boolean checkLock()
 	{
 		if (System.currentTimeMillis() - lastExecutionTime < lock)
 		{
