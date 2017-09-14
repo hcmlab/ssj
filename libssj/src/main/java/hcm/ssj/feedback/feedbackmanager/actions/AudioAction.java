@@ -1,5 +1,5 @@
 /*
- * KeyPress.java
+ * AudioAction.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,82 +25,87 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.conditions;
+package hcm.ssj.feedback.feedbackmanager.actions;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
+import android.media.SoundPool;
+import android.os.Environment;
 
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.event.Event;
-
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class KeyPress extends Condition
+public class AudioAction extends Action
 {
-    protected String _text;
-    protected boolean _isToggle;
-    protected float _lastValue = 0;
+    Context _context = null;
 
-    public boolean checkEvent(Event event)
+    public AssetFileDescriptor fd = null;
+
+    public float intensity = 1;
+    public int soundId;
+    private String res;
+
+    public AudioAction()
     {
-        if (event.name.equalsIgnoreCase(_event)
-        && event.sender.equalsIgnoreCase(_sender)
-        && (_text == null || event.ptrStr().equalsIgnoreCase(_text))
-        && (!_isToggle || event.state == Event.State.COMPLETED))
-        {
-            float value = parseEvent(event);
-            if((value == thres_lower) || (value >= thres_lower && value < thres_upper))
-                return true;
-        }
-
-        return false;
-    }
-
-    public float parseEvent(Event event)
-    {
-        float value;
-        if(_isToggle)
-        {
-            value = 1 - _lastValue;
-            _lastValue = value;
-        }
-        else
-        {
-            value = (event.state == Event.State.COMPLETED) ? 0 : 1;
-        }
-
-        return value;
+        type = FeedbackClass.Type.Audio;
     }
 
     protected void load(XmlPullParser xml, Context context)
     {
+        super.load(xml, context);
+        _context = context;
+
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "condition");
-            _text = xml.getAttributeValue(null, "text");
+            res = xml.getAttributeValue(null, "res");
+            if(res == null)
+                throw new IOException("no sound defined");
 
-            String toggle = xml.getAttributeValue(null, "toggle");
-            if(toggle == null || toggle.compareToIgnoreCase("false") == 0)
-                _isToggle = false;
+            if(res.startsWith("assets:"))
+            {
+                fd =  context.getAssets().openFd(res.substring(7));
+            }
             else
-                _isToggle = true;
+            {
+                res = FileCons.SSJ_EXTERNAL_STORAGE + File.separator + res;
+            }
+
+            String intensity_str = xml.getAttributeValue(null, "intensity");
+            if(intensity_str != null)
+                intensity = Float.valueOf(intensity_str);
         }
-        catch(IOException | XmlPullParserException e)
+        catch(IOException e)
         {
             Log.e("error parsing config file", e);
         }
-
-        super.load(xml, context);
     }
 
-    public float getLastValue()
+    public void registerWithPlayer(SoundPool player)
     {
-        return _lastValue;
+        try
+        {
+            if(fd != null)
+            {
+                soundId = player.load(fd, 1);
+                fd.close();
+            }
+            else
+            {
+                soundId = player.load(res, 1);
+            }
+        }
+        catch (IOException e)
+        {
+            Log.e("error loading audio files", e);
+        }
     }
 }

@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.actions;
+package hcm.ssj.feedback.feedbackmanager.actions;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -39,7 +39,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.FeedbackClass;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 01.12.2014.
@@ -83,7 +84,7 @@ public class VisualAction extends Action
                     icons[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i].substring(assetsString.length())), null);
                 }
                 else {
-                    String path = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + icon_names[i];
+                    String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator + icon_names[i];
                     icons[i] =  Drawable.createFromStream(new FileInputStream(path), null);
                 }
             }

@@ -25,13 +25,13 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.actions;
+package hcm.ssj.feedback.feedbackmanager.actions;
 
 import android.content.Context;
 
 import org.xmlpull.v1.XmlPullParser;
 
-import hcm.ssj.feedback.classes.FeedbackClass;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 
 /**
  * Created by Johnny on 01.12.2014.

@@ -1,5 +1,5 @@
 /*
- * FeedbackListener.java
+ * Feedback.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,14 +25,41 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.classes;
+package hcm.ssj.feedback;
 
-import hcm.ssj.feedback.actions.Action;
+import hcm.ssj.core.EventHandler;
+import hcm.ssj.core.Log;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 /**
- * Created by Johnny on 03.06.2016.
+ * Created by Antonio Grieco on 06.09.2017.
  */
-public interface FeedbackListener
+
+public abstract class Feedback extends EventHandler
 {
-    void onPostFeedback(hcm.ssj.core.event.Event ssjEvent, Action action, float value);
+	protected long lastExecutionTime = 0;
+	protected int lock = 0;
+
+	public class Options extends OptionList
+	{
+		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
+		protected Options()
+		{
+			addOptions();
+		}
+	}
+
+	protected boolean checkLock()
+	{
+		if (System.currentTimeMillis() - lastExecutionTime < lock)
+		{
+			Log.i("ignoring event, lock active for another " + (lock - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
+			return false;
+		}
+		else{
+			lastExecutionTime = System.currentTimeMillis();
+			return true;
+		}
+	}
 }

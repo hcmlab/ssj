@@ -1,5 +1,5 @@
 /*
- * TactileAction.java
+ * SpeechDuration.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,11 +25,9 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.actions;
+package hcm.ssj.feedback.feedbackmanager.conditions;
 
 import android.content.Context;
-
-import com.microsoft.band.notifications.VibrationType;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -37,42 +35,55 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.FeedbackClass;
+import hcm.ssj.core.event.Event;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class TactileAction extends Action
+public class SpeechDuration extends Condition
 {
-    public int[] duration = {500};
-    public byte[] intensity = {(byte)150};
-    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
-    public TactileAction()
+    float _dur = 0;
+    boolean _shouldSum= false;
+
+    @Override
+    public float parseEvent(Event event)
     {
-        type = FeedbackClass.Type.Tactile;
+        if(_shouldSum)
+            _dur += event.dur / 1000.0f;
+        else
+            _dur = event.dur / 1000.0f;
+
+        return _dur;
     }
 
+    public boolean checkEvent(Event event)
+    {
+        if (event.name.equalsIgnoreCase(_event)
+            && event.sender.equalsIgnoreCase(_sender)
+            && event.state == Event.State.COMPLETED)
+        {
+            float value = parseEvent(event);
+            if((value == thres_lower) || (value >= thres_lower && value < thres_upper))
+                return true;
+        }
+
+        return false;
+    }
+
+    @Override
     protected void load(XmlPullParser xml, Context context)
     {
-        super.load(xml, context);
-
         try
         {
-            xml.require(XmlPullParser.START_TAG, null, "action");
-
-            String str = xml.getAttributeValue(null, "intensity");
-            if(str != null) intensity = parseByteArray(str, ",");
-
-            str = xml.getAttributeValue(null, "duration");
-            if(str != null) duration = parseIntArray(str, ",");
-
-            str = xml.getAttributeValue(null, "type");
-            if(str != null) vibrationType = VibrationType.valueOf(str);
+            xml.require(XmlPullParser.START_TAG, null, "condition");
         }
-        catch(IOException | XmlPullParserException e)
+        catch (XmlPullParserException | IOException e)
         {
             Log.e("error parsing config file", e);
         }
+
+        _shouldSum = Boolean.getBoolean(xml.getAttributeValue(null, "sum"));
+        super.load(xml, context);
     }
 }

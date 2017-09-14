@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.classes;
+package hcm.ssj.feedback.feedbackmanager.classes;
 
 import android.app.Activity;
 import android.content.Context;
@@ -50,8 +50,8 @@ import java.security.InvalidParameterException;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.feedback.FeedbackManager;
-import hcm.ssj.feedback.actions.Action;
-import hcm.ssj.feedback.actions.VisualAction;
+import hcm.ssj.feedback.feedbackmanager.actions.Action;
+import hcm.ssj.feedback.feedbackmanager.actions.VisualAction;
 
 
 /**
