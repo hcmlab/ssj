@@ -1,0 +1,32 @@
+<!--
+  ~ ic_insert_drive_file_black_24dp.xml
+  ~ Copyright (c) 2017
+  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+  ~ Vitalijs Krumins, Antonio Grieco
+  ~ ******************************************************
+  ~ This file is part of the Social Signal Interpretation for Java (SSJ) framework
+  ~ developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+  ~
+  ~ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+  ~ one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+  ~ to offer SSI's comprehensive functionality and performance (this is java after all).
+  ~ Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ This library is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<vector android:autoMirrored="true" android:height="24dp"
+    android:viewportHeight="24.0" android:viewportWidth="24.0"
+    android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#FF000000" android:pathData="M6,2c-1.1,0 -1.99,0.9 -1.99,2L4,20c0,1.1 0.89,2 1.99,2L18,22c1.1,0 2,-0.9 2,-2L20,8l-6,-6L6,2zM13,9L13,3.5L18.5,9L13,9z"/>
+</vector>

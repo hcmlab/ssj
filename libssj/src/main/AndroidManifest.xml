@@ -48,6 +48,9 @@
     <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE" />
 
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
     <!-- API >= 23 -->
     <uses-feature android:name="android.hardware.camera.any"/>
     <uses-feature android:name="android.hardware.camera"  android:required="false"/>

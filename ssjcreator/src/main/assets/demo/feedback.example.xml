@@ -72,11 +72,10 @@
   <eventHandlerList>
     <eventHandler class="hcm.ssj.feedback.FeedbackManager" id="323937" delta="0.0" eventTrigger="false">
       <options>
-        <option name="fromAsset" value="false" />
+        <option name="fromAssets" value="true" />
         <option name="progression" value="12.0" />
         <option name="regression" value="60.0" />
-        <option name="strategyFileName" value="strategy.xml" />
-        <option name="strategyFilePath" value="/storage/emulated/0/SSJ/Creator/res" />
+        <option name="strategyFile" value="demo/res/strategy.xml" />
       </options>
       <providerList />
       <eventProviderList>

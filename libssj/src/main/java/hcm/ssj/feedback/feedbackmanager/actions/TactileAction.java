@@ -1,5 +1,5 @@
 /*
- * AudioAction.java
+ * TactileAction.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,86 +25,54 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.actions;
+package hcm.ssj.feedback.feedbackmanager.actions;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.media.SoundPool;
-import android.os.Environment;
+
+import com.microsoft.band.notifications.VibrationType;
 
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.feedback.classes.FeedbackClass;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class AudioAction extends Action
+public class TactileAction extends Action
 {
-    Context _context = null;
+    public int[] duration = {500};
+    public byte[] intensity = {(byte)150};
+    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
-    public AssetFileDescriptor fd = null;
-
-    public float intensity = 1;
-    public int soundId;
-    private String res;
-
-    public AudioAction()
+    public TactileAction()
     {
-        type = FeedbackClass.Type.Audio;
+        type = FeedbackClass.Type.Tactile;
     }
 
     protected void load(XmlPullParser xml, Context context)
     {
         super.load(xml, context);
-        _context = context;
 
         try
         {
-            res = xml.getAttributeValue(null, "res");
-            if(res == null)
-                throw new IOException("no sound defined");
+            xml.require(XmlPullParser.START_TAG, null, "action");
 
-            if(res.startsWith("assets:"))
-            {
-                fd =  context.getAssets().openFd(res.substring(7));
-            }
-            else
-            {
-                res = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + res;
-            }
+            String str = xml.getAttributeValue(null, "intensity");
+            if(str != null) intensity = parseByteArray(str, ",");
 
-            String intensity_str = xml.getAttributeValue(null, "intensity");
-            if(intensity_str != null)
-                intensity = Float.valueOf(intensity_str);
+            str = xml.getAttributeValue(null, "duration");
+            if(str != null) duration = parseIntArray(str, ",");
+
+            str = xml.getAttributeValue(null, "type");
+            if(str != null) vibrationType = VibrationType.valueOf(str);
         }
-        catch(IOException e)
+        catch(IOException | XmlPullParserException e)
         {
             Log.e("error parsing config file", e);
-        }
-    }
-
-    public void registerWithPlayer(SoundPool player)
-    {
-        try
-        {
-            if(fd != null)
-            {
-                soundId = player.load(fd, 1);
-                fd.close();
-            }
-            else
-            {
-                soundId = player.load(res, 1);
-            }
-        }
-        catch (IOException e)
-        {
-            Log.e("error loading audio files", e);
         }
     }
 }
