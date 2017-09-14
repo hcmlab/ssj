@@ -55,8 +55,8 @@ public class FileUtils
 
 		if (isURL)
 		{
-//			return FileUtils.downloadFile(fileName, filePath, FileCons.DOWNLOAD_DIR);
 			FileDownloader.getInstance().addToQueue(fileName, filePath, FileCons.DOWNLOAD_DIR, true);
+			filePath = FileCons.DOWNLOAD_DIR;
 		}
 
 		if (filePath == null)
