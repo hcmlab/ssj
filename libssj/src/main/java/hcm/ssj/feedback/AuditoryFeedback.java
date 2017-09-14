@@ -101,12 +101,16 @@ public class AuditoryFeedback extends Feedback
 			Log.e("error parsing config file", e);
 		}
 		lock = options.lock.get();
+		eventName = options.eventName.get();
 		intensity = options.intensity.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
+		if(!event.name.equals(eventName) && !eventName.isEmpty())
+			return;
+
 		// Execute only if lock has expired
 		if (checkLock())
 		{

@@ -114,6 +114,7 @@ public class MyoTactileFeedback extends Feedback
 		cmd = new Vibrate2Command(hub);
 
 		lock = options.lock.get();
+		eventName = options.eventName.get();
 		duration = options.duration.get();
 		intensity = options.intensity.get();
 	}
@@ -121,6 +122,9 @@ public class MyoTactileFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
+		if(!event.name.equals(eventName) && !eventName.isEmpty())
+			return;
+
 		// Execute only if lock has expired
 		if (checkLock())
 		{

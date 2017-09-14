@@ -71,6 +71,7 @@ public class MSBandTactileFeedback extends Feedback
 			throw new RuntimeException("no input channels");
 		}
 		lock = options.lock.get();
+		eventName = options.eventName.get();
 		msband = new BandComm(options.deviceId.get());
 		vibrationType = options.vibrationType.get();
 	}
@@ -78,10 +79,12 @@ public class MSBandTactileFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
+		if(!event.name.equals(eventName) && !eventName.isEmpty())
+			return;
+
 		// Execute only if lock has expired
 		if (checkLock())
 		{
-
 			Log.i("vibration " + vibrationType);
 			msband.vibrate(vibrationType);
 		}

@@ -120,6 +120,7 @@ public class VisualFeedback extends Feedback
 		}
 
 		lock = options.lock.get();
+		eventName = options.eventName.get();
 		duration = options.duration.get();
 		brightness = options.brightness.get();
 
@@ -173,6 +174,9 @@ public class VisualFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
+		if(!event.name.equals(eventName) && !eventName.isEmpty())
+			return;
+
 		// Execute only if lock has expired
 		if (checkLock())
 		{
