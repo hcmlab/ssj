@@ -41,7 +41,7 @@ import hcm.ssj.core.option.Option;
  * Created by Antonio Grieco on 06.09.2017.
  */
 
-public class DeviceTactileFeedback extends Feedback
+public class AndroidTactileFeedback extends Feedback
 {
 	public class Options extends Feedback.Options
 	{
@@ -59,10 +59,10 @@ public class DeviceTactileFeedback extends Feedback
 	private Vibrator vibrator = null;
 	private long[] vibrationPattern;
 
-	public DeviceTactileFeedback()
+	public AndroidTactileFeedback()
 	{
-		_name = "DeviceTactileFeedback";
-		Log.d("Instantiated DeviceTactileFeedback " + this.hashCode());
+		_name = "AndroidTactileFeedback";
+		Log.d("Instantiated AndroidTactileFeedback " + this.hashCode());
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class DeviceTactileFeedback extends Feedback
 		// Execute only if lock has expired
 		if (checkLock())
 		{
-			Log.i("vibration " + Arrays.toString(vibrationPattern));
+			Log.i("vibration on android: " + Arrays.toString(vibrationPattern));
 			vibrator.vibrate(vibrationPattern, -1);
 		}
 	}

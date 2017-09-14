@@ -36,6 +36,15 @@
             <action res="Creator/res/blop.mp3" intensity="1.0" lockSelf="1000"/>
         </feedback>
 
+        <feedback type="tactile" device="Android">
+            <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
+            <action duration="0,100,100,100" lockSelf="1000"/>
+        </feedback>
+        <feedback type="tactile" device="Android">
+            <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12" to="999"/>
+            <action duration="0,200,100,200" lockSelf="1000"/>
+        </feedback>
+
         <feedback type="visual" position="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3.0"/>
             <action res="Creator/res/orientation_low.png, Creator/res/thumb_negative.png"/>

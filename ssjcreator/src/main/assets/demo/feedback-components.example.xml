@@ -155,7 +155,7 @@
         <eventProviderId id="67758432" />
       </eventProviderList>
     </eventHandler>
-    <eventHandler class="hcm.ssj.feedback.DeviceTactileFeedback" id="26066869" delta="0.0" eventTrigger="false">
+    <eventHandler class="hcm.ssj.feedback.AndroidTactileFeedback" id="26066869" delta="0.0" eventTrigger="false">
       <options>
         <option name="lock" value="1000" />
         <option name="vibrationPattern" value="[0, 500]" />
