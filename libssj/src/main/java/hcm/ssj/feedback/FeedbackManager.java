@@ -62,7 +62,7 @@ public class FeedbackManager extends EventHandler
     {
 
         public final Option<Uri> strategyFile = new Option<>("strategyFile", null, Uri.class, "strategy file");
-        public final Option<Boolean> fromAsset = new Option<>("fromAsset", false, Boolean.class, "load feedback strategy file from assets");
+        public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
         public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
         public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
@@ -106,7 +106,7 @@ public class FeedbackManager extends EventHandler
 
         try
         {
-            load(options.strategyFile.get(), options.fromAsset.get());
+            load(options.strategyFile.get(), options.fromAssets.get());
         }
         catch (IOException | XmlPullParserException e)
         {
@@ -194,7 +194,7 @@ public class FeedbackManager extends EventHandler
     {
         InputStream in;
         if(fromAsset)
-            in = SSJApplication.getAppContext().getAssets().open(uri.getPath());
+            in = SSJApplication.getAppContext().getAssets().open(uri.toString());
         else
             in = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
 

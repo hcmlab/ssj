@@ -87,7 +87,7 @@ public class AuditoryFeedback extends Feedback
 			AssetFileDescriptor fd;
 			if (options.fromAssets.get())
 			{
-				fd = SSJApplication.getAppContext().getAssets().openFd(options.audioFile.get().getPath());
+				fd = SSJApplication.getAppContext().getAssets().openFd(options.audioFile.get().toString());
 			}
 			else
 			{

@@ -255,7 +255,7 @@ public class OptionTable
 			else if (type == Uri.class)
 			{
 				((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
-				((TextView) inputView).setText(value != null ? ((Uri) value).getPath() : "", TextView.BufferType.NORMAL);
+				((TextView) inputView).setText(value != null ? ((Uri) value).toString() : "", TextView.BufferType.NORMAL);
 
 				// FileChooserButton
 				ImageButton fileChooserButton = new ImageButton(activity);

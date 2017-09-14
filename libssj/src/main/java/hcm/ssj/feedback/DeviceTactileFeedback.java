@@ -30,6 +30,8 @@ package hcm.ssj.feedback;
 import android.content.Context;
 import android.os.Vibrator;
 
+import java.util.Arrays;
+
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
@@ -85,7 +87,7 @@ public class DeviceTactileFeedback extends Feedback
 		// Execute only if lock has expired
 		if (checkLock())
 		{
-			Log.i("vibration " + vibrationPattern);
+			Log.i("vibration " + Arrays.toString(vibrationPattern));
 			vibrator.vibrate(vibrationPattern, -1);
 		}
 	}

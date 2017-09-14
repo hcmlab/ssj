@@ -323,8 +323,6 @@ public class OptionsActivity extends AppCompatActivity
 			Uri uri;
 			if (resultData != null)
 			{
-				resultData.getExtras();
-
 				uri = resultData.getData();
 
 				TextView textViewToChange = OptionTable.mapRequestCodesTextViews.get(requestCode);

@@ -66,14 +66,14 @@ public class VisualFeedback extends Feedback
 	public class Options extends Feedback.Options
 	{
 		public final Option<Uri> feedbackIcon = new Option<>("feedbackIcon", null, Uri.class, "feedback icon file");
-		public final Option<Boolean> feedbackIconfromAssets = new Option<>("fromAssets", false, Boolean.class, "load feedback icon from assets");
+		public final Option<Boolean> feedbackIconFromAssets = new Option<>("feedbackIconFromAssets", false, Boolean.class, "load feedback icon from assets");
 		public final Option<Uri> qualityIcon = new Option<>("qualityIcon", null, Uri.class, "quality icon file");
-		public final Option<Boolean> qualityIconfromAssets = new Option<>("qualityIconfromAssets", false, Boolean.class, "load quality icon from assets");
+		public final Option<Boolean> qualityIconfromAssets = new Option<>("qualityIconFromAssets", false, Boolean.class, "load quality icon from assets");
 
 		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
-		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until iconList fade");
-		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "duration until iconList fade");
-		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the iconList");
+		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear");
+		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "fade duration");
+		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the icons");
 		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
 
 		private Options()
@@ -137,7 +137,7 @@ public class VisualFeedback extends Feedback
 		{
 			iconList = new ArrayList<>();
 
-			Drawable feedbackDrawable = getDrawable(options.feedbackIcon.get(), options.feedbackIconfromAssets.get());
+			Drawable feedbackDrawable = getDrawable(options.feedbackIcon.get(), options.feedbackIconFromAssets.get());
 			if(feedbackDrawable != null)
 				iconList.add(feedbackDrawable);
 
@@ -156,17 +156,18 @@ public class VisualFeedback extends Feedback
 		if(uri.toString().isEmpty())
 			return null;
 
+		InputStream inputStream;
 		if (fromAssets)
 		{
-			return Drawable.createFromStream(activity.getAssets().open(uri.getPath()), uri.toString());
+			inputStream = activity.getAssets().open(uri.toString());
 		}
 		else
 		{
-			InputStream inputStream = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
-			Drawable drawable = Drawable.createFromStream(inputStream, uri.toString());
-			inputStream.close();
-			return drawable;
+			inputStream = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
 		}
+		Drawable drawable = Drawable.createFromStream(inputStream, uri.toString());
+		inputStream.close();
+		return drawable;
 	}
 
 	@Override
