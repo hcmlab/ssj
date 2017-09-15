@@ -47,7 +47,7 @@ public abstract class Consumer extends Component {
     private int[] _num_frame;
     private int[] _num_delta;
 
-    boolean _eventTrigger = false;
+    private boolean _triggeredByEvent = false;
 
     private Timer _timer;
 
@@ -96,13 +96,13 @@ public abstract class Consumer extends Component {
         }
 
         //maintain update rate starting from now
-        if(!_eventTrigger)
+        if(!_triggeredByEvent)
             _timer.reset();
 
         while(!_terminate && _frame.isRunning())
         {
             try {
-                if(_eventTrigger) {
+                if(_triggeredByEvent) {
                     ev = _evchannel_in.get(0).getEvent(eventID++, true);
                     if (ev == null || ev.dur == 0)
                         continue;
@@ -115,7 +115,7 @@ public abstract class Consumer extends Component {
                 int pos, numSamples;
                 for(int i = 0; i < _bufferID_in.length; i++)
                 {
-                    if(_eventTrigger)
+                    if(_triggeredByEvent)
                     {
                         pos = (int) ((ev.time / 1000.0) * _stream_in[i].sr + 0.5);
                         numSamples = ((int) (((ev.time + ev.dur) / 1000.0) * _stream_in[i].sr + 0.5)) - pos;
@@ -136,13 +136,17 @@ public abstract class Consumer extends Component {
 
                 //if we received data from all sources, process it
                 if(ok) {
+                    if(_triggeredByEvent)
+                    {
+                        prepareForTriggerByEvent(ev);
+                    }
                     consume(_stream_in);
                 }
 
                 if(_doWakeLock) wakeLock.release();
 
                 //maintain update rate
-                if(ok && !_eventTrigger)
+                if(ok && !_triggeredByEvent)
                     _timer.sync();
 
             } catch(Exception e) {
@@ -180,8 +184,14 @@ public abstract class Consumer extends Component {
 
     public void setTriggeredByEvent(boolean value)
     {
-        _eventTrigger = value;
+        _triggeredByEvent = value;
     }
+
+    /**
+     * Called immediately before the consume method in case of an event trigger
+     * @param ev the event which triggers the consume
+     */
+    protected void prepareForTriggerByEvent(Event ev) {}
 
     /**
      * initialization for continuous consumer
