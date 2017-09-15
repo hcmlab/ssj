@@ -95,7 +95,9 @@ public class FileDownloader extends Thread
 					t.result = downloadFile(t.filename, t.from, t.to);
 				}
 				catch (IOException e)
-				{}
+				{
+					Log.e("Error while downloading file", e);
+				}
 
 				synchronized (t.token)
 				{
