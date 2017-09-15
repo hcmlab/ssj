@@ -27,7 +27,6 @@
 
 package hcm.ssj.event;
 
-import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,11 +47,11 @@ public class ThresholdClassEventSender extends Consumer
 	public class Options extends OptionList
 	{
 		public final Option<String> sender = new Option<>("sender", null, String.class, "");
-		public final Option<String> event = new Option<>("event", "event", String.class, "");
 		public final Option<String[]> classes = new Option<>("classes", new String[]{"low", "medium", "high"}, String[].class, "");
 		public final Option<float[]> thresholds = new Option<>("thresholds", new float[]{1f, 2f, 3f}, float[].class, "");
 		public final Option<Float> minDiff = new Option<>("minDiff", 0.1f, Float.class, "minimum difference to previous value");
 		public final Option<Boolean> mean = new Option<>("mean", false, Boolean.class, "classify based on mean value of entire frame");
+		public final Option<Double> maxDur = new Option<>("maxDur", 2., Double.class, "");
 
 
 		private Options()
@@ -68,7 +67,9 @@ public class ThresholdClassEventSender extends Consumer
 	private Map.Entry<Float, String> lastClass = null;
 
 	private float minDiff;
+	private int samplesMaxDur;
 	private boolean mean;
+	private double lastTriggerTime;
 
 	public ThresholdClassEventSender()
 	{
@@ -102,21 +103,28 @@ public class ThresholdClassEventSender extends Consumer
 		{
 			thresholdList.add(new SimpleEntry<Float, String>(thresholds[i], classes[i]));
 		}
-		Collections.sort(thresholdList, new Comparator<SimpleEntry<Float,String>>(){
+		Collections.sort(thresholdList, new Comparator<SimpleEntry<Float, String>>()
+		{
 			@Override
 			public int compare(SimpleEntry<Float, String> o1, SimpleEntry<Float, String> o2)
 			{
 				// Note: this comparator imposes orderings that are inconsistent with equals.
 				// Order is descending.
-				if(o1.getKey() > o2.getKey())
+				if (o1.getKey() > o2.getKey())
+				{
 					return -1;
-				if(o1.getKey() < o2.getKey())
+				}
+				if (o1.getKey() < o2.getKey())
+				{
 					return 1;
+				}
 				return 0;
-			}} );
+			}
+		});
 
 		minDiff = options.minDiff.get();
 		mean = options.mean.get();
+		samplesMaxDur = (int) (options.maxDur.get() * stream_in[0].sr);
 	}
 
 	@Override
@@ -160,24 +168,52 @@ public class ThresholdClassEventSender extends Consumer
 			}
 			else
 			{
-				Map.Entry<Float, String> thresholdClass = classify(value);
-				if (thresholdClass != null)
-				{
-					sendEvent(thresholdClass, time, value, stream_in[0].type);
-				}
+				processValue(value, time, stream_in[0].sr, 1);
 			}
-
 			time += timeStep;
-
 		}
 		if (this.mean)
 		{
-			Map.Entry<Float, String> thresholdClass = classify(sum / stream_in[0].num);
-			if (thresholdClass != null)
+			processValue(sum / stream_in[0].num, time, stream_in[0].sr, stream_in[0].num);
+		}
+	}
+
+	private void processValue(float value, double time, double sampleRate, int numberOfSamples)
+	{
+		SimpleEntry<Float, String> newClass = classify(value);
+		samplesMaxDur -= numberOfSamples;
+		if(newClass != null)
+		{
+			if (isEqualLastClass(newClass))
 			{
-				sendEvent(thresholdClass, time, sum / stream_in[0].num, stream_in[0].type);
+				if(samplesMaxDur <= 0)
+				{
+					lastValue = value;
+					sendEvent(newClass, lastTriggerTime, time - lastTriggerTime, Event.State.CONTINUED);
+					samplesMaxDur = (int) (options.maxDur.get() * sampleRate);
+				}
+			}
+			else if (valueDiffersEnoughFromLast(value))
+			{
+				if(lastClass != null)
+					sendEvent(lastClass, lastTriggerTime, time - lastTriggerTime, Event.State.COMPLETED);
+				sendEvent(newClass, time, 0, Event.State.CONTINUED);
+				lastTriggerTime = time;
+				lastValue = value;
+				lastClass = newClass;
+				samplesMaxDur = (int) (options.maxDur.get() * sampleRate);
 			}
 		}
+	}
+
+	private boolean isEqualLastClass(SimpleEntry<Float, String> newClass)
+	{
+		return newClass.equals(lastClass);
+	}
+
+	private boolean valueDiffersEnoughFromLast(float value)
+	{
+		return Math.abs(value - lastValue) > minDiff;
 	}
 
 	private SimpleEntry<Float, String> classify(float value)
@@ -188,27 +224,20 @@ public class ThresholdClassEventSender extends Consumer
 			float classValue = thresholdClass.getKey();
 			if (value > classValue)
 			{
-				if(Math.abs(classValue - value) > minDiff && thresholdClass != lastClass)
-				{
-					lastValue = classValue;
-					lastClass = thresholdClass;
-					foundClass = thresholdClass;
-				}
-				break;
+				return thresholdClass;
 			}
 		}
 		return foundClass;
 	}
 
-	private void sendEvent(Map.Entry<Float, String> thresholdClass, double time, Float value, Cons.Type type)
+	private void sendEvent(Map.Entry<Float, String> thresholdClass, double time, double duration, Event.State state)
 	{
-		Event event = Event.create(type);
+		Event event = Event.create(Cons.Type.EMPTY);
 		event.name = thresholdClass.getValue();
 		event.sender = options.sender.get();
-		event.time = (int) (1000 * time + 0.5);
-		event.dur = 0;
-		event.state = Event.State.COMPLETED;
-		event.setData(new float[] {value});
+		event.time = Math.max(0, (int) (1000 * time + 0.5));
+		event.dur = Math.max(0, (int) (1000 * duration + 0.5));
+		event.state = state;
 		_evchannel_out.pushEvent(event);
 	}
 }
