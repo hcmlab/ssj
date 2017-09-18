@@ -53,7 +53,6 @@ public class ThresholdClassEventSender extends Consumer
 		public final Option<Boolean> mean = new Option<>("mean", false, Boolean.class, "classify based on mean value of entire frame");
 		public final Option<Double> maxDur = new Option<>("maxDur", 2., Double.class, "maximum delay before continued events will be sent");
 
-
 		private Options()
 		{
 			addOptions();
@@ -66,9 +65,7 @@ public class ThresholdClassEventSender extends Consumer
 	private float lastValue = Float.NEGATIVE_INFINITY;
 	private Map.Entry<Float, String> lastClass = null;
 
-	private float minDiff;
 	private int samplesMaxDur;
-	private boolean mean;
 	private double lastTriggerTime;
 
 	public ThresholdClassEventSender()
@@ -85,6 +82,12 @@ public class ThresholdClassEventSender extends Consumer
 			throw new RuntimeException("Dimension != 1 unsupported");
 		}
 
+		makeThresholdList();
+
+		samplesMaxDur = (int) (options.maxDur.get() * stream_in[0].sr);
+	}
+
+	private void makeThresholdList() {
 		String[] classes = options.classes.get();
 		float[] thresholds = options.thresholds.get();
 
@@ -103,33 +106,14 @@ public class ThresholdClassEventSender extends Consumer
 		{
 			thresholdList.add(new SimpleEntry<Float, String>(thresholds[i], classes[i]));
 		}
-		Collections.sort(thresholdList, new Comparator<SimpleEntry<Float, String>>()
-		{
-			@Override
-			public int compare(SimpleEntry<Float, String> o1, SimpleEntry<Float, String> o2)
-			{
-				// Note: this comparator imposes orderings that are inconsistent with equals.
-				// Order is descending.
-				if (o1.getKey() > o2.getKey())
-				{
-					return -1;
-				}
-				if (o1.getKey() < o2.getKey())
-				{
-					return 1;
-				}
-				return 0;
-			}
-		});
-
-		minDiff = options.minDiff.get();
-		mean = options.mean.get();
-		samplesMaxDur = (int) (options.maxDur.get() * stream_in[0].sr);
+		Collections.sort(thresholdList, new ThresholdListComparator());
 	}
 
 	@Override
 	protected void consume(Stream[] stream_in)
 	{
+		makeThresholdList();
+
 		double time = stream_in[0].time;
 		double timeStep = 1 / stream_in[0].sr;
 		float sum = 0;
@@ -162,7 +146,7 @@ public class ThresholdClassEventSender extends Consumer
 					break;
 			}
 
-			if (this.mean)
+			if (options.mean.get())
 			{
 				sum += value;
 			}
@@ -172,7 +156,7 @@ public class ThresholdClassEventSender extends Consumer
 			}
 			time += timeStep;
 		}
-		if (this.mean)
+		if (options.mean.get())
 		{
 			processValue(sum / stream_in[0].num, time, stream_in[0].sr, stream_in[0].num);
 		}
@@ -190,7 +174,7 @@ public class ThresholdClassEventSender extends Consumer
 		{
 			if (samplesMaxDur <= 0)
 			{
-				lastValue = value; //TODO: check if valid
+				lastValue = value;
 				sendEvent(newClass, lastTriggerTime, time - lastTriggerTime, Event.State.CONTINUED);
 				samplesMaxDur = (int) (options.maxDur.get() * sampleRate);
 			}
@@ -216,7 +200,7 @@ public class ThresholdClassEventSender extends Consumer
 
 	private boolean valueDiffersEnoughFromLast(float value)
 	{
-		return Math.abs(value - lastValue) > minDiff;
+		return Math.abs(value - lastValue) > options.minDiff.get();
 	}
 
 	private SimpleEntry<Float, String> classify(float value)
@@ -242,5 +226,24 @@ public class ThresholdClassEventSender extends Consumer
 		event.dur = Math.max(0, (int) (1000 * duration + 0.5));
 		event.state = state;
 		_evchannel_out.pushEvent(event);
+	}
+
+	private class ThresholdListComparator implements Comparator<SimpleEntry<Float, String>>
+	{
+		@Override
+		public int compare(SimpleEntry<Float, String> o1, SimpleEntry<Float, String> o2)
+		{
+			// Note: this comparator imposes orderings that are inconsistent with equals.
+			// Order is descending.
+			if (o1.getKey() > o2.getKey())
+			{
+				return -1;
+			}
+			if (o1.getKey() < o2.getKey())
+			{
+				return 1;
+			}
+			return 0;
+		}
 	}
 }

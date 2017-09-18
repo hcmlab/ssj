@@ -40,6 +40,7 @@ import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
 import static android.R.attr.data;
+import static android.R.attr.opacity;
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -64,7 +65,6 @@ public class AuditoryFeedback extends Feedback
 
 	private SoundPool player;
 	private int soundId;
-	private float intensity;
 
 	public AuditoryFeedback()
 	{
@@ -98,23 +98,20 @@ public class AuditoryFeedback extends Feedback
 		}
 		catch (IOException e)
 		{
-			Log.e("error parsing config file", e);
+			Log.e("error loading audio file", e);
 		}
-		lock = options.lock.get();
-		eventName = options.eventName.get();
-		intensity = options.intensity.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
-		if(!event.name.equals(eventName) && !eventName.isEmpty())
+		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
 			return;
 
 		// Execute only if lock has expired
-		if (checkLock())
+		if (checkLock(options.lock.get()))
 		{
-			player.play(soundId, intensity, intensity, 1, 0, 1);
+			player.play(soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
 		}
 	}
 

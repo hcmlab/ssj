@@ -91,8 +91,6 @@ public class VisualFeedback extends Feedback
 	private long timeout = 0;
 	private float defaultBrightness;
 	private final int TIMEOUT_CHECK_DELAY = 100;
-	private float brightness;
-	private int duration;
 
 	public VisualFeedback()
 	{
@@ -118,11 +116,6 @@ public class VisualFeedback extends Feedback
 		{
 			throw new RuntimeException("unable to get activity from layout");
 		}
-
-		lock = options.lock.get();
-		eventName = options.eventName.get();
-		duration = options.duration.get();
-		brightness = options.brightness.get();
 
 		imageSwitcherList = new ArrayList<>();
 
@@ -174,19 +167,19 @@ public class VisualFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
-		if(!event.name.equals(eventName) && !eventName.isEmpty())
+		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
 			return;
 
 		// Execute only if lock has expired
-		if (checkLock())
+		if (checkLock(options.lock.get()))
 		{
-			if (duration > 0)
+			if (options.duration.get() > 0)
 			{
-				timeout = System.currentTimeMillis() + duration;
+				timeout = System.currentTimeMillis() + options.duration.get();
 			}
 
 			updateIcons();
-			updateBrightness(brightness);
+			updateBrightness(options.brightness.get());
 		}
 	}
 
