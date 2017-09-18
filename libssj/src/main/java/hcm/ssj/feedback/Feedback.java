@@ -39,18 +39,18 @@ import hcm.ssj.core.option.OptionList;
 public abstract class Feedback extends EventHandler
 {
 	protected long lastExecutionTime = 0;
-	protected int lock = 0;
 
 	public class Options extends OptionList
 	{
 		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
+		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
 		protected Options()
 		{
 			addOptions();
 		}
 	}
 
-	protected boolean checkLock()
+	protected boolean checkLock(int lock)
 	{
 		if (System.currentTimeMillis() - lastExecutionTime < lock)
 		{

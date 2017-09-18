@@ -16,7 +16,7 @@
     </options>
   </framework>
   <sensorChannelList>
-    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="254122970">
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="117773190">
       <options>
         <option name="sampleRate" value="50" />
         <option name="sensorType" value="LINEAR_ACCELERATION" />
@@ -26,107 +26,56 @@
     </sensorChannel>
   </sensorChannelList>
   <sensorList>
-    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="75591937">
+    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="6249885">
       <options>
         <option name="sensorDelay" value="0" />
       </options>
       <providerList>
-        <providerId id="254122970" />
+        <providerId id="117773190" />
       </providerList>
       <eventProviderList />
     </sensor>
   </sensorList>
   <transformerList>
-    <transformer class="hcm.ssj.body.OverallActivation" id="261097959" frameSize="0.1" delta="5.0" eventTrigger="false">
+    <transformer class="hcm.ssj.body.OverallActivation" id="10743267" frameSize="0.1" delta="5.0" eventTrigger="false">
       <options />
       <providerList>
-        <providerId id="254122970" />
+        <providerId id="117773190" />
       </providerList>
       <eventProviderList />
     </transformer>
-    <transformer class="hcm.ssj.signal.MvgAvgVar" id="218950400" delta="0.0" eventTrigger="false">
+    <transformer class="hcm.ssj.signal.MvgAvgVar" id="207953420" delta="0.0" eventTrigger="false">
       <options>
         <option name="format" value="AVERAGE" />
         <option name="method" value="MOVING" />
         <option name="window" value="10.0" />
       </options>
       <providerList>
-        <providerId id="261097959" />
+        <providerId id="10743267" />
       </providerList>
       <eventProviderList />
     </transformer>
   </transformerList>
   <consumerList>
-    <consumer class="hcm.ssj.event.ThresholdEventSender" id="11605040" delta="0.0" eventTrigger="false">
+    <consumer class="hcm.ssj.event.ThresholdClassEventSender" id="263135908" delta="0.0" eventTrigger="false">
       <options>
-        <option name="eager" value="false" />
-        <option name="eall" value="false" />
-        <option name="event" value="event" />
-        <option name="hangin" value="0" />
-        <option name="hangout" value="0" />
-        <option name="hard" value="true" />
-        <option name="loffset" value="0.0" />
-        <option name="maxdur" value="2.0" />
-        <option name="mindur" value="0.0" />
-        <option name="sender" value="ThresholdEventSender" />
-        <option name="skip" value="false" />
-        <option name="thresin" value="[0.0]" />
-        <option name="thresout" value="[3.0]" />
-        <option name="uoffset" value="0.0" />
+        <option name="classes" value="[low, medium, high]" />
+        <option name="maxDur" value="2.0" />
+        <option name="mean" value="true" />
+        <option name="minDiff" value="0.1" />
+        <option name="sender" value="ThresholdClassEventSender" />
+        <option name="thresholds" value="[0.0, 5.0, 15.0]" />
       </options>
       <providerList>
-        <providerId id="218950400" />
-      </providerList>
-      <eventProviderList />
-    </consumer>
-    <consumer class="hcm.ssj.event.ThresholdEventSender" id="67758432" delta="0.0" eventTrigger="false">
-      <options>
-        <option name="eager" value="false" />
-        <option name="eall" value="false" />
-        <option name="event" value="event" />
-        <option name="hangin" value="0" />
-        <option name="hangout" value="0" />
-        <option name="hard" value="true" />
-        <option name="loffset" value="0.0" />
-        <option name="maxdur" value="2.0" />
-        <option name="mindur" value="0.0" />
-        <option name="sender" value="ThresholdEventSender" />
-        <option name="skip" value="false" />
-        <option name="thresin" value="[3.0]" />
-        <option name="thresout" value="[12.0]" />
-        <option name="uoffset" value="0.0" />
-      </options>
-      <providerList>
-        <providerId id="218950400" />
-      </providerList>
-      <eventProviderList />
-    </consumer>
-    <consumer class="hcm.ssj.event.ThresholdEventSender" id="60451472" delta="0.0" eventTrigger="false">
-      <options>
-        <option name="eager" value="false" />
-        <option name="eall" value="false" />
-        <option name="event" value="event" />
-        <option name="hangin" value="0" />
-        <option name="hangout" value="0" />
-        <option name="hard" value="true" />
-        <option name="loffset" value="0.0" />
-        <option name="maxdur" value="2.0" />
-        <option name="mindur" value="0.0" />
-        <option name="sender" value="ThresholdEventSender" />
-        <option name="skip" value="false" />
-        <option name="thresin" value="[12.0]" />
-        <option name="thresout" value="[999.0]" />
-        <option name="uoffset" value="0.0" />
-      </options>
-      <providerList>
-        <providerId id="218950400" />
+        <providerId id="207953420" />
       </providerList>
       <eventProviderList />
     </consumer>
   </consumerList>
   <eventHandlerList>
-    <eventHandler class="hcm.ssj.feedback.AuditoryFeedback" id="201227077" delta="0.0" eventTrigger="false">
+    <eventHandler class="hcm.ssj.feedback.AuditoryFeedback" id="153979406" delta="0.0" eventTrigger="false">
       <options>
+        <option name="eventName" value="high" />
         <option name="lock" value="1000" />
         <option name="audioFile" value="demo/res/blop.mp3" />
         <option name="fromAssets" value="true" />
@@ -134,13 +83,13 @@
       </options>
       <providerList />
       <eventProviderList>
-        <eventProviderId id="11605040" />
-        <eventProviderId id="60451472" />
+        <eventProviderId id="263135908" />
       </eventProviderList>
     </eventHandler>
-    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="54414585" delta="0.0" eventTrigger="false">
+    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="86383043" delta="0.0" eventTrigger="false">
       <options>
-        <option name="lock" value="500" />
+        <option name="eventName" value="medium" />
+        <option name="lock" value="1000" />
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
         <option name="fade" value="0" />
@@ -152,23 +101,24 @@
       </options>
       <providerList />
       <eventProviderList>
-        <eventProviderId id="67758432" />
+        <eventProviderId id="263135908" />
       </eventProviderList>
     </eventHandler>
-    <eventHandler class="hcm.ssj.feedback.AndroidTactileFeedback" id="26066869" delta="0.0" eventTrigger="false">
+    <eventHandler class="hcm.ssj.feedback.AndroidTactileFeedback" id="60854892" delta="0.0" eventTrigger="false">
       <options>
+        <option name="eventName" value="low" />
         <option name="lock" value="1000" />
         <option name="vibrationPattern" value="[0, 500]" />
       </options>
       <providerList />
       <eventProviderList>
-        <eventProviderId id="60451472" />
-        <eventProviderId id="11605040" />
+        <eventProviderId id="263135908" />
       </eventProviderList>
     </eventHandler>
-    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="47146601" delta="0.0" eventTrigger="false">
+    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="225324777" delta="0.0" eventTrigger="false">
       <options>
-        <option name="lock" value="500" />
+        <option name="eventName" value="low" />
+        <option name="lock" value="1000" />
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
         <option name="fade" value="0" />
@@ -180,12 +130,13 @@
       </options>
       <providerList />
       <eventProviderList>
-        <eventProviderId id="11605040" />
+        <eventProviderId id="263135908" />
       </eventProviderList>
     </eventHandler>
-    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="92147421" delta="0.0" eventTrigger="false">
+    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="192803026" delta="0.0" eventTrigger="false">
       <options>
-        <option name="lock" value="500" />
+        <option name="eventName" value="high" />
+        <option name="lock" value="1000" />
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
         <option name="fade" value="0" />
@@ -197,7 +148,14 @@
       </options>
       <providerList />
       <eventProviderList>
-        <eventProviderId id="60451472" />
+        <eventProviderId id="263135908" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.test.EventLogger" id="105263264" delta="0.0" eventTrigger="false">
+      <options />
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="263135908" />
       </eventProviderList>
     </eventHandler>
   </eventHandlerList>

@@ -57,7 +57,6 @@ public class AndroidTactileFeedback extends Feedback
 	public final Options options = new Options();
 
 	private Vibrator vibrator = null;
-	private long[] vibrationPattern;
 
 	public AndroidTactileFeedback()
 	{
@@ -76,19 +75,21 @@ public class AndroidTactileFeedback extends Feedback
 		{
 			throw new RuntimeException("device can't vibrate");
 		}
-
-		lock = options.lock.get();
-		vibrationPattern = options.vibrationPattern.get();
 	}
 
 	@Override
 	public void notify(Event event)
 	{
-		// Execute only if lock has expired
-		if (checkLock())
+		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
 		{
-			Log.i("vibration on android: " + Arrays.toString(vibrationPattern));
-			vibrator.vibrate(vibrationPattern, -1);
+			return;
+		}
+
+		// Execute only if lock has expired
+		if (checkLock(options.lock.get()))
+		{
+			Log.i("vibration on android: " + Arrays.toString(options.vibrationPattern.get()));
+			vibrator.vibrate(options.vibrationPattern.get(), -1);
 		}
 	}
 
