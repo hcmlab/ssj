@@ -5,14 +5,13 @@
     <component X="1" Y="0" />
     <component X="5" Y="4" />
     <component X="9" Y="4" />
-    <component X="2" Y="16" />
     <component X="9" Y="9" />
-    <component X="16" Y="16" />
+    <component X="17" Y="9" />
     <component X="9" Y="17" />
-    <component X="9" Y="14" />
-    <component X="9" Y="20" />
-    <component X="2" Y="20" />
-    <component X="16" Y="20" />
+    <component X="1" Y="9" />
+    <component X="1" Y="13" />
+    <component X="17" Y="13" />
+    <component X="0" Y="20" />
   </pipeLayout>
   <annotation fileName="anno" filePath="/storage/emulated/0/SSJ/[time]" />
 </ssjCreator>
