@@ -78,6 +78,9 @@ public class FFMPEGWriter extends Consumer
 
 	private int width;
 	private int height;
+	private int bufferSize;
+	private byte[] frameBuffer;
+	private int frameInterval;
 	private long frameTime;
 	private long startTime;
 
@@ -99,6 +102,8 @@ public class FFMPEGWriter extends Consumer
 			Log.e("Stream type not supported");
 			return;
 		}
+
+		frameInterval = (int) (1.0 / stream_in[0].sr * 1000 + 0.5);
 
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
@@ -122,22 +127,29 @@ public class FFMPEGWriter extends Consumer
 			writer.setGopSize((int) stream_in[0].sr);
 		}
 
+		bufferSize = width * height;
+
 		// Initialize frame
 		switch (((ImageStream) stream_in[0]).format)
 		{
 			case ImageFormat.NV21:
 				imageFrame = new Frame(width, height, Frame.DEPTH_UBYTE, 2);
 				pixelFormat = avutil.AV_PIX_FMT_NONE; // AV_PIX_FMT_NV21
+				bufferSize *= 1.5;
 				break;
 			case ImageFormat.FLEX_RGB_888:
 				imageFrame = new Frame(width, height, Frame.DEPTH_UBYTE, 3);
 				pixelFormat = avutil.AV_PIX_FMT_RGB24;
+				bufferSize *= 3;
 				break;
 			case ImageFormat.FLEX_RGBA_8888:
 				imageFrame = new Frame(width, height, Frame.DEPTH_UBYTE, 4);
 				pixelFormat = avutil.AV_PIX_FMT_RGBA;
+				bufferSize *= 4;
 				break;
 		}
+
+		frameBuffer = new byte[bufferSize];
 
 		frameTime = 0;
 		startTime = 0;
@@ -155,22 +167,41 @@ public class FFMPEGWriter extends Consumer
 	@Override
 	protected void consume(Stream[] stream_in)
 	{
-		try
-		{
-			// Get bytes
-			byte[] in = stream_in[0].ptrB();
+		// Get bytes
+		byte[] in = stream_in[0].ptrB();
 
-			if (startTime == 0)
+		if (startTime == 0)
+		{
+			startTime = System.currentTimeMillis() - (stream_in[0].num - 1) * frameInterval;
+		}
+
+		frameTime = System.currentTimeMillis() - (stream_in[0].num - 1) * frameInterval;
+
+		// Loop through frames
+		for (int i = 0; i < stream_in[0].num; i++)
+		{
+			if (in.length > bufferSize)
 			{
-				startTime = System.currentTimeMillis();
+				System.arraycopy(in, i * bufferSize, frameBuffer, 0, bufferSize);
+			}
+			else
+			{
+				frameBuffer = in;
 			}
 
+			writeFrame(frameBuffer, frameTime + i * frameInterval);
+		}
+	}
+
+	private void writeFrame(byte[] frameData, long time)
+	{
+		try
+		{
 			// Update frame
-			((ByteBuffer) imageFrame.image[0].position(0)).put(in);
+			((ByteBuffer) imageFrame.image[0].position(0)).put(frameData);
 
 			// Update timestamp
-			frameTime = System.currentTimeMillis();
-			long t = 1000 * (frameTime - startTime);
+			long t = 1000 * (time - startTime);
 			if (t > writer.getTimestamp())
 			{
 				writer.setTimestamp(t);
