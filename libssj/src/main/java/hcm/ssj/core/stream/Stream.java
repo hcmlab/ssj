@@ -117,6 +117,21 @@ public abstract class Stream implements Serializable
         time = 0;
     }
 
+    protected Stream(int num, int dim, double sr)
+    {
+        this.dim = dim;
+        this.num = num;
+        this.num_frame = num;
+        this.sr = sr;
+        this.step = 1.0 / sr;
+
+        this.num_delta = 0;
+        this.time = 0;
+        this.tot = 0;
+        this.bytes = 0;
+        this.type = Cons.Type.UNDEF;
+    }
+
     public void setSource(Provider source)
     {
         this.source = source;

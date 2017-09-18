@@ -213,10 +213,14 @@ public class ClassifierT extends Transformer
             loadModel();
         } catch (IOException e) {
             Log.e("unable to load model file", e);
+            return;
         }
 
         if(_model == null || !_model.isTrained())
+        {
             Log.e("model not loaded");
+            return;
+        }
 
         if(stream_out.dim != _model.getNumClasses())
             Log.e("stream out does not match model: " + stream_out.dim + " != " + _model.getNumClasses());

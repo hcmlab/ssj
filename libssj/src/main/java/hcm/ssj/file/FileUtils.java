@@ -35,6 +35,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 
 /**
  * Allows to download files from a valid URL and saves them in a predetermined folder on
@@ -55,7 +56,7 @@ public class FileUtils
 
 		if (isURL)
 		{
-			FileDownloader.getInstance().addToQueue(fileName, filePath, FileCons.DOWNLOAD_DIR, true);
+			Pipeline.getInstance().download(fileName, filePath, FileCons.DOWNLOAD_DIR, true);
 			filePath = FileCons.DOWNLOAD_DIR;
 		}
 

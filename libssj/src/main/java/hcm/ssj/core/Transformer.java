@@ -80,7 +80,7 @@ public abstract class Transformer extends Provider {
         }
 
         //wait for framework
-        while (!_frame.isRunning()) {
+        while (!_terminate && !_frame.isRunning()) {
             try {
                 Thread.sleep(Cons.SLEEP_IN_LOOP);
             } catch (InterruptedException e) {

@@ -125,8 +125,6 @@ public class Pipeline
         int coreThreads = Runtime.getRuntime().availableProcessors();
         threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
-        downloader = FileDownloader.getInstance();
-
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
 
@@ -686,6 +684,13 @@ public class Pipeline
             for (TimeBuffer b : buffers)
                 b.close();
 
+            if(downloader != null)
+            {
+                Log.i("aborting downloads");
+                downloader.terminate();
+                downloader = null;
+            }
+
             Log.i("closing components");
             for (Component c : components)
             {
@@ -737,7 +742,13 @@ public class Pipeline
         }
 
         clear();
-        downloader.terminate();
+
+        if(downloader != null)
+        {
+            downloader.terminate();
+            downloader = null;
+        }
+
         instance = null;
     }
 
@@ -812,6 +823,54 @@ public class Pipeline
             return;
 
         buffers.get(bufferID).sync(getTime());
+    }
+
+    /**
+     * Downloads multiple files to the sd card
+     * @param fileNames array containing the names of the files to download
+     * @param from remote path from which to download files
+     * @param to path to download to
+     * @param wait if true, function blocks until download is finished
+     */
+    public void download(String[] fileNames, String from, String to, boolean wait)
+    {
+        if(downloader == null || downloader.isTerminating())
+            downloader = new FileDownloader();
+
+        FileDownloader.Task t = null;
+        for(String fileName : fileNames)
+        {
+            t = downloader.addToQueue(fileName, from, to);
+            if(t == null)
+                return;
+        }
+
+        if(!downloader.isAlive())
+            downloader.start();
+
+        if(wait) downloader.wait(t);
+    }
+
+    /**
+     * Downloads a file to the sd card
+     * @param fileName name of the file
+     * @param from remote path from which to download file
+     * @param to path to download to
+     * @param wait if true, function blocks until download is finished
+     */
+    public void download(String fileName, String from, String to, boolean wait)
+    {
+        if(downloader == null || downloader.isTerminating())
+            downloader = new FileDownloader();
+
+        FileDownloader.Task t = downloader.addToQueue(fileName, from, to);
+        if(t == null)
+            return;
+
+        if(!downloader.isAlive())
+            downloader.start();
+
+        if(wait) downloader.wait(t);
     }
 
     /**

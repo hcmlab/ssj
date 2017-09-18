@@ -38,12 +38,10 @@ public class ByteStream extends Stream
 
     public ByteStream(int num, int dim, double sr)
     {
-        this.num = num;
-        this.dim = dim;
+        super(num, dim, sr);
+
         this.bytes = 1;
         this.type = Cons.Type.BYTE;
-        this.sr = sr;
-        this.step = 1.0 / sr;
 
         tot = num * dim * bytes;
         _ptr = new byte[tot];

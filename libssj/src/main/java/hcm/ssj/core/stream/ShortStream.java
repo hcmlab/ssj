@@ -38,12 +38,10 @@ public class ShortStream extends Stream
 
     public ShortStream(int num, int dim, double sr)
     {
-        this.num = num;
-        this.dim = dim;
+        super(num, dim, sr);
+
         this.bytes = 2;
         this.type = Cons.Type.SHORT;
-        this.sr = sr;
-        this.step = 1.0 / sr;
 
         tot = num * dim * bytes;
         _ptr = new short[num * dim];

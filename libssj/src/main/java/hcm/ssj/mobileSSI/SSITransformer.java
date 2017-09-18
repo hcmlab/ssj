@@ -132,13 +132,15 @@ public class SSITransformer extends Transformer
     @Override
     public final void enter(Stream[] stream_in, Stream stream_out)
     {
-        SSI.transformEnter(ssi_object, stream_in[0], stream_out);
+        if(ssi_object > 0)
+            SSI.transformEnter(ssi_object, stream_in[0], stream_out);
     }
 
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        SSI.transform(ssi_object, stream_in[0], stream_out);
+        if(ssi_object > 0)
+            SSI.transform(ssi_object, stream_in[0], stream_out);
     }
 
     /**
@@ -147,24 +149,43 @@ public class SSITransformer extends Transformer
     @Override
     public final void flush(Stream stream_in[], Stream stream_out)
     {
-        SSI.transformFlush(ssi_object, stream_in[0], stream_out);
+        if(ssi_object > 0)
+            SSI.transformFlush(ssi_object, stream_in[0], stream_out);
     }
 
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
+        if(ssi_object == 0)
+        {
+            Log.e("ssi interface not initialized");
+            return 0;
+        }
+
         return SSI.getSampleDimensionOut(ssi_object, stream_in[0].dim);
     }
 
     @Override
     public int getSampleBytes(Stream[] stream_in)
     {
+        if(ssi_object == 0)
+        {
+            Log.e("ssi interface not initialized");
+            return 0;
+        }
+
         return SSI.getSampleBytesOut(ssi_object, stream_in[0].bytes);
     }
 
     @Override
     public Cons.Type getSampleType(Stream[] stream_in)
     {
+        if(ssi_object == 0)
+        {
+            Log.e("ssi interface not initialized");
+            return null;
+        }
+
         int type = SSI.getSampleTypeOut(ssi_object, stream_in[0].type);
 
         switch(type)

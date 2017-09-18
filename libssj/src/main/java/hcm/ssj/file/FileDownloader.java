@@ -51,21 +51,7 @@ public class FileDownloader extends Thread
 	private boolean terminate = false;
 	private LinkedList<Task> queue = new LinkedList<>();
 
-	private static FileDownloader instance = null;
-
-	public static FileDownloader getInstance()
-	{
-		if(instance == null)
-		{
-			FileDownloader dld = new FileDownloader();
-			dld.start();
-			return dld;
-		}
-		else
-			return instance;
-	}
-
-	private class Task
+	public class Task
 	{
 		String filename;
 		String from;
@@ -106,28 +92,37 @@ public class FileDownloader extends Thread
 			}
 			else
 			{
-				try { Thread.sleep(1000); }
+				//wait to see if something new comes
+				try { Thread.sleep(3000); }
 				catch (InterruptedException e){}
+
+				//if not, terminate
+				if(queue.isEmpty())
+					terminate();
 			}
 		}
 	}
 
-	public boolean addToQueue(String fileName, String from, String to, boolean wait)
+	public Task addToQueue(String fileName, String from, String to)
 	{
+		if(isTerminating())
+			return null;
+
 		Task t = new Task(fileName, from, to);
 		queue.addLast(t);
+		return t;
+	}
 
-		if(wait)
+	public boolean wait(Task t)
+	{
+		try
 		{
-			try
+			synchronized (t.token)
 			{
-				synchronized (t.token)
-				{
-					t.token.wait();
-				}
+				t.token.wait();
 			}
-			catch (InterruptedException e) {}
 		}
+		catch (InterruptedException e) {}
 
 		return t.result;
 	}
@@ -167,6 +162,7 @@ public class FileDownloader extends Thread
 				if (terminate)
 				{
 					Log.i("Download interrupted.");
+					downloadedFile.delete();
 					return false;
 				}
 
@@ -196,6 +192,10 @@ public class FileDownloader extends Thread
 	public void terminate()
 	{
 		terminate = true;
-		instance = null; //release
+	}
+
+	public boolean isTerminating()
+	{
+		return terminate;
 	}
 }

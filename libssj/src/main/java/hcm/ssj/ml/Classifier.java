@@ -90,7 +90,6 @@ public class Classifier extends Consumer
     private int dim = 0;
     private float sr = 0;
 
-
     public Classifier()
     {
         _name = this.getClass().getSimpleName();
@@ -197,6 +196,7 @@ public class Classifier extends Consumer
         catch (XmlPullParserException | IOException e)
         {
             Log.e("unable to load model", e);
+            return;
         }
 
         if (stream_in.length > 1 && !options.merge.get())
@@ -210,7 +210,10 @@ public class Classifier extends Consumer
         }
 
         if(_model == null || !_model.isTrained())
+        {
             Log.e("model not loaded");
+            return;
+        }
 
         Stream[] input = stream_in;
         if(input[0].bytes != bytes || input[0].type != type) {

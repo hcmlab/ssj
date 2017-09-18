@@ -38,12 +38,10 @@ public class DoubleStream extends Stream
 
     public DoubleStream(int num, int dim, double sr)
     {
-        this.num = num;
-        this.dim = dim;
+        super(num, dim, sr);
+
         this.bytes = 8;
         this.type = Cons.Type.DOUBLE;
-        this.sr = sr;
-        this.step = 1.0 / sr;
 
         tot = num * dim * bytes;
         _ptr = new double[num * dim];

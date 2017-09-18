@@ -38,12 +38,10 @@ public class BoolStream extends Stream
 
     public BoolStream(int num, int dim, double sr)
     {
-        this.num = num;
-        this.dim = dim;
+        super(num, dim, sr);
+
         this.bytes = 1;
         this.type = Cons.Type.BOOL;
-        this.sr = sr;
-        this.step = 1.0 / sr;
 
         tot = num * dim * bytes;
         _ptr = new boolean[num * dim];

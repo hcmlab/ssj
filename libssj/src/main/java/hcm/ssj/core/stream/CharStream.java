@@ -38,12 +38,10 @@ public class CharStream extends Stream
 
     public CharStream(int num, int dim, double sr)
     {
-        this.num = num;
-        this.dim = dim;
+        super(num, dim, sr);
+
         this.bytes = 2;
         this.type = Cons.Type.CHAR;
-        this.sr = sr;
-        this.step = 1.0 / sr;
 
         tot = num * dim * bytes;
         _ptr = new char[num * dim];
