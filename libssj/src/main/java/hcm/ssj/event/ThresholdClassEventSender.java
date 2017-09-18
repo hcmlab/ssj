@@ -46,12 +46,12 @@ public class ThresholdClassEventSender extends Consumer
 {
 	public class Options extends OptionList
 	{
-		public final Option<String> sender = new Option<>("sender", null, String.class, "");
-		public final Option<String[]> classes = new Option<>("classes", new String[]{"low", "medium", "high"}, String[].class, "");
-		public final Option<float[]> thresholds = new Option<>("thresholds", new float[]{1f, 2f, 3f}, float[].class, "");
+		public final Option<String> sender = new Option<>("sender", null, String.class, "name of event sender");
+		public final Option<String[]> classes = new Option<>("classes", new String[]{"low", "medium", "high"}, String[].class, "classes for threshold values (eventnames)");
+		public final Option<float[]> thresholds = new Option<>("thresholds", new float[]{0f, 1f, 2f}, float[].class, "thresholds for input");
 		public final Option<Float> minDiff = new Option<>("minDiff", 0.1f, Float.class, "minimum difference to previous value");
 		public final Option<Boolean> mean = new Option<>("mean", false, Boolean.class, "classify based on mean value of entire frame");
-		public final Option<Double> maxDur = new Option<>("maxDur", 2., Double.class, "");
+		public final Option<Double> maxDur = new Option<>("maxDur", 2., Double.class, "maximum delay before continued events will be sent");
 
 
 		private Options()
@@ -80,9 +80,9 @@ public class ThresholdClassEventSender extends Consumer
 	@Override
 	public void enter(Stream[] stream_in)
 	{
-		if (stream_in[0].dim > 1)
+		if (stream_in[0].dim != 1)
 		{
-			throw new RuntimeException("Dimension > 1 unsupported");
+			throw new RuntimeException("Dimension != 1 unsupported");
 		}
 
 		String[] classes = options.classes.get();
@@ -90,7 +90,7 @@ public class ThresholdClassEventSender extends Consumer
 
 		if (classes == null || thresholds == null)
 		{
-			throw new RuntimeException(""); // TODO: msg
+			throw new RuntimeException("classes and thresholds not correctly set");
 		}
 
 		if (classes.length != thresholds.length)
@@ -182,27 +182,30 @@ public class ThresholdClassEventSender extends Consumer
 	{
 		SimpleEntry<Float, String> newClass = classify(value);
 		samplesMaxDur -= numberOfSamples;
-		if(newClass != null)
+		if (newClass == null)
 		{
-			if (isEqualLastClass(newClass))
+			return;
+		}
+		if (isEqualLastClass(newClass))
+		{
+			if (samplesMaxDur <= 0)
 			{
-				if(samplesMaxDur <= 0)
-				{
-					lastValue = value;
-					sendEvent(newClass, lastTriggerTime, time - lastTriggerTime, Event.State.CONTINUED);
-					samplesMaxDur = (int) (options.maxDur.get() * sampleRate);
-				}
-			}
-			else if (valueDiffersEnoughFromLast(value))
-			{
-				if(lastClass != null)
-					sendEvent(lastClass, lastTriggerTime, time - lastTriggerTime, Event.State.COMPLETED);
-				sendEvent(newClass, time, 0, Event.State.CONTINUED);
-				lastTriggerTime = time;
-				lastValue = value;
-				lastClass = newClass;
+				lastValue = value; //TODO: check if valid
+				sendEvent(newClass, lastTriggerTime, time - lastTriggerTime, Event.State.CONTINUED);
 				samplesMaxDur = (int) (options.maxDur.get() * sampleRate);
 			}
+		}
+		else if (valueDiffersEnoughFromLast(value))
+		{
+			if (lastClass != null)
+			{
+				sendEvent(lastClass, lastTriggerTime, time - lastTriggerTime, Event.State.COMPLETED);
+			}
+			sendEvent(newClass, time, 0, Event.State.CONTINUED);
+			lastTriggerTime = time;
+			lastValue = value;
+			lastClass = newClass;
+			samplesMaxDur = (int) (options.maxDur.get() * sampleRate);
 		}
 	}
 
