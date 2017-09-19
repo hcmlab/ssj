@@ -45,11 +45,14 @@ import android.view.ViewParent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
@@ -57,6 +60,8 @@ import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.creator.util.Util;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackContainer;
 
 /**
  * Draws a pipe<br>
@@ -443,6 +448,10 @@ public class PipeView extends ViewGroup
 	 */
 	private int checkEventConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
 	{
+		if(destination.getElement() instanceof Feedback && isManagedFeedback(destination.getElement()))
+		{
+			return connections;
+		}
 		if (hashes != null)
 		{
 			for (int hash : hashes)
@@ -465,6 +474,16 @@ public class PipeView extends ViewGroup
 							connectionView.invalidate();
 						}
 						connections++;
+
+						if(isManagedFeedback(componentView.getElement()))
+						{
+							connectionView.setVisibility(GONE);
+						}
+						else
+						{
+							setVisibility(VISIBLE);
+						}
+
 						break;
 					}
 				}
@@ -481,6 +500,22 @@ public class PipeView extends ViewGroup
 	{
 		for (ComponentView view : views)
 		{
+			// Prevent managed feedback to be drawn
+			if(view.getElement() instanceof Feedback)
+			{
+				if(isManagedFeedback(view.getElement()))
+				{
+					view.setVisibility(GONE);
+					//gridLayout.setGridValue(view.getGridX(), view.getGridY(), false);
+/*					view.setGridX(-1);
+					view.setGridY(-1);*/
+					continue;
+				}
+				else {
+					view.setVisibility(VISIBLE);
+				}
+			}
+
 			if (view.isPositioned())
 			{
 				placeElementView(view);
@@ -522,6 +557,21 @@ public class PipeView extends ViewGroup
 				}
 			}
 		}
+	}
+
+	private boolean isManagedFeedback(Object element) {
+		if(!(element instanceof Feedback))
+			return false;
+		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
+		for(Component component : components)
+		{
+			for(Map<Feedback, FeedbackContainer.Valence> feedbackList : ((FeedbackContainer)component).getFeedbackList())
+			{
+				if(feedbackList.containsKey(element))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -610,7 +660,11 @@ public class PipeView extends ViewGroup
 			int colY = componentView.getGridY();
 			if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
 			{
-				if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
+				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackContainer)
+				{
+					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, new Random().nextInt(7), FeedbackContainer.Valence.UNKNOWN);
+				}
+				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
 				{
 					if (standard)
 					{

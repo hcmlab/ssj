@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -59,6 +59,7 @@ import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.PipelineBuilder;

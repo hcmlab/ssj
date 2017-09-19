@@ -28,13 +28,16 @@
 package hcm.ssj.creator.view;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -47,14 +50,16 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
-import hcm.ssj.creator.OptionsActivity;
+import hcm.ssj.creator.activity.FeedbackContainerActivity;
+import hcm.ssj.creator.activity.OptionsActivity;
 import hcm.ssj.creator.R;
+import hcm.ssj.feedback.FeedbackContainer;
 
 /**
  * Draws elements.<br>
  * Created by Frank Gaibler on 12.05.2016.
  */
-class ComponentView extends View
+public class ComponentView extends View
 {
     private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler};
     private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
@@ -88,27 +93,40 @@ class ComponentView extends View
      * @param context Context
      * @param element Object
      */
-    protected ComponentView(Context context, Object element)
+    public ComponentView(Context context, final Object element)
     {
         super(context);
         this.element = element;
         initPaint();
         initName();
         //add click listener
-        OnClickListener onClickListener = new OnClickListener()
+        if(this.element instanceof FeedbackContainer)
         {
-            /**
-             * @param v View
-             */
-            @Override
-            public void onClick(View v)
+            OnClickListener onClickListener = new OnClickListener()
             {
-                Activity activity = (Activity) getContext();
-                OptionsActivity.object = ComponentView.this.element;
-                activity.startActivity(new Intent(activity, OptionsActivity.class));
-            }
-        };
-        this.setOnClickListener(onClickListener);
+                @Override
+                public void onClick(View v)
+                {
+                    openFeedbackContainerDialog(element);
+                }
+            };
+            this.setOnClickListener(onClickListener);
+        }
+        else
+        {
+            OnClickListener onClickListener = new OnClickListener()
+            {
+                /**
+                 * @param v View
+                 */
+                @Override
+                public void onClick(View v)
+                {
+                    openOptions();
+                }
+            };
+            this.setOnClickListener(onClickListener);
+        }
         //add touch listener
         OnLongClickListener onTouchListener = new OnLongClickListener()
         {
@@ -281,7 +299,7 @@ class ComponentView extends View
     /**
      * Take all upper case letters and fill remaining with trailing lower case letters
      */
-    private void initName()
+    protected void initName()
     {
         String componentName = ((Component) element).getComponentName();
         componentName = componentName.substring(componentName.lastIndexOf("_") + 1);
@@ -326,5 +344,45 @@ class ComponentView extends View
         paintElementText[paintType].setTextSize(textSize);
         canvas.drawText(text, textSize * (5.f / 4.f), textSize * (8.f / 5.f), paintElementText[paintType]);
         canvas.restore();
+    }
+
+    private void openOptions()
+    {
+        Activity activity = (Activity) getContext();
+        OptionsActivity.object = this.element;
+        activity.startActivity(new Intent(activity, OptionsActivity.class));
+    }
+
+    private void openFeedbackContainerDialog(final Object element)
+    {
+        Activity activity = (Activity) getContext();
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            builder = new AlertDialog.Builder(activity, android.R.style.Theme_Material_Dialog_Alert);
+        }
+        else
+        {
+            builder = new AlertDialog.Builder(activity);
+        }
+        builder.setTitle("What do you want to do?")
+                .setPositiveButton("Options", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        openOptions();
+                    }
+                })
+                .setNeutralButton(android.R.string.cancel, null)
+                .setNegativeButton("Feedback", new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        Activity activity = (Activity) getContext();
+                        FeedbackContainerActivity.feedbackContainer = (FeedbackContainer) element;
+                        activity.startActivity(new Intent(activity, FeedbackContainerActivity.class));
+                    }
+                })
+                .show();
     }
 }

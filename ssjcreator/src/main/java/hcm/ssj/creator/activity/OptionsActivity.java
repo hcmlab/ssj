@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -53,6 +53,7 @@ import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;

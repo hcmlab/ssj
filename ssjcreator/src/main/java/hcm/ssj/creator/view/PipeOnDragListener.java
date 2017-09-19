@@ -27,7 +27,12 @@
 
 package hcm.ssj.creator.view;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Rect;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.DragEvent;
@@ -36,8 +41,16 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import java.util.Map;
+
+import hcm.ssj.core.SSJApplication;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.activity.FeedbackContainerActivity;
+import hcm.ssj.creator.activity.MainActivity;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackContainer;
 
 /**
  * On drag listener for pipe <br>
@@ -131,6 +144,10 @@ class PipeOnDragListener implements View.OnDragListener
         {
             pipeView.getGrid().setGridValue(componentView.getGridX(), componentView.getGridY(), false);
             PipelineBuilder.getInstance().remove(componentView.getElement());
+            if(componentView.getElement() instanceof FeedbackContainer)
+            {
+                openFeedbackContainerDeleteDialog((FeedbackContainer)componentView.getElement());
+            }
             result = Result.DELETED;
         } //reposition
         else
@@ -160,6 +177,35 @@ class PipeOnDragListener implements View.OnDragListener
             pipeView.addView(componentView);
         }
         return result;
+    }
+
+    private void openFeedbackContainerDeleteDialog(final FeedbackContainer feedbackContainer) {
+        AlertDialog.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        {
+            builder = new AlertDialog.Builder(SSJApplication.getAppContext(), android.R.style.Theme_Material_Dialog_Alert);
+        }
+        else
+        {
+            builder = new AlertDialog.Builder(SSJApplication.getAppContext());
+        }
+        builder.setTitle("Do you want to keep inner components?")
+                .setPositiveButton(android.R.string.yes, null)
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        for(Map<Feedback, FeedbackContainer.Valence> levelMap : feedbackContainer.getFeedbackList())
+                        {
+                            for(Feedback feedback : levelMap.keySet())
+                            {
+                                PipelineBuilder.getInstance().remove(feedback);
+                            }
+                        }
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     /**
