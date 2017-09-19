@@ -167,7 +167,7 @@ public class VisualFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
+		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty() || !isActive())
 			return;
 
 		// Execute only if lock has expired
@@ -200,10 +200,13 @@ public class VisualFeedback extends Feedback
 			return;
 		}
 
-		Log.i("clearing icons");
-		clearIcons();
-		updateBrightness(defaultBrightness);
-		timeout = 0;
+		if(isActive())
+		{
+			Log.i("clearing icons");
+			clearIcons();
+			updateBrightness(defaultBrightness);
+			timeout = 0;
+		}
 	}
 
 	@Override

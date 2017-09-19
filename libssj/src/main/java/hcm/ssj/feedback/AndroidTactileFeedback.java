@@ -80,7 +80,7 @@ public class AndroidTactileFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
+		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty() || !isActive())
 		{
 			return;
 		}
