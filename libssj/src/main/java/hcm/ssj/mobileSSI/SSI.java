@@ -27,13 +27,8 @@
 
 package hcm.ssj.mobileSSI;
 
-import java.io.IOException;
-
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.FileCons;
-import hcm.ssj.file.FileUtils;
 
 import static java.lang.System.loadLibrary;
 
@@ -52,8 +47,6 @@ public class SSI
 		AudioLpc("ssiaudio"),
 		AudioMono("ssiaudio"),
 		SNRatio("ssiaudio"),
-
-		ClassifierT("ssimodel"),
 
 		Bundle("ssisignal"),
 		Butfilt("ssisignal"),
@@ -91,26 +84,6 @@ public class SSI
 		{
 			this.lib = lib;
 		}
-	}
-
-	/**
-	 * Copy library so it can be found and loaded by SSI
-	 * @param name name of the library
-	 * @param path path to the library
-	 * @throws IOException
-	 */
-	public static void prepareLibrary(String name, String path) throws IOException
-	{
-		if(!name.startsWith("lib")) name = "lib" + name;
-		if(!name.endsWith(".so")) name += ".so";
-
-		if(path == null || path.length() == 0 || path.startsWith("http://") || path.startsWith("https://"))
-		{
-			Pipeline.getInstance().download(name, FileCons.REMOTE_LIB_PATH, FileCons.INTERNAL_LIB_DIR, true); //download from trusted server
-		}
-		else
-			FileUtils.copyFile(name, path, FileCons.INTERNAL_LIB_DIR); //copy from sdcard
-
 	}
 
 	static

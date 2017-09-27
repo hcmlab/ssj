@@ -35,8 +35,8 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.file.FileCons;
-import hcm.ssj.file.FileDownloader;
 
 import static org.junit.Assert.assertTrue;
 
@@ -61,9 +61,8 @@ public class FileDownloadTest
 	public void downloadTrainerFile()
 	{
 		File file = null;
-		boolean result = FileDownloader.getInstance().addToQueue(trainer, assetsURL, FileCons.DOWNLOAD_DIR, true);
-		if(result)
-			file = new File(FileCons.DOWNLOAD_DIR, trainer);
+		Pipeline.getInstance().download(trainer, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		file = new File(FileCons.DOWNLOAD_DIR, trainer);
 
 		assertTrue(file.exists());
 	}
@@ -73,9 +72,8 @@ public class FileDownloadTest
 	public void downloadModelFile()
 	{
 		File file = null;
-		boolean result = FileDownloader.getInstance().addToQueue(model, assetsURL, FileCons.DOWNLOAD_DIR, true);
-		if(result)
-			file = new File(FileCons.DOWNLOAD_DIR, model);
+		Pipeline.getInstance().download(model, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		file = new File(FileCons.DOWNLOAD_DIR, model);
 
 		assertTrue(file.exists());
 	}
@@ -85,9 +83,8 @@ public class FileDownloadTest
 	public void downloadOptionFile()
 	{
 		File file = null;
-		boolean result = FileDownloader.getInstance().addToQueue(option, assetsURL, FileCons.DOWNLOAD_DIR, true);
-		if(result)
-			file = new File(FileCons.DOWNLOAD_DIR, option);
+		Pipeline.getInstance().download(option, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		file = new File(FileCons.DOWNLOAD_DIR, option);
 
 		assertTrue(file.exists());
 	}

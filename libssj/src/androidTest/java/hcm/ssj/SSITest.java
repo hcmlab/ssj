@@ -63,9 +63,8 @@ public class SSITest
         frame.addSensor(sensor, channel);
 
         SSITransformer transf = new SSITransformer();
-        transf.options.name.set(SSI.ObjectName.Functionals);
-//        transf.options.libdir.set("/sdcard/SSJ/ssilibs/");
-        transf.options.ssioptions.set(new String[]{"names->mean,energy"});
+        transf.options.name.set(SSI.ObjectName.Butfilt);
+        transf.options.ssioptions.set(new String[]{"low->0.01"});
         frame.addTransformer(transf, channel, 1);
 
         //logger
@@ -75,7 +74,7 @@ public class SSITest
         //start framework
         frame.start();
         //run test
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)
