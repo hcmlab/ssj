@@ -193,6 +193,6 @@ public class SSITransformer extends Transformer
         stream_out.desc = new String[stream_out.dim];
 
         for(int i = 0; i < stream_out.dim; i++)
-            stream_out.desc[0] ="SSI_" + options.name.get() + "_" + i;
+            stream_out.desc[i] = "SSI_" + options.name.get() + "_" + i;
     }
 }
