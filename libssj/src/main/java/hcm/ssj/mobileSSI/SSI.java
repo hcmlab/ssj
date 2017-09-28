@@ -44,7 +44,7 @@ public class SSI
 		AudioActivity("ssiaudio"),
 		AudioConvert("ssiaudio"),
 		AudioIntensity("ssiaudio"),
-		AudioLpc("ssiaudio"),
+		OSLpc("ssiaudio"),
 		AudioMono("ssiaudio"),
 		SNRatio("ssiaudio"),
 
