@@ -59,47 +59,48 @@ public class Logger extends Consumer
     public void enter(Stream[] stream_in) {
     }
 
-    protected void consume(Stream[] stream_in) {
-
-        int num = (options.reduceNum.get()) ? 1 : stream_in[0].num;
-
+    protected void consume(Stream[] stream_in)
+    {
         String msg;
-        for(int i = 0; i < num; ++i)
+        for (int k = 0; k < stream_in.length; ++k)
         {
-            msg = "";
-            for (int j = 0; j < stream_in[0].dim; ++j)
+            int num = (options.reduceNum.get()) ? 1 : stream_in[k].num;
+            for (int i = 0; i < num; ++i)
             {
-                switch(stream_in[0].type)
+                msg = "";
+                for (int j = 0; j < stream_in[k].dim; ++j)
                 {
-                    case BYTE:
-                        msg += stream_in[0].ptrB()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case CHAR:
-                        msg += stream_in[0].ptrC()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case SHORT:
-                        msg += stream_in[0].ptrS()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case INT:
-                        msg += stream_in[0].ptrI()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case LONG:
-                        msg += stream_in[0].ptrL()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case FLOAT:
-                        msg += stream_in[0].ptrF()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case DOUBLE:
-                        msg += stream_in[0].ptrD()[i * stream_in[0].dim + j] + " ";
-                        break;
-                    case BOOL:
-                        msg += stream_in[0].ptrBool()[i * stream_in[0].dim + j] + " ";
-                        break;
+                    switch (stream_in[k].type)
+                    {
+                        case BYTE:
+                            msg += stream_in[k].ptrB()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case CHAR:
+                            msg += stream_in[k].ptrC()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case SHORT:
+                            msg += stream_in[k].ptrS()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case INT:
+                            msg += stream_in[k].ptrI()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case LONG:
+                            msg += stream_in[k].ptrL()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case FLOAT:
+                            msg += stream_in[k].ptrF()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case DOUBLE:
+                            msg += stream_in[k].ptrD()[i * stream_in[k].dim + j] + " ";
+                            break;
+                        case BOOL:
+                            msg += stream_in[k].ptrBool()[i * stream_in[k].dim + j] + " ";
+                            break;
+                    }
                 }
+                Log.i(msg);
             }
-            Log.i(msg);
         }
-
     }
 
     public void flush(Stream[] stream_in) {
