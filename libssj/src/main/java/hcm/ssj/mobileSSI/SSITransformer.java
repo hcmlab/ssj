@@ -105,24 +105,24 @@ public class SSITransformer extends Transformer
     public final void enter(Stream[] stream_in, Stream stream_out)
     {
         if(ssi_object != 0)
-            SSI.transformEnter(ssi_object, stream_in[0], stream_out);
+            SSI.transformEnter(ssi_object, stream_in, stream_out);
     }
 
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
         if(ssi_object != 0)
-            SSI.transform(ssi_object, stream_in[0], stream_out);
+            SSI.transform(ssi_object, stream_in, stream_out);
     }
 
     /**
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[], Stream stream_out)
+    public final void flush(Stream[] stream_in, Stream stream_out)
     {
         if(ssi_object != 0)
-            SSI.transformFlush(ssi_object, stream_in[0], stream_out);
+            SSI.transformFlush(ssi_object, stream_in, stream_out);
     }
 
     @Override

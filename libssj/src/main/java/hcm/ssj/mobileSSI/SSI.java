@@ -47,9 +47,9 @@ public class SSI
 
 	public static native boolean setOption(long ssiobj, String name, String value);
 
-	public static native void transformEnter(long ssiobj, Stream stream_in, Stream stream_out);
-	public static native void transform(long ssiobj, Stream stream_in, Stream stream_out);
-	public static native void transformFlush(long ssiobj, Stream stream_in, Stream stream_out);
+	public static native void transformEnter(long ssiobj, Stream[] stream_in, Stream stream_out);
+	public static native void transform(long ssiobj, Stream[] stream_in, Stream stream_out);
+	public static native void transformFlush(long ssiobj, Stream[] stream_in, Stream stream_out);
 
 	public static native int getSampleNumberOut(long ssiobj, int sample_number_in);
 	public static native int getSampleDimensionOut(long ssiobj, int sample_dimension_in);
