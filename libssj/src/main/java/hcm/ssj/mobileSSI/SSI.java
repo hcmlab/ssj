@@ -38,7 +38,27 @@ import static java.lang.System.loadLibrary;
  */
 public class SSI
 {
-	public enum ObjectName
+	static
+	{
+		loadLibrary("ssissjbridge");
+	}
+
+	public static native long create(String name, String libname, String libpath);
+
+	public static native boolean setOption(long ssiobj, String name, String value);
+
+	public static native void transformEnter(long ssiobj, Stream stream_in, Stream stream_out);
+	public static native void transform(long ssiobj, Stream stream_in, Stream stream_out);
+	public static native void transformFlush(long ssiobj, Stream stream_in, Stream stream_out);
+
+	public static native int getSampleNumberOut(long ssiobj, int sample_number_in);
+	public static native int getSampleDimensionOut(long ssiobj, int sample_dimension_in);
+	public static native int getSampleBytesOut(long ssiobj, int sample_bytes_in);
+	public static native int getSampleTypeOut(long ssiobj, Cons.Type sample_type_in);
+
+	public static native long clear();
+
+	public enum TransformerName
 	{
 		//TRANSFORMERS
 		AudioActivity("ssiaudio"),
@@ -47,6 +67,8 @@ public class SSI
 		OSLpc("ssiaudio"),
 		AudioMono("ssiaudio"),
 		SNRatio("ssiaudio"),
+
+		ClassifierT("ssimodel"),
 
 		Bundle("ssisignal"),
 		Butfilt("ssisignal"),
@@ -80,29 +102,9 @@ public class SSI
 		Sum("ssisignal");
 
 		public String lib;
-		ObjectName(String lib)
+		TransformerName(String lib)
 		{
 			this.lib = lib;
 		}
 	}
-
-	static
-	{
-		loadLibrary("ssissjbridge");
-	}
-
-	public static native long create(String name, String libname, String libpath);
-
-	public static native boolean setOption(long ssiobj, String name, String value);
-
-	public static native void transformEnter(long ssiobj, Stream stream_in, Stream stream_out);
-	public static native void transform(long ssiobj, Stream stream_in, Stream stream_out);
-	public static native void transformFlush(long ssiobj, Stream stream_in, Stream stream_out);
-
-	public static native int getSampleNumberOut(long ssiobj, int sample_number_in);
-	public static native int getSampleDimensionOut(long ssiobj, int sample_dimension_in);
-	public static native int getSampleBytesOut(long ssiobj, int sample_bytes_in);
-	public static native int getSampleTypeOut(long ssiobj, Cons.Type sample_type_in);
-
-	public static native long clear();
 }

@@ -47,7 +47,7 @@ public class SSITransformer extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<SSI.ObjectName> name = new Option<>("name", SSI.ObjectName.Mean, SSI.ObjectName.class, "name of the SSI transformer");
+        public final Option<SSI.TransformerName> name = new Option<>("name", SSI.TransformerName.Mean, SSI.TransformerName.class, "name of the SSI transformer");
         public final Option<String[]> ssioptions = new Option<>("ssioptions", null, String[].class, "options of the SSI transformer. Format: [name->value, name->value, ...]");
 
         /**
@@ -73,7 +73,10 @@ public class SSITransformer extends Transformer
     {
         ssi_object = SSI.create(options.name.get().toString(), options.name.get().lib, FileCons.INTERNAL_LIB_DIR);
         if(ssi_object == 0)
+        {
             Log.e("error creating SSI transformer");
+            return;
+        }
 
         //set options
         if(options.ssioptions.get() != null)
