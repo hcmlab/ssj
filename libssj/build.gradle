@@ -74,6 +74,19 @@ android {
 
         printf("\n--------" + "VERSION DATA--------" + "\n" + "- CODE: " + versionCode + "\n" +
                 "- NAME: " + versionName + "\n----------------------------\n")
+
+//        externalNativeBuild {
+//            cmake {
+//                arguments  "-DANDROID_TOOLCHAIN=gcc"
+//                cppFlags "-std=c++11 -frtti -fexceptions"
+//            }
+//        }
+//
+//        ndk {
+//            // Specifies the ABI configurations of your native
+//            // libraries Gradle should build and package with your APK.
+//            abiFilters  'armeabi-v7a', 'x86'
+//        }
     }
 
     buildTypes {
@@ -81,6 +94,12 @@ android {
             minifyEnabled false
         }
     }
+
+//    externalNativeBuild {
+//        cmake {
+//            path "D:\\Workspaces\\SSI\\mobileSSI\\mobileSSI-android-studio\\app\\mobileSSI\\CMakeLists.txt"
+//        }
+//    }
 
     sourceSets {
         main {

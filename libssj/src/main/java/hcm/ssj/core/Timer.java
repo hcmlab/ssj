@@ -136,12 +136,12 @@ public class Timer {
 
     public void tick_start()
     {
-        _tick_start = SystemClock.elapsedRealtime();
+        _tick_start = System.nanoTime();
     }
 
     public void tick_end()
     {
-        _history.add(SystemClock.elapsedRealtime() - _tick_start);
+        _history.add(System.nanoTime() - _tick_start);
         if(_history.size() > HISTORY_SIZE)
             _history.remove(0);
     }
@@ -178,7 +178,7 @@ public class Timer {
         }
 
         double avg = (double)sum / (double)_history.size();
-        return avg / 1000.0;
+        return avg / 1000000.0;
     }
 
     public long getElapsedMs()

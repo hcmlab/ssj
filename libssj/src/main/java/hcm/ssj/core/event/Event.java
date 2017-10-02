@@ -27,13 +27,15 @@
 
 package hcm.ssj.core.event;
 
+import java.io.Serializable;
+
 import hcm.ssj.core.Cons;
 
 /**
  * Created by Johnny on 19.03.2015.
  */
-public abstract class Event {
-
+public abstract class Event implements Serializable
+{
     public enum State
     {
         COMPLETED,

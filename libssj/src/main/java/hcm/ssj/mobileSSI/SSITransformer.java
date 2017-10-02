@@ -27,14 +27,8 @@
 
 package hcm.ssj.mobileSSI;
 
-import android.content.pm.ApplicationInfo;
-
-import java.io.File;
-import java.io.IOException;
-
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.SSJException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
@@ -53,9 +47,7 @@ public class SSITransformer extends Transformer
      */
     public class Options extends OptionList
     {
-        public final Option<SSI.ObjectName> name = new Option<>("name", SSI.ObjectName.Mean, SSI.ObjectName.class, "name of the SSI transformer");
-        public final Option<String> libdir = new Option<>("libdir", "", String.class, "location of SSI libraries (leave blank to download from remote server)");
-
+        public final Option<SSI.TransformerName> name = new Option<>("name", SSI.TransformerName.Mean, SSI.TransformerName.class, "name of the SSI transformer");
         public final Option<String[]> ssioptions = new Option<>("ssioptions", null, String[].class, "options of the SSI transformer. Format: [name->value, name->value, ...]");
 
         /**
@@ -79,32 +71,12 @@ public class SSITransformer extends Transformer
     @Override
     public void init(double frame, double delta) throws SSJException
     {
-        String path;
-        ApplicationInfo info = SSJApplication.getAppContext().getApplicationInfo();
-
-        if(options.libdir.get() != null &&
-            (options.libdir.get().startsWith(info.nativeLibraryDir)|| options.libdir.get().startsWith(info.dataDir)))
-        {
-            //file is already in internal memory
-            path = options.libdir.get();
-        }
-        else
-        {
-            //copy file to internal memory
-            try
-            {
-                SSI.prepareLibrary(options.name.get().lib, options.libdir.get());
-                path = FileCons.INTERNAL_LIB_DIR;
-            }
-            catch (IOException e)
-            {
-                throw new SSJException("error preparing library " + options.name.get().lib, e);
-            }
-        }
-
-        ssi_object = SSI.create(options.name.get().toString(), options.name.get().lib, path + File.separator);
+        ssi_object = SSI.create(options.name.get().toString(), options.name.get().lib, FileCons.INTERNAL_LIB_DIR);
         if(ssi_object == 0)
+        {
             Log.e("error creating SSI transformer");
+            return;
+        }
 
         //set options
         if(options.ssioptions.get() != null)
@@ -132,25 +104,25 @@ public class SSITransformer extends Transformer
     @Override
     public final void enter(Stream[] stream_in, Stream stream_out)
     {
-        if(ssi_object > 0)
-            SSI.transformEnter(ssi_object, stream_in[0], stream_out);
+        if(ssi_object != 0)
+            SSI.transformEnter(ssi_object, stream_in, stream_out);
     }
 
     @Override
     public void transform(Stream[] stream_in, Stream stream_out)
     {
-        if(ssi_object > 0)
-            SSI.transform(ssi_object, stream_in[0], stream_out);
+        if(ssi_object != 0)
+            SSI.transform(ssi_object, stream_in, stream_out);
     }
 
     /**
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[], Stream stream_out)
+    public final void flush(Stream[] stream_in, Stream stream_out)
     {
-        if(ssi_object > 0)
-            SSI.transformFlush(ssi_object, stream_in[0], stream_out);
+        if(ssi_object != 0)
+            SSI.transformFlush(ssi_object, stream_in, stream_out);
     }
 
     @Override
@@ -224,6 +196,6 @@ public class SSITransformer extends Transformer
         stream_out.desc = new String[stream_out.dim];
 
         for(int i = 0; i < stream_out.dim; i++)
-            stream_out.desc[0] ="SSI_" + options.name.get() + "_" + i;
+            stream_out.desc[i] = "SSI_" + options.name.get() + "_" + i;
     }
 }

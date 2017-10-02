@@ -241,8 +241,7 @@ public class ClassifierT extends Transformer
             Log.w("input stream (sr=" + input[0].sr + ") may not be correct for model (sr=" + sr + ")");
         }
 
-
-        if(options.merge.get())
+        if(options.merge.get() && stream_in.length > 1)
         {
             _merge = new Merge();
             _stream_merged = new Stream[1];
@@ -276,7 +275,7 @@ public class ClassifierT extends Transformer
     {
         Stream[] input = stream_in;
 
-        if(options.merge.get()) {
+        if(options.merge.get() && stream_in.length > 1) {
             _merge.transform(input, _stream_merged[0]);
             input = _stream_merged;
         }

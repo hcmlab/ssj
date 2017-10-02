@@ -27,13 +27,8 @@
 
 package hcm.ssj.mobileSSI;
 
-import java.io.IOException;
-
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.FileCons;
-import hcm.ssj.file.FileUtils;
 
 import static java.lang.System.loadLibrary;
 
@@ -43,13 +38,33 @@ import static java.lang.System.loadLibrary;
  */
 public class SSI
 {
-	public enum ObjectName
+	static
+	{
+		loadLibrary("ssissjbridge");
+	}
+
+	public static native long create(String name, String libname, String libpath);
+
+	public static native boolean setOption(long ssiobj, String name, String value);
+
+	public static native void transformEnter(long ssiobj, Stream[] stream_in, Stream stream_out);
+	public static native void transform(long ssiobj, Stream[] stream_in, Stream stream_out);
+	public static native void transformFlush(long ssiobj, Stream[] stream_in, Stream stream_out);
+
+	public static native int getSampleNumberOut(long ssiobj, int sample_number_in);
+	public static native int getSampleDimensionOut(long ssiobj, int sample_dimension_in);
+	public static native int getSampleBytesOut(long ssiobj, int sample_bytes_in);
+	public static native int getSampleTypeOut(long ssiobj, Cons.Type sample_type_in);
+
+	public static native long clear();
+
+	public enum TransformerName
 	{
 		//TRANSFORMERS
 		AudioActivity("ssiaudio"),
 		AudioConvert("ssiaudio"),
 		AudioIntensity("ssiaudio"),
-		AudioLpc("ssiaudio"),
+		OSLpc("ssiaudio"),
 		AudioMono("ssiaudio"),
 		SNRatio("ssiaudio"),
 
@@ -87,49 +102,9 @@ public class SSI
 		Sum("ssisignal");
 
 		public String lib;
-		ObjectName(String lib)
+		TransformerName(String lib)
 		{
 			this.lib = lib;
 		}
 	}
-
-	/**
-	 * Copy library so it can be found and loaded by SSI
-	 * @param name name of the library
-	 * @param path path to the library
-	 * @throws IOException
-	 */
-	public static void prepareLibrary(String name, String path) throws IOException
-	{
-		if(!name.startsWith("lib")) name = "lib" + name;
-		if(!name.endsWith(".so")) name += ".so";
-
-		if(path == null || path.length() == 0 || path.startsWith("http://") || path.startsWith("https://"))
-		{
-			Pipeline.getInstance().download(name, FileCons.REMOTE_LIB_PATH, FileCons.INTERNAL_LIB_DIR, true); //download from trusted server
-		}
-		else
-			FileUtils.copyFile(name, path, FileCons.INTERNAL_LIB_DIR); //copy from sdcard
-
-	}
-
-	static
-	{
-		loadLibrary("ssissjbridge");
-	}
-
-	public static native long create(String name, String libname, String libpath);
-
-	public static native boolean setOption(long ssiobj, String name, String value);
-
-	public static native void transformEnter(long ssiobj, Stream stream_in, Stream stream_out);
-	public static native void transform(long ssiobj, Stream stream_in, Stream stream_out);
-	public static native void transformFlush(long ssiobj, Stream stream_in, Stream stream_out);
-
-	public static native int getSampleNumberOut(long ssiobj, int sample_number_in);
-	public static native int getSampleDimensionOut(long ssiobj, int sample_dimension_in);
-	public static native int getSampleBytesOut(long ssiobj, int sample_bytes_in);
-	public static native int getSampleTypeOut(long ssiobj, Cons.Type sample_type_in);
-
-	public static native long clear();
 }

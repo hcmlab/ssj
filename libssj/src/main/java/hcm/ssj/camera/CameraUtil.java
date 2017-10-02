@@ -44,7 +44,7 @@ import hcm.ssj.file.FileCons;
  * Created by Frank Gaibler on 26.01.2016.
  */
 @SuppressWarnings("deprecation")
-class CameraUtil
+public class CameraUtil
 {
     /**
      * Returns the first codec capable of encoding the specified MIME type, or null if no

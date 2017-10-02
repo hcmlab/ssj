@@ -27,6 +27,7 @@
 
 package hcm.ssj;
 
+import android.os.Environment;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
@@ -37,8 +38,14 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.Provider;
 import hcm.ssj.mobileSSI.SSI;
 import hcm.ssj.mobileSSI.SSITransformer;
+import hcm.ssj.signal.AvgVar;
+import hcm.ssj.signal.Median;
+import hcm.ssj.signal.Merge;
+import hcm.ssj.signal.MinMax;
+import hcm.ssj.signal.Progress;
 import hcm.ssj.test.Logger;
 
 /**
@@ -63,9 +70,8 @@ public class SSITest
         frame.addSensor(sensor, channel);
 
         SSITransformer transf = new SSITransformer();
-        transf.options.name.set(SSI.ObjectName.Functionals);
-//        transf.options.libdir.set("/sdcard/SSJ/ssilibs/");
-        transf.options.ssioptions.set(new String[]{"names->mean,energy"});
+        transf.options.name.set(SSI.TransformerName.Butfilt);
+        transf.options.ssioptions.set(new String[]{"low->0.01"});
         frame.addTransformer(transf, channel, 1);
 
         //logger
@@ -75,7 +81,72 @@ public class SSITest
         //start framework
         frame.start();
         //run test
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+        try
+        {
+            while (System.currentTimeMillis() < end)
+            {
+                Thread.sleep(1);
+            }
+        } catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        frame.stop();
+        frame.release();
+    }
+
+    @Test
+    public void testClassifierT() throws Exception
+    {
+        //setup
+        Pipeline frame = Pipeline.getInstance();
+        frame.options.bufferSize.set(10.0f);
+
+        //sensor
+        AndroidSensor sensor = new AndroidSensor();
+        AndroidSensorChannel acc = new AndroidSensorChannel();
+        acc.options.sensorType.set(SensorType.ACCELEROMETER);
+        frame.addSensor(sensor, acc);
+
+        AndroidSensorChannel gyr = new AndroidSensorChannel();
+        gyr.options.sensorType.set(SensorType.GYROSCOPE);
+        frame.addSensor(sensor, gyr);
+
+        AndroidSensorChannel mag = new AndroidSensorChannel();
+        mag.options.sensorType.set(SensorType.MAGNETIC_FIELD);
+        frame.addSensor(sensor, mag);
+
+        Progress prog = new Progress();
+        frame.addTransformer(prog, new Provider[]{acc, gyr, mag}, 1.0, 0);
+
+        AvgVar avg = new AvgVar();
+        avg.options.avg.set(true);
+        avg.options.var.set(true);
+        frame.addTransformer(avg, prog, 1.0, 0);
+
+        MinMax minmax = new MinMax();
+        frame.addTransformer(minmax, prog, 1.0, 0);
+
+        Median med = new Median();
+        frame.addTransformer(med, prog, 1.0, 0);
+
+        Merge merge = new Merge();
+        frame.addTransformer(merge, new Provider[]{avg, med, minmax}, 1.0, 0);
+
+        SSITransformer transf = new SSITransformer();
+        transf.options.name.set(SSI.TransformerName.ClassifierT);
+        transf.options.ssioptions.set(new String[]{"trainer->" + Environment.getExternalStorageDirectory().getAbsolutePath() + "/SSJ/Creator/res/activity.NaiveBayes.trainer"});
+        frame.addTransformer(transf, merge, 1);
+
+        //logger
+        Logger log = new Logger();
+        frame.addConsumer(log, transf, 1, 0);
+
+        //start framework
+        frame.start();
+        //run test
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_LONG;
         try
         {
             while (System.currentTimeMillis() < end)
