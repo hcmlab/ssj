@@ -30,7 +30,9 @@
        android:shape="rectangle">
     <solid
         android:color="@android:color/darker_gray"/>
+    <corners
+        android:radius="3dp"/>
     <stroke
-        android:width="2dip"
+        android:width="3dp"
         android:color="@android:color/black"/>
 </shape>

@@ -28,23 +28,20 @@
 package hcm.ssj.creator.view;
 
 import android.content.Context;
-import android.content.res.Configuration;
-import android.graphics.Rect;
-import android.os.Handler;
-import android.os.Looper;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.text.Layout;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
+import android.widget.BaseAdapter;
 import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.main.TwoDScrollView;
-import hcm.ssj.creator.view.ComponentView;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
 
@@ -54,53 +51,51 @@ import hcm.ssj.feedback.FeedbackContainer;
 
 public class FeedbackLevelLayout extends LinearLayout
 {
-	//layout
-	private final static int LANDSCAPE_NUMBER_OF_BOXES = 10; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
-	private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
-	private final int iGridWidthNumberOfBoxes = 50; //chosen box number
-	private final int iGridHeightNumberOfBoxes = 50; //chosen box number
-	private int iOrientation = Configuration.ORIENTATION_UNDEFINED;
-	private int iGridBoxSize = 0; //box size depends on screen width
-	private int iGridPadWPix = 0; //left and right padding to center grid
-	private int iGridPadHPix = 0; //top and bottom padding to center grid
-	private int iSizeWidth = 0; //draw size width
-	private int iSizeHeight = 0; //draw size height
 
 	private final int level;
 	private final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap;
-	private LinearLayout feedbackGrid;
+	private GridLayout feedbackGrid;
 	private TextView levelTextView;
 
 	public FeedbackLevelLayout(Context context, int level, Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
 	{
 		super(context);
-		initView(context);
+
 		this.level = level;
 		this.feedbackValenceMap = feedbackValenceMap;
+
+		LinearLayout.inflate(context, R.layout.single_level_layout, this);
+		levelTextView = (TextView) this.findViewById(R.id.levelText);
+		feedbackGrid = (GridLayout) this.findViewById(R.id.levelComponents);
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		super.onLayout(changed, l, t, r, b);
 		initLayout();
 	}
 
-	private void initView(Context context)
-	{
-		LinearLayout.inflate(context, R.layout.single_level_layout, this);
-		levelTextView = (TextView) this.findViewById(R.id.levelText);
-		feedbackGrid = (LinearLayout) this.findViewById(R.id.levelComponents);
-	}
 
 	private void initLayout()
 	{
 		levelTextView.setText(String.valueOf(level));
+
+		if (feedbackValenceMap == null)
+		{
+			return;
+		}
 		for (Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry : feedbackValenceMap.entrySet())
 		{
-			ComponentView componentView = new ComponentView(getContext(), feedbackValenceEntry.getKey());
-			//componentView.layout(feedbackGrid.getLeft()+50*feedbackComponents.size(), feedbackGrid.getTop(), feedbackGrid.getLeft()+50*feedbackComponents.size()+50, feedbackGrid.getBottom());
-			componentView.layout(0,0,10,10);
-/*			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-			lp.setMargins(50, 50, 50, 50);
-			componentView.setLayoutParams(lp);*/
+			final ComponentView componentView = new ComponentView(getContext(), feedbackValenceEntry.getKey());
 
+			int boxSize = feedbackGrid.getHeight() - feedbackGrid.getPaddingBottom() - feedbackGrid.getPaddingTop();
+			int left = feedbackGrid.getChildCount()*boxSize + feedbackGrid.getPaddingBottom()*(feedbackGrid.getChildCount()) + feedbackGrid.getPaddingLeft();
+			//componentView.layout(left,feedbackGrid.getPaddingTop(),left+boxSize,feedbackGrid.getPaddingTop()+boxSize);
+			GridLayout.LayoutParams lp = new GridLayout.LayoutParams(new ViewGroup.LayoutParams(200, 200));
+			lp.columnSpec = new GridLayout.Spec.DEFAULT_WEIGHT;
+			componentView.setLayoutParams(lp);
 			feedbackGrid.addView(componentView);
 		}
+		this.invalidate();
 	}
-
 }

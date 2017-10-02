@@ -659,7 +659,7 @@ public class PipeView extends ViewGroup
 			{
 				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackContainer)
 				{
-					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, new Random().nextInt(7), FeedbackContainer.Valence.UNKNOWN);
+					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackContainer.Valence.UNKNOWN);
 				}
 				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
 				{
