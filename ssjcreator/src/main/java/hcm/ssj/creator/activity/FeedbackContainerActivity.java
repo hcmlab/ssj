@@ -69,10 +69,12 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	}
 
 	private void createLevels() {
+		levelLinearLayout.removeAllViews();
 		List<Map<Feedback, FeedbackContainer.Valence>> feedbackLevelList = innerFeedbackContainer.getFeedbackList();
 		for(int i=0 ; i<feedbackLevelList.size(); i++)
 		{
 			levelLinearLayout.addView(new FeedbackLevelLayout(this, i, feedbackLevelList.get(i)));
 		}
+		levelLinearLayout.addView(new FeedbackLevelLayout(this, feedbackLevelList.size(), null));
 	}
 }

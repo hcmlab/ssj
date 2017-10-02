@@ -29,7 +29,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
        android:shape="rectangle">
     <solid
-        android:color="@color/colorConsumer"/>
+        android:color="@android:color/darker_gray"/>
     <stroke
         android:width="2dip"
         android:color="@android:color/black"/>

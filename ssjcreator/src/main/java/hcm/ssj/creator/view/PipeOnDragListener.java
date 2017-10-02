@@ -29,6 +29,7 @@ package hcm.ssj.creator.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -49,6 +50,7 @@ import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.creator.activity.MainActivity;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
+import hcm.ssj.creator.util.Util;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
 
@@ -58,6 +60,7 @@ import hcm.ssj.feedback.FeedbackContainer;
  */
 class PipeOnDragListener implements View.OnDragListener
 {
+    private final Context context;
     private ImageView recycleBin;
     private boolean dropped;
     private float xCoord, yCoord;
@@ -67,11 +70,9 @@ class PipeOnDragListener implements View.OnDragListener
         NOTHING, PLACED, DELETED, CONNECTED
     }
 
-    /**
-     *
-     */
-    PipeOnDragListener()
+    PipeOnDragListener(Context context)
     {
+        this.context = context;
     }
 
     /**
@@ -146,7 +147,7 @@ class PipeOnDragListener implements View.OnDragListener
             PipelineBuilder.getInstance().remove(componentView.getElement());
             if(componentView.getElement() instanceof FeedbackContainer)
             {
-                openFeedbackContainerDeleteDialog((FeedbackContainer)componentView.getElement());
+                openFeedbackContainerDeleteDialog(pipeView, (FeedbackContainer)componentView.getElement());
             }
             result = Result.DELETED;
         } //reposition
@@ -179,19 +180,19 @@ class PipeOnDragListener implements View.OnDragListener
         return result;
     }
 
-    private void openFeedbackContainerDeleteDialog(final FeedbackContainer feedbackContainer) {
+    private void openFeedbackContainerDeleteDialog(final PipeView pipeView, final FeedbackContainer feedbackContainer) {
         AlertDialog.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
         {
-            builder = new AlertDialog.Builder(SSJApplication.getAppContext(), android.R.style.Theme_Material_Dialog_Alert);
+            builder = new AlertDialog.Builder(this.context, android.R.style.Theme_Material_Dialog_Alert);
         }
         else
         {
-            builder = new AlertDialog.Builder(SSJApplication.getAppContext());
+            builder = new AlertDialog.Builder(this.context);
         }
         builder.setTitle("Do you want to keep inner components?")
-                .setPositiveButton(android.R.string.yes, null)
-                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
+                .setPositiveButton(R.string.yes, null)
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
@@ -202,6 +203,8 @@ class PipeOnDragListener implements View.OnDragListener
                                 PipelineBuilder.getInstance().remove(feedback);
                             }
                         }
+                        pipeView.recalculate(Util.AppAction.CLEAR, null);
+                        pipeView.recalculate(Util.AppAction.DISPLAYED, null);
                     }
                 })
                 .setIcon(android.R.drawable.ic_dialog_alert)

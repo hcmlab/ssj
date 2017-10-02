@@ -103,7 +103,7 @@ public class PipeView extends ViewGroup
 	public PipeView(Context context)
 	{
 		super(context);
-		init();
+		init(context);
 	}
 
 	/**
@@ -113,13 +113,10 @@ public class PipeView extends ViewGroup
 	public PipeView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		init();
+		init(context);
 	}
 
-	/**
-	 *
-	 */
-	private void init()
+	private void init(Context context)
 	{
 		Log.i("init pipeview");
 		//children should not be clipped
@@ -127,7 +124,7 @@ public class PipeView extends ViewGroup
 		//create grid
 		gridLayout = new GridLayout(iGridWidthNumberOfBoxes, iGridHeightNumberOfBoxes);
 		//add drag listener
-		setOnDragListener(new PipeOnDragListener());
+		setOnDragListener(new PipeOnDragListener(context));
 		//initiate colors
 		paintElementGrid = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paintElementGrid.setStyle(Paint.Style.STROKE);
