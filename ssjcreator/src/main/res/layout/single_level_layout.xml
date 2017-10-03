@@ -25,27 +25,25 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:layout_margin="10dp"
+              android:layout_height="wrap_content"
+              android:orientation="horizontal"
               android:background="@drawable/single_level_background"
-              android:orientation="horizontal">
+              android:layout_margin="10dp">
 
     <TextView
         android:id="@+id/levelText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:textAppearance="@android:style/TextAppearance.Large"
-        android:textStyle="bold"/>
-
-    <GridLayout
-        android:id="@+id/levelComponents"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:numColumns="auto_fit"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="10dp"
+        android:text="TextView"
+        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title"
         />
 
+    <GridLayout
+        android:id="@+id/feedbackComponentGrid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 </LinearLayout>
