@@ -27,23 +27,20 @@
 
 package hcm.ssj.creator.activity;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.DragEvent;
-import android.view.MotionEvent;
-import android.view.View;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.LinearLayout;
 
 import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.view.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.FeedbackLevelLayout;
 import hcm.ssj.feedback.AndroidTactileFeedback;
 import hcm.ssj.feedback.AuditoryFeedback;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
-import hcm.ssj.feedback.MyoTactileFeedback;
 import hcm.ssj.feedback.VisualFeedback;
 
 public class FeedbackContainerActivity extends AppCompatActivity
@@ -62,47 +59,36 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		createLevels();
 	}
 
-	private void mock() {
+	private void mock()
+	{
 		feedbackContainer = new FeedbackContainer();
-		feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.UNKNOWN);
-		feedbackContainer.addFeedback(new AndroidTactileFeedback(), 0, FeedbackContainer.Valence.UNKNOWN);
-		feedbackContainer.addFeedback(new MyoTactileFeedback(), 0, FeedbackContainer.Valence.UNKNOWN);
-		feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.UNKNOWN);
-		feedbackContainer.addFeedback(new AuditoryFeedback(), 1, FeedbackContainer.Valence.UNKNOWN);
-		feedbackContainer.addFeedback(new VisualFeedback(), 2, FeedbackContainer.Valence.UNKNOWN);
-		feedbackContainer.addFeedback(new AuditoryFeedback(), 3, FeedbackContainer.Valence.UNKNOWN);
+		feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+		feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+		feedbackContainer.addFeedback(new AndroidTactileFeedback(), 2, FeedbackContainer.Valence.UNDESIRABLE);
 	}
 
-	private void init() {
+	private void init()
+	{
 		innerFeedbackContainer = feedbackContainer;
 		feedbackContainer = null;
-		if(innerFeedbackContainer == null)
+		if (innerFeedbackContainer == null)
 		{
 			finish();
 			throw new RuntimeException("no feedbackcontainer given");
 		}
 		levelLinearLayout = (LinearLayout) findViewById(R.id.feedbackLinearLayout);
-		levelLinearLayout.setOnDragListener(new View.OnDragListener() {
-			@Override
-			public boolean onDrag(View v, DragEvent event)
-			{
-				switch (event.getAction())
-				{
-					case DragEvent.ACTION_DRAG_ENDED:
-						break;
-				}
-				return true;
-			}
-		});
 		setTitle(innerFeedbackContainer.getComponentName());
 	}
 
-	private void createLevels() {
+	private void createLevels()
+	{
 		levelLinearLayout.removeAllViews();
 		List<Map<Feedback, FeedbackContainer.Valence>> feedbackLevelList = innerFeedbackContainer.getFeedbackList();
-		for(int i=0 ; i<feedbackLevelList.size(); i++)
+		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
-			levelLinearLayout.addView(new FeedbackLevelLayout(this, i, feedbackLevelList.get(i)));
+			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
+			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+			levelLinearLayout.addView(feedbackLevelLayout);
 		}
 		levelLinearLayout.addView(new FeedbackLevelLayout(this, feedbackLevelList.size(), null));
 	}

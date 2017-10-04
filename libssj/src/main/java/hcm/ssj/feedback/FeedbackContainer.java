@@ -28,9 +28,10 @@
 package hcm.ssj.feedback;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
@@ -178,7 +179,7 @@ public class FeedbackContainer extends EventHandler
 	{
 		while (feedbackList.size() <= level)
 		{
-			feedbackList.add(new HashMap<Feedback, Valence>());
+			feedbackList.add(new LinkedHashMap<Feedback, Valence>());
 		}
 		feedbackList.get(level).put(feedback, valence);
 	}

@@ -38,6 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:layout_margin="10dp"
+        android:padding="10dp"
         android:text="TextView"
         android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title"
         />
@@ -45,5 +46,7 @@
     <GridLayout
         android:id="@+id/feedbackComponentGrid"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:useDefaultMargins="true"
+        android:padding="10dp"/>
 </LinearLayout>
