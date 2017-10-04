@@ -57,10 +57,8 @@ public class TensorFlow extends Model
 	private Graph graph;
 	private Session session;
 
-	private int classNum;
 	private long[] inputTensorShape;
 
-	private String[] classNames;
 	private String inputNode;
 	private String outputNode;
 
