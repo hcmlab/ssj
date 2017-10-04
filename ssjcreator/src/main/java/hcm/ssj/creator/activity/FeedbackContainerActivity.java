@@ -31,7 +31,10 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.LinearLayout;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
@@ -48,6 +51,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	public static FeedbackContainer feedbackContainer = null;
 	private FeedbackContainer innerFeedbackContainer = null;
 	private LinearLayout levelLinearLayout;
+	private List<FeedbackLevelLayout> feedbackLevelLayoutList;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -78,18 +82,45 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		}
 		levelLinearLayout = (LinearLayout) findViewById(R.id.feedbackLinearLayout);
 		setTitle(innerFeedbackContainer.getComponentName());
+		feedbackLevelLayoutList = new ArrayList<>();
 	}
 
 	private void createLevels()
 	{
+		feedbackLevelLayoutList.clear();
 		levelLinearLayout.removeAllViews();
 		List<Map<Feedback, FeedbackContainer.Valence>> feedbackLevelList = innerFeedbackContainer.getFeedbackList();
 		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
 			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
 			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+			feedbackLevelLayoutList.add(feedbackLevelLayout);
 			levelLinearLayout.addView(feedbackLevelLayout);
 		}
-		levelLinearLayout.addView(new FeedbackLevelLayout(this, feedbackLevelList.size(), null));
+		addEmptyLevel();
+	}
+
+	public void addEmptyLevel()
+	{
+		FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, levelLinearLayout.getChildCount(), null);
+		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+		feedbackLevelLayoutList.add(feedbackLevelLayout);
+		levelLinearLayout.addView(feedbackLevelLayout);
+	}
+
+	public void deleteEmptyLevels()
+	{
+		ListIterator<FeedbackLevelLayout> li = feedbackLevelLayoutList.listIterator(feedbackLevelLayoutList.size());
+		while(li.hasPrevious())
+		{
+			FeedbackLevelLayout feedbackLevelLayout = li.previous();
+			if(feedbackLevelLayout.getFeedbackValenceMap() != null && !feedbackLevelLayout.getFeedbackValenceMap().isEmpty())
+				return;
+			else
+			{
+				levelLinearLayout.removeView(feedbackLevelLayout);
+				li.remove();
+			}
+		}
 	}
 }

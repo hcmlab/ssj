@@ -34,9 +34,11 @@ import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
 
@@ -48,28 +50,34 @@ public class FeedbackLevelLayout extends LinearLayout
 {
 
 	private final int level;
-	private final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap;
+	private Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap;
 	private android.widget.GridLayout feedbackComponentGrid;
 	private TextView levelTextView;
-
-	public FeedbackLevelLayout(Context context, int level, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
+	private FeedbackContainerActivity feedbackContainerActivity;
+	public FeedbackLevelLayout(FeedbackContainerActivity feedbackContainerActivity, int level, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
 	{
-		super(context);
+		super(feedbackContainerActivity);
 
+		this.feedbackContainerActivity = feedbackContainerActivity;
 		this.level = level;
 		this.feedbackValenceMap = feedbackValenceMap;
 
-		LinearLayout.inflate(context, R.layout.single_level_layout, this);
+		LinearLayout.inflate(feedbackContainerActivity, R.layout.single_level_layout, this);
 		levelTextView = (TextView) this.findViewById(R.id.levelText);
-		levelTextView.setText(String.valueOf(level));
 		feedbackComponentGrid = (android.widget.GridLayout) this.findViewById(R.id.feedbackComponentGrid);
-		buildComponentGrid(context);
+		buildComponentGrid(feedbackContainerActivity);
+	}
+
+	public Map<Feedback, FeedbackContainer.Valence> getFeedbackValenceMap()
+	{
+		return feedbackValenceMap;
 	}
 
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
 		super.onLayout(changed, l, t, r, b);
+		levelTextView.setText(String.valueOf(this.level));
 	}
 
 	protected void buildComponentGrid(final Context context)
@@ -84,11 +92,11 @@ public class FeedbackLevelLayout extends LinearLayout
 			public void run()
 			{
 				feedbackComponentGrid.removeAllViews();
-				int height = (int) (levelTextView.getMeasuredHeight()* 0.75);
-				LinearLayout.LayoutParams componentLayoutParams = new LinearLayout.LayoutParams(height,height);
+				int height = (int) (levelTextView.getMeasuredHeight() * 0.75);
+				LinearLayout.LayoutParams componentLayoutParams = new LinearLayout.LayoutParams(height, height);
 				componentLayoutParams.gravity = Gravity.CENTER_VERTICAL;
-				int margin = height/10;
-				componentLayoutParams.setMargins(margin,margin,margin,margin);
+				int margin = height / 10;
+				componentLayoutParams.setMargins(margin, margin, margin, margin);
 				for (Map.Entry<Feedback, FeedbackContainer.Valence> entry : feedbackValenceMap.entrySet())
 				{
 					FeedbackComponentView feedbackComponentView = new FeedbackComponentView(context, entry);
@@ -112,7 +120,8 @@ public class FeedbackLevelLayout extends LinearLayout
 		});
 	}
 
-	private void reorder(int columns) {
+	private void reorder(int columns)
+	{
 		for (int i = 0; i < feedbackComponentGrid.getChildCount(); i++)
 		{
 			android.widget.GridLayout.LayoutParams lp = (android.widget.GridLayout.LayoutParams) feedbackComponentGrid.getChildAt(i).getLayoutParams();
@@ -128,13 +137,21 @@ public class FeedbackLevelLayout extends LinearLayout
 		reorder(feedbackComponentGrid.getColumnCount());
 	}
 
-	protected void addGridComponent(FeedbackComponentView feedbackComponentView) {
-		Map.Entry<Feedback,FeedbackContainer.Valence> feedbackValenceEntry = feedbackComponentView.getFeedbackValenceEntry();
+	protected void addGridComponent(FeedbackComponentView feedbackComponentView)
+	{
+		Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry = feedbackComponentView.getFeedbackValenceEntry();
+		if (feedbackValenceMap == null)
+		{
+			feedbackValenceMap = new LinkedHashMap<>();
+		}
 		feedbackValenceMap.put(feedbackValenceEntry.getKey(), feedbackValenceEntry.getValue());
 		buildComponentGrid(getContext());
+		feedbackContainerActivity.deleteEmptyLevels();
+		feedbackContainerActivity.addEmptyLevel();
 	}
 
-	public void removeFeedback(Feedback feedback) {
+	public void removeFeedback(Feedback feedback)
+	{
 		feedbackValenceMap.remove(feedback);
 		buildComponentGrid(getContext());
 	}
