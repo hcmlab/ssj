@@ -51,6 +51,7 @@ public class BluetoothReader extends Sensor {
         public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
         public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
         public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "if this is a client");
+        public final Option<Integer> numStreams = new Option<>("numStreams", null, Integer.class, "number of streams to be received (null = use number of defined SensorChannels)");
         public final Option<BluetoothConnection.Type> connectionType = new Option<>("connectionType", BluetoothConnection.Type.SERVER, BluetoothConnection.Type.class, "");
 
         /**
@@ -65,6 +66,7 @@ public class BluetoothReader extends Sensor {
 
     protected BluetoothConnection _conn;
     protected byte[][] _recvData;
+    protected int numStreams;
 
     public BluetoothReader() {
         _name = "BluetoothReader";
@@ -92,13 +94,26 @@ public class BluetoothReader extends Sensor {
     @Override
     public boolean connect()
     {
-        Log.i("setting up sensor to receive " + _provider.size() + " streams");
-        _recvData = new byte[_provider.size()][];
+        if(options.numStreams.get() == null || options.numStreams.get() == 0)
+            numStreams = _provider.size();
+        else
+            numStreams = options.numStreams.get();
+
+        if(numStreams < _provider.size())
+            Log.e("Invalid configuration. Expected incoming number of streams ("+numStreams+") is smaller than number of defined channels ("+_provider.size()+")");
+        else if(numStreams > _provider.size())
+            Log.w("Unusual configuration. Expected incoming number of streams ("+numStreams+") is greater than number of defined channels ("+_provider.size()+")");
+
+        Log.i("setting up sensor to receive " + numStreams + " streams");
+        _recvData = new byte[numStreams][];
         for(int i=0; i< _provider.size(); ++i)
-            _recvData[i] = new byte[_provider.get(i).getOutputStream().tot];
+        {
+            BluetoothChannel ch = (BluetoothChannel)_provider.get(i);
+            _recvData[ch.options.channel_id.get()] = new byte[ch.getOutputStream().tot];
+        }
 
         //use object input streams if we expect more than one input
-        _conn.connect(_provider.size() > 1);
+        _conn.connect(numStreams > 1);
 
         BluetoothDevice dev = _conn.getConnectedDevice();
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
@@ -112,13 +127,16 @@ public class BluetoothReader extends Sensor {
 
         try
         {
-            if(_provider.size() == 1)
+            if(numStreams == 1)
             {
                 ((DataInputStream)_conn.input()).readFully(_recvData[0]);
             }
-            else if(_provider.size() > 1)
+            else if(numStreams > 1)
             {
                 Stream recvStreams[] = (Stream[]) ((ObjectInputStream)_conn.input()).readObject();
+
+                if(recvStreams.length != _recvData.length)
+                    throw new IOException("unexpected amount of incoming streams");
 
                 for(int i = 0; i< recvStreams.length && i < _recvData.length; ++i)
                     Util.arraycopy(recvStreams[i].ptr(), 0, _recvData[i], 0, _recvData[i].length);
@@ -162,6 +180,9 @@ public class BluetoothReader extends Sensor {
 
     public byte[] getData(int channel_id)
     {
+        if(channel_id >= _recvData.length)
+            return null;
+
         return _recvData[channel_id];
     }
 
