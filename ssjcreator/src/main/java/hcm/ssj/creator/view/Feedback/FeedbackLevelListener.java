@@ -1,5 +1,5 @@
 /*
- * FeedbackContainerOnDragListener.java
+ * FeedbackLevelListener.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,42 +25,13 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator.view;
-
-import android.content.Context;
-import android.view.DragEvent;
-import android.view.View;
+package hcm.ssj.creator.view.Feedback;
 
 /**
- * Created by hiwi on 04.10.2017.
+ * Created by hiwi on 05.10.2017.
  */
 
-public class FeedbackContainerOnDragListener implements View.OnDragListener
+public interface FeedbackLevelListener
 {
-	private final Context context;
-
-	public FeedbackContainerOnDragListener(Context context)
-	{
-		this.context = context;
-	}
-
-	@Override
-	public boolean onDrag(final View v, DragEvent event)
-	{
-		switch (event.getAction())
-		{
-			case DragEvent.ACTION_DRAG_STARTED:
-				break;
-			case DragEvent.ACTION_DRAG_ENTERED:
-				break;
-			case DragEvent.ACTION_DRAG_EXITED:
-				break;
-			case DragEvent.ACTION_DROP:
-				((FeedbackLevelLayout) v).addGridComponent((FeedbackComponentView) event.getLocalState());
-				break;
-			case DragEvent.ACTION_DRAG_ENDED:
-				break;
-		}
-		return true;
-	}
+	void onComponentAdded();
 }

@@ -25,16 +25,18 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator.view;
+package hcm.ssj.creator.view.Feedback;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 
 import java.util.Map;
 
+import hcm.ssj.creator.view.ComponentView;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
 
@@ -45,6 +47,7 @@ import hcm.ssj.feedback.FeedbackContainer;
 public class FeedbackComponentView extends ComponentView
 {
 	private Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry;
+	private FeedbackLevelLayout lastContainingLayout;
 
 	public FeedbackComponentView(Context context, Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry)
 	{
@@ -62,10 +65,11 @@ public class FeedbackComponentView extends ComponentView
 				DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(v);
 				v.startDrag(dragData, shadowBuilder, v, 0);
 
-				if(v.getParent().getParent().getParent() instanceof FeedbackLevelLayout) // TODO: Ugly
+				if (v.getParent().getParent().getParent() instanceof FeedbackLevelLayout) // TODO: Ugly
 				{
 					FeedbackLevelLayout feedBackLevelLayout = (FeedbackLevelLayout) v.getParent().getParent().getParent();
 					((ViewGroup) v.getParent()).removeView(v);
+					((FeedbackComponentView) v).setLastContainingLayout(feedBackLevelLayout);
 					feedBackLevelLayout.removeFeedback((Feedback) ((FeedbackComponentView) v).getElement());
 				}
 				return true;
@@ -74,8 +78,22 @@ public class FeedbackComponentView extends ComponentView
 		this.setOnLongClickListener(onTouchListener);
 	}
 
-	public Map.Entry<Feedback, FeedbackContainer.Valence> getFeedbackValenceEntry()
+	protected Map.Entry<Feedback, FeedbackContainer.Valence> getFeedbackValenceEntry()
 	{
 		return feedbackValenceEntry;
 	}
+
+	private void setLastContainingLayout(FeedbackLevelLayout lastContainingLayout)
+	{
+		this.lastContainingLayout = lastContainingLayout;
+	}
+
+	protected void addToLastContainingLayout()
+	{
+		if(lastContainingLayout != null)
+		{
+			lastContainingLayout.addGridComponent(this);
+		}
+	}
+
 }

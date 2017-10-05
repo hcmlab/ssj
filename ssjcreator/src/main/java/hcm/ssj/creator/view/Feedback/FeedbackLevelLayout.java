@@ -1,5 +1,5 @@
 /*
- * LevelLayout.java
+ * FeedbackLevelLayout.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator.view;
+package hcm.ssj.creator.view.Feedback;
 
 import android.content.Context;
 import android.view.Gravity;
@@ -38,7 +38,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
 
@@ -53,19 +52,19 @@ public class FeedbackLevelLayout extends LinearLayout
 	private Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap;
 	private android.widget.GridLayout feedbackComponentGrid;
 	private TextView levelTextView;
-	private FeedbackContainerActivity feedbackContainerActivity;
-	public FeedbackLevelLayout(FeedbackContainerActivity feedbackContainerActivity, int level, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
-	{
-		super(feedbackContainerActivity);
+	private FeedbackLevelListener feedbackLevelListener;
 
-		this.feedbackContainerActivity = feedbackContainerActivity;
+	public FeedbackLevelLayout(Context context, int level, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
+	{
+		super(context);
+
 		this.level = level;
 		this.feedbackValenceMap = feedbackValenceMap;
 
-		LinearLayout.inflate(feedbackContainerActivity, R.layout.single_level_layout, this);
+		LinearLayout.inflate(context, R.layout.single_level_layout, this);
 		levelTextView = (TextView) this.findViewById(R.id.levelText);
 		feedbackComponentGrid = (android.widget.GridLayout) this.findViewById(R.id.feedbackComponentGrid);
-		buildComponentGrid(feedbackContainerActivity);
+		buildComponentGrid(context);
 	}
 
 	public Map<Feedback, FeedbackContainer.Valence> getFeedbackValenceMap()
@@ -132,9 +131,9 @@ public class FeedbackLevelLayout extends LinearLayout
 		}
 	}
 
-	protected void reorder()
+	public void setFeedbackLevelListener(FeedbackLevelListener feedbackLevelListener)
 	{
-		reorder(feedbackComponentGrid.getColumnCount());
+		this.feedbackLevelListener = feedbackLevelListener;
 	}
 
 	protected void addGridComponent(FeedbackComponentView feedbackComponentView)
@@ -146,11 +145,10 @@ public class FeedbackLevelLayout extends LinearLayout
 		}
 		feedbackValenceMap.put(feedbackValenceEntry.getKey(), feedbackValenceEntry.getValue());
 		buildComponentGrid(getContext());
-		feedbackContainerActivity.deleteEmptyLevels();
-		feedbackContainerActivity.addEmptyLevel();
+		this.feedbackLevelListener.onComponentAdded();
 	}
 
-	public void removeFeedback(Feedback feedback)
+	protected void removeFeedback(Feedback feedback)
 	{
 		feedbackValenceMap.remove(feedback);
 		buildComponentGrid(getContext());

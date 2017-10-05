@@ -194,4 +194,9 @@ public class FeedbackContainer extends EventHandler
 			}
 		}
 	}
+
+	public void setFeedbackList(List<Map<Feedback,Valence>> feedbackList)
+	{
+		this.feedbackList = feedbackList;
+	}
 }

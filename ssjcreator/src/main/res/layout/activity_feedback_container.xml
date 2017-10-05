@@ -37,7 +37,7 @@
         android:id="@+id/feedbackLinearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_margin="5dp">
+        android:layout_margin="5dp"
+        android:orientation="vertical">
     </LinearLayout>
 </ScrollView>
