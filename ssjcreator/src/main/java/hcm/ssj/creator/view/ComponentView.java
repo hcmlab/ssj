@@ -338,7 +338,7 @@ public class ComponentView extends View
         super.onDraw(canvas);
         canvas.save();
         canvas.drawRect(0, 0, getWidth(), getHeight(), paintsElementBox[paintType]);
-        canvas.drawRect(1, 1, getWidth()-1, getHeight()-1, paintElementBorder);
+        canvas.drawRect(1, 1, getWidth(), getHeight(), paintElementBorder);
         //draws the text in the middle of the box
         float textSize = getWidth() / 2.5f;
         paintElementText[paintType].setTextSize(textSize);

@@ -29,13 +29,12 @@ package hcm.ssj.creator.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
@@ -55,6 +54,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	private LinearLayout levelLinearLayout;
 	private List<FeedbackLevelLayout> feedbackLevelLayoutList;
 	private FeedbackLevelListener feedbackLevelListener;
+	private ScrollView scrollView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -70,12 +70,16 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	protected void onPause()
 	{
 		super.onPause();
-		if(innerFeedbackContainer != null)
+		if (innerFeedbackContainer != null)
 		{
 			List<Map<Feedback, FeedbackContainer.Valence>> feedbackLevelList = new ArrayList<>();
 			for (FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
 			{
-				feedbackLevelList.add(feedbackLevelLayout.getFeedbackValenceMap());
+				Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap = feedbackLevelLayout.getFeedbackValenceMap();
+				if (feedbackValenceMap != null && !feedbackValenceMap.isEmpty())
+				{
+					feedbackLevelList.add(feedbackLevelLayout.getFeedbackValenceMap());
+				}
 			}
 			innerFeedbackContainer.setFeedbackList(feedbackLevelList);
 		}
@@ -83,10 +87,23 @@ public class FeedbackContainerActivity extends AppCompatActivity
 
 	private void mock()
 	{
-		feedbackContainer = new FeedbackContainer();
-		feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-		feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-		feedbackContainer.addFeedback(new AndroidTactileFeedback(), 2, FeedbackContainer.Valence.UNDESIRABLE);
+		if (feedbackContainer == null && innerFeedbackContainer == null)
+		{
+			feedbackContainer = new FeedbackContainer();
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
+			feedbackContainer.addFeedback(new AndroidTactileFeedback(), 2, FeedbackContainer.Valence.UNDESIRABLE);
+		}
 	}
 
 	private void init()
@@ -99,13 +116,13 @@ public class FeedbackContainerActivity extends AppCompatActivity
 			throw new RuntimeException("no feedbackcontainer given");
 		}
 		levelLinearLayout = (LinearLayout) findViewById(R.id.feedbackLinearLayout);
-
-		((ViewGroup)findViewById(android.R.id.content)).getChildAt(0).setOnDragListener(new FeedbackContainerOnDragListener(this));
+		scrollView = (ScrollView) findViewById(R.id.feedbackScrollView);
 
 		setTitle(innerFeedbackContainer.getComponentName());
 		feedbackLevelLayoutList = new ArrayList<>();
 
-		this.feedbackLevelListener = new FeedbackLevelListener() {
+		this.feedbackLevelListener = new FeedbackLevelListener()
+		{
 			@Override
 			public void onComponentAdded()
 			{
@@ -123,7 +140,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
 			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
-			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(scrollView));
 			feedbackLevelLayout.setFeedbackLevelListener(this.feedbackLevelListener);
 			feedbackLevelLayoutList.add(feedbackLevelLayout);
 			levelLinearLayout.addView(feedbackLevelLayout);
@@ -134,7 +151,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	private void addEmptyLevel()
 	{
 		FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, levelLinearLayout.getChildCount(), null);
-		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(scrollView));
 		feedbackLevelLayout.setFeedbackLevelListener(this.feedbackLevelListener);
 		feedbackLevelLayoutList.add(feedbackLevelLayout);
 		levelLinearLayout.addView(feedbackLevelLayout);
@@ -142,17 +159,23 @@ public class FeedbackContainerActivity extends AppCompatActivity
 
 	private void deleteEmptyLevels()
 	{
-		ListIterator<FeedbackLevelLayout> li = feedbackLevelLayoutList.listIterator(feedbackLevelLayoutList.size());
-		while(li.hasPrevious())
+		int counter = 0;
+		Iterator<FeedbackLevelLayout> iterator = feedbackLevelLayoutList.iterator();
+		while (iterator.hasNext())
 		{
-			FeedbackLevelLayout feedbackLevelLayout = li.previous();
-			if(feedbackLevelLayout.getFeedbackValenceMap() != null && !feedbackLevelLayout.getFeedbackValenceMap().isEmpty())
-				return;
+			FeedbackLevelLayout feedbackLevelLayout = iterator.next();
+			if (feedbackLevelLayout.getFeedbackValenceMap() != null && !feedbackLevelLayout.getFeedbackValenceMap().isEmpty())
+			{
+				feedbackLevelLayout.setLevel(counter);
+				counter++;
+			}
 			else
 			{
 				levelLinearLayout.removeView(feedbackLevelLayout);
-				li.remove();
+				iterator.remove();
 			}
 		}
 	}
+
+
 }

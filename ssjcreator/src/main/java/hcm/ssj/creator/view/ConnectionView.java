@@ -45,7 +45,7 @@ import hcm.ssj.creator.util.ConnectionType;
  * Draws connections between elements. Directions are shown with an arrow.<br>
  * Created by Frank Gaibler on 12.05.2016.
  */
-class ConnectionView extends View
+public class ConnectionView extends View
 {
 	private final static float STROKE_WIDTH = 2.0f;
 	private final static int ARROW_ANGLE = 35;
@@ -61,7 +61,7 @@ class ConnectionView extends View
 	/**
 	 * @param context Context
 	 */
-	protected ConnectionView(Context context)
+	public ConnectionView(Context context)
 	{
 		super(context);
 		if (paintConnection == null)
@@ -79,7 +79,7 @@ class ConnectionView extends View
 		return connectionType;
 	}
 
-	protected void setConnectionType(ConnectionType connectionType)
+	public void setConnectionType(ConnectionType connectionType)
 	{
 		this.connectionType = connectionType;
 		// PathEffect

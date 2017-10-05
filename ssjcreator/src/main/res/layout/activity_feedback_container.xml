@@ -26,18 +26,37 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.FeedbackContainerActivity">
 
-    <LinearLayout
-        android:id="@+id/feedbackLinearLayout"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:id="@+id/feedbackScrollView"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activity.FeedbackContainerActivity">
+
+
+        <LinearLayout
+            android:id="@+id/feedbackLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:orientation="vertical">
+        </LinearLayout>
+
+    </ScrollView>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:orientation="vertical">
-    </LinearLayout>
-</ScrollView>
+        android:layout_gravity="right"
+        app:srcCompat="@android:drawable/ic_menu_delete"/>
+
+</LinearLayout>

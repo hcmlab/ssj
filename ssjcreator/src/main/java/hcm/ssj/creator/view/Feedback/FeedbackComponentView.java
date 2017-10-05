@@ -30,9 +30,10 @@ package hcm.ssj.creator.view.Feedback;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
 
 import java.util.Map;
 
@@ -47,7 +48,10 @@ import hcm.ssj.feedback.FeedbackContainer;
 public class FeedbackComponentView extends ComponentView
 {
 	private Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry;
-	private FeedbackLevelLayout lastContainingLayout;
+
+	private Paint dragBoxPaint;
+
+	private boolean currentlyDraged = false;
 
 	public FeedbackComponentView(Context context, Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry)
 	{
@@ -64,36 +68,45 @@ public class FeedbackComponentView extends ComponentView
 				ClipData dragData = new ClipData("DragEvent", new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
 				DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(v);
 				v.startDrag(dragData, shadowBuilder, v, 0);
-
-				if (v.getParent().getParent().getParent() instanceof FeedbackLevelLayout) // TODO: Ugly
-				{
-					FeedbackLevelLayout feedBackLevelLayout = (FeedbackLevelLayout) v.getParent().getParent().getParent();
-					((ViewGroup) v.getParent()).removeView(v);
-					((FeedbackComponentView) v).setLastContainingLayout(feedBackLevelLayout);
-					feedBackLevelLayout.removeFeedback((Feedback) ((FeedbackComponentView) v).getElement());
-				}
+				((FeedbackComponentView) v).setCurrentlyDraged(true);
 				return true;
 			}
 		};
 		this.setOnLongClickListener(onTouchListener);
+
+		initPaints();
 	}
 
-	protected Map.Entry<Feedback, FeedbackContainer.Valence> getFeedbackValenceEntry()
+	private void initPaints()
+	{
+		dragBoxPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		dragBoxPaint.setStyle(Paint.Style.FILL);
+		dragBoxPaint.setColor(Color.DKGRAY);
+	}
+
+	public Map.Entry<Feedback, FeedbackContainer.Valence> getFeedbackValenceEntry()
 	{
 		return feedbackValenceEntry;
 	}
 
-	private void setLastContainingLayout(FeedbackLevelLayout lastContainingLayout)
+	public void setCurrentlyDraged(boolean currentlyDraged)
 	{
-		this.lastContainingLayout = lastContainingLayout;
+		this.currentlyDraged = currentlyDraged;
 	}
 
-	protected void addToLastContainingLayout()
+	@Override
+	public void onDraw(Canvas canvas)
 	{
-		if(lastContainingLayout != null)
+		if(!currentlyDraged)
 		{
-			lastContainingLayout.addGridComponent(this);
+			super.onDraw(canvas);
+		}
+		else
+		{
+			canvas.save();
+			canvas.drawRect(0,0,getWidth(),getHeight(), dragBoxPaint);
+			invalidate();
+			canvas.restore();
 		}
 	}
-
 }
