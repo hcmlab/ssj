@@ -53,10 +53,11 @@
     </ScrollView>
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/recycleBin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
+        android:visibility="gone"
         app:srcCompat="@android:drawable/ic_menu_delete"/>
 
 </LinearLayout>

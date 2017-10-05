@@ -29,6 +29,10 @@ package hcm.ssj.creator.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.DragEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
@@ -38,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.view.Feedback.FeedbackComponentView;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelListener;
@@ -53,6 +58,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	private FeedbackContainer innerFeedbackContainer = null;
 	private LinearLayout levelLinearLayout;
 	private List<FeedbackLevelLayout> feedbackLevelLayoutList;
+	private ImageView recycleBin;
 	private FeedbackLevelListener feedbackLevelListener;
 	private ScrollView scrollView;
 
@@ -117,7 +123,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		}
 		levelLinearLayout = (LinearLayout) findViewById(R.id.feedbackLinearLayout);
 		scrollView = (ScrollView) findViewById(R.id.feedbackScrollView);
-
+		recycleBin = (ImageView) findViewById(R.id.recycleBin);
 		setTitle(innerFeedbackContainer.getComponentName());
 		feedbackLevelLayoutList = new ArrayList<>();
 
@@ -130,6 +136,24 @@ public class FeedbackContainerActivity extends AppCompatActivity
 				addEmptyLevel();
 			}
 		};
+
+		recycleBin.setOnDragListener(new View.OnDragListener() {
+			@Override
+			public boolean onDrag(View view, DragEvent dragEvent)
+			{
+				if(dragEvent.getAction() == DragEvent.ACTION_DROP)
+				{
+					if(dragEvent.getLocalState() instanceof FeedbackComponentView)
+					{
+						FeedbackComponentView localState = (FeedbackComponentView) dragEvent.getLocalState();
+						localState.invalidate();
+						((ViewGroup)localState.getParent()).removeView(localState);
+						return true;
+					}
+				}
+				return false;
+			}
+		});
 	}
 
 	private void createLevels()
@@ -140,7 +164,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
 			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
-			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(scrollView));
+			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
 			feedbackLevelLayout.setFeedbackLevelListener(this.feedbackLevelListener);
 			feedbackLevelLayoutList.add(feedbackLevelLayout);
 			levelLinearLayout.addView(feedbackLevelLayout);
@@ -151,7 +175,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	private void addEmptyLevel()
 	{
 		FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, levelLinearLayout.getChildCount(), null);
-		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(scrollView));
+		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
 		feedbackLevelLayout.setFeedbackLevelListener(this.feedbackLevelListener);
 		feedbackLevelLayoutList.add(feedbackLevelLayout);
 		levelLinearLayout.addView(feedbackLevelLayout);
@@ -177,5 +201,15 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		}
 	}
 
+	public void showRecycleBin(int width, int height)
+	{
+		recycleBin.layout(0,0,width,height);
+		recycleBin.setVisibility(View.VISIBLE);
+		recycleBin.invalidate();
+	}
 
+	public void hideRecycleBin()
+	{
+		this.recycleBin.setVisibility(View.GONE);
+	}
 }

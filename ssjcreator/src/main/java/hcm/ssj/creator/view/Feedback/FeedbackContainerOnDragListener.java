@@ -36,6 +36,7 @@ import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 
+import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.creator.main.TwoDScrollView;
 
 import static android.view.DragEvent.*;
@@ -46,12 +47,11 @@ import static android.view.DragEvent.*;
 
 public class FeedbackContainerOnDragListener implements View.OnDragListener
 {
-	private final ScrollView scrollView;
-	private static ImageView recycleBin;
+	private final FeedbackContainerActivity feedbackContainerActivity;
 
-	public FeedbackContainerOnDragListener(ScrollView scrollView)
+	public FeedbackContainerOnDragListener(FeedbackContainerActivity feedbackContainerActivity)
 	{
-		this.scrollView = scrollView;
+		this.feedbackContainerActivity = feedbackContainerActivity;
 	}
 
 	@Override
@@ -60,10 +60,8 @@ public class FeedbackContainerOnDragListener implements View.OnDragListener
 		switch (event.getAction())
 		{
 			case ACTION_DRAG_STARTED:
-				if (v instanceof FeedbackLevelLayout)
-				{
-					createRecycleBin(v, (View)event.getLocalState());
-				}
+				FeedbackComponentView feedbackComponentView = ((FeedbackComponentView) event.getLocalState());
+				feedbackContainerActivity.showRecycleBin(feedbackComponentView.getWidth(), feedbackComponentView.getHeight());
 				break;
 			case ACTION_DROP:
 				if (event.getLocalState() instanceof FeedbackComponentView)
@@ -78,37 +76,9 @@ public class FeedbackContainerOnDragListener implements View.OnDragListener
 				// Set currently draged to false no matter where the drag ended, to force normal painting.
 				if(event.getLocalState() instanceof FeedbackComponentView)
 					((FeedbackComponentView) event.getLocalState()).setCurrentlyDraged(false);
-				if(recycleBin != null)
-				{
-					recycleBin.invalidate();
-					((ViewGroup) recycleBin.getParent()).removeView(recycleBin);
-					recycleBin = null;
-				}
+				feedbackContainerActivity.hideRecycleBin();
 				break;
 		}
 		return true;
-	}
-
-	private void createRecycleBin(View v, View localState) {
-		if (recycleBin == null)
-		{
-			recycleBin = new ImageView(v.getContext());
-			recycleBin.setImageResource(android.R.drawable.ic_menu_delete);
-			//determine shown width of the view
-			Rect rectSizeDisplayed = new Rect();
-			v.getGlobalVisibleRect(rectSizeDisplayed);
-			int width = rectSizeDisplayed.width();
-			int height = rectSizeDisplayed.height();
-			//determine scroll changes
-			int scrollX = 0, scrollY = 0;
-			scrollX = scrollView.getScrollX();
-			scrollY = scrollView.getScrollY();
-			width += scrollX;
-			height += scrollY;
-			int gridBoxSize = 20;
-			//place recycle bin
-			recycleBin.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
-			scrollView.addView(recycleBin);
-		}
 	}
 }
