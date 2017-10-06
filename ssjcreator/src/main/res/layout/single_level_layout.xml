@@ -48,5 +48,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:useDefaultMargins="true"
-        android:padding="10dp"/>
+        android:padding="10dp"
+        android:clipChildren="false"/>
 </LinearLayout>

@@ -49,7 +49,7 @@ public class FeedbackLevelLayout extends LinearLayout
 {
 	private android.widget.GridLayout feedbackComponentGrid;
 	private TextView levelTextView;
-	private FeedbackLevelListener feedbackLevelListener;
+	private FeedbackListener feedbackListener;
 
 	public FeedbackLevelLayout(Context context, int level, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
 	{
@@ -101,7 +101,7 @@ public class FeedbackLevelLayout extends LinearLayout
 			public void run()
 			{
 				feedbackComponentGrid.removeAllViews();
-				int height = (int) levelTextView.getMeasuredHeight();
+				int height = levelTextView.getMeasuredHeight();
 				LinearLayout.LayoutParams componentLayoutParams = new LinearLayout.LayoutParams(height, height);
 				componentLayoutParams.gravity = Gravity.CENTER_VERTICAL;
 				int margin = levelTextView.getPaddingStart();
@@ -129,10 +129,12 @@ public class FeedbackLevelLayout extends LinearLayout
 		}
 	}
 
-	protected void reorderFeedbackComponentGrid()
+	public void reorderFeedbackComponentGrid()
 	{
-		if(feedbackComponentGrid.getChildCount() == 0)
+		if (feedbackComponentGrid.getChildCount() == 0)
+		{
 			return;
+		}
 
 		final View v = feedbackComponentGrid.getChildAt(0);
 		v.post(new Runnable()
@@ -149,9 +151,9 @@ public class FeedbackLevelLayout extends LinearLayout
 		});
 	}
 
-	public void setFeedbackLevelListener(FeedbackLevelListener feedbackLevelListener)
+	public void setFeedbackListener(FeedbackListener feedbackListener)
 	{
-		this.feedbackLevelListener = feedbackLevelListener;
+		this.feedbackListener = feedbackListener;
 	}
 
 	protected void addGridComponent(FeedbackComponentView feedbackComponentView)
@@ -163,14 +165,14 @@ public class FeedbackLevelLayout extends LinearLayout
 			feedbackComponentGrid.addView(feedbackComponentView);
 			this.reorderFeedbackComponentGrid();
 			feedbackComponentGrid.invalidate();
-			feedbackLevelListener.onComponentAdded();
+			feedbackListener.onComponentAdded();
 		}
 	}
 
 	protected void removeFeedbackComponentView(FeedbackComponentView feedbackComponentView)
 	{
 		feedbackComponentGrid.removeView(feedbackComponentView);
-		this.reorderFeedbackComponentGrid(feedbackComponentGrid.getColumnCount());
+		this.reorderFeedbackComponentGrid();
 		feedbackComponentGrid.invalidate();
 	}
 }

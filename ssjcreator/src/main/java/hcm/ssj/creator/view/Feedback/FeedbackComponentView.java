@@ -33,6 +33,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Path;
 import android.view.View;
 
 import java.util.Map;
@@ -49,8 +50,8 @@ public class FeedbackComponentView extends ComponentView
 {
 	private Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry;
 
+	private Paint valencePaint;
 	private Paint dragBoxPaint;
-
 	private boolean currentlyDraged = false;
 
 	public FeedbackComponentView(Context context, Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry)
@@ -82,6 +83,10 @@ public class FeedbackComponentView extends ComponentView
 		dragBoxPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		dragBoxPaint.setStyle(Paint.Style.FILL);
 		dragBoxPaint.setColor(Color.DKGRAY);
+
+		valencePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		valencePaint.setStyle(Paint.Style.FILL);
+		valencePaint.setStrokeWidth(10);
 	}
 
 	public Map.Entry<Feedback, FeedbackContainer.Valence> getFeedbackValenceEntry()
@@ -97,16 +102,51 @@ public class FeedbackComponentView extends ComponentView
 	@Override
 	public void onDraw(Canvas canvas)
 	{
-		if(!currentlyDraged)
+		if (!currentlyDraged)
 		{
 			super.onDraw(canvas);
+			canvas.save();
+			if (feedbackValenceEntry.getValue().equals(FeedbackContainer.Valence.UNDESIRABLE))
+			{
+				// RED BOTTOM ARROW
+				valencePaint.setColor(Color.RED);
+				Path path = new Path();
+				path.moveTo(0, getHeight());
+				path.lineTo(getWidth(), getHeight());
+				path.lineTo(getWidth() / 2, getHeight() + (getHeight() / 5));
+				canvas.drawPath(path, valencePaint);
+
+			}
+			else if (feedbackValenceEntry.getValue().equals(FeedbackContainer.Valence.DESIRABLE))
+			{
+				// GREEN TOP ARROW
+				valencePaint.setColor(Color.GREEN);
+				Path path = new Path();
+				path.moveTo(0, 0);
+				path.lineTo(getWidth(), 0);
+				path.lineTo(getWidth() / 2, -(getHeight() / 5));
+				canvas.drawPath(path, valencePaint);
+			}
+			canvas.restore();
 		}
 		else
 		{
 			canvas.save();
-			canvas.drawRect(0,0,getWidth(),getHeight(), dragBoxPaint);
+			canvas.drawRect(0, 0, getWidth(), getHeight(), dragBoxPaint);
 			invalidate();
 			canvas.restore();
+		}
+	}
+
+	public void toggleValence()
+	{
+		if (feedbackValenceEntry.getValue().equals(FeedbackContainer.Valence.DESIRABLE))
+		{
+			feedbackValenceEntry.setValue(FeedbackContainer.Valence.UNDESIRABLE);
+		}
+		else
+		{
+			feedbackValenceEntry.setValue(FeedbackContainer.Valence.DESIRABLE);
 		}
 	}
 }

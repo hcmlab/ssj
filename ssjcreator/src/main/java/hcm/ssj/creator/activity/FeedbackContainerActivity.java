@@ -27,25 +27,31 @@
 
 package hcm.ssj.creator.activity;
 
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.view.ConnectionView;
 import hcm.ssj.creator.view.Feedback.FeedbackComponentView;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
-import hcm.ssj.creator.view.Feedback.FeedbackLevelListener;
+import hcm.ssj.creator.view.Feedback.FeedbackListener;
 import hcm.ssj.feedback.AndroidTactileFeedback;
 import hcm.ssj.feedback.AuditoryFeedback;
 import hcm.ssj.feedback.Feedback;
@@ -58,9 +64,8 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	private FeedbackContainer innerFeedbackContainer = null;
 	private LinearLayout levelLinearLayout;
 	private List<FeedbackLevelLayout> feedbackLevelLayoutList;
+	private FeedbackListener feedbackListener;
 	private ImageView recycleBin;
-	private FeedbackLevelListener feedbackLevelListener;
-	private ScrollView scrollView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -91,24 +96,25 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		}
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+
+		for (FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
+		{
+			feedbackLevelLayout.reorderFeedbackComponentGrid();
+			feedbackLevelLayout.invalidate();
+		}
+	}
+
 	private void mock()
 	{
 		if (feedbackContainer == null && innerFeedbackContainer == null)
 		{
 			feedbackContainer = new FeedbackContainer();
 			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new VisualFeedback(), 1, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AndroidTactileFeedback(), 2, FeedbackContainer.Valence.UNDESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.UNDESIRABLE);
 		}
 	}
 
@@ -122,12 +128,13 @@ public class FeedbackContainerActivity extends AppCompatActivity
 			throw new RuntimeException("no feedbackcontainer given");
 		}
 		levelLinearLayout = (LinearLayout) findViewById(R.id.feedbackLinearLayout);
-		scrollView = (ScrollView) findViewById(R.id.feedbackScrollView);
 		recycleBin = (ImageView) findViewById(R.id.recycleBin);
+		recycleBin.setOnDragListener(new FeedbackContainerOnDragListener(this));
+
 		setTitle(innerFeedbackContainer.getComponentName());
 		feedbackLevelLayoutList = new ArrayList<>();
 
-		this.feedbackLevelListener = new FeedbackLevelListener()
+		this.feedbackListener = new FeedbackListener()
 		{
 			@Override
 			public void onComponentAdded()
@@ -136,24 +143,6 @@ public class FeedbackContainerActivity extends AppCompatActivity
 				addEmptyLevel();
 			}
 		};
-
-		recycleBin.setOnDragListener(new View.OnDragListener() {
-			@Override
-			public boolean onDrag(View view, DragEvent dragEvent)
-			{
-				if(dragEvent.getAction() == DragEvent.ACTION_DROP)
-				{
-					if(dragEvent.getLocalState() instanceof FeedbackComponentView)
-					{
-						FeedbackComponentView localState = (FeedbackComponentView) dragEvent.getLocalState();
-						localState.invalidate();
-						((ViewGroup)localState.getParent()).removeView(localState);
-						return true;
-					}
-				}
-				return false;
-			}
-		});
 	}
 
 	private void createLevels()
@@ -165,7 +154,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		{
 			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
 			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
-			feedbackLevelLayout.setFeedbackLevelListener(this.feedbackLevelListener);
+			feedbackLevelLayout.setFeedbackListener(this.feedbackListener);
 			feedbackLevelLayoutList.add(feedbackLevelLayout);
 			levelLinearLayout.addView(feedbackLevelLayout);
 		}
@@ -176,7 +165,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	{
 		FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, levelLinearLayout.getChildCount(), null);
 		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
-		feedbackLevelLayout.setFeedbackLevelListener(this.feedbackLevelListener);
+		feedbackLevelLayout.setFeedbackListener(this.feedbackListener);
 		feedbackLevelLayoutList.add(feedbackLevelLayout);
 		levelLinearLayout.addView(feedbackLevelLayout);
 	}
@@ -201,15 +190,38 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		}
 	}
 
-	public void showRecycleBin(int width, int height)
+	public void showDragIcons(int width, int height)
 	{
-		recycleBin.layout(0,0,width,height);
-		recycleBin.setVisibility(View.VISIBLE);
-		recycleBin.invalidate();
+		ViewGroup.LayoutParams lpBin = this.recycleBin.getLayoutParams();
+		lpBin.width = width;
+		lpBin.height = height;
+		this.recycleBin.setLayoutParams(lpBin);
+		this.recycleBin.setVisibility(View.VISIBLE);
+		this.recycleBin.invalidate();
 	}
 
-	public void hideRecycleBin()
+	public void hideDragIcons()
 	{
 		this.recycleBin.setVisibility(View.GONE);
+	}
+
+	public ImageView getRecycleBin()
+	{
+		return recycleBin;
+	}
+
+	public void requestReorder() {
+		for (final FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
+		{
+			feedbackLevelLayout.post(new Runnable() {
+				@Override
+				public void run()
+				{
+					feedbackLevelLayout.reorderFeedbackComponentGrid();
+				}
+			});
+		}
+		deleteEmptyLevels();
+		addEmptyLevel();
 	}
 }

@@ -27,19 +27,15 @@
 
 package hcm.ssj.creator.view.Feedback;
 
-import android.content.Context;
-import android.graphics.Rect;
 import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.widget.ImageView;
-import android.widget.ScrollView;
 
 import hcm.ssj.creator.activity.FeedbackContainerActivity;
-import hcm.ssj.creator.main.TwoDScrollView;
 
-import static android.view.DragEvent.*;
+import static android.view.DragEvent.ACTION_DRAG_ENDED;
+import static android.view.DragEvent.ACTION_DRAG_STARTED;
+import static android.view.DragEvent.ACTION_DROP;
 
 /**
  * Created by Antonio Grieco on 04.10.2017.
@@ -57,28 +53,41 @@ public class FeedbackContainerOnDragListener implements View.OnDragListener
 	@Override
 	public boolean onDrag(final View v, DragEvent event)
 	{
-		switch (event.getAction())
+		if (event.getLocalState() instanceof FeedbackComponentView)
 		{
-			case ACTION_DRAG_STARTED:
-				FeedbackComponentView feedbackComponentView = ((FeedbackComponentView) event.getLocalState());
-				feedbackContainerActivity.showRecycleBin(feedbackComponentView.getWidth(), feedbackComponentView.getHeight());
-				break;
-			case ACTION_DROP:
-				if (event.getLocalState() instanceof FeedbackComponentView)
-				{
+			final FeedbackComponentView feedbackComponentView = ((FeedbackComponentView) event.getLocalState());
+
+			switch (event.getAction())
+			{
+				case ACTION_DRAG_STARTED:
+					feedbackContainerActivity.showDragIcons(feedbackComponentView.getWidth(), feedbackComponentView.getHeight());
+					break;
+				case ACTION_DROP:
 					if (v instanceof FeedbackLevelLayout)
 					{
-						((FeedbackLevelLayout) v).addGridComponent((FeedbackComponentView) event.getLocalState());
+						((FeedbackLevelLayout) v).addGridComponent(feedbackComponentView);
 					}
-				}
-				break;
-			case ACTION_DRAG_ENDED:
-				// Set currently draged to false no matter where the drag ended, to force normal painting.
-				if(event.getLocalState() instanceof FeedbackComponentView)
-					((FeedbackComponentView) event.getLocalState()).setCurrentlyDraged(false);
-				feedbackContainerActivity.hideRecycleBin();
-				break;
+					else if (v.equals(feedbackContainerActivity.getRecycleBin()))
+					{
+						feedbackComponentView.post(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								((ViewGroup) feedbackComponentView.getParent()).removeView(feedbackComponentView);
+								feedbackContainerActivity.requestReorder();
+							}
+						});
+					}
+					break;
+				case ACTION_DRAG_ENDED:
+					// Set currently draged to false no matter where the drag ended, to force normal painting.
+					feedbackComponentView.setCurrentlyDraged(false);
+					feedbackContainerActivity.hideDragIcons();
+					break;
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 }
