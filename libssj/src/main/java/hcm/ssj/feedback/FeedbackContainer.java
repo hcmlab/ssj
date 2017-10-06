@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
@@ -48,11 +47,11 @@ import hcm.ssj.core.option.OptionList;
 public class FeedbackContainer extends EventHandler
 {
 
-	public enum Valence
+	public enum LevelBehaviour
 	{
-		UNKNOWN,
-		DESIRABLE,
-		UNDESIRABLE;
+		Regress,
+		Neutral,
+		Progress;
 	}
 
 	public class Options extends OptionList
@@ -69,7 +68,7 @@ public class FeedbackContainer extends EventHandler
 	public FeedbackContainer.Options options = new FeedbackContainer.Options();
 	private Pipeline pipeline;
 	private int currentLevel;
-	private List<Map<Feedback, Valence>> feedbackList;
+	private List<Map<Feedback, LevelBehaviour>> feedbackList;
 	private long lastDesireableState;
 	private long lastUndesireableState;
 
@@ -97,39 +96,39 @@ public class FeedbackContainer extends EventHandler
 			return;
 		}
 
-		for (Map.Entry<Feedback, Valence> feedbackEntry : feedbackList.get(currentLevel).entrySet())
+		for (Map.Entry<Feedback, LevelBehaviour> feedbackEntry : feedbackList.get(currentLevel).entrySet())
 		{
 			long feedbackEntryLastExecutionTime = feedbackEntry.getKey().getLastExecutionTime();
 			switch (feedbackEntry.getValue())
 			{
-				case DESIRABLE:
+				case Regress:
 					if (feedbackEntryLastExecutionTime > lastDesireableState)
 					{
 						lastDesireableState = feedbackEntryLastExecutionTime;
 					}
 					break;
-				case UNDESIRABLE:
+				case Progress:
 					if (feedbackEntryLastExecutionTime > lastUndesireableState)
 					{
 						lastUndesireableState = feedbackEntryLastExecutionTime;
 					}
 					break;
-				case UNKNOWN:
+				case Neutral:
 					break;
 				default:
-					throw new RuntimeException("Valence value invalid!");
+					throw new RuntimeException("LevelBehaviour value invalid!");
 			}
 		}
 
 		//if all current feedback classes are in a non desirable state, check if we should progress to next level
-		if (System.currentTimeMillis() - (int) (options.progression.get() * 1000) > lastDesireableState && (currentLevel + 1) < feedbackList.size())
+		if ((currentLevel + 1) < feedbackList.size() && System.currentTimeMillis() - (int) (options.progression.get() * 1000) > lastDesireableState)
 		{
 			setLevelActive(currentLevel + 1);
 			lastDesireableState = System.currentTimeMillis();
 			Log.d("activating level " + currentLevel);
 		}
 		//if all current feedback classes are in a desirable state, check if we can go back to the previous level
-		else if (System.currentTimeMillis() - (int) (options.regression.get() * 1000) > lastUndesireableState && currentLevel > 0)
+		else if (currentLevel > 0 && System.currentTimeMillis() - (int) (options.regression.get() * 1000) > lastUndesireableState)
 		{
 			setLevelActive(currentLevel - 1);
 			lastUndesireableState = System.currentTimeMillis();
@@ -157,7 +156,7 @@ public class FeedbackContainer extends EventHandler
 
 	private void addEventChannels()
 	{
-		for (Map<Feedback, Valence> innerList : feedbackList)
+		for (Map<Feedback, LevelBehaviour> innerList : feedbackList)
 		{
 			for (Feedback feedback : innerList.keySet())
 			{
@@ -170,18 +169,18 @@ public class FeedbackContainer extends EventHandler
 		}
 	}
 
-	public List<Map<Feedback, Valence>> getFeedbackList()
+	public List<Map<Feedback, LevelBehaviour>> getFeedbackList()
 	{
 		return feedbackList;
 	}
 
-	public void addFeedback(Feedback feedback, int level, Valence valence)
+	public void addFeedback(Feedback feedback, int level, LevelBehaviour levelBehaviour)
 	{
 		while (feedbackList.size() <= level)
 		{
-			feedbackList.add(new LinkedHashMap<Feedback, Valence>());
+			feedbackList.add(new LinkedHashMap<Feedback, LevelBehaviour>());
 		}
-		feedbackList.get(level).put(feedback, valence);
+		feedbackList.get(level).put(feedback, levelBehaviour);
 	}
 
 	public void removeFeedback(Feedback feedback)
@@ -195,7 +194,7 @@ public class FeedbackContainer extends EventHandler
 		}
 	}
 
-	public void setFeedbackList(List<Map<Feedback,Valence>> feedbackList)
+	public void setFeedbackList(List<Map<Feedback,LevelBehaviour>> feedbackList)
 	{
 		this.feedbackList = feedbackList;
 	}

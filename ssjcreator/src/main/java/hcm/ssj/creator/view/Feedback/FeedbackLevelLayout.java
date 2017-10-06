@@ -27,7 +27,6 @@
 
 package hcm.ssj.creator.view.Feedback;
 
-import android.content.Context;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.GridLayout;
@@ -38,6 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
 
@@ -51,31 +51,31 @@ public class FeedbackLevelLayout extends LinearLayout
 	private TextView levelTextView;
 	private FeedbackListener feedbackListener;
 
-	public FeedbackLevelLayout(Context context, int level, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
+	public FeedbackLevelLayout(FeedbackContainerActivity feedbackContainerActivity, int level, final Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap)
 	{
-		super(context);
-		LinearLayout.inflate(context, R.layout.single_level_layout, this);
+		super(feedbackContainerActivity);
+		LinearLayout.inflate(feedbackContainerActivity, R.layout.single_level_layout, this);
 
 		levelTextView = (TextView) this.findViewById(R.id.levelText);
 		feedbackComponentGrid = (android.widget.GridLayout) this.findViewById(R.id.feedbackComponentGrid);
 
 		setLevel(level);
-		buildComponentGrid(context, feedbackValenceMap);
+		buildComponentGrid(feedbackContainerActivity, feedbackLevelBehaviourMap);
 	}
 
-	public Map<Feedback, FeedbackContainer.Valence> getFeedbackValenceMap()
+	public Map<Feedback,FeedbackContainer.LevelBehaviour> getFeedbackLevelBehaviourMap()
 	{
-		Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap = new LinkedHashMap<>();
+		Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap = new LinkedHashMap<>();
 		for (int childCount = 0; childCount < feedbackComponentGrid.getChildCount(); childCount++)
 		{
 			View childView = feedbackComponentGrid.getChildAt(childCount);
 			if (childView instanceof FeedbackComponentView)
 			{
-				Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry = ((FeedbackComponentView) childView).getFeedbackValenceEntry();
-				feedbackValenceMap.put(feedbackValenceEntry.getKey(), feedbackValenceEntry.getValue());
+				Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry = ((FeedbackComponentView) childView).getFeedbackLevelBehaviourEntry();
+				feedbackLevelBehaviourMap.put(feedbackLevelBehaviourEntry.getKey(), feedbackLevelBehaviourEntry.getValue());
 			}
 		}
-		return feedbackValenceMap;
+		return feedbackLevelBehaviourMap;
 	}
 
 	public void setLevel(int level)
@@ -89,9 +89,9 @@ public class FeedbackLevelLayout extends LinearLayout
 		super.onLayout(changed, l, t, r, b);
 	}
 
-	protected void buildComponentGrid(final Context context, final Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap)
+	protected void buildComponentGrid(final FeedbackContainerActivity containerActivity, final Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap)
 	{
-		if (feedbackValenceMap == null || feedbackValenceMap.isEmpty())
+		if (feedbackLevelBehaviourMap == null || feedbackLevelBehaviourMap.isEmpty())
 		{
 			return;
 		}
@@ -106,9 +106,9 @@ public class FeedbackLevelLayout extends LinearLayout
 				componentLayoutParams.gravity = Gravity.CENTER_VERTICAL;
 				int margin = levelTextView.getPaddingStart();
 				componentLayoutParams.setMargins(margin, margin, margin, margin);
-				for (Map.Entry<Feedback, FeedbackContainer.Valence> entry : feedbackValenceMap.entrySet())
+				for (Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> entry : feedbackLevelBehaviourMap.entrySet())
 				{
-					FeedbackComponentView feedbackComponentView = new FeedbackComponentView(context, entry);
+					FeedbackComponentView feedbackComponentView = new FeedbackComponentView(containerActivity, entry);
 					feedbackComponentView.setLayoutParams(componentLayoutParams);
 					feedbackComponentGrid.addView(feedbackComponentView);
 				}

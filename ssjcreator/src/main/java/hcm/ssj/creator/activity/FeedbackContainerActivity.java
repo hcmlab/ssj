@@ -27,28 +27,20 @@
 
 package hcm.ssj.creator.activity;
 
-import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.view.ConnectionView;
-import hcm.ssj.creator.view.Feedback.FeedbackComponentView;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
 import hcm.ssj.creator.view.Feedback.FeedbackListener;
@@ -83,13 +75,13 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		super.onPause();
 		if (innerFeedbackContainer != null)
 		{
-			List<Map<Feedback, FeedbackContainer.Valence>> feedbackLevelList = new ArrayList<>();
+			List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackLevelList = new ArrayList<>();
 			for (FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
 			{
-				Map<Feedback, FeedbackContainer.Valence> feedbackValenceMap = feedbackLevelLayout.getFeedbackValenceMap();
-				if (feedbackValenceMap != null && !feedbackValenceMap.isEmpty())
+				Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap = feedbackLevelLayout.getFeedbackLevelBehaviourMap();
+				if (feedbackLevelBehaviourMap != null && !feedbackLevelBehaviourMap.isEmpty())
 				{
-					feedbackLevelList.add(feedbackLevelLayout.getFeedbackValenceMap());
+					feedbackLevelList.add(feedbackLevelLayout.getFeedbackLevelBehaviourMap());
 				}
 			}
 			innerFeedbackContainer.setFeedbackList(feedbackLevelList);
@@ -113,8 +105,9 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		if (feedbackContainer == null && innerFeedbackContainer == null)
 		{
 			feedbackContainer = new FeedbackContainer();
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.DESIRABLE);
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.Valence.UNDESIRABLE);
+			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.LevelBehaviour.Regress);
+			feedbackContainer.addFeedback(new VisualFeedback(), 0, FeedbackContainer.LevelBehaviour.Neutral);
+			feedbackContainer.addFeedback(new AndroidTactileFeedback(), 0, FeedbackContainer.LevelBehaviour.Progress);
 		}
 	}
 
@@ -149,7 +142,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	{
 		feedbackLevelLayoutList.clear();
 		levelLinearLayout.removeAllViews();
-		List<Map<Feedback, FeedbackContainer.Valence>> feedbackLevelList = innerFeedbackContainer.getFeedbackList();
+		List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackLevelList = innerFeedbackContainer.getFeedbackList();
 		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
 			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
@@ -177,7 +170,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		while (iterator.hasNext())
 		{
 			FeedbackLevelLayout feedbackLevelLayout = iterator.next();
-			if (feedbackLevelLayout.getFeedbackValenceMap() != null && !feedbackLevelLayout.getFeedbackValenceMap().isEmpty())
+			if (feedbackLevelLayout.getFeedbackLevelBehaviourMap() != null && !feedbackLevelLayout.getFeedbackLevelBehaviourMap().isEmpty())
 			{
 				feedbackLevelLayout.setLevel(counter);
 				counter++;

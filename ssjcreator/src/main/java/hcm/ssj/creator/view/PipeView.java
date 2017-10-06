@@ -46,13 +46,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
@@ -503,9 +501,6 @@ public class PipeView extends ViewGroup
 				if(isManagedFeedback(view.getElement()))
 				{
 					view.setVisibility(GONE);
-					//gridLayout.setGridValue(view.getGridX(), view.getGridY(), false);
-/*					view.setGridX(-1);
-					view.setGridY(-1);*/
 					continue;
 				}
 				else {
@@ -562,7 +557,7 @@ public class PipeView extends ViewGroup
 		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
 		for(Component component : components)
 		{
-			for(Map<Feedback, FeedbackContainer.Valence> feedbackList : ((FeedbackContainer)component).getFeedbackList())
+			for(Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackList : ((FeedbackContainer)component).getFeedbackList())
 			{
 				if(feedbackList.containsKey(element))
 					return true;
@@ -659,7 +654,7 @@ public class PipeView extends ViewGroup
 			{
 				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackContainer)
 				{
-					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackContainer.Valence.UNKNOWN);
+					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackContainer.LevelBehaviour.Neutral);
 				}
 				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
 				{

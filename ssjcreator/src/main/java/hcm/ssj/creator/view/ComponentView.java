@@ -347,7 +347,7 @@ public class ComponentView extends View
         canvas.restore();
     }
 
-    private void openOptions()
+    protected void openOptions()
     {
         Activity activity = (Activity) getContext();
         OptionsActivity.object = this.element;

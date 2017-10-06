@@ -30,14 +30,35 @@ package hcm.ssj.creator.view.Feedback;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.drawable.GradientDrawable;
+import android.provider.MediaStore;
+import android.support.annotation.IdRes;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.text.Editable;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Checkable;
+import android.widget.CheckedTextView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Map;
 
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.creator.view.ComponentView;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
@@ -48,17 +69,18 @@ import hcm.ssj.feedback.FeedbackContainer;
 
 public class FeedbackComponentView extends ComponentView
 {
-	private Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry;
+	private Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry;
+	private final FeedbackContainerActivity feedbackContainerActivity;
 
-	private Paint valencePaint;
+	private Paint levelBehaviourPaint;
 	private Paint dragBoxPaint;
 	private boolean currentlyDraged = false;
 
-	public FeedbackComponentView(Context context, Map.Entry<Feedback, FeedbackContainer.Valence> feedbackValenceEntry)
+	public FeedbackComponentView(FeedbackContainerActivity feedbackContainerActivity, Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry)
 	{
-		super(context, feedbackValenceEntry.getKey());
-
-		this.feedbackValenceEntry = feedbackValenceEntry;
+		super(feedbackContainerActivity, feedbackLevelBehaviourEntry.getKey());
+		this.feedbackContainerActivity = feedbackContainerActivity;
+		this.feedbackLevelBehaviourEntry = feedbackLevelBehaviourEntry;
 
 		OnLongClickListener onTouchListener = new OnLongClickListener()
 		{
@@ -75,6 +97,14 @@ public class FeedbackComponentView extends ComponentView
 		};
 		this.setOnLongClickListener(onTouchListener);
 
+		this.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v)
+			{
+				openLevelBehaviourDialog();
+			}
+		});
+
 		initPaints();
 	}
 
@@ -84,14 +114,14 @@ public class FeedbackComponentView extends ComponentView
 		dragBoxPaint.setStyle(Paint.Style.FILL);
 		dragBoxPaint.setColor(Color.DKGRAY);
 
-		valencePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-		valencePaint.setStyle(Paint.Style.FILL);
-		valencePaint.setStrokeWidth(10);
+		levelBehaviourPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+		levelBehaviourPaint.setStyle(Paint.Style.FILL);
+		levelBehaviourPaint.setStrokeWidth(10);
 	}
 
-	public Map.Entry<Feedback, FeedbackContainer.Valence> getFeedbackValenceEntry()
+	public Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> getFeedbackLevelBehaviourEntry()
 	{
-		return feedbackValenceEntry;
+		return feedbackLevelBehaviourEntry;
 	}
 
 	public void setCurrentlyDraged(boolean currentlyDraged)
@@ -106,26 +136,28 @@ public class FeedbackComponentView extends ComponentView
 		{
 			super.onDraw(canvas);
 			canvas.save();
-			if (feedbackValenceEntry.getValue().equals(FeedbackContainer.Valence.UNDESIRABLE))
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackContainer.LevelBehaviour.Progress))
 			{
 				// RED BOTTOM ARROW
-				valencePaint.setColor(Color.RED);
+				levelBehaviourPaint.setColor(Color.RED);
 				Path path = new Path();
 				path.moveTo(0, getHeight());
 				path.lineTo(getWidth(), getHeight());
-				path.lineTo(getWidth() / 2, getHeight() + (getHeight() / 5));
-				canvas.drawPath(path, valencePaint);
+				path.lineTo(getWidth() / 2, getHeight() + (getHeight() / 8));
+				path.offset(0, (getHeight() / 20));
+				canvas.drawPath(path, levelBehaviourPaint);
 
 			}
-			else if (feedbackValenceEntry.getValue().equals(FeedbackContainer.Valence.DESIRABLE))
+			else if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackContainer.LevelBehaviour.Regress))
 			{
 				// GREEN TOP ARROW
-				valencePaint.setColor(Color.GREEN);
+				levelBehaviourPaint.setColor(Color.GREEN);
 				Path path = new Path();
 				path.moveTo(0, 0);
 				path.lineTo(getWidth(), 0);
-				path.lineTo(getWidth() / 2, -(getHeight() / 5));
-				canvas.drawPath(path, valencePaint);
+				path.lineTo(getWidth() / 2, -(getHeight() / 8));
+				path.offset(0, -(getHeight() / 20));
+				canvas.drawPath(path, levelBehaviourPaint);
 			}
 			canvas.restore();
 		}
@@ -138,15 +170,108 @@ public class FeedbackComponentView extends ComponentView
 		}
 	}
 
-	public void toggleValence()
+	void openLevelBehaviourDialog(){
+
+		AlertDialog.Builder alt_bld = new AlertDialog.Builder(feedbackContainerActivity);
+		alt_bld.setTitle(feedbackLevelBehaviourEntry.getKey().getComponentName() + " - " + FeedbackContainer.LevelBehaviour.class.getSimpleName());
+		alt_bld.setMessage(R.string.level_behaviour_message);
+		final FeedbackContainer.LevelBehaviour oldLevelBehaviour = feedbackLevelBehaviourEntry.getValue();
+
+		alt_bld.setView(getRadioGroup());
+
+		// BUTTONS
+		alt_bld.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				openOptions();
+			}
+		});
+		alt_bld.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which)
+			{
+				feedbackLevelBehaviourEntry.setValue(oldLevelBehaviour);
+			}
+		});
+		alt_bld.setPositiveButton(R.string.str_ok, null);
+
+		// DISPLAY
+		AlertDialog alert = alt_bld.create();
+		alert.show();
+	}
+
+	public RadioGroup getRadioGroup()
 	{
-		if (feedbackValenceEntry.getValue().equals(FeedbackContainer.Valence.DESIRABLE))
+		final String[] values = Arrays.toString(FeedbackContainer.LevelBehaviour.values()).replaceAll("^.|.$", "").split(", ");
+		final RadioGroup radioGroup = new RadioGroup(feedbackContainerActivity);
+		radioGroup.setPadding(20,20,20,20);
+		for(String value : values)
 		{
-			feedbackValenceEntry.setValue(FeedbackContainer.Valence.UNDESIRABLE);
+			CheckableListItem checkableListItem = new CheckableListItem(feedbackContainerActivity);
+			checkableListItem.setText(value);
+			radioGroup.addView(checkableListItem);
+			if(value.equals(feedbackLevelBehaviourEntry.getValue().toString()))
+			{
+				radioGroup.check(checkableListItem.getId());
+			}
 		}
-		else
+
+		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, @IdRes int checkedId)
+			{
+				RadioButton radioButton = (RadioButton) radioGroup.findViewById(checkedId);
+				feedbackLevelBehaviourEntry.setValue(FeedbackContainer.LevelBehaviour.valueOf(radioButton.getText().toString()));
+			}
+		});
+
+		return radioGroup;
+	}
+
+	private class CheckableListItem extends LinearLayout implements Checkable
+	{
+		TextView textView;
+		RadioButton radioButton;
+
+		public CheckableListItem(Context context)
 		{
-			feedbackValenceEntry.setValue(FeedbackContainer.Valence.DESIRABLE);
+			super(context);
+			this.setOrientation(HORIZONTAL);
+			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			lp.gravity = Gravity.CENTER_VERTICAL;
+			radioButton = new RadioButton(context);
+			radioButton.setChecked(false);
+			radioButton.setLayoutParams(lp);
+			textView = new TextView(context);
+		}
+
+		public String getText()
+		{
+			return textView.getText().toString();
+		}
+
+		public void setText(String text)
+		{
+			textView.setText(text);
+		}
+
+		@Override
+		public void setChecked(boolean checked)
+		{
+			radioButton.setChecked(checked);
+		}
+
+		@Override
+		public boolean isChecked()
+		{
+			return radioButton.isChecked();
+		}
+
+		@Override
+		public void toggle()
+		{
+			setChecked(!isChecked());
 		}
 	}
 }

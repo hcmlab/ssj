@@ -27,11 +27,9 @@
 
 package hcm.ssj.creator.view;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
@@ -44,10 +42,7 @@ import android.widget.ImageView;
 
 import java.util.Map;
 
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.activity.FeedbackContainerActivity;
-import hcm.ssj.creator.activity.MainActivity;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.Util;
@@ -196,7 +191,7 @@ class PipeOnDragListener implements View.OnDragListener
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        for(Map<Feedback, FeedbackContainer.Valence> levelMap : feedbackContainer.getFeedbackList())
+                        for(Map<Feedback, FeedbackContainer.LevelBehaviour> levelMap : feedbackContainer.getFeedbackList())
                         {
                             for(Feedback feedback : levelMap.keySet())
                             {

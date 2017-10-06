@@ -86,4 +86,7 @@
     <string name="slide6_title">Enjoy</string>
     <string name="slide6_text">You can check out your pipeline in action using the different views</string>
     <string name="anno_msband">Annotate using MS Band 2</string>
+
+    <!--explaning text-->
+    <string name="level_behaviour_message">dasdasd</string>
 </resources>
