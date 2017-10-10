@@ -120,14 +120,14 @@ public class FeedbackContainer extends EventHandler
 			}
 		}
 
-		//if all current feedback classes are in a non desirable state, check if we should progress to next level
+		//if all undesirable feedback classes are active and no desirable class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() && System.currentTimeMillis() - (int) (options.progression.get() * 1000) > lastDesireableState)
 		{
 			setLevelActive(currentLevel + 1);
 			lastDesireableState = System.currentTimeMillis();
 			Log.d("activating level " + currentLevel);
 		}
-		//if all current feedback classes are in a desirable state, check if we can go back to the previous level
+		//if all desirable feedback classes are active and no undesirable class is active, check if we can go back to the previous level
 		else if (currentLevel > 0 && System.currentTimeMillis() - (int) (options.regression.get() * 1000) > lastUndesireableState)
 		{
 			setLevelActive(currentLevel - 1);

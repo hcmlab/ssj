@@ -88,5 +88,10 @@
     <string name="anno_msband">Annotate using MS Band 2</string>
 
     <!--explaning text-->
-    <string name="level_behaviour_message">dasdasd</string>
+    <string name="level_behaviour_message">
+        The level behaviours of feedback components are taken into account to decide, whether we\
+        should progress to the next level (all \"Progress\" components are active and no\
+        \"Regress\" component) or regress to the previous level (all \"Regress\" components\
+        are active and no \"Progress\" component). \"Neutral\" components are not taken into account.
+    </string>
 </resources>

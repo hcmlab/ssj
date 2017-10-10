@@ -29,26 +29,16 @@ package hcm.ssj.creator.view.Feedback;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
-import android.graphics.drawable.GradientDrawable;
-import android.provider.MediaStore;
 import android.support.annotation.IdRes;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutCompat;
-import android.text.Editable;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Checkable;
-import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -69,12 +59,16 @@ import hcm.ssj.feedback.FeedbackContainer;
 
 public class FeedbackComponentView extends ComponentView
 {
-	private Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry;
 	private final FeedbackContainerActivity feedbackContainerActivity;
-
+	private final float TRIANGLE_OFFSET_FACTOR = 0.05f;
+	private final float TRIANGLE_HEIGHT_FACTOR = 0.15f;
+	private Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry;
 	private Paint levelBehaviourPaint;
 	private Paint dragBoxPaint;
+	private Path topTriangleArrow;
+	private Path bottomTriangleArrow;
 	private boolean currentlyDraged = false;
+
 
 	public FeedbackComponentView(FeedbackContainerActivity feedbackContainerActivity, Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry)
 	{
@@ -82,6 +76,12 @@ public class FeedbackComponentView extends ComponentView
 		this.feedbackContainerActivity = feedbackContainerActivity;
 		this.feedbackLevelBehaviourEntry = feedbackLevelBehaviourEntry;
 
+		initListeners();
+		initPaints();
+	}
+
+	private void initListeners()
+	{
 		OnLongClickListener onTouchListener = new OnLongClickListener()
 		{
 			@Override
@@ -97,15 +97,14 @@ public class FeedbackComponentView extends ComponentView
 		};
 		this.setOnLongClickListener(onTouchListener);
 
-		this.setOnClickListener(new OnClickListener() {
+		this.setOnClickListener(new OnClickListener()
+		{
 			@Override
 			public void onClick(View v)
 			{
 				openLevelBehaviourDialog();
 			}
 		});
-
-		initPaints();
 	}
 
 	private void initPaints()
@@ -117,6 +116,48 @@ public class FeedbackComponentView extends ComponentView
 		levelBehaviourPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 		levelBehaviourPaint.setStyle(Paint.Style.FILL);
 		levelBehaviourPaint.setStrokeWidth(10);
+	}
+
+	@Override
+	protected void onLayout(boolean changed, int left, int top, int right, int bottom)
+	{
+		super.onLayout(changed, left, top, right, bottom);
+
+		if (!changed)
+		{
+			return;
+		}
+
+		initTriangleArrows();
+	}
+
+	private void initTriangleArrows()
+	{
+		if (topTriangleArrow == null)
+		{
+			topTriangleArrow = new Path();
+		}
+		else
+		{
+			topTriangleArrow.rewind();
+		}
+		topTriangleArrow.moveTo(0, 0);
+		topTriangleArrow.lineTo(getWidth(), 0);
+		topTriangleArrow.lineTo(getWidth() / 2, -getHeight() * TRIANGLE_HEIGHT_FACTOR);
+		topTriangleArrow.offset(0, -getHeight() * TRIANGLE_OFFSET_FACTOR);
+
+		if (bottomTriangleArrow == null)
+		{
+			bottomTriangleArrow = new Path();
+		}
+		else
+		{
+			bottomTriangleArrow.rewind();
+		}
+		bottomTriangleArrow.moveTo(0, getHeight());
+		bottomTriangleArrow.lineTo(getWidth(), getHeight());
+		bottomTriangleArrow.lineTo(getWidth() / 2, getHeight() + getHeight() * TRIANGLE_HEIGHT_FACTOR);
+		bottomTriangleArrow.offset(0, getHeight() * TRIANGLE_OFFSET_FACTOR);
 	}
 
 	public Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> getFeedbackLevelBehaviourEntry()
@@ -140,24 +181,14 @@ public class FeedbackComponentView extends ComponentView
 			{
 				// RED BOTTOM ARROW
 				levelBehaviourPaint.setColor(Color.RED);
-				Path path = new Path();
-				path.moveTo(0, getHeight());
-				path.lineTo(getWidth(), getHeight());
-				path.lineTo(getWidth() / 2, getHeight() + (getHeight() / 8));
-				path.offset(0, (getHeight() / 20));
-				canvas.drawPath(path, levelBehaviourPaint);
+				canvas.drawPath(bottomTriangleArrow, levelBehaviourPaint);
 
 			}
 			else if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackContainer.LevelBehaviour.Regress))
 			{
 				// GREEN TOP ARROW
 				levelBehaviourPaint.setColor(Color.GREEN);
-				Path path = new Path();
-				path.moveTo(0, 0);
-				path.lineTo(getWidth(), 0);
-				path.lineTo(getWidth() / 2, -(getHeight() / 8));
-				path.offset(0, -(getHeight() / 20));
-				canvas.drawPath(path, levelBehaviourPaint);
+				canvas.drawPath(topTriangleArrow, levelBehaviourPaint);
 			}
 			canvas.restore();
 		}
@@ -170,24 +201,26 @@ public class FeedbackComponentView extends ComponentView
 		}
 	}
 
-	void openLevelBehaviourDialog(){
+	private void openLevelBehaviourDialog()
+	{
 
 		AlertDialog.Builder alt_bld = new AlertDialog.Builder(feedbackContainerActivity);
 		alt_bld.setTitle(feedbackLevelBehaviourEntry.getKey().getComponentName() + " - " + FeedbackContainer.LevelBehaviour.class.getSimpleName());
-		alt_bld.setMessage(R.string.level_behaviour_message);
 		final FeedbackContainer.LevelBehaviour oldLevelBehaviour = feedbackLevelBehaviourEntry.getValue();
 
-		alt_bld.setView(getRadioGroup());
+		alt_bld.setView(getDialogContentView());
 
 		// BUTTONS
-		alt_bld.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener() {
+		alt_bld.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener()
+		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
 				openOptions();
 			}
 		});
-		alt_bld.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener() {
+		alt_bld.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener()
+		{
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
@@ -201,77 +234,48 @@ public class FeedbackComponentView extends ComponentView
 		alert.show();
 	}
 
-	public RadioGroup getRadioGroup()
+	private View getDialogContentView()
 	{
-		final String[] values = Arrays.toString(FeedbackContainer.LevelBehaviour.values()).replaceAll("^.|.$", "").split(", ");
-		final RadioGroup radioGroup = new RadioGroup(feedbackContainerActivity);
-		radioGroup.setPadding(20,20,20,20);
-		for(String value : values)
+
+		LayoutInflater inflater = LayoutInflater.from(feedbackContainerActivity);
+		View contentView = inflater.inflate(R.layout.dialog_level_behaviour, null);
+
+		TextView messageTextView = (TextView) contentView.findViewById(R.id.messageTextView);
+		messageTextView.setText(R.string.level_behaviour_message);
+
+		LinearLayout.LayoutParams radioButtonLayoutParams =
+				new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+		radioButtonLayoutParams.weight = 1;
+
+		final RadioGroup radioGroup = (RadioGroup) contentView.findViewById(R.id.levelBehaviourRadioGroup);
+		radioGroup.removeAllViews();
+		String[] values = Arrays
+				.toString(FeedbackContainer.LevelBehaviour.values())
+				.replaceAll("^.|.$", "").split(", ");
+		for (String value : values)
 		{
-			CheckableListItem checkableListItem = new CheckableListItem(feedbackContainerActivity);
-			checkableListItem.setText(value);
-			radioGroup.addView(checkableListItem);
-			if(value.equals(feedbackLevelBehaviourEntry.getValue().toString()))
+			RadioButton radioButton = new RadioButton(feedbackContainerActivity);
+			radioButton.setText(value);
+			radioButton.setLayoutParams(radioButtonLayoutParams);
+			radioGroup.addView(radioButton);
+			if (value.equals(feedbackLevelBehaviourEntry.getValue().toString()))
 			{
-				radioGroup.check(checkableListItem.getId());
+				radioGroup.check(radioButton.getId());
 			}
 		}
 
-		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+		radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener()
+		{
 			@Override
 			public void onCheckedChanged(RadioGroup group, @IdRes int checkedId)
 			{
 				RadioButton radioButton = (RadioButton) radioGroup.findViewById(checkedId);
-				feedbackLevelBehaviourEntry.setValue(FeedbackContainer.LevelBehaviour.valueOf(radioButton.getText().toString()));
+				feedbackLevelBehaviourEntry.setValue(
+						FeedbackContainer.LevelBehaviour.valueOf(radioButton.getText().toString())
+				);
 			}
 		});
 
-		return radioGroup;
-	}
-
-	private class CheckableListItem extends LinearLayout implements Checkable
-	{
-		TextView textView;
-		RadioButton radioButton;
-
-		public CheckableListItem(Context context)
-		{
-			super(context);
-			this.setOrientation(HORIZONTAL);
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-			lp.gravity = Gravity.CENTER_VERTICAL;
-			radioButton = new RadioButton(context);
-			radioButton.setChecked(false);
-			radioButton.setLayoutParams(lp);
-			textView = new TextView(context);
-		}
-
-		public String getText()
-		{
-			return textView.getText().toString();
-		}
-
-		public void setText(String text)
-		{
-			textView.setText(text);
-		}
-
-		@Override
-		public void setChecked(boolean checked)
-		{
-			radioButton.setChecked(checked);
-		}
-
-		@Override
-		public boolean isChecked()
-		{
-			return radioButton.isChecked();
-		}
-
-		@Override
-		public void toggle()
-		{
-			setChecked(!isChecked());
-		}
+		return contentView;
 	}
 }
