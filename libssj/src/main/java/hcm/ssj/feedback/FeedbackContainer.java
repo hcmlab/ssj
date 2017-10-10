@@ -96,22 +96,19 @@ public class FeedbackContainer extends EventHandler
 			return;
 		}
 
+		List<Long> lastProgressExecutionTimes = new ArrayList<>();
+		List<Long> lastRegressExecutionTimes = new ArrayList<>();
+
 		for (Map.Entry<Feedback, LevelBehaviour> feedbackEntry : feedbackList.get(currentLevel).entrySet())
 		{
 			long feedbackEntryLastExecutionTime = feedbackEntry.getKey().getLastExecutionTime();
 			switch (feedbackEntry.getValue())
 			{
 				case Regress:
-					if (feedbackEntryLastExecutionTime > lastDesireableState)
-					{
-						lastDesireableState = feedbackEntryLastExecutionTime;
-					}
+					lastRegressExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
 				case Progress:
-					if (feedbackEntryLastExecutionTime > lastUndesireableState)
-					{
-						lastUndesireableState = feedbackEntryLastExecutionTime;
-					}
+					lastProgressExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
 				case Neutral:
 					break;
@@ -120,19 +117,45 @@ public class FeedbackContainer extends EventHandler
 			}
 		}
 
-		//if all undesirable feedback classes are active and no desirable class is active, check if we should progress to next level
-		if ((currentLevel + 1) < feedbackList.size() && System.currentTimeMillis() - (int) (options.progression.get() * 1000) > lastDesireableState)
+		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
+		if ((currentLevel + 1) < feedbackList.size() &&
+				allTimeStampsExceedInterval(lastProgressExecutionTimes, (long)(options.progression.get() * 1000)) &&
+				noTimeStampExceedsInterval(lastRegressExecutionTimes, (long)(options.progression.get() * 1000)))
 		{
 			setLevelActive(currentLevel + 1);
 			lastDesireableState = System.currentTimeMillis();
 			Log.d("activating level " + currentLevel);
 		}
-		//if all desirable feedback classes are active and no undesirable class is active, check if we can go back to the previous level
-		else if (currentLevel > 0 && System.currentTimeMillis() - (int) (options.regression.get() * 1000) > lastUndesireableState)
+		//if all regress feedback classes are active and no progress class is active, check if we can go back to the previous level
+		else if (currentLevel > 0 &&
+				allTimeStampsExceedInterval(lastRegressExecutionTimes, (long)(options.regression.get() * 1000)) &&
+				noTimeStampExceedsInterval(lastProgressExecutionTimes, (long)(options.regression.get() * 1000)))
 		{
 			setLevelActive(currentLevel - 1);
 			lastUndesireableState = System.currentTimeMillis();
 		}
+	}
+
+	private boolean allTimeStampsExceedInterval(List<Long> timeStamps, long interval)
+	{
+		long currentTime = System.currentTimeMillis();
+		for(Long timeStamp : timeStamps)
+		{
+			if(currentTime-interval < timeStamp)
+				return false;
+		}
+		return true;
+	}
+
+	private boolean noTimeStampExceedsInterval(List<Long> timeStamps, long interval)
+	{
+		long currentTime = System.currentTimeMillis();
+		for(Long timeStamp : timeStamps)
+		{
+			if(currentTime-interval > timeStamp)
+				return false;
+		}
+		return true;
 	}
 
 	private void setLevelActive(int level)
@@ -183,16 +206,6 @@ public class FeedbackContainer extends EventHandler
 		feedbackList.get(level).put(feedback, levelBehaviour);
 	}
 
-	public void removeFeedback(Feedback feedback)
-	{
-		for (Map feedbackMap : feedbackList)
-		{
-			if (feedbackMap.containsKey(feedback))
-			{
-				feedbackMap.remove(feedback);
-			}
-		}
-	}
 
 	public void setFeedbackList(List<Map<Feedback,LevelBehaviour>> feedbackList)
 	{
