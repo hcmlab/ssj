@@ -337,11 +337,14 @@ public abstract class SaveLoad
 
 							Map<Integer, FeedbackContainer.LevelBehaviour> levelLinkMap = contextLinkFeedbackContainer.typedHashes.get(level);
 							parser.nextTag();
-							while (parser.getName().equals(FEEDBACK) && parser.getEventType() == XmlPullParser.START_TAG)
+							while (parser.getName().equals(FEEDBACK))
 							{
-								int hash = Integer.parseInt(parser.getAttributeValue(null, ID));
-								FeedbackContainer.LevelBehaviour behaviour = FeedbackContainer.LevelBehaviour.valueOf(parser.getAttributeValue(null, FEEDBACK_BEHAVIOUR));
-								levelLinkMap.put(hash, behaviour);
+								if(parser.getEventType() == XmlPullParser.START_TAG)
+								{
+									int hash = Integer.parseInt(parser.getAttributeValue(null, ID));
+									FeedbackContainer.LevelBehaviour behaviour = FeedbackContainer.LevelBehaviour.valueOf(parser.getAttributeValue(null, FEEDBACK_BEHAVIOUR));
+									levelLinkMap.put(hash, behaviour);
+								}
 								parser.nextTag();
 							}
 
