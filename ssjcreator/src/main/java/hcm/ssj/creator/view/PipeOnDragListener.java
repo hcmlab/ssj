@@ -176,16 +176,8 @@ class PipeOnDragListener implements View.OnDragListener
     }
 
     private void openFeedbackContainerDeleteDialog(final PipeView pipeView, final FeedbackContainer feedbackContainer) {
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            builder = new AlertDialog.Builder(this.context, android.R.style.Theme_Material_Dialog_Alert);
-        }
-        else
-        {
-            builder = new AlertDialog.Builder(this.context);
-        }
-        builder.setTitle("Do you want to keep inner components?")
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
+        builder.setTitle(R.string.keep_inner_components)
                 .setPositiveButton(R.string.yes, null)
                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
                 {
