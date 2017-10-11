@@ -44,11 +44,12 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
 import hcm.ssj.creator.view.Feedback.FeedbackListener;
-import hcm.ssj.feedback.AndroidTactileFeedback;
-import hcm.ssj.feedback.AuditoryFeedback;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
-import hcm.ssj.feedback.VisualFeedback;
+
+/**
+ * Created by Antonio Grieco on 19.09.2017.
+ */
 
 public class FeedbackContainerActivity extends AppCompatActivity
 {

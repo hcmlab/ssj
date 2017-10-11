@@ -32,26 +32,30 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
+
 /**
  * Created by Antonio Grieco on 06.09.2017.
  */
 
 public abstract class Feedback extends EventHandler
 {
-	protected long lastExecutionTime = 0;
-
-	private boolean active = true;
 
 	public class Options extends OptionList
 	{
 
 		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
 		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
+
 		protected Options()
 		{
 			addOptions();
 		}
 	}
+
+	protected long lastExecutionTime = 0;
+
+	private boolean active = true;
+
 	protected boolean checkLock(int lock)
 	{
 		if (System.currentTimeMillis() - lastExecutionTime < lock)
@@ -59,29 +63,39 @@ public abstract class Feedback extends EventHandler
 			Log.i("ignoring event, lock active for another " + (lock - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
 			return false;
 		}
-		else{
+		else
+		{
 			lastExecutionTime = System.currentTimeMillis();
 			return true;
 		}
 	}
 
-	public boolean isActive()
+	@Override
+	protected void enter()
+	{
+		lastExecutionTime = System.currentTimeMillis();
+	}
+
+	protected boolean isActive()
 	{
 		return active;
 	}
 
-	public void setActive(boolean active)
+	protected void setActive(boolean active)
 	{
 		this.active = active;
 	}
 
-	public long getLastExecutionTime()
+	protected long getLastExecutionTime()
 	{
 		return lastExecutionTime;
 	}
 
-	public void removeEventChannels() {
-		if(_evchannel_in != null)
+	protected void removeEventChannels()
+	{
+		if (_evchannel_in != null)
+		{
 			_evchannel_in.clear();
+		}
 	}
 }

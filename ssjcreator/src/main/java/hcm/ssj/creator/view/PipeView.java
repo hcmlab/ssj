@@ -443,7 +443,7 @@ public class PipeView extends ViewGroup
 	 */
 	private int checkEventConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
 	{
-		if(destination.getElement() instanceof Feedback && isManagedFeedback(destination.getElement()))
+		if(destination.getElement() instanceof Feedback && PipelineBuilder.getInstance().isManagedFeedback(destination.getElement()))
 		{
 			return connections;
 		}
@@ -470,7 +470,7 @@ public class PipeView extends ViewGroup
 						}
 						connections++;
 
-						if(isManagedFeedback(componentView.getElement()))
+						if(PipelineBuilder.getInstance().isManagedFeedback(componentView.getElement()))
 						{
 							connectionView.setVisibility(GONE);
 						}
@@ -498,7 +498,7 @@ public class PipeView extends ViewGroup
 			// Prevent managed feedback to be drawn
 			if(view.getElement() instanceof Feedback)
 			{
-				if(isManagedFeedback(view.getElement()))
+				if(PipelineBuilder.getInstance().isManagedFeedback(view.getElement()))
 				{
 					view.setVisibility(GONE);
 					continue;
@@ -549,21 +549,6 @@ public class PipeView extends ViewGroup
 				}
 			}
 		}
-	}
-
-	private boolean isManagedFeedback(Object element) {
-		if(!(element instanceof Feedback))
-			return false;
-		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
-		for(Component component : components)
-		{
-			for(Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackList : ((FeedbackContainer)component).getFeedbackList())
-			{
-				if(feedbackList.containsKey(element))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	/**

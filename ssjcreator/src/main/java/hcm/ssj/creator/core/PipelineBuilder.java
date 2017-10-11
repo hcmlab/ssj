@@ -47,6 +47,8 @@ import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.creator.core.container.ContainerElement;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackContainer;
 
 /**
  * Linker for a pipeline.<br>
@@ -1320,4 +1322,19 @@ public class PipelineBuilder
         }
 		return null;
 	}
+
+    public boolean isManagedFeedback(Object element) {
+        if(!(element instanceof Feedback))
+            return false;
+        List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
+        for(Component component : components)
+        {
+            for(Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackList : ((FeedbackContainer)component).getFeedbackList())
+            {
+                if(feedbackList.containsKey(element))
+                    return true;
+            }
+        }
+        return false;
+    }
 }

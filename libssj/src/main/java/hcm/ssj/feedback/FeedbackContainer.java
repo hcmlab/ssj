@@ -27,6 +27,8 @@
 
 package hcm.ssj.feedback;
 
+import android.widget.TableLayout;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,30 +49,10 @@ import hcm.ssj.core.option.OptionList;
 public class FeedbackContainer extends EventHandler
 {
 
-	public enum LevelBehaviour
-	{
-		Regress,
-		Neutral,
-		Progress;
-	}
-
-	public class Options extends OptionList
-	{
-		public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
-		public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
-
-		private Options()
-		{
-			addOptions();
-		}
-	}
-
 	public FeedbackContainer.Options options = new FeedbackContainer.Options();
 	private Pipeline pipeline;
 	private int currentLevel;
 	private List<Map<Feedback, LevelBehaviour>> feedbackList;
-	private long lastDesireableState;
-	private long lastUndesireableState;
 
 	public FeedbackContainer()
 	{
@@ -81,11 +63,30 @@ public class FeedbackContainer extends EventHandler
 	@Override
 	public void enter()
 	{
+		if (options.layout.get() == null)
+		{
+			throw new RuntimeException("layout not set, cannot render visual feedback");
+		}
+
 		currentLevel = 0;
-		lastDesireableState = 0;
-		lastUndesireableState = 0;
 		pipeline = Pipeline.getInstance();
 		addEventChannels();
+		changeLayouts();
+		setLevelActive(currentLevel);
+	}
+
+	private void changeLayouts()
+	{
+		for (Map<Feedback, LevelBehaviour> levelMap : feedbackList)
+		{
+			for (Feedback feedback : levelMap.keySet())
+			{
+				if (feedback instanceof VisualFeedback)
+				{
+					((VisualFeedback) feedback).options.layout.set(this.options.layout.get());
+				}
+			}
+		}
 	}
 
 	@Override
@@ -107,53 +108,68 @@ public class FeedbackContainer extends EventHandler
 				case Regress:
 					lastRegressExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
+				case Neutral:
+					break;
 				case Progress:
 					lastProgressExecutionTimes.add(feedbackEntryLastExecutionTime);
-					break;
-				case Neutral:
 					break;
 				default:
 					throw new RuntimeException("LevelBehaviour value invalid!");
 			}
 		}
 
+		//TODO: NOT WORKING PROPPERLY!
+
 		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() &&
-				allTimeStampsExceedInterval(lastProgressExecutionTimes, (long)(options.progression.get() * 1000)) &&
-				noTimeStampExceedsInterval(lastRegressExecutionTimes, (long)(options.progression.get() * 1000)))
+				allTimeStampsInIntervalFromNow(lastProgressExecutionTimes, (long) (options.progression.get() * 1000)) &&
+				noTimeStampInIntervalFromNow(lastRegressExecutionTimes, (long) (options.progression.get() * 1000)))
 		{
+			Log.d("progressing");
 			setLevelActive(currentLevel + 1);
-			lastDesireableState = System.currentTimeMillis();
-			Log.d("activating level " + currentLevel);
 		}
 		//if all regress feedback classes are active and no progress class is active, check if we can go back to the previous level
 		else if (currentLevel > 0 &&
-				allTimeStampsExceedInterval(lastRegressExecutionTimes, (long)(options.regression.get() * 1000)) &&
-				noTimeStampExceedsInterval(lastProgressExecutionTimes, (long)(options.regression.get() * 1000)))
+				allTimeStampsInIntervalFromNow(lastRegressExecutionTimes, (long) (options.regression.get() * 1000)) &&
+				noTimeStampInIntervalFromNow(lastProgressExecutionTimes, (long) (options.regression.get() * 1000)))
 		{
+			Log.d("regressing");
 			setLevelActive(currentLevel - 1);
-			lastUndesireableState = System.currentTimeMillis();
 		}
 	}
 
-	private boolean allTimeStampsExceedInterval(List<Long> timeStamps, long interval)
+	private boolean allTimeStampsInIntervalFromNow(List<Long> timeStamps, long interval)
 	{
-		long currentTime = System.currentTimeMillis();
-		for(Long timeStamp : timeStamps)
+		if (timeStamps.isEmpty())
 		{
-			if(currentTime-interval < timeStamp)
+			return false;
+		}
+
+		long currentTime = System.currentTimeMillis();
+		for (Long timeStamp : timeStamps)
+		{
+			if (currentTime - interval < timeStamp)
+			{
 				return false;
+			}
 		}
 		return true;
 	}
 
-	private boolean noTimeStampExceedsInterval(List<Long> timeStamps, long interval)
+	private boolean noTimeStampInIntervalFromNow(List<Long> timeStamps, long interval)
 	{
-		long currentTime = System.currentTimeMillis();
-		for(Long timeStamp : timeStamps)
+		if (timeStamps.isEmpty())
 		{
-			if(currentTime-interval > timeStamp)
+			return true;
+		}
+
+		long currentTime = System.currentTimeMillis();
+		for (Long timeStamp : timeStamps)
+		{
+			if (currentTime - interval > timeStamp)
+			{
 				return false;
+			}
 		}
 		return true;
 	}
@@ -197,6 +213,11 @@ public class FeedbackContainer extends EventHandler
 		return feedbackList;
 	}
 
+	public void setFeedbackList(List<Map<Feedback, LevelBehaviour>> feedbackList)
+	{
+		this.feedbackList = feedbackList;
+	}
+
 	public void addFeedback(Feedback feedback, int level, LevelBehaviour levelBehaviour)
 	{
 		while (feedbackList.size() <= level)
@@ -206,9 +227,22 @@ public class FeedbackContainer extends EventHandler
 		feedbackList.get(level).put(feedback, levelBehaviour);
 	}
 
-
-	public void setFeedbackList(List<Map<Feedback,LevelBehaviour>> feedbackList)
+	public enum LevelBehaviour
 	{
-		this.feedbackList = feedbackList;
+		Regress,
+		Neutral,
+		Progress;
+	}
+
+	public class Options extends OptionList
+	{
+		public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
+		public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
+		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render every visual feedback");
+
+		private Options()
+		{
+			addOptions();
+		}
 	}
 }
