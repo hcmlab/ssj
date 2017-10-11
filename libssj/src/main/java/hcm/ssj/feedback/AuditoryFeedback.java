@@ -52,7 +52,7 @@ public class AuditoryFeedback extends Feedback
 	{
 		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
 		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
-		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load  audio file from assets");
+		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load audio file from assets");
 
 		private Options()
 		{

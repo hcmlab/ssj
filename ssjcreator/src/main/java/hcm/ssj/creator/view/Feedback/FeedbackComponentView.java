@@ -27,6 +27,7 @@
 
 package hcm.ssj.creator.view.Feedback;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.DialogInterface;
@@ -34,8 +35,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.Build;
 import android.support.annotation.IdRes;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -204,45 +205,37 @@ public class FeedbackComponentView extends ComponentView
 	private void openLevelBehaviourDialog()
 	{
 
-		AlertDialog.Builder alt_bld = new AlertDialog.Builder(feedbackContainerActivity);
-		alt_bld.setTitle(feedbackLevelBehaviourEntry.getKey().getComponentName() + " - " + FeedbackContainer.LevelBehaviour.class.getSimpleName());
+		AlertDialog.Builder builder = new android.app.AlertDialog.Builder(feedbackContainerActivity);
 		final FeedbackContainer.LevelBehaviour oldLevelBehaviour = feedbackLevelBehaviourEntry.getValue();
-
-		alt_bld.setView(getDialogContentView());
-
-		// BUTTONS
-		alt_bld.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				openOptions();
-			}
-		});
-		alt_bld.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				feedbackLevelBehaviourEntry.setValue(oldLevelBehaviour);
-			}
-		});
-		alt_bld.setPositiveButton(R.string.str_ok, null);
-
-		// DISPLAY
-		AlertDialog alert = alt_bld.create();
-		alert.show();
+		builder.setTitle(feedbackLevelBehaviourEntry.getKey().getComponentName() + " - " + FeedbackContainer.LevelBehaviour.class.getSimpleName())
+				.setView(getDialogContentView())
+				.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						openOptions();
+					}
+				})
+				.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						feedbackLevelBehaviourEntry.setValue(oldLevelBehaviour);
+					}
+				})
+				.setPositiveButton(R.string.str_ok, null)
+				.show();
 	}
 
 	private View getDialogContentView()
 	{
-
 		LayoutInflater inflater = LayoutInflater.from(feedbackContainerActivity);
 		View contentView = inflater.inflate(R.layout.dialog_level_behaviour, null);
 
 		TextView messageTextView = (TextView) contentView.findViewById(R.id.messageTextView);
 		messageTextView.setText(R.string.level_behaviour_message);
-
 		LinearLayout.LayoutParams radioButtonLayoutParams =
 				new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		radioButtonLayoutParams.weight = 1;

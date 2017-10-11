@@ -64,7 +64,6 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feedback_container);
-		mock();
 		init();
 		createLevels();
 	}
@@ -97,17 +96,6 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		{
 			feedbackLevelLayout.reorderFeedbackComponentGrid();
 			feedbackLevelLayout.invalidate();
-		}
-	}
-
-	private void mock()
-	{
-		if (feedbackContainer == null && innerFeedbackContainer == null)
-		{
-			feedbackContainer = new FeedbackContainer();
-			feedbackContainer.addFeedback(new AuditoryFeedback(), 0, FeedbackContainer.LevelBehaviour.Regress);
-			feedbackContainer.addFeedback(new VisualFeedback(), 0, FeedbackContainer.LevelBehaviour.Neutral);
-			feedbackContainer.addFeedback(new AndroidTactileFeedback(), 0, FeedbackContainer.LevelBehaviour.Progress);
 		}
 	}
 
