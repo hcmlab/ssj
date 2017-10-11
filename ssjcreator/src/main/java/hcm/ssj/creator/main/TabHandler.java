@@ -110,14 +110,21 @@ public class TabHandler
 		removeComponentsOfClass(additionalTabs, VisualFeedback.class);
 		if (!visualFeedbacks.isEmpty())
 		{
-
+			boolean anyUnmanaged = false;
 			TableLayout visualFeedbackLayout = getTableLayoutForVisualFeedback(visualFeedbacks);
 			TabHost.TabSpec newTabSpec = getNewTabSpec(visualFeedbackLayout, visualFeedbacks.get(0).getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
 			for (Component visualFeedback : visualFeedbacks)
 			{
-				((VisualFeedback) visualFeedback).options.layout.set(visualFeedbackLayout);
+				boolean isManaged = PipelineBuilder.getInstance().isManagedFeedback(visualFeedback);
+
+				if(! isManaged)
+				{
+					anyUnmanaged = true;
+					((VisualFeedback) visualFeedback).options.layout.set(visualFeedbackLayout);
+				}
 			}
-			additionalTabs.put(visualFeedbacks.get(0), newTabSpec);
+			if(anyUnmanaged)
+				additionalTabs.put(visualFeedbacks.get(0), newTabSpec);
 		}
 	}
 
