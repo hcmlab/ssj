@@ -70,7 +70,6 @@ public class FeedbackContainer extends EventHandler
 
 		currentLevel = 0;
 		pipeline = Pipeline.getInstance();
-		addEventChannels();
 		changeLayouts();
 		setLevelActive(currentLevel);
 	}
@@ -193,29 +192,9 @@ public class FeedbackContainer extends EventHandler
 		}
 	}
 
-	private void addEventChannels()
-	{
-		for (Map<Feedback, LevelBehaviour> innerList : feedbackList)
-		{
-			for (Feedback feedback : innerList.keySet())
-			{
-				feedback.removeEventChannels();
-				for (EventChannel eventChannel : _evchannel_in)
-				{
-					pipeline.registerEventListener(feedback, eventChannel);
-				}
-			}
-		}
-	}
-
 	public List<Map<Feedback, LevelBehaviour>> getFeedbackList()
 	{
 		return feedbackList;
-	}
-
-	public void setFeedbackList(List<Map<Feedback, LevelBehaviour>> feedbackList)
-	{
-		this.feedbackList = feedbackList;
 	}
 
 	public void addFeedback(Feedback feedback, int level, LevelBehaviour levelBehaviour)

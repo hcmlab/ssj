@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.SSJApplication;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
@@ -75,16 +77,22 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		super.onPause();
 		if (innerFeedbackContainer != null)
 		{
-			List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackLevelList = new ArrayList<>();
-			for (FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
+			for (int level = 0; level < feedbackLevelLayoutList.size(); level++)
 			{
-				Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap = feedbackLevelLayout.getFeedbackLevelBehaviourMap();
+				Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap = feedbackLevelLayoutList.get(level).getFeedbackLevelBehaviourMap();
 				if (feedbackLevelBehaviourMap != null && !feedbackLevelBehaviourMap.isEmpty())
 				{
-					feedbackLevelList.add(feedbackLevelLayout.getFeedbackLevelBehaviourMap());
+					for (Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackLevelBehaviourMap.entrySet())
+					{
+						Pipeline.getInstance().registerInFeedbackContainer(
+								feedbackLevelBehaviourEntry.getKey(),
+								innerFeedbackContainer,
+								level,
+								feedbackLevelBehaviourEntry.getValue()
+						);
+					}
 				}
 			}
-			innerFeedbackContainer.setFeedbackList(feedbackLevelList);
 		}
 	}
 

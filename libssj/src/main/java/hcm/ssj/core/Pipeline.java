@@ -38,8 +38,11 @@ import java.util.concurrent.TimeUnit;
 
 import hcm.ssj.BuildConfig;
 import hcm.ssj.R;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackContainer;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileDownloader;
 import hcm.ssj.mobileSSI.SSI;
@@ -525,6 +528,17 @@ public class Pipeline
     {
         components.add(c);
         return c.getEventChannelOut();
+    }
+
+    public void registerInFeedbackContainer(Feedback feedback, FeedbackContainer feedbackContainer, int level, FeedbackContainer.LevelBehaviour levelBehaviour)
+    {
+        components.add(feedback);
+        feedback._evchannel_in.clear();
+        for(EventChannel eventChannel : feedbackContainer._evchannel_in)
+        {
+            registerEventListener(feedback, eventChannel);
+        }
+        feedbackContainer.addFeedback(feedback, level, levelBehaviour);
     }
 
     void pushData(int buffer_id, Object data, int numBytes)
