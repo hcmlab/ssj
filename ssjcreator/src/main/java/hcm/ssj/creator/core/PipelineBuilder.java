@@ -49,6 +49,9 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.creator.core.container.ContainerElement;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.VisualFeedback;
+
+import static android.R.attr.level;
 
 /**
  * Linker for a pipeline.<br>
@@ -376,6 +379,30 @@ public class PipelineBuilder
                 }
             }
         }
+
+        // Register elements in feedback container AFTER all elements are registered!
+        for(ContainerElement<T> element : hsElements)
+        {
+            if (element.getElement() instanceof FeedbackContainer)
+            {
+                FeedbackContainer feedbackContainer = (FeedbackContainer) element.getElement();
+
+                List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackList = feedbackContainer.getFeedbackList();
+
+                for(int level = 0; level < feedbackList.size(); level++)
+                {
+                    for (Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(level).entrySet())
+                    {
+                        framework.registerInFeedbackContainer(feedbackLevelBehaviourEntry.getKey(), feedbackContainer, level, feedbackLevelBehaviourEntry.getValue());
+                        if(feedbackLevelBehaviourEntry.getKey() instanceof VisualFeedback)
+                        {
+                            ((VisualFeedback) feedbackLevelBehaviourEntry.getKey()).options.layout.set(feedbackContainer.options.layout.get());
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     /**

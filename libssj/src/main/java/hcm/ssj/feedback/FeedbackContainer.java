@@ -199,11 +199,20 @@ public class FeedbackContainer extends EventHandler
 
 	public void addFeedback(Feedback feedback, int level, LevelBehaviour levelBehaviour)
 	{
+		removeFeedback(feedback);
 		while (feedbackList.size() <= level)
 		{
 			feedbackList.add(new LinkedHashMap<Feedback, LevelBehaviour>());
 		}
 		feedbackList.get(level).put(feedback, levelBehaviour);
+	}
+
+	public void removeFeedback(Feedback feedback)
+	{
+		for (Map<Feedback, LevelBehaviour> feedbackLevelBehaviourMap : feedbackList)
+		{
+			feedbackLevelBehaviourMap.remove(feedback);
+		}
 	}
 
 	public enum LevelBehaviour

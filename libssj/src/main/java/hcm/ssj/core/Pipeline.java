@@ -533,11 +533,15 @@ public class Pipeline
     public void registerInFeedbackContainer(Feedback feedback, FeedbackContainer feedbackContainer, int level, FeedbackContainer.LevelBehaviour levelBehaviour)
     {
         components.add(feedback);
-        feedback._evchannel_in.clear();
+
+        if(feedback._evchannel_in != null)
+            feedback._evchannel_in.clear();
+
         for(EventChannel eventChannel : feedbackContainer._evchannel_in)
         {
             registerEventListener(feedback, eventChannel);
         }
+
         feedbackContainer.addFeedback(feedback, level, levelBehaviour);
     }
 

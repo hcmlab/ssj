@@ -40,8 +40,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import hcm.ssj.core.Pipeline;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
@@ -84,12 +82,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 				{
 					for (Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackLevelBehaviourMap.entrySet())
 					{
-						Pipeline.getInstance().registerInFeedbackContainer(
-								feedbackLevelBehaviourEntry.getKey(),
-								innerFeedbackContainer,
-								level,
-								feedbackLevelBehaviourEntry.getValue()
-						);
+						innerFeedbackContainer.addFeedback(feedbackLevelBehaviourEntry.getKey(), level, feedbackLevelBehaviourEntry.getValue());
 					}
 				}
 			}
@@ -200,10 +193,12 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		return recycleBin;
 	}
 
-	public void requestReorder() {
+	public void requestReorder()
+	{
 		for (final FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
 		{
-			feedbackLevelLayout.post(new Runnable() {
+			feedbackLevelLayout.post(new Runnable()
+			{
 				@Override
 				public void run()
 				{

@@ -431,29 +431,21 @@ public abstract class SaveLoad
 			FeedbackContainer feedbackContainer = (FeedbackContainer) entry.getKey();
 			LinkFeedbackContainer linkFeedbackContainer = entry.getValue();
 
-			List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackList = new ArrayList<>();
-			for (Map<Integer, FeedbackContainer.LevelBehaviour> typedLevelMap : linkFeedbackContainer.typedHashes)
+			for (int level = 0; level < linkFeedbackContainer.typedHashes.size(); level++)
 			{
-				Map<Feedback, FeedbackContainer.LevelBehaviour> levelMap = new LinkedHashMap<>();
-
-				for (Map.Entry<Integer, FeedbackContainer.LevelBehaviour> feedbackEntry : typedLevelMap.entrySet())
+				for (Map.Entry<Integer, FeedbackContainer.LevelBehaviour> feedbackEntry : linkFeedbackContainer.typedHashes.get(level).entrySet())
 				{
-					Feedback feedback = null;
-
 					for (Map.Entry<Object, LinkContainer> candidate : connectionMap.entrySet())
 					{
 						if (candidate.getValue().hash == feedbackEntry.getKey())
 						{
-							feedback = (Feedback) candidate.getKey();
-							break;
+							Feedback feedback = (Feedback) candidate.getKey();
+							feedbackContainer.addFeedback(feedback, level, feedbackEntry.getValue());
 						}
 					}
-					levelMap.put(feedback, feedbackEntry.getValue());
-				}
 
-				feedbackList.add(levelMap);
+				}
 			}
-			feedbackContainer.setFeedbackList(feedbackList);
 		}
 	}
 

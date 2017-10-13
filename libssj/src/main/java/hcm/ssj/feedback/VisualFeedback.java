@@ -147,7 +147,7 @@ public class VisualFeedback extends Feedback
 
 	public Drawable getDrawable(Uri uri, boolean fromAssets) throws IOException
 	{
-		if(uri.toString().isEmpty())
+		if(uri == null || uri.toString().isEmpty())
 			return null;
 
 		InputStream inputStream;
