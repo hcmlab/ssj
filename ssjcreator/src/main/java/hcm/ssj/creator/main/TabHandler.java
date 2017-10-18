@@ -48,7 +48,7 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
@@ -98,7 +98,7 @@ public class TabHandler
 		checkSignalPainterTabs();
 		checkCameraPainterTabs();
 		checkFeedbackManagerTabs();
-		checkFeedbackContainerTabs();
+		checkFeedbackCollectionTabs();
 		checkVisualFeedbackTabs();
 
 		buildTabs();
@@ -128,25 +128,25 @@ public class TabHandler
 		}
 	}
 
-	private void checkFeedbackContainerTabs()
+	private void checkFeedbackCollectionTabs()
 	{
-		List<Component> feedbackContainers = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
-		removeObsoleteComponentsOfClass(additionalTabs, feedbackContainers, FeedbackContainer.class);
-		for (Component feedbackContainer : feedbackContainers)
+		List<Component> feedbackCollections = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackCollection.class);
+		removeObsoleteComponentsOfClass(additionalTabs, feedbackCollections, FeedbackCollection.class);
+		for (Component feedbackCollection : feedbackCollections)
 		{
-			if (additionalTabs.containsKey(feedbackContainer))
+			if (additionalTabs.containsKey(feedbackCollection))
 			{
 				continue;
 			}
 
-			TableLayout tableLayout = ((FeedbackContainer) feedbackContainer).options.layout.get();
+			TableLayout tableLayout = ((FeedbackCollection) feedbackCollection).options.layout.get();
 			if (tableLayout == null)
 			{
 				tableLayout = new TableLayout(activity);
-				((FeedbackContainer) feedbackContainer).options.layout.set(tableLayout);
+				((FeedbackCollection) feedbackCollection).options.layout.set(tableLayout);
 			}
-			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackContainer.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
-			additionalTabs.put(feedbackContainer, tabSpec);
+			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackCollection.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+			additionalTabs.put(feedbackCollection, tabSpec);
 		}
 	}
 

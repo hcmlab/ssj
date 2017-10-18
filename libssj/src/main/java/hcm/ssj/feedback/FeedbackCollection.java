@@ -1,5 +1,5 @@
 /*
- * FeedbackContainer.java
+ * FeedbackCollection.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -34,10 +34,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -46,16 +44,16 @@ import hcm.ssj.core.option.OptionList;
  * Created by Antonio Grieco on 18.09.2017.
  */
 
-public class FeedbackContainer extends EventHandler
+public class FeedbackCollection extends EventHandler
 {
 
-	public FeedbackContainer.Options options = new FeedbackContainer.Options();
+	public FeedbackCollection.Options options = new FeedbackCollection.Options();
 	private int currentLevel;
 	private List<Map<Feedback, LevelBehaviour>> feedbackList;
 
-	public FeedbackContainer()
+	public FeedbackCollection()
 	{
-		_name = "FeedbackContainer";
+		_name = "FeedbackCollection";
 		feedbackList = new ArrayList<>();
 	}
 
@@ -68,22 +66,7 @@ public class FeedbackContainer extends EventHandler
 		}
 
 		currentLevel = 0;
-		changeLayouts();
 		setLevelActive(currentLevel);
-	}
-
-	private void changeLayouts()
-	{
-		for (Map<Feedback, LevelBehaviour> levelMap : feedbackList)
-		{
-			for (Feedback feedback : levelMap.keySet())
-			{
-				if (feedback instanceof VisualFeedback)
-				{
-					((VisualFeedback) feedback).options.layout.set(this.options.layout.get());
-				}
-			}
-		}
 	}
 
 	@Override
@@ -203,6 +186,11 @@ public class FeedbackContainer extends EventHandler
 			feedbackList.add(new LinkedHashMap<Feedback, LevelBehaviour>());
 		}
 		feedbackList.get(level).put(feedback, levelBehaviour);
+
+		if(feedback instanceof VisualFeedback)
+		{
+			((VisualFeedback) feedback).options.layout.set(options.layout.get());
+		}
 	}
 
 	public void removeFeedback(Feedback feedback)
@@ -215,7 +203,7 @@ public class FeedbackContainer extends EventHandler
 
 	public void removeAllFeedbacks()
 	{
-		feedbackList.clear();
+		feedbackList = new ArrayList<>();
 	}
 
 	public enum LevelBehaviour

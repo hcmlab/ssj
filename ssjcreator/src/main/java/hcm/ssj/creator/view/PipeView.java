@@ -45,7 +45,6 @@ import android.view.ViewParent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
@@ -59,7 +58,7 @@ import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Draws a pipe<br>
@@ -636,9 +635,9 @@ public class PipeView extends ViewGroup
 			int colY = componentView.getGridY();
 			if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
 			{
-				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackContainer)
+				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackCollection)
 				{
-					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackContainer.LevelBehaviour.Neutral);
+					((FeedbackCollection) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackCollection.LevelBehaviour.Neutral);
 					this.informListeners();
 				}
 				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))

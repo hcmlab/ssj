@@ -1,5 +1,5 @@
 /*
- * FeedbackContainerContainerElement.java
+ * FeedbackCollectionContainerElement.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -27,51 +27,52 @@
 
 package hcm.ssj.creator.core.container;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Created by hiwi on 18.10.2017.
  */
 
-public class FeedbackContainerContainerElement extends ContainerElement
+public class FeedbackCollectionContainerElement extends ContainerElement
 {
 
-	private List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackList;
+	private List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList;
 
-	public FeedbackContainerContainerElement(FeedbackContainer element)
+	public FeedbackCollectionContainerElement(FeedbackCollection element)
 	{
 		super(element);
 		feedbackList = element.getFeedbackList();
 	}
 
-	public List<Map<Feedback, FeedbackContainer.LevelBehaviour>> getFeedbackList()
+	public List<Map<Feedback, FeedbackCollection.LevelBehaviour>> getFeedbackList()
 	{
 		return feedbackList;
 	}
 
-	public void addFeedback(Feedback feedback, int level, FeedbackContainer.LevelBehaviour levelBehaviour)
+	public void addFeedback(Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
 	{
 		while (feedbackList.size() <= level)
 		{
-			feedbackList.add(new LinkedHashMap<Feedback, FeedbackContainer.LevelBehaviour>());
+			feedbackList.add(new LinkedHashMap<Feedback, FeedbackCollection.LevelBehaviour>());
 		}
 		feedbackList.get(level).put(feedback, levelBehaviour);
 	}
 
 	public void removeFeedback(Feedback feedback)
 	{
-		for (Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap : feedbackList)
+		for (Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap : feedbackList)
 		{
 			feedbackLevelBehaviourMap.remove(feedback);
 		}
 	}
 
-	public void clearFeedback() {
-		feedbackList.clear();
+	public void removeAllFeedbacks() {
+		feedbackList = new ArrayList<>();
 	}
 }

@@ -31,7 +31,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Rect;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.DragEvent;
@@ -47,7 +46,7 @@ import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * On drag listener for pipe <br>
@@ -140,9 +139,9 @@ class PipeOnDragListener implements View.OnDragListener
         {
             pipeView.getGrid().setGridValue(componentView.getGridX(), componentView.getGridY(), false);
             PipelineBuilder.getInstance().remove(componentView.getElement());
-            if(componentView.getElement() instanceof FeedbackContainer)
+            if(componentView.getElement() instanceof FeedbackCollection)
             {
-                openFeedbackContainerDeleteDialog(pipeView, (FeedbackContainer)componentView.getElement());
+                openFeedbackCollectionDeleteDialog(pipeView, (FeedbackCollection)componentView.getElement());
             }
             result = Result.DELETED;
         } //reposition
@@ -175,7 +174,7 @@ class PipeOnDragListener implements View.OnDragListener
         return result;
     }
 
-    private void openFeedbackContainerDeleteDialog(final PipeView pipeView, final FeedbackContainer feedbackContainer) {
+    private void openFeedbackCollectionDeleteDialog(final PipeView pipeView, final FeedbackCollection feedbackCollection) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
         builder.setTitle(R.string.keep_inner_components)
                 .setPositiveButton(R.string.yes, null)
@@ -183,7 +182,7 @@ class PipeOnDragListener implements View.OnDragListener
                 {
                     public void onClick(DialogInterface dialog, int which)
                     {
-                        for(Map<Feedback, FeedbackContainer.LevelBehaviour> levelMap : feedbackContainer.getFeedbackList())
+                        for(Map<Feedback, FeedbackCollection.LevelBehaviour> levelMap : feedbackCollection.getFeedbackList())
                         {
                             for(Feedback feedback : levelMap.keySet())
                             {

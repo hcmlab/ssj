@@ -40,11 +40,10 @@ import java.util.concurrent.TimeUnit;
 
 import hcm.ssj.BuildConfig;
 import hcm.ssj.R;
-import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileDownloader;
 import hcm.ssj.mobileSSI.SSI;
@@ -532,31 +531,31 @@ public class Pipeline
         return c.getEventChannelOut();
     }
 
-    public void registerInFeedbackContainer(Feedback feedback, FeedbackContainer feedbackContainer, int level, FeedbackContainer.LevelBehaviour levelBehaviour)
+    public void registerInFeedbackCollection(Feedback feedback, FeedbackCollection feedbackCollection, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
     {
         components.add(feedback);
 
         if(feedback._evchannel_in != null)
             feedback._evchannel_in.clear();
 
-        for(EventChannel eventChannel : feedbackContainer._evchannel_in)
+        for(EventChannel eventChannel : feedbackCollection._evchannel_in)
         {
             registerEventListener(feedback, eventChannel);
         }
 
-        feedbackContainer.addFeedback(feedback, level, levelBehaviour);
+        feedbackCollection.addFeedback(feedback, level, levelBehaviour);
     }
 
-    public void registerInFeedbackContainer(FeedbackContainer feedbackContainer, List<Map<Feedback,FeedbackContainer.LevelBehaviour>> feedbackList)
+    public void registerInFeedbackCollection(FeedbackCollection feedbackCollection, List<Map<Feedback,FeedbackCollection.LevelBehaviour>> feedbackList)
     {
-        feedbackContainer.removeAllFeedbacks();
+        feedbackCollection.removeAllFeedbacks(); // TODO: Clears false list!
 
         for (int level = 0; level < feedbackList.size(); level++)
         {
-            for(Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(level).entrySet())
+            for(Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(level).entrySet())
             {
-                Pipeline.getInstance().registerInFeedbackContainer(feedbackLevelBehaviourEntry.getKey(),
-                                                                   feedbackContainer,
+                registerInFeedbackCollection(feedbackLevelBehaviourEntry.getKey(),
+                                                                   feedbackCollection,
                                                                    level,
                                                                    feedbackLevelBehaviourEntry.getValue());
             }

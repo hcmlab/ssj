@@ -52,7 +52,7 @@
             android:name=".activity.OptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activity.FeedbackContainerActivity"
+        <activity android:name=".activity.FeedbackCollectionActivity"
                   android:configChanges="orientation|screenSize">
         </activity>
     </application>

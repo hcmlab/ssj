@@ -1,5 +1,5 @@
 /*
- * FeedbackContainerActivity.java
+ * FeedbackCollectionActivity.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -41,21 +41,21 @@ import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.container.FeedbackContainerContainerElement;
-import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
+import hcm.ssj.creator.core.container.FeedbackCollectionContainerElement;
+import hcm.ssj.creator.view.Feedback.FeedbackCollectionOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
 import hcm.ssj.creator.view.Feedback.FeedbackListener;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Created by Antonio Grieco on 19.09.2017.
  */
 
-public class FeedbackContainerActivity extends AppCompatActivity
+public class FeedbackCollectionActivity extends AppCompatActivity
 {
-	public static FeedbackContainerContainerElement feedbackContainer = null;
-	private FeedbackContainerContainerElement innerFeedbackContainer = null;
+	public static FeedbackCollectionContainerElement feedbackCollectionContainerElement = null;
+	private FeedbackCollectionContainerElement innerFeedbackCollectionContainerElement = null;
 	private LinearLayout levelLinearLayout;
 	private List<FeedbackLevelLayout> feedbackLevelLayoutList;
 	private FeedbackListener feedbackListener;
@@ -74,17 +74,18 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	protected void onPause()
 	{
 		super.onPause();
-		if (innerFeedbackContainer != null)
+		if (innerFeedbackCollectionContainerElement != null)
 		{
-			innerFeedbackContainer.clearFeedback();
+			innerFeedbackCollectionContainerElement.removeAllFeedbacks();
+
 			for (int level = 0; level < feedbackLevelLayoutList.size(); level++)
 			{
-				Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap = feedbackLevelLayoutList.get(level).getFeedbackLevelBehaviourMap();
+				Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap = feedbackLevelLayoutList.get(level).getFeedbackLevelBehaviourMap();
 				if (feedbackLevelBehaviourMap != null && !feedbackLevelBehaviourMap.isEmpty())
 				{
-					for (Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackLevelBehaviourMap.entrySet())
+					for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackLevelBehaviourMap.entrySet())
 					{
-						innerFeedbackContainer.addFeedback(feedbackLevelBehaviourEntry.getKey(), level, feedbackLevelBehaviourEntry.getValue());
+						innerFeedbackCollectionContainerElement.addFeedback(feedbackLevelBehaviourEntry.getKey(), level, feedbackLevelBehaviourEntry.getValue());
 					}
 				}
 			}
@@ -105,18 +106,18 @@ public class FeedbackContainerActivity extends AppCompatActivity
 
 	private void init()
 	{
-		innerFeedbackContainer = feedbackContainer;
-		feedbackContainer = null;
-		if (innerFeedbackContainer == null)
+		innerFeedbackCollectionContainerElement = feedbackCollectionContainerElement;
+		feedbackCollectionContainerElement = null;
+		if (innerFeedbackCollectionContainerElement == null)
 		{
 			finish();
 			throw new RuntimeException("no feedbackcontainer given");
 		}
 		levelLinearLayout = (LinearLayout) findViewById(R.id.feedbackLinearLayout);
 		recycleBin = (ImageView) findViewById(R.id.recycleBin);
-		recycleBin.setOnDragListener(new FeedbackContainerOnDragListener(this));
+		recycleBin.setOnDragListener(new FeedbackCollectionOnDragListener(this));
 
-		setTitle(((FeedbackContainer)innerFeedbackContainer.getElement()).getComponentName());
+		setTitle(((FeedbackCollection) innerFeedbackCollectionContainerElement.getElement()).getComponentName());
 		feedbackLevelLayoutList = new ArrayList<>();
 
 		this.feedbackListener = new FeedbackListener()
@@ -134,11 +135,11 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	{
 		feedbackLevelLayoutList.clear();
 		levelLinearLayout.removeAllViews();
-		List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackLevelList = innerFeedbackContainer.getFeedbackList();
+		List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackLevelList = innerFeedbackCollectionContainerElement.getFeedbackList();
 		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
 			FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, i, feedbackLevelList.get(i));
-			feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+			feedbackLevelLayout.setOnDragListener(new FeedbackCollectionOnDragListener(this));
 			feedbackLevelLayout.setFeedbackListener(this.feedbackListener);
 			feedbackLevelLayoutList.add(feedbackLevelLayout);
 			levelLinearLayout.addView(feedbackLevelLayout);
@@ -149,7 +150,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 	private void addEmptyLevel()
 	{
 		FeedbackLevelLayout feedbackLevelLayout = new FeedbackLevelLayout(this, levelLinearLayout.getChildCount(), null);
-		feedbackLevelLayout.setOnDragListener(new FeedbackContainerOnDragListener(this));
+		feedbackLevelLayout.setOnDragListener(new FeedbackCollectionOnDragListener(this));
 		feedbackLevelLayout.setFeedbackListener(this.feedbackListener);
 		feedbackLevelLayoutList.add(feedbackLevelLayout);
 		levelLinearLayout.addView(feedbackLevelLayout);

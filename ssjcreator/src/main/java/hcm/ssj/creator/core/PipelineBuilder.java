@@ -30,11 +30,9 @@ package hcm.ssj.creator.core;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
@@ -49,10 +47,9 @@ import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.creator.core.container.ContainerElement;
-import hcm.ssj.creator.core.container.FeedbackContainerContainerElement;
+import hcm.ssj.creator.core.container.FeedbackCollectionContainerElement;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
-import hcm.ssj.feedback.VisualFeedback;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Linker for a pipeline.<br>
@@ -114,13 +111,13 @@ public class PipelineBuilder
 		return null;
 	}
 
-	public FeedbackContainerContainerElement getFeedbackContainerContainerElement(FeedbackContainer feedbackContainer)
+	public FeedbackCollectionContainerElement getFeedbackCollectionContainerElement(FeedbackCollection feedbackCollection)
 	{
 		for(ContainerElement<EventHandler> containerElement : hsEventHandlerElements)
 		{
-			if(containerElement.getElement().equals(feedbackContainer))
+			if(containerElement.getElement().equals(feedbackCollection))
 			{
-				return (FeedbackContainerContainerElement) containerElement;
+				return (FeedbackCollectionContainerElement) containerElement;
 			}
 		}
 		return null;
@@ -424,11 +421,11 @@ public class PipelineBuilder
 		// Register elements in feedback container AFTER all elements are registered!
 		for (ContainerElement<T> element : hsElements)
 		{
-			if (element instanceof FeedbackContainerContainerElement)
+			if (element instanceof FeedbackCollectionContainerElement)
 			{
-				FeedbackContainer feedbackContainer = (FeedbackContainer) element.getElement();
-				List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackList = ((FeedbackContainerContainerElement) element).getFeedbackList();
-				Pipeline.getInstance().registerInFeedbackContainer(feedbackContainer, feedbackList);
+				FeedbackCollection feedbackCollection = (FeedbackCollection) element.getElement();
+				List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList = ((FeedbackCollectionContainerElement) element).getFeedbackList();
+				Pipeline.getInstance().registerInFeedbackCollection(feedbackCollection, feedbackList);
 			}
 		}
 	}
@@ -497,8 +494,8 @@ public class PipelineBuilder
 					return false;
 				}
 			}
-			if(o instanceof FeedbackContainer)
-				return hsEventHandlerElements.add(new FeedbackContainerContainerElement((FeedbackContainer) o));
+			if(o instanceof FeedbackCollection)
+				return hsEventHandlerElements.add(new FeedbackCollectionContainerElement((FeedbackCollection) o));
 			else
 				return hsEventHandlerElements.add(new ContainerElement<>((EventHandler) o));
 		}
@@ -616,24 +613,24 @@ public class PipelineBuilder
 		}
 	}
 
-	public void addFeedbackToLevel(FeedbackContainer feedbackContainer, Feedback feedback, int level, FeedbackContainer.LevelBehaviour levelBehaviour)
+	public void addFeedbackToContainer(FeedbackCollection feedbackCollection, Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
 	{
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
 		{
-			if (element.getElement().equals(feedbackContainer))
+			if (element.getElement().equals(feedbackCollection))
 			{
-				((FeedbackContainerContainerElement) element).addFeedback(feedback, level, levelBehaviour);
+				((FeedbackCollectionContainerElement) element).addFeedback(feedback, level, levelBehaviour);
 			}
 		}
 	}
 
-	public void removeFeedbackFromContainer(FeedbackContainer feedbackContainer, Feedback feedback)
+	public void removeFeedbackFromContainer(FeedbackCollection feedbackCollection, Feedback feedback)
 	{
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
 		{
-			if (element.getElement().equals(feedbackContainer))
+			if (element.getElement().equals(feedbackCollection))
 			{
-				((FeedbackContainerContainerElement) element).removeFeedback(feedback);
+				((FeedbackCollectionContainerElement) element).removeFeedback(feedback);
 			}
 		}
 	}
@@ -1390,10 +1387,10 @@ public class PipelineBuilder
 		{
 			return false;
 		}
-		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
+		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackCollection.class);
 		for (Component component : components)
 		{
-			for (Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackList : ((FeedbackContainer) component).getFeedbackList())
+			for (Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackList : ((FeedbackCollection) component).getFeedbackList())
 			{
 				if (feedbackList.containsKey(element))
 				{

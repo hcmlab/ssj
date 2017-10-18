@@ -62,7 +62,7 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.core.container.ContainerElement;
 import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Save and load files in a {@link PipelineBuilder} friendly format.<br>
@@ -245,7 +245,7 @@ public abstract class SaveLoad
 			Object context = null;
 			Option[] options = null;
 			LinkedHashMap<Object, LinkContainer> connectionMap = new LinkedHashMap<>();
-			LinkedHashMap<Object, LinkFeedbackContainer> feedbackContainerMap = new LinkedHashMap<>();
+			LinkedHashMap<Object, LinkFeedbackCollection> feedbackCollectionMap = new LinkedHashMap<>();
 			while (!(tag = parser.getName()).equals(ROOT))
 			{
 				if (parser.getEventType() == XmlPullParser.START_TAG)
@@ -306,11 +306,11 @@ public abstract class SaveLoad
 							LinkContainer container = new LinkContainer();
 							container.hash = Integer.parseInt(hash);
 							connectionMap.put(context, container);
-							if (context instanceof FeedbackContainer)
+							if (context instanceof FeedbackCollection)
 							{
-								LinkFeedbackContainer linkFeedbackContainer  = new LinkFeedbackContainer();
-								linkFeedbackContainer.hash = Integer.parseInt(hash);
-								feedbackContainerMap.put(context, linkFeedbackContainer);
+								LinkFeedbackCollection linkFeedbackCollection  = new LinkFeedbackCollection();
+								linkFeedbackCollection.hash = Integer.parseInt(hash);
+								feedbackCollectionMap.put(context, linkFeedbackCollection);
 							}
 							break;
 						}
@@ -329,20 +329,20 @@ public abstract class SaveLoad
 						case FEEDBACK_LEVEL:
 						{
 							int level = Integer.parseInt(parser.getAttributeValue(null, LEVEL));
-							LinkFeedbackContainer contextLinkFeedbackContainer = feedbackContainerMap.get(context);
-							while (contextLinkFeedbackContainer.typedHashes.size() <= level)
+							LinkFeedbackCollection contextLinkFeedbackCollection = feedbackCollectionMap.get(context);
+							while (contextLinkFeedbackCollection.typedHashes.size() <= level)
 							{
-								contextLinkFeedbackContainer.typedHashes.add(new LinkedHashMap<Integer, FeedbackContainer.LevelBehaviour>());
+								contextLinkFeedbackCollection.typedHashes.add(new LinkedHashMap<Integer, FeedbackCollection.LevelBehaviour>());
 							}
 
-							Map<Integer, FeedbackContainer.LevelBehaviour> levelLinkMap = contextLinkFeedbackContainer.typedHashes.get(level);
+							Map<Integer, FeedbackCollection.LevelBehaviour> levelLinkMap = contextLinkFeedbackCollection.typedHashes.get(level);
 							parser.nextTag();
 							while (parser.getName().equals(FEEDBACK))
 							{
 								if(parser.getEventType() == XmlPullParser.START_TAG)
 								{
 									int hash = Integer.parseInt(parser.getAttributeValue(null, ID));
-									FeedbackContainer.LevelBehaviour behaviour = FeedbackContainer.LevelBehaviour.valueOf(parser.getAttributeValue(null, FEEDBACK_BEHAVIOUR));
+									FeedbackCollection.LevelBehaviour behaviour = FeedbackCollection.LevelBehaviour.valueOf(parser.getAttributeValue(null, FEEDBACK_BEHAVIOUR));
 									levelLinkMap.put(hash, behaviour);
 								}
 								parser.nextTag();
@@ -357,7 +357,7 @@ public abstract class SaveLoad
 
 			setConnections(connectionMap);
 
-			setInnerFeedbackContainerComponents(feedbackContainerMap, connectionMap);
+			setInnerFeedbackCollectionComponents(feedbackCollectionMap, connectionMap);
 
 			return true;
 		}
@@ -418,29 +418,29 @@ public abstract class SaveLoad
 		}
 	}
 
-	private static void setInnerFeedbackContainerComponents(Map<Object, LinkFeedbackContainer> feedbackContainerMap, Map<Object, LinkContainer> connectionMap)
+	private static void setInnerFeedbackCollectionComponents(Map<Object, LinkFeedbackCollection> feedbackCollectionMap, Map<Object, LinkContainer> connectionMap)
 	{
-		//set inner components of FeedbackContainer
-		for (Map.Entry<Object, LinkFeedbackContainer> entry : feedbackContainerMap.entrySet())
+		//set inner components of FeedbackCollection
+		for (Map.Entry<Object, LinkFeedbackCollection> entry : feedbackCollectionMap.entrySet())
 		{
-			if (!(entry.getKey() instanceof FeedbackContainer))
+			if (!(entry.getKey() instanceof FeedbackCollection))
 			{
 				continue;
 			}
 
-			FeedbackContainer feedbackContainer = (FeedbackContainer) entry.getKey();
-			LinkFeedbackContainer linkFeedbackContainer = entry.getValue();
+			FeedbackCollection feedbackCollection = (FeedbackCollection) entry.getKey();
+			LinkFeedbackCollection linkFeedbackCollection = entry.getValue();
 
-			for (int level = 0; level < linkFeedbackContainer.typedHashes.size(); level++)
+			for (int level = 0; level < linkFeedbackCollection.typedHashes.size(); level++)
 			{
-				for (Map.Entry<Integer, FeedbackContainer.LevelBehaviour> feedbackEntry : linkFeedbackContainer.typedHashes.get(level).entrySet())
+				for (Map.Entry<Integer, FeedbackCollection.LevelBehaviour> feedbackEntry : linkFeedbackCollection.typedHashes.get(level).entrySet())
 				{
 					for (Map.Entry<Object, LinkContainer> candidate : connectionMap.entrySet())
 					{
 						if (candidate.getValue().hash == feedbackEntry.getKey())
 						{
 							Feedback feedback = (Feedback) candidate.getKey();
-							PipelineBuilder.getInstance().addFeedbackToLevel(feedbackContainer, feedback, level, feedbackEntry.getValue());
+							PipelineBuilder.getInstance().addFeedbackToContainer(feedbackCollection, feedback, level, feedbackEntry.getValue());
 						}
 					}
 
@@ -541,27 +541,27 @@ public abstract class SaveLoad
 		}
 		serializer.endTag(null, EVENT_CHANNEL_LIST);
 
-		if (containerElement.getElement() instanceof FeedbackContainer)
+		if (containerElement.getElement() instanceof FeedbackCollection)
 		{
-			addFeedbackContainerTag(serializer, containerElement);
+			addFeedbackCollectionTag(serializer, containerElement);
 		}
 
 		serializer.endTag(null, tag);
 	}
 
-	private static void addFeedbackContainerTag(XmlSerializer serializer, ContainerElement<?> containerElement) throws IOException
+	private static void addFeedbackCollectionTag(XmlSerializer serializer, ContainerElement<?> containerElement) throws IOException
 	{
 		serializer.startTag(null, FEEDBACK_LEVEL_LIST);
 
-		FeedbackContainer feedbackContainer = (FeedbackContainer) containerElement.getElement();
-		List<Map<Feedback, FeedbackContainer.LevelBehaviour>> feedbackLevelList = feedbackContainer.getFeedbackList();
+		FeedbackCollection feedbackCollection = (FeedbackCollection) containerElement.getElement();
+		List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackLevelList = feedbackCollection.getFeedbackList();
 
 		for (int i = 0; i < feedbackLevelList.size(); i++)
 		{
 			serializer.startTag(null, FEEDBACK_LEVEL);
 			serializer.attribute(null, LEVEL, String.valueOf(i));
 
-			for (Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> entry : feedbackLevelList.get(i).entrySet())
+			for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> entry : feedbackLevelList.get(i).entrySet())
 			{
 				serializer.startTag(null, FEEDBACK);
 				serializer.attribute(null, FEEDBACK_BEHAVIOUR, entry.getValue().toString());
@@ -610,11 +610,11 @@ public abstract class SaveLoad
 	}
 
 	/**
-	 * Used to add inner feedback components for FeedbackContainer.
+	 * Used to add inner feedback components for FeedbackCollection.
 	 */
-	private static class LinkFeedbackContainer
+	private static class LinkFeedbackCollection
 	{
 		int hash;
-		List<Map<Integer, FeedbackContainer.LevelBehaviour>> typedHashes = new ArrayList<>();
+		List<Map<Integer, FeedbackCollection.LevelBehaviour>> typedHashes = new ArrayList<>();
 	}
 }
