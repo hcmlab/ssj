@@ -341,6 +341,13 @@ public class MainActivity extends AppCompatActivity
                 showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
                 return true;
             }
+			case R.id.action_clear:
+			{
+				PipelineBuilder.getInstance().clear();
+				Annotation.getInstance().clear();
+				actualizeContent(Util.AppAction.CLEAR, null);
+				return true;
+			}
             case R.id.action_save:
             {
                 showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
@@ -354,13 +361,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_delete:
             {
                 showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
-                return true;
-            }
-            case R.id.action_clear:
-            {
-                PipelineBuilder.getInstance().clear();
-                Annotation.getInstance().clear();
-                actualizeContent(Util.AppAction.CLEAR, null);
                 return true;
             }
         }
