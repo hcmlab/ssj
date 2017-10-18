@@ -311,7 +311,6 @@ public class PipeView extends ViewGroup
 			int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
 			streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsSensorChannel, false);
 			int[] eventHashes = componentViewSensor.getEventConnectionHashes();
-			//@TODO: Last parameter determines connection direction. Should sensors be handled like in streams or like other components?
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensor, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensorChannel, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsTransformer, true);

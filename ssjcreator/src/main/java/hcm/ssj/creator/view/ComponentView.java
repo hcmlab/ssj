@@ -46,12 +46,15 @@ import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.activity.FeedbackContainerActivity;
 import hcm.ssj.creator.activity.OptionsActivity;
+import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.creator.core.container.FeedbackContainerContainerElement;
 import hcm.ssj.feedback.FeedbackContainer;
 
 /**
@@ -104,7 +107,7 @@ public class ComponentView extends View
 				@Override
 				public void onClick(View v)
 				{
-					openFeedbackContainerDialog(element);
+					openFeedbackContainerDialog((FeedbackContainer)element);
 				}
 			};
 			this.setOnClickListener(onClickListener);
@@ -355,8 +358,10 @@ public class ComponentView extends View
 		activity.startActivity(new Intent(activity, OptionsActivity.class));
 	}
 
-	private void openFeedbackContainerDialog(final Object element)
+	private void openFeedbackContainerDialog(final FeedbackContainer element)
 	{
+		final FeedbackContainerContainerElement feedbackContainerContainerElement = PipelineBuilder.getInstance().getFeedbackContainerContainerElement(element);
+
 		Activity activity = (Activity) getContext();
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
@@ -374,7 +379,7 @@ public class ComponentView extends View
 					public void onClick(DialogInterface dialog, int which)
 					{
 						Activity activity = (Activity) getContext();
-						FeedbackContainerActivity.feedbackContainer = (FeedbackContainer) element;
+						FeedbackContainerActivity.feedbackContainer = feedbackContainerContainerElement;
 						activity.startActivity(new Intent(activity, FeedbackContainerActivity.class));
 					}
 				})

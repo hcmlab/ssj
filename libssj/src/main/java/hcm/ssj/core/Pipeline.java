@@ -33,6 +33,8 @@ import java.io.File;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -543,6 +545,22 @@ public class Pipeline
         }
 
         feedbackContainer.addFeedback(feedback, level, levelBehaviour);
+    }
+
+    public void registerInFeedbackContainer(FeedbackContainer feedbackContainer, List<Map<Feedback,FeedbackContainer.LevelBehaviour>> feedbackList)
+    {
+        feedbackContainer.removeAllFeedbacks();
+
+        for (int level = 0; level < feedbackList.size(); level++)
+        {
+            for(Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(level).entrySet())
+            {
+                Pipeline.getInstance().registerInFeedbackContainer(feedbackLevelBehaviourEntry.getKey(),
+                                                                   feedbackContainer,
+                                                                   level,
+                                                                   feedbackLevelBehaviourEntry.getValue());
+            }
+        }
     }
 
     void pushData(int buffer_id, Object data, int numBytes)

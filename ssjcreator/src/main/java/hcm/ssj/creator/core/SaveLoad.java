@@ -440,7 +440,7 @@ public abstract class SaveLoad
 						if (candidate.getValue().hash == feedbackEntry.getKey())
 						{
 							Feedback feedback = (Feedback) candidate.getKey();
-							feedbackContainer.addFeedback(feedback, level, feedbackEntry.getValue());
+							PipelineBuilder.getInstance().addFeedbackToLevel(feedbackContainer, feedback, level, feedbackEntry.getValue());
 						}
 					}
 

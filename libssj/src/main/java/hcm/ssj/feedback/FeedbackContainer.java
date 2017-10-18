@@ -50,7 +50,6 @@ public class FeedbackContainer extends EventHandler
 {
 
 	public FeedbackContainer.Options options = new FeedbackContainer.Options();
-	private Pipeline pipeline;
 	private int currentLevel;
 	private List<Map<Feedback, LevelBehaviour>> feedbackList;
 
@@ -69,7 +68,6 @@ public class FeedbackContainer extends EventHandler
 		}
 
 		currentLevel = 0;
-		pipeline = Pipeline.getInstance();
 		changeLayouts();
 		setLevelActive(currentLevel);
 	}
@@ -213,6 +211,11 @@ public class FeedbackContainer extends EventHandler
 		{
 			feedbackLevelBehaviourMap.remove(feedback);
 		}
+	}
+
+	public void removeAllFeedbacks()
+	{
+		feedbackList.clear();
 	}
 
 	public enum LevelBehaviour

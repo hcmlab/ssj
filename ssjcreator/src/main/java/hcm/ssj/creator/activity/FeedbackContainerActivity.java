@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.container.FeedbackContainerContainerElement;
 import hcm.ssj.creator.view.Feedback.FeedbackContainerOnDragListener;
 import hcm.ssj.creator.view.Feedback.FeedbackLevelLayout;
 import hcm.ssj.creator.view.Feedback.FeedbackListener;
@@ -53,8 +54,8 @@ import hcm.ssj.feedback.FeedbackContainer;
 
 public class FeedbackContainerActivity extends AppCompatActivity
 {
-	public static FeedbackContainer feedbackContainer = null;
-	private FeedbackContainer innerFeedbackContainer = null;
+	public static FeedbackContainerContainerElement feedbackContainer = null;
+	private FeedbackContainerContainerElement innerFeedbackContainer = null;
 	private LinearLayout levelLinearLayout;
 	private List<FeedbackLevelLayout> feedbackLevelLayoutList;
 	private FeedbackListener feedbackListener;
@@ -75,6 +76,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		super.onPause();
 		if (innerFeedbackContainer != null)
 		{
+			innerFeedbackContainer.clearFeedback();
 			for (int level = 0; level < feedbackLevelLayoutList.size(); level++)
 			{
 				Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourMap = feedbackLevelLayoutList.get(level).getFeedbackLevelBehaviourMap();
@@ -114,7 +116,7 @@ public class FeedbackContainerActivity extends AppCompatActivity
 		recycleBin = (ImageView) findViewById(R.id.recycleBin);
 		recycleBin.setOnDragListener(new FeedbackContainerOnDragListener(this));
 
-		setTitle(innerFeedbackContainer.getComponentName());
+		setTitle(((FeedbackContainer)innerFeedbackContainer.getElement()).getComponentName());
 		feedbackLevelLayoutList = new ArrayList<>();
 
 		this.feedbackListener = new FeedbackListener()
@@ -175,10 +177,10 @@ public class FeedbackContainerActivity extends AppCompatActivity
 
 	public void showDragIcons(int width, int height)
 	{
-		ViewGroup.LayoutParams lpBin = this.recycleBin.getLayoutParams();
-		lpBin.width = width;
-		lpBin.height = height;
-		this.recycleBin.setLayoutParams(lpBin);
+		ViewGroup.LayoutParams layoutParamsDragIcon = this.recycleBin.getLayoutParams();
+		layoutParamsDragIcon.width = width;
+		layoutParamsDragIcon.height = height;
+		this.recycleBin.setLayoutParams(layoutParamsDragIcon);
 		this.recycleBin.setVisibility(View.VISIBLE);
 		this.recycleBin.invalidate();
 	}
