@@ -47,7 +47,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -78,6 +80,9 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
+
+    private ListView drawerList;
+    private ArrayAdapter<String> arrayAdapter;
 
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
@@ -491,6 +496,9 @@ public class MainActivity extends AppCompatActivity
         startTutorial();
         setContentView(R.layout.activity_main);
         init();
+
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        addDrawerItems();
     }
 
     /**
@@ -535,5 +543,14 @@ public class MainActivity extends AppCompatActivity
         });
         //start the thread
         t.start();
+    }
+
+	/**
+	 * Add menu items to the drawer list.
+	 */
+	private void addDrawerItems() {
+        String[] drawerItems = {"Options", "Save", "Load", "Delete"};
+        arrayAdapter = new ArrayAdapter<>(this, R.layout.drawer_item, drawerItems);
+        drawerList.setAdapter(arrayAdapter);
     }
 }
