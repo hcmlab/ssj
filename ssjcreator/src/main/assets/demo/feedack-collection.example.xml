@@ -1,0 +1,178 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="3">
+  <framework>
+    <options>
+      <option name="bufferSize" value="9.0" />
+      <option name="clockSyncInterval" value="1.0" />
+      <option name="clockSyncPort" value="0" />
+      <option name="countdown" value="3" />
+      <option name="log" value="false" />
+      <option name="loglevel" value="VERBOSE" />
+      <option name="logpath" value="/storage/emulated/0/SSJ/[time]" />
+      <option name="logtimeout" value="5.0" />
+      <option name="startSyncPort" value="0" />
+      <option name="waitSensorConnect" value="5.0" />
+      <option name="waitThreadKill" value="30.0" />
+    </options>
+  </framework>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="174639344">
+      <options>
+        <option name="sampleRate" value="50" />
+        <option name="sensorType" value="LINEAR_ACCELERATION" />
+      </options>
+      <providerList />
+      <eventProviderList />
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="64649615">
+      <options>
+        <option name="sensorDelay" value="0" />
+      </options>
+      <providerList>
+        <providerId id="174639344" />
+      </providerList>
+      <eventProviderList />
+    </sensor>
+  </sensorList>
+  <transformerList>
+    <transformer class="hcm.ssj.body.OverallActivation" id="1439781" frameSize="0.1" delta="5.0" eventTrigger="false">
+      <options />
+      <providerList>
+        <providerId id="174639344" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+    <transformer class="hcm.ssj.signal.MvgAvgVar" id="116793286" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="format" value="AVERAGE" />
+        <option name="method" value="MOVING" />
+        <option name="window" value="10.0" />
+      </options>
+      <providerList>
+        <providerId id="1439781" />
+      </providerList>
+      <eventProviderList />
+    </transformer>
+  </transformerList>
+  <consumerList>
+    <consumer class="hcm.ssj.event.ThresholdClassEventSender" id="7561630" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="classes" value="[low, medium, high]" />
+        <option name="maxDur" value="2.0" />
+        <option name="mean" value="true" />
+        <option name="minDiff" value="0.1" />
+        <option name="sender" value="ThresholdClassEventSender" />
+        <option name="thresholds" value="[0.0, 5.0, 15.0]" />
+      </options>
+      <providerList>
+        <providerId id="116793286" />
+      </providerList>
+      <eventProviderList />
+    </consumer>
+  </consumerList>
+  <eventHandlerList>
+    <eventHandler class="hcm.ssj.feedback.AuditoryFeedback" id="105759032" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="eventName" value="high" />
+        <option name="lock" value="1000" />
+        <option name="audioFile" value="demo/res/blop.mp3" />
+        <option name="fromAssets" value="true" />
+        <option name="intensity" value="1.0" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="7561630" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="71724293" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="eventName" value="medium" />
+        <option name="lock" value="1000" />
+        <option name="brightness" value="1.0" />
+        <option name="duration" value="0" />
+        <option name="fade" value="0" />
+        <option name="feedbackIcon" value="demo/res/orientation_med.png" />
+        <option name="feedbackIconFromAssets" value="true" />
+        <option name="position" value="0" />
+        <option name="qualityIcon" value="demo/res/thumb_positive.png" />
+        <option name="qualityIconFromAssets" value="true" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="7561630" />
+        <eventProviderId id="105759032" />
+        <eventProviderId id="23441787" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.feedback.AndroidTactileFeedback" id="138475814" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="eventName" value="low" />
+        <option name="lock" value="1000" />
+        <option name="vibrationPattern" value="[0, 500]" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="7561630" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="23441787" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="eventName" value="low" />
+        <option name="lock" value="1000" />
+        <option name="brightness" value="1.0" />
+        <option name="duration" value="0" />
+        <option name="fade" value="0" />
+        <option name="feedbackIcon" value="demo/res/orientation_low.png" />
+        <option name="feedbackIconFromAssets" value="true" />
+        <option name="position" value="0" />
+        <option name="qualityIcon" value="demo/res/thumb_negative.png" />
+        <option name="qualityIconFromAssets" value="true" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="7561630" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="17738972" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="eventName" value="high" />
+        <option name="lock" value="1000" />
+        <option name="brightness" value="1.0" />
+        <option name="duration" value="0" />
+        <option name="fade" value="0" />
+        <option name="feedbackIcon" value="demo/res/orientation_high.png" />
+        <option name="feedbackIconFromAssets" value="true" />
+        <option name="position" value="0" />
+        <option name="qualityIcon" value="demo/res/thumb_negative.png" />
+        <option name="qualityIconFromAssets" value="true" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="7561630" />
+      </eventProviderList>
+    </eventHandler>
+    <eventHandler class="hcm.ssj.feedback.FeedbackCollection" id="120849030" delta="0.0" eventTrigger="false">
+      <options>
+        <option name="progression" value="5.0" />
+        <option name="regression" value="10.0" />
+      </options>
+      <providerList />
+      <eventProviderList>
+        <eventProviderId id="7561630" />
+      </eventProviderList>
+      <feedbackLevelList>
+        <feedbackLevel level="0">
+          <feedback feedbackBehaviour="Neutral" id="138475814" />
+          <feedback feedbackBehaviour="Progress" id="23441787" />
+        </feedbackLevel>
+        <feedbackLevel level="1">
+          <feedback feedbackBehaviour="Regress" id="71724293" />
+          <feedback feedbackBehaviour="Neutral" id="17738972" />
+          <feedback feedbackBehaviour="Neutral" id="105759032" />
+        </feedbackLevel>
+      </feedbackLevelList>
+    </eventHandler>
+  </eventHandlerList>
+</ssjSaveFile>

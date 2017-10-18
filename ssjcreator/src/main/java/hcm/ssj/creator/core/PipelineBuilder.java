@@ -615,6 +615,7 @@ public class PipelineBuilder
 
 	public void addFeedbackToContainer(FeedbackCollection feedbackCollection, Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
 	{
+		// Add to container
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
 		{
 			if (element.getElement().equals(feedbackCollection))
@@ -622,19 +623,20 @@ public class PipelineBuilder
 				((FeedbackCollectionContainerElement) element).addFeedback(feedback, level, levelBehaviour);
 			}
 		}
-	}
 
-	public void removeFeedbackFromContainer(FeedbackCollection feedbackCollection, Feedback feedback)
-	{
-		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
+		// Remove old references
+		for(ContainerElement<EventHandler> eventHandlerContainerElement : hsEventHandlerElements)
 		{
-			if (element.getElement().equals(feedbackCollection))
+			if(eventHandlerContainerElement.getElement().equals(feedback))
 			{
-				((FeedbackCollectionContainerElement) element).removeFeedback(feedback);
+				for(Component eventProvider : eventHandlerContainerElement.getHmEventProviders().keySet())
+				{
+					eventHandlerContainerElement.removeEventProvider(eventProvider);
+				}
 			}
 		}
 	}
-
+	
 	/**
 	 * @param o        Object
 	 * @param provider Provider
