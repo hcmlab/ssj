@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ mainmenu.xml
+  ~ activity_main_drawer.xml
   ~ Copyright (c) 2017
   ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
   ~ Vitalijs Krumins, Antonio Grieco
@@ -26,39 +26,19 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_add"
-        android:icon="@android:drawable/ic_menu_add"
-        android:orderInCategory="1"
-        android:title="@string/str_addMenu"
-        app:showAsAction="always|withText">
-        <menu>
-            <item
-                android:id="@+id/action_sensors"
-                android:title="@string/str_sensors">
-            </item>
-            <item
-                android:id="@+id/action_providers"
-                android:title="@string/str_sensor_channels">
-            </item>
-            <item
-                android:id="@+id/action_transformers"
-                android:title="@string/str_transformers">
-            </item>
-            <item
-                android:id="@+id/action_consumers"
-                android:title="@string/str_consumers">
-            </item>
-            <item
-                android:id="@+id/action_eventhandlers"
-                android:title="@string/str_eventhandlers">
-            </item>
-            <item
-                android:id="@+id/action_clear"
-                android:title="@string/str_clear">
-            </item>
-        </menu>
-    </item>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/action_framework"
+            android:title="@string/str_options" />
+        <item
+            android:id="@+id/action_save"
+            android:title="@string/str_save" />
+        <item
+            android:id="@+id/action_load"
+            android:title="@string/str_load" />
+        <item
+            android:id="@+id/action_delete"
+            android:title="@string/str_delete" />
+    </group>
 </menu>

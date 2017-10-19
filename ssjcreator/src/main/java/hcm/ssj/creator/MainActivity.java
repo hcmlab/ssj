@@ -84,12 +84,6 @@ public class MainActivity extends AppCompatActivity
     //tabs
     private TabHandler tabHandler;
 
-    private ListView drawerList;
-    private ArrayAdapter<String> arrayAdapter;
-    private ActionBarDrawerToggle drawerToggle;
-    private DrawerLayout drawerLayout;
-    private String activityTitle;
-
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
         @Override
@@ -289,10 +283,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * @param menu Menu
-     * @return boolean
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -301,21 +291,11 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    /**
-     * @param item MenuItem
-     * @return boolean
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch (item.getItemId())
         {
-            case R.id.action_framework:
-            {
-                Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
-                startActivity(intent);
-                return true;
-            }
             case R.id.action_sensors:
             {
                 showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
@@ -348,6 +328,12 @@ public class MainActivity extends AppCompatActivity
 				actualizeContent(Util.AppAction.CLEAR, null);
 				return true;
 			}
+			case R.id.action_framework:
+			{
+				Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+				startActivity(intent);
+				return true;
+			}
             case R.id.action_save:
             {
                 showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
@@ -364,11 +350,6 @@ public class MainActivity extends AppCompatActivity
                 return true;
             }
         }
-
-        if (drawerToggle.onOptionsItemSelected(item)) {
-        	return true;
-		}
-
         return true;
     }
 
@@ -456,9 +437,6 @@ public class MainActivity extends AppCompatActivity
         tabHandler.actualizeContent(appAction, o);
     }
 
-    /**
-     *
-     */
     @Override
     protected void onResume()
     {
@@ -470,18 +448,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     *
-     */
     @Override
     protected void onPause()
     {
         super.onPause();
     }
 
-    /**
-     *
-     */
     @Override
     protected void onDestroy()
     {
@@ -497,9 +469,6 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
     }
 
-    /**
-     * @param savedInstanceState Bundle
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -507,27 +476,7 @@ public class MainActivity extends AppCompatActivity
         startTutorial();
         setContentView(R.layout.activity_main);
         init();
-
-        drawerList = (ListView) findViewById(R.id.left_drawer);
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        activityTitle = getTitle().toString();
-
-        addDrawerItems();
-        setupDrawer();
-
-        if (getSupportActionBar() != null)
-		{
-			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-			getSupportActionBar().setHomeButtonEnabled(true);
-		}
     }
-
-    @Override
-	protected void onPostCreate(Bundle savedInstanceState)
-	{
-    	super.onPostCreate(savedInstanceState);
-    	drawerToggle.syncState();
-	}
 
     /**
      * Override back-button to function like home-button
@@ -538,9 +487,6 @@ public class MainActivity extends AppCompatActivity
         moveTaskToBack(true);
     }
 
-    /**
-     *
-     */
     private void startTutorial()
     {
         //declare a new thread to do a preference check
@@ -572,50 +518,4 @@ public class MainActivity extends AppCompatActivity
         //start the thread
         t.start();
     }
-
-	/**
-	 * Add menu items to the drawer list.
-	 */
-	private void addDrawerItems()
-	{
-        String[] drawerItems = {"Options", "Save", "Load", "Delete"};
-        arrayAdapter = new ArrayAdapter<>(this, R.layout.drawer_item, drawerItems);
-        drawerList.setAdapter(arrayAdapter);
-    }
-
-	/**
-	 * Initialize drawer menu and define state behavior.
-	 */
-	private void setupDrawer()
-	{
-		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
-												 R.string.drawer_open, R.string.drawer_close) {
-			public void onDrawerOpened(View drawerView)
-			{
-				super.onDrawerOpened(drawerView);
-
-				if (getSupportActionBar() != null)
-				{
-					getSupportActionBar().setTitle(R.string.drawer_title);
-				}
-
-				invalidateOptionsMenu();
-			}
-
-			public void onDrawerClosed(View drawerView)
-			{
-				super.onDrawerClosed(drawerView);
-
-				if (getSupportActionBar() != null)
-				{
-					getSupportActionBar().setTitle(activityTitle);
-				}
-
-				invalidateOptionsMenu();
-			}
-		};
-
-		drawerToggle.setDrawerIndicatorEnabled(true);
-		drawerLayout.addDrawerListener(drawerToggle);
-	}
 }

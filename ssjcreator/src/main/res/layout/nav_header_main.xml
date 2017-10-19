@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ mainmenu.xml
+  ~ nav_header_main.xml
   ~ Copyright (c) 2017
   ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
   ~ Vitalijs Krumins, Antonio Grieco
@@ -25,40 +25,15 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
-
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item
-        android:id="@+id/action_add"
-        android:icon="@android:drawable/ic_menu_add"
-        android:orderInCategory="1"
-        android:title="@string/str_addMenu"
-        app:showAsAction="always|withText">
-        <menu>
-            <item
-                android:id="@+id/action_sensors"
-                android:title="@string/str_sensors">
-            </item>
-            <item
-                android:id="@+id/action_providers"
-                android:title="@string/str_sensor_channels">
-            </item>
-            <item
-                android:id="@+id/action_transformers"
-                android:title="@string/str_transformers">
-            </item>
-            <item
-                android:id="@+id/action_consumers"
-                android:title="@string/str_consumers">
-            </item>
-            <item
-                android:id="@+id/action_eventhandlers"
-                android:title="@string/str_eventhandlers">
-            </item>
-            <item
-                android:id="@+id/action_clear"
-                android:title="@string/str_clear">
-            </item>
-        </menu>
-    </item>
-</menu>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/nav_header_height"
+              android:background="@drawable/side_nav_bar"
+              android:gravity="bottom"
+              android:orientation="vertical"
+              android:paddingBottom="@dimen/activity_vertical_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_vertical_margin"
+              android:theme="@style/ThemeOverlay.AppCompat.Dark">
+</LinearLayout>
