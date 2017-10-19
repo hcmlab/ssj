@@ -39,8 +39,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
@@ -49,9 +52,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -74,9 +75,8 @@ import hcm.ssj.creator.main.AnnotationTab;
 import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 import hcm.ssj.creator.util.Util;
-import hcm.ssj.myo.Configuration;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private static boolean ready = true;
     private boolean firstStart = false;
@@ -328,6 +328,7 @@ public class MainActivity extends AppCompatActivity
 				actualizeContent(Util.AppAction.CLEAR, null);
 				return true;
 			}
+			/*
 			case R.id.action_framework:
 			{
 				Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
@@ -349,6 +350,7 @@ public class MainActivity extends AppCompatActivity
                 showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
                 return true;
             }
+            */
         }
         return true;
     }
@@ -476,15 +478,29 @@ public class MainActivity extends AppCompatActivity
         startTutorial();
         setContentView(R.layout.activity_main);
         init();
+
+		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+				this, drawer, R.string.drawer_open, R.string.drawer_close);
+		drawer.addDrawerListener(toggle);
+		toggle.syncState();
+
+		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+		navigationView.setNavigationItemSelectedListener(this);
     }
 
     /**
-     * Override back-button to function like home-button
+     * Close drawer if open otherwise go to app home screen.
      */
     @Override
     public void onBackPressed()
     {
-        moveTaskToBack(true);
+		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		if (drawer.isDrawerOpen(GravityCompat.START)) {
+			drawer.closeDrawer(GravityCompat.START);
+		} else {
+			moveTaskToBack(true);
+		}
     }
 
     private void startTutorial()
@@ -518,4 +534,35 @@ public class MainActivity extends AppCompatActivity
         //start the thread
         t.start();
     }
+
+	@Override
+	public boolean onNavigationItemSelected(@NonNull MenuItem item)
+	{
+		int itemId = item.getItemId();
+
+		if (itemId == R.id.action_framework)
+		{
+			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+			startActivity(intent);
+		}
+		else if (itemId == R.id.action_save)
+		{
+			showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
+		}
+		else if (itemId == R.id.action_load)
+		{
+			showFileDialog(R.string.str_load, FileDialog.Type.LOAD, R.string.str_loadError);
+		}
+		else if (itemId == R.id.action_delete)
+		{
+			showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
+		}
+
+		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		if (drawer.isDrawerOpen(GravityCompat.START))
+		{
+			drawer.closeDrawer(GravityCompat.START);
+		}
+		return true;
+	}
 }
