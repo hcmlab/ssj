@@ -41,13 +41,17 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -70,6 +74,7 @@ import hcm.ssj.creator.main.AnnotationTab;
 import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 import hcm.ssj.creator.util.Util;
+import hcm.ssj.myo.Configuration;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -78,6 +83,12 @@ public class MainActivity extends AppCompatActivity
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
+
+    private ListView drawerList;
+    private ArrayAdapter<String> arrayAdapter;
+    private ActionBarDrawerToggle drawerToggle;
+    private DrawerLayout drawerLayout;
+    private String activityTitle;
 
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
@@ -330,6 +341,13 @@ public class MainActivity extends AppCompatActivity
                 showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
                 return true;
             }
+			case R.id.action_clear:
+			{
+				PipelineBuilder.getInstance().clear();
+				Annotation.getInstance().clear();
+				actualizeContent(Util.AppAction.CLEAR, null);
+				return true;
+			}
             case R.id.action_save:
             {
                 showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
@@ -345,14 +363,12 @@ public class MainActivity extends AppCompatActivity
                 showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
                 return true;
             }
-            case R.id.action_clear:
-            {
-                PipelineBuilder.getInstance().clear();
-                Annotation.getInstance().clear();
-                actualizeContent(Util.AppAction.CLEAR, null);
-                return true;
-            }
         }
+
+        if (drawerToggle.onOptionsItemSelected(item)) {
+        	return true;
+		}
+
         return true;
     }
 
@@ -491,7 +507,27 @@ public class MainActivity extends AppCompatActivity
         startTutorial();
         setContentView(R.layout.activity_main);
         init();
+
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        activityTitle = getTitle().toString();
+
+        addDrawerItems();
+        setupDrawer();
+
+        if (getSupportActionBar() != null)
+		{
+			getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+			getSupportActionBar().setHomeButtonEnabled(true);
+		}
     }
+
+    @Override
+	protected void onPostCreate(Bundle savedInstanceState)
+	{
+    	super.onPostCreate(savedInstanceState);
+    	drawerToggle.syncState();
+	}
 
     /**
      * Override back-button to function like home-button
@@ -536,4 +572,50 @@ public class MainActivity extends AppCompatActivity
         //start the thread
         t.start();
     }
+
+	/**
+	 * Add menu items to the drawer list.
+	 */
+	private void addDrawerItems()
+	{
+        String[] drawerItems = {"Options", "Save", "Load", "Delete"};
+        arrayAdapter = new ArrayAdapter<>(this, R.layout.drawer_item, drawerItems);
+        drawerList.setAdapter(arrayAdapter);
+    }
+
+	/**
+	 * Initialize drawer menu and define state behavior.
+	 */
+	private void setupDrawer()
+	{
+		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout,
+												 R.string.drawer_open, R.string.drawer_close) {
+			public void onDrawerOpened(View drawerView)
+			{
+				super.onDrawerOpened(drawerView);
+
+				if (getSupportActionBar() != null)
+				{
+					getSupportActionBar().setTitle(R.string.drawer_title);
+				}
+
+				invalidateOptionsMenu();
+			}
+
+			public void onDrawerClosed(View drawerView)
+			{
+				super.onDrawerClosed(drawerView);
+
+				if (getSupportActionBar() != null)
+				{
+					getSupportActionBar().setTitle(activityTitle);
+				}
+
+				invalidateOptionsMenu();
+			}
+		};
+
+		drawerToggle.setDrawerIndicatorEnabled(true);
+		drawerLayout.addDrawerListener(drawerToggle);
+	}
 }

@@ -84,7 +84,7 @@ public class BluetoothChannel extends SensorChannel
 
         byte[] data = ((BluetoothReader)_sensor).getData(options.channel_id.get());
 
-        if(data.length != stream_out.tot)
+        if(data == null || data.length != stream_out.tot)
         {
             Log.w("data mismatch");
             return false;
