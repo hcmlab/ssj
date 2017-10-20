@@ -45,8 +45,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.net.URI;
-
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
@@ -138,13 +136,17 @@ public class OptionsActivity extends AppCompatActivity
 		}
 		if (innerObject != null)
 		{
-			//add possible event providers
-			TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
-																	(innerObject instanceof Transformer || innerObject instanceof Consumer)
-																			|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
-			if (eventTableRow != null)
+			// Do not add event provider for managed feedback
+			if(!PipelineBuilder.getInstance().isManagedFeedback(innerObject))
 			{
-				tableLayout.addView(eventTableRow);
+				//add possible event providers
+				TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
+																		(innerObject instanceof Transformer || innerObject instanceof Consumer)
+																				|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
+				if (eventTableRow != null)
+				{
+					tableLayout.addView(eventTableRow);
+				}
 			}
 		}
 	}
