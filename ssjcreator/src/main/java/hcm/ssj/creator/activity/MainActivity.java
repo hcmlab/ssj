@@ -336,9 +336,14 @@ public class MainActivity extends AppCompatActivity
                 showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
                 return true;
             }
-            case R.id.action_load:
+            case R.id.action_load_pipeline:
             {
-                showFileDialog(R.string.str_load, FileDialog.Type.LOAD, R.string.str_loadError);
+                showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
+                return true;
+            }
+            case R.id.action_load_strategy:
+            {
+                showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
                 return true;
             }
             case R.id.action_delete:
@@ -405,7 +410,7 @@ public class MainActivity extends AppCompatActivity
             public void onPositiveEvent(Object[] o)
             {
                 fileDialog.removeListener(this);
-                if (type == FileDialog.Type.LOAD)
+                if (type == FileDialog.Type.LOAD_PIPELINE || type == FileDialog.Type.LOAD_STRATEGY)
                 {
                     actualizeContent(Util.AppAction.LOAD, o != null ? o[0] : null);
                 } else if (type == FileDialog.Type.SAVE)

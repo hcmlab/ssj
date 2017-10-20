@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import hcm.ssj.core.Log;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.SaveLoad;
+import hcm.ssj.creator.util.StrategyLoader;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -60,7 +61,7 @@ public class FileDialog extends DialogFragment
 {
     public enum Type
     {
-        SAVE, LOAD, DELETE
+        SAVE, LOAD_PIPELINE, LOAD_STRATEGY, DELETE
     }
 
     private Type type = Type.SAVE;
@@ -113,7 +114,7 @@ public class FileDialog extends DialogFragment
                                 }
                                 return;
                             }
-                            case LOAD:
+                            case LOAD_PIPELINE:
                             {
                                 if (xmlFiles != null && xmlFiles.length > 0)
                                 {
@@ -139,9 +140,21 @@ public class FileDialog extends DialogFragment
                                 {
                                     listener.onNegativeEvent(null);
                                 }
-                                break;
                             }
-                            case DELETE:
+							break;
+							case LOAD_STRATEGY:
+                            {
+                                if (xmlFiles != null && xmlFiles.length > 0)
+                                {
+                                    int pos = listView.getCheckedItemPosition();
+                                    if (pos > AbsListView.INVALID_POSITION)
+                                    {
+                                        StrategyLoader.loadStrategyFile(xmlFiles[pos]);
+                                    }
+                                }
+							}
+							break;
+							case DELETE:
                             {
                                 if (xmlFiles != null && xmlFiles.length > 0)
                                 {
@@ -198,7 +211,8 @@ public class FileDialog extends DialogFragment
                 builder.setView(editText);
                 break;
             }
-            case LOAD:
+            case LOAD_PIPELINE:
+            case LOAD_STRATEGY:
             case DELETE:
             {
                 listView = new ListView(getContext());

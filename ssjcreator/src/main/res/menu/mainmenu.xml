@@ -77,8 +77,12 @@
                 android:title="@string/str_save">
             </item>
             <item
-                android:id="@+id/action_load"
-                android:title="@string/str_load">
+                android:id="@+id/action_load_pipeline"
+                android:title="@string/str_load_pipeline">
+            </item>
+            <item
+                android:id="@+id/action_load_strategy"
+                android:title="@string/str_load_strategy">
             </item>
             <item
                 android:id="@+id/action_delete"

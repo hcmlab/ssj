@@ -41,7 +41,8 @@
     <!--file menu-->
     <string name="str_configMenu">Menu</string>
     <string name="str_save">Save</string>
-    <string name="str_load">Load</string>
+    <string name="str_load_pipeline">Load Pipeline</string>
+    <string name="str_load_strategy">Load Strategy</string>
     <string name="str_delete">Delete</string>
     <string name="str_clear">Clear</string>
     <!--dialogs-->
