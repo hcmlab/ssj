@@ -40,20 +40,7 @@ import hcm.ssj.core.option.OptionList;
 public abstract class Feedback extends EventHandler
 {
 
-	public class Options extends OptionList
-	{
-
-		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
-		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
-
-		protected Options()
-		{
-			addOptions();
-		}
-	}
-
 	protected long lastExecutionTime = 0;
-
 	private boolean active = true;
 
 	protected boolean checkLock(int lock)
@@ -71,12 +58,15 @@ public abstract class Feedback extends EventHandler
 	}
 
 	@Override
-	protected void enter()
+	protected final void enter()
 	{
 		lastExecutionTime = System.currentTimeMillis();
+		feedbackEnter();
 	}
 
-	protected boolean isActive()
+	protected abstract void feedbackEnter();
+
+	public boolean isActive()
 	{
 		return active;
 	}
@@ -91,11 +81,15 @@ public abstract class Feedback extends EventHandler
 		return lastExecutionTime;
 	}
 
-	protected void removeEventChannels()
+	public class Options extends OptionList
 	{
-		if (_evchannel_in != null)
+
+		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
+		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
+
+		protected Options()
 		{
-			_evchannel_in.clear();
+			addOptions();
 		}
 	}
 }

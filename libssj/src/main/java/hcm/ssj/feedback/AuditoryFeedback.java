@@ -39,9 +39,6 @@ import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
-import static android.R.attr.data;
-import static android.R.attr.opacity;
-
 /**
  * Created by Antonio Grieco on 06.09.2017.
  */
@@ -73,7 +70,7 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void feedbackEnter()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{

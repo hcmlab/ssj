@@ -71,7 +71,7 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void feedbackEnter()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{

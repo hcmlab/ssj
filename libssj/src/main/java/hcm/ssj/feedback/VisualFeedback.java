@@ -43,9 +43,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.ViewSwitcher;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -55,7 +52,6 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.file.FileCons;
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -99,7 +95,7 @@ public class VisualFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void feedbackEnter()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
