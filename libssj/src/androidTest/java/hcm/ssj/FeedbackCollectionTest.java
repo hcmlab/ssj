@@ -44,7 +44,6 @@ import hcm.ssj.body.OverallActivation;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.SSJException;
 import hcm.ssj.event.FloatsEventSender;
-import hcm.ssj.event.ThresholdClassEventSender;
 import hcm.ssj.feedback.AndroidTactileFeedback;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
@@ -108,52 +107,83 @@ public class FeedbackCollectionTest
 	}
 
 	@Test
+	public void testNoProgression()
+	{
+		try
+		{
+			pipeline.start();
+
+			Thread.sleep((int) ((feedbackCollection.options.progression.get() * 1000) * 1.5));
+
+			pipeline.stop();
+			pipeline.release();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		checkLevelActive(0);
+	}
+
+	@Test
 	public void testProgression()
 	{
-		{ // NO Progress to next level
 
-			try
+		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(0).entrySet())
+		{
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
 			{
-				pipeline.start();
-
-				Thread.sleep((int) ((feedbackCollection.options.progression.get() * 1000) * 1.5));
-
-				pipeline.stop();
-				pipeline.release();
+				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000) * 2);
 			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			checkLevelActive(0);
 		}
 
-		{ // Progress to next level
-			for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(0).entrySet())
-			{
-				if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
-				{
-					((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000)*2);
-				}
-			}
+		try
+		{
+			pipeline.start();
 
-			try
-			{
-				pipeline.start();
+			Thread.sleep((int) ((feedbackCollection.options.progression.get() * 1000) * 1.5));
 
-				Thread.sleep((int) ((feedbackCollection.options.progression.get() * 1000) * 1.5));
+			pipeline.stop();
+			pipeline.release();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-				pipeline.stop();
-				pipeline.release();
-			}
-			catch (Exception e)
+		checkLevelActive(1);
+	}
+
+	@Test
+	public void testNoRegression()
+	{
+		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(0).entrySet())
+		{
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
 			{
-				e.printStackTrace();
+				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000) * 2);
 			}
+		}
+		try
+		{
+			pipeline.start();
+
+			Thread.sleep((int) ((feedbackCollection.options.progression.get() * 1000) * 1.5));
 
 			checkLevelActive(1);
+
+			Thread.sleep((int) ((feedbackCollection.options.regression.get() * 1000) * 1.5));
+
+			pipeline.stop();
+			pipeline.release();
 		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		checkLevelActive(1);
 	}
 
 	@Test
@@ -163,75 +193,50 @@ public class FeedbackCollectionTest
 		{
 			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
 			{
-				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000)*2);
+				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000) * 2);
+			}
+		}
+		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(1).entrySet())
+		{
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Progress))
+			{
+				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.regression.get() * 1000) * 2);
 			}
 		}
 
-		{ // NO Regression to previous level
+		try
+		{
+			pipeline.start();
 
-			try
-			{
-				pipeline.start();
-
-				Thread.sleep((int) ((feedbackCollection.options.progression.get() * 1000) * 1.5));
-
-				checkLevelActive(1);
-
-				Thread.sleep((int) ((feedbackCollection.options.regression.get() * 1000) * 1.5));
-
-				pipeline.stop();
-				pipeline.release();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
+			Thread.sleep((int) (feedbackCollection.options.progression.get() * 1000) + 200);
 
 			checkLevelActive(1);
+
+			Thread.sleep((int) (feedbackCollection.options.regression.get() * 1000) + 200);
+
+			pipeline.stop();
+			pipeline.release();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 
-		{ // Regression to previous level
-			for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(1).entrySet())
-			{
-				if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Progress))
-				{
-					((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.regression.get() * 1000)*2);
-				}
-			}
-
-			try
-			{
-				pipeline.start();
-
-				Thread.sleep((int) (feedbackCollection.options.progression.get() * 1000) + 200);
-
-				checkLevelActive(1);
-
-				Thread.sleep((int) (feedbackCollection.options.regression.get() * 1000) + 200);
-
-				pipeline.stop();
-				pipeline.release();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-			}
-
-			checkLevelActive(0);
-		}
+		checkLevelActive(0);
 	}
 
 	private void checkLevelActive(int level)
 	{
-		for(int i=0; i<feedbackList.size(); i++)
+		for (int i = 0; i < feedbackList.size(); i++)
 		{
 			for (Feedback feedback : feedbackList.get(i).keySet())
 			{
-				if(i==level)
+				if (i == level)
 				{
 					assertTrue(feedback.isActive());
 				}
-				else {
+				else
+				{
 					assertFalse(feedback.isActive());
 				}
 			}
