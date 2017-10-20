@@ -30,6 +30,7 @@ package hcm.ssj.feedback;
 import android.widget.TableLayout;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,6 +96,11 @@ public class FeedbackCollection extends EventHandler
 
 		//TODO: NOT WORKING PROPPERLY!
 
+		Log.d("currentTime: ", String.valueOf(System.currentTimeMillis()));
+		Log.d("regressionTimes: ", Arrays.toString(lastRegressExecutionTimes.toArray()));
+		Log.d("progressionTimes: ", Arrays.toString(lastProgressExecutionTimes.toArray()));
+		Log.d("test", Arrays.toString(new int[0]));
+
 		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() &&
 				allTimeStampsInIntervalFromNow(lastProgressExecutionTimes, (long) (options.progression.get() * 1000)) &&
@@ -124,7 +130,7 @@ public class FeedbackCollection extends EventHandler
 		long currentTime = System.currentTimeMillis();
 		for (Long timeStamp : timeStamps)
 		{
-			if (currentTime - interval < timeStamp)
+			if (currentTime - interval > timeStamp)
 			{
 				return false;
 			}
@@ -142,7 +148,7 @@ public class FeedbackCollection extends EventHandler
 		long currentTime = System.currentTimeMillis();
 		for (Long timeStamp : timeStamps)
 		{
-			if (currentTime - interval > timeStamp)
+			if (currentTime - interval < timeStamp)
 			{
 				return false;
 			}
@@ -183,7 +189,7 @@ public class FeedbackCollection extends EventHandler
 		}
 		feedbackList.get(level).put(feedback, levelBehaviour);
 
-		if(feedback instanceof VisualFeedback)
+		if (feedback instanceof VisualFeedback)
 		{
 			((VisualFeedback) feedback).options.layout.set(options.layout.get());
 		}
