@@ -48,7 +48,7 @@
       <options>
         <option name="format" value="AVERAGE" />
         <option name="method" value="MOVING" />
-        <option name="window" value="10.0" />
+        <option name="window" value="0.05" />
       </options>
       <providerList>
         <providerId id="1439781" />
@@ -155,8 +155,8 @@
     </eventHandler>
     <eventHandler class="hcm.ssj.feedback.FeedbackCollection" id="120849030" delta="0.0" eventTrigger="false">
       <options>
-        <option name="progression" value="5.0" />
-        <option name="regression" value="10.0" />
+        <option name="progression" value="2.0" />
+        <option name="regression" value="4.0" />
       </options>
       <providerList />
       <eventProviderList>

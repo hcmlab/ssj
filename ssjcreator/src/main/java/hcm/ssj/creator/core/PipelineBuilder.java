@@ -613,7 +613,7 @@ public class PipelineBuilder
 		}
 	}
 
-	public void addFeedbackToContainer(FeedbackCollection feedbackCollection, Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
+	public void addFeedbackToCollectionContainer(FeedbackCollection feedbackCollection, Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
 	{
 		// Add to container
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
@@ -621,18 +621,6 @@ public class PipelineBuilder
 			if (element.getElement().equals(feedbackCollection))
 			{
 				((FeedbackCollectionContainerElement) element).addFeedback(feedback, level, levelBehaviour);
-			}
-		}
-
-		// Remove old references
-		for(ContainerElement<EventHandler> eventHandlerContainerElement : hsEventHandlerElements)
-		{
-			if(eventHandlerContainerElement.getElement().equals(feedback))
-			{
-				for(Component eventProvider : eventHandlerContainerElement.getHmEventProviders().keySet())
-				{
-					eventHandlerContainerElement.removeEventProvider(eventProvider);
-				}
 			}
 		}
 	}
@@ -1389,17 +1377,21 @@ public class PipelineBuilder
 		{
 			return false;
 		}
-		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackCollection.class);
-		for (Component component : components)
+
+		for (ContainerElement<EventHandler> hsEventHandlerElement : hsEventHandlerElements)
 		{
-			for (Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackList : ((FeedbackCollection) component).getFeedbackList())
+			if(hsEventHandlerElement instanceof FeedbackCollectionContainerElement)
 			{
-				if (feedbackList.containsKey(element))
+				for (Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap : ((FeedbackCollectionContainerElement) hsEventHandlerElement).getFeedbackList())
 				{
-					return true;
+					if (feedbackLevelBehaviourMap.containsKey(element))
+					{
+						return true;
+					}
 				}
 			}
 		}
+
 		return false;
 	}
 

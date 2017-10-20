@@ -637,7 +637,20 @@ public class PipeView extends ViewGroup
 			{
 				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackCollection)
 				{
-					((FeedbackCollection) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackCollection.LevelBehaviour.Neutral);
+					PipelineBuilder.getInstance().addFeedbackToCollectionContainer(
+							(FeedbackCollection) componentView.getElement(),
+							(Feedback)object,
+							0,
+							FeedbackCollection.LevelBehaviour.Neutral);
+					// Unposition managed feedback
+					for (ComponentView view : componentViewsEventHandler)
+					{
+						if(view.getElement().equals(object))
+						{
+							view.setGridX(-1);
+							view.setGridY(-1);
+						}
+					}
 					this.informListeners();
 				}
 				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))

@@ -548,7 +548,7 @@ public class Pipeline
 
     public void registerInFeedbackCollection(FeedbackCollection feedbackCollection, List<Map<Feedback,FeedbackCollection.LevelBehaviour>> feedbackList)
     {
-        feedbackCollection.removeAllFeedbacks(); // TODO: Clears false list!
+        feedbackCollection.removeAllFeedbacks();
 
         for (int level = 0; level < feedbackList.size(); level++)
         {

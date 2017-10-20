@@ -60,11 +60,6 @@ public class FeedbackCollection extends EventHandler
 	@Override
 	public void enter()
 	{
-		if (options.layout.get() == null)
-		{
-			throw new RuntimeException("layout not set, cannot render visual feedback");
-		}
-
 		currentLevel = 0;
 		setLevelActive(currentLevel);
 	}
@@ -108,6 +103,7 @@ public class FeedbackCollection extends EventHandler
 			Log.d("progressing");
 			setLevelActive(currentLevel + 1);
 		}
+
 		//if all regress feedback classes are active and no progress class is active, check if we can go back to the previous level
 		else if (currentLevel > 0 &&
 				allTimeStampsInIntervalFromNow(lastRegressExecutionTimes, (long) (options.regression.get() * 1000)) &&

@@ -36,7 +36,7 @@ import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
 
 /**
- * Created by hiwi on 18.10.2017.
+ * Created by Antonio Grieco on 18.10.2017.
  */
 
 public class FeedbackCollectionContainerElement extends ContainerElement
@@ -64,15 +64,8 @@ public class FeedbackCollectionContainerElement extends ContainerElement
 		feedbackList.get(level).put(feedback, levelBehaviour);
 	}
 
-	public void removeFeedback(Feedback feedback)
+	public void removeAllFeedbacks()
 	{
-		for (Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap : feedbackList)
-		{
-			feedbackLevelBehaviourMap.remove(feedback);
-		}
-	}
-
-	public void removeAllFeedbacks() {
 		feedbackList = new ArrayList<>();
 	}
 }
