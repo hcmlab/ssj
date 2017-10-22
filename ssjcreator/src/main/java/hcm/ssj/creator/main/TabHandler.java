@@ -48,6 +48,7 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
+import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
@@ -93,57 +94,64 @@ public class TabHandler
 
 	private void checkAdditionalTabs()
 	{
+		checkAnnotationTabs();
+		checkSignalPainterTabs();
+		checkCameraPainterTabs();
+		checkFeedbackManagerTabs();
+		checkFeedbackCollectionTabs();
+		checkVisualFeedbackTabs();
 
-		List<Component> iFileWriters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IFileWriter.class);
-		if (iFileWriters.isEmpty())
-		{
-			removeComponentsOfClass(firstTabs, AnnotationTab.class);
-		}
-		else if (!containsOfClass(firstTabs, AnnotationTab.class))
-		{
-			AnnotationTab annotationTab = new AnnotationTab(activity);
-			TabHost.TabSpec annotationTabSpec = getTabSpecForITab(annotationTab);
-			firstTabs.put(annotationTab, annotationTabSpec);
-		}
+		buildTabs();
+	}
 
-		List<Component> signalPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, SignalPainter.class);
-		removeObsoleteComponentsOfClass(additionalTabs, signalPainters, SignalPainter.class);
-		for (Component signalPainter : signalPainters)
+	private void checkVisualFeedbackTabs()
+	{
+		List<Component> visualFeedbacks = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, VisualFeedback.class);
+		removeComponentsOfClass(additionalTabs, VisualFeedback.class);
+		if (!visualFeedbacks.isEmpty())
 		{
-			if (additionalTabs.containsKey(signalPainter))
+			boolean anyUnmanaged = false;
+			TableLayout visualFeedbackLayout = getTableLayoutForVisualFeedback(visualFeedbacks);
+			TabHost.TabSpec newTabSpec = getNewTabSpec(visualFeedbackLayout, visualFeedbacks.get(0).getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+			for (Component visualFeedback : visualFeedbacks)
+			{
+				boolean isManaged = PipelineBuilder.getInstance().isManagedFeedback(visualFeedback);
+
+				if(! isManaged)
+				{
+					anyUnmanaged = true;
+					((VisualFeedback) visualFeedback).options.layout.set(visualFeedbackLayout);
+				}
+			}
+			if(anyUnmanaged)
+				additionalTabs.put(visualFeedbacks.get(0), newTabSpec);
+		}
+	}
+
+	private void checkFeedbackCollectionTabs()
+	{
+		List<Component> feedbackCollections = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackCollection.class);
+		removeObsoleteComponentsOfClass(additionalTabs, feedbackCollections, FeedbackCollection.class);
+		for (Component feedbackCollection : feedbackCollections)
+		{
+			if (additionalTabs.containsKey(feedbackCollection))
 			{
 				continue;
 			}
 
-			GraphView graphView = ((SignalPainter) signalPainter).options.graphView.get();
-			if (graphView == null)
+			TableLayout tableLayout = ((FeedbackCollection) feedbackCollection).options.layout.get();
+			if (tableLayout == null)
 			{
-				graphView = new GraphView(activity);
-				((SignalPainter) signalPainter).options.graphView.set(graphView);
+				tableLayout = new TableLayout(activity);
+				((FeedbackCollection) feedbackCollection).options.layout.set(tableLayout);
 			}
-			TabHost.TabSpec tabSpec = getNewTabSpec(graphView, signalPainter.getComponentName(), android.R.drawable.ic_menu_view);
-			additionalTabs.put(signalPainter, tabSpec);
+			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackCollection.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
+			additionalTabs.put(feedbackCollection, tabSpec);
 		}
+	}
 
-		List<Component> cameraPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, CameraPainter.class);
-		removeObsoleteComponentsOfClass(additionalTabs, cameraPainters, CameraPainter.class);
-		for (Component cameraPainter : cameraPainters)
-		{
-			if (additionalTabs.containsKey(cameraPainter))
-			{
-				continue;
-			}
-
-			SurfaceView surfaceView = ((CameraPainter) cameraPainter).options.surfaceView.get();
-			if (surfaceView == null)
-			{
-				surfaceView = new SurfaceView(activity);
-				((CameraPainter) cameraPainter).options.surfaceView.set(surfaceView);
-			}
-			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, cameraPainter.getComponentName(), android.R.drawable.ic_menu_camera);
-			additionalTabs.put(cameraPainter, tabSpec);
-		}
-
+	private void checkFeedbackManagerTabs()
+	{
 		List<Component> feedbackManagers = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackManager.class);
 		removeObsoleteComponentsOfClass(additionalTabs, feedbackManagers, FeedbackManager.class);
 		for (Component feedbackManager : feedbackManagers)
@@ -162,21 +170,65 @@ public class TabHandler
 			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackManager.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
 			additionalTabs.put(feedbackManager, tabSpec);
 		}
+	}
 
-		List<Component> visualFeedbacks = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, VisualFeedback.class);
-		removeComponentsOfClass(additionalTabs, VisualFeedback.class);
-		if (!visualFeedbacks.isEmpty())
+	private void checkCameraPainterTabs()
+	{
+		List<Component> cameraPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, CameraPainter.class);
+		removeObsoleteComponentsOfClass(additionalTabs, cameraPainters, CameraPainter.class);
+		for (Component cameraPainter : cameraPainters)
 		{
-			TableLayout visualFeedbackLayout = getTableLayoutForVisualFeedback(visualFeedbacks);
-			TabHost.TabSpec newTabSpec = getNewTabSpec(visualFeedbackLayout, visualFeedbacks.get(0).getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
-			for (Component visualFeedback : visualFeedbacks)
+			if (additionalTabs.containsKey(cameraPainter))
 			{
-				((VisualFeedback) visualFeedback).options.layout.set(visualFeedbackLayout);
+				continue;
 			}
-			additionalTabs.put(visualFeedbacks.get(0), newTabSpec);
-		}
 
-		buildTabs();
+			SurfaceView surfaceView = ((CameraPainter) cameraPainter).options.surfaceView.get();
+			if (surfaceView == null)
+			{
+				surfaceView = new SurfaceView(activity);
+				((CameraPainter) cameraPainter).options.surfaceView.set(surfaceView);
+			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, cameraPainter.getComponentName(), android.R.drawable.ic_menu_camera);
+			additionalTabs.put(cameraPainter, tabSpec);
+		}
+	}
+
+	private void checkSignalPainterTabs()
+	{
+		List<Component> signalPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, SignalPainter.class);
+		removeObsoleteComponentsOfClass(additionalTabs, signalPainters, SignalPainter.class);
+		for (Component signalPainter : signalPainters)
+		{
+			if (additionalTabs.containsKey(signalPainter))
+			{
+				continue;
+			}
+
+			GraphView graphView = ((SignalPainter) signalPainter).options.graphView.get();
+			if (graphView == null)
+			{
+				graphView = new GraphView(activity);
+				((SignalPainter) signalPainter).options.graphView.set(graphView);
+			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(graphView, signalPainter.getComponentName(), android.R.drawable.ic_menu_view);
+			additionalTabs.put(signalPainter, tabSpec);
+		}
+	}
+
+	private void checkAnnotationTabs()
+	{
+		List<Component> iFileWriters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IFileWriter.class);
+		if (iFileWriters.isEmpty())
+		{
+			removeComponentsOfClass(firstTabs, AnnotationTab.class);
+		}
+		else if (!containsOfClass(firstTabs, AnnotationTab.class))
+		{
+			AnnotationTab annotationTab = new AnnotationTab(activity);
+			TabHost.TabSpec annotationTabSpec = getTabSpecForITab(annotationTab);
+			firstTabs.put(annotationTab, annotationTabSpec);
+		}
 	}
 
 	private TableLayout getTableLayoutForVisualFeedback(List<Component> visualFeedbackComponents)

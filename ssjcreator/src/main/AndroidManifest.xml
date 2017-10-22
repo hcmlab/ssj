@@ -38,6 +38,10 @@
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
         <activity
             android:name=".activity.TutorialActivity"
@@ -48,12 +52,8 @@
             android:name=".activity.OptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activity.FeedbackContainerActivity"
+        <activity android:name=".activity.FeedbackCollectionActivity"
                   android:configChanges="orientation|screenSize">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
     </application>
 

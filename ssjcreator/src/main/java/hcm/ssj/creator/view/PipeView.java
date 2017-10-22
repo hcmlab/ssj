@@ -45,7 +45,6 @@ import android.view.ViewParent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
@@ -59,7 +58,7 @@ import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Draws a pipe<br>
@@ -311,7 +310,6 @@ public class PipeView extends ViewGroup
 			int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
 			streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsSensorChannel, false);
 			int[] eventHashes = componentViewSensor.getEventConnectionHashes();
-			//@TODO: Last parameter determines connection direction. Should sensors be handled like in streams or like other components?
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensor, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensorChannel, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsTransformer, true);
@@ -443,7 +441,7 @@ public class PipeView extends ViewGroup
 	 */
 	private int checkEventConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
 	{
-		if(destination.getElement() instanceof Feedback && isManagedFeedback(destination.getElement()))
+		if(destination.getElement() instanceof Feedback && PipelineBuilder.getInstance().isManagedFeedback(destination.getElement()))
 		{
 			return connections;
 		}
@@ -470,7 +468,7 @@ public class PipeView extends ViewGroup
 						}
 						connections++;
 
-						if(isManagedFeedback(componentView.getElement()))
+						if(PipelineBuilder.getInstance().isManagedFeedback(componentView.getElement()))
 						{
 							connectionView.setVisibility(GONE);
 						}
@@ -498,7 +496,7 @@ public class PipeView extends ViewGroup
 			// Prevent managed feedback to be drawn
 			if(view.getElement() instanceof Feedback)
 			{
-				if(isManagedFeedback(view.getElement()))
+				if(PipelineBuilder.getInstance().isManagedFeedback(view.getElement()))
 				{
 					view.setVisibility(GONE);
 					continue;
@@ -549,21 +547,6 @@ public class PipeView extends ViewGroup
 				}
 			}
 		}
-	}
-
-	private boolean isManagedFeedback(Object element) {
-		if(!(element instanceof Feedback))
-			return false;
-		List<Component> components = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackContainer.class);
-		for(Component component : components)
-		{
-			for(Map<Feedback, FeedbackContainer.LevelBehaviour> feedbackList : ((FeedbackContainer)component).getFeedbackList())
-			{
-				if(feedbackList.containsKey(element))
-					return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -652,9 +635,23 @@ public class PipeView extends ViewGroup
 			int colY = componentView.getGridY();
 			if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
 			{
-				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackContainer)
+				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackCollection)
 				{
-					((FeedbackContainer) componentView.getElement()).addFeedback((Feedback)object, 0, FeedbackContainer.LevelBehaviour.Neutral);
+					PipelineBuilder.getInstance().addFeedbackToCollectionContainer(
+							(FeedbackCollection) componentView.getElement(),
+							(Feedback)object,
+							0,
+							FeedbackCollection.LevelBehaviour.Neutral);
+					// Unposition managed feedback
+					for (ComponentView view : componentViewsEventHandler)
+					{
+						if(view.getElement().equals(object))
+						{
+							view.setGridX(-1);
+							view.setGridY(-1);
+						}
+					}
+					this.informListeners();
 				}
 				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
 				{

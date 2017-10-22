@@ -1,5 +1,5 @@
 /*
- * FeedbackContainer.java
+ * FeedbackCollection.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -27,15 +27,16 @@
 
 package hcm.ssj.feedback;
 
+import android.widget.TableLayout;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -44,37 +45,16 @@ import hcm.ssj.core.option.OptionList;
  * Created by Antonio Grieco on 18.09.2017.
  */
 
-public class FeedbackContainer extends EventHandler
+public class FeedbackCollection extends EventHandler
 {
 
-	public enum LevelBehaviour
-	{
-		Regress,
-		Neutral,
-		Progress;
-	}
-
-	public class Options extends OptionList
-	{
-		public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
-		public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
-
-		private Options()
-		{
-			addOptions();
-		}
-	}
-
-	public FeedbackContainer.Options options = new FeedbackContainer.Options();
-	private Pipeline pipeline;
+	public FeedbackCollection.Options options = new FeedbackCollection.Options();
 	private int currentLevel;
 	private List<Map<Feedback, LevelBehaviour>> feedbackList;
-	private long lastDesireableState;
-	private long lastUndesireableState;
 
-	public FeedbackContainer()
+	public FeedbackCollection()
 	{
-		_name = "FeedbackContainer";
+		_name = "FeedbackCollection";
 		feedbackList = new ArrayList<>();
 	}
 
@@ -82,10 +62,7 @@ public class FeedbackContainer extends EventHandler
 	public void enter()
 	{
 		currentLevel = 0;
-		lastDesireableState = 0;
-		lastUndesireableState = 0;
-		pipeline = Pipeline.getInstance();
-		addEventChannels();
+		setLevelActive(currentLevel);
 	}
 
 	@Override
@@ -107,53 +84,74 @@ public class FeedbackContainer extends EventHandler
 				case Regress:
 					lastRegressExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
+				case Neutral:
+					break;
 				case Progress:
 					lastProgressExecutionTimes.add(feedbackEntryLastExecutionTime);
-					break;
-				case Neutral:
 					break;
 				default:
 					throw new RuntimeException("LevelBehaviour value invalid!");
 			}
 		}
 
+		//TODO: NOT WORKING PROPPERLY!
+
+		Log.d("currentTime: ", String.valueOf(System.currentTimeMillis()));
+		Log.d("regressionTimes: ", Arrays.toString(lastRegressExecutionTimes.toArray()));
+		Log.d("progressionTimes: ", Arrays.toString(lastProgressExecutionTimes.toArray()));
+		Log.d("test", Arrays.toString(new int[0]));
+
 		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() &&
-				allTimeStampsExceedInterval(lastProgressExecutionTimes, (long)(options.progression.get() * 1000)) &&
-				noTimeStampExceedsInterval(lastRegressExecutionTimes, (long)(options.progression.get() * 1000)))
+				allTimeStampsInIntervalFromNow(lastProgressExecutionTimes, (long) (options.progression.get() * 1000)) &&
+				noTimeStampInIntervalFromNow(lastRegressExecutionTimes, (long) (options.progression.get() * 1000)))
 		{
+			Log.d("progressing");
 			setLevelActive(currentLevel + 1);
-			lastDesireableState = System.currentTimeMillis();
-			Log.d("activating level " + currentLevel);
 		}
+
 		//if all regress feedback classes are active and no progress class is active, check if we can go back to the previous level
 		else if (currentLevel > 0 &&
-				allTimeStampsExceedInterval(lastRegressExecutionTimes, (long)(options.regression.get() * 1000)) &&
-				noTimeStampExceedsInterval(lastProgressExecutionTimes, (long)(options.regression.get() * 1000)))
+				allTimeStampsInIntervalFromNow(lastRegressExecutionTimes, (long) (options.regression.get() * 1000)) &&
+				noTimeStampInIntervalFromNow(lastProgressExecutionTimes, (long) (options.regression.get() * 1000)))
 		{
+			Log.d("regressing");
 			setLevelActive(currentLevel - 1);
-			lastUndesireableState = System.currentTimeMillis();
 		}
 	}
 
-	private boolean allTimeStampsExceedInterval(List<Long> timeStamps, long interval)
+	private boolean allTimeStampsInIntervalFromNow(List<Long> timeStamps, long interval)
 	{
-		long currentTime = System.currentTimeMillis();
-		for(Long timeStamp : timeStamps)
+		if (timeStamps.isEmpty())
 		{
-			if(currentTime-interval < timeStamp)
+			return false;
+		}
+
+		long currentTime = System.currentTimeMillis();
+		for (Long timeStamp : timeStamps)
+		{
+			if (currentTime - interval > timeStamp)
+			{
 				return false;
+			}
 		}
 		return true;
 	}
 
-	private boolean noTimeStampExceedsInterval(List<Long> timeStamps, long interval)
+	private boolean noTimeStampInIntervalFromNow(List<Long> timeStamps, long interval)
 	{
-		long currentTime = System.currentTimeMillis();
-		for(Long timeStamp : timeStamps)
+		if (timeStamps.isEmpty())
 		{
-			if(currentTime-interval > timeStamp)
+			return true;
+		}
+
+		long currentTime = System.currentTimeMillis();
+		for (Long timeStamp : timeStamps)
+		{
+			if (currentTime - interval < timeStamp)
+			{
 				return false;
+			}
 		}
 		return true;
 	}
@@ -177,21 +175,6 @@ public class FeedbackContainer extends EventHandler
 		}
 	}
 
-	private void addEventChannels()
-	{
-		for (Map<Feedback, LevelBehaviour> innerList : feedbackList)
-		{
-			for (Feedback feedback : innerList.keySet())
-			{
-				feedback.removeEventChannels();
-				for (EventChannel eventChannel : _evchannel_in)
-				{
-					pipeline.registerEventListener(feedback, eventChannel);
-				}
-			}
-		}
-	}
-
 	public List<Map<Feedback, LevelBehaviour>> getFeedbackList()
 	{
 		return feedbackList;
@@ -199,16 +182,48 @@ public class FeedbackContainer extends EventHandler
 
 	public void addFeedback(Feedback feedback, int level, LevelBehaviour levelBehaviour)
 	{
+		removeFeedback(feedback);
 		while (feedbackList.size() <= level)
 		{
 			feedbackList.add(new LinkedHashMap<Feedback, LevelBehaviour>());
 		}
 		feedbackList.get(level).put(feedback, levelBehaviour);
+
+		if (feedback instanceof VisualFeedback)
+		{
+			((VisualFeedback) feedback).options.layout.set(options.layout.get());
+		}
 	}
 
-
-	public void setFeedbackList(List<Map<Feedback,LevelBehaviour>> feedbackList)
+	public void removeFeedback(Feedback feedback)
 	{
-		this.feedbackList = feedbackList;
+		for (Map<Feedback, LevelBehaviour> feedbackLevelBehaviourMap : feedbackList)
+		{
+			feedbackLevelBehaviourMap.remove(feedback);
+		}
+	}
+
+	public void removeAllFeedbacks()
+	{
+		feedbackList = new ArrayList<>();
+	}
+
+	public enum LevelBehaviour
+	{
+		Regress,
+		Neutral,
+		Progress;
+	}
+
+	public class Options extends OptionList
+	{
+		public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
+		public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
+		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render every visual feedback");
+
+		private Options()
+		{
+			addOptions();
+		}
 	}
 }

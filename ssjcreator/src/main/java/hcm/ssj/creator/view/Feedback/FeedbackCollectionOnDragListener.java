@@ -1,5 +1,5 @@
 /*
- * FeedbackContainerOnDragListener.java
+ * FeedbackCollectionOnDragListener.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -31,7 +31,7 @@ import android.view.DragEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
-import hcm.ssj.creator.activity.FeedbackContainerActivity;
+import hcm.ssj.creator.activity.FeedbackCollectionActivity;
 
 import static android.view.DragEvent.ACTION_DRAG_ENDED;
 import static android.view.DragEvent.ACTION_DRAG_STARTED;
@@ -41,13 +41,13 @@ import static android.view.DragEvent.ACTION_DROP;
  * Created by Antonio Grieco on 04.10.2017.
  */
 
-public class FeedbackContainerOnDragListener implements View.OnDragListener
+public class FeedbackCollectionOnDragListener implements View.OnDragListener
 {
-	private final FeedbackContainerActivity feedbackContainerActivity;
+	private final FeedbackCollectionActivity feedbackCollectionActivity;
 
-	public FeedbackContainerOnDragListener(FeedbackContainerActivity feedbackContainerActivity)
+	public FeedbackCollectionOnDragListener(FeedbackCollectionActivity feedbackCollectionActivity)
 	{
-		this.feedbackContainerActivity = feedbackContainerActivity;
+		this.feedbackCollectionActivity = feedbackCollectionActivity;
 	}
 
 	@Override
@@ -60,14 +60,14 @@ public class FeedbackContainerOnDragListener implements View.OnDragListener
 			switch (event.getAction())
 			{
 				case ACTION_DRAG_STARTED:
-					feedbackContainerActivity.showDragIcons(feedbackComponentView.getWidth(), feedbackComponentView.getHeight());
+					feedbackCollectionActivity.showDragIcons(feedbackComponentView.getWidth(), feedbackComponentView.getHeight());
 					break;
 				case ACTION_DROP:
 					if (v instanceof FeedbackLevelLayout)
 					{
 						((FeedbackLevelLayout) v).addGridComponent(feedbackComponentView);
 					}
-					else if (v.equals(feedbackContainerActivity.getRecycleBin()))
+					else if (v.equals(feedbackCollectionActivity.getRecycleBin()))
 					{
 						feedbackComponentView.post(new Runnable()
 						{
@@ -75,7 +75,7 @@ public class FeedbackContainerOnDragListener implements View.OnDragListener
 							public void run()
 							{
 								((ViewGroup) feedbackComponentView.getParent()).removeView(feedbackComponentView);
-								feedbackContainerActivity.requestReorder();
+								feedbackCollectionActivity.requestReorder();
 							}
 						});
 					}
@@ -83,7 +83,7 @@ public class FeedbackContainerOnDragListener implements View.OnDragListener
 				case ACTION_DRAG_ENDED:
 					// Set currently draged to false no matter where the drag ended, to force normal painting.
 					feedbackComponentView.setCurrentlyDraged(false);
-					feedbackContainerActivity.hideDragIcons();
+					feedbackCollectionActivity.hideDragIcons();
 					break;
 			}
 			return true;

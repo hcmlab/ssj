@@ -39,9 +39,6 @@ import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
-import static android.R.attr.data;
-import static android.R.attr.opacity;
-
 /**
  * Created by Antonio Grieco on 06.09.2017.
  */
@@ -52,7 +49,7 @@ public class AuditoryFeedback extends Feedback
 	{
 		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
 		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
-		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load  audio file from assets");
+		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load audio file from assets");
 
 		private Options()
 		{
@@ -73,7 +70,7 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void feedbackEnter()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{

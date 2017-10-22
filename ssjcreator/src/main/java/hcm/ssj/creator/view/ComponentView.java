@@ -37,7 +37,6 @@ import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
@@ -50,10 +49,12 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Transformer;
-import hcm.ssj.creator.activity.FeedbackContainerActivity;
-import hcm.ssj.creator.activity.OptionsActivity;
 import hcm.ssj.creator.R;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.creator.activity.FeedbackCollectionActivity;
+import hcm.ssj.creator.activity.OptionsActivity;
+import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.creator.core.container.FeedbackCollectionContainerElement;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Draws elements.<br>
@@ -61,329 +62,326 @@ import hcm.ssj.feedback.FeedbackContainer;
  */
 public class ComponentView extends View
 {
-    private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler};
-    private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
+	private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler};
+	private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
+	private final static float STROKE_WIDTH = 0.25f;
+	private static Paint[] paintsElementBox;
+	private static Paint[] paintElementText;
+	private static Paint paintElementBorder;
+	//
+	private Object element;
 
-    private static Paint[] paintsElementBox;
-    private static Paint[] paintElementText;
-    private static Paint paintElementBorder;
+	private int[] streamConnectionHashes;
+	private int[] eventConnectionHashes;
 
-    private final static float STROKE_WIDTH = 0.25f;
-    //
-    private Object element;
+	private String text;
+	private int gridX = -1;
+	private int gridY = -1;
+	//
+	private int paintType;
 
-    private int[] streamConnectionHashes;
-    private int[] eventConnectionHashes;
+	/**
+	 * @param context Context
+	 */
+	private ComponentView(Context context)
+	{
+		super(context);
+	}
 
-    private String text;
-    private int gridX = -1;
-    private int gridY = -1;
-    //
-    private int paintType;
+	/**
+	 * @param context Context
+	 * @param element Object
+	 */
+	public ComponentView(Context context, final Object element)
+	{
+		super(context);
+		this.element = element;
+		initPaint();
+		initName();
+		//add click listener
+		if (this.element instanceof FeedbackCollection)
+		{
+			OnClickListener onClickListener = new OnClickListener()
+			{
+				@Override
+				public void onClick(View v)
+				{
+					openFeedbackCollectionDialog((FeedbackCollection)element);
+				}
+			};
+			this.setOnClickListener(onClickListener);
+		}
+		else
+		{
+			OnClickListener onClickListener = new OnClickListener()
+			{
+				/**
+				 * @param v View
+				 */
+				@Override
+				public void onClick(View v)
+				{
+					openOptions();
+				}
+			};
+			this.setOnClickListener(onClickListener);
+		}
+		//add touch listener
+		OnLongClickListener onTouchListener = new OnLongClickListener()
+		{
+			@Override
+			public boolean onLongClick(View v)
+			{
+				ClipData.Item item = new ClipData.Item("DragEvent");
+				ClipData dragData = new ClipData("DragEvent", new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
+				DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(v);
+				v.startDrag(dragData, shadowBuilder, v, 0);
+				((ViewGroup) v.getParent()).removeView(v);
+				return true;
+			}
+		};
+		this.setOnLongClickListener(onTouchListener);
+	}
 
-    /**
-     * @param context Context
-     */
-    private ComponentView(Context context)
-    {
-        super(context);
-    }
+	/**
+	 * @return Object
+	 */
+	protected Object getElement()
+	{
+		return element;
+	}
 
-    /**
-     * @param context Context
-     * @param element Object
-     */
-    public ComponentView(Context context, final Object element)
-    {
-        super(context);
-        this.element = element;
-        initPaint();
-        initName();
-        //add click listener
-        if(this.element instanceof FeedbackContainer)
-        {
-            OnClickListener onClickListener = new OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-                    openFeedbackContainerDialog(element);
-                }
-            };
-            this.setOnClickListener(onClickListener);
-        }
-        else
-        {
-            OnClickListener onClickListener = new OnClickListener()
-            {
-                /**
-                 * @param v View
-                 */
-                @Override
-                public void onClick(View v)
-                {
-                    openOptions();
-                }
-            };
-            this.setOnClickListener(onClickListener);
-        }
-        //add touch listener
-        OnLongClickListener onTouchListener = new OnLongClickListener()
-        {
-            @Override
-            public boolean onLongClick(View v)
-            {
-                ClipData.Item item = new ClipData.Item("DragEvent");
-                ClipData dragData = new ClipData("DragEvent", new String[]{ClipDescription.MIMETYPE_TEXT_PLAIN}, item);
-                DragShadowBuilder shadowBuilder = new View.DragShadowBuilder(v);
-                v.startDrag(dragData, shadowBuilder, v, 0);
-                ((ViewGroup) v.getParent()).removeView(v);
-                return true;
-            }
-        };
-        this.setOnLongClickListener(onTouchListener);
-    }
+	/**
+	 * @return int
+	 */
+	protected int getElementHash()
+	{
+		return element.hashCode();
+	}
 
-    /**
-     * @return Object
-     */
-    protected Object getElement()
-    {
-        return element;
-    }
+	/**
+	 * @return int[]
+	 */
+	protected int[] getStreamConnectionHashes()
+	{
+		return streamConnectionHashes;
+	}
 
-    /**
-     * @return int
-     */
-    protected int getElementHash()
-    {
-        return element.hashCode();
-    }
+	/**
+	 * @param connectionHashes int[]
+	 */
+	protected void setStreamConnectionHashes(int[] connectionHashes)
+	{
+		this.streamConnectionHashes = connectionHashes;
+	}
 
-    /**
-     * @return int[]
-     */
-    protected int[] getStreamConnectionHashes()
-    {
-        return streamConnectionHashes;
-    }
+	/**
+	 * @return int[]
+	 */
+	protected int[] getEventConnectionHashes()
+	{
+		return eventConnectionHashes;
+	}
 
-    /**
-     * @param connectionHashes int[]
-     */
-    protected void setStreamConnectionHashes(int[] connectionHashes)
-    {
-        this.streamConnectionHashes = connectionHashes;
-    }
+	/**
+	 * @param connectionHashes int[]
+	 */
+	protected void setEventConnectionHashes(int[] connectionHashes)
+	{
+		this.eventConnectionHashes = connectionHashes;
+	}
 
-    /**
-     * @return int[]
-     */
-    protected int[] getEventConnectionHashes()
-    {
-        return eventConnectionHashes;
-    }
+	/**
+	 * @param text String
+	 */
+	protected void setText(String text)
+	{
+		this.text = text;
+	}
 
-    /**
-     * @param connectionHashes int[]
-     */
-    protected void setEventConnectionHashes(int[] connectionHashes)
-    {
-        this.eventConnectionHashes = connectionHashes;
-    }
+	/**
+	 * @return int
+	 */
+	protected int getGridX()
+	{
+		return gridX;
+	}
 
-    /**
-     * @param text String
-     */
-    protected void setText(String text)
-    {
-        this.text = text;
-    }
+	/**
+	 * @param x int
+	 */
+	protected void setGridX(int x)
+	{
+		gridX = x;
+	}
 
-    /**
-     * @param x int
-     */
-    protected void setGridX(int x)
-    {
-        gridX = x;
-    }
+	/**
+	 * @return int
+	 */
+	protected int getGridY()
+	{
+		return gridY;
+	}
 
-    /**
-     * @return int
-     */
-    protected int getGridX()
-    {
-        return gridX;
-    }
+	/**
+	 * @param y int
+	 */
+	protected void setGridY(int y)
+	{
+		gridY = y;
+	}
 
-    /**
-     * @param y int
-     */
-    protected void setGridY(int y)
-    {
-        gridY = y;
-    }
+	/**
+	 * @return boolean
+	 */
+	protected boolean isPositioned()
+	{
+		return gridY >= 0 && gridX >= 0;
+	}
 
-    /**
-     * @return int
-     */
-    protected int getGridY()
-    {
-        return gridY;
-    }
+	/**
+	 *
+	 */
+	private void initPaint()
+	{
+		if (paintsElementBox == null)
+		{
+			paintsElementBox = new Paint[boxColor.length];
+			for (int i = 0; i < paintsElementBox.length; i++)
+			{
+				paintsElementBox[i] = new Paint(Paint.ANTI_ALIAS_FLAG);
+				paintsElementBox[i].setStyle(Paint.Style.FILL);
+				paintsElementBox[i].setColor(getResources().getColor(boxColor[i]));
+			}
+		}
+		if (paintElementBorder == null)
+		{
+			DisplayMetrics dm = getResources().getDisplayMetrics();
+			float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
+			paintElementBorder = new Paint(Paint.ANTI_ALIAS_FLAG);
+			paintElementBorder.setStyle(Paint.Style.STROKE);
+			paintElementBorder.setColor(Color.BLACK);
+			paintElementBorder.setStrokeWidth(strokeWidth);
+		}
+		if (paintElementText == null)
+		{
+			paintElementText = new Paint[textColor.length];
+			for (int i = 0; i < paintElementText.length; i++)
+			{
+				paintElementText[i] = new Paint(Paint.ANTI_ALIAS_FLAG);
+				paintElementText[i].setStyle(Paint.Style.FILL);
+				paintElementText[i].setColor(textColor[i]);
+				paintElementText[i].setTextAlign(Paint.Align.CENTER);
+			}
 
-    /**
-     * @return boolean
-     */
-    protected boolean isPositioned()
-    {
-        return gridY >= 0 && gridX >= 0;
-    }
+		}
 
-    /**
-     *
-     */
-    private void initPaint()
-    {
-        if (paintsElementBox == null)
-        {
-            paintsElementBox = new Paint[boxColor.length];
-            for (int i = 0; i < paintsElementBox.length; i++)
-            {
-                paintsElementBox[i] = new Paint(Paint.ANTI_ALIAS_FLAG);
-                paintsElementBox[i].setStyle(Paint.Style.FILL);
-                paintsElementBox[i].setColor(getResources().getColor(boxColor[i]));
-            }
-        }
-        if (paintElementBorder == null)
-        {
-            DisplayMetrics dm = getResources().getDisplayMetrics();
-            float strokeWidth = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, STROKE_WIDTH, dm);
-            paintElementBorder = new Paint(Paint.ANTI_ALIAS_FLAG);
-            paintElementBorder.setStyle(Paint.Style.STROKE);
-            paintElementBorder.setColor(Color.BLACK);
-            paintElementBorder.setStrokeWidth(strokeWidth);
-        }
-        if (paintElementText == null)
-        {
-            paintElementText = new Paint[textColor.length];
-            for (int i = 0; i < paintElementText.length; i++)
-            {
-                paintElementText[i] = new Paint(Paint.ANTI_ALIAS_FLAG);
-                paintElementText[i].setStyle(Paint.Style.FILL);
-                paintElementText[i].setColor(textColor[i]);
-                paintElementText[i].setTextAlign(Paint.Align.CENTER);
-            }
+		// color depends on element type
+		if (element instanceof Sensor)
+		{
+			paintType = 0;
+		}
+		else if (element instanceof SensorChannel)
+		{
+			paintType = 1;
+		}
+		else if (element instanceof Transformer)
+		{
+			paintType = 2;
+		}
+		else if (element instanceof Consumer)
+		{
+			paintType = 3;
+		}
+		else if (element instanceof EventHandler)
+		{
+			paintType = 4;
+		}
+	}
 
-        }
+	/**
+	 * Take all upper case letters and fill remaining with trailing lower case letters
+	 */
+	protected void initName()
+	{
+		String componentName = ((Component) element).getComponentName();
+		componentName = componentName.substring(componentName.lastIndexOf("_") + 1);
+		char[] acComponentName = componentName.toCharArray();
+		String shortName = "";
+		int j = 0, max = 3, last = 0;
+		for (int i = 0; i < acComponentName.length && j < max; i++)
+		{
+			if (Character.isUpperCase(acComponentName[i]))
+			{
+				shortName += acComponentName[i];
+				j++;
+				last = i;
+			}
+		}
+		if (j < max)
+		{
+			while (j++ < max && ++last < acComponentName.length)
+			{
+				shortName += acComponentName[last];
+			}
+		}
+		if (shortName.equals("Com"))
+		{
+			Log.e("Name: " + element.getClass().getSimpleName());
+		}
+		setText(shortName);
+	}
 
-        // color depends on element type
-        if (element instanceof Sensor)
-        {
-            paintType = 0;
-        } else if (element instanceof SensorChannel)
-        {
-            paintType = 1;
-        } else if (element instanceof Transformer)
-        {
-            paintType = 2;
-        } else if (element instanceof Consumer)
-        {
-            paintType = 3;
-        } else if (element instanceof EventHandler)
-        {
-            paintType = 4;
-        }
-    }
+	/**
+	 * @param canvas Canvas
+	 */
+	@Override
+	protected void onDraw(Canvas canvas)
+	{
+		super.onDraw(canvas);
+		canvas.save();
+		canvas.drawRect(0, 0, getWidth(), getHeight(), paintsElementBox[paintType]);
+		canvas.drawRect(1, 1, getWidth(), getHeight(), paintElementBorder);
+		//draws the text in the middle of the box
+		float textSize = getWidth() / 2.5f;
+		paintElementText[paintType].setTextSize(textSize);
+		canvas.drawText(text, textSize * (5.f / 4.f), textSize * (8.f / 5.f), paintElementText[paintType]);
+		invalidate();
+		canvas.restore();
+	}
 
-    /**
-     * Take all upper case letters and fill remaining with trailing lower case letters
-     */
-    protected void initName()
-    {
-        String componentName = ((Component) element).getComponentName();
-        componentName = componentName.substring(componentName.lastIndexOf("_") + 1);
-        char[] acComponentName = componentName.toCharArray();
-        String shortName = "";
-        int j = 0, max = 3, last = 0;
-        for (int i = 0; i < acComponentName.length && j < max; i++)
-        {
-            if (Character.isUpperCase(acComponentName[i]))
-            {
-                shortName += acComponentName[i];
-                j++;
-                last = i;
-            }
-        }
-        if (j < max)
-        {
-            while (j++ < max && ++last < acComponentName.length)
-            {
-                shortName += acComponentName[last];
-            }
-        }
-        if (shortName.equals("Com"))
-        {
-            Log.e("Name: " + element.getClass().getSimpleName());
-        }
-        setText(shortName);
-    }
+	protected void openOptions()
+	{
+		Activity activity = (Activity) getContext();
+		OptionsActivity.object = this.element;
+		activity.startActivity(new Intent(activity, OptionsActivity.class));
+	}
 
-    /**
-     * @param canvas Canvas
-     */
-    @Override
-    protected void onDraw(Canvas canvas)
-    {
-        super.onDraw(canvas);
-        canvas.save();
-        canvas.drawRect(0, 0, getWidth(), getHeight(), paintsElementBox[paintType]);
-        canvas.drawRect(1, 1, getWidth(), getHeight(), paintElementBorder);
-        //draws the text in the middle of the box
-        float textSize = getWidth() / 2.5f;
-        paintElementText[paintType].setTextSize(textSize);
-        canvas.drawText(text, textSize * (5.f / 4.f), textSize * (8.f / 5.f), paintElementText[paintType]);
-        invalidate();
-        canvas.restore();
-    }
+	private void openFeedbackCollectionDialog(final FeedbackCollection element)
+	{
+		final FeedbackCollectionContainerElement feedbackCollectionContainerElement = PipelineBuilder.getInstance().getFeedbackCollectionContainerElement(element);
 
-    protected void openOptions()
-    {
-        Activity activity = (Activity) getContext();
-        OptionsActivity.object = this.element;
-        activity.startActivity(new Intent(activity, OptionsActivity.class));
-    }
+		Activity activity = (Activity) getContext();
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-    private void openFeedbackContainerDialog(final Object element)
-    {
-        Activity activity = (Activity) getContext();
-        AlertDialog.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-        {
-            builder = new AlertDialog.Builder(activity, android.R.style.Theme_Material_Dialog_Alert);
-        }
-        else
-        {
-            builder = new AlertDialog.Builder(activity);
-        }
-        builder.setTitle("What do you want to do?")
-                .setPositiveButton("Options", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        openOptions();
-                    }
-                })
-                .setNeutralButton(android.R.string.cancel, null)
-                .setNegativeButton("Feedback", new DialogInterface.OnClickListener()
-                {
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        Activity activity = (Activity) getContext();
-                        FeedbackContainerActivity.feedbackContainer = (FeedbackContainer) element;
-                        activity.startActivity(new Intent(activity, FeedbackContainerActivity.class));
-                    }
-                })
-                .show();
-    }
+		builder.setTitle(R.string.select_action)
+				.setPositiveButton(R.string.str_options, new DialogInterface.OnClickListener()
+				{
+					public void onClick(DialogInterface dialog, int which)
+					{
+						openOptions();
+					}
+				})
+				.setNeutralButton(android.R.string.cancel, null)
+				.setNegativeButton(R.string.feedback, new DialogInterface.OnClickListener()
+				{
+					public void onClick(DialogInterface dialog, int which)
+					{
+						Activity activity = (Activity) getContext();
+						FeedbackCollectionActivity.feedbackCollectionContainerElement = feedbackCollectionContainerElement;
+						activity.startActivity(new Intent(activity, FeedbackCollectionActivity.class));
+					}
+				})
+				.show();
+	}
 }

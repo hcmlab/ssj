@@ -27,6 +27,7 @@
 
 package hcm.ssj.creator.view.Feedback;
 
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ClipDescription;
 import android.content.DialogInterface;
@@ -35,7 +36,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.support.annotation.IdRes;
-import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,10 +48,10 @@ import java.util.Arrays;
 import java.util.Map;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.activity.FeedbackContainerActivity;
+import hcm.ssj.creator.activity.FeedbackCollectionActivity;
 import hcm.ssj.creator.view.ComponentView;
 import hcm.ssj.feedback.Feedback;
-import hcm.ssj.feedback.FeedbackContainer;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Created by Antonio Grieco on 04.10.2017.
@@ -59,10 +59,10 @@ import hcm.ssj.feedback.FeedbackContainer;
 
 public class FeedbackComponentView extends ComponentView
 {
-	private final FeedbackContainerActivity feedbackContainerActivity;
+	private final FeedbackCollectionActivity feedbackCollectionActivity;
 	private final float TRIANGLE_OFFSET_FACTOR = 0.05f;
 	private final float TRIANGLE_HEIGHT_FACTOR = 0.15f;
-	private Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry;
+	private Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry;
 	private Paint levelBehaviourPaint;
 	private Paint dragBoxPaint;
 	private Path topTriangleArrow;
@@ -70,10 +70,10 @@ public class FeedbackComponentView extends ComponentView
 	private boolean currentlyDraged = false;
 
 
-	public FeedbackComponentView(FeedbackContainerActivity feedbackContainerActivity, Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> feedbackLevelBehaviourEntry)
+	public FeedbackComponentView(FeedbackCollectionActivity feedbackCollectionActivity, Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry)
 	{
-		super(feedbackContainerActivity, feedbackLevelBehaviourEntry.getKey());
-		this.feedbackContainerActivity = feedbackContainerActivity;
+		super(feedbackCollectionActivity, feedbackLevelBehaviourEntry.getKey());
+		this.feedbackCollectionActivity = feedbackCollectionActivity;
 		this.feedbackLevelBehaviourEntry = feedbackLevelBehaviourEntry;
 
 		initListeners();
@@ -160,7 +160,7 @@ public class FeedbackComponentView extends ComponentView
 		bottomTriangleArrow.offset(0, getHeight() * TRIANGLE_OFFSET_FACTOR);
 	}
 
-	public Map.Entry<Feedback, FeedbackContainer.LevelBehaviour> getFeedbackLevelBehaviourEntry()
+	public Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> getFeedbackLevelBehaviourEntry()
 	{
 		return feedbackLevelBehaviourEntry;
 	}
@@ -177,14 +177,14 @@ public class FeedbackComponentView extends ComponentView
 		{
 			super.onDraw(canvas);
 			canvas.save();
-			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackContainer.LevelBehaviour.Progress))
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Progress))
 			{
 				// RED BOTTOM ARROW
 				levelBehaviourPaint.setColor(Color.RED);
 				canvas.drawPath(bottomTriangleArrow, levelBehaviourPaint);
 
 			}
-			else if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackContainer.LevelBehaviour.Regress))
+			else if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
 			{
 				// GREEN TOP ARROW
 				levelBehaviourPaint.setColor(Color.GREEN);
@@ -204,45 +204,37 @@ public class FeedbackComponentView extends ComponentView
 	private void openLevelBehaviourDialog()
 	{
 
-		AlertDialog.Builder alt_bld = new AlertDialog.Builder(feedbackContainerActivity);
-		alt_bld.setTitle(feedbackLevelBehaviourEntry.getKey().getComponentName() + " - " + FeedbackContainer.LevelBehaviour.class.getSimpleName());
-		final FeedbackContainer.LevelBehaviour oldLevelBehaviour = feedbackLevelBehaviourEntry.getValue();
-
-		alt_bld.setView(getDialogContentView());
-
-		// BUTTONS
-		alt_bld.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				openOptions();
-			}
-		});
-		alt_bld.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int which)
-			{
-				feedbackLevelBehaviourEntry.setValue(oldLevelBehaviour);
-			}
-		});
-		alt_bld.setPositiveButton(R.string.str_ok, null);
-
-		// DISPLAY
-		AlertDialog alert = alt_bld.create();
-		alert.show();
+		AlertDialog.Builder builder = new android.app.AlertDialog.Builder(feedbackCollectionActivity);
+		final FeedbackCollection.LevelBehaviour oldLevelBehaviour = feedbackLevelBehaviourEntry.getValue();
+		builder.setTitle(feedbackLevelBehaviourEntry.getKey().getComponentName() + " - " + FeedbackCollection.LevelBehaviour.class.getSimpleName())
+				.setView(getDialogContentView())
+				.setNeutralButton(R.string.str_options, new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						openOptions();
+					}
+				})
+				.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener()
+				{
+					@Override
+					public void onClick(DialogInterface dialog, int which)
+					{
+						feedbackLevelBehaviourEntry.setValue(oldLevelBehaviour);
+					}
+				})
+				.setPositiveButton(R.string.str_ok, null)
+				.show();
 	}
 
 	private View getDialogContentView()
 	{
-
-		LayoutInflater inflater = LayoutInflater.from(feedbackContainerActivity);
+		LayoutInflater inflater = LayoutInflater.from(feedbackCollectionActivity);
 		View contentView = inflater.inflate(R.layout.dialog_level_behaviour, null);
 
 		TextView messageTextView = (TextView) contentView.findViewById(R.id.messageTextView);
 		messageTextView.setText(R.string.level_behaviour_message);
-
 		LinearLayout.LayoutParams radioButtonLayoutParams =
 				new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		radioButtonLayoutParams.weight = 1;
@@ -250,11 +242,11 @@ public class FeedbackComponentView extends ComponentView
 		final RadioGroup radioGroup = (RadioGroup) contentView.findViewById(R.id.levelBehaviourRadioGroup);
 		radioGroup.removeAllViews();
 		String[] values = Arrays
-				.toString(FeedbackContainer.LevelBehaviour.values())
+				.toString(FeedbackCollection.LevelBehaviour.values())
 				.replaceAll("^.|.$", "").split(", ");
 		for (String value : values)
 		{
-			RadioButton radioButton = new RadioButton(feedbackContainerActivity);
+			RadioButton radioButton = new RadioButton(feedbackCollectionActivity);
 			radioButton.setText(value);
 			radioButton.setLayoutParams(radioButtonLayoutParams);
 			radioGroup.addView(radioButton);
@@ -271,7 +263,7 @@ public class FeedbackComponentView extends ComponentView
 			{
 				RadioButton radioButton = (RadioButton) radioGroup.findViewById(checkedId);
 				feedbackLevelBehaviourEntry.setValue(
-						FeedbackContainer.LevelBehaviour.valueOf(radioButton.getText().toString())
+						FeedbackCollection.LevelBehaviour.valueOf(radioButton.getText().toString())
 				);
 			}
 		});

@@ -1,5 +1,5 @@
 /*
- * Feedback.java
+ * FeedbackCollectionContainerElement.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,71 +25,47 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback;
+package hcm.ssj.creator.core.container;
 
-import hcm.ssj.core.EventHandler;
-import hcm.ssj.core.Log;
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
- * Created by Antonio Grieco on 06.09.2017.
+ * Created by Antonio Grieco on 18.10.2017.
  */
 
-public abstract class Feedback extends EventHandler
+public class FeedbackCollectionContainerElement extends ContainerElement
 {
 
-	protected long lastExecutionTime = 0;
-	private boolean active = true;
+	private List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList;
 
-	protected boolean checkLock(int lock)
+	public FeedbackCollectionContainerElement(FeedbackCollection element)
 	{
-		if (System.currentTimeMillis() - lastExecutionTime < lock)
+		super(element);
+		feedbackList = element.getFeedbackList();
+	}
+
+	public List<Map<Feedback, FeedbackCollection.LevelBehaviour>> getFeedbackList()
+	{
+		return feedbackList;
+	}
+
+	public void addFeedback(Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
+	{
+		while (feedbackList.size() <= level)
 		{
-			Log.i("ignoring event, lock active for another " + (lock - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
-			return false;
+			feedbackList.add(new LinkedHashMap<Feedback, FeedbackCollection.LevelBehaviour>());
 		}
-		else
-		{
-			lastExecutionTime = System.currentTimeMillis();
-			return true;
-		}
+		feedbackList.get(level).put(feedback, levelBehaviour);
 	}
 
-	@Override
-	protected final void enter()
+	public void removeAllFeedbacks()
 	{
-		lastExecutionTime = System.currentTimeMillis();
-		feedbackEnter();
-	}
-
-	protected abstract void feedbackEnter();
-
-	public boolean isActive()
-	{
-		return active;
-	}
-
-	protected void setActive(boolean active)
-	{
-		this.active = active;
-	}
-
-	protected long getLastExecutionTime()
-	{
-		return lastExecutionTime;
-	}
-
-	public class Options extends OptionList
-	{
-
-		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
-		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
-
-		protected Options()
-		{
-			addOptions();
-		}
+		feedbackList = new ArrayList<>();
 	}
 }
