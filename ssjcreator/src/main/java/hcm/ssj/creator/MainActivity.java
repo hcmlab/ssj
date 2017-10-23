@@ -54,6 +54,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -650,7 +652,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	 */
 	private void initFloatingActionButton()
 	{
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+		final Animation showButton = AnimationUtils.loadAnimation(MainActivity.this,
+																  R.anim.show_button);
+		final Animation hideButton = AnimationUtils.loadAnimation(MainActivity.this,
+															R.anim.hide_button);
+		final Animation showLayout = AnimationUtils.loadAnimation(MainActivity.this,
+																  R.anim.show_layout);
+		final Animation hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
+																  R.anim.hide_layout);
+
 		final LinearLayout sensorLayout = (LinearLayout) findViewById(R.id.sensor_layout);
 		final LinearLayout sensorChannelLayout = (LinearLayout) findViewById(R.id.sensor_channel_layout);
 		final LinearLayout transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
@@ -666,21 +678,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				if (addButtonsVisible)
 				{
 					sensorLayout.setVisibility(View.GONE);
+					sensorLayout.startAnimation(hideLayout);
+
 					sensorChannelLayout.setVisibility(View.GONE);
+					sensorChannelLayout.startAnimation(hideLayout);
+
 					transformerLayout.setVisibility(View.GONE);
+					transformerLayout.startAnimation(hideLayout);
+
 					consumerLayout.setVisibility(View.GONE);
+					consumerLayout.startAnimation(hideLayout);
+
 					eventHandlerLayout.setVisibility(View.GONE);
+					eventHandlerLayout.startAnimation(hideLayout);
+
 					clearLayout.setVisibility(View.GONE);
+					clearLayout.startAnimation(hideLayout);
+
+					fab.startAnimation(hideButton);
 					addButtonsVisible = false;
 				}
 				else
 				{
 					sensorLayout.setVisibility(View.VISIBLE);
+					sensorLayout.startAnimation(showLayout);
+
 					sensorChannelLayout.setVisibility(View.VISIBLE);
+					sensorChannelLayout.startAnimation(showLayout);
+
 					transformerLayout.setVisibility(View.VISIBLE);
+					transformerLayout.startAnimation(showLayout);
+
 					consumerLayout.setVisibility(View.VISIBLE);
+					consumerLayout.startAnimation(showLayout);
+
 					eventHandlerLayout.setVisibility(View.VISIBLE);
+					eventHandlerLayout.startAnimation(showLayout);
+
 					clearLayout.setVisibility(View.VISIBLE);
+					clearLayout.startAnimation(showLayout);
+
+					fab.startAnimation(showButton);
 					addButtonsVisible = true;
 				}
 			}
