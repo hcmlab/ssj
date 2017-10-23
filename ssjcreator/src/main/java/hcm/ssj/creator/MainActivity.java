@@ -55,6 +55,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -85,6 +86,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
+
+    private boolean addButtonsVisible = false;
 
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
@@ -479,7 +482,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         startTutorial();
         setContentView(R.layout.activity_main);
-		addActionButtonListeners();
+
+		initAddComponentButtons();
+		initFloatingActionButton();
         init();
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -575,7 +580,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	/**
 	 * Initialize all floating action buttons and adds on-click listeners.
 	 */
-	private void addActionButtonListeners()
+	private void initAddComponentButtons()
     {
         FloatingActionButton addSensor = (FloatingActionButton) findViewById(R.id.action_sensors);
         addSensor.setOnClickListener(new View.OnClickListener()
@@ -639,4 +644,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			}
 		});
     }
+
+	/**
+	 * Toggle visibility of action buttons.
+	 */
+	private void initFloatingActionButton()
+	{
+		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		final LinearLayout sensorLayout = (LinearLayout) findViewById(R.id.sensor_layout);
+		final LinearLayout sensorChannelLayout = (LinearLayout) findViewById(R.id.sensor_channel_layout);
+		final LinearLayout transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
+		final LinearLayout consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
+		final LinearLayout eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+		final LinearLayout clearLayout = (LinearLayout) findViewById(R.id.clear_layout);
+
+		fab.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if (addButtonsVisible)
+				{
+					sensorLayout.setVisibility(View.GONE);
+					sensorChannelLayout.setVisibility(View.GONE);
+					transformerLayout.setVisibility(View.GONE);
+					consumerLayout.setVisibility(View.GONE);
+					eventHandlerLayout.setVisibility(View.GONE);
+					clearLayout.setVisibility(View.GONE);
+					addButtonsVisible = false;
+				}
+				else
+				{
+					sensorLayout.setVisibility(View.VISIBLE);
+					sensorChannelLayout.setVisibility(View.VISIBLE);
+					transformerLayout.setVisibility(View.VISIBLE);
+					consumerLayout.setVisibility(View.VISIBLE);
+					eventHandlerLayout.setVisibility(View.VISIBLE);
+					clearLayout.setVisibility(View.VISIBLE);
+					addButtonsVisible = true;
+				}
+			}
+		});
+
+	}
 }
