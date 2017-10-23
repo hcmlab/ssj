@@ -90,7 +90,7 @@ public class Pipeline
         STARTING,
         RUNNING,
         STOPPING,
-        CRASH
+        ERROR
     }
 
     public final Options options = new Options();
@@ -172,6 +172,9 @@ public class Pipeline
                 Thread.sleep(1000);
             }
 
+            if(state == State.ERROR)
+                throw new Exception("error in components");
+
             if (options.startSyncPort.get() != 0)
             {
                 if (options.master.get() == null)
@@ -193,7 +196,7 @@ public class Pipeline
         }
         catch (Exception e)
         {
-            crash("framework start", "error starting pipeline", e);
+            error("framework start", "error starting pipeline", e);
         }
     }
 
@@ -800,9 +803,26 @@ public class Pipeline
         }
     }
 
-    void crash(String location, String message, Throwable e)
+    public void error(String location, String message)
     {
-        state = State.CRASH;
+        state = State.ERROR;
+
+        Log.e(location, message);
+        writeLogFile();
+
+        if (exceptionHandler != null)
+        {
+            exceptionHandler.handle(location, message, null);
+        } else
+        {
+            state = State.INACTIVE;
+            throw new RuntimeException("fatal error in "+location+ ": " + message);
+        }
+    }
+
+    public void error(String location, String message, Throwable e)
+    {
+        state = State.ERROR;
 
         Log.e(location, message, e);
         writeLogFile();

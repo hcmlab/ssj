@@ -94,7 +94,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (SocketException e)
             {
-                Log.e("unable to determine local IP address", e);
+                _frame.error(_name, "unable to determine local IP address", e);
             }
         }
 
@@ -109,7 +109,7 @@ public class SocketEventReader extends EventHandler
         }
         catch (IOException e)
         {
-            Log.e("ERROR: cannot bind socket", e);
+            _frame.error(_name, "ERROR: cannot bind socket", e);
             return;
         }
 
@@ -124,7 +124,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (XmlPullParserException e)
             {
-                Log.e("unable to initialize parser", e);
+                _frame.error(_name, "unable to initialize parser", e);
                 return;
             }
         }

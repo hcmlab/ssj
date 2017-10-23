@@ -197,7 +197,7 @@ public class ClassifierT extends Transformer
         try {
             loadHeader(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
         } catch (IOException | XmlPullParserException e) {
-            Log.e("unable to load trainer file", e);
+            _frame.error(_name, "unable to load trainer file", e);
         }
     }
 
@@ -212,28 +212,28 @@ public class ClassifierT extends Transformer
         try {
             loadModel();
         } catch (IOException e) {
-            Log.e("unable to load model file", e);
+            _frame.error(_name, "unable to load model file", e);
             return;
         }
 
         if(_model == null || !_model.isTrained())
         {
-            Log.e("model not loaded");
+            _frame.error(_name, "model not loaded");
             return;
         }
 
         if(stream_out.dim != _model.getNumClasses())
-            Log.e("stream out does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
+            _frame.error(_name, "stream out does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
 
         if (stream_in.length > 1 && !options.merge.get())
-            Log.e("sources count not supported");
+            _frame.error(_name, "sources count not supported. Did you forget to set merge to true?");
 
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
-            Log.e("stream type not supported");
+            _frame.error(_name, "stream type not supported");
 
         Stream[] input = stream_in;
         if(input[0].bytes != bytes || input[0].type != type) {
-            Log.e("input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
+            _frame.error(_name, "input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
                           + ") does not match model's expected input (type=" + type + ", bytes=" + bytes + ", sr=" + sr + ")");
             return;
         }
@@ -251,7 +251,7 @@ public class ClassifierT extends Transformer
         }
 
         if(input[0].dim != dim) {
-            Log.e("input stream (dim=" + input[0].dim + ") does not match model (dim=" + dim + ")");
+            _frame.error(_name, "input stream (dim=" + input[0].dim + ") does not match model (dim=" + dim + ")");
             return;
         }
         if (input[0].num > 1) {

@@ -87,7 +87,7 @@ public class BluetoothReader extends Sensor {
             }
 
         } catch (IOException e) {
-            Log.e("error in setting up connection "+ options.connectionName, e);
+            _frame.error(_name, "error in setting up connection "+ options.connectionName, e);
         }
     }
 
@@ -100,7 +100,7 @@ public class BluetoothReader extends Sensor {
             numStreams = options.numStreams.get();
 
         if(numStreams < _provider.size())
-            Log.e("Invalid configuration. Expected incoming number of streams ("+numStreams+") is smaller than number of defined channels ("+_provider.size()+")");
+            _frame.error(_name, "Invalid configuration. Expected incoming number of streams ("+numStreams+") is smaller than number of defined channels ("+_provider.size()+")");
         else if(numStreams > _provider.size())
             Log.w("Unusual configuration. Expected incoming number of streams ("+numStreams+") is greater than number of defined channels ("+_provider.size()+")");
 

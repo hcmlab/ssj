@@ -65,7 +65,7 @@ public class ValueEventSender extends Consumer
 	{
 		if (!EnumSet.of(Cons.Type.BYTE, Cons.Type.CHAR, Cons.Type.SHORT, Cons.Type.INT, Cons.Type.LONG, Cons.Type.FLOAT, Cons.Type.DOUBLE, Cons.Type.BOOL).contains(stream_in[0].type))
 		{
-			throw new RuntimeException("type "+ stream_in[0].type +" not supported");
+			_frame.error(_name, "type "+ stream_in[0].type +" not supported");
 		}
 	}
 

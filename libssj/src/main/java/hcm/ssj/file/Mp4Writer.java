@@ -127,8 +127,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             aByteBufferInput = mediaCodec.getInputBuffers();
         } catch (IOException ex)
         {
-            Log.e("MediaCodec creation failed: " + ex.getMessage());
-            throw new RuntimeException("MediaCodec creation failed", ex);
+            _frame.error(_name, "MediaCodec creation failed", ex);
         }
         //create muxer
         try
@@ -136,8 +135,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             mediaMuxer = new MediaMuxer(filePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException ex)
         {
-            Log.e("MediaMuxer creation failed: " + ex.getMessage());
-            throw new RuntimeException("MediaMuxer creation failed", ex);
+            _frame.error(_name, "MediaMuxer creation failed", ex);
         }
         iTrackIndex = -1;
         bMuxerStarted = false;
@@ -179,7 +177,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             //the buffer should be sized to hold one full frame
             if (inputBuf.capacity() < frameData.length)
             {
-                Log.e("Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
+                _frame.error(_name, "Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
             } else
             {
                 inputBuf.clear();
@@ -233,8 +231,8 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
                 //should happen before receiving buffers and should only happen once
                 if (bMuxerStarted)
                 {
-                    Log.e("Format changed twice");
-                    throw new RuntimeException("Format changed twice");
+                    Log.e("image format changed unexpectedly");
+                    return;
                 }
                 MediaFormat newFormat = mediaCodec.getOutputFormat();
                 Log.d("Encoder output format changed: " + newFormat);
@@ -253,7 +251,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
                 if (encodedData == null)
                 {
                     Log.e("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + lFrameIndex);
-                    throw new RuntimeException("EncoderOutputBuffer " + encoderStatus + " was null" + ": " + lFrameIndex);
+                    return;
                 }
                 encodedData.position(bufferInfo.offset);
                 encodedData.limit(bufferInfo.offset + bufferInfo.size);

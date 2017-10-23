@@ -188,8 +188,8 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     {
         if (camera != null)
         {
-            Log.e("Camera already initialized");
-            throw new RuntimeException("Camera already initialized");
+            _frame.error(_name, "Camera already initialized");
+            return null;
         }
         //set camera
         chooseCamera();
@@ -225,8 +225,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         }
         if (camera == null)
         {
-            Log.e("Unable to open camera");
-            throw new RuntimeException("Unable to open camera");
+            _frame.error(_name, "Unable to open camera");
         }
     }
 
@@ -336,7 +335,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         } catch (IOException ex)
         {
             Log.e("Couldn't prepare surface texture: " + ex.getMessage());
-            ex.printStackTrace();
         }
     }
 
@@ -354,7 +352,6 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         } catch (Exception ex)
         {
             Log.e("Couldn't init buffer: " + ex.getMessage());
-            ex.printStackTrace();
         }
     }
 

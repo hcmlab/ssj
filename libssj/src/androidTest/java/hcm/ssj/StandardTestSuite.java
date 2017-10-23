@@ -43,6 +43,7 @@ import org.junit.runners.Suite;
 		FileTest.class,
 		SignalTest.class,
 		SvmTest.class,
+		SSITest.class,
 		UtilTest.class})
 public class StandardTestSuite
 {}

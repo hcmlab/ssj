@@ -99,7 +99,7 @@ public class FileReader extends Sensor
             File fileDirectory = new File(options.filePath.get());
             if (!fileDirectory.exists())
             {
-                Log.e("directory \"" + fileDirectory.getName() + "\" does not exist");
+                _frame.error(_name, "directory \"" + fileDirectory.getName() + "\" does not exist");
             }
             if (options.fileName.get() == null)
             {
@@ -161,7 +161,7 @@ public class FileReader extends Sensor
                 simpleHeader._num = xmlValues.foundAttributes.get(0)[2];
             } catch (Exception e)
             {
-                Log.e("file could not be parsed", e);
+                _frame.error(_name, "file could not be parsed", e);
             }
         }
         return simpleHeader;

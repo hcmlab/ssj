@@ -110,13 +110,11 @@ public class CameraWriter extends Mp4Writer
     {
         if (stream_in.length != 1)
         {
-            Log.e("Stream count not supported");
-            return;
+            _frame.error(_name, "Stream count not supported");
         }
         if(stream_in[0].type != Cons.Type.IMAGE || ((ImageStream)stream_in[0]).format != ImageFormat.NV21)
         {
-            Log.e("invalid input, writer only supports NV21 images");
-            return;
+            _frame.error(_name, "invalid input, writer only supports NV21 images");
         }
 
         dFrameRate = stream_in[0].sr;
@@ -180,8 +178,7 @@ public class CameraWriter extends Mp4Writer
         MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType.get());
         if (mediaCodecInfo == null)
         {
-            Log.e("Unable to find an appropriate codec for " + options.mimeType.get());
-            return;
+            _frame.error(_name, "Unable to find an appropriate codec for " + options.mimeType.get());
         }
         //set format properties
         MediaFormat videoFormat = MediaFormat.createVideoFormat(options.mimeType.get(), width, height);
@@ -198,7 +195,7 @@ public class CameraWriter extends Mp4Writer
             mediaMuxer.setOrientationHint(options.orientation.get());
         } else
         {
-            Log.e("Orientation is not valid: " + options.orientation.get());
+            Log.w("Orientation is not valid: " + options.orientation.get());
         }
     }
 
@@ -239,8 +236,7 @@ public class CameraWriter extends Mp4Writer
                 }
                 default:
                 {
-                    Log.e("Wrong color switch");
-                    throw new RuntimeException();
+                    _frame.error(_name, "Wrong color switch");
                 }
             }
         }

@@ -92,7 +92,7 @@ public class ThresholdEventSender extends Consumer
 
         if(options.thresin.get() == null || options.thresin.get().length != totaldim)
         {
-            Log.e("invalid threshold list. Expecting " + totaldim + " thresholds");
+            _frame.error(_name, "invalid threshold list. Expecting " + totaldim + " thresholds");
             return;
         }
 

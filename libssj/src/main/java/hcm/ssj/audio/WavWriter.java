@@ -126,7 +126,7 @@ public class WavWriter extends Consumer implements IFileWriter
     {
         if (stream_in.length != 1)
         {
-            Log.e("Stream count not supported");
+            _frame.error(_name, "Stream count not supported");
             return;
         }
         switch (stream_in[0].type)
@@ -151,13 +151,13 @@ public class WavWriter extends Consumer implements IFileWriter
                     dataFormat = WavWriter.DataFormat.FLOAT_8;
                 } else
                 {
-                    Log.e("Audio format not supported");
+                    _frame.error(_name, "Audio format not supported");
                 }
                 break;
             }
             default:
             {
-                Log.e("Stream type not supported");
+                _frame.error(_name, "Stream type not supported");
                 return;
             }
         }
@@ -176,8 +176,7 @@ public class WavWriter extends Consumer implements IFileWriter
             outputStream = new BufferedOutputStream(new FileOutputStream(file));
         } catch (IOException ex)
         {
-            Log.e("RawEncoder creation failed: " + ex.getMessage());
-            throw new RuntimeException("RawEncoder creation failed", ex);
+            _frame.error(_name, "RawEncoder creation failed: " + ex.getMessage());
         }
     }
 
@@ -282,7 +281,7 @@ public class WavWriter extends Consumer implements IFileWriter
         {
             if (!fileDirectory.mkdirs())
             {
-                Log.e(fileDirectory.getName() + " could not be created");
+                _frame.error(_name, fileDirectory.getName() + " could not be created");
                 return;
             }
         }
@@ -366,11 +365,11 @@ public class WavWriter extends Consumer implements IFileWriter
             outFile.close();
             if (!fileToConvert.delete())
             {
-                Log.e("File could not be deleted");
+                throw new IOException("error deleting temp file");
             }
         } catch (IOException e)
         {
-            e.printStackTrace();
+            _frame.error(_name, "error writing wav header", e);
         }
 
     }

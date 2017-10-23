@@ -150,7 +150,7 @@ public class WatchDog extends Thread {
                 _timer.sync();
 
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(this.getClass().getSimpleName(), "exception in loop", e);
             }
         }
 

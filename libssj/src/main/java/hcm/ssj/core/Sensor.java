@@ -78,14 +78,14 @@ public abstract class Sensor extends Component {
                 }
                 catch (Exception e)
                 {
-                    _frame.crash(this.getComponentName(), "failed to connect to sensor", e);
+                    _frame.error(this.getComponentName(), "failed to connect to sensor", e);
                 }
             }
 
             try {
                 update();
             } catch(Exception e) {
-                _frame.crash(this.getComponentName(), "exception in sensor update", e);
+                _frame.error(this.getComponentName(), "exception in sensor update", e);
             }
 
             _isConnected = checkConnection();
@@ -94,7 +94,7 @@ public abstract class Sensor extends Component {
         try {
             disconnect();
         } catch(Exception e) {
-            _frame.crash(this.getComponentName(), "failed to disconnect from sensor", e);
+            _frame.error(this.getComponentName(), "failed to disconnect from sensor", e);
         }
         _isConnected = false;
         _safeToKill = true;

@@ -63,7 +63,7 @@ public abstract class Consumer extends Component {
     public void run()
     {
         if(!_isSetup) {
-            Log.e("not initialized");
+            _frame.error(_name, "not initialized");
             return;
         }
 
@@ -83,7 +83,7 @@ public abstract class Consumer extends Component {
         try {
             enter(_stream_in);
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
+            _frame.error(_name, "exception in enter", e);
         }
 
         //wait for framework
@@ -150,14 +150,14 @@ public abstract class Consumer extends Component {
                     _timer.sync();
 
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(_name, "exception in loop", e);
             }
         }
 
         try {
             flush(_stream_in);
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
+            _frame.error(_name, "exception in flush", e);
         }
         _safeToKill = true;
     }
