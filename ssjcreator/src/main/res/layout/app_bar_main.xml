@@ -70,7 +70,7 @@
 
     <LinearLayout
         android:id="@+id/sensor_layout"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="41dp"
         android:layout_marginBottom="133dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
@@ -80,6 +80,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
             android:text="@string/str_sensors"/>
 
         <android.support.design.widget.FloatingActionButton
@@ -88,13 +90,14 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            app:backgroundTint="@color/colorSensor"
             app:fabSize="mini"
             app:srcCompat="@drawable/ic_add_white_24dp"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/sensor_channels_layout"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="41dp"
         android:layout_marginBottom="177dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
@@ -104,6 +107,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
             android:text="@string/str_sensor_channels"/>
 
         <android.support.design.widget.FloatingActionButton
@@ -112,13 +117,14 @@
             android:layout_height="wrap_content"
             android:clickable="true"
             android:focusable="true"
+            app:backgroundTint="@color/colorProvider"
             app:fabSize="mini"
             app:srcCompat="@drawable/ic_add_white_24dp"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/transformers_layout"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="41dp"
         android:layout_marginBottom="222dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
@@ -128,10 +134,93 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
             android:text="@string/str_transformers"/>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/floatingActionButton3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorTransformer"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_white_24dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/consumer_layout"
+        android:layout_marginEnd="41dp"
+        android:layout_marginBottom="267dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_consumers"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorConsumer"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_white_24dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/event_handler_layout"
+        android:layout_marginEnd="41dp"
+        android:layout_marginBottom="312dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_eventhandlers"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorEventHandler"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_white_24dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/clear_layout"
+        android:layout_marginEnd="41dp"
+        android:layout_marginBottom="357dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_clear"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
