@@ -40,6 +40,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -284,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -329,7 +331,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				actualizeContent(Util.AppAction.CLEAR, null);
 				return true;
 			}
-			/*
 			case R.id.action_framework:
 			{
 				Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
@@ -351,10 +352,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
                 return true;
             }
-            */
         }
         return true;
     }
+    */
 
     /**
      * @param resource int
@@ -478,6 +479,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         startTutorial();
         setContentView(R.layout.activity_main);
+		addActionButtonListeners();
         init();
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -490,6 +492,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     /**
@@ -568,4 +571,72 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		}
 		return true;
 	}
+
+	/**
+	 * Initialize all floating action buttons and adds on-click listeners.
+	 */
+	private void addActionButtonListeners()
+    {
+        FloatingActionButton addSensor = (FloatingActionButton) findViewById(R.id.action_sensors);
+        addSensor.setOnClickListener(new View.OnClickListener()
+		{
+            @Override
+            public void onClick(View view)
+			{
+				showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
+            }
+        });
+
+		FloatingActionButton addProvider = (FloatingActionButton) findViewById(R.id.action_providers);
+		addProvider.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
+			}
+		});
+
+		FloatingActionButton addTransformer = (FloatingActionButton) findViewById(R.id.action_transformers);
+		addTransformer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_transformers, SSJDescriptor.getInstance().transformers);
+			}
+		});
+
+		FloatingActionButton addConsumer = (FloatingActionButton) findViewById(R.id.action_consumers);
+		addConsumer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
+			}
+		});
+
+		FloatingActionButton addEventHandler = (FloatingActionButton) findViewById(R.id.action_eventhandlers);
+		addEventHandler.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
+			}
+		});
+
+		FloatingActionButton clear = (FloatingActionButton) findViewById(R.id.action_clear);
+		clear.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				PipelineBuilder.getInstance().clear();
+				Annotation.getInstance().clear();
+				actualizeContent(Util.AppAction.CLEAR, null);
+			}
+		});
+    }
 }

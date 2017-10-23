@@ -85,7 +85,7 @@
             android:text="@string/str_sensors"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton"
+            android:id="@+id/action_sensors"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
@@ -112,7 +112,7 @@
             android:text="@string/str_sensor_channels"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton2"
+            android:id="@+id/action_providers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
@@ -139,7 +139,7 @@
             android:text="@string/str_transformers"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton3"
+            android:id="@+id/action_transformers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
@@ -166,7 +166,7 @@
             android:text="@string/str_consumers"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton4"
+            android:id="@+id/action_consumers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
@@ -193,7 +193,7 @@
             android:text="@string/str_eventhandlers"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton5"
+            android:id="@+id/action_eventhandlers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
@@ -220,7 +220,7 @@
             android:text="@string/str_clear"/>
 
         <android.support.design.widget.FloatingActionButton
-            android:id="@+id/floatingActionButton6"
+            android:id="@+id/action_clear"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
