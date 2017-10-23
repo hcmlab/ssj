@@ -31,6 +31,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
     tools:context="hcm.ssj.creator.MainActivity">
 
     <LinearLayout
@@ -71,7 +73,7 @@
     <LinearLayout
         android:id="@+id/sensor_layout"
         android:layout_marginEnd="41dp"
-        android:layout_marginBottom="133dp"
+        android:layout_marginBottom="140dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -98,7 +100,7 @@
     <LinearLayout
         android:id="@+id/sensor_channels_layout"
         android:layout_marginEnd="41dp"
-        android:layout_marginBottom="177dp"
+        android:layout_marginBottom="190dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -125,7 +127,7 @@
     <LinearLayout
         android:id="@+id/transformers_layout"
         android:layout_marginEnd="41dp"
-        android:layout_marginBottom="222dp"
+        android:layout_marginBottom="240dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -152,7 +154,7 @@
     <LinearLayout
         android:id="@+id/consumer_layout"
         android:layout_marginEnd="41dp"
-        android:layout_marginBottom="267dp"
+        android:layout_marginBottom="290dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -179,7 +181,7 @@
     <LinearLayout
         android:id="@+id/event_handler_layout"
         android:layout_marginEnd="41dp"
-        android:layout_marginBottom="312dp"
+        android:layout_marginBottom="340dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
@@ -206,7 +208,7 @@
     <LinearLayout
         android:id="@+id/clear_layout"
         android:layout_marginEnd="41dp"
-        android:layout_marginBottom="357dp"
+        android:layout_marginBottom="390dp"
         android:layout_gravity="bottom|end"
         android:orientation="horizontal"
         android:layout_width="wrap_content"
