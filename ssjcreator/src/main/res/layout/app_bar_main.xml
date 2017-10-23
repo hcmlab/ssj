@@ -62,11 +62,82 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/fab_margin_end"
         android:layout_marginBottom="@dimen/fab_bottom"
+        android:layout_gravity="bottom|end"
         android:clickable="true"
         android:focusable="true"
         app:fabSize="normal"
-        app:layout_anchor="@android:id/tabcontent"
-        app:layout_anchorGravity="bottom|right|end"
         app:srcCompat="@drawable/ic_add_white_24dp" />
+
+    <LinearLayout
+        android:id="@+id/sensor_layout"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="133dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/str_sensors"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_white_24dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sensor_channels_layout"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="177dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/str_sensor_channels"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_white_24dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/transformers_layout"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="222dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/str_transformers"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatingActionButton3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:fabSize="mini"
+            app:srcCompat="@drawable/ic_add_white_24dp"/>
+    </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>
