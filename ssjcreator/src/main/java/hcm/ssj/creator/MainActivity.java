@@ -40,6 +40,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -53,7 +54,10 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -84,6 +88,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
+
+    private boolean addButtonsVisible = false;
 
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
@@ -284,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -329,7 +336,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				actualizeContent(Util.AppAction.CLEAR, null);
 				return true;
 			}
-			/*
 			case R.id.action_framework:
 			{
 				Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
@@ -351,10 +357,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
                 return true;
             }
-            */
         }
         return true;
     }
+    */
 
     /**
      * @param resource int
@@ -478,6 +484,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         startTutorial();
         setContentView(R.layout.activity_main);
+
+		initAddComponentButtons();
+		initFloatingActionButton();
         init();
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -490,6 +499,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     /**
@@ -567,5 +577,152 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			drawer.closeDrawer(GravityCompat.START);
 		}
 		return true;
+	}
+
+	/**
+	 * Initialize all floating action buttons and adds on-click listeners.
+	 */
+	private void initAddComponentButtons()
+    {
+        FloatingActionButton addSensor = (FloatingActionButton) findViewById(R.id.action_sensors);
+        addSensor.setOnClickListener(new View.OnClickListener()
+		{
+            @Override
+            public void onClick(View view)
+			{
+				showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
+            }
+        });
+
+		FloatingActionButton addProvider = (FloatingActionButton) findViewById(R.id.action_providers);
+		addProvider.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
+			}
+		});
+
+		FloatingActionButton addTransformer = (FloatingActionButton) findViewById(R.id.action_transformers);
+		addTransformer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_transformers, SSJDescriptor.getInstance().transformers);
+			}
+		});
+
+		FloatingActionButton addConsumer = (FloatingActionButton) findViewById(R.id.action_consumers);
+		addConsumer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
+			}
+		});
+
+		FloatingActionButton addEventHandler = (FloatingActionButton) findViewById(R.id.action_eventhandlers);
+		addEventHandler.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
+			}
+		});
+
+		FloatingActionButton clear = (FloatingActionButton) findViewById(R.id.action_clear);
+		clear.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				PipelineBuilder.getInstance().clear();
+				Annotation.getInstance().clear();
+				actualizeContent(Util.AppAction.CLEAR, null);
+			}
+		});
+    }
+
+	/**
+	 * Toggle visibility of action buttons.
+	 */
+	private void initFloatingActionButton()
+	{
+		final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+		final Animation showButton = AnimationUtils.loadAnimation(MainActivity.this,
+																  R.anim.show_button);
+		final Animation hideButton = AnimationUtils.loadAnimation(MainActivity.this,
+															R.anim.hide_button);
+		final Animation showLayout = AnimationUtils.loadAnimation(MainActivity.this,
+																  R.anim.show_layout);
+		final Animation hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
+																  R.anim.hide_layout);
+
+		final LinearLayout sensorLayout = (LinearLayout) findViewById(R.id.sensor_layout);
+		final LinearLayout sensorChannelLayout = (LinearLayout) findViewById(R.id.sensor_channel_layout);
+		final LinearLayout transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
+		final LinearLayout consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
+		final LinearLayout eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+		final LinearLayout clearLayout = (LinearLayout) findViewById(R.id.clear_layout);
+
+		fab.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if (addButtonsVisible)
+				{
+					sensorLayout.setVisibility(View.GONE);
+					sensorLayout.startAnimation(hideLayout);
+
+					sensorChannelLayout.setVisibility(View.GONE);
+					sensorChannelLayout.startAnimation(hideLayout);
+
+					transformerLayout.setVisibility(View.GONE);
+					transformerLayout.startAnimation(hideLayout);
+
+					consumerLayout.setVisibility(View.GONE);
+					consumerLayout.startAnimation(hideLayout);
+
+					eventHandlerLayout.setVisibility(View.GONE);
+					eventHandlerLayout.startAnimation(hideLayout);
+
+					clearLayout.setVisibility(View.GONE);
+					clearLayout.startAnimation(hideLayout);
+
+					fab.startAnimation(hideButton);
+					addButtonsVisible = false;
+				}
+				else
+				{
+					sensorLayout.setVisibility(View.VISIBLE);
+					sensorLayout.startAnimation(showLayout);
+
+					sensorChannelLayout.setVisibility(View.VISIBLE);
+					sensorChannelLayout.startAnimation(showLayout);
+
+					transformerLayout.setVisibility(View.VISIBLE);
+					transformerLayout.startAnimation(showLayout);
+
+					consumerLayout.setVisibility(View.VISIBLE);
+					consumerLayout.startAnimation(showLayout);
+
+					eventHandlerLayout.setVisibility(View.VISIBLE);
+					eventHandlerLayout.startAnimation(showLayout);
+
+					clearLayout.setVisibility(View.VISIBLE);
+					clearLayout.startAnimation(showLayout);
+
+					fab.startAnimation(showButton);
+					addButtonsVisible = true;
+				}
+			}
+		});
+
 	}
 }
