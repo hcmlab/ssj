@@ -42,7 +42,8 @@ import java.util.Map;
 
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
-import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
+
+import static android.R.attr.type;
 
 /**
  * Created by Antonio Grieco on 20.10.2017.
@@ -50,131 +51,133 @@ import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 
 public class StrategyLoader
 {
-/*
+
+	private File strategyFile;
+
 	public StrategyLoader(File strategyFile)
 	{
-		loadStrategyFile();
+		this.strategyFile = strategyFile;
 	}
 
-	public void loadStrategyFile(File strategyFile) throws IOException, XmlPullParserException
+	public void load()
 	{
-		InputStream inputStream = new FileInputStream(strategyFile);
-		XmlPullParser parser = Xml.newPullParser();
-		parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-
-		parser.setInput(inputStream, null);
-
-		while (parser.next() != XmlPullParser.END_DOCUMENT)
-		{
-			switch (parser.getEventType())
-			{
-				case XmlPullParser.START_TAG:
-					if (parser.getName().equalsIgnoreCase("strategy"))
-					{
-						loadStrategy(parser);
-					}
-					break;
-			}
-		}
-		inputStream.close();
+//		InputStream inputStream = new FileInputStream(strategyFile);
+//		XmlPullParser parser = Xml.newPullParser();
+//		parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+//
+//		parser.setInput(inputStream, null);
+//
+//		while (parser.next() != XmlPullParser.END_DOCUMENT)
+//		{
+//			switch (parser.getEventType())
+//			{
+//				case XmlPullParser.START_TAG:
+//					if (parser.getName().equalsIgnoreCase("strategy"))
+//					{
+//						loadStrategy(parser);
+//					}
+//					break;
+//			}
+//		}
+//		inputStream.close();
 	}
+//
+//	private void loadStrategy(XmlPullParser parser) throws IOException, XmlPullParserException
+//	{
+//		List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList = new ArrayList<>();
+//
+//		parser.require(XmlPullParser.START_TAG, null, "strategy");
+//
+//		//iterate through classes
+//		while (parser.next() != XmlPullParser.END_DOCUMENT)
+//		{
+//			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
+//			{
+//				loadFeedback(parser, feedbackList);
+//			}
+//			else if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
+//			{
+//				break; //jump out once we reach end tag for classes
+//			}
+//		}
+//		parser.require(XmlPullParser.END_TAG, null, "strategy");
+//
+//		addFeedbackList
+//	}
+//
+//	private void loadFeedback(XmlPullParser parser)
+//	{
+//		parser.require(XmlPullParser.START_TAG, null, "feedback");
+//
+//		String level_str = parser.getAttributeValue(null, "level");
+//		int level = 0;
+//		if (level_str != null)
+//		{
+//			level = Integer.parseInt(level_str);
+//		}
+//
+//		String valence_str = parser.getAttributeValue(null, "valence");
+//		if (valence_str != null)
+//		{
+//			valence = FeedbackClass.Valence.valueOf(valence_str);
+//		}
+//
+//		while (parser.next() != XmlPullParser.END_DOCUMENT)
+//		{
+//			if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("condition"))
+//			{
+//				condition = Condition.create(parser, context);
+//			}
+//			else if (xml.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("action"))
+//			{
+//				action = Action.create(type, parser, context);
+//			}
+//			else if (xml.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
+//			{
+//				break; //jump out once we reach end tag
+//			}
+//		}
+//	}
+//
+//	private class ThresholdRange
+//	{
+//		private final int lowerBound;
+//		private final int upperBound;
+//
+//		public ThresholdRange(int lowerBound, int upperBound)
+//		{
+//			this.lowerBound = lowerBound;
+//			this.upperBound = upperBound;
+//		}
+//
+//		@Override
+//		public boolean equals(Object object)
+//		{
+//			if (!(object instanceof ThresholdRange))
+//			{
+//				return false;
+//			}
+//
+//			return ((ThresholdRange) object).getLowerBound() == lowerBound &&
+//					((ThresholdRange) object).getUpperBound() == upperBound;
+//		}
+//
+//		protected boolean intersects(ThresholdRange thresholdRange)
+//		{
+//			boolean isLower = thresholdRange.getLowerBound() < lowerBound && thresholdRange.getLowerBound() < upperBound;
+//			boolean isUpper = thresholdRange.getUpperBound() > lowerBound && thresholdRange.getUpperBound() > upperBound;
+//			return !(isLower || isUpper);
+//		}
+//
+//		public int getLowerBound()
+//		{
+//			return lowerBound;
+//		}
+//
+//		public int getUpperBound()
+//		{
+//			return upperBound;
+//		}
+//	}
 
-	private void loadStrategy(XmlPullParser parser) throws IOException, XmlPullParserException
-	{
-		List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList = new ArrayList<>();
-
-		parser.require(XmlPullParser.START_TAG, null, "strategy");
-
-		//iterate through classes
-		while (parser.next() != XmlPullParser.END_DOCUMENT)
-		{
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
-			{
-				loadFeedback(parser, feedbackList);
-			}
-			else if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
-			{
-				break; //jump out once we reach end tag for classes
-			}
-		}
-		parser.require(XmlPullParser.END_TAG, null, "strategy");
-
-		addFeedbackList
-	}
-
-	private void loadFeedback(XmlPullParser parser)
-	{
-		parser.require(XmlPullParser.START_TAG, null, "feedback");
-
-		String level_str = parser.getAttributeValue(null, "level");
-		int level = 0;
-		if (level_str != null)
-		{
-			level = Integer.parseInt(level_str);
-		}
-
-		String valence_str = parser.getAttributeValue(null, "valence");
-		if (valence_str != null)
-		{
-			valence = FeedbackClass.Valence.valueOf(valence_str);
-		}
-
-		while (parser.next() != XmlPullParser.END_DOCUMENT)
-		{
-			if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("condition"))
-			{
-				condition = Condition.create(parser, context);
-			}
-			else if (xml.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("action"))
-			{
-				action = Action.create(type, parser, context);
-			}
-			else if (xml.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
-			{
-				break; //jump out once we reach end tag
-			}
-		}
-	}
-
-	private class ThresholdRange
-	{
-		private final int lowerBound;
-		private final int upperBound;
-
-		public ThresholdRange(int lowerBound, int upperBound)
-		{
-			this.lowerBound = lowerBound;
-			this.upperBound = upperBound;
-		}
-
-		@Override
-		public boolean equals(Object object)
-		{
-			if (!(object instanceof ThresholdRange))
-			{
-				return false;
-			}
-
-			return ((ThresholdRange) object).getLowerBound() == lowerBound &&
-					((ThresholdRange) object).getUpperBound() == upperBound;
-		}
-
-		protected boolean intersects(ThresholdRange thresholdRange)
-		{
-			boolean isLower = thresholdRange.getLowerBound() < lowerBound && thresholdRange.getLowerBound() < upperBound;
-			boolean isUpper = thresholdRange.getUpperBound() > lowerBound && thresholdRange.getUpperBound() > upperBound;
-			return !(isLower || isUpper);
-		}
-
-		public int getLowerBound()
-		{
-			return lowerBound;
-		}
-
-		public int getUpperBound()
-		{
-			return upperBound;
-		}
-	}
-*/
 }

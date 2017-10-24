@@ -149,7 +149,7 @@ public class FileDialog extends DialogFragment
                                     int pos = listView.getCheckedItemPosition();
                                     if (pos > AbsListView.INVALID_POSITION)
                                     {
-                                        StrategyLoader.loadStrategyFile(xmlFiles[pos]);
+                                        (new StrategyLoader(xmlFiles[pos])).load();
                                     }
                                 }
 							}
