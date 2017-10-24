@@ -79,7 +79,7 @@ public class ThresholdClassEventSender extends Consumer
 	{
 		if (stream_in[0].dim != 1)
 		{
-			throw new RuntimeException("Dimension != 1 unsupported");
+			_frame.error(_name, "Dimension != 1 unsupported");
 		}
 
 		makeThresholdList();
@@ -93,12 +93,14 @@ public class ThresholdClassEventSender extends Consumer
 
 		if (classes == null || thresholds == null)
 		{
-			throw new RuntimeException("classes and thresholds not correctly set");
+			_frame.error(_name, "classes and thresholds not correctly set");
+			return;
 		}
 
 		if (classes.length != thresholds.length)
 		{
-			throw new RuntimeException("number of classes do not match number of thresholds");
+			_frame.error(_name, "number of classes do not match number of thresholds");
+			return;
 		}
 
 		thresholdList = new ArrayList<>();

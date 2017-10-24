@@ -74,7 +74,7 @@ public class SSITransformer extends Transformer
         ssi_object = SSI.create(options.name.get().toString(), options.name.get().lib, FileCons.INTERNAL_LIB_DIR);
         if(ssi_object == 0)
         {
-            Log.e("error creating SSI transformer");
+            _frame.error(_name, "error creating SSI transformer");
             return;
         }
 

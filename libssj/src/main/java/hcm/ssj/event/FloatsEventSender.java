@@ -64,7 +64,7 @@ public class FloatsEventSender extends Consumer
     public void enter(Stream[] stream_in)
     {
         if (stream_in[0].type != Cons.Type.FLOAT) {
-            throw new RuntimeException("type "+ stream_in[0].type +" not supported");
+            _frame.error(_name, "type "+ stream_in[0].type +" not supported");
         }
     }
 

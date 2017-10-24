@@ -98,12 +98,12 @@ public class FileWriter extends Consumer implements IFileWriter
     {
         if (stream_in.length > 1 || stream_in.length < 1)
         {
-            Log.e("stream count not supported");
+            _frame.error(_name, "stream count not supported");
             return;
         }
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
-            Log.e("stream type not supported");
+            _frame.error(_name, "stream type not supported");
             return;
         }
         //create file

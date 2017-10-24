@@ -73,7 +73,7 @@ public class BluetoothChannel extends SensorChannel
     public void enter(Stream stream_out) {
 
         if(options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
-            Log.e("input channel not configured");
+            _frame.error(_name, "input channel not configured");
     }
 
     @Override

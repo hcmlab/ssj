@@ -45,6 +45,6 @@ public class ThreadPool extends java.util.concurrent.ThreadPoolExecutor {
         super.afterExecute(r, t);
 
         if(t != null)
-            Pipeline.getInstance().crash(r.getClass().getSimpleName(), "uncaught exception", t);
+            Pipeline.getInstance().error(r.getClass().getSimpleName(), "uncaught exception", t);
     }
 }

@@ -97,13 +97,13 @@ public class BluetoothEventWriter extends EventHandler
             }
         } catch (Exception e)
         {
-            Log.e("error in setting up connection", e);
+            _frame.error(_name, "error in setting up connection", e);
             return;
         }
 
         BluetoothDevice dev = _conn.getRemoteDevice();
         if(dev == null) {
-            Log.e("cannot retrieve remote device");
+            _frame.error(_name, "cannot retrieve remote device");
             return;
         }
 

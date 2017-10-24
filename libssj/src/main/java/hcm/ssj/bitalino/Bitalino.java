@@ -103,7 +103,7 @@ public class Bitalino extends Sensor
 		if(options.address.get() != null && !options.address.get().equals(""))
 		{
 			if (!BluetoothAdapter.checkBluetoothAddress(options.address.get())) {
-				Log.e("invalid MAC address: " + options.address.get());
+				_frame.error(_name, "invalid MAC address: " + options.address.get());
 				return false;
 			}
 

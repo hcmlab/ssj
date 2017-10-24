@@ -55,7 +55,7 @@ public abstract class EventHandler extends Component implements EventListener {
     {
         if(_evchannel_in == null && _evchannel_out == null)
         {
-            Log.e("no event channel has been registered");
+            _frame.error(_name, "no event channel has been registered");
             return;
         }
 
@@ -70,7 +70,7 @@ public abstract class EventHandler extends Component implements EventListener {
         try {
             enter();
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
+            _frame.error(_name, "exception in enter", e);
         }
 
         //wait for framework
@@ -89,14 +89,14 @@ public abstract class EventHandler extends Component implements EventListener {
                 process();
                 if(_doWakeLock) wakeLock.release();
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(_name, "exception in loop", e);
             }
         }
 
         try {
             flush();
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
+            _frame.error(_name, "exception in flush", e);
         }
 
         _safeToKill = true;

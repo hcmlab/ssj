@@ -87,7 +87,7 @@ public class BluetoothWriter extends Consumer {
             }
         } catch (Exception e)
         {
-            Log.e("error in setting up connection "+ options.connectionName, e);
+            _frame.error(_name, "error in setting up connection "+ options.connectionName, e);
             return;
         }
 

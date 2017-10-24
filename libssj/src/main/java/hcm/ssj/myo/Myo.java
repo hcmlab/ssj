@@ -91,7 +91,7 @@ public class Myo extends Sensor
 				// Check if hub can be initialized
 				if (!hub.init(SSJApplication.getAppContext()))
 				{
-					Log.e("Could not initialize the Hub.");
+					_frame.error(_name, "Could not initialize the Hub.");
 				}
 				else
 				{
@@ -119,7 +119,7 @@ public class Myo extends Sensor
 					{
 						//Log.i("Connecting to nearest myo");
 						//hub.attachToAdjacentMyo(); //buggy, not usable
-						Log.e("Cannot connect, please specify MAC address of Myo.");
+						_frame.error(_name, "Cannot connect, please specify MAC address of Myo.");
 					}
 				}
 			}

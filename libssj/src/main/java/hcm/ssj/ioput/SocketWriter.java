@@ -94,7 +94,7 @@ public class SocketWriter extends Consumer {
         }
         catch (IOException e)
         {
-            Log.e("error in setting up connection", e);
+            _frame.error(_name, "error in setting up connection", e);
             return;
         }
 

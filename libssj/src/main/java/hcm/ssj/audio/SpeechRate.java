@@ -100,7 +100,7 @@ public class SpeechRate extends Consumer
         if((_intensity == null || _intensity.type != Cons.Type.FLOAT)
         || (_voiced == null || _voiced.type != Cons.Type.FLOAT))
         {
-            Log.e("invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
+            _frame.error(_name, "invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
             return;
         }
 
@@ -250,8 +250,6 @@ public class SpeechRate extends Consumer
 
     boolean overThreshold(float[] data, int length, int index, int width, double threshold, boolean isRelative, double av)
     {
-//        Log.i(index + " : " + data[index] +"\tAv1: " + av);
-
         if(data[index] < av) {
             return false;
         } else if(!isRelative) {
@@ -274,7 +272,6 @@ public class SpeechRate extends Consumer
                 sum += data[iStart];
             }
 
-//            Log.i("\t" + (sum / (double) count) + "\t" + (data[index] - sum / (double) count - threshold));
             return data[index] > sum / (double)count + threshold;
         }
     }

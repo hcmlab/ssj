@@ -79,7 +79,7 @@ public class SocketEventWriter extends EventHandler
     public void enter()
     {
         if(_evchannel_in == null || _evchannel_in.size() == 0)
-            throw new RuntimeException("no incoming event channels defined");
+            _frame.error(_name, "no incoming event channels defined");
 
         //start client
         String protocol = "";
@@ -99,7 +99,7 @@ public class SocketEventWriter extends EventHandler
         }
         catch (IOException e)
         {
-            Log.e("error in setting up connection", e);
+            _frame.error(_name, "error in setting up connection", e);
             return;
         }
 

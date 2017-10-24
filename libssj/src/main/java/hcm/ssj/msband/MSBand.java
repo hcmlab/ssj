@@ -157,11 +157,11 @@ public class MSBand extends Sensor
 			}
 			catch (InterruptedException | BandException e)
 			{
-				Log.e("Error while connecting to ms band", e);
+				_frame.error(_name, "Error while connecting to ms band", e);
 			}
 			catch (InvalidBandVersionException e)
 			{
-				Log.e("Old ms band version not supported", e);
+				_frame.error(_name, "Old ms band version not supported", e);
 			}
 		}
 

@@ -94,13 +94,11 @@ public class FFMPEGWriter extends Consumer
 	{
 		if (stream_in.length != 1)
 		{
-			Log.e("Stream count not supported");
-			return;
+			_frame.error(_name, "Stream count not supported");
 		}
 		if (stream_in[0].type != Cons.Type.IMAGE)
 		{
-			Log.e("Stream type not supported");
-			return;
+			_frame.error(_name, "Stream type not supported");
 		}
 
 		frameInterval = (int) (1.0 / stream_in[0].sr * 1000 + 0.5);

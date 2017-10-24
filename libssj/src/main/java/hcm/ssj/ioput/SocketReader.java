@@ -97,7 +97,7 @@ public class SocketReader extends Sensor
             }
             catch (SocketException e)
             {
-                Log.e("unable to determine local IP address", e);
+                _frame.error(_name, "unable to determine local IP address", e);
             }
         }
 
@@ -122,7 +122,7 @@ public class SocketReader extends Sensor
         }
         catch (IOException e)
         {
-            Log.e("ERROR: cannot bind/connect socket", e);
+            _frame.error(_name, "ERROR: cannot bind/connect socket", e);
             return false;
         }
 

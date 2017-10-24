@@ -59,7 +59,7 @@ public abstract class Transformer extends Provider {
     public void run()
     {
         if(!_isSetup) {
-            Log.e("not initialized");
+            _frame.error(this.getComponentName(), "not initialized");
             return;
         }
 
@@ -76,7 +76,7 @@ public abstract class Transformer extends Provider {
         try {
             enter(_stream_in, _stream_out);
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
+            _frame.error(this.getComponentName(), "exception in enter", e);
         }
 
         //wait for framework
@@ -121,14 +121,14 @@ public abstract class Transformer extends Provider {
                     _timer.sync();
                 }
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(this.getComponentName(), "exception in loop", e);
             }
         }
 
         try {
             flush(_stream_in, _stream_out);
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
+            _frame.error(this.getComponentName(), "exception in flush", e);
         }
         _safeToKill = true;
     }
