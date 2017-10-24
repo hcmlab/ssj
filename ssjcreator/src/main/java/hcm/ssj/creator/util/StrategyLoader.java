@@ -27,6 +27,7 @@
 
 package hcm.ssj.creator.util;
 
+import android.support.annotation.NonNull;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -37,13 +38,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.event.ThresholdClassEventSender;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
-
-import static android.R.attr.type;
 
 /**
  * Created by Antonio Grieco on 20.10.2017.
@@ -53,37 +54,121 @@ public class StrategyLoader
 {
 
 	private File strategyFile;
+	private List<StrategyFeedback> strategyFeedbackList = new ArrayList<>();
 
 	public StrategyLoader(File strategyFile)
 	{
 		this.strategyFile = strategyFile;
 	}
 
-	public void load()
+	public void load() throws IOException
 	{
-//		InputStream inputStream = new FileInputStream(strategyFile);
-//		XmlPullParser parser = Xml.newPullParser();
-//		parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-//
-//		parser.setInput(inputStream, null);
-//
-//		while (parser.next() != XmlPullParser.END_DOCUMENT)
-//		{
-//			switch (parser.getEventType())
-//			{
-//				case XmlPullParser.START_TAG:
-//					if (parser.getName().equalsIgnoreCase("strategy"))
-//					{
-//						loadStrategy(parser);
-//					}
-//					break;
-//			}
-//		}
-//		inputStream.close();
+		InputStream inputStream = null;
+		try
+		{
+			inputStream = new FileInputStream(strategyFile);
+			XmlPullParser parser = Xml.newPullParser();
+			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+			parser.setInput(inputStream, null);
+
+			while (parser.next() != XmlPullParser.END_DOCUMENT)
+			{
+				switch (parser.getEventType())
+				{
+					case XmlPullParser.START_TAG:
+						if (parser.getName().equalsIgnoreCase("strategy"))
+						{
+							loadStrategyComponents(parser);
+						}
+						break;
+				}
+			}
+		}
+		catch (XmlPullParserException | IOException e)
+		{
+			throw new RuntimeException("Could not load strategy!", e);
+		}
+		finally
+		{
+			if (inputStream != null)
+			{
+				inputStream.close();
+			}
+		}
+
+		addComponents();
 	}
-//
-//	private void loadStrategy(XmlPullParser parser) throws IOException, XmlPullParserException
-//	{
+
+	private void loadStrategyComponents(XmlPullParser parser) throws IOException, XmlPullParserException
+	{
+		parser.require(XmlPullParser.START_TAG, null, "strategy");
+		while (parser.next() != XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
+		{
+			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
+			{
+				loadNextFeedback(parser);
+			}
+		}
+	}
+
+	private void loadNextFeedback(XmlPullParser parser) throws IOException, XmlPullParserException
+	{
+		parser.require(XmlPullParser.START_TAG, null, "feedback");
+
+		// LEVEL
+		String level_str = parser.getAttributeValue(null, "level");
+		int level = 0;
+		if (level_str != null)
+		{
+			level = Integer.parseInt(level_str);
+		}
+
+		String valence_str = parser.getAttributeValue(null, "valence");
+		FeedbackCollection.LevelBehaviour levelBehaviour = FeedbackCollection.LevelBehaviour.Neutral;
+		if (valence_str != null)
+		{
+			if(valence_str.equalsIgnoreCase("desirable"))
+				levelBehaviour = FeedbackCollection.LevelBehaviour.Regress;
+			else if(valence_str.equalsIgnoreCase("undesirable"))
+				levelBehaviour = FeedbackCollection.LevelBehaviour.Progress;
+		}
+
+		while (parser.next() != XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
+		{
+			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("condition"))
+			{
+				double from = Double.parseDouble(parser.getAttributeValue(null, "from"));
+				double to = Double.parseDouble(parser.getAttributeValue(null, "to"));
+			}
+			else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("action"))
+			{
+
+			}
+		}
+	}
+
+	private void addComponents() {
+		// ThresholdClassEventSender
+		List<ThresholdClassEventSender> thresholdClassEventSenderList = getThresholdClassEventSender();
+
+		// FeedbackCollection
+		FeedbackCollection feedbackCollection = new FeedbackCollection();
+		PipelineBuilder.getInstance().add(feedbackCollection);
+		for(ThresholdClassEventSender thresholdClassEventSender : thresholdClassEventSenderList)
+		{
+			PipelineBuilder.getInstance().add(thresholdClassEventSender);
+			PipelineBuilder.getInstance().addEventProvider(feedbackCollection, thresholdClassEventSender);
+		}
+
+		// Feedbacks
+		for(StrategyFeedback strategyFeedback : strategyFeedbackList)
+		{
+			PipelineBuilder.getInstance().addFeedbackToCollectionContainer(feedbackCollection,
+																		   strategyFeedback.feedback,
+																		   strategyFeedback.level,
+																		   strategyFeedback.levelBehaviour);
+		}
+	}
 //		List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList = new ArrayList<>();
 //
 //		parser.require(XmlPullParser.START_TAG, null, "strategy");
@@ -138,46 +223,55 @@ public class StrategyLoader
 //			}
 //		}
 //	}
-//
-//	private class ThresholdRange
-//	{
-//		private final int lowerBound;
-//		private final int upperBound;
-//
-//		public ThresholdRange(int lowerBound, int upperBound)
-//		{
-//			this.lowerBound = lowerBound;
-//			this.upperBound = upperBound;
-//		}
-//
-//		@Override
-//		public boolean equals(Object object)
-//		{
-//			if (!(object instanceof ThresholdRange))
-//			{
-//				return false;
-//			}
-//
-//			return ((ThresholdRange) object).getLowerBound() == lowerBound &&
-//					((ThresholdRange) object).getUpperBound() == upperBound;
-//		}
-//
-//		protected boolean intersects(ThresholdRange thresholdRange)
-//		{
-//			boolean isLower = thresholdRange.getLowerBound() < lowerBound && thresholdRange.getLowerBound() < upperBound;
-//			boolean isUpper = thresholdRange.getUpperBound() > lowerBound && thresholdRange.getUpperBound() > upperBound;
-//			return !(isLower || isUpper);
-//		}
-//
-//		public int getLowerBound()
-//		{
-//			return lowerBound;
-//		}
-//
-//		public int getUpperBound()
-//		{
-//			return upperBound;
-//		}
-//	}
 
+	private class StrategyFeedback
+	{
+		final int level;
+		final ThresholdRange thresholdRange;
+		final Feedback feedback;
+		final FeedbackCollection.LevelBehaviour levelBehaviour;
+
+		private StrategyFeedback(int level,
+								 ThresholdRange thresholdRange,
+								 Feedback feedback,
+								 FeedbackCollection.LevelBehaviour levelBehaviour) {
+			this.level = level;
+			this.thresholdRange = thresholdRange;
+			this.feedback = feedback;
+			this.levelBehaviour = levelBehaviour;
+		}
+	}
+
+	private class ThresholdRange
+	{
+		final double lowerBound;
+		final double upperBound;
+
+		public ThresholdRange(double lowerBound, double upperBound)
+		{
+			this.lowerBound = lowerBound;
+			this.upperBound = upperBound;
+		}
+
+		public ThresholdRangeRelation compare(ThresholdRange other)
+		{
+			// CONGRUENT
+			if(other.lowerBound == lowerBound && other.upperBound == upperBound)
+				return ThresholdRangeRelation.CONGRUENT;
+			// COMPLETE_LOWER
+			else if(other.lowerBound<= lowerBound && other.upperBound <= lowerBound)
+				return ThresholdRangeRelation.COMPLETE_LOWER;
+			// COMPLETE_UPPER
+			else if(other.lowerBound >= upperBound && other.upperBound >= upperBound)
+				return ThresholdRangeRelation.COMPLETE_UPPER;
+			// INTERSECTING
+			else
+				return ThresholdRangeRelation.INTERSECTING;
+		}
+	}
+
+	private enum ThresholdRangeRelation
+	{
+		COMPLETE_LOWER, COMPLETE_UPPER, INTERSECTING, CONGRUENT;
+	}
 }
