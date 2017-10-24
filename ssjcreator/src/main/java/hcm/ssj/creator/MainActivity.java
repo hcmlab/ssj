@@ -633,18 +633,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
 			}
 		});
-
-		FloatingActionButton clear = (FloatingActionButton) findViewById(R.id.action_clear);
-		clear.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View view)
-			{
-				PipelineBuilder.getInstance().clear();
-				Annotation.getInstance().clear();
-				actualizeContent(Util.AppAction.CLEAR, null);
-			}
-		});
     }
 
 	/**
@@ -668,7 +656,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		final LinearLayout transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
 		final LinearLayout consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
 		final LinearLayout eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
-		final LinearLayout clearLayout = (LinearLayout) findViewById(R.id.clear_layout);
 
 		fab.setOnClickListener(new View.OnClickListener()
 		{
@@ -692,9 +679,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					eventHandlerLayout.setVisibility(View.GONE);
 					eventHandlerLayout.startAnimation(hideLayout);
 
-					clearLayout.setVisibility(View.GONE);
-					clearLayout.startAnimation(hideLayout);
-
 					fab.startAnimation(hideButton);
 					addButtonsVisible = false;
 				}
@@ -714,9 +698,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 					eventHandlerLayout.setVisibility(View.VISIBLE);
 					eventHandlerLayout.startAnimation(showLayout);
-
-					clearLayout.setVisibility(View.VISIBLE);
-					clearLayout.startAnimation(showLayout);
 
 					fab.startAnimation(showButton);
 					addButtonsVisible = true;
