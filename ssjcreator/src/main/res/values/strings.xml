@@ -37,7 +37,7 @@
     <string name="str_sensor_channels">Sensor Channels</string>
     <string name="str_transformers">Transformers</string>
     <string name="str_consumers">Consumers</string>
-    <string name="str_eventhandlers">EventHandlers</string>
+    <string name="str_eventhandlers">Event Handlers</string>
     <!--file menu-->
     <string name="str_configMenu">Menu</string>
     <string name="str_save">Save</string>

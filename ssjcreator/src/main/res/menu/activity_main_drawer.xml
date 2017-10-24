@@ -38,7 +38,7 @@
             android:title="@string/str_save" />
         <item
             android:id="@+id/action_load"
-            android:icon="@drawable/ic_add_box_black_24dp"
+            android:icon="@drawable/ic_exit_to_app_white_24dp"
             android:title="@string/str_load" />
         <item
             android:id="@+id/action_delete"
