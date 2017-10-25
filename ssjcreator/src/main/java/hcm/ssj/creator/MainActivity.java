@@ -50,8 +50,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -69,7 +67,6 @@ import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.SSJDescriptor;
@@ -486,7 +483,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		{
 			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
 			startActivity(intent);
-			item.setChecked(false);
 		}
 		else if (itemId == R.id.action_save)
 		{
@@ -573,7 +569,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		final Animation showButton = AnimationUtils.loadAnimation(MainActivity.this,
 																  R.anim.show_button);
 		final Animation hideButton = AnimationUtils.loadAnimation(MainActivity.this,
-															R.anim.hide_button);
+																  R.anim.hide_button);
 		final Animation showLayout = AnimationUtils.loadAnimation(MainActivity.this,
 																  R.anim.show_layout);
 		final Animation hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
