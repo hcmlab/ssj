@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
@@ -79,37 +80,42 @@ public class SpeechRate extends Consumer
     }
 
     @Override
-    public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
     {
         for(Stream s : stream_in)
         {
             if (_intensity_ind < 0)
             {
                 _intensity_ind = s.findDataClass("Intensity");
-                if (_intensity_ind >= 0)
-                    _intensity = s;
+				if (_intensity_ind >= 0)
+				{
+					_intensity = s;
+				}
             }
             if (_voiced_ind < 0)
             {
                 _voiced_ind = s.findDataClass("VoicedProb");
-                if (_voiced_ind >= 0)
-                    _voiced = s;
+				if (_voiced_ind >= 0)
+				{
+					_voiced = s;
+				}
             }
         }
 
         if((_intensity == null || _intensity.type != Cons.Type.FLOAT)
         || (_voiced == null || _voiced.type != Cons.Type.FLOAT))
         {
-            _frame.error(_name, "invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
-            return;
+            throw new SSJFatalException("invalid input configuration. SPL Energy (double) and VoicedProb (float) is required.");
         }
 
-        if(_evchannel_out == null)
-            Log.e("no outgoing event channel has been registered");
+		if (_evchannel_out == null)
+		{
+			Log.e("no outgoing event channel has been registered");
+		}
     }
 
     @Override
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in) throws SSJFatalException
     {
         float[] intensity = _intensity.select(_intensity_ind).ptrF();
         float[] voiced = _voiced.ptrF();
@@ -132,11 +138,15 @@ public class SpeechRate extends Consumer
             t = _intensity.time + i * _intensity.step;
             j = (int)((t - _voiced.time) / _voiced.step);
 
-            if(j >= _voiced.num)
+            if (j >= _voiced.num)
+            {
                 j = _voiced.num - 1;
+            }
 
             if (voiced[j * _voiced.dim + _voiced_ind] < options.thresholdVoicedProb.get())
+            {
                 peak.remove();
+            }
         }
 
         double duration = stream_in[0].num / stream_in[0].sr;
@@ -156,7 +166,7 @@ public class SpeechRate extends Consumer
 
 
     @Override
-    public void flush(Stream[] stream_in)
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {}
 
     /**

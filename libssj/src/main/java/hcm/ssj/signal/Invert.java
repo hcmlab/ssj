@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -58,12 +59,12 @@ public class Invert extends Transformer {
     }
 
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
     }
 
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] out = stream_out.ptrF();
 
@@ -95,7 +96,7 @@ public class Invert extends Transformer {
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {}
 
     @Override

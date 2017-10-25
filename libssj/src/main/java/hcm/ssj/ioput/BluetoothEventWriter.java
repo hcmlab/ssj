@@ -37,6 +37,7 @@ import java.util.UUID;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
@@ -78,10 +79,13 @@ public class BluetoothEventWriter extends EventHandler
     }
 
     @Override
-    public void enter() {
+	public void enter() throws SSJFatalException
+	{
 
-        if(_evchannel_in == null || _evchannel_in.size() == 0)
-            throw new RuntimeException("no incoming event channels defined");
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
+			throw new RuntimeException("no incoming event channels defined");
+		}
 
         try {
             switch(options.connectionType.get())
@@ -97,14 +101,12 @@ public class BluetoothEventWriter extends EventHandler
             }
         } catch (Exception e)
         {
-            _frame.error(_name, "error in setting up connection", e);
-            return;
+            throw new SSJFatalException("error in setting up connection", e);
         }
 
         BluetoothDevice dev = _conn.getRemoteDevice();
         if(dev == null) {
-            _frame.error(_name, "cannot retrieve remote device");
-            return;
+            throw new SSJFatalException("cannot retrieve remote device");
         }
 
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
@@ -116,10 +118,12 @@ public class BluetoothEventWriter extends EventHandler
     }
 
     @Override
-    protected void process()
+    protected void process() throws SSJFatalException
     {
         if (!_connected || !_conn.isConnected())
+        {
             return;
+        }
 
         _builder.delete(0, _builder.length());
 
@@ -132,7 +136,9 @@ public class BluetoothEventWriter extends EventHandler
         {
             Event ev = _evchannel_in.get(i).getEvent(_evID[i], false);
             if (ev == null)
+            {
                 continue;
+            }
 
             _evID[i] = ev.id + 1;
             count++;
@@ -167,7 +173,8 @@ public class BluetoothEventWriter extends EventHandler
     }
 
     @Override
-    public void flush() {
+    public void flush() throws SSJFatalException
+    {
         _connected = false;
 
         try {

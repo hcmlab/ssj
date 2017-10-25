@@ -60,6 +60,7 @@ import java.util.Map;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -94,10 +95,12 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public boolean connect()
+	public boolean connect() throws SSJFatalException
 	{
-		if(options.apiKey.get() == null || options.apiKey.get().length() == 0)
-			_frame.error(_name, "invalid apiKey - you need to set the apiKey in the sensor options");
+		if (options.apiKey.get() == null || options.apiKey.get().length() == 0)
+		{
+			throw new SSJFatalException("invalid apiKey - you need to set the apiKey in the sensor options");
+		}
 
 		// Create data listener
 		listener = new EmpaticaListener();
@@ -110,7 +113,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 		catch (IOException e)
 		{
-			_frame.error(_name, "error in applying certificates - empatica needs to connect to the server once a month to validate", e);
+			throw new SSJFatalException("error in applying certificates - empatica needs to connect to the server once a month to validate", e);
 		}
 
 		// Empatica device manager must be initialized in the main ui thread

@@ -31,6 +31,7 @@ import java.util.EnumSet;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -61,16 +62,16 @@ public class ValueEventSender extends Consumer
 	}
 
 	@Override
-	public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
 	{
 		if (!EnumSet.of(Cons.Type.BYTE, Cons.Type.CHAR, Cons.Type.SHORT, Cons.Type.INT, Cons.Type.LONG, Cons.Type.FLOAT, Cons.Type.DOUBLE, Cons.Type.BOOL).contains(stream_in[0].type))
 		{
-			_frame.error(_name, "type "+ stream_in[0].type +" not supported");
+			throw new SSJFatalException("type "+ stream_in[0].type +" not supported");
 		}
 	}
 
 	@Override
-	protected void consume(Stream[] stream_in)
+	protected void consume(Stream[] stream_in) throws SSJFatalException
 	{
 		Event ev = Event.create(stream_in[0].type);
 		ev.name = options.event.get();

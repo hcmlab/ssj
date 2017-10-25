@@ -39,6 +39,7 @@ import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
 
@@ -73,13 +74,13 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
      * @param inputBuf  ByteBuffer
      * @param frameData byte[]
      */
-    protected abstract void fillBuffer(ByteBuffer inputBuf, byte[] frameData);
+    protected abstract void fillBuffer(ByteBuffer inputBuf, byte[] frameData) throws IOException;
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public void flush(Stream stream_in[])
+    public void flush(Stream stream_in[]) throws SSJFatalException
     {
         releaseEncoder();
         aByShuffle = null;
@@ -116,7 +117,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
      * @param mimeType    String
      * @param filePath    String
      */
-    protected final void prepareEncoder(MediaFormat mediaFormat, String mimeType, String filePath)
+    protected final void prepareEncoder(MediaFormat mediaFormat, String mimeType, String filePath) throws IOException
     {
         //create and start encoder
         try
@@ -127,7 +128,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             aByteBufferInput = mediaCodec.getInputBuffers();
         } catch (IOException ex)
         {
-            _frame.error(_name, "MediaCodec creation failed", ex);
+            throw new IOException("MediaCodec creation failed", ex);
         }
         //create muxer
         try
@@ -135,7 +136,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             mediaMuxer = new MediaMuxer(filePath, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } catch (IOException ex)
         {
-            _frame.error(_name, "MediaMuxer creation failed", ex);
+            throw new IOException("MediaMuxer creation failed", ex);
         }
         iTrackIndex = -1;
         bMuxerStarted = false;
@@ -167,7 +168,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
     /**
      * @param frameData byte[]
      */
-    protected final void encode(byte[] frameData)
+    protected final void encode(byte[] frameData) throws IOException
     {
         int inputBufIndex = mediaCodec.dequeueInputBuffer(TIMEOUT_USEC);
         if (inputBufIndex >= 0)
@@ -177,8 +178,9 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
             //the buffer should be sized to hold one full frame
             if (inputBuf.capacity() < frameData.length)
             {
-                _frame.error(_name, "Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
-            } else
+                throw new IOException("Buffer capacity too small: " + inputBuf.capacity() + "\tdata: " + frameData.length);
+            }
+            else
             {
                 inputBuf.clear();
                 fillBuffer(inputBuf, frameData);

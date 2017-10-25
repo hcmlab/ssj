@@ -30,7 +30,6 @@ package hcm.ssj.core;
 /**
  * Created by Johnny on 20.10.2016.
  */
-
 public class SSJException extends Exception {
 
     public SSJException() {}

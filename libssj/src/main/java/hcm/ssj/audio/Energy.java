@@ -29,6 +29,7 @@ package hcm.ssj.audio;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -65,12 +66,14 @@ public class Energy extends Transformer {
     }
 
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         Stream audio = null;
         for(Stream s : stream_in) {
-            if (s.findDataClass("Audio") >= 0)
-                audio = s;
+			if (s.findDataClass("Audio") >= 0)
+			{
+				audio = s;
+			}
         }
         if(audio == null) {
             Log.w("invalid input stream");
@@ -79,7 +82,7 @@ public class Energy extends Transformer {
     }
 
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] data = stream_in[0].ptrF();
         float[] out = stream_out.ptrF();
@@ -103,7 +106,7 @@ public class Energy extends Transformer {
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {}
 
     @Override

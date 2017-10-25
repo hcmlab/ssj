@@ -37,6 +37,7 @@ import java.util.Set;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -88,7 +89,7 @@ public class Bitalino extends Sensor
 	}
 
 	@Override
-	protected boolean connect()
+	protected boolean connect() throws SSJFatalException
 	{
 		boolean connected = false;
 
@@ -103,8 +104,7 @@ public class Bitalino extends Sensor
 		if(options.address.get() != null && !options.address.get().equals(""))
 		{
 			if (!BluetoothAdapter.checkBluetoothAddress(options.address.get())) {
-				_frame.error(_name, "invalid MAC address: " + options.address.get());
-				return false;
+				throw new SSJFatalException("invalid MAC address: " + options.address.get());
 			}
 
 			address = options.address.get();
@@ -146,16 +146,24 @@ public class Bitalino extends Sensor
 
 				int[] analogue_channels = new int[channels.size()];
 				int i = 0;
-				for(Integer ch : channels)
+				for (Integer ch : channels)
+				{
 					analogue_channels[i++] = ch;
+				}
 
 				int sr = options.sr.get();
-				if(sr > 100)
+				if (sr > 100)
+				{
 					sr = 1000;
-				else if(sr > 10)
+				}
+				else if (sr > 10)
+				{
 					sr = 100;
-				else if(sr > 1)
+				}
+				else if (sr > 1)
+				{
 					sr = 10;
+				}
 
 				connected = client.start(analogue_channels, sr);
 

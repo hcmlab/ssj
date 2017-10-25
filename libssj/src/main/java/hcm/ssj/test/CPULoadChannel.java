@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -70,14 +71,14 @@ public class CPULoadChannel extends SensorChannel
 
 
     @Override
-    public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
     {
         //set delay to be < frame window since top is blocking
         cmd = "top -n 1 -m 10 -d " + (1.0 / options.sampleRate.get()) * 0.9;
     }
 
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
         stream_out.ptrF()[0] = getCPULoad(cmd, options.packagename.get());
         return true;
@@ -122,7 +123,7 @@ public class CPULoadChannel extends SensorChannel
     }
 
     @Override
-    public void flush(Stream stream_out)
+    public void flush(Stream stream_out) throws SSJFatalException
     {
     }
 

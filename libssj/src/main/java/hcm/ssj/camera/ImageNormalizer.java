@@ -28,6 +28,7 @@
 package hcm.ssj.camera;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -67,7 +68,7 @@ public class ImageNormalizer extends Transformer
 	}
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		// Get image dimensions
 		width = ((ImageStream) stream_in[0]).width;
@@ -75,7 +76,7 @@ public class ImageNormalizer extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		// Convert byte array to integer array
 		int[] rgb = CameraUtil.decodeBytes(stream_in[0].ptrB(), width, height);

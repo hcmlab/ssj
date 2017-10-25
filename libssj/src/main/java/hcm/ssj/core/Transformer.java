@@ -59,14 +59,13 @@ public abstract class Transformer extends Provider {
     public void run()
     {
         if(!_isSetup) {
-            _frame.error(this.getComponentName(), "not initialized");
+            _frame.error(this.getComponentName(), "not initialized", null);
             return;
         }
 
         android.os.Process.setThreadPriority(threadPriority);
         PowerManager mgr = (PowerManager)SSJApplication.getAppContext().getSystemService(Context.POWER_SERVICE);
         PowerManager.WakeLock wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, _name);
-
 
         //clear data
         Arrays.fill(_readPos, 0);
@@ -75,6 +74,10 @@ public abstract class Transformer extends Provider {
 
         try {
             enter(_stream_in, _stream_out);
+        } catch(SSJFatalException e) {
+            _frame.error(this.getComponentName(), "exception in enter", e);
+            _safeToKill = true;
+            return;
         } catch(Exception e) {
             _frame.error(this.getComponentName(), "exception in enter", e);
         }
@@ -120,6 +123,10 @@ public abstract class Transformer extends Provider {
                     //maintain update rate
                     _timer.sync();
                 }
+            } catch(SSJFatalException e) {
+                _frame.error(this.getComponentName(), "exception in loop", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
                 _frame.error(this.getComponentName(), "exception in loop", e);
             }
@@ -141,17 +148,17 @@ public abstract class Transformer extends Provider {
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
      */
-    public void enter(Stream[] stream_in, Stream stream_out) {}
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException {}
 
     /**
      * main processing method
      */
-    public abstract void transform(Stream[] stream_in, Stream stream_out);
+    public abstract void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException;
 
     /**
      * called once prior to termination
      */
-    public void flush(Stream[] stream_in, Stream stream_out) {}
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException {}
 
     /**
      * general transformer initialization

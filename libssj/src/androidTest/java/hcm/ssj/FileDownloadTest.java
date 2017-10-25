@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.IOException;
 
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.file.FileCons;
@@ -61,7 +62,14 @@ public class FileDownloadTest
 	public void downloadTrainerFile()
 	{
 		File file = null;
-		Pipeline.getInstance().download(trainer, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		try
+		{
+			Pipeline.getInstance().download(trainer, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		file = new File(FileCons.DOWNLOAD_DIR, trainer);
 
 		assertTrue(file.exists());
@@ -72,7 +80,14 @@ public class FileDownloadTest
 	public void downloadModelFile()
 	{
 		File file = null;
-		Pipeline.getInstance().download(model, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		try
+		{
+			Pipeline.getInstance().download(model, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		file = new File(FileCons.DOWNLOAD_DIR, model);
 
 		assertTrue(file.exists());
@@ -83,7 +98,14 @@ public class FileDownloadTest
 	public void downloadOptionFile()
 	{
 		File file = null;
-		Pipeline.getInstance().download(option, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		try
+		{
+			Pipeline.getInstance().download(option, assetsURL, FileCons.DOWNLOAD_DIR, true);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		file = new File(FileCons.DOWNLOAD_DIR, option);
 
 		assertTrue(file.exists());

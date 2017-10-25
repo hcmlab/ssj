@@ -35,6 +35,7 @@ import com.angel.sdk.BleScanner;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 
 public class AngelSensor extends Sensor
@@ -74,7 +75,7 @@ public class AngelSensor extends Sensor
 	}
 
 	@Override
-	public boolean connect()
+	public boolean connect() throws SSJFatalException
 	{
 		listener = new AngelSensorListener();
 

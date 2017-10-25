@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -68,16 +69,20 @@ public class Merge extends Transformer
     }
 
     /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
+	 * @param stream_in  Stream[]
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         //check for valid stream
-        for(Stream s : stream_in)
-            if(stream_in[0].type != s.type || stream_in[0].sr != s.sr || stream_in[0].num != s.num)
-                Log.e("input streams are incompatible");
+		for (Stream s : stream_in)
+		{
+			if (stream_in[0].type != s.type || stream_in[0].sr != s.sr || stream_in[0].num != s.num)
+			{
+				Log.e("input streams are incompatible");
+			}
+		}
     }
 
     /**
@@ -85,7 +90,7 @@ public class Merge extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         for (int i = 0, z = 0; i < stream_in[0].num; i++)
         {

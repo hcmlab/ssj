@@ -32,6 +32,7 @@ import android.media.MediaRecorder;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -71,19 +72,23 @@ public class AudioChannel extends SensorChannel
     }
 
     @Override
-    public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
     {
         //setup android audio middleware
         _recorder = new AudioRecord(MediaRecorder.AudioSource.MIC, options.sampleRate.get(), options.channelConfig.get().val, options.audioFormat.get().val, stream_out.tot*10);
 
         int state = _recorder.getState();
-        if(state != 1)
-            Log.w("unexpected AudioRecord state = " + state);
+		if (state != 1)
+		{
+			Log.w("unexpected AudioRecord state = " + state);
+		}
 
         if(options.scale.get())
         {
-            if(options.audioFormat.get() != Cons.AudioFormat.ENCODING_PCM_8BIT && options.audioFormat.get() != Cons.AudioFormat.ENCODING_PCM_16BIT)
-                Log.e("unsupported audio format for normalization");
+			if (options.audioFormat.get() != Cons.AudioFormat.ENCODING_PCM_8BIT && options.audioFormat.get() != Cons.AudioFormat.ENCODING_PCM_16BIT)
+			{
+				Log.e("unsupported audio format for normalization");
+			}
 
             int numBytes = Microphone.audioFormatSampleBytes(options.audioFormat.get().val);
             _data = new byte[stream_out.num * stream_out.dim * numBytes];
@@ -95,7 +100,7 @@ public class AudioChannel extends SensorChannel
     }
 
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
         if(!options.scale.get())
         {
@@ -147,7 +152,7 @@ public class AudioChannel extends SensorChannel
     }
 
     @Override
-    public void flush(Stream stream_out)
+    public void flush(Stream stream_out) throws SSJFatalException
     {
         _recorder.stop();
         _recorder.release();

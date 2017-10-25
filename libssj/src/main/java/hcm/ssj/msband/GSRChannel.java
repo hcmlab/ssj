@@ -30,6 +30,8 @@ package hcm.ssj.msband;
 import com.microsoft.band.sensors.GsrSampleRate;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -60,28 +62,34 @@ public class GSRChannel extends SensorChannel
 	}
 
 	@Override
-	public void init()
+	public void init() throws SSJException
 	{
 		GsrSampleRate sr;
-		if(options.sampleRate.get() <= 0.2)
+		if (options.sampleRate.get() <= 0.2)
+		{
 			sr = GsrSampleRate.MS5000;
+		}
 		else
+		{
 			sr = GsrSampleRate.MS200;
+		}
 
 		((MSBand)_sensor).configureChannel(MSBand.Channel.GSR, true, sr.ordinal());
 	}
 
 	@Override
-	public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((MSBand) _sensor).listener;
 	}
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
-		if(!_listener.isConnected())
+		if (!_listener.isConnected())
+		{
 			return false;
+		}
 
 		float[] out = stream_out.ptrF();
 		out[0] = (float)_listener.getGsr();

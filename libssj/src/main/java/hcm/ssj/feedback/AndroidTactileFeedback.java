@@ -34,6 +34,7 @@ import java.util.Arrays;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
@@ -65,10 +66,12 @@ public class AndroidTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void enter() throws SSJFatalException
 	{
-		if(_evchannel_in == null || _evchannel_in.size() == 0)
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
 			throw new RuntimeException("no input channels");
+		}
 
 		vibrator = (Vibrator) SSJApplication.getAppContext().getSystemService(Context.VIBRATOR_SERVICE);
 		if (!vibrator.hasVibrator())
@@ -94,7 +97,7 @@ public class AndroidTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void flush()
+	public void flush() throws SSJFatalException
 	{
 		vibrator.cancel();
 	}

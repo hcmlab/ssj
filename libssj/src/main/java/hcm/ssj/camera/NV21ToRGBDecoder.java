@@ -31,6 +31,7 @@ import android.graphics.ImageFormat;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
@@ -54,7 +55,7 @@ public class NV21ToRGBDecoder extends Transformer
 	}
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		// Initialize image stream size
 		ImageStream imgstrm = (ImageStream)stream_in[0];
@@ -68,7 +69,7 @@ public class NV21ToRGBDecoder extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		// Fetch raw NV21 pixel data
 		byte[] nv21Data = stream_in[0].ptrB();

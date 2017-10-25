@@ -63,7 +63,8 @@ public abstract class Consumer extends Component {
     public void run()
     {
         if(!_isSetup) {
-            _frame.error(_name, "not initialized");
+            _frame.error(_name, "not initialized", null);
+            _safeToKill = true;
             return;
         }
 
@@ -82,6 +83,10 @@ public abstract class Consumer extends Component {
 
         try {
             enter(_stream_in);
+        } catch(SSJFatalException e) {
+            _frame.error(_name, "exception in enter", e);
+            _safeToKill = true;
+            return;
         } catch(Exception e) {
             _frame.error(_name, "exception in enter", e);
         }
@@ -149,6 +154,10 @@ public abstract class Consumer extends Component {
                 if(ok && !_triggeredByEvent)
                     _timer.sync();
 
+            } catch(SSJFatalException e) {
+                _frame.error(_name, "exception in loop", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
                 _frame.error(_name, "exception in loop", e);
             }
@@ -159,6 +168,7 @@ public abstract class Consumer extends Component {
         } catch(Exception e) {
             _frame.error(_name, "exception in flush", e);
         }
+
         _safeToKill = true;
     }
 
@@ -169,18 +179,19 @@ public abstract class Consumer extends Component {
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
+     * @throws SSJFatalException causes immediate pipeline termination
      */
-    public void enter(Stream stream_in[]) {}
+    public void enter(Stream stream_in[]) throws SSJFatalException {}
 
     /**
      * main processing method
      */
-    protected abstract void consume(Stream stream_in[]);
+    protected abstract void consume(Stream stream_in[]) throws SSJFatalException;
 
     /**
      * called once prior to termination
      */
-    public void flush(Stream stream_in[]) {}
+    public void flush(Stream stream_in[]) throws SSJFatalException {}
 
     public void setTriggeredByEvent(boolean value)
     {

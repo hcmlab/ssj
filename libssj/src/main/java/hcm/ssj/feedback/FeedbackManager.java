@@ -35,8 +35,6 @@ import android.widget.TableLayout;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -45,11 +43,11 @@ import java.util.List;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 import hcm.ssj.feedback.feedbackmanager.classes.FeedbackListener;
-import hcm.ssj.file.FileCons;
 
 /**
  * Created by Johnny on 02.12.2014.
@@ -97,7 +95,7 @@ public class FeedbackManager extends EventHandler
     }
 
     @Override
-    public void enter()
+	public void enter() throws SSJFatalException
     {
         lastDesireableState = lastUndesireableState = System.currentTimeMillis();
 
@@ -115,7 +113,8 @@ public class FeedbackManager extends EventHandler
     }
 
     @Override
-    public void process() {
+    public void process() throws SSJFatalException
+    {
 
         for(FeedbackClass i : classes)
         {
@@ -129,7 +128,7 @@ public class FeedbackManager extends EventHandler
         }
     }
 
-    public void flush()
+    public void flush() throws SSJFatalException
     {
         for(FeedbackClass f : classes)
         {

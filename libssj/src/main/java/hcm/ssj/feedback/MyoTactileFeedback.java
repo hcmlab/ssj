@@ -35,6 +35,7 @@ import com.thalmic.myo.Myo;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.myo.Vibrate2Command;
@@ -71,7 +72,7 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void enter() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -85,7 +86,14 @@ public class MyoTactileFeedback extends Feedback
 		{
 			myoConnector = new hcm.ssj.myo.Myo();
 			myoConnector.options.macAddress.set(options.deviceId.get());
-			myoConnector.connect();
+			try
+			{
+				myoConnector.connect();
+			}
+			catch (hcm.ssj.core.SSJFatalException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		long time = SystemClock.elapsedRealtime();
@@ -127,7 +135,7 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void flush()
+	public void flush() throws SSJFatalException
 	{
 		if (myoConnector != null)
 		{

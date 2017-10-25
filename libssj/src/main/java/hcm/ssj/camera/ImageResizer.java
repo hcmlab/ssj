@@ -31,10 +31,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 
-import java.util.Date;
-
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -83,7 +82,7 @@ public class ImageResizer extends Transformer
 
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		// Get image dimensions
 		width = ((ImageStream) stream_in[0]).width;
@@ -119,7 +118,7 @@ public class ImageResizer extends Transformer
 
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		if (size <= 0 || size >= width || size >= height)
 		{
@@ -133,12 +132,18 @@ public class ImageResizer extends Transformer
 		Bitmap bitmap;
 
 		if (options.cropImage.get())
+		{
 			bitmap = cropImage(rgb);
+		}
 		else
+		{
 			bitmap = resizeImage(rgb);
+		}
 
 		if (options.savePreview.get())
+		{
 			CameraUtil.saveBitmap(bitmap);
+		}
 
 		bitmapToByteArray(bitmap, stream_out.ptrB());
 	}

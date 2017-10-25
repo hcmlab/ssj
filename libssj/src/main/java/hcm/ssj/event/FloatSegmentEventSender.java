@@ -29,6 +29,7 @@ package hcm.ssj.event;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -59,15 +60,15 @@ public class FloatSegmentEventSender extends Consumer
     }
 
     @Override
-    public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in[0].type != Cons.Type.FLOAT) {
-            _frame.error(_name, "type "+ stream_in[0].type +" not supported");
+            throw new SSJFatalException("type "+ stream_in[0].type +" not supported");
         }
     }
 
     @Override
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in) throws SSJFatalException
     {
         float ptr[] = stream_in[0].ptrF();
 
@@ -85,7 +86,9 @@ public class FloatSegmentEventSender extends Consumer
             {
                 sum = 0;
                 for (int i = 0; i < stream_in[0].num; i++)
+                {
                     sum += ptr[i * stream_in[0].dim + j];
+                }
 
                 msg += String.valueOf(sum / stream_in[0].num) + " ";
             }
@@ -93,7 +96,9 @@ public class FloatSegmentEventSender extends Consumer
         else {
             for (int i = 0; i < stream_in[0].num; i++) {
                 for (int j = 0; j < stream_in[0].dim; j++)
+                {
                     msg += String.valueOf(ptr[i * stream_in[0].dim + j]) + " ";
+                }
             }
         }
 
@@ -102,6 +107,6 @@ public class FloatSegmentEventSender extends Consumer
     }
 
     @Override
-    public void flush(Stream[] stream_in)
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {}
 }

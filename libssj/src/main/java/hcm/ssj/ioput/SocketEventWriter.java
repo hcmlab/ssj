@@ -38,6 +38,7 @@ import java.util.Arrays;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.file.FileCons;
@@ -76,10 +77,12 @@ public class SocketEventWriter extends EventHandler
     }
 
     @Override
-    public void enter()
+	public void enter() throws SSJFatalException
     {
-        if(_evchannel_in == null || _evchannel_in.size() == 0)
-            _frame.error(_name, "no incoming event channels defined");
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
+            throw new SSJFatalException("no incoming event channels defined");
+		}
 
         //start client
         String protocol = "";
@@ -99,8 +102,7 @@ public class SocketEventWriter extends EventHandler
         }
         catch (IOException e)
         {
-            _frame.error(_name, "error in setting up connection", e);
-            return;
+            throw new SSJFatalException("error in setting up connection", e);
         }
 
         _buffer = new byte[Cons.MAX_EVENT_SIZE];
@@ -112,10 +114,12 @@ public class SocketEventWriter extends EventHandler
     }
 
     @Override
-    protected void process()
+    protected void process() throws SSJFatalException
     {
         if (!_connected)
+        {
             return;
+        }
 
         _builder.delete(0, _builder.length());
 
@@ -128,7 +132,9 @@ public class SocketEventWriter extends EventHandler
         {
             Event ev = _evchannel_in.get(i).getEvent(_evID[i], false);
             if (ev == null)
+            {
                 continue;
+            }
 
             count++;
             _evID[i] = ev.id + 1;
@@ -165,7 +171,7 @@ public class SocketEventWriter extends EventHandler
         }
     }
 
-    public void flush()
+    public void flush() throws SSJFatalException
     {
         _connected = false;
 

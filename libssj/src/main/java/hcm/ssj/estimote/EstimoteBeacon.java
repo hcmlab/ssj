@@ -39,6 +39,7 @@ import java.util.UUID;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -85,7 +86,7 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 	}
 
 	@Override
-	protected boolean connect()
+	protected boolean connect() throws SSJFatalException
 	{
 		Log.i("Connecting to estimote beacons");
 		connected = false;

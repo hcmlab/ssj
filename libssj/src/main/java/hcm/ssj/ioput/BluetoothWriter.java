@@ -35,6 +35,7 @@ import java.util.UUID;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -72,7 +73,8 @@ public class BluetoothWriter extends Consumer {
     }
 
     @Override
-    public void enter(Stream[] stream_in) {
+	public void enter(Stream[] stream_in) throws SSJFatalException
+	{
         try {
             switch(options.connectionType.get())
             {
@@ -87,8 +89,7 @@ public class BluetoothWriter extends Consumer {
             }
         } catch (Exception e)
         {
-            _frame.error(_name, "error in setting up connection "+ options.connectionName, e);
-            return;
+            throw new SSJFatalException("error in setting up connection "+ options.connectionName, e);
         }
 
         BluetoothDevice dev = _conn.getRemoteDevice();
@@ -97,17 +98,21 @@ public class BluetoothWriter extends Consumer {
             return;
         }
 
-        if(stream_in.length == 1)
-            _data = new byte[stream_in[0].tot];
+		if (stream_in.length == 1)
+		{
+			_data = new byte[stream_in[0].tot];
+		}
 
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
         _connected = true;
     }
 
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in) throws SSJFatalException
     {
         if (!_connected || !_conn.isConnected())
+        {
             return;
+        }
 
         try {
             if(stream_in.length == 1)
@@ -128,7 +133,7 @@ public class BluetoothWriter extends Consumer {
         }
     }
 
-    public void flush(Stream[] stream_in)
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {
         _connected = false;
 

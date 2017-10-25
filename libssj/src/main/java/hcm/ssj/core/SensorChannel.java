@@ -59,7 +59,8 @@ public abstract class SensorChannel extends Provider {
     public void run()
     {
         if(!_isSetup) {
-            _frame.error(this.getComponentName(), "not initialized");
+            _frame.error(this.getComponentName(), "not initialized", null);
+            _safeToKill = true;
             return;
         }
 
@@ -89,6 +90,10 @@ public abstract class SensorChannel extends Provider {
 
         try {
             enter(_stream_out);
+        } catch(SSJFatalException e) {
+            _frame.error(this.getComponentName(), "exception in enter", e);
+            _safeToKill = true;
+            return;
         } catch(Exception e) {
             _frame.error(this.getComponentName(), "exception in enter", e);
         }
@@ -107,6 +112,10 @@ public abstract class SensorChannel extends Provider {
                 wakeLock.release();
 
                 _timer.sync();
+            } catch(SSJFatalException e) {
+                _frame.error(this.getComponentName(), "exception in loop", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
                 _frame.error(this.getComponentName(), "exception in loop", e);
             }
@@ -131,22 +140,22 @@ public abstract class SensorChannel extends Provider {
     /**
      * early initialization specific to implementation (called by framework on instantiation)
      */
-    protected void init() {}
+    protected void init() throws SSJException {}
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start and after sensor connects)
      */
-    public void enter(Stream stream_out) {}
+    public void enter(Stream stream_out) throws SSJFatalException {}
 
     /**
      * main processing method
      */
-    protected abstract boolean process(Stream stream_out);
+    protected abstract boolean process(Stream stream_out) throws SSJFatalException;
 
     /**
      * called once prior to termination
      */
-    public void flush(Stream stream_out) {}
+    public void flush(Stream stream_out) throws SSJFatalException {}
 
     /**
      * general sensor initialization
