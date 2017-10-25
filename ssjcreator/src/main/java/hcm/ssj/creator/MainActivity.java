@@ -290,77 +290,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.mainmenu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
-            case R.id.action_sensors:
-            {
-                showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
-                return true;
-            }
-            case R.id.action_providers:
-            {
-                showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
-                return true;
-            }
-            case R.id.action_transformers:
-            {
-                showAddDialog(R.string.str_transformers, SSJDescriptor.getInstance().transformers);
-                return true;
-            }
-            case R.id.action_consumers:
-            {
-                showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
-                return true;
-            }
-            case R.id.action_eventhandlers:
-            {
-                showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
-                return true;
-            }
-			case R.id.action_clear:
-			{
-				PipelineBuilder.getInstance().clear();
-				Annotation.getInstance().clear();
-				actualizeContent(Util.AppAction.CLEAR, null);
-				return true;
-			}
-			case R.id.action_framework:
-			{
-				Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
-				startActivity(intent);
-				return true;
-			}
-            case R.id.action_save:
-            {
-                showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
-                return true;
-            }
-            case R.id.action_load:
-            {
-                showFileDialog(R.string.str_load, FileDialog.Type.LOAD, R.string.str_loadError);
-                return true;
-            }
-            case R.id.action_delete:
-            {
-                showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
-                return true;
-            }
-        }
-        return true;
-    }
-    */
 
     /**
      * @param resource int
@@ -557,6 +486,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		{
 			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
 			startActivity(intent);
+			item.setChecked(false);
 		}
 		else if (itemId == R.id.action_save)
 		{
@@ -572,11 +502,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		}
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		if (drawer.isDrawerOpen(GravityCompat.START))
-		{
-			drawer.closeDrawer(GravityCompat.START);
-		}
-		return true;
+		drawer.closeDrawer(GravityCompat.START);
+
+		return false;
 	}
 
 	/**
