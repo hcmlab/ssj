@@ -56,6 +56,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -86,7 +87,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //tabs
     private TabHandler tabHandler;
 
-    private boolean addButtonsVisible = false;
+    private boolean actionButtonsVisible = false;
+
+	private LinearLayout sensorLayout;
+	private LinearLayout sensorChannelLayout;
+	private LinearLayout transformerLayout;
+	private LinearLayout consumerLayout;
+	private LinearLayout eventHandlerLayout;
+
+	private Animation showButton;
+	private Animation hideButton;
+	private Animation showLayout;
+	private Animation hideLayout;
+
+	private FloatingActionButton fab;
 
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
@@ -114,6 +128,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void init()
     {
+    	// Initialize action button layouts with their corresponding event listeners.
+		initAddComponentButtons();
+		initActionButtonLayouts();
+		initFloatingActionButton();
+
         //init tabs
         tabHandler = new TabHandler(MainActivity.this);
         //handle permissions
@@ -411,8 +430,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         startTutorial();
         setContentView(R.layout.activity_main);
 
-		initAddComponentButtons();
-		initFloatingActionButton();
+        loadAnimations();
         init();
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -426,6 +444,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 		navigationView.setNavigationItemSelectedListener(this);
 
+		final TabHost tabHost = (TabHost) findViewById(R.id.id_tabHost);
+		tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+			@Override
+			public void onTabChanged(String s)
+			{
+				int currentTabId = tabHost.getCurrentTab();
+				FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+				// Show floating action button only if canvas tab is selected.
+				if (currentTabId == 0)
+				{
+					fab.show();
+				}
+				else
+				{
+					if (actionButtonsVisible)
+					{
+						hideActionButtons();
+					}
+					fab.hide();
+				}
+			}
+		});
     }
 
     /**
@@ -504,19 +545,57 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	}
 
 	/**
-	 * Initialize all floating action buttons and adds on-click listeners.
+	 * Initialize floating action button to show/hide SSJ component selection buttons.
+	 */
+	private void initFloatingActionButton()
+	{
+		fab = (FloatingActionButton) findViewById(R.id.fab);
+
+		fab.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if (actionButtonsVisible)
+				{
+					hideActionButtons();
+				}
+				else
+				{
+					showActionButtons();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Initialize all linear layouts that contain action buttons for SSJ component selection
+	 * and their corresponding text labels.
+	 */
+	private void initActionButtonLayouts()
+	{
+		sensorLayout = (LinearLayout) findViewById(R.id.sensor_layout);
+		sensorChannelLayout = (LinearLayout) findViewById(R.id.sensor_channel_layout);
+		transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
+		consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
+		eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+	}
+
+	/**
+	 * Initialize all action buttons for SSJ component selection and add corresponding event
+	 * listeners.
 	 */
 	private void initAddComponentButtons()
-    {
-        FloatingActionButton addSensor = (FloatingActionButton) findViewById(R.id.action_sensors);
-        addSensor.setOnClickListener(new View.OnClickListener()
+	{
+		FloatingActionButton addSensor = (FloatingActionButton) findViewById(R.id.action_sensors);
+		addSensor.setOnClickListener(new View.OnClickListener()
 		{
-            @Override
-            public void onClick(View view)
+			@Override
+			public void onClick(View view)
 			{
 				showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
-            }
-        });
+			}
+		});
 
 		FloatingActionButton addProvider = (FloatingActionButton) findViewById(R.id.action_providers);
 		addProvider.setOnClickListener(new View.OnClickListener()
@@ -557,77 +636,68 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
 			}
 		});
-    }
+	}
 
 	/**
-	 * Toggle visibility of action buttons.
+	 * Load animations that toggle visibility of action buttons.
 	 */
-	private void initFloatingActionButton()
+	private void loadAnimations()
 	{
-		final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+		showButton = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.show_button);
+		hideButton = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.hide_button);
+		showLayout = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.show_layout);
+		hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.hide_layout);
+	}
 
-		final Animation showButton = AnimationUtils.loadAnimation(MainActivity.this,
-																  R.anim.show_button);
-		final Animation hideButton = AnimationUtils.loadAnimation(MainActivity.this,
-																  R.anim.hide_button);
-		final Animation showLayout = AnimationUtils.loadAnimation(MainActivity.this,
-																  R.anim.show_layout);
-		final Animation hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
-																  R.anim.hide_layout);
+	/**
+	 * Animate appearance of action buttons.
+	 */
+	private void showActionButtons()
+	{
+		sensorLayout.setVisibility(View.VISIBLE);
+		sensorLayout.startAnimation(showLayout);
 
-		final LinearLayout sensorLayout = (LinearLayout) findViewById(R.id.sensor_layout);
-		final LinearLayout sensorChannelLayout = (LinearLayout) findViewById(R.id.sensor_channel_layout);
-		final LinearLayout transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
-		final LinearLayout consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
-		final LinearLayout eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+		sensorChannelLayout.setVisibility(View.VISIBLE);
+		sensorChannelLayout.startAnimation(showLayout);
 
-		fab.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View view)
-			{
-				if (addButtonsVisible)
-				{
-					sensorLayout.setVisibility(View.GONE);
-					sensorLayout.startAnimation(hideLayout);
+		transformerLayout.setVisibility(View.VISIBLE);
+		transformerLayout.startAnimation(showLayout);
 
-					sensorChannelLayout.setVisibility(View.GONE);
-					sensorChannelLayout.startAnimation(hideLayout);
+		consumerLayout.setVisibility(View.VISIBLE);
+		consumerLayout.startAnimation(showLayout);
 
-					transformerLayout.setVisibility(View.GONE);
-					transformerLayout.startAnimation(hideLayout);
+		eventHandlerLayout.setVisibility(View.VISIBLE);
+		eventHandlerLayout.startAnimation(showLayout);
 
-					consumerLayout.setVisibility(View.GONE);
-					consumerLayout.startAnimation(hideLayout);
+		fab.startAnimation(showButton);
+		actionButtonsVisible = true;
+	}
 
-					eventHandlerLayout.setVisibility(View.GONE);
-					eventHandlerLayout.startAnimation(hideLayout);
+	/**
+	 * Animate hiding of action buttons.
+	 */
+	private void hideActionButtons()
+	{
+		sensorLayout.setVisibility(View.GONE);
+		sensorLayout.startAnimation(hideLayout);
 
-					fab.startAnimation(hideButton);
-					addButtonsVisible = false;
-				}
-				else
-				{
-					sensorLayout.setVisibility(View.VISIBLE);
-					sensorLayout.startAnimation(showLayout);
+		sensorChannelLayout.setVisibility(View.GONE);
+		sensorChannelLayout.startAnimation(hideLayout);
 
-					sensorChannelLayout.setVisibility(View.VISIBLE);
-					sensorChannelLayout.startAnimation(showLayout);
+		transformerLayout.setVisibility(View.GONE);
+		transformerLayout.startAnimation(hideLayout);
 
-					transformerLayout.setVisibility(View.VISIBLE);
-					transformerLayout.startAnimation(showLayout);
+		consumerLayout.setVisibility(View.GONE);
+		consumerLayout.startAnimation(hideLayout);
 
-					consumerLayout.setVisibility(View.VISIBLE);
-					consumerLayout.startAnimation(showLayout);
+		eventHandlerLayout.setVisibility(View.GONE);
+		eventHandlerLayout.startAnimation(hideLayout);
 
-					eventHandlerLayout.setVisibility(View.VISIBLE);
-					eventHandlerLayout.startAnimation(showLayout);
-
-					fab.startAnimation(showButton);
-					addButtonsVisible = true;
-				}
-			}
-		});
-
+		fab.startAnimation(hideButton);
+		actionButtonsVisible = false;
 	}
 }
