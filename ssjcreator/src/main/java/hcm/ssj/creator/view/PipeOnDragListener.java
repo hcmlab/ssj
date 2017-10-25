@@ -179,12 +179,12 @@ class PipeOnDragListener implements View.OnDragListener
         }
         recycleBin = new ImageView(pipeView.getContext());
         recycleBin.setImageResource(android.R.drawable.ic_menu_delete);
-        //determine shown width of the view
+
+        // Determine shown width of the view
         Rect rectSizeDisplayed = new Rect();
         pipeView.getGlobalVisibleRect(rectSizeDisplayed);
-        int width = rectSizeDisplayed.width();
-        int height = rectSizeDisplayed.height();
-        //determine scroll changes
+
+        // Determine scroll changes
         int scrollX = 0, scrollY = 0;
         ViewParent viewParent = pipeView.getParent();
         if (viewParent != null && viewParent instanceof TwoDScrollView)
@@ -192,11 +192,13 @@ class PipeOnDragListener implements View.OnDragListener
             scrollX = ((TwoDScrollView) viewParent).getScrollX();
             scrollY = ((TwoDScrollView) viewParent).getScrollY();
         }
-        width += scrollX;
-        height += scrollY;
+
+        int height = rectSizeDisplayed.height() + scrollY;
         int gridBoxSize = pipeView.getGridBoxSize();
-        //place recycle bin
-        recycleBin.layout(width - (gridBoxSize * 3), height - (gridBoxSize * 3), width, height);
+
+        // Place recycle bin in the lower left corner of the canvas
+		recycleBin.layout(scrollX, height - (gridBoxSize * 3), scrollX + (gridBoxSize * 3), height);
+
         pipeView.addView(recycleBin);
     }
 
