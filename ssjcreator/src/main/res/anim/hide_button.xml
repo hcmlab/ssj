@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ activity_main.xml
+  ~ hide_button.xml
   ~ Copyright (c) 2017
   ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
   ~ Vitalijs Krumins, Antonio Grieco
@@ -26,22 +26,15 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+     android:fillAfter="true">
 
-    <include layout="@layout/app_bar_main" />
+    <rotate
+        android:duration="300"
+        android:fromDegrees="45"
+        android:interpolator="@android:anim/linear_interpolator"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:toDegrees="0" />
 
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
-
-</android.support.v4.widget.DrawerLayout>
+</set>

@@ -39,15 +39,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Menu;
-import android.view.MenuInflater;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.TabHost;
 import android.widget.Toast;
 
 import com.microsoft.band.tiles.TileButtonEvent;
@@ -71,13 +80,28 @@ import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 import hcm.ssj.creator.util.Util;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
 {
     private static boolean ready = true;
     private boolean firstStart = false;
     private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
     //tabs
     private TabHandler tabHandler;
+
+    private boolean actionButtonsVisible = false;
+
+	private LinearLayout sensorLayout;
+	private LinearLayout sensorChannelLayout;
+	private LinearLayout transformerLayout;
+	private LinearLayout consumerLayout;
+	private LinearLayout eventHandlerLayout;
+
+	private Animation showButton;
+	private Animation hideButton;
+	private Animation showLayout;
+	private Animation hideLayout;
+
+	private FloatingActionButton fab;
 
     private BroadcastReceiver msBandReceiver = new BroadcastReceiver()
     {
@@ -105,6 +129,11 @@ public class MainActivity extends AppCompatActivity
      */
     private void init()
     {
+    	// Initialize action button layouts with their corresponding event listeners.
+		initAddComponentButtons();
+		initActionButtonLayouts();
+		initFloatingActionButton();
+
         //init tabs
         tabHandler = new TabHandler(MainActivity.this);
         //handle permissions
@@ -291,83 +320,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     * @param menu Menu
-     * @return boolean
-     */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.mainmenu, menu);
-        return true;
-    }
-
-    /**
-     * @param item MenuItem
-     * @return boolean
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch (item.getItemId())
-        {
-            case R.id.action_framework:
-            {
-                Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
-                startActivity(intent);
-                return true;
-            }
-            case R.id.action_sensors:
-            {
-                showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
-                return true;
-            }
-            case R.id.action_providers:
-            {
-                showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
-                return true;
-            }
-            case R.id.action_transformers:
-            {
-                showAddDialog(R.string.str_transformers, SSJDescriptor.getInstance().transformers);
-                return true;
-            }
-            case R.id.action_consumers:
-            {
-                showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
-                return true;
-            }
-            case R.id.action_eventhandlers:
-            {
-                showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
-                return true;
-            }
-            case R.id.action_save:
-            {
-                showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
-                return true;
-            }
-            case R.id.action_load:
-            {
-                showFileDialog(R.string.str_load, FileDialog.Type.LOAD, R.string.str_loadError);
-                return true;
-            }
-            case R.id.action_delete:
-            {
-                showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
-                return true;
-            }
-            case R.id.action_clear:
-            {
-                PipelineBuilder.getInstance().clear();
-                Annotation.getInstance().clear();
-                actualizeContent(Util.AppAction.CLEAR, null);
-                return true;
-            }
-        }
-        return true;
-    }
 
     /**
      * @param resource int
@@ -453,9 +405,6 @@ public class MainActivity extends AppCompatActivity
         tabHandler.actualizeContent(appAction, o);
     }
 
-    /**
-     *
-     */
     @Override
     protected void onResume()
     {
@@ -467,18 +416,12 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    /**
-     *
-     */
     @Override
     protected void onPause()
     {
         super.onPause();
     }
 
-    /**
-     *
-     */
     @Override
     protected void onDestroy()
     {
@@ -494,30 +437,66 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
     }
 
-    /**
-     * @param savedInstanceState Bundle
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         startTutorial();
         setContentView(R.layout.activity_main);
+
+        loadAnimations();
         init();
+
+		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+		setSupportActionBar(toolbar);
+		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+				this, drawer, toolbar, R.string.drawer_open, R.string.drawer_close);
+		drawer.addDrawerListener(toggle);
+		toggle.syncState();
+
+		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+		navigationView.setNavigationItemSelectedListener(this);
+
+		final TabHost tabHost = (TabHost) findViewById(R.id.id_tabHost);
+		tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
+			@Override
+			public void onTabChanged(String s)
+			{
+				int currentTabId = tabHost.getCurrentTab();
+				FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+				// Show floating action button only if canvas tab is selected.
+				if (currentTabId == 0)
+				{
+					fab.show();
+				}
+				else
+				{
+					if (actionButtonsVisible)
+					{
+						hideActionButtons();
+					}
+					fab.hide();
+				}
+			}
+		});
     }
 
     /**
-     * Override back-button to function like home-button
+     * Close drawer if open otherwise go to app home screen.
      */
     @Override
     public void onBackPressed()
     {
-        moveTaskToBack(true);
+		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		if (drawer.isDrawerOpen(GravityCompat.START)) {
+			drawer.closeDrawer(GravityCompat.START);
+		} else {
+			moveTaskToBack(true);
+		}
     }
 
-    /**
-     *
-     */
     private void startTutorial()
     {
         //declare a new thread to do a preference check
@@ -549,4 +528,196 @@ public class MainActivity extends AppCompatActivity
         //start the thread
         t.start();
     }
+
+	@Override
+	public boolean onNavigationItemSelected(@NonNull MenuItem item)
+	{
+		int itemId = item.getItemId();
+
+		if (itemId == R.id.action_framework)
+		{
+			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+			startActivity(intent);
+		}
+		else if (itemId == R.id.action_save)
+		{
+			showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
+		}
+		else if (itemId == R.id.action_load)
+		{
+			showFileDialog(R.string.str_load, FileDialog.Type.LOAD, R.string.str_loadError);
+		}
+		else if (itemId == R.id.action_delete)
+		{
+			showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
+		}
+		else if (itemId == R.id.action_clear)
+		{
+			PipelineBuilder.getInstance().clear();
+			Annotation.getInstance().clear();
+			actualizeContent(Util.AppAction.CLEAR, null);
+		}
+
+		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+		drawer.closeDrawer(GravityCompat.START);
+
+		return false;
+	}
+
+	/**
+	 * Initialize floating action button to show/hide SSJ component selection buttons.
+	 */
+	private void initFloatingActionButton()
+	{
+		fab = (FloatingActionButton) findViewById(R.id.fab);
+
+		fab.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if (actionButtonsVisible)
+				{
+					hideActionButtons();
+				}
+				else
+				{
+					showActionButtons();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Initialize all linear layouts that contain action buttons for SSJ component selection
+	 * and their corresponding text labels.
+	 */
+	private void initActionButtonLayouts()
+	{
+		sensorLayout = (LinearLayout) findViewById(R.id.sensor_layout);
+		sensorChannelLayout = (LinearLayout) findViewById(R.id.sensor_channel_layout);
+		transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
+		consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
+		eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+	}
+
+	/**
+	 * Initialize all action buttons for SSJ component selection and add corresponding event
+	 * listeners.
+	 */
+	private void initAddComponentButtons()
+	{
+		FloatingActionButton addSensor = (FloatingActionButton) findViewById(R.id.action_sensors);
+		addSensor.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_sensors, SSJDescriptor.getInstance().sensors);
+			}
+		});
+
+		FloatingActionButton addProvider = (FloatingActionButton) findViewById(R.id.action_providers);
+		addProvider.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_sensor_channels, SSJDescriptor.getInstance().sensorChannels);
+			}
+		});
+
+		FloatingActionButton addTransformer = (FloatingActionButton) findViewById(R.id.action_transformers);
+		addTransformer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_transformers, SSJDescriptor.getInstance().transformers);
+			}
+		});
+
+		FloatingActionButton addConsumer = (FloatingActionButton) findViewById(R.id.action_consumers);
+		addConsumer.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_consumers, SSJDescriptor.getInstance().consumers);
+			}
+		});
+
+		FloatingActionButton addEventHandler = (FloatingActionButton) findViewById(R.id.action_eventhandlers);
+		addEventHandler.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
+			}
+		});
+	}
+
+	/**
+	 * Load animations that toggle visibility of action buttons.
+	 */
+	private void loadAnimations()
+	{
+		showButton = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.show_button);
+		hideButton = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.hide_button);
+		showLayout = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.show_layout);
+		hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
+												  R.anim.hide_layout);
+	}
+
+	/**
+	 * Animate appearance of action buttons.
+	 */
+	private void showActionButtons()
+	{
+		sensorLayout.setVisibility(View.VISIBLE);
+		sensorLayout.startAnimation(showLayout);
+
+		sensorChannelLayout.setVisibility(View.VISIBLE);
+		sensorChannelLayout.startAnimation(showLayout);
+
+		transformerLayout.setVisibility(View.VISIBLE);
+		transformerLayout.startAnimation(showLayout);
+
+		consumerLayout.setVisibility(View.VISIBLE);
+		consumerLayout.startAnimation(showLayout);
+
+		eventHandlerLayout.setVisibility(View.VISIBLE);
+		eventHandlerLayout.startAnimation(showLayout);
+
+		fab.startAnimation(showButton);
+		actionButtonsVisible = true;
+	}
+
+	/**
+	 * Animate hiding of action buttons.
+	 */
+	private void hideActionButtons()
+	{
+		sensorLayout.setVisibility(View.GONE);
+		sensorLayout.startAnimation(hideLayout);
+
+		sensorChannelLayout.setVisibility(View.GONE);
+		sensorChannelLayout.startAnimation(hideLayout);
+
+		transformerLayout.setVisibility(View.GONE);
+		transformerLayout.startAnimation(hideLayout);
+
+		consumerLayout.setVisibility(View.GONE);
+		consumerLayout.startAnimation(hideLayout);
+
+		eventHandlerLayout.setVisibility(View.GONE);
+		eventHandlerLayout.startAnimation(hideLayout);
+
+		fab.startAnimation(hideButton);
+		actionButtonsVisible = false;
+	}
 }

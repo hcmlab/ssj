@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ activity_main.xml
+  ~ side_nav_bar.xml
   ~ Copyright (c) 2017
   ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
   ~ Vitalijs Krumins, Antonio Grieco
@@ -25,23 +25,12 @@
   ~ You should have received a copy of the GNU General Public License along
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
-
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <include layout="@layout/app_bar_main" />
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
-
-</android.support.v4.widget.DrawerLayout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+       android:shape="rectangle">
+    <gradient
+        android:angle="135"
+        android:startColor="#4285F4"
+        android:centerColor="#4285F4"
+        android:endColor="#4285F4"
+        android:type="linear" />
+</shape>

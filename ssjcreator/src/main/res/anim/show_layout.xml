@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ activity_main.xml
+  ~ show_layout.xml
   ~ Copyright (c) 2017
   ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
   ~ Vitalijs Krumins, Antonio Grieco
@@ -26,22 +26,23 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<android.support.v4.widget.DrawerLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true">
 
-    <include layout="@layout/app_bar_main" />
+    <!--Move-->
+    <translate
+        android:duration="250"
+        android:fromXDelta="0%"
+        android:fromYDelta="150%"
+        android:interpolator="@android:anim/linear_interpolator"
+        android:toXDelta="0%"
+        android:toYDelta="0%" />
 
-    <android.support.design.widget.NavigationView
-        android:id="@+id/nav_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:fitsSystemWindows="true"
-        app:headerLayout="@layout/nav_header_main"
-        app:menu="@menu/activity_main_drawer" />
+    <!--Fade In-->
+    <alpha
+        android:duration="250"
+        android:fromAlpha="0.0"
+        android:interpolator="@android:anim/decelerate_interpolator"
+        android:toAlpha="1.0" />
 
-</android.support.v4.widget.DrawerLayout>
+</set>
