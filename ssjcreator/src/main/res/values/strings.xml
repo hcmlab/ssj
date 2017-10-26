@@ -85,4 +85,5 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="drawer_canvas_separator">Canvas</string>
     <string name="drawer_pipelines_separator">Pipelines</string>
+    <string name="drawer_settings">Settings</string>
 </resources>
