@@ -40,6 +40,7 @@ import java.nio.ByteOrder;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.Mp4Writer;
@@ -174,9 +175,10 @@ public class AudioWriter extends Mp4Writer
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in) throws SSJFatalException
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         try
         {

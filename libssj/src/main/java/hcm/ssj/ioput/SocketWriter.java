@@ -39,6 +39,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -104,7 +105,7 @@ public class SocketWriter extends Consumer {
         _connected = true;
     }
 
-    protected void consume(Stream[] stream_in) throws SSJFatalException
+    protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         if (!_connected)
         {

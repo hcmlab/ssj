@@ -183,9 +183,10 @@ public class CameraPainter extends Consumer implements EventListener
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in) throws SSJFatalException
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         //only draw first frame per call, since drawing multiple frames doesn't make sense without delay
         draw(stream_in[0].ptrB(), ((ImageStream)stream_in[0]).format);

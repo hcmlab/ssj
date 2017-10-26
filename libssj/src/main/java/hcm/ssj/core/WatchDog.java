@@ -35,7 +35,7 @@ import android.os.PowerManager;
  */
 public class WatchDog extends Thread {
 
-    protected String _name = "SSJ_WatchDog";
+    protected String _name = "WatchDog";
 
     protected boolean _terminate = false;
     protected boolean _safeToKill = false;
@@ -102,6 +102,8 @@ public class WatchDog extends Thread {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         //wait for framework
         while (_frame.getState() == Pipeline.State.STARTING) {
             try {

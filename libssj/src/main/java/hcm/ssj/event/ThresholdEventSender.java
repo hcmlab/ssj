@@ -114,7 +114,7 @@ public class ThresholdEventSender extends Consumer
     }
 
     @Override
-    protected void consume(Stream[] stream_in) throws SSJFatalException
+    protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         double time = stream_in[0].time;
         double timeStep = 1 / stream_in[0].sr;

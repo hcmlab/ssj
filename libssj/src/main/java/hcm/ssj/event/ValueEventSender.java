@@ -71,7 +71,7 @@ public class ValueEventSender extends Consumer
 	}
 
 	@Override
-	protected void consume(Stream[] stream_in) throws SSJFatalException
+	protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
 	{
 		Event ev = Event.create(stream_in[0].type);
 		ev.name = options.event.get();

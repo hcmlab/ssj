@@ -40,6 +40,7 @@ import java.nio.ByteBuffer;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
@@ -158,9 +159,10 @@ public class CameraWriter extends Mp4Writer
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in) throws SSJFatalException
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         byte[] in = stream_in[0].ptrB();
         for (int i = 0; i < in.length; i += aByShuffle.length)

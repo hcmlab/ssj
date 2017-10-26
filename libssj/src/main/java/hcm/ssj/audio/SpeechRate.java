@@ -115,7 +115,7 @@ public class SpeechRate extends Consumer
     }
 
     @Override
-    protected void consume(Stream[] stream_in) throws SSJFatalException
+    protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         float[] intensity = _intensity.select(_intensity_ind).ptrF();
         float[] voiced = _voiced.ptrF();

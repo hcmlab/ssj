@@ -41,6 +41,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
@@ -164,7 +165,7 @@ public class FFMPEGWriter extends Consumer
 	}
 
 	@Override
-	protected void consume(Stream[] stream_in) throws SSJFatalException
+	protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
 	{
 		// Get bytes
 		byte[] in = stream_in[0].ptrB();

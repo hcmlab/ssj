@@ -58,6 +58,8 @@ public abstract class Transformer extends Provider {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         if(!_isSetup) {
             _frame.error(this.getComponentName(), "not initialized", null);
             return;

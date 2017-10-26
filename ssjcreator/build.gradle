@@ -30,7 +30,7 @@ apply from: '../version.gradle'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.3'
+    buildToolsVersion '26.0.2'
 
     lintOptions {
         abortOnError false
@@ -44,6 +44,9 @@ android {
         targetSdkVersion 25
         versionName getVerName()
         versionCode getVerCode()
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
     }
     buildTypes {
         release {
@@ -55,11 +58,12 @@ android {
 
 repositories {
     mavenCentral()
+    google()
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.1'
-    compile 'com.android.support:design:25.3.1'
+    compile 'com.android.support:appcompat-v7:25.4.0'
+    compile 'com.android.support:design:25.4.0'
     compile project(path: ':libssj')
     compile 'com.github.paolorotolo:appintro:4.0.0'
 }

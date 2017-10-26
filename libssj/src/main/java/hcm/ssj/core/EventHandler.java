@@ -53,6 +53,8 @@ public abstract class EventHandler extends Component implements EventListener {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         if(_evchannel_in == null && _evchannel_out == null)
         {
             _frame.error(_name, "no event channel has been registered", null);

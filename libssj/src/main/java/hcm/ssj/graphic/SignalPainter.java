@@ -40,6 +40,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -154,7 +155,7 @@ public class SignalPainter extends Consumer
     }
 
     @Override
-    protected void consume(Stream[] stream_in) throws SSJFatalException
+    protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         int seriesID = 0;
         for (int k = 0; k < stream_in.length; k++)
