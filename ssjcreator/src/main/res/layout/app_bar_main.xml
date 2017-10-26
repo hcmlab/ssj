@@ -97,8 +97,7 @@
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="@color/colorSensor"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_hearing_white_24dp"/>
+            app:fabSize="mini" />
     </LinearLayout>
 
     <LinearLayout
@@ -128,8 +127,7 @@
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="@color/colorProvider"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_linear_scale_white_24dp"/>
+            app:fabSize="mini" />
     </LinearLayout>
 
     <LinearLayout
@@ -159,8 +157,7 @@
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="@color/colorTransformer"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_transform_white_24dp"/>
+            app:fabSize="mini" />
     </LinearLayout>
 
     <LinearLayout
@@ -190,8 +187,7 @@
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="@color/colorConsumer"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_call_merge_white_24dp"/>
+            app:fabSize="mini" />
     </LinearLayout>
 
     <LinearLayout
@@ -221,8 +217,7 @@
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="@color/colorEventHandler"
-            app:fabSize="mini"
-            app:srcCompat="@drawable/ic_settings_ethernet_white_24dp"/>
+            app:fabSize="mini" />
     </LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>
