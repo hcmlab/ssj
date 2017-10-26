@@ -38,6 +38,8 @@ import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
+ * Provides skin resistance in kOhms
+ *
  * Created by Michael Dietz on 06.07.2016.
  */
 public class GSRChannel extends SensorChannel

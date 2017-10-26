@@ -157,6 +157,11 @@ public class EventChannel {
                 _frame.threadPool.execute(new Runnable() {
                     @Override
                     public void run() {
+                        if(listener == null)
+                        {
+                            Log.e("error reacting to event: listener == null, listeners = " + _listeners.size());
+                            return;
+                        }
                         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ev" + ev.id + listener.toString());
                         wakeLock.acquire();
                         listener.notify(ev);

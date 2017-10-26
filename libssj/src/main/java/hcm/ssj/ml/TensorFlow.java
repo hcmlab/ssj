@@ -103,7 +103,7 @@ public class TensorFlow extends Model
 
 
 	@Override
-	protected void train(Stream[] stream)
+	protected void train(Stream[] stream, String label)
 	{
 		Log.e("training not supported yet");
 	}

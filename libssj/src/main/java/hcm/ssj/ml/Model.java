@@ -76,9 +76,10 @@ public abstract class Model {
 
     /**
      * Train model with data from the stream
-     * @param stream Stream
+     * @param stream data to use for training
+     * @param label the label of the data, should match one of the model's classes
      */
-    abstract void train(Stream[] stream);
+    abstract void train(Stream[] stream, String label);
 
     /**
      * Load model from file

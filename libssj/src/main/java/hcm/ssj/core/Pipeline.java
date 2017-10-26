@@ -61,7 +61,7 @@ public class Pipeline
         /** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
         /** How long to wait for a sensor to connect. Default: 5.0 */
-        public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
+        public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 30.f, Float.class, "How long to wait for a sensor to connect");
         /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
         /** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
@@ -775,6 +775,8 @@ public class Pipeline
         buffers.clear();
         Log.getInstance().clear();
         startTime = 0;
+
+        threadPool.purge();
 
         SSI.clear();
     }

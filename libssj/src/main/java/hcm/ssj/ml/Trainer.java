@@ -1,5 +1,5 @@
 /*
- * Classifier.java
+ * Trainer.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -31,15 +31,12 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
-import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
-import hcm.ssj.core.event.StringEvent;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -51,7 +48,7 @@ import hcm.ssj.signal.Selector;
 /**
  * Generic classifier
  */
-public class Classifier extends Consumer
+public class Trainer extends Consumer
 {
     /**
      * All options for the consumer
@@ -61,10 +58,6 @@ public class Classifier extends Consumer
         public final Option<String> trainerPath = new Option<>("trainerPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
         public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
-        public final Option<Boolean> bestMatchOnly = new Option<>("bestMatchOnly", true, Boolean.class, "print or send class with highest result only");
-        public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
-        public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
-        public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
         public final Option<Model> model = new Option<>("model", null, Model.class, "model to use (use null to load from file)");
 
         private Options()
@@ -82,13 +75,13 @@ public class Classifier extends Consumer
     private Model _model;
     private ModelDescriptor modelInfo = null;
 
-    public Classifier()
+    public Trainer()
     {
         _name = this.getClass().getSimpleName();
     }
 
     /**
-     * Load data from option file
+     * Load model from file
      */
     public void load(File file) throws XmlPullParserException, IOException
     {
@@ -117,8 +110,8 @@ public class Classifier extends Consumer
     }
 
     /**
-     * @param stream_in  Stream[]
-     */
+	 * @param stream_in  Stream[]
+	 */
     @Override
     public void enter(Stream[] stream_in) throws SSJFatalException
     {
@@ -150,7 +143,7 @@ public class Classifier extends Consumer
         Stream[] input = stream_in;
         if(input[0].bytes != modelInfo.bytes || input[0].type != modelInfo.type) {
             throw new SSJFatalException("input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
-                                                + ") does not match model's expected input (type=" + modelInfo.type + ", bytes=" + modelInfo.bytes + ", sr=" + modelInfo.sr + ")");
+                          + ") does not match model's expected input (type=" + modelInfo.type + ", bytes=" + modelInfo.bytes + ", sr=" + modelInfo.sr + ")");
         }
         if(input[0].sr != modelInfo.sr) {
             Log.w("input stream (sr=" + input[0].sr + ") may not be correct for model (sr=" + modelInfo.sr + ")");
@@ -187,6 +180,9 @@ public class Classifier extends Consumer
     @Override
     public void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
+        if(trigger == null)
+            throw new SSJFatalException("Event trigger missing. Make sure Trainer is setup to receive events.");
+
         Stream[] input = stream_in;
 
         if(options.merge.get()) {
@@ -198,65 +194,7 @@ public class Classifier extends Consumer
             input = _stream_selected;
         }
 
-        float[] probs = _model.forward(input);
-
-        if(options.bestMatchOnly.get())
-        {
-            // Get array index of element with largest probability.
-            int bestLabelIdx = Util.maxIndex(probs);
-            String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
-                                             _model.getClassNames()[bestLabelIdx],
-                                             probs[bestLabelIdx] * 100f);
-
-            if (_evchannel_out != null)
-            {
-                Event ev = new StringEvent(bestMatch);
-                ev.sender = options.sender.get();
-                ev.name = options.event.get();
-                ev.time = (int) (1000 * stream_in[0].time + 0.5);
-                double duration = stream_in[0].num / stream_in[0].sr;
-                ev.dur = (int) (1000 * duration + 0.5);
-                ev.state = Event.State.COMPLETED;
-
-                _evchannel_out.pushEvent(ev);
-            }
-
-            if (options.log.get())
-            {
-                Log.i(bestMatch);
-            }
-        }
-        else
-        {
-            if (_evchannel_out != null)
-            {
-                Event ev = Event.create(Cons.Type.FLOAT);
-                ev.sender = options.sender.get();
-                ev.name = options.event.get();
-                ev.time = (int) (1000 * stream_in[0].time + 0.5);
-                double duration = stream_in[0].num / stream_in[0].sr;
-                ev.dur = (int) (1000 * duration + 0.5);
-                ev.state = Event.State.COMPLETED;
-                ev.setData(probs);
-
-                _evchannel_out.pushEvent(ev);
-            }
-
-            if (options.log.get())
-            {
-                String[] class_names = _model.getClassNames();
-                StringBuilder stringBuilder = new StringBuilder();
-                for (int i = 0; i < probs.length; i++)
-                {
-                    stringBuilder.append(class_names[i]);
-                    stringBuilder.append(" = ");
-                    stringBuilder.append(probs[i]);
-                    stringBuilder.append("; ");
-                }
-
-                Log.i(stringBuilder.toString());
-            }
-        }
+        _model.train(input, trigger.name);
     }
 
     public Model getModel()
