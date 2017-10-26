@@ -55,6 +55,8 @@ public abstract class Sensor extends Component {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         //if user did not specify a custom priority, use low priority
         android.os.Process.setThreadPriority( (threadPriority == Cons.THREAD_PRIORITY_NORMAL) ? Cons.THREAD_PRIORIIY_LOW : threadPriority );
         _isConnected = false;

@@ -62,6 +62,8 @@ public abstract class Consumer extends Component {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         if(!_isSetup) {
             _frame.error(_name, "not initialized", null);
             _safeToKill = true;
