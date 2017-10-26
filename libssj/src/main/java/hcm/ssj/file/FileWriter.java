@@ -45,6 +45,7 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 
@@ -161,9 +162,10 @@ public class FileWriter extends Consumer implements IFileWriter
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in) throws SSJFatalException
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         if (fileType == Cons.FileType.ASCII)
         {

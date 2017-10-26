@@ -143,11 +143,7 @@ public abstract class Consumer extends Component {
 
                 //if we received data from all sources, process it
                 if(ok) {
-                    if(_triggeredByEvent)
-                    {
-                        prepareForTriggerByEvent(ev);
-                    }
-                    consume(_stream_in);
+                    consume(_stream_in, ev);
                 }
 
                 if(_doWakeLock) wakeLock.release();
@@ -188,7 +184,7 @@ public abstract class Consumer extends Component {
     /**
      * main processing method
      */
-    protected abstract void consume(Stream stream_in[]) throws SSJFatalException;
+    protected abstract void consume(Stream[] stream_in, Event trigger) throws SSJFatalException;
 
     /**
      * called once prior to termination
@@ -199,12 +195,6 @@ public abstract class Consumer extends Component {
     {
         _triggeredByEvent = value;
     }
-
-    /**
-     * Called immediately before the consume method in case of an event trigger
-     * @param ev the event which triggers the consume
-     */
-    protected void prepareForTriggerByEvent(Event ev) {}
 
     /**
      * initialization for continuous consumer

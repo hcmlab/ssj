@@ -112,7 +112,7 @@ public class ThresholdClassEventSender extends Consumer
 	}
 
 	@Override
-	protected void consume(Stream[] stream_in) throws SSJFatalException
+	protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
 	{
 		makeThresholdList();
 

@@ -250,9 +250,10 @@ public class Classifier extends Consumer
 
     /**
      * @param stream_in  Stream[]
+	 * @param trigger
      */
     @Override
-    public void consume(Stream[] stream_in) throws SSJFatalException
+    public void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         Stream[] input = stream_in;
 
