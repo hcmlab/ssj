@@ -32,17 +32,31 @@
             android:id="@+id/action_framework"
             android:icon="@drawable/ic_settings_black_24dp"
             android:title="@string/str_options" />
-        <item
-            android:id="@+id/action_save"
-            android:icon="@drawable/ic_save_black_24dp"
-            android:title="@string/str_save" />
-        <item
-            android:id="@+id/action_load"
-            android:icon="@drawable/ic_exit_to_app_white_24dp"
-            android:title="@string/str_load" />
-        <item
-            android:id="@+id/action_delete"
-            android:icon="@drawable/ic_delete_forever_black_24dp"
-            android:title="@string/str_delete" />
     </group>
+
+    <item android:title="@string/drawer_pipelines_separator">
+        <menu>
+            <item
+                android:id="@+id/action_save"
+                android:icon="@drawable/ic_save_black_24dp"
+                android:title="@string/str_save" />
+            <item
+                android:id="@+id/action_load"
+                android:icon="@drawable/ic_exit_to_app_white_24dp"
+                android:title="@string/str_load" />
+            <item
+                android:id="@+id/action_delete"
+                android:icon="@drawable/ic_delete_forever_black_24dp"
+                android:title="@string/str_delete" />
+        </menu>
+    </item>
+
+    <item android:title="@string/drawer_canvas_separator">
+        <menu>
+            <item
+                android:id="@+id/action_clear"
+                android:icon="@drawable/ic_remove_circle_black_24dp"
+                android:title="@string/str_clear" />
+        </menu>
+    </item>
 </menu>

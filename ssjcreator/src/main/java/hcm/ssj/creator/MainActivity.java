@@ -68,6 +68,7 @@ import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.SSJDescriptor;
@@ -549,6 +550,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		else if (itemId == R.id.action_delete)
 		{
 			showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
+		}
+		else if (itemId == R.id.action_clear)
+		{
+			PipelineBuilder.getInstance().clear();
+			Annotation.getInstance().clear();
+			actualizeContent(Util.AppAction.CLEAR, null);
 		}
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

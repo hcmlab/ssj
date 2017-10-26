@@ -83,5 +83,6 @@
     <string name="anno_msband">Annotate using MS Band 2</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="drawer_title">Menu</string>
+    <string name="drawer_canvas_separator">Canvas</string>
+    <string name="drawer_pipelines_separator">Pipelines</string>
 </resources>
