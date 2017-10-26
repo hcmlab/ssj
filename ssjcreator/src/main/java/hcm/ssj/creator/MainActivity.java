@@ -162,9 +162,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 {
                     public void run()
                     {
+
+                        String text = location + ": " + msg;
+
+                        Throwable cause = t;
+                        while(cause != null)
+                        {
+                            text += "\ncaused by: " + cause.getMessage();
+                            cause = cause.getCause();
+                        }
+
                         new AlertDialog.Builder(MainActivity.this)
                                 .setTitle(R.string.str_error)
-                                .setMessage(location + ": " + msg)
+                                .setMessage(text)
                                 .setPositiveButton(R.string.str_ok, null)
                                 .setIcon(android.R.drawable.ic_dialog_alert)
                                 .show();
@@ -265,8 +275,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     tabHandler.preStart();
                     //start framework
                     pipeline.start();
+
                     //run
-                    Monitor.waitMonitor();
+                    if(pipeline.isRunning())
+                        Monitor.waitMonitor();
+
                     //stop framework
                     try
                     {

@@ -32,6 +32,7 @@ import java.util.Arrays;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.OptionList;
 
@@ -59,22 +60,26 @@ public class EventLogger extends EventHandler
     int _lastBehavEventID;
 
     @Override
-    public void enter()
+	public void enter() throws SSJFatalException
     {
         _lastBehavEventID = -1;
 
-        if(_evchannel_in == null || _evchannel_in.size() == 0)
-            throw new RuntimeException("no input channels");
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
+			throw new RuntimeException("no input channels");
+		}
     }
 
     @Override
-    protected void process()
+    protected void process() throws SSJFatalException
     {
         for(EventChannel ch : _evchannel_in)
         {
             Event ev = ch.getEvent(_lastBehavEventID + 1, true);
             if (ev == null)
+            {
                 return;
+            }
 
             _lastBehavEventID = ev.id;
 
@@ -116,6 +121,6 @@ public class EventLogger extends EventHandler
 
 
     @Override
-    public void flush()
+    public void flush() throws SSJFatalException
     {}
 }

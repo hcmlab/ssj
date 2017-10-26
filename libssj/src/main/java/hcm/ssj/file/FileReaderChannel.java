@@ -27,11 +27,16 @@
 
 package hcm.ssj.file;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.Arrays;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -83,14 +88,24 @@ public class FileReaderChannel extends SensorChannel
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void init()
+    protected void init() throws SSJException
     {
         fileReader = (FileReader) _sensor;
-        fileReader.readerInit();
-        SimpleHeader simpleHeader = fileReader.getSimpleHeader();
+        SimpleHeader simpleHeader;
+
+        try
+        {
+            fileReader.readerInit();
+            simpleHeader = fileReader.getSimpleHeader();
+        }
+        catch (IOException | XmlPullParserException e)
+        {
+            throw new SSJException("error initializing file reader", e);
+        }
+
         sampleRate = Double.parseDouble(simpleHeader._sr);
         dimension = Integer.parseInt(simpleHeader._dim);
         bytes = Integer.parseInt(simpleHeader._byte);
@@ -111,17 +126,19 @@ public class FileReaderChannel extends SensorChannel
 
 
     @Override
-    public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
     {
-        if(options.offset.get() > 0)
-            fileReader.skip((int)(stream_out.sr * options.offset.get()));
+		if (options.offset.get() > 0)
+		{
+			fileReader.skip((int) (stream_out.sr * options.offset.get()));
+		}
     }
 
     /**
      * @param stream_out Stream
      */
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
         if(ftype == Cons.FileType.ASCII)
         {

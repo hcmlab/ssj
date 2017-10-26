@@ -29,6 +29,7 @@ package hcm.ssj.pressureMat;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -60,7 +61,8 @@ public class BluetoothPressureMatChannel extends SensorChannel {
     }
 
     @Override
-    public void enter(Stream stream_out) {
+	public void enter(Stream stream_out) throws SSJFatalException
+	{
 
         if (options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF) {
             Log.e("input channel not configured");
@@ -68,7 +70,8 @@ public class BluetoothPressureMatChannel extends SensorChannel {
     }
 
     @Override
-    protected boolean process(Stream stream_out) {
+    protected boolean process(Stream stream_out) throws SSJFatalException
+    {
         short[] data = ((BluetoothPressureSensor) _sensor).getDataInt(options.channel_id.get());
 
         if (data.length != stream_out.tot) {

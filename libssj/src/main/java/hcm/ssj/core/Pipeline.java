@@ -30,6 +30,7 @@ package hcm.ssj.core;
 import android.os.SystemClock;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -77,6 +78,8 @@ public class Pipeline
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
         /** repeated log entries with a duration delta smaller than the timeout value are ignored. Default: 1.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
+        /** Shut down pipeline if runtime error is encountered */
+        public final Option<Boolean> terminateOnError = new Option<>("terminateOnError", true, Boolean.class, "Shut down pipeline if runtime error is encountered");
 
         private Options()
         {
@@ -89,8 +92,7 @@ public class Pipeline
         INACTIVE,
         STARTING,
         RUNNING,
-        STOPPING,
-        ERROR
+        STOPPING
     }
 
     public final Options options = new Options();
@@ -172,9 +174,6 @@ public class Pipeline
                 Thread.sleep(1000);
             }
 
-            if(state == State.ERROR)
-                throw new Exception("error in components");
-
             if (options.startSyncPort.get() != 0)
             {
                 if (options.master.get() == null)
@@ -196,7 +195,8 @@ public class Pipeline
         }
         catch (Exception e)
         {
-            error("framework start", "error starting pipeline", e);
+            error(this.getClass().getSimpleName(), "error starting pipeline, shutting down", e);
+            stop();
         }
     }
 
@@ -803,38 +803,24 @@ public class Pipeline
         }
     }
 
-    public void error(String location, String message)
+    /**
+     * Marks the occurence of an unrecoverable error, reports it and attempts to shut down the pipeline
+     * @param location where the error occurred
+     * @param message error message
+     * @param e exception which caused the error, can be null
+     */
+    void error(String location, String message, Throwable e)
     {
-        state = State.ERROR;
-
-        Log.e(location, message);
-        writeLogFile();
-
-        if (exceptionHandler != null)
-        {
-            exceptionHandler.handle(location, message, null);
-        } else
-        {
-            state = State.INACTIVE;
-            throw new RuntimeException("fatal error in "+location+ ": " + message);
-        }
-    }
-
-    public void error(String location, String message, Throwable e)
-    {
-        state = State.ERROR;
-
         Log.e(location, message, e);
         writeLogFile();
 
         if (exceptionHandler != null)
         {
             exceptionHandler.handle(location, message, e);
-        } else
-        {
-            state = State.INACTIVE;
-            throw new RuntimeException(e);
         }
+
+        if(options.terminateOnError.get() && isRunning())
+            stop();
     }
 
     void sync(int bufferID)
@@ -878,8 +864,13 @@ public class Pipeline
      * @param to path to download to
      * @param wait if true, function blocks until download is finished
      */
-    public void download(String fileName, String from, String to, boolean wait)
+    public void download(String fileName, String from, String to, boolean wait) throws IOException
     {
+        if(fileName == null || fileName.isEmpty()
+        || from == null || from.isEmpty()
+        || to == null || to.isEmpty())
+            throw new IOException("download source or destination is empty");
+
         if(downloader == null || downloader.isTerminating())
             downloader = new FileDownloader();
 

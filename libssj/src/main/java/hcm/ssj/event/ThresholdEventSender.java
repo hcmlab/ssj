@@ -30,6 +30,7 @@ package hcm.ssj.event;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -82,7 +83,7 @@ public class ThresholdEventSender extends Consumer
     }
 
     @Override
-    public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
     {
         int totaldim = 0;
         for(Stream s : stream_in)
@@ -92,8 +93,7 @@ public class ThresholdEventSender extends Consumer
 
         if(options.thresin.get() == null || options.thresin.get().length != totaldim)
         {
-            _frame.error(_name, "invalid threshold list. Expecting " + totaldim + " thresholds");
-            return;
+            throw new SSJFatalException("invalid threshold list. Expecting " + totaldim + " thresholds");
         }
 
         if(options.thresout.get() == null)
@@ -114,7 +114,7 @@ public class ThresholdEventSender extends Consumer
     }
 
     @Override
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in) throws SSJFatalException
     {
         double time = stream_in[0].time;
         double timeStep = 1 / stream_in[0].sr;
@@ -158,10 +158,14 @@ public class ThresholdEventSender extends Consumer
                             break;
                     }
 
-                    if(options.hard.get())
+                    if (options.hard.get())
+                    {
                         found_event = found_event && result;
+                    }
                     else
+                    {
                         found_event = found_event || result;
+                    }
 
                     thresId++;
                 }
@@ -248,7 +252,7 @@ public class ThresholdEventSender extends Consumer
     }
 
     @Override
-    public void flush(Stream[] stream_in)
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {}
 
     boolean update (double time, double dur, Event.State state)

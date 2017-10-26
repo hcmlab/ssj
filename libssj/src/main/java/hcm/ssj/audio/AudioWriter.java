@@ -33,11 +33,13 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.Mp4Writer;
@@ -106,10 +108,10 @@ public class AudioWriter extends Mp4Writer
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public final void enter(Stream[] stream_in)
+    public final void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in.length != 1)
         {
@@ -157,7 +159,16 @@ public class AudioWriter extends Mp4Writer
         dFrameRate = stream_in[0].sr / stream_in[0].num;
         aByShuffle = new byte[(int) (iSampleNumber / dFrameRate + 0.5)];
         lFrameIndex = 0;
-        prepareEncoder();
+
+        try
+        {
+            prepareEncoder();
+        }
+        catch (IOException e)
+        {
+            throw new SSJFatalException("error preparing encoder", e);
+        }
+
         bufferInfo = new MediaCodec.BufferInfo();
     }
 
@@ -165,65 +176,72 @@ public class AudioWriter extends Mp4Writer
      * @param stream_in Stream[]
      */
     @Override
-    protected final void consume(Stream[] stream_in)
+    protected final void consume(Stream[] stream_in) throws SSJFatalException
     {
-        switch (dataFormat)
+        try
         {
-            case BYTE:
+            switch (dataFormat)
             {
-                byte[] in = stream_in[0].ptrB();
-                for (int i = 0; i < in.length; i += aByShuffle.length)
+                case BYTE:
                 {
-                    System.arraycopy(in, i, aByShuffle, 0, aByShuffle.length);
-                    encode(aByShuffle);
-                    save(false);
-                }
-                break;
-            }
-            case SHORT:
-            {
-                short[] in = stream_in[0].ptrS();
-                for (int i = 0; i < in.length; i += aByShuffle.length)
-                {
-                    ByteBuffer.wrap(aByShuffle).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(in, i / 2, aByShuffle.length / 2);
-                    encode(aByShuffle);
-                    save(false);
-                }
-                break;
-            }
-            case FLOAT_8:
-                float[] in = stream_in[0].ptrF();
-                for (int i = 0; i < in.length; )
-                {
-                    for (int j = 0; j < aByShuffle.length; j++, i += aByShuffle.length)
+                    byte[] in = stream_in[0].ptrB();
+                    for (int i = 0; i < in.length; i += aByShuffle.length)
                     {
-                        aByShuffle[j] = (byte) (in[i] * 128);
+                        System.arraycopy(in, i, aByShuffle, 0, aByShuffle.length);
+                        encode(aByShuffle);
+                        save(false);
                     }
-                    encode(aByShuffle);
-                    save(false);
+                    break;
                 }
-                break;
-            case FLOAT_16:
-            {
-                float[] in16 = stream_in[0].ptrF();
-                for (int i = 0; i < in16.length; )
+                case SHORT:
                 {
-                    for (int j = 0; j < aByShuffle.length; i++, j += 2)
+                    short[] in = stream_in[0].ptrS();
+                    for (int i = 0; i < in.length; i += aByShuffle.length)
                     {
-                        short value = (short) (in16[i] * 32768);
-                        aByShuffle[j] = (byte) (value & 0xff);
-                        aByShuffle[j + 1] = (byte) ((value >> 8) & 0xff);
+                        ByteBuffer.wrap(aByShuffle).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer().put(in, i / 2, aByShuffle.length / 2);
+                        encode(aByShuffle);
+                        save(false);
                     }
-                    encode(aByShuffle);
-                    save(false);
+                    break;
                 }
-                break;
+                case FLOAT_8:
+                    float[] in = stream_in[0].ptrF();
+                    for (int i = 0; i < in.length; )
+                    {
+                        for (int j = 0; j < aByShuffle.length; j++, i += aByShuffle.length)
+                        {
+                            aByShuffle[j] = (byte) (in[i] * 128);
+                        }
+                        encode(aByShuffle);
+                        save(false);
+                    }
+                    break;
+                case FLOAT_16:
+                {
+                    float[] in16 = stream_in[0].ptrF();
+                    for (int i = 0; i < in16.length; )
+                    {
+                        for (int j = 0; j < aByShuffle.length; i++, j += 2)
+                        {
+                            short value = (short) (in16[i] * 32768);
+                            aByShuffle[j] = (byte) (value & 0xff);
+                            aByShuffle[j + 1] = (byte) ((value >> 8) & 0xff);
+                        }
+                        encode(aByShuffle);
+                        save(false);
+                    }
+                    break;
+                }
+                default:
+                {
+                    Log.e("Data format not supported");
+                    break;
+                }
             }
-            default:
-            {
-                Log.e("Data format not supported");
-                break;
-            }
+        }
+        catch (IOException e)
+        {
+            throw new SSJFatalException("error writing audio data", e);
         }
     }
 
@@ -231,7 +249,7 @@ public class AudioWriter extends Mp4Writer
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[])
+    public final void flush(Stream stream_in[]) throws SSJFatalException
     {
         super.flush(stream_in);
         dataFormat = null;
@@ -240,7 +258,7 @@ public class AudioWriter extends Mp4Writer
     /**
      * Configures the encoder
      */
-    private void prepareEncoder()
+    private void prepareEncoder() throws IOException
     {
         //set format properties
         MediaFormat audioFormat = new MediaFormat();

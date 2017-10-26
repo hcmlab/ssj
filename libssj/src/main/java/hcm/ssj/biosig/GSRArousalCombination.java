@@ -29,6 +29,7 @@ package hcm.ssj.biosig;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.stream.Stream;
 
@@ -43,7 +44,7 @@ public class GSRArousalCombination extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		int n = stream_in[0].num;
 		double sr = stream_in[0].sr;

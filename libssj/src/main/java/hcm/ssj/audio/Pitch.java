@@ -37,6 +37,7 @@ import be.tarsos.dsp.pitch.PitchDetector;
 import be.tarsos.dsp.pitch.Yin;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -86,12 +87,14 @@ public class Pitch extends Transformer {
     }
 
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         Stream audio = null;
         for(Stream s : stream_in) {
-            if (s.findDataClass("Audio") >= 0)
-                audio = s;
+			if (s.findDataClass("Audio") >= 0)
+			{
+				audio = s;
+			}
         }
         if(audio == null) {
             Log.w("invalid input stream");
@@ -123,7 +126,7 @@ public class Pitch extends Transformer {
     }
 
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] data = stream_in[0].ptrF();
         float[] out = stream_out.ptrF();
@@ -131,13 +134,17 @@ public class Pitch extends Transformer {
         PitchDetectionResult result = _detector.getPitch(data);
 
         float pitch = result.getPitch();
-        if(pitch > options.maxPitch.get() || pitch < options.minPitch.get())
+        if (pitch > options.maxPitch.get() || pitch < options.minPitch.get())
+        {
             pitch = -1;
+        }
 
         int dim = 0;
 
         if (options.computePitch.get())
+        {
             out[dim++] = pitch;
+        }
 
         if (options.computePitchEnvelope.get()) {
             if (pitch < 0) {
@@ -148,15 +155,19 @@ public class Pitch extends Transformer {
             }
         }
 
-        if(options.computeVoicedProb.get())
+        if (options.computeVoicedProb.get())
+        {
             out[dim++] = result.getProbability();
+        }
 
-        if(options.computePitchedState.get())
+        if (options.computePitchedState.get())
+        {
             out[dim++] = (result.isPitched() && pitch > 0) ? 1.0f : 0.0f;
+        }
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {}
 
     @Override

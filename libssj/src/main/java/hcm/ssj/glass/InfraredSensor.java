@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 
 /**
  * Infrared sensor for google glass.<br>
@@ -59,10 +60,10 @@ public class InfraredSensor extends hcm.ssj.core.Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected boolean connect()
+    protected boolean connect() throws SSJFatalException
     {
         report = true;
         return true;

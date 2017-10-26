@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -105,7 +106,7 @@ public class SignalPainter extends Consumer
         }
     }
     @Override
-    public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
     {
         synchronized (this)
         {
@@ -128,8 +129,10 @@ public class SignalPainter extends Consumer
         }
 
         int dimTotal = 0;
-        for(Stream s : stream_in)
-            dimTotal += s.dim;
+		for (Stream s : stream_in)
+		{
+			dimTotal += s.dim;
+		}
 
         _maxPoints = new int[dimTotal];
 
@@ -151,7 +154,7 @@ public class SignalPainter extends Consumer
     }
 
     @Override
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in) throws SSJFatalException
     {
         int seriesID = 0;
         for (int k = 0; k < stream_in.length; k++)
@@ -174,11 +177,15 @@ public class SignalPainter extends Consumer
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
+                            {
                                 max = value;
+                            }
                         }
 
                         if (options.renderMax.get())
+                        {
                             pushData(seriesID, max, stream_in[k].time);
+                        }
                         break;
                     }
 
@@ -196,11 +203,15 @@ public class SignalPainter extends Consumer
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
+                            {
                                 max = value;
+                            }
                         }
 
                         if (options.renderMax.get())
+                        {
                             pushData(seriesID, max, stream_in[k].time);
+                        }
                         break;
                     }
 
@@ -218,11 +229,15 @@ public class SignalPainter extends Consumer
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
+                            {
                                 max = value;
+                            }
                         }
 
                         if (options.renderMax.get())
+                        {
                             pushData(seriesID, max, stream_in[k].time);
+                        }
                         break;
                     }
 
@@ -240,11 +255,15 @@ public class SignalPainter extends Consumer
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
+                            {
                                 max = value;
+                            }
                         }
 
                         if (options.renderMax.get())
+                        {
                             pushData(seriesID, max, stream_in[k].time);
+                        }
                         break;
                     }
 
@@ -262,11 +281,15 @@ public class SignalPainter extends Consumer
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
+                            {
                                 max = value;
+                            }
                         }
 
                         if (options.renderMax.get())
+                        {
                             pushData(seriesID, max, stream_in[k].time);
+                        }
                         break;
                     }
 
@@ -284,11 +307,15 @@ public class SignalPainter extends Consumer
                             {
                                 pushData(seriesID, value, time);
                             } else if (value > max)
+                            {
                                 max = value;
+                            }
                         }
 
                         if (options.renderMax.get())
+                        {
                             pushData(seriesID, max, stream_in[k].time);
+                        }
                         break;
                     }
 
@@ -302,7 +329,8 @@ public class SignalPainter extends Consumer
     }
 
     @Override
-    public void flush(Stream[] stream_in) {
+    public void flush(Stream[] stream_in) throws SSJFatalException
+    {
 
         _series.clear();
 

@@ -39,6 +39,7 @@ import java.net.SocketException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -80,7 +81,7 @@ public class SocketReader extends Sensor
     }
 
     @Override
-    public boolean connect()
+	public boolean connect() throws SSJFatalException
     {
         _connected = false;
         _socket_udp = null;
@@ -97,7 +98,7 @@ public class SocketReader extends Sensor
             }
             catch (SocketException e)
             {
-                _frame.error(_name, "unable to determine local IP address", e);
+                throw new SSJFatalException("unable to determine local IP address", e);
             }
         }
 
@@ -122,8 +123,7 @@ public class SocketReader extends Sensor
         }
         catch (IOException e)
         {
-            _frame.error(_name, "ERROR: cannot bind/connect socket", e);
-            return false;
+            throw new SSJFatalException("ERROR: cannot bind/connect socket", e);
         }
 
         _buffer = new byte[_provider.get(0).getOutputStream().tot];
@@ -135,10 +135,12 @@ public class SocketReader extends Sensor
     }
 
     @Override
-    protected void update()
+    protected void update() throws SSJFatalException
     {
-        if(!_connected)
+        if (!_connected)
+        {
             return;
+        }
 
         try {
             switch(options.type.get()) {

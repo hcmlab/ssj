@@ -28,6 +28,7 @@
 package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -77,11 +78,11 @@ public class Derivative extends Transformer
     }
 
     /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
+	 * @param stream_in  Stream[]
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         if (options.fourth.get()) store_value[4] = true;
         if (options.third.get()) store_value[3] = true;
@@ -89,8 +90,10 @@ public class Derivative extends Transformer
         if (options.first.get()) store_value[1] = true;
         if (options.zero.get()) store_value[0] = true;
 
-        for(int i = 0; i <= 4; i++)
-            if (store_value[i]) depth = i;
+		for (int i = 0; i <= 4; i++)
+		{
+			if (store_value[i]) depth = i;
+		}
         depth++;
 
         history = new float[(depth - 1) * stream_in[0].dim];
@@ -102,7 +105,7 @@ public class Derivative extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         int sample_dimension = stream_in[0].dim;
         int sample_number = stream_in[0].num;
@@ -144,7 +147,7 @@ public class Derivative extends Transformer
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         history = null;
         store_value = null;

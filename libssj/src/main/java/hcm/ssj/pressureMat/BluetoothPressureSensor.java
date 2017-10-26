@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.util.UUID;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.ioput.BluetoothClient;
@@ -67,7 +69,8 @@ public class BluetoothPressureSensor extends BluetoothReader {
     }
 
     @Override
-    public void init() {
+	public void init() throws SSJException
+	{
         try {
             _conn = new BluetoothClient(UUID.fromString(DEFAULT_BL_SERIAL_UUID), options.serverName.get(), options.serverAddr.get());
 
@@ -77,7 +80,8 @@ public class BluetoothPressureSensor extends BluetoothReader {
     }
 
     @Override
-    public boolean connect() {
+	public boolean connect() throws SSJFatalException
+	{
         _irecvData = new short[_provider.size()][];
         for (int i = 0; i < _provider.size(); ++i) {
             _irecvData[i] = new short[_provider.get(i).getOutputStream().tot];
@@ -97,8 +101,9 @@ public class BluetoothPressureSensor extends BluetoothReader {
         return true;
     }
 
-    public void update() {
-        if (!_conn.isConnected() && _isreallyConnected) {
+    public void update() throws SSJFatalException
+	{
+		if (!_conn.isConnected() && _isreallyConnected) {
             return;
         }
 

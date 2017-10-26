@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -87,7 +88,7 @@ public class MvgNorm extends Transformer
 	}
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		_rangeA = options.rangeA.get();
 		_rangeD = options.rangeB.get() - options.rangeA.get();
@@ -144,7 +145,7 @@ public class MvgNorm extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		int sampleDimension = stream_in[0].dim;
 		int sampleNumber = stream_in[0].num;

@@ -27,6 +27,7 @@
 
 package hcm.ssj.test;
 
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 
 /**
@@ -40,7 +41,7 @@ public class Profiler extends Sensor {
     }
 
     @Override
-    public boolean connect()
+	public boolean connect() throws SSJFatalException
     {
         return true;
     }

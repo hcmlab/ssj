@@ -30,6 +30,8 @@ package hcm.ssj.msband;
 import com.microsoft.band.sensors.SampleRate;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -60,30 +62,38 @@ public class GyroscopeChannel extends SensorChannel
 	}
 
 	@Override
-	public void init()
+	public void init() throws SSJException
 	{
 		SampleRate sr;
-		if(options.sampleRate.get() <= 7.8125)
+		if (options.sampleRate.get() <= 7.8125)
+		{
 			sr = SampleRate.MS128;
-		else if(options.sampleRate.get() <= 31.25)
+		}
+		else if (options.sampleRate.get() <= 31.25)
+		{
 			sr = SampleRate.MS32;
+		}
 		else
+		{
 			sr = SampleRate.MS16;
+		}
 
 		((MSBand)_sensor).configureChannel(MSBand.Channel.Gyroscope, true, sr.ordinal());
 	}
 
 	@Override
-	public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((MSBand) _sensor).listener;
 	}
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
-		if(!_listener.isConnected())
+		if (!_listener.isConnected())
+		{
 			return false;
+		}
 
 		float[] out = stream_out.ptrF();
 		out[0] = _listener.getAngularVelocityX();

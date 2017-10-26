@@ -36,6 +36,8 @@ import java.util.List;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -133,7 +135,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      * Configures camera for video capture. <br>
      * Opens a camera and sets parameters. Does not start preview.
      */
-    private void prepareCamera()
+    private void prepareCamera() throws SSJException
     {
         //set camera and frame size
         Camera.Parameters parameters = prePrepare();
@@ -184,12 +186,11 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      *
      * @return Camera.Parameters
      */
-    protected final Camera.Parameters prePrepare()
+    protected final Camera.Parameters prePrepare() throws SSJException
     {
         if (camera != null)
         {
-            _frame.error(_name, "Camera already initialized");
-            return null;
+            throw new SSJException("Camera already initialized");
         }
         //set camera
         chooseCamera();
@@ -204,7 +205,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      * Tries to access the requested camera.<br>
      * Will select a different one if the requested one is not supported.
      */
-    private void chooseCamera()
+    private void chooseCamera() throws SSJException
     {
         Camera.CameraInfo info = new Camera.CameraInfo();
         //search for specified camera
@@ -225,7 +226,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
         }
         if (camera == null)
         {
-            _frame.error(_name, "Unable to open camera");
+            throw new SSJException("Unable to open camera");
         }
     }
 
@@ -384,12 +385,20 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected boolean connect()
+    protected boolean connect() throws SSJFatalException
     {
-        prepareCamera();
+        try
+        {
+            prepareCamera();
+        }
+        catch (SSJException e)
+        {
+            throw new SSJFatalException("error preparing camera", e);
+        }
+
         prepareSurfaceTexture();
         initBuffer();
         camera.startPreview();

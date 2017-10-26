@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -78,7 +79,7 @@ public class MvgAvgVar extends Transformer
 	}
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		if (options.method.get() == Method.MOVING)
 		{
@@ -93,13 +94,13 @@ public class MvgAvgVar extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		_impl.transform(stream_in[0], stream_out);
 	}
 
 	@Override
-	public void flush(Stream[] stream_in, Stream stream_out)
+	public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		_impl.flush(stream_in[0], stream_out);
 	}

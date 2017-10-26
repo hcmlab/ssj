@@ -76,14 +76,21 @@ public abstract class Sensor extends Component {
                         this.notifyAll();
                     }
                 }
-                catch (Exception e)
-                {
+                catch (SSJFatalException e) {
+                    _frame.error(this.getComponentName(), "failed to connect to sensor", e);
+                    _safeToKill = true;
+                    return;
+                } catch (Exception e) {
                     _frame.error(this.getComponentName(), "failed to connect to sensor", e);
                 }
             }
 
             try {
                 update();
+            } catch(SSJFatalException e) {
+                _frame.error(this.getComponentName(), "exception in sensor update", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
                 _frame.error(this.getComponentName(), "exception in sensor update", e);
             }
@@ -103,12 +110,12 @@ public abstract class Sensor extends Component {
     /**
      * early initialization specific to implementation (called by framework on instantiation)
      */
-    protected void init() {}
+    protected void init() throws SSJException {}
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
      */
-    protected abstract boolean connect();
+    protected abstract boolean connect() throws SSJFatalException;
     protected boolean checkConnection() {return true;}
 
     private void waitCheckConnect()
@@ -124,7 +131,7 @@ public abstract class Sensor extends Component {
     /**
      * called once per frame, can be overwritten
      */
-    protected void update()
+    protected void update() throws SSJFatalException
     {
         waitCheckConnect();
     }

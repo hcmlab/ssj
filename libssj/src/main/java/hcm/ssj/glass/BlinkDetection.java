@@ -31,6 +31,7 @@ import java.util.LinkedList;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -96,13 +97,12 @@ public class BlinkDetection extends Transformer
     }
 
     /**
-     * The input stream should consist of 1-dimensional float values
-     *
-     * @param stream_in  Stream[]
+	 * The input stream should consist of 1-dimensional float values
+     *  @param stream_in  Stream[]
      * @param stream_out Stream
-     */
+	 */
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         //no check for a specific type to allow for different providers
         if (stream_in.length < 1 || stream_in[0].dim < DIMENSION)
@@ -120,7 +120,7 @@ public class BlinkDetection extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] dataAcc = stream_in[0].ptrF();
         float[] out = stream_out.ptrF();

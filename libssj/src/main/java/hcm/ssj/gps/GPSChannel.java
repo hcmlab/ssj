@@ -28,6 +28,7 @@
 package hcm.ssj.gps;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -58,13 +59,13 @@ public class GPSChannel extends SensorChannel
 	}
 
 	@Override
-	public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((GPSSensor) _sensor).listener;
 	}
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
 		double[] out = stream_out.ptrD();
 		out[0] = _listener.getLatitude();

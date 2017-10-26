@@ -31,6 +31,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
@@ -64,10 +65,10 @@ public class MobileSSIConsumer extends Consumer
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public final void enter(Stream[] stream_in)
+    public final void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in.length > 1 || stream_in.length < 1)
         {
@@ -94,19 +95,19 @@ public class MobileSSIConsumer extends Consumer
      * @param stream_in Stream[]
      */
     @Override
-    protected final void consume(Stream[] stream_in)
+    protected final void consume(Stream[] stream_in) throws SSJFatalException
     {
         float[] floats = stream_in[0].ptrF();
             stream_in[0].ptrF()[0]=0.5f;
         //ssi_ssj_sensor
-			pushData(stream_in[0], getId());
+        pushData(stream_in[0], getId());
     }
 
     /**
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[])
+    public final void flush(Stream stream_in[]) throws SSJFatalException
     {
 
     }

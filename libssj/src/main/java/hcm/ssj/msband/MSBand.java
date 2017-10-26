@@ -45,6 +45,7 @@ import java.util.concurrent.TimeoutException;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 
 /**
@@ -96,7 +97,7 @@ public class MSBand extends Sensor
 	}
 
 	@Override
-	protected boolean connect()
+	protected boolean connect() throws SSJFatalException
 	{
 		boolean connected = false;
 
@@ -157,11 +158,11 @@ public class MSBand extends Sensor
 			}
 			catch (InterruptedException | BandException e)
 			{
-				_frame.error(_name, "Error while connecting to ms band", e);
+				throw new SSJFatalException("Error while connecting to ms band", e);
 			}
 			catch (InvalidBandVersionException e)
 			{
-				_frame.error(_name, "Old ms band version not supported", e);
+				throw new SSJFatalException("Old ms band version not supported", e);
 			}
 		}
 

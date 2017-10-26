@@ -1,5 +1,5 @@
 /*
- * Provider.java
+ * SSJFatalException.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -27,31 +27,20 @@
 
 package hcm.ssj.core;
 
-import hcm.ssj.core.stream.Stream;
-
 /**
- * Created by Johnny on 05.03.2015.
+ * Throwing this causes an immediate pipeline termination
+ * Created by Johnny on 20.10.2016.
  */
-public abstract class Provider extends Component {
+public class SSJFatalException extends Exception {
 
-    protected int _bufferID;
-    protected void setBufferID(int bufferID)
-    {
-        _bufferID = bufferID;
+    public SSJFatalException() {}
+    public SSJFatalException(String detailMessage) {
+        super(detailMessage);
     }
-    protected int getBufferID()
-    {
-        return _bufferID;
+    public SSJFatalException(String detailMessage, Throwable throwable) {
+        super(detailMessage, throwable);
     }
-
-    protected Stream _stream_out = null;
-    public Stream getOutputStream()
-    {
-        if(_stream_out == null)
-            Log.e("output stream not initialized");
-
-        return _stream_out;
+    public SSJFatalException(Throwable throwable) {
+        super(throwable);
     }
-
-    public abstract String[] getOutputDescription();
 }

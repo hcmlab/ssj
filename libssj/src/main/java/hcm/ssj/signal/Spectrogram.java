@@ -33,6 +33,7 @@ import java.util.Arrays;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -90,18 +91,23 @@ public class Spectrogram extends Transformer
 	float _data_out[];
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		if (_filterbank == null) {
-			if(options.banks.get() != null){
+			if (options.banks.get() != null)
+			{
 				readFilterbank(options.banks.get(), stream_in[0].sr);
 			}
 			else
+			{
 				Log.e("frequency banks not set");
+			}
 		}
 
-		if(stream_in[0].num > options.nfft.get())
-			Log.w("nfft too small ("+options.nfft.get()+") for input stream (num="+stream_in[0].num+"), extra samples will get ignored");
+		if (stream_in[0].num > options.nfft.get())
+		{
+			Log.w("nfft too small (" + options.nfft.get() + ") for input stream (num=" + stream_in[0].num + "), extra samples will get ignored");
+		}
 
 		_matrix_in = new Matrix<>(stream_in[0].num, 1);
 		_matrix_out = new Matrix<>(1, _filterbank.getCols());
@@ -111,7 +117,7 @@ public class Spectrogram extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		for(int i = 0; i < stream_in[0].num; i++)
 		{
@@ -135,14 +141,20 @@ public class Spectrogram extends Transformer
 		}
 
 		if (_win_type != WINDOW_TYPE.RECTANGLE)
-			MatrixOps.getInstance().mult (_matrix_in, _window);
+		{
+			MatrixOps.getInstance().mult(_matrix_in, _window);
+		}
 
 		//copy data from matrix for fft
 		//if nfft to large, fill with zeroes
-		for(int i = 0; i < _data_in.length && i < _matrix_in.getSize(); i++)
+		for (int i = 0; i < _data_in.length && i < _matrix_in.getSize(); i++)
+		{
 			_data_in[i] = _matrix_in.getData(i);
-		for(int i = _matrix_in.getSize(); i < _data_in.length; i++)
+		}
+		for (int i = _matrix_in.getSize(); i < _data_in.length; i++)
+		{
 			_data_in[i] = 0;
+		}
 
 		// Calculate FFT
 		_fft.realForward(_data_in);
@@ -153,7 +165,9 @@ public class Spectrogram extends Transformer
 		for (int i = 0; i < _data_out.length; ++i)
 		{
 			if (options.dopower.get())
+			{
 				_data_out[i] = (float) Math.pow(_data_out[i], 2) / _data_out.length;
+			}
 
 			_fftmag.setData(i, _data_out[i]);
 		}
@@ -166,12 +180,14 @@ public class Spectrogram extends Transformer
 		}
 
 		float output[] = stream_out.ptrF();
-		for(int i = 0; i < _matrix_out.getSize(); i++)
+		for (int i = 0; i < _matrix_out.getSize(); i++)
+		{
 			output[i] = _matrix_out.getData(i);
+		}
 	}
 
 	@Override
-	public void flush(Stream[] stream_in, Stream stream_out)
+	public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		_win_size = 0;
 	}

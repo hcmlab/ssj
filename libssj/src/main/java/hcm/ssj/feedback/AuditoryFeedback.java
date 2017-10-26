@@ -36,11 +36,9 @@ import java.io.IOException;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
-
-import static android.R.attr.data;
-import static android.R.attr.opacity;
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -73,7 +71,7 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void enter()
+	public void enter() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -117,7 +115,7 @@ public class AuditoryFeedback extends Feedback
 
 
 	@Override
-	public void flush()
+	public void flush() throws SSJFatalException
 	{
 		player.release();
 	}

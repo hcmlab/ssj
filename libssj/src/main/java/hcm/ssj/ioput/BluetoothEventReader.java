@@ -43,6 +43,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
@@ -91,7 +92,7 @@ public class BluetoothEventReader extends EventHandler
     }
 
     @Override
-    public void enter()
+    public void enter() throws SSJFatalException
     {
         try {
             switch(options.connectionType.get())
@@ -107,14 +108,12 @@ public class BluetoothEventReader extends EventHandler
             }
         } catch (Exception e)
         {
-            _frame.error(_name, "error in setting up connection", e);
-            return;
+            throw new SSJFatalException("error in setting up connection", e);
         }
 
         BluetoothDevice dev = _conn.getRemoteDevice();
         if(dev == null) {
-            _frame.error(_name, "cannot retrieve remote device");
-            return;
+            throw new SSJFatalException("cannot retrieve remote device");
         }
 
         Log.i("connected to " + dev.getName() + " @ " + dev.getAddress());
@@ -132,8 +131,7 @@ public class BluetoothEventReader extends EventHandler
             }
             catch (XmlPullParserException e)
             {
-                _frame.error(_name, "unable to initialize parser", e);
-                return;
+                throw new SSJFatalException("unable to initialize parser", e);
             }
         }
 
@@ -141,10 +139,12 @@ public class BluetoothEventReader extends EventHandler
     }
 
     @Override
-    protected void process()
+    protected void process() throws SSJFatalException
     {
-        if(!_connected || !_conn.isConnected())
+        if (!_connected || !_conn.isConnected())
+        {
             return;
+        }
 
         try
         {
@@ -190,7 +190,9 @@ public class BluetoothEventReader extends EventHandler
                         _evchannel_out.pushEvent(ev);
                     }
                     if (_parser.getEventType() == XmlPullParser.END_TAG && _parser.getName().equalsIgnoreCase("events"))
+                    {
                         break;
+                    }
                 }
             }
             _conn.notifyDataTranferResult(true);
@@ -206,13 +208,15 @@ public class BluetoothEventReader extends EventHandler
         }
         finally
         {
-            if(_wakeLock.isHeld())
+            if (_wakeLock.isHeld())
+            {
                 _wakeLock.release();
+            }
         }
     }
 
     @Override
-    public void flush()
+    public void flush() throws SSJFatalException
     {
         _connected = false;
 

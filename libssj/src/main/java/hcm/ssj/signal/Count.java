@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -73,11 +74,11 @@ public class Count extends Transformer
     }
 
     /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
+	 * @param stream_in  Stream[]
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         //no check for a specific type to allow for different providers
         if (stream_in.length < 1 || stream_in[0].dim < 1)
@@ -102,7 +103,7 @@ public class Count extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] out = stream_out.ptrF();
         if (options.frameCount.get())

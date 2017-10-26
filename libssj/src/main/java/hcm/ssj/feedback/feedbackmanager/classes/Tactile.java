@@ -96,8 +96,15 @@ public class Tactile extends FeedbackClass
             {
                 myoConnector = new hcm.ssj.myo.Myo();
                 myoConnector.options.macAddress.set(deviceId);
-                myoConnector.connect();
-            }
+				try
+				{
+					myoConnector.connect();
+				}
+				catch (hcm.ssj.core.SSJFatalException e)
+				{
+					e.printStackTrace();
+				}
+			}
 
             long time = SystemClock.elapsedRealtime();
             while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Pipeline.getInstance().options.waitSensorConnect.get() * 1000) {

@@ -31,6 +31,7 @@ import java.util.Arrays;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -61,12 +62,14 @@ public class OverallActivation extends Transformer {
     float _displacement[];
 
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         Stream acc = null;
         for(Stream s : stream_in) {
-            if (s.findDataClass("AccX") >= 0)
-                acc = s;
+			if (s.findDataClass("AccX") >= 0)
+			{
+				acc = s;
+			}
         }
         if(acc == null || acc.dim != 3) {
             Log.w("non-standard input stream");
@@ -76,7 +79,7 @@ public class OverallActivation extends Transformer {
     }
 
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] out = stream_out.ptrF();
         out[0] = computeOA(stream_in[0]);
@@ -125,7 +128,7 @@ public class OverallActivation extends Transformer {
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {}
 
     @Override

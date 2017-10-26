@@ -28,6 +28,7 @@
 package hcm.ssj.glass;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -67,10 +68,10 @@ public class InfraredChannel extends SensorChannel
     }
 
     /**
-     * @param stream_out Stream
-     */
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream stream_out)
+    public void enter(Stream stream_out) throws SSJFatalException
     {
         if (_sensor instanceof InfraredSensor)
         {
@@ -85,7 +86,7 @@ public class InfraredChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
         float[] out = stream_out.ptrF();
         out[0] = _irSensor.getData();

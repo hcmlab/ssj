@@ -103,7 +103,7 @@ public class WatchDog extends Thread {
     public void run()
     {
         //wait for framework
-        while (!_frame.isRunning()) {
+        while (_frame.getState() == Pipeline.State.STARTING) {
             try {
                 sleep(Cons.SLEEP_IN_LOOP);
             } catch (InterruptedException e) {

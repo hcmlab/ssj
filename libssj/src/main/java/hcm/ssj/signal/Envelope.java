@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -70,15 +71,17 @@ public class Envelope extends Transformer {
     }
 
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         _lastValue = new float[stream_in[0].dim];
-        for(int i = 0; i < _lastValue.length; ++i)
-            _lastValue[i] = 0;
+		for (int i = 0; i < _lastValue.length; ++i)
+		{
+			_lastValue[i] = 0;
+		}
     }
 
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         float[] data = stream_in[0].ptrF();
         float[] out = stream_out.ptrF();
@@ -92,19 +95,25 @@ public class Envelope extends Transformer {
                 valNew = data[i * dim + j];
                 valOld = (i > 1) ? out[(i-1) * dim + j] : _lastValue[j];
 
-                if(valNew > valOld)
+                if (valNew > valOld)
+                {
                     out[i * dim + j] = (valOld + options.attackSlope.get() > valNew) ? valNew : valOld + options.attackSlope.get();
-                else if(valNew < valOld)
+                }
+                else if (valNew < valOld)
+                {
                     out[i * dim + j] = (valOld - options.releaseSlope.get() < valNew) ? valNew : valOld - options.releaseSlope.get();
-                else if(valNew == valOld)
+                }
+                else if (valNew == valOld)
+                {
                     out[i * dim + j] = valOld;
+                }
             }
             _lastValue[j] = out[(stream_in[0].num -1) * dim + j];
         }
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {}
 
     @Override

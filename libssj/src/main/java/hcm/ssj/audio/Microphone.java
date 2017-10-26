@@ -30,6 +30,7 @@ package hcm.ssj.audio;
 import android.media.AudioFormat;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 
 /**
@@ -44,7 +45,7 @@ public class Microphone extends Sensor {
     }
 
     @Override
-    public boolean connect()
+	public boolean connect() throws SSJFatalException
     {
         return true;
     }

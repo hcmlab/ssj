@@ -31,6 +31,7 @@ import org.jtransforms.fft.FloatFFT_1D;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -123,7 +124,7 @@ public class AccelerationFeatures extends Transformer
 	float[] zValuesFFT;
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		int values = stream_in[0].num;
 
@@ -142,7 +143,7 @@ public class AccelerationFeatures extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		MathTools math = MathTools.getInstance();
 

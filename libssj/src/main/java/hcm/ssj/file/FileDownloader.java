@@ -80,7 +80,7 @@ public class FileDownloader extends Thread
 				{
 					t.result = downloadFile(t.filename, t.from, t.to);
 				}
-				catch (IOException e)
+				catch (IOException | NullPointerException e)
 				{
 					Log.e("Error while downloading file", e);
 				}
@@ -135,7 +135,7 @@ public class FileDownloader extends Thread
 	 * @param to Folder to where to download the file
 	 * @return Instance of the downloaded file.
 	 */
-	private boolean downloadFile(String fileName, String from, String to) throws IOException
+	private boolean downloadFile(String fileName, String from, String to) throws IOException, NullPointerException
 	{
 		File destinationDir = new File(to);
 

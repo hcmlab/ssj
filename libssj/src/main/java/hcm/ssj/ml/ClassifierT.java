@@ -40,6 +40,7 @@ import java.util.ArrayList;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -197,45 +198,48 @@ public class ClassifierT extends Transformer
         try {
             loadHeader(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
         } catch (IOException | XmlPullParserException e) {
-            _frame.error(_name, "unable to load trainer file", e);
+            throw new SSJException("unable to load trainer file", e);
         }
     }
 
     /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
+	 * @param stream_in  Stream[]
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         //load model files
         try {
             loadModel();
         } catch (IOException e) {
-            _frame.error(_name, "unable to load model file", e);
-            return;
+            throw new SSJFatalException("unable to load model file", e);
         }
 
         if(_model == null || !_model.isTrained())
         {
-            _frame.error(_name, "model not loaded");
-            return;
+            throw new SSJFatalException("model not loaded");
         }
 
-        if(stream_out.dim != _model.getNumClasses())
-            _frame.error(_name, "stream out does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
+		if (stream_out.dim != _model.getNumClasses())
+		{
+            throw new SSJFatalException("stream out does not match model: " + stream_out.dim + " != " + _model.getNumClasses());
+		}
 
-        if (stream_in.length > 1 && !options.merge.get())
-            _frame.error(_name, "sources count not supported. Did you forget to set merge to true?");
+		if (stream_in.length > 1 && !options.merge.get())
+		{
+            throw new SSJFatalException("sources count not supported. Did you forget to set merge to true?");
+		}
 
-        if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
-            _frame.error(_name, "stream type not supported");
+		if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
+		{
+            throw new SSJFatalException("stream type not supported");
+		}
 
         Stream[] input = stream_in;
         if(input[0].bytes != bytes || input[0].type != type) {
-            _frame.error(_name, "input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
+            throw new SSJFatalException("input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
                           + ") does not match model's expected input (type=" + type + ", bytes=" + bytes + ", sr=" + sr + ")");
-            return;
         }
         if(input[0].sr != sr) {
             Log.w("input stream (sr=" + input[0].sr + ") may not be correct for model (sr=" + sr + ")");
@@ -251,8 +255,7 @@ public class ClassifierT extends Transformer
         }
 
         if(input[0].dim != dim) {
-            _frame.error(_name, "input stream (dim=" + input[0].dim + ") does not match model (dim=" + dim + ")");
-            return;
+            throw new SSJFatalException("input stream (dim=" + input[0].dim + ") does not match model (dim=" + dim + ")");
         }
         if (input[0].num > 1) {
             Log.w ("stream num > 1, only first sample is used");
@@ -271,7 +274,7 @@ public class ClassifierT extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         Stream[] input = stream_in;
 
