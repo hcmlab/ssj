@@ -140,6 +140,10 @@ public class ProviderTable
         //
         if (objects.length > 0) {
             for (int i = 0; i < objects.length; i++) {
+
+                if(PipelineBuilder.getInstance().isManagedFeedback(objects[i]))
+                    continue;
+
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
