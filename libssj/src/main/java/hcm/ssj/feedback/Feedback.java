@@ -81,11 +81,28 @@ public abstract class Feedback extends EventHandler
 		return lastExecutionTime;
 	}
 
+	protected boolean activatedByEventName(String eventName)
+	{
+		// Allways activate if no eventnames are specified
+		if(getOptions().eventNames.get() == null || getOptions().eventNames.get().length == 0)
+		{
+			return true;
+		}
+		for(String eventNameToActivate : getOptions().eventNames.get())
+		{
+			if(eventNameToActivate.equals(eventName))
+				return true;
+		}
+		return false;
+	}
+
+	public abstract Options getOptions();
+
 	public class Options extends OptionList
 	{
 
 		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
-		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
+		public final Option<String[]> eventNames = new Option<>("eventNames", null, String[].class, "event names to listen on");
 
 		protected Options()
 		{

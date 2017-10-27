@@ -42,6 +42,8 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -149,7 +151,13 @@ public class FileDialog extends DialogFragment
                                     int pos = listView.getCheckedItemPosition();
                                     if (pos > AbsListView.INVALID_POSITION)
                                     {
-                                        (new StrategyLoader(xmlFiles[pos])).load();
+                                        try
+                                        {
+                                            (new StrategyLoader(xmlFiles[pos])).load();
+                                        } catch (IOException|XmlPullParserException e)
+                                        {
+                                            throw new RuntimeException("Strategy file could not be loaded!",e);
+                                        }
                                     }
                                 }
 							}

@@ -60,6 +60,12 @@ public class AuditoryFeedback extends Feedback
 
 	public final Options options = new Options();
 
+	@Override
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
 	private SoundPool player;
 	private int soundId;
 
@@ -102,7 +108,7 @@ public class AuditoryFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty() || !isActive())
+		if(!activatedByEventName(event.name) || !isActive())
 			return;
 
 		// Execute only if lock has expired

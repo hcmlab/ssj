@@ -27,7 +27,9 @@
 
 package hcm.ssj.creator.util;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -38,13 +40,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.event.ThresholdClassEventSender;
+import hcm.ssj.feedback.AndroidTactileFeedback;
+import hcm.ssj.feedback.AuditoryFeedback;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
+import hcm.ssj.feedback.MSBandTactileFeedback;
+import hcm.ssj.feedback.MyoTactileFeedback;
+import hcm.ssj.feedback.VisualFeedback;
 
 /**
  * Created by Antonio Grieco on 20.10.2017.
@@ -54,16 +61,18 @@ public class StrategyLoader
 {
 
 	private File strategyFile;
-	private List<StrategyFeedback> strategyFeedbackList = new ArrayList<>();
+	private List<ParsedStrategyFeedback> parsedStrategyFeedbackList = new ArrayList<>();
+	private final static String THRESHOLD_PREFIX = "th";
 
 	public StrategyLoader(File strategyFile)
 	{
 		this.strategyFile = strategyFile;
 	}
 
-	public void load() throws IOException
+	public void load() throws IOException, XmlPullParserException
 	{
 		InputStream inputStream = null;
+
 		try
 		{
 			inputStream = new FileInputStream(strategyFile);
@@ -73,20 +82,11 @@ public class StrategyLoader
 
 			while (parser.next() != XmlPullParser.END_DOCUMENT)
 			{
-				switch (parser.getEventType())
+				if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("strategy"))
 				{
-					case XmlPullParser.START_TAG:
-						if (parser.getName().equalsIgnoreCase("strategy"))
-						{
-							loadStrategyComponents(parser);
-						}
-						break;
+					loadStrategyComponents(parser);
 				}
 			}
-		}
-		catch (XmlPullParserException | IOException e)
-		{
-			throw new RuntimeException("Could not load strategy!", e);
 		}
 		finally
 		{
@@ -102,176 +102,410 @@ public class StrategyLoader
 	private void loadStrategyComponents(XmlPullParser parser) throws IOException, XmlPullParserException
 	{
 		parser.require(XmlPullParser.START_TAG, null, "strategy");
-		while (parser.next() != XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
+
+		while (parser.next() != XmlPullParser.END_DOCUMENT)
 		{
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
+			switch (parser.getEventType())
 			{
-				loadNextFeedback(parser);
+				case XmlPullParser.START_TAG:
+					if (parser.getName().equalsIgnoreCase("feedback"))
+					{
+						parsedStrategyFeedbackList.add(getNextParsedStrategyFeedback(parser));
+					}
+					break;
 			}
 		}
 	}
 
-	private void loadNextFeedback(XmlPullParser parser) throws IOException, XmlPullParserException
+	private ParsedStrategyFeedback getNextParsedStrategyFeedback(XmlPullParser parser) throws IOException, XmlPullParserException
 	{
-		parser.require(XmlPullParser.START_TAG, null, "feedback");
+		ParsedStrategyFeedback parsedStrategyFeedback = new ParsedStrategyFeedback();
 
-		// LEVEL
-		String level_str = parser.getAttributeValue(null, "level");
-		int level = 0;
-		if (level_str != null)
+		goToNextTagWithName(parser, "feedback");
+		parsedStrategyFeedback.feedbackAttributes = new FeedbackAttributes(parser);
+
+		goToNextTagWithName(parser, "condition");
+		parsedStrategyFeedback.conditionAttributes = new ConditionAttributes(parser);
+
+		goToNextTagWithName(parser, "action");
+		parsedStrategyFeedback.actionAttributes = new ActionAttributes(parser);
+
+		return parsedStrategyFeedback;
+	}
+
+	private void goToNextTagWithName(XmlPullParser parser, String tagName) throws IOException, XmlPullParserException
+	{
+		while (parser.getName() == null || !parser.getName().equalsIgnoreCase(tagName))
 		{
-			level = Integer.parseInt(level_str);
-		}
-
-		String valence_str = parser.getAttributeValue(null, "valence");
-		FeedbackCollection.LevelBehaviour levelBehaviour = FeedbackCollection.LevelBehaviour.Neutral;
-		if (valence_str != null)
-		{
-			if(valence_str.equalsIgnoreCase("desirable"))
-				levelBehaviour = FeedbackCollection.LevelBehaviour.Regress;
-			else if(valence_str.equalsIgnoreCase("undesirable"))
-				levelBehaviour = FeedbackCollection.LevelBehaviour.Progress;
-		}
-
-		while (parser.next() != XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
-		{
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("condition"))
-			{
-				double from = Double.parseDouble(parser.getAttributeValue(null, "from"));
-				double to = Double.parseDouble(parser.getAttributeValue(null, "to"));
-			}
-			else if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("action"))
-			{
-
-			}
+			parser.next();
 		}
 	}
 
-	private void addComponents() {
-		// ThresholdClassEventSender
-		List<ThresholdClassEventSender> thresholdClassEventSenderList = getThresholdClassEventSender();
+	private void addComponents()
+	{
+		PipelineBuilder pipelineBuilder = PipelineBuilder.getInstance();
 
-		// FeedbackCollection
 		FeedbackCollection feedbackCollection = new FeedbackCollection();
-		PipelineBuilder.getInstance().add(feedbackCollection);
-		for(ThresholdClassEventSender thresholdClassEventSender : thresholdClassEventSenderList)
+		pipelineBuilder.add(feedbackCollection);
+
+		List<Float> thresholds = new ArrayList<>();
+		// Iterate first time to build up Thresholds
+		for (ParsedStrategyFeedback parsedStrategyFeedback : parsedStrategyFeedbackList)
 		{
-			PipelineBuilder.getInstance().add(thresholdClassEventSender);
-			PipelineBuilder.getInstance().addEventProvider(feedbackCollection, thresholdClassEventSender);
+			if (parsedStrategyFeedback.conditionAttributes.from != null)
+			{
+				float from = Float.parseFloat(parsedStrategyFeedback.conditionAttributes.from);
+				if (!thresholds.contains(from))
+				{
+					thresholds.add(from);
+				}
+			}
+			if (parsedStrategyFeedback.conditionAttributes.to != null)
+			{
+				float to = Float.parseFloat(parsedStrategyFeedback.conditionAttributes.to);
+				if (!thresholds.contains(to))
+				{
+					thresholds.add(to);
+				}
+			}
 		}
+		Collections.sort(thresholds);
 
-		// Feedbacks
-		for(StrategyFeedback strategyFeedback : strategyFeedbackList)
+		ThresholdClassEventSender thresholdClassEventSender = new ThresholdClassEventSender();
+		pipelineBuilder.add(thresholdClassEventSender);
+		pipelineBuilder.addEventProvider(feedbackCollection, thresholdClassEventSender);
+		float[] thresholdArray = new float[thresholds.size()];
+		int thresholdArrayCounter = 0;
+		for (Float threshold : thresholds) {
+			thresholdArray[thresholdArrayCounter++] = (threshold != null ? threshold : Float.NaN);
+		}
+		thresholdClassEventSender.options.thresholds.set(thresholdArray);
+
+		List<String> thresholdNames = new ArrayList<>();
+		for(int thresholdNameCounter=0; thresholdNameCounter<thresholdArray.length; thresholdNameCounter++)
 		{
-			PipelineBuilder.getInstance().addFeedbackToCollectionContainer(feedbackCollection,
-																		   strategyFeedback.feedback,
-																		   strategyFeedback.level,
-																		   strategyFeedback.levelBehaviour);
+			thresholdNames.add(new String(THRESHOLD_PREFIX+thresholdNameCounter));
 		}
-	}
-//		List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList = new ArrayList<>();
-//
-//		parser.require(XmlPullParser.START_TAG, null, "strategy");
-//
-//		//iterate through classes
-//		while (parser.next() != XmlPullParser.END_DOCUMENT)
-//		{
-//			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("feedback"))
-//			{
-//				loadFeedback(parser, feedbackList);
-//			}
-//			else if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("strategy"))
-//			{
-//				break; //jump out once we reach end tag for classes
-//			}
-//		}
-//		parser.require(XmlPullParser.END_TAG, null, "strategy");
-//
-//		addFeedbackList
-//	}
-//
-//	private void loadFeedback(XmlPullParser parser)
-//	{
-//		parser.require(XmlPullParser.START_TAG, null, "feedback");
-//
-//		String level_str = parser.getAttributeValue(null, "level");
-//		int level = 0;
-//		if (level_str != null)
-//		{
-//			level = Integer.parseInt(level_str);
-//		}
-//
-//		String valence_str = parser.getAttributeValue(null, "valence");
-//		if (valence_str != null)
-//		{
-//			valence = FeedbackClass.Valence.valueOf(valence_str);
-//		}
-//
-//		while (parser.next() != XmlPullParser.END_DOCUMENT)
-//		{
-//			if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("condition"))
-//			{
-//				condition = Condition.create(parser, context);
-//			}
-//			else if (xml.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("action"))
-//			{
-//				action = Action.create(type, parser, context);
-//			}
-//			else if (xml.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
-//			{
-//				break; //jump out once we reach end tag
-//			}
-//		}
-//	}
+		thresholdClassEventSender.options.classes.set(thresholdNames.toArray(new String[thresholdNames.size()]));
 
-	private class StrategyFeedback
-	{
-		final int level;
-		final ThresholdRange thresholdRange;
-		final Feedback feedback;
-		final FeedbackCollection.LevelBehaviour levelBehaviour;
+		for (ParsedStrategyFeedback parsedStrategyFeedback : parsedStrategyFeedbackList)
+		{
+			Feedback feedback = getFeedbackForParsedFeedback(parsedStrategyFeedback);
 
-		private StrategyFeedback(int level,
-								 ThresholdRange thresholdRange,
-								 Feedback feedback,
-								 FeedbackCollection.LevelBehaviour levelBehaviour) {
-			this.level = level;
-			this.thresholdRange = thresholdRange;
-			this.feedback = feedback;
-			this.levelBehaviour = levelBehaviour;
+			if (feedback == null)
+			{
+				throw new RuntimeException("Error loading feedback from strategy file.");
+			}
+
+			pipelineBuilder.add(feedback);
+			pipelineBuilder.addFeedbackToCollectionContainer(feedbackCollection,
+															 feedback,
+															 getLevel(parsedStrategyFeedback),
+															 getLevelBehaviour(parsedStrategyFeedback)
+
+			);
+
+			// Set lock
+			if (parsedStrategyFeedback.actionAttributes.lockSelf != null)
+			{
+				feedback.getOptions().lock.set(Integer.parseInt(parsedStrategyFeedback.actionAttributes.lockSelf));
+			}
+
+			String[] eventNames = getEventNames(thresholds,
+												parsedStrategyFeedback.conditionAttributes.from,
+												parsedStrategyFeedback.conditionAttributes.to);
+			feedback.getOptions().eventNames.set(eventNames);
 		}
 	}
 
-	private class ThresholdRange
+	private String[] getEventNames(List<Float> thresholds, String from, String to)
 	{
-		final double lowerBound;
-		final double upperBound;
+		if(from == null || to == null)
+			return null;
 
-		public ThresholdRange(double lowerBound, double upperBound)
+		Float fromFloat = Float.parseFloat(from);
+		Float toFloat = Float.parseFloat(to);
+
+		List<String> thresholdNames = new ArrayList<>();
+		for(int i = thresholds.indexOf(fromFloat); i <= thresholds.indexOf(toFloat); i++)
 		{
-			this.lowerBound = lowerBound;
-			this.upperBound = upperBound;
+			thresholdNames.add(new String(THRESHOLD_PREFIX+i));
 		}
+		return thresholdNames.toArray(new String[thresholdNames.size()]);
+	}
 
-		public ThresholdRangeRelation compare(ThresholdRange other)
+	private FeedbackCollection.LevelBehaviour getLevelBehaviour(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		FeedbackCollection.LevelBehaviour levelBehaviour = FeedbackCollection.LevelBehaviour.Neutral;
+		if (parsedStrategyFeedback.feedbackAttributes.valence != null)
 		{
-			// CONGRUENT
-			if(other.lowerBound == lowerBound && other.upperBound == upperBound)
-				return ThresholdRangeRelation.CONGRUENT;
-			// COMPLETE_LOWER
-			else if(other.lowerBound<= lowerBound && other.upperBound <= lowerBound)
-				return ThresholdRangeRelation.COMPLETE_LOWER;
-			// COMPLETE_UPPER
-			else if(other.lowerBound >= upperBound && other.upperBound >= upperBound)
-				return ThresholdRangeRelation.COMPLETE_UPPER;
-			// INTERSECTING
-			else
-				return ThresholdRangeRelation.INTERSECTING;
+			if (parsedStrategyFeedback.feedbackAttributes.valence.equalsIgnoreCase("desirable"))
+			{
+				levelBehaviour = FeedbackCollection.LevelBehaviour.Regress;
+			}
+			else if (parsedStrategyFeedback.feedbackAttributes.valence.equalsIgnoreCase("undesirable"))
+			{
+				levelBehaviour = FeedbackCollection.LevelBehaviour.Progress;
+			}
+		}
+		return levelBehaviour;
+	}
+
+	private int getLevel(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		if (parsedStrategyFeedback.feedbackAttributes.level != null)
+		{
+			return Integer.parseInt(parsedStrategyFeedback.feedbackAttributes.level);
+		}
+		else
+		{
+			return 0;
 		}
 	}
 
-	private enum ThresholdRangeRelation
+	@Nullable
+	private Feedback getFeedbackForParsedFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
 	{
-		COMPLETE_LOWER, COMPLETE_UPPER, INTERSECTING, CONGRUENT;
+		if (parsedStrategyFeedback.feedbackAttributes.type.equalsIgnoreCase("audio"))
+		{
+			return getAuditoryFeedback(parsedStrategyFeedback);
+		}
+		else if (parsedStrategyFeedback.feedbackAttributes.type.equalsIgnoreCase("visual"))
+		{
+			return getVisualFeedback(parsedStrategyFeedback);
+		}
+		else if (parsedStrategyFeedback.feedbackAttributes.type.equalsIgnoreCase("tactile"))
+		{
+			return getTactileFeedback(parsedStrategyFeedback);
+		}
+
+		return null;
+	}
+
+	@Nullable
+	private Feedback getTactileFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		if (parsedStrategyFeedback.feedbackAttributes.device != null)
+		{
+			if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("Myo"))
+			{
+				return getMyoTactileFeedback(parsedStrategyFeedback);
+			}
+			else if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("MsBand"))
+			{
+				return getMsBandTactileFeedback(parsedStrategyFeedback);
+			}
+			else if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("Android"))
+			{
+				return getAndroidTactileFeedback(parsedStrategyFeedback);
+			}
+		}
+		return null;
+	}
+
+	private Feedback getMsBandTactileFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		MSBandTactileFeedback msBandTactileFeedback = new MSBandTactileFeedback();
+
+		// Duration
+		msBandTactileFeedback.options.setOptionValue(
+				msBandTactileFeedback.options.duration.getName(),
+				parsedStrategyFeedback.actionAttributes.duration
+		);
+
+		// VibrationType
+		msBandTactileFeedback.options.setOptionValue(
+				msBandTactileFeedback.options.vibrationType.getName(),
+				parsedStrategyFeedback.actionAttributes.type
+		);
+
+		// DeviceId
+		msBandTactileFeedback.options.setOptionValue(
+				msBandTactileFeedback.options.deviceId.getName(),
+				parsedStrategyFeedback.actionAttributes.duration
+		);
+
+		return msBandTactileFeedback;
+	}
+
+	private Feedback getAndroidTactileFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		AndroidTactileFeedback androidTactileFeedback = new AndroidTactileFeedback();
+		//Vibration Pattern
+		androidTactileFeedback.options.setOptionValue(
+				androidTactileFeedback.options.vibrationPattern.getName(),
+				parsedStrategyFeedback.actionAttributes.duration
+		);
+
+		return androidTactileFeedback;
+	}
+
+	private Feedback getMyoTactileFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		MyoTactileFeedback myoTactileFeedback = new MyoTactileFeedback();
+		myoTactileFeedback.options.deviceId.set(parsedStrategyFeedback.feedbackAttributes.deviceId);
+
+		//Intensity
+		myoTactileFeedback.options.setOptionValue(
+				myoTactileFeedback.options.intensity.getName(),
+				parsedStrategyFeedback.actionAttributes.intensity
+		);
+		//Duration
+		myoTactileFeedback.options.setOptionValue(
+				myoTactileFeedback.options.duration.getName(),
+				parsedStrategyFeedback.actionAttributes.duration
+		);
+
+		return myoTactileFeedback;
+	}
+
+	private Feedback getVisualFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		VisualFeedback visualFeedback = new VisualFeedback();
+
+		//Options
+		if (parsedStrategyFeedback.actionAttributes.brightness != null)
+		{
+			visualFeedback.options.brightness.set(Float.parseFloat(parsedStrategyFeedback.actionAttributes.brightness));
+		}
+
+		if (parsedStrategyFeedback.actionAttributes.duration != null)
+		{
+			visualFeedback.options.duration.set(Integer.parseInt(parsedStrategyFeedback.actionAttributes.duration));
+		}
+
+		if (parsedStrategyFeedback.feedbackAttributes.fade != null)
+		{
+			visualFeedback.options.fade.set(Integer.parseInt(parsedStrategyFeedback.feedbackAttributes.fade));
+		}
+
+		if (parsedStrategyFeedback.feedbackAttributes.position != null)
+		{
+			visualFeedback.options.position.set(Integer.parseInt(parsedStrategyFeedback.feedbackAttributes.position));
+		}
+
+		// Icons
+		if (parsedStrategyFeedback.actionAttributes.res != null)
+		{
+			String[] iconString = parsedStrategyFeedback.actionAttributes.res.split(",");
+			String assetsString = "assets:";
+			if (!iconString[0].isEmpty())
+			{
+				visualFeedback.options.feedbackIconFromAssets.set(iconString[0].startsWith(assetsString));
+				String iconPath = iconString[0].replace(assetsString, "");
+				visualFeedback.options.feedbackIcon.set(Uri.parse(iconPath));
+			}
+			if (!iconString[1].isEmpty())
+			{
+				visualFeedback.options.qualityIconFromAssets.set(iconString[1].startsWith(assetsString));
+				String iconPath = iconString[1].replace(assetsString, "");
+				visualFeedback.options.qualityIcon.set(Uri.parse(iconPath));
+			}
+		}
+
+		return visualFeedback;
+	}
+
+	private Feedback getAuditoryFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
+	{
+		AuditoryFeedback auditoryFeedback = new AuditoryFeedback();
+
+		//Options
+		auditoryFeedback.options.audioFile.set(Uri.parse(parsedStrategyFeedback.actionAttributes.res));
+
+		if (parsedStrategyFeedback.actionAttributes.intensity != null)
+		{
+			auditoryFeedback.options.intensity.set(Float.parseFloat(parsedStrategyFeedback.actionAttributes.intensity));
+		}
+
+		if (parsedStrategyFeedback.actionAttributes.lockSelf != null)
+		{
+			auditoryFeedback.options.lock.set(Integer.parseInt(parsedStrategyFeedback.actionAttributes.lockSelf));
+		}
+
+		return auditoryFeedback;
+	}
+
+	private class ParsedStrategyFeedback
+	{
+		FeedbackAttributes feedbackAttributes;
+		ActionAttributes actionAttributes;
+		ConditionAttributes conditionAttributes;
+	}
+
+	private class ActionAttributes
+	{
+		final String res;
+		final String lock;
+		final String lockSelf;
+		final String intensity;
+		final String duration;
+		final String brightness;
+		final String type;
+
+		public ActionAttributes(XmlPullParser xmlPullParser) throws IOException, XmlPullParserException
+		{
+			xmlPullParser.require(XmlPullParser.START_TAG, null, "action");
+
+			res = xmlPullParser.getAttributeValue(null, "res");
+			lock = xmlPullParser.getAttributeValue(null, "lock");
+			lockSelf = xmlPullParser.getAttributeValue(null, "lockSelf");
+			intensity = xmlPullParser.getAttributeValue(null, "intensity");
+			duration = xmlPullParser.getAttributeValue(null, "duration");
+			brightness = xmlPullParser.getAttributeValue(null, "brightness");
+			type = xmlPullParser.getAttributeValue(null, "type");
+		}
+	}
+
+	private class ConditionAttributes
+	{
+		String event;
+		String sender;
+		String type;
+		String history;
+		String sum;
+		String from;
+		String to;
+
+		public ConditionAttributes(XmlPullParser xmlPullParser) throws IOException, XmlPullParserException
+		{
+			xmlPullParser.require(XmlPullParser.START_TAG, null, "condition");
+
+			event = xmlPullParser.getAttributeValue(null, "event");
+			sender = xmlPullParser.getAttributeValue(null, "sender");
+			type = xmlPullParser.getAttributeValue(null, "type");
+			history = xmlPullParser.getAttributeValue(null, "history");
+			sum = xmlPullParser.getAttributeValue(null, "sum");
+			from = xmlPullParser.getAttributeValue(null, "from");
+			to = xmlPullParser.getAttributeValue(null, "to");
+		}
+	}
+
+	private class FeedbackAttributes
+	{
+		String type;
+		String valence;
+		String level;
+		String layout;
+		String position;
+		String fade;
+		String def_brightness;
+		String device;
+		String deviceId;
+
+		public FeedbackAttributes(XmlPullParser xmlPullParser) throws IOException, XmlPullParserException
+		{
+			xmlPullParser.require(XmlPullParser.START_TAG, null, "feedback");
+
+			type = xmlPullParser.getAttributeValue(null, "type");
+			valence = xmlPullParser.getAttributeValue(null, "valence");
+			level = xmlPullParser.getAttributeValue(null, "level");
+			layout = xmlPullParser.getAttributeValue(null, "layout");
+			position = xmlPullParser.getAttributeValue(null, "position");
+			fade = xmlPullParser.getAttributeValue(null, "fade");
+			def_brightness = xmlPullParser.getAttributeValue(null, "def_brightness");
+			device = xmlPullParser.getAttributeValue(null, "device");
+			deviceId = xmlPullParser.getAttributeValue(null, "deviceId");
+		}
 	}
 }

@@ -39,6 +39,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -121,9 +122,11 @@ public class StrategyLoaderTest
 		PipelineBuilder pipelineBuilder = PipelineBuilder.getInstance();
 
 		/* ------ ThresholdClassEventSender's ------ */
-		List<Component> thresholdClassEventSender =
+		List<Component> thresholdClassEventSenders =
 				pipelineBuilder.getComponentsOfClass(PipelineBuilder.Type.Consumer, ThresholdClassEventSender.class);
-		assertTrue(thresholdClassEventSender.size() == 2);
+		assertTrue(thresholdClassEventSenders.size() == 1);
+		ThresholdClassEventSender thresholdClassEventSender = (ThresholdClassEventSender)thresholdClassEventSenders.get(0);
+		assertTrue(Arrays.equals(thresholdClassEventSender.options.thresholds.get(), new float[]{0,3,4,12,13,999}));
 
 		/* ------ FeedbackCollection ------ */
 		List<Component> feedbackCollections =
@@ -172,6 +175,12 @@ public class StrategyLoaderTest
 		}
 	}
 
+	@Test
+	public void testEventNames()
+	{
+		
+	}
+
 	@After
 	public void deleteStrategyFile()
 	{
@@ -179,5 +188,6 @@ public class StrategyLoaderTest
 		{
 			strategyFile.delete();
 		}
+		PipelineBuilder.getInstance().clear();
 	}
 }

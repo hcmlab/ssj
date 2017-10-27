@@ -64,7 +64,7 @@ public class VisualFeedback extends Feedback
 		public final Option<Uri> feedbackIcon = new Option<>("feedbackIcon", null, Uri.class, "feedback icon file");
 		public final Option<Boolean> feedbackIconFromAssets = new Option<>("feedbackIconFromAssets", false, Boolean.class, "load feedback icon from assets");
 		public final Option<Uri> qualityIcon = new Option<>("qualityIcon", null, Uri.class, "quality icon file");
-		public final Option<Boolean> qualityIconfromAssets = new Option<>("qualityIconFromAssets", false, Boolean.class, "load quality icon from assets");
+		public final Option<Boolean> qualityIconFromAssets = new Option<>("qualityIconFromAssets", false, Boolean.class, "load quality icon from assets");
 
 		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
 		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear");
@@ -80,6 +80,12 @@ public class VisualFeedback extends Feedback
 
 	}
 	public final Options options = new Options();
+
+	@Override
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
 
 	private List<Drawable> iconList;
 	private List<ImageSwitcher> imageSwitcherList;
@@ -131,7 +137,7 @@ public class VisualFeedback extends Feedback
 			if(feedbackDrawable != null)
 				iconList.add(feedbackDrawable);
 
-			Drawable qualityDrawable = getDrawable(options.qualityIcon.get(), options.qualityIconfromAssets.get());
+			Drawable qualityDrawable = getDrawable(options.qualityIcon.get(), options.qualityIconFromAssets.get());
 			if(qualityDrawable != null)
 				iconList.add(qualityDrawable);
 		}
@@ -163,7 +169,7 @@ public class VisualFeedback extends Feedback
 	@Override
 	public void notify(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty() || !isActive())
+		if(!activatedByEventName(event.name) || !isActive())
 			return;
 
 		// Execute only if lock has expired
