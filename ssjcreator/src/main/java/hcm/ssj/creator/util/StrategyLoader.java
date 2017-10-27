@@ -51,6 +51,7 @@ import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.feedback.MSBandTactileFeedback;
 import hcm.ssj.feedback.MyoTactileFeedback;
 import hcm.ssj.feedback.VisualFeedback;
+import hcm.ssj.file.FileCons;
 
 /**
  * Created by Antonio Grieco on 20.10.2017.
@@ -60,6 +61,7 @@ public class StrategyLoader
 {
 
 	public final static String THRESHOLD_PREFIX = "th";
+	public final static String ASSETS_STRING = "assets:";
 	private File strategyFile;
 	private List<ParsedStrategyFeedback> parsedStrategyFeedbackList = new ArrayList<>();
 
@@ -399,18 +401,37 @@ public class StrategyLoader
 		if (parsedStrategyFeedback.actionAttributes.res != null)
 		{
 			String[] iconString = parsedStrategyFeedback.actionAttributes.res.split(",");
-			String assetsString = "assets:";
 			if (!iconString[0].isEmpty())
 			{
-				visualFeedback.options.feedbackIconFromAssets.set(iconString[0].startsWith(assetsString));
-				String iconPath = iconString[0].replace(assetsString, "");
-				visualFeedback.options.feedbackIcon.set(Uri.parse(iconPath));
+				boolean fromAssets = iconString[0].startsWith(ASSETS_STRING);
+				visualFeedback.options.feedbackIconFromAssets.set(fromAssets);
+				if(fromAssets)
+				{
+					String iconPath = iconString[0].replace(ASSETS_STRING, "");
+					visualFeedback.options.feedbackIcon.set(Uri.parse(iconPath));
+				}
+				else
+				{
+					String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator;
+					String iconPath = path + iconString[0];
+					visualFeedback.options.feedbackIcon.set(Uri.parse(iconPath));
+				}
 			}
 			if (!iconString[1].isEmpty())
 			{
-				visualFeedback.options.qualityIconFromAssets.set(iconString[1].startsWith(assetsString));
-				String iconPath = iconString[1].replace(assetsString, "");
-				visualFeedback.options.qualityIcon.set(Uri.parse(iconPath));
+				boolean fromAssets = iconString[1].startsWith(ASSETS_STRING);
+				visualFeedback.options.qualityIconFromAssets.set(fromAssets);
+				if(fromAssets)
+				{
+					String iconPath = iconString[1].replace(ASSETS_STRING, "");
+					visualFeedback.options.qualityIcon.set(Uri.parse(iconPath));
+				}
+				else
+				{
+					String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator;
+					String iconPath = path + iconString[1];
+					visualFeedback.options.qualityIcon.set(Uri.parse(iconPath));
+				}
 			}
 		}
 
@@ -422,7 +443,19 @@ public class StrategyLoader
 		AuditoryFeedback auditoryFeedback = new AuditoryFeedback();
 
 		//Options
-		auditoryFeedback.options.audioFile.set(Uri.parse(parsedStrategyFeedback.actionAttributes.res));
+		boolean fromAssets = parsedStrategyFeedback.actionAttributes.res.startsWith(ASSETS_STRING);
+		auditoryFeedback.options.fromAssets.set(fromAssets);
+		if(fromAssets)
+		{
+			String audioPath = parsedStrategyFeedback.actionAttributes.res.replace(ASSETS_STRING, "");
+			auditoryFeedback.options.audioFile.set(Uri.parse(audioPath));
+		}
+		else
+		{
+			String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator;
+			String audioPath = path + parsedStrategyFeedback.actionAttributes.res;
+			auditoryFeedback.options.audioFile.set(Uri.parse(audioPath));
+		}
 
 		if (parsedStrategyFeedback.actionAttributes.intensity != null)
 		{
