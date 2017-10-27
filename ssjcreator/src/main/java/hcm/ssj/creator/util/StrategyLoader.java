@@ -28,7 +28,6 @@
 package hcm.ssj.creator.util;
 
 import android.net.Uri;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Xml;
 
@@ -44,7 +43,6 @@ import java.util.Collections;
 import java.util.List;
 
 import hcm.ssj.creator.core.PipelineBuilder;
-import hcm.ssj.creator.view.PipeView;
 import hcm.ssj.event.ThresholdClassEventSender;
 import hcm.ssj.feedback.AndroidTactileFeedback;
 import hcm.ssj.feedback.AuditoryFeedback;
@@ -61,16 +59,16 @@ import hcm.ssj.feedback.VisualFeedback;
 public class StrategyLoader
 {
 
+	public final static String THRESHOLD_PREFIX = "th";
 	private File strategyFile;
 	private List<ParsedStrategyFeedback> parsedStrategyFeedbackList = new ArrayList<>();
-	public final static String THRESHOLD_PREFIX = "th";
 
 	public StrategyLoader(File strategyFile)
 	{
 		this.strategyFile = strategyFile;
 	}
 
-	public void load() throws IOException, XmlPullParserException
+	public boolean load()
 	{
 		InputStream inputStream = null;
 
@@ -80,24 +78,33 @@ public class StrategyLoader
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
 			parser.setInput(inputStream, null);
-
-			while (parser.next() != XmlPullParser.END_DOCUMENT)
-			{
-				if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("strategy"))
-				{
-					loadStrategyComponents(parser);
-				}
-			}
+			
+			parser.nextTag();
+			parser.require(XmlPullParser.START_TAG, null, "ssj");
+			parser.nextTag();
+			parser.require(XmlPullParser.START_TAG, null, "strategy");
+			loadStrategyComponents(parser);
+			addComponents();
+			return true;
+		}
+		catch (IOException | XmlPullParserException e)
+		{
+			return false;
 		}
 		finally
 		{
 			if (inputStream != null)
 			{
-				inputStream.close();
+				try
+				{
+					inputStream.close();
+				}
+				catch (IOException e)
+				{
+					throw new RuntimeException("Could not close stream!", e);
+				}
 			}
 		}
-
-		addComponents();
 	}
 
 	private void loadStrategyComponents(XmlPullParser parser) throws IOException, XmlPullParserException
@@ -177,15 +184,16 @@ public class StrategyLoader
 		pipelineBuilder.addEventProvider(feedbackCollection, thresholdClassEventSender);
 		float[] thresholdArray = new float[thresholds.size()];
 		int thresholdArrayCounter = 0;
-		for (Float threshold : thresholds) {
+		for (Float threshold : thresholds)
+		{
 			thresholdArray[thresholdArrayCounter++] = (threshold != null ? threshold : Float.NaN);
 		}
 		thresholdClassEventSender.options.thresholds.set(thresholdArray);
 
 		List<String> thresholdNames = new ArrayList<>();
-		for(int thresholdNameCounter=0; thresholdNameCounter<thresholdArray.length; thresholdNameCounter++)
+		for (int thresholdNameCounter = 0; thresholdNameCounter < thresholdArray.length; thresholdNameCounter++)
 		{
-			thresholdNames.add(new String(THRESHOLD_PREFIX+thresholdNameCounter));
+			thresholdNames.add(new String(THRESHOLD_PREFIX + thresholdNameCounter));
 		}
 		thresholdClassEventSender.options.classes.set(thresholdNames.toArray(new String[thresholdNames.size()]));
 
@@ -221,16 +229,18 @@ public class StrategyLoader
 
 	private String[] getEventNames(List<Float> thresholds, String from, String to)
 	{
-		if(from == null || to == null)
+		if (from == null || to == null)
+		{
 			return null;
+		}
 
 		Float fromFloat = Float.parseFloat(from);
 		Float toFloat = Float.parseFloat(to);
 
 		List<String> thresholdNames = new ArrayList<>();
-		for(int i = thresholds.indexOf(fromFloat); i < thresholds.indexOf(toFloat); i++)
+		for (int i = thresholds.indexOf(fromFloat); i < thresholds.indexOf(toFloat); i++)
 		{
-			thresholdNames.add(new String(THRESHOLD_PREFIX+i));
+			thresholdNames.add(new String(THRESHOLD_PREFIX + i));
 		}
 		return thresholdNames.toArray(new String[thresholdNames.size()]);
 	}

@@ -151,16 +151,26 @@ public class FileDialog extends DialogFragment
                                     int pos = listView.getCheckedItemPosition();
                                     if (pos > AbsListView.INVALID_POSITION)
                                     {
-                                        try
+                                        if (new StrategyLoader(xmlFiles[pos]).load())
                                         {
-                                            (new StrategyLoader(xmlFiles[pos])).load();
-                                        } catch (IOException|XmlPullParserException e)
-                                        {
-                                            throw new RuntimeException("Strategy file could not be loaded!",e);
+                                            for (Listener listener : alListeners)
+                                            {
+                                                listener.onPositiveEvent(new File[]{xmlFiles[pos]});
+                                            }
+                                            return;
                                         }
+                                        for (Listener listener : alListeners)
+                                        {
+                                            listener.onNegativeEvent(new Boolean[]{false});
+                                        }
+                                        return;
                                     }
                                 }
-							}
+                                for (Listener listener : alListeners)
+                                {
+                                    listener.onNegativeEvent(null);
+                                }
+                            }
 							break;
 							case DELETE:
                             {
