@@ -94,13 +94,6 @@ public class FeedbackCollection extends EventHandler
 			}
 		}
 
-		//TODO: NOT WORKING PROPPERLY!
-
-		Log.d("currentTime: ", String.valueOf(System.currentTimeMillis()));
-		Log.d("regressionTimes: ", Arrays.toString(lastRegressExecutionTimes.toArray()));
-		Log.d("progressionTimes: ", Arrays.toString(lastProgressExecutionTimes.toArray()));
-		Log.d("test", Arrays.toString(new int[0]));
-
 		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() &&
 				allTimeStampsInIntervalFromNow(lastProgressExecutionTimes, (long) (options.progression.get() * 1000)) &&

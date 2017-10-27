@@ -80,7 +80,7 @@ public class StrategyLoader
 			XmlPullParser parser = Xml.newPullParser();
 			parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
 			parser.setInput(inputStream, null);
-			
+
 			parser.nextTag();
 			parser.require(XmlPullParser.START_TAG, null, "ssj");
 			parser.nextTag();
@@ -321,22 +321,13 @@ public class StrategyLoader
 		MSBandTactileFeedback msBandTactileFeedback = new MSBandTactileFeedback();
 
 		// Duration
-		msBandTactileFeedback.options.setOptionValue(
-				msBandTactileFeedback.options.duration.getName(),
-				parsedStrategyFeedback.actionAttributes.duration
-		);
+		msBandTactileFeedback.options.duration.setValue(parsedStrategyFeedback.actionAttributes.duration);
 
 		// VibrationType
-		msBandTactileFeedback.options.setOptionValue(
-				msBandTactileFeedback.options.vibrationType.getName(),
-				parsedStrategyFeedback.actionAttributes.type
-		);
+		msBandTactileFeedback.options.vibrationType.setValue(parsedStrategyFeedback.actionAttributes.type);
 
 		// DeviceId
-		msBandTactileFeedback.options.setOptionValue(
-				msBandTactileFeedback.options.deviceId.getName(),
-				parsedStrategyFeedback.actionAttributes.duration
-		);
+		msBandTactileFeedback.options.deviceId.setValue(parsedStrategyFeedback.feedbackAttributes.deviceId);
 
 		return msBandTactileFeedback;
 	}
@@ -345,10 +336,7 @@ public class StrategyLoader
 	{
 		AndroidTactileFeedback androidTactileFeedback = new AndroidTactileFeedback();
 		//Vibration Pattern
-		androidTactileFeedback.options.setOptionValue(
-				androidTactileFeedback.options.vibrationPattern.getName(),
-				parsedStrategyFeedback.actionAttributes.duration
-		);
+		androidTactileFeedback.options.vibrationPattern.setValue(parsedStrategyFeedback.actionAttributes.duration);
 
 		return androidTactileFeedback;
 	}
@@ -356,18 +344,12 @@ public class StrategyLoader
 	private Feedback getMyoTactileFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
 	{
 		MyoTactileFeedback myoTactileFeedback = new MyoTactileFeedback();
+		//DeviceId
 		myoTactileFeedback.options.deviceId.set(parsedStrategyFeedback.feedbackAttributes.deviceId);
-
 		//Intensity
-		myoTactileFeedback.options.setOptionValue(
-				myoTactileFeedback.options.intensity.getName(),
-				parsedStrategyFeedback.actionAttributes.intensity
-		);
+		myoTactileFeedback.options.intensity.setValue(parsedStrategyFeedback.actionAttributes.intensity);
 		//Duration
-		myoTactileFeedback.options.setOptionValue(
-				myoTactileFeedback.options.duration.getName(),
-				parsedStrategyFeedback.actionAttributes.duration
-		);
+		myoTactileFeedback.options.duration.setValue(parsedStrategyFeedback.actionAttributes.duration);
 
 		return myoTactileFeedback;
 	}
@@ -405,32 +387,40 @@ public class StrategyLoader
 			{
 				boolean fromAssets = iconString[0].startsWith(ASSETS_STRING);
 				visualFeedback.options.feedbackIconFromAssets.set(fromAssets);
-				if(fromAssets)
+				if (fromAssets)
 				{
-					String iconPath = iconString[0].replace(ASSETS_STRING, "");
+					String iconPath = iconString[0].replace(ASSETS_STRING, "").trim();
 					visualFeedback.options.feedbackIcon.set(Uri.parse(iconPath));
 				}
 				else
 				{
 					String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator;
-					String iconPath = path + iconString[0];
-					visualFeedback.options.feedbackIcon.set(Uri.parse(iconPath));
+					String iconPath = path + iconString[0].trim();
+					File iconFile = new File(iconPath);
+					if (iconFile.exists())
+					{
+						visualFeedback.options.feedbackIcon.set(Uri.fromFile(iconFile));
+					}
 				}
 			}
 			if (!iconString[1].isEmpty())
 			{
 				boolean fromAssets = iconString[1].startsWith(ASSETS_STRING);
 				visualFeedback.options.qualityIconFromAssets.set(fromAssets);
-				if(fromAssets)
+				if (fromAssets)
 				{
-					String iconPath = iconString[1].replace(ASSETS_STRING, "");
+					String iconPath = iconString[1].replace(ASSETS_STRING, "").trim();
 					visualFeedback.options.qualityIcon.set(Uri.parse(iconPath));
 				}
 				else
 				{
 					String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator;
-					String iconPath = path + iconString[1];
-					visualFeedback.options.qualityIcon.set(Uri.parse(iconPath));
+					String iconPath = path + iconString[1].trim();
+					File iconFile = new File(iconPath);
+					if (iconFile.exists())
+					{
+						visualFeedback.options.qualityIcon.set(Uri.fromFile(iconFile));
+					}
 				}
 			}
 		}
@@ -445,16 +435,20 @@ public class StrategyLoader
 		//Options
 		boolean fromAssets = parsedStrategyFeedback.actionAttributes.res.startsWith(ASSETS_STRING);
 		auditoryFeedback.options.fromAssets.set(fromAssets);
-		if(fromAssets)
+		if (fromAssets)
 		{
-			String audioPath = parsedStrategyFeedback.actionAttributes.res.replace(ASSETS_STRING, "");
+			String audioPath = parsedStrategyFeedback.actionAttributes.res.replace(ASSETS_STRING, "").trim();
 			auditoryFeedback.options.audioFile.set(Uri.parse(audioPath));
 		}
 		else
 		{
 			String path = FileCons.SSJ_EXTERNAL_STORAGE + File.separator;
-			String audioPath = path + parsedStrategyFeedback.actionAttributes.res;
-			auditoryFeedback.options.audioFile.set(Uri.parse(audioPath));
+			String audioPath = path + parsedStrategyFeedback.actionAttributes.res.trim();
+			File audioFile = new File(audioPath);
+			if (audioFile.exists())
+			{
+				auditoryFeedback.options.audioFile.set(Uri.fromFile(audioFile));
+			}
 		}
 
 		if (parsedStrategyFeedback.actionAttributes.intensity != null)
