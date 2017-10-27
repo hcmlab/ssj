@@ -406,10 +406,10 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void disconnect()
+    protected void disconnect() throws SSJFatalException
     {
         releaseCamera();
         releaseSurfaceTexture();

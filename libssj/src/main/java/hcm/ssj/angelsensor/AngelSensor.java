@@ -102,7 +102,7 @@ public class AngelSensor extends Sensor
 	}
 
 	@Override
-	public void disconnect()
+	public void disconnect() throws SSJFatalException
 	{
 
 	}

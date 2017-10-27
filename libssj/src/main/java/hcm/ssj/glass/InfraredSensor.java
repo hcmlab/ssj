@@ -70,10 +70,10 @@ public class InfraredSensor extends hcm.ssj.core.Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void disconnect()
+    protected void disconnect() throws SSJFatalException
     {
     }
 

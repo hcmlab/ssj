@@ -120,13 +120,15 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void disconnect()
+    protected void disconnect() throws SSJFatalException
     {
-        for(int i = 0; i < listeners.size(); i++)
-            manager.unregisterListener(listeners.get(i));
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			manager.unregisterListener(listeners.get(i));
+		}
     }
 
      @Override

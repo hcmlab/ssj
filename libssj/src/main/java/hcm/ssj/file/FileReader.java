@@ -236,10 +236,10 @@ public class FileReader extends Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void disconnect()
+    protected void disconnect() throws SSJFatalException
     {
         inputBinary = closeStream(inputBinary);
         inputASCII = closeStream(inputASCII);

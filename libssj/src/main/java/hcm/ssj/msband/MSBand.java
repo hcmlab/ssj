@@ -175,7 +175,7 @@ public class MSBand extends Sensor
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		Log.d("Disconnecting from MS Band");
 		if (client != null)

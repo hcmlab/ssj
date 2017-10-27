@@ -66,9 +66,10 @@ public class Myo extends Sensor
 	}
 	public final Options options = new Options();
 
-	protected Hub              hub;
-	protected MyoListener      listener;
-    protected boolean          myoInitialized;
+	protected Hub              		hub;
+	protected com.thalmic.myo.Myo 	myo;
+	protected MyoListener      		listener;
+    protected boolean          		myoInitialized;
     Configuration config;
 
 	public Myo()
@@ -78,18 +79,18 @@ public class Myo extends Sensor
 
 	class MyoConnThread implements Runnable
 	{
-		public boolean running = false;
+		public boolean finished = false;
 		public String errorMsg = "";
 
 		public void run()
 		{
-			running = true;
+			finished = false;
 
 			// Check if hub can be initialized
 			if (!hub.init(SSJApplication.getAppContext()))
 			{
 				errorMsg = "Could not initialize the Hub.";
-				running = false;
+				finished = true;
 				return;
 			}
 			else
@@ -122,7 +123,7 @@ public class Myo extends Sensor
 				}
 			}
 
-			running = false;
+			finished = true;
 		}
 	}
 
@@ -140,14 +141,14 @@ public class Myo extends Sensor
 
 		// Wait until myo is connected
 		long time = SystemClock.elapsedRealtime();
-		while (!_terminate && connThread.running && hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
+		while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000 && !_terminate)
 		{
 			try {
 				Thread.sleep(Cons.SLEEP_IN_LOOP);
 			} catch (InterruptedException e) {}
 		}
 
-		if(connThread.errorMsg != null)
+		if(connThread.errorMsg != null && !connThread.errorMsg.isEmpty())
 		{
 			throw new SSJFatalException(connThread.errorMsg);
 		}
@@ -160,7 +161,7 @@ public class Myo extends Sensor
 			return false;
 		}
 
-        com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
+        myo = hub.getConnectedDevices().get(0);
 
         //configure myo
         config = new Configuration(hub, listener, options.emg.get(), options.imu.get(), options.gestures.get());
@@ -173,12 +174,14 @@ public class Myo extends Sensor
 	}
 
 	@Override
-	public void disconnect()
+	public void disconnect() throws SSJFatalException
 	{
-		com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
-		myo.lock();
+		if(myo != null)
+		{
+			myo.lock();
+			config.undo(myo.getMacAddress());
+		}
 
-        config.undo(myo.getMacAddress());
 		hub.shutdown();
-    }
+	}
 }

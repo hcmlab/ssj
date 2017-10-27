@@ -140,7 +140,7 @@ public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReady
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		connected = false;
 

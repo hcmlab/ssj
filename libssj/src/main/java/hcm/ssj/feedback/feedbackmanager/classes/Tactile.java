@@ -236,7 +236,14 @@ public class Tactile extends FeedbackClass
         firstCall = true;
 
         if(myoConnector != null)
-            myoConnector.disconnect();
-        super.release();
+			try
+			{
+				myoConnector.disconnect();
+			}
+			catch (hcm.ssj.core.SSJFatalException e)
+			{
+				e.printStackTrace();
+			}
+		super.release();
     }
 }

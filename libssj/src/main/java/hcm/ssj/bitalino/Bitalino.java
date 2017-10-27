@@ -184,7 +184,7 @@ public class Bitalino extends Sensor
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		Log.d("Disconnecting from Bitalino");
 		if (client != null)

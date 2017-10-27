@@ -141,7 +141,7 @@ public abstract class Sensor extends Component {
     /**
      * called once before termination
      */
-    protected abstract void disconnect();
+    protected abstract void disconnect() throws SSJFatalException;
 
     public boolean isConnected()
     {

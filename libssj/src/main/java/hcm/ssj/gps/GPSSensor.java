@@ -127,7 +127,7 @@ public class GPSSensor extends Sensor
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		if (locationManager != null && listener != null)
 		{

@@ -93,7 +93,7 @@ public class FFMPEGReader extends Sensor
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		reading = false;
 

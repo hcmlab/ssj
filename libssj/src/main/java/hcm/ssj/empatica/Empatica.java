@@ -72,7 +72,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 {
 	public class Options extends OptionList
 	{
-		public final Option<String> apiKey = new Option<>("apiKey", "e07128d944fe4b7081912cfe9042b3d6", String.class, "api key");
+		public final Option<String> apiKey = new Option<>("apiKey", null, String.class, "the api key from your empatica developer page");
 
 		/**
 		 *
@@ -250,7 +250,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public void disconnect()
+	public void disconnect() throws SSJFatalException
 	{
 		Log.i("disconnecting...");
 		deviceManager.disconnect();

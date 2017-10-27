@@ -160,7 +160,7 @@ public class SocketReader extends Sensor
 
 
     @Override
-    public void disconnect()
+	public void disconnect() throws SSJFatalException
     {
         _connected = false;
 

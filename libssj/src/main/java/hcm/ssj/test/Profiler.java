@@ -47,7 +47,7 @@ public class Profiler extends Sensor {
     }
 
     @Override
-    public void disconnect()
+	public void disconnect() throws SSJFatalException
     {
     }
 }

@@ -167,7 +167,7 @@ public class BluetoothReader extends Sensor {
     }
 
     @Override
-    public void disconnect()
+	public void disconnect() throws SSJFatalException
     {
         try {
             _conn.disconnect();
