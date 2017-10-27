@@ -44,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 
 import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.creator.view.PipeView;
 import hcm.ssj.event.ThresholdClassEventSender;
 import hcm.ssj.feedback.AndroidTactileFeedback;
 import hcm.ssj.feedback.AuditoryFeedback;
@@ -62,7 +63,7 @@ public class StrategyLoader
 
 	private File strategyFile;
 	private List<ParsedStrategyFeedback> parsedStrategyFeedbackList = new ArrayList<>();
-	private final static String THRESHOLD_PREFIX = "th";
+	public final static String THRESHOLD_PREFIX = "th";
 
 	public StrategyLoader(File strategyFile)
 	{
@@ -227,7 +228,7 @@ public class StrategyLoader
 		Float toFloat = Float.parseFloat(to);
 
 		List<String> thresholdNames = new ArrayList<>();
-		for(int i = thresholds.indexOf(fromFloat); i <= thresholds.indexOf(toFloat); i++)
+		for(int i = thresholds.indexOf(fromFloat); i < thresholds.indexOf(toFloat); i++)
 		{
 			thresholdNames.add(new String(THRESHOLD_PREFIX+i));
 		}
