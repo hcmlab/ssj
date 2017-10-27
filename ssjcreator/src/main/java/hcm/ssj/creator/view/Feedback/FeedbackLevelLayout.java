@@ -29,6 +29,7 @@ package hcm.ssj.creator.view.Feedback;
 
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -60,14 +61,15 @@ public class FeedbackLevelLayout extends LinearLayout
 		feedbackComponentGrid = (android.widget.GridLayout) this.findViewById(R.id.feedbackComponentGrid);
 
 		setLevel(level);
-		buildComponentGrid(feedbackCollectionActivity, feedbackLevelBehaviourMap);
+		relayoutGrid(feedbackCollectionActivity, feedbackLevelBehaviourMap);
 	}
 
-	public Map<Feedback,FeedbackCollection.LevelBehaviour> getFeedbackLevelBehaviourMap()
+	public Map<Feedback, FeedbackCollection.LevelBehaviour> getFeedbackLevelBehaviourMap()
 	{
 		Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap = new LinkedHashMap<>();
 		for (int childCount = 0; childCount < feedbackComponentGrid.getChildCount(); childCount++)
 		{
+
 			View childView = feedbackComponentGrid.getChildAt(childCount);
 			if (childView instanceof FeedbackComponentView)
 			{
@@ -89,16 +91,19 @@ public class FeedbackLevelLayout extends LinearLayout
 		super.onLayout(changed, l, t, r, b);
 	}
 
-	protected void buildComponentGrid(final FeedbackCollectionActivity containerActivity, final Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap)
+	private void relayoutGrid(
+			final FeedbackCollectionActivity containerActivity,
+			final Map<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourMap)
 	{
 		if (feedbackLevelBehaviourMap == null || feedbackLevelBehaviourMap.isEmpty())
 		{
 			return;
 		}
-		feedbackComponentGrid.post(new Runnable()
+
+		levelTextView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
 		{
 			@Override
-			public void run()
+			public void onGlobalLayout()
 			{
 				feedbackComponentGrid.removeAllViews();
 				int height = levelTextView.getMeasuredHeight();
@@ -112,43 +117,61 @@ public class FeedbackLevelLayout extends LinearLayout
 					feedbackComponentView.setLayoutParams(componentLayoutParams);
 					feedbackComponentGrid.addView(feedbackComponentView);
 				}
-				reorderFeedbackComponentGrid();
+				reorder();
+				levelTextView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			}
 		});
+		levelTextView.requestLayout();
 	}
 
-	private void reorderFeedbackComponentGrid(int columns)
+	public void reorder()
 	{
-		for (int i = 0; i < feedbackComponentGrid.getChildCount(); i++)
-		{
-			android.widget.GridLayout.LayoutParams lp = (android.widget.GridLayout.LayoutParams) feedbackComponentGrid.getChildAt(i).getLayoutParams();
-			lp.columnSpec = GridLayout.spec(i % columns, GridLayout.CENTER);
-			lp.rowSpec = GridLayout.spec(i - (i % columns), GridLayout.CENTER);
-			lp.setGravity(Gravity.FILL_VERTICAL);
-			feedbackComponentGrid.getChildAt(i).setLayoutParams(lp);
-		}
-	}
-
-	public void reorderFeedbackComponentGrid()
-	{
-		if (feedbackComponentGrid.getChildCount() == 0)
-		{
-			return;
-		}
-
-		final View v = feedbackComponentGrid.getChildAt(0);
-		v.post(new Runnable()
+		feedbackComponentGrid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
 		{
 			@Override
-			public void run()
+			public void onGlobalLayout()
 			{
-				android.widget.GridLayout.LayoutParams lp1 = (android.widget.GridLayout.LayoutParams) v.getLayoutParams();
-				int columns = (feedbackComponentGrid.getMeasuredWidth() /
-						(v.getMeasuredWidth() + lp1.leftMargin + lp1.rightMargin));
-				reorderFeedbackComponentGrid(columns);
-				feedbackComponentGrid.setColumnCount(columns);
+				final View firstChild = feedbackComponentGrid.getChildAt(0);
+
+				if (firstChild == null)
+				{
+					return;
+				}
+
+				android.widget.GridLayout.LayoutParams lp1 = (android.widget.GridLayout.LayoutParams) firstChild.getLayoutParams();
+				final int columns = (feedbackComponentGrid.getMeasuredWidth() /
+						(firstChild.getMeasuredWidth() + lp1.leftMargin + lp1.rightMargin));
+
+				feedbackComponentGrid.post(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						feedbackComponentGrid.setColumnCount(Integer.MAX_VALUE);
+						for (int i = 0; i < feedbackComponentGrid.getChildCount(); i++)
+						{
+							final android.widget.GridLayout.LayoutParams lp = (android.widget.GridLayout.LayoutParams) feedbackComponentGrid.getChildAt(i).getLayoutParams();
+							lp.columnSpec = GridLayout.spec(i % columns, GridLayout.CENTER);
+							lp.rowSpec = GridLayout.spec(i - (i % columns), GridLayout.CENTER);
+							lp.setGravity(Gravity.FILL_VERTICAL);
+							final View v = feedbackComponentGrid.getChildAt(i);
+							v.post(new Runnable()
+							{
+								@Override
+								public void run()
+								{
+									v.setLayoutParams(lp);
+								}
+							});
+						}
+						feedbackComponentGrid.setColumnCount(columns);
+					}
+				});
+
+				feedbackComponentGrid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			}
 		});
+		feedbackComponentGrid.requestLayout();
 	}
 
 	public void setFeedbackListener(FeedbackListener feedbackListener)
@@ -163,16 +186,14 @@ public class FeedbackLevelLayout extends LinearLayout
 			FeedbackLevelLayout formerFeedbackLevelLayout = (FeedbackLevelLayout) feedbackComponentView.getParent().getParent().getParent();
 			formerFeedbackLevelLayout.removeFeedbackComponentView(feedbackComponentView);
 			feedbackComponentGrid.addView(feedbackComponentView);
-			this.reorderFeedbackComponentGrid();
-			feedbackComponentGrid.invalidate();
 			feedbackListener.onComponentAdded();
+			this.reorder();
 		}
 	}
 
 	protected void removeFeedbackComponentView(FeedbackComponentView feedbackComponentView)
 	{
 		feedbackComponentGrid.removeView(feedbackComponentView);
-		this.reorderFeedbackComponentGrid();
-		feedbackComponentGrid.invalidate();
+		this.reorder();
 	}
 }

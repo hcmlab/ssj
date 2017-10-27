@@ -97,10 +97,16 @@ public class FeedbackCollectionActivity extends AppCompatActivity
 	{
 		super.onConfigurationChanged(newConfig);
 
-		for (FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
+		for (final FeedbackLevelLayout feedbackLevelLayout : feedbackLevelLayoutList)
 		{
-			feedbackLevelLayout.reorderFeedbackComponentGrid();
-			feedbackLevelLayout.invalidate();
+			feedbackLevelLayout.postDelayed(new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					feedbackLevelLayout.reorder();
+				}
+			}, 250);
 		}
 	}
 
@@ -205,7 +211,7 @@ public class FeedbackCollectionActivity extends AppCompatActivity
 				@Override
 				public void run()
 				{
-					feedbackLevelLayout.reorderFeedbackComponentGrid();
+					feedbackLevelLayout.reorder();
 				}
 			});
 		}
