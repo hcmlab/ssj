@@ -63,7 +63,7 @@ public abstract class Feedback extends EventHandler
 	@Override
 	protected final void enter()
 	{
-		lastExecutionTime = System.currentTimeMillis();
+		lastExecutionTime = 0;
 		enterFeedback();
 	}
 
