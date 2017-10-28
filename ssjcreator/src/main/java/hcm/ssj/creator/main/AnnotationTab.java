@@ -334,7 +334,7 @@ public class AnnotationTab implements ITab
                         }
                     });
                     builder.setNegativeButton(R.string.str_cancel, null);
-                    builder.setNeutralButton(R.string.str_delete, new DialogInterface.OnClickListener()
+                    builder.setNeutralButton(R.string.str_delete_pipeline, new DialogInterface.OnClickListener()
                     {
                         public void onClick(DialogInterface dialog, int id)
                         {

@@ -42,8 +42,8 @@
     <string name="str_configMenu">Menu</string>
     <string name="str_save">Save</string>
     <string name="str_load_pipeline">Load Pipeline</string>
+    <string name="str_delete_pipeline">Delete Pipeline</string>
     <string name="str_load_strategy">Load Strategy</string>
-    <string name="str_delete">Delete</string>
     <string name="str_clear">Clear</string>
     <!--dialogs-->
     <string name="str_error">Error</string>
@@ -95,6 +95,7 @@
     <string name="drawer_close">Close navigation drawer</string>
     <string name="drawer_canvas_separator">Canvas</string>
     <string name="drawer_pipelines_separator">Pipelines</string>
+    <string name="drawer_strategy_separator">Feedback Strategy</string>
     <string name="drawer_settings">Settings</string>
 
     <!--explaning text-->

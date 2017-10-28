@@ -564,13 +564,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		{
 			showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
 		}
+		else if (itemId == R.id.action_delete_pipeline)
+		{
+			showFileDialog(R.string.str_delete_pipeline, FileDialog.Type.DELETE_PIPELINE, R.string.str_deleteError);
+		}
 		else if (itemId == R.id.action_load_strategy)
 		{
 			showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
-		}
-		else if (itemId == R.id.action_delete)
-		{
-			showFileDialog(R.string.str_delete, FileDialog.Type.DELETE, R.string.str_deleteError);
 		}
 		else if (itemId == R.id.action_clear)
 		{

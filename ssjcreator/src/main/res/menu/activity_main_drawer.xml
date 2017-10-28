@@ -45,13 +45,18 @@
                 android:icon="@drawable/ic_exit_to_app_white_24dp"
                 android:title="@string/str_load_pipeline" />
             <item
+                android:id="@+id/action_delete_pipeline"
+                android:icon="@drawable/ic_delete_forever_black_24dp"
+                android:title="@string/str_delete_pipeline" />
+        </menu>
+    </item>
+
+    <item android:title="@string/drawer_strategy_separator">
+        <menu>
+            <item
                 android:id="@+id/action_load_strategy"
                 android:icon="@drawable/ic_exit_to_app_white_24dp"
                 android:title="@string/str_load_strategy" />
-            <item
-                android:id="@+id/action_delete"
-                android:icon="@drawable/ic_delete_forever_black_24dp"
-                android:title="@string/str_delete" />
         </menu>
     </item>
 
