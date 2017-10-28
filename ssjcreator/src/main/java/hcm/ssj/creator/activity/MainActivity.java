@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			public void onPositiveEvent(Object[] o)
 			{
 				fileDialog.removeListener(this);
-				if (type == FileDialog.Type.LOAD_PIPELINE)
+				if (type == FileDialog.Type.LOAD_PIPELINE || type == FileDialog.Type.LOAD_STRATEGY)
 				{
 					actualizeContent(Util.AppAction.LOAD, o != null ? o[0] : null);
 				}
@@ -563,6 +563,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		else if (itemId == R.id.action_load_pipeline)
 		{
 			showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
+		}
+		else if (itemId == R.id.action_load_strategy)
+		{
+			showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
 		}
 		else if (itemId == R.id.action_delete)
 		{
