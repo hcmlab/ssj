@@ -71,7 +71,7 @@ public class AndroidTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void feedbackEnter()
+	public void enterFeedback()
 	{
 		if(_evchannel_in == null || _evchannel_in.size() == 0)
 			throw new RuntimeException("no input channels");
@@ -84,17 +84,10 @@ public class AndroidTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!activatedByEventName(event.name) || !isActive())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			Log.i("vibration on android: " + Arrays.toString(options.vibrationPattern.get()));
-			vibrator.vibrate(options.vibrationPattern.get(), -1);
-		}
+		Log.i("vibration on android: " + Arrays.toString(options.vibrationPattern.get()));
+		vibrator.vibrate(options.vibrationPattern.get(), -1);
 	}
 
 	@Override

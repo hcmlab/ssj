@@ -79,7 +79,6 @@ public class FeedbackCollectionTest
 		pipeline.addTransformer(mvgAvgVar, overallActivation);
 
 		FloatsEventSender floatsEventSender = new FloatsEventSender();
-		// TODO: SET thresholds
 		pipeline.addConsumer(floatsEventSender, mvgAvgVar);
 
 

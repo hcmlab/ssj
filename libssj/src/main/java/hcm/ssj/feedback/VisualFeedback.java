@@ -59,41 +59,13 @@ import hcm.ssj.core.option.Option;
 
 public class VisualFeedback extends Feedback
 {
-	public class Options extends Feedback.Options
-	{
-		public final Option<Uri> feedbackIcon = new Option<>("feedbackIcon", null, Uri.class, "feedback icon file");
-		public final Option<Boolean> feedbackIconFromAssets = new Option<>("feedbackIconFromAssets", false, Boolean.class, "load feedback icon from assets");
-		public final Option<Uri> qualityIcon = new Option<>("qualityIcon", null, Uri.class, "quality icon file");
-		public final Option<Boolean> qualityIconFromAssets = new Option<>("qualityIconFromAssets", false, Boolean.class, "load quality icon from assets");
-
-		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
-		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear");
-		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "fade duration");
-		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the icons");
-		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
-
-		private Options()
-		{
-			super();
-			addOptions();
-		}
-
-	}
 	public final Options options = new Options();
-
-	@Override
-	public Feedback.Options getOptions()
-	{
-		return options;
-	}
-
+	private final int TIMEOUT_CHECK_DELAY = 100;
 	private List<Drawable> iconList;
 	private List<ImageSwitcher> imageSwitcherList;
 	private Activity activity = null;
 	private long timeout = 0;
 	private float defaultBrightness;
-	private final int TIMEOUT_CHECK_DELAY = 100;
-
 	public VisualFeedback()
 	{
 		_name = "VisualFeedback";
@@ -101,7 +73,13 @@ public class VisualFeedback extends Feedback
 	}
 
 	@Override
-	public void feedbackEnter()
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -134,12 +112,16 @@ public class VisualFeedback extends Feedback
 			iconList = new ArrayList<>();
 
 			Drawable feedbackDrawable = getDrawable(options.feedbackIcon.get(), options.feedbackIconFromAssets.get());
-			if(feedbackDrawable != null)
+			if (feedbackDrawable != null)
+			{
 				iconList.add(feedbackDrawable);
+			}
 
 			Drawable qualityDrawable = getDrawable(options.qualityIcon.get(), options.qualityIconFromAssets.get());
-			if(qualityDrawable != null)
+			if (qualityDrawable != null)
+			{
 				iconList.add(qualityDrawable);
+			}
 		}
 		catch (IOException e)
 		{
@@ -149,8 +131,10 @@ public class VisualFeedback extends Feedback
 
 	public Drawable getDrawable(Uri uri, boolean fromAssets) throws IOException
 	{
-		if(uri == null || uri.toString().isEmpty())
+		if (uri == null || uri.toString().isEmpty())
+		{
 			return null;
+		}
 
 		InputStream inputStream;
 		if (fromAssets)
@@ -167,22 +151,14 @@ public class VisualFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!activatedByEventName(event.name) || !isActive())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
+		if (options.duration.get() > 0)
 		{
-			if (options.duration.get() > 0)
-			{
-				timeout = System.currentTimeMillis() + options.duration.get();
-			}
-
-			updateIcons();
-			updateBrightness(options.brightness.get());
+			timeout = System.currentTimeMillis() + options.duration.get();
 		}
+		updateIcons();
+		updateBrightness(options.brightness.get());
 	}
 
 	@Override
@@ -202,7 +178,7 @@ public class VisualFeedback extends Feedback
 			return;
 		}
 
-		if(isActive())
+		if (isActive())
 		{
 			Log.i("clearing icons");
 			clearIcons();
@@ -349,7 +325,7 @@ public class VisualFeedback extends Feedback
 						});
 
 						// Fill with empty views to match position
-						for(int columnCount = 0; columnCount <= options.position.get(); columnCount++)
+						for (int columnCount = 0; columnCount <= options.position.get(); columnCount++)
 						{
 							if (tr.getChildAt(columnCount) == null)
 							{
@@ -364,5 +340,26 @@ public class VisualFeedback extends Feedback
 
 			}
 		});
+	}
+
+	public class Options extends Feedback.Options
+	{
+		public final Option<Uri> feedbackIcon = new Option<>("feedbackIcon", null, Uri.class, "feedback icon file");
+		public final Option<Boolean> feedbackIconFromAssets = new Option<>("feedbackIconFromAssets", false, Boolean.class, "load feedback icon from assets");
+		public final Option<Uri> qualityIcon = new Option<>("qualityIcon", null, Uri.class, "quality icon file");
+		public final Option<Boolean> qualityIconFromAssets = new Option<>("qualityIconFromAssets", false, Boolean.class, "load quality icon from assets");
+
+		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
+		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear");
+		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "fade duration");
+		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the icons");
+		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
+
+		private Options()
+		{
+			super();
+			addOptions();
+		}
+
 	}
 }

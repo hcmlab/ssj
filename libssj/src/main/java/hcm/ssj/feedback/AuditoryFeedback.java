@@ -76,7 +76,7 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void feedbackEnter()
+	public void enterFeedback()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -106,16 +106,9 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!activatedByEventName(event.name) || !isActive())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			player.play(soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
-		}
+		player.play(soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
 	}
 
 

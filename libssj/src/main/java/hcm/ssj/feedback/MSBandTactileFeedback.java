@@ -69,7 +69,7 @@ public class MSBandTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void feedbackEnter()
+	public void enterFeedback()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -79,16 +79,9 @@ public class MSBandTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!activatedByEventName(event.name) || !isActive())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			Log.i("vibration " + options.vibrationType.get());
-			msband.vibrate(options.vibrationType.get());
-		}
+		Log.i("vibration " + options.vibrationType.get());
+		msband.vibrate(options.vibrationType.get());
 	}
 }

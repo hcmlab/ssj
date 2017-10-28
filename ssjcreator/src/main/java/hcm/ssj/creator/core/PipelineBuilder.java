@@ -615,6 +615,8 @@ public class PipelineBuilder
 
 	public void addFeedbackToCollectionContainer(FeedbackCollection feedbackCollection, Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
 	{
+		add(feedback);
+
 		// Add to container
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
 		{

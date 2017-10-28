@@ -45,31 +45,10 @@ import hcm.ssj.myo.Vibrate2Command;
 
 public class MyoTactileFeedback extends Feedback
 {
-	public class Options extends Feedback.Options
-	{
-		public final Option<int[]> duration = new Option<>("duration", new int[]{500}, int[].class, "duration of tactile feedback");
-		public final Option<byte[]> intensity = new Option<>("intensity", new byte[]{(byte) 150}, byte[].class, "intensity of tactile feedback");
-		public final Option<String> deviceId = new Option<>("deviceId", null, String.class, "device Id");
-
-		private Options()
-		{
-			super();
-			addOptions();
-		}
-	}
 	public final Options options = new Options();
-
-	@Override
-	public Feedback.Options getOptions()
-	{
-		return options;
-	}
-
-
 	private Myo myo = null;
 	private hcm.ssj.myo.Myo myoConnector = null;
 	private Vibrate2Command cmd = null;
-
 	public MyoTactileFeedback()
 	{
 		_name = "MyoTactileFeedback";
@@ -77,7 +56,13 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void feedbackEnter()
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback()
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -119,17 +104,10 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!activatedByEventName(event.name) || !isActive())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			Log.i("vibration " + options.duration.get()[0] + "/" + (int) options.intensity.get()[0]);
-			cmd.vibrate(myo, options.duration.get(), options.intensity.get());
-		}
+		Log.i("vibration " + options.duration.get()[0] + "/" + (int) options.intensity.get()[0]);
+		cmd.vibrate(myo, options.duration.get(), options.intensity.get());
 	}
 
 	@Override
@@ -138,6 +116,19 @@ public class MyoTactileFeedback extends Feedback
 		if (myoConnector != null)
 		{
 			myoConnector.disconnect();
+		}
+	}
+
+	public class Options extends Feedback.Options
+	{
+		public final Option<int[]> duration = new Option<>("duration", new int[]{500}, int[].class, "duration of tactile feedback");
+		public final Option<byte[]> intensity = new Option<>("intensity", new byte[]{(byte) 150}, byte[].class, "intensity of tactile feedback");
+		public final Option<String> deviceId = new Option<>("deviceId", null, String.class, "device Id");
+
+		private Options()
+		{
+			super();
+			addOptions();
 		}
 	}
 }

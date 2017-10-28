@@ -29,6 +29,7 @@ package hcm.ssj.feedback;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -40,14 +41,16 @@ import hcm.ssj.core.option.OptionList;
 public abstract class Feedback extends EventHandler
 {
 
-	protected long lastExecutionTime = 0;
+	private long lastExecutionTime = 0;
 	private boolean active = true;
 
-	protected boolean checkLock(int lock)
+	private boolean checkLock()
 	{
-		if (System.currentTimeMillis() - lastExecutionTime < lock)
+		if (System.currentTimeMillis() - lastExecutionTime < getOptions().lock.get())
 		{
-			Log.i("ignoring event, lock active for another " + (lock - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
+			Log.i("ignoring event, lock active for another " +
+						  (getOptions().lock.get() - (System.currentTimeMillis() - lastExecutionTime)) +
+						  "ms");
 			return false;
 		}
 		else
@@ -61,10 +64,10 @@ public abstract class Feedback extends EventHandler
 	protected final void enter()
 	{
 		lastExecutionTime = System.currentTimeMillis();
-		feedbackEnter();
+		enterFeedback();
 	}
 
-	protected abstract void feedbackEnter();
+	protected abstract void enterFeedback();
 
 	public boolean isActive()
 	{
@@ -76,27 +79,40 @@ public abstract class Feedback extends EventHandler
 		this.active = active;
 	}
 
-	protected long getLastExecutionTime()
+	long getLastExecutionTime()
 	{
 		return lastExecutionTime;
 	}
 
-	protected boolean activatedByEventName(String eventName)
+	private boolean activatedByEventName(String eventName)
 	{
 		// Allways activate if no eventnames are specified
-		if(getOptions().eventNames.get() == null || getOptions().eventNames.get().length == 0)
+		if (getOptions().eventNames.get() == null || getOptions().eventNames.get().length == 0)
 		{
 			return true;
 		}
-		for(String eventNameToActivate : getOptions().eventNames.get())
+		for (String eventNameToActivate : getOptions().eventNames.get())
 		{
-			if(eventNameToActivate.equals(eventName))
+			if (eventNameToActivate.equals(eventName))
+			{
 				return true;
+			}
 		}
 		return false;
 	}
 
+	@Override
+	public void notify(Event event)
+	{
+		if (active && activatedByEventName(event.name) && checkLock())
+		{
+			notifyFeedback(event);
+		}
+	}
+
 	public abstract Options getOptions();
+
+	public abstract void notifyFeedback(Event event);
 
 	public class Options extends OptionList
 	{
