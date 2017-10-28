@@ -37,6 +37,7 @@ import java.util.Map;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -60,7 +61,7 @@ public class FeedbackCollection extends EventHandler
 	}
 
 	@Override
-	public void enter()
+	public void enter() throws SSJFatalException
 	{
 		currentLevel = 0;
 		setLevelActive(currentLevel);
@@ -90,8 +91,6 @@ public class FeedbackCollection extends EventHandler
 				case Progress:
 					lastProgressExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
-				default:
-					throw new RuntimeException("LevelBehaviour value invalid!");
 			}
 		}
 

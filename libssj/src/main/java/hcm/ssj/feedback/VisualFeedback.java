@@ -84,18 +84,18 @@ public class VisualFeedback extends Feedback
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 
 		if (options.layout.get() == null)
 		{
-			throw new RuntimeException("layout not set, cannot render visual feedback");
+			throw new SSJFatalException("layout not set, cannot render visual feedback");
 		}
 
 		activity = getActivity(options.layout.get());
 		if (activity == null)
 		{
-			throw new RuntimeException("unable to get activity from layout");
+			throw new SSJFatalException("unable to get activity from layout");
 		}
 
 		imageSwitcherList = new ArrayList<>();
@@ -106,7 +106,7 @@ public class VisualFeedback extends Feedback
 		clearIcons();
 	}
 
-	private void loadIcons()
+	private void loadIcons() throws SSJFatalException
 	{
 		try
 		{
@@ -126,7 +126,7 @@ public class VisualFeedback extends Feedback
 		}
 		catch (IOException e)
 		{
-			throw new RuntimeException("icons could not be loaded", e);
+			throw new SSJFatalException("icons could not be loaded", e);
 		}
 	}
 
@@ -171,7 +171,7 @@ public class VisualFeedback extends Feedback
 		}
 		catch (InterruptedException e)
 		{
-			throw new RuntimeException("timeout interrupted", e);
+			throw new SSJFatalException("timeout interrupted", e);
 		}
 
 		if (timeout == 0 || System.currentTimeMillis() < timeout)

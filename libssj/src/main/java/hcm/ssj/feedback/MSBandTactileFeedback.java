@@ -74,7 +74,7 @@ public class MSBandTactileFeedback extends Feedback
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 		msband = new BandComm(options.deviceId.get());
 	}

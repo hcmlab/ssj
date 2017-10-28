@@ -76,13 +76,13 @@ public class AndroidTactileFeedback extends Feedback
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 
 		vibrator = (Vibrator) SSJApplication.getAppContext().getSystemService(Context.VIBRATOR_SERVICE);
 		if (!vibrator.hasVibrator())
 		{
-			throw new RuntimeException("device can't vibrate");
+			throw new SSJFatalException("device can't vibrate");
 		}
 	}
 

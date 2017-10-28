@@ -81,7 +81,7 @@ public class MyoTactileFeedback extends Feedback
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 
 
@@ -116,7 +116,7 @@ public class MyoTactileFeedback extends Feedback
 
 		if (hub.getConnectedDevices().isEmpty())
 		{
-			throw new RuntimeException("device not found");
+			throw new SSJFatalException("device not found");
 		}
 
 		Log.i("connected to Myo");

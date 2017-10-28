@@ -67,7 +67,7 @@ public class AuditoryFeedback extends Feedback
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 
 		player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
