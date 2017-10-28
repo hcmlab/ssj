@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import hcm.ssj.creator.activity.FeedbackCollectionActivity;
+import hcm.ssj.creator.core.PipelineBuilder;
 
 import static android.view.DragEvent.ACTION_DRAG_ENDED;
 import static android.view.DragEvent.ACTION_DRAG_STARTED;
@@ -78,6 +79,9 @@ public class FeedbackCollectionOnDragListener implements View.OnDragListener
 								feedbackCollectionActivity.requestReorder();
 							}
 						});
+						PipelineBuilder.getInstance().remove(
+								feedbackComponentView.getFeedbackLevelBehaviourEntry().getKey()
+						);
 					}
 					break;
 				case ACTION_DRAG_ENDED:
