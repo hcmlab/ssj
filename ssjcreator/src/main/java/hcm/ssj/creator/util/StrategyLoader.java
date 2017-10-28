@@ -40,8 +40,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import hcm.ssj.core.Component;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.event.ThresholdClassEventSender;
 import hcm.ssj.feedback.AndroidTactileFeedback;
@@ -60,10 +64,10 @@ import hcm.ssj.file.FileCons;
 public class StrategyLoader
 {
 
-	public final static String THRESHOLD_PREFIX = "th";
-	public final static String ASSETS_STRING = "assets:";
+	private final static String ASSETS_STRING = "assets:";
 	private File strategyFile;
 	private List<ParsedStrategyFeedback> parsedStrategyFeedbackList = new ArrayList<>();
+	private List<Component> addedComponents = new ArrayList<>();
 
 	public StrategyLoader(File strategyFile)
 	{
@@ -86,26 +90,22 @@ public class StrategyLoader
 			parser.nextTag();
 			parser.require(XmlPullParser.START_TAG, null, "strategy");
 			loadStrategyComponents(parser);
+			inputStream.close();
 			addComponents();
 			return true;
 		}
-		catch (IOException | XmlPullParserException e)
+		catch (IOException | XmlPullParserException | SSJFatalException e)
 		{
+			removeAddedComponents();
 			return false;
 		}
-		finally
+	}
+
+	private void removeAddedComponents()
+	{
+		for (Component addedComponent : addedComponents)
 		{
-			if (inputStream != null)
-			{
-				try
-				{
-					inputStream.close();
-				}
-				catch (IOException e)
-				{
-					throw new RuntimeException("Could not close stream!", e);
-				}
-			}
+			PipelineBuilder.getInstance().remove(addedComponent);
 		}
 	}
 
@@ -151,70 +151,47 @@ public class StrategyLoader
 		}
 	}
 
-	private void addComponents()
+	private void addComponents() throws SSJFatalException
 	{
 		PipelineBuilder pipelineBuilder = PipelineBuilder.getInstance();
 
 		FeedbackCollection feedbackCollection = new FeedbackCollection();
 		pipelineBuilder.add(feedbackCollection);
+		addedComponents.add(feedbackCollection);
 
-		List<Float> thresholds = new ArrayList<>();
-		// Iterate first time to build up Thresholds
-		for (ParsedStrategyFeedback parsedStrategyFeedback : parsedStrategyFeedbackList)
+		Map<String, List<Float>> thresholdEventMap = getThresholdEventMap(parsedStrategyFeedbackList);
+		List<ThresholdClassEventSender> thresholdClassEventSenders = getThresholdClassEventSenders(thresholdEventMap);
+		for (ThresholdClassEventSender thresholdClassEventSender : thresholdClassEventSenders)
 		{
-			if (parsedStrategyFeedback.conditionAttributes.from != null)
-			{
-				float from = Float.parseFloat(parsedStrategyFeedback.conditionAttributes.from);
-				if (!thresholds.contains(from))
-				{
-					thresholds.add(from);
-				}
-			}
-			if (parsedStrategyFeedback.conditionAttributes.to != null)
-			{
-				float to = Float.parseFloat(parsedStrategyFeedback.conditionAttributes.to);
-				if (!thresholds.contains(to))
-				{
-					thresholds.add(to);
-				}
-			}
+			pipelineBuilder.add(thresholdClassEventSender);
+			pipelineBuilder.addEventProvider(feedbackCollection, thresholdClassEventSender);
+			addedComponents.add(thresholdClassEventSender);
 		}
-		Collections.sort(thresholds);
 
-		ThresholdClassEventSender thresholdClassEventSender = new ThresholdClassEventSender();
-		pipelineBuilder.add(thresholdClassEventSender);
-		pipelineBuilder.addEventProvider(feedbackCollection, thresholdClassEventSender);
-		float[] thresholdArray = new float[thresholds.size()];
-		int thresholdArrayCounter = 0;
-		for (Float threshold : thresholds)
-		{
-			thresholdArray[thresholdArrayCounter++] = (threshold != null ? threshold : Float.NaN);
-		}
-		thresholdClassEventSender.options.thresholds.set(thresholdArray);
+		addFeedbacks(feedbackCollection, thresholdEventMap);
+	}
 
-		List<String> thresholdNames = new ArrayList<>();
-		for (int thresholdNameCounter = 0; thresholdNameCounter < thresholdArray.length; thresholdNameCounter++)
-		{
-			thresholdNames.add(new String(THRESHOLD_PREFIX + thresholdNameCounter));
-		}
-		thresholdClassEventSender.options.classes.set(thresholdNames.toArray(new String[thresholdNames.size()]));
-
+	private void addFeedbacks(FeedbackCollection feedbackCollection,
+							  Map<String, List<Float>> thresholdEventMap) throws SSJFatalException
+	{
 		for (ParsedStrategyFeedback parsedStrategyFeedback : parsedStrategyFeedbackList)
 		{
 			Feedback feedback = getFeedbackForParsedFeedback(parsedStrategyFeedback);
 
 			if (feedback == null)
 			{
-				throw new RuntimeException("Error loading feedback from strategy file.");
+				throw new SSJFatalException();
 			}
 
-			pipelineBuilder.add(feedback);
-			pipelineBuilder.addFeedbackToCollectionContainer(feedbackCollection,
-															 feedback,
-															 getLevel(parsedStrategyFeedback),
-															 getLevelBehaviour(parsedStrategyFeedback)
+			PipelineBuilder.getInstance().add(feedback);
+			PipelineBuilder.getInstance().addFeedbackToCollectionContainer(
+					feedbackCollection,
+					feedback,
+					getLevel(parsedStrategyFeedback),
+					getLevelBehaviour(parsedStrategyFeedback)
 
 			);
+			addedComponents.add(feedback);
 
 			// Set lock
 			if (parsedStrategyFeedback.actionAttributes.lockSelf != null)
@@ -222,14 +199,80 @@ public class StrategyLoader
 				feedback.getOptions().lock.set(Integer.parseInt(parsedStrategyFeedback.actionAttributes.lockSelf));
 			}
 
-			String[] eventNames = getEventNames(thresholds,
+			String strategyEventName = parsedStrategyFeedback.conditionAttributes.event;
+			String[] eventNames = getEventNames(strategyEventName,
+												thresholdEventMap.get(strategyEventName),
 												parsedStrategyFeedback.conditionAttributes.from,
 												parsedStrategyFeedback.conditionAttributes.to);
 			feedback.getOptions().eventNames.set(eventNames);
 		}
 	}
 
-	private String[] getEventNames(List<Float> thresholds, String from, String to)
+	private List<ThresholdClassEventSender> getThresholdClassEventSenders(Map<String, List<Float>> thresholdEventMap)
+	{
+		List<ThresholdClassEventSender> thresholdClassEventSenders = new ArrayList<>();
+		for (Map.Entry<String, List<Float>> thresholdEntry : thresholdEventMap.entrySet())
+		{
+			ThresholdClassEventSender thresholdClassEventSender = new ThresholdClassEventSender();
+			float[] thresholdArray = new float[thresholdEntry.getValue().size()];
+			int thresholdArrayCounter = 0;
+			for (Float threshold : thresholdEntry.getValue())
+			{
+				thresholdArray[thresholdArrayCounter++] = (threshold != null ? threshold : Float.NaN);
+			}
+			thresholdClassEventSender.options.thresholds.set(thresholdArray);
+
+			List<String> thresholdNames = new ArrayList<>();
+			for (int thresholdNameCounter = 0; thresholdNameCounter < thresholdArray.length; thresholdNameCounter++)
+			{
+				thresholdNames.add(thresholdEntry.getKey() + thresholdNameCounter);
+			}
+			thresholdClassEventSender.options.classes.set(thresholdNames.toArray(new String[thresholdNames.size()]));
+			thresholdClassEventSenders.add(thresholdClassEventSender);
+		}
+		return thresholdClassEventSenders;
+	}
+
+	private Map<String, List<Float>> getThresholdEventMap(List<ParsedStrategyFeedback> parsedStrategyFeedbackList)
+	{
+		Map<String, List<Float>> thresholdEventMap = new HashMap<>();
+
+		// Iterate first time to build up Thresholds
+		for (ParsedStrategyFeedback parsedStrategyFeedback : parsedStrategyFeedbackList)
+		{
+			String event = parsedStrategyFeedback.conditionAttributes.event;
+			if (!thresholdEventMap.containsKey(event))
+			{
+				thresholdEventMap.put(event, new ArrayList<Float>());
+			}
+
+			if (parsedStrategyFeedback.conditionAttributes.from != null)
+			{
+				float from = Float.parseFloat(parsedStrategyFeedback.conditionAttributes.from);
+				if (!thresholdEventMap.get(event).contains(from))
+				{
+					thresholdEventMap.get(event).add(from);
+				}
+			}
+			if (parsedStrategyFeedback.conditionAttributes.to != null)
+			{
+				float to = Float.parseFloat(parsedStrategyFeedback.conditionAttributes.to);
+				if (!thresholdEventMap.get(event).contains(to))
+				{
+					thresholdEventMap.get(event).add(to);
+				}
+			}
+		}
+
+		for (List<Float> thresholdList : thresholdEventMap.values())
+		{
+			Collections.sort(thresholdList);
+		}
+
+		return thresholdEventMap;
+	}
+
+	private String[] getEventNames(String strategyEventName, List<Float> thresholds, String from, String to)
 	{
 		if (from == null || to == null)
 		{
@@ -240,9 +283,11 @@ public class StrategyLoader
 		Float toFloat = Float.parseFloat(to);
 
 		List<String> thresholdNames = new ArrayList<>();
-		for (int i = thresholds.indexOf(fromFloat); i < thresholds.indexOf(toFloat); i++)
+		for (int i = thresholds.indexOf(fromFloat);
+			 i < thresholds.indexOf(toFloat);
+			 i++)
 		{
-			thresholdNames.add(new String(THRESHOLD_PREFIX + i));
+			thresholdNames.add(strategyEventName + i);
 		}
 		return thresholdNames.toArray(new String[thresholdNames.size()]);
 	}
@@ -298,20 +343,18 @@ public class StrategyLoader
 	@Nullable
 	private Feedback getTactileFeedback(ParsedStrategyFeedback parsedStrategyFeedback)
 	{
-		if (parsedStrategyFeedback.feedbackAttributes.device != null)
+		if (parsedStrategyFeedback.feedbackAttributes.device == null ||
+				parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("Android"))
 		{
-			if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("Myo"))
-			{
-				return getMyoTactileFeedback(parsedStrategyFeedback);
-			}
-			else if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("MsBand"))
-			{
-				return getMsBandTactileFeedback(parsedStrategyFeedback);
-			}
-			else if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("Android"))
-			{
-				return getAndroidTactileFeedback(parsedStrategyFeedback);
-			}
+			return getAndroidTactileFeedback(parsedStrategyFeedback);
+		}
+		else if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("Myo"))
+		{
+			return getMyoTactileFeedback(parsedStrategyFeedback);
+		}
+		else if (parsedStrategyFeedback.feedbackAttributes.device.equalsIgnoreCase("MsBand"))
+		{
+			return getMsBandTactileFeedback(parsedStrategyFeedback);
 		}
 		return null;
 	}
@@ -383,7 +426,7 @@ public class StrategyLoader
 		if (parsedStrategyFeedback.actionAttributes.res != null)
 		{
 			String[] iconString = parsedStrategyFeedback.actionAttributes.res.split(",");
-			if (!iconString[0].isEmpty())
+			if (iconString.length > 0 && !iconString[0].isEmpty())
 			{
 				boolean fromAssets = iconString[0].startsWith(ASSETS_STRING);
 				visualFeedback.options.feedbackIconFromAssets.set(fromAssets);
@@ -403,7 +446,7 @@ public class StrategyLoader
 					}
 				}
 			}
-			if (!iconString[1].isEmpty())
+			if (iconString.length == 2 && !iconString[1].isEmpty())
 			{
 				boolean fromAssets = iconString[1].startsWith(ASSETS_STRING);
 				visualFeedback.options.qualityIconFromAssets.set(fromAssets);

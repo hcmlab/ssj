@@ -84,24 +84,24 @@
 
         <!-- TACTILE -->
         <!-- events are only executed once -->
-        <feedback type="tactile">
+        <feedback type="tactile" device="Android">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
             <action intensity="150" duration="500" lockSelf="60000"/>
         </feedback>
-        <feedback type="tactile">
+        <feedback type="tactile" device="Android">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
             <action intensity="150,150" duration="500,500" lockSelf="60000"/>
         </feedback>
-        <feedback type="tactile">
+        <feedback type="tactile" device="Android">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
             <action intensity="150,150,150" duration="500,500,500" lockSelf="60000"/>
         </feedback>
-        <feedback type="tactile">
+        <feedback type="tactile" device="Android">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
             <action intensity="150" duration="500" lockSelf="60000"/>
         </feedback>
         <!-- event is executed once every second while the user speaks -->
-        <feedback type="tactile">
+        <feedback type="tactile" device="Android">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
             <action intensity="150" duration="2000" lockSelf="1000"/>
         </feedback>

@@ -96,7 +96,6 @@ public class FeedbackCollection extends EventHandler
 
 		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() &&
-				lastLevelActivationExceedsTime(options.progression.get()*1000) &&
 				allTimeStampsInIntervalFromNow(lastProgressExecutionTimes, (long) (options.progression.get() * 1000)) &&
 				noTimeStampInIntervalFromNow(lastRegressExecutionTimes, (long) (options.progression.get() * 1000)))
 		{
@@ -106,18 +105,12 @@ public class FeedbackCollection extends EventHandler
 
 		//if all regress feedback classes are active and no progress class is active, check if we can go back to the previous level
 		else if (currentLevel > 0 &&
-				lastLevelActivationExceedsTime(options.regression.get()*1000) &&
 				allTimeStampsInIntervalFromNow(lastRegressExecutionTimes, (long) (options.regression.get() * 1000)) &&
 				noTimeStampInIntervalFromNow(lastProgressExecutionTimes, (long) (options.regression.get() * 1000)))
 		{
 			Log.d("regressing");
 			setLevelActive(currentLevel - 1);
 		}
-	}
-
-	private boolean lastLevelActivationExceedsTime(float time)
-	{
-		return (System.currentTimeMillis() - lastLevelActivationTime) >= time;
 	}
 
 	private boolean allTimeStampsInIntervalFromNow(List<Long> timeStamps, long interval)
