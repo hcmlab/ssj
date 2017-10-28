@@ -49,7 +49,6 @@ import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
 import hcm.ssj.feedback.FeedbackCollection;
-import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
@@ -97,7 +96,6 @@ public class TabHandler
 		checkAnnotationTabs();
 		checkSignalPainterTabs();
 		checkCameraPainterTabs();
-		checkFeedbackManagerTabs();
 		checkFeedbackCollectionTabs();
 		checkVisualFeedbackTabs();
 
@@ -147,28 +145,6 @@ public class TabHandler
 			}
 			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackCollection.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
 			additionalTabs.put(feedbackCollection, tabSpec);
-		}
-	}
-
-	private void checkFeedbackManagerTabs()
-	{
-		List<Component> feedbackManagers = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.EventHandler, FeedbackManager.class);
-		removeObsoleteComponentsOfClass(additionalTabs, feedbackManagers, FeedbackManager.class);
-		for (Component feedbackManager : feedbackManagers)
-		{
-			if (additionalTabs.containsKey(feedbackManager))
-			{
-				continue;
-			}
-
-			TableLayout tableLayout = ((FeedbackManager) feedbackManager).options.layout.get();
-			if (tableLayout == null)
-			{
-				tableLayout = new TableLayout(activity);
-				((FeedbackManager) feedbackManager).options.layout.set(tableLayout);
-			}
-			TabHost.TabSpec tabSpec = getNewTabSpec(tableLayout, feedbackManager.getComponentName(), android.R.drawable.ic_menu_compass); // TODO: Change icon.
-			additionalTabs.put(feedbackManager, tabSpec);
 		}
 	}
 
