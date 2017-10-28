@@ -30,6 +30,7 @@ package hcm.ssj.core;
 import android.os.SystemClock;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -64,7 +65,7 @@ public class Pipeline
         /** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
         /** How long to wait for a sensor to connect. Default: 5.0 */
-        public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 5.f, Float.class, "How long to wait for a sensor to connect");
+        public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 30.f, Float.class, "How long to wait for a sensor to connect");
         /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
         /** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
@@ -81,6 +82,8 @@ public class Pipeline
         public final Option<Log.Level> loglevel = new Option<>("loglevel", Log.Level.VERBOSE, Log.Level.class, "show all logs >= level");
         /** repeated log entries with a duration delta smaller than the timeout value are ignored. Default: 1.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
+        /** Shut down pipeline if runtime error is encountered */
+        public final Option<Boolean> terminateOnError = new Option<>("terminateOnError", true, Boolean.class, "Shut down pipeline if runtime error is encountered");
 
         private Options()
         {
@@ -93,8 +96,7 @@ public class Pipeline
         INACTIVE,
         STARTING,
         RUNNING,
-        STOPPING,
-        CRASH
+        STOPPING
     }
 
     public final Options options = new Options();
@@ -197,7 +199,8 @@ public class Pipeline
         }
         catch (Exception e)
         {
-            crash("framework start", "error starting pipeline", e);
+            error(this.getClass().getSimpleName(), "error starting pipeline, shutting down", e);
+            stop();
         }
     }
 
@@ -808,6 +811,8 @@ public class Pipeline
         Log.getInstance().clear();
         startTime = 0;
 
+        threadPool.purge();
+
         SSI.clear();
     }
 
@@ -835,21 +840,24 @@ public class Pipeline
         }
     }
 
-    void crash(String location, String message, Throwable e)
+    /**
+     * Marks the occurence of an unrecoverable error, reports it and attempts to shut down the pipeline
+     * @param location where the error occurred
+     * @param message error message
+     * @param e exception which caused the error, can be null
+     */
+    void error(String location, String message, Throwable e)
     {
-        state = State.CRASH;
-
         Log.e(location, message, e);
         writeLogFile();
 
         if (exceptionHandler != null)
         {
             exceptionHandler.handle(location, message, e);
-        } else
-        {
-            state = State.INACTIVE;
-            throw new RuntimeException(e);
         }
+
+        if(options.terminateOnError.get() && isRunning())
+            stop();
     }
 
     void sync(int bufferID)
@@ -893,8 +901,13 @@ public class Pipeline
      * @param to path to download to
      * @param wait if true, function blocks until download is finished
      */
-    public void download(String fileName, String from, String to, boolean wait)
+    public void download(String fileName, String from, String to, boolean wait) throws IOException
     {
+        if(fileName == null || fileName.isEmpty()
+        || from == null || from.isEmpty()
+        || to == null || to.isEmpty())
+            throw new IOException("download source or destination is empty");
+
         if(downloader == null || downloader.isTerminating())
             downloader = new FileDownloader();
 

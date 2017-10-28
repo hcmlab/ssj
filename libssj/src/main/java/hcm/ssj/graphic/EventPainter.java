@@ -38,6 +38,7 @@ import com.jjoe64.graphview.series.DataPoint;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -77,7 +78,7 @@ public class EventPainter extends EventHandler
     }
 
     @Override
-    public void enter()
+	public void enter() throws SSJFatalException
     {
         if (options.graphView.get() == null)
         {
@@ -156,7 +157,8 @@ public class EventPainter extends EventHandler
     }
 
     @Override
-    public void flush() {
+    public void flush() throws SSJFatalException
+    {
 
         Handler handler = new Handler(Looper.getMainLooper());
         handler.postDelayed(new Runnable() {

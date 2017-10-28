@@ -43,7 +43,9 @@ import java.util.TimeZone;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 
@@ -91,20 +93,18 @@ public class FileWriter extends Consumer implements IFileWriter
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public final void enter(Stream[] stream_in)
+    public final void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in.length > 1 || stream_in.length < 1)
         {
-            Log.e("stream count not supported");
-            return;
+            throw new SSJFatalException("stream count not supported");
         }
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
-            Log.e("stream type not supported");
-            return;
+            throw new SSJFatalException("stream type not supported");
         }
         //create file
         if (options.filePath.get() == null)
@@ -162,12 +162,15 @@ public class FileWriter extends Consumer implements IFileWriter
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in)
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
-        if(fileType == Cons.FileType.ASCII)
+        if (fileType == Cons.FileType.ASCII)
+        {
             stringBuilder.delete(0, stringBuilder.length());
+        }
 
         if(fileType == Cons.FileType.ASCII)
         {
@@ -316,7 +319,7 @@ public class FileWriter extends Consumer implements IFileWriter
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[])
+    public final void flush(Stream stream_in[]) throws SSJFatalException
     {
         end(stream_in[0]);
     }

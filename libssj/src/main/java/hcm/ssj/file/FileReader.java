@@ -28,6 +28,8 @@
 package hcm.ssj.file;
 
 
+import org.xmlpull.v1.XmlPullParserException;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,6 +40,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -86,7 +89,7 @@ public class FileReader extends Sensor
     /**
      *
      */
-    protected final void readerInit()
+    protected final void readerInit() throws IOException
     {
         if (!initialized)
         {
@@ -99,7 +102,7 @@ public class FileReader extends Sensor
             File fileDirectory = new File(options.filePath.get());
             if (!fileDirectory.exists())
             {
-                Log.e("directory \"" + fileDirectory.getName() + "\" does not exist");
+                throw new IOException("directory \"" + fileDirectory.getName() + "\" does not exist");
             }
             if (options.fileName.get() == null)
             {
@@ -113,18 +116,29 @@ public class FileReader extends Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected boolean connect()
+    protected boolean connect() throws SSJFatalException
     {
-        readerInit();
-        simpleHeader = getSimpleHeader();
+        try
+        {
+            readerInit();
+            simpleHeader = getSimpleHeader();
+        }
+        catch (IOException | XmlPullParserException e)
+        {
+            throw new SSJFatalException("unable to initialize file reader", e);
+        }
 
-        if(simpleHeader._ftype.equals("BINARY"))
-            inputBinary = getFileConnection(fileReal, inputBinary);
-        else if(simpleHeader._ftype.equals("ASCII"))
-            inputASCII = getFileConnection(fileReal, inputASCII);
+		if (simpleHeader._ftype.equals("BINARY"))
+		{
+			inputBinary = getFileConnection(fileReal, inputBinary);
+		}
+		else if (simpleHeader._ftype.equals("ASCII"))
+		{
+			inputASCII = getFileConnection(fileReal, inputASCII);
+		}
 
         pos = 0;
         return true;
@@ -133,36 +147,30 @@ public class FileReader extends Sensor
     /**
      * @return SimpleHeader
      */
-    protected SimpleHeader getSimpleHeader()
+    protected SimpleHeader getSimpleHeader() throws IOException, XmlPullParserException
     {
         if (simpleHeader == null)
         {
-            try
-            {
-                SimpleXmlParser simpleXmlParser = new SimpleXmlParser();
-                SimpleXmlParser.XmlValues xmlValues = simpleXmlParser.parse(
-                        new FileInputStream(fileHeader),
-                        new String[]{"stream", "info"},
-                        new String[]{"ftype", "sr", "dim", "byte", "type"}
-                );
-                simpleHeader = new SimpleHeader();
-                simpleHeader._ftype = xmlValues.foundAttributes.get(0)[0];
-                simpleHeader._sr = xmlValues.foundAttributes.get(0)[1];
-                simpleHeader._dim = xmlValues.foundAttributes.get(0)[2];
-                simpleHeader._byte = xmlValues.foundAttributes.get(0)[3];
-                simpleHeader._type = xmlValues.foundAttributes.get(0)[4];
-                xmlValues = simpleXmlParser.parse(
-                        new FileInputStream(fileHeader),
-                        new String[]{"stream", "chunk"},
-                        new String[]{"from", "to", "num"}
-                );
-                simpleHeader._from = xmlValues.foundAttributes.get(0)[0];
-                simpleHeader._to = xmlValues.foundAttributes.get(0)[1];
-                simpleHeader._num = xmlValues.foundAttributes.get(0)[2];
-            } catch (Exception e)
-            {
-                Log.e("file could not be parsed", e);
-            }
+            SimpleXmlParser simpleXmlParser = new SimpleXmlParser();
+            SimpleXmlParser.XmlValues xmlValues = simpleXmlParser.parse(
+                    new FileInputStream(fileHeader),
+                    new String[]{"stream", "info"},
+                    new String[]{"ftype", "sr", "dim", "byte", "type"}
+            );
+            simpleHeader = new SimpleHeader();
+            simpleHeader._ftype = xmlValues.foundAttributes.get(0)[0];
+            simpleHeader._sr = xmlValues.foundAttributes.get(0)[1];
+            simpleHeader._dim = xmlValues.foundAttributes.get(0)[2];
+            simpleHeader._byte = xmlValues.foundAttributes.get(0)[3];
+            simpleHeader._type = xmlValues.foundAttributes.get(0)[4];
+            xmlValues = simpleXmlParser.parse(
+                    new FileInputStream(fileHeader),
+                    new String[]{"stream", "chunk"},
+                    new String[]{"from", "to", "num"}
+            );
+            simpleHeader._from = xmlValues.foundAttributes.get(0)[0];
+            simpleHeader._to = xmlValues.foundAttributes.get(0)[1];
+            simpleHeader._num = xmlValues.foundAttributes.get(0)[2];
         }
         return simpleHeader;
     }
@@ -228,10 +236,10 @@ public class FileReader extends Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void disconnect()
+    protected void disconnect() throws SSJFatalException
     {
         inputBinary = closeStream(inputBinary);
         inputASCII = closeStream(inputASCII);

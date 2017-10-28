@@ -40,6 +40,7 @@ import java.util.TimeZone;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
@@ -81,10 +82,12 @@ public class FileEventWriter extends EventHandler implements IFileWriter
     }
 
     @Override
-    public void enter()
+	public void enter() throws SSJFatalException
     {
-        if(_evchannel_in == null || _evchannel_in.size() == 0)
-            throw new RuntimeException("no incoming event channels defined");
+		if (_evchannel_in == null || _evchannel_in.size() == 0)
+		{
+			throw new RuntimeException("no incoming event channels defined");
+		}
 
         _buffer = new byte[Cons.MAX_EVENT_SIZE];
         _builder.delete(0, _builder.length());
@@ -184,7 +187,7 @@ public class FileEventWriter extends EventHandler implements IFileWriter
         }
     }
 
-    public void flush()
+    public void flush() throws SSJFatalException
     {
         //write footer
         if(options.format.get() == Format.EVENT) {

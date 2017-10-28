@@ -35,6 +35,7 @@ import com.thalmic.myo.Myo;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.myo.Vibrate2Command;
@@ -45,10 +46,24 @@ import hcm.ssj.myo.Vibrate2Command;
 
 public class MyoTactileFeedback extends Feedback
 {
+	public class Options extends Feedback.Options
+	{
+		public final Option<int[]> duration = new Option<>("duration", new int[]{500}, int[].class, "duration of tactile feedback");
+		public final Option<byte[]> intensity = new Option<>("intensity", new byte[]{(byte) 150}, byte[].class, "intensity of tactile feedback");
+		public final Option<String> deviceId = new Option<>("deviceId", null, String.class, "device Id");
+
+		private Options()
+		{
+			super();
+			addOptions();
+		}
+	}
 	public final Options options = new Options();
+
 	private Myo myo = null;
 	private hcm.ssj.myo.Myo myoConnector = null;
 	private Vibrate2Command cmd = null;
+
 	public MyoTactileFeedback()
 	{
 		_name = "MyoTactileFeedback";
@@ -62,7 +77,7 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enterFeedback()
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -76,7 +91,14 @@ public class MyoTactileFeedback extends Feedback
 		{
 			myoConnector = new hcm.ssj.myo.Myo();
 			myoConnector.options.macAddress.set(options.deviceId.get());
-			myoConnector.connect();
+			try
+			{
+				myoConnector.connect();
+			}
+			catch (hcm.ssj.core.SSJFatalException e)
+			{
+				e.printStackTrace();
+			}
 		}
 
 		long time = SystemClock.elapsedRealtime();
@@ -111,24 +133,11 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void flush()
+	public void flush() throws SSJFatalException
 	{
 		if (myoConnector != null)
 		{
 			myoConnector.disconnect();
-		}
-	}
-
-	public class Options extends Feedback.Options
-	{
-		public final Option<int[]> duration = new Option<>("duration", new int[]{500}, int[].class, "duration of tactile feedback");
-		public final Option<byte[]> intensity = new Option<>("intensity", new byte[]{(byte) 150}, byte[].class, "intensity of tactile feedback");
-		public final Option<String> deviceId = new Option<>("deviceId", null, String.class, "device Id");
-
-		private Options()
-		{
-			super();
-			addOptions();
 		}
 	}
 }

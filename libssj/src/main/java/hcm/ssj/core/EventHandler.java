@@ -53,9 +53,11 @@ public abstract class EventHandler extends Component implements EventListener {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         if(_evchannel_in == null && _evchannel_out == null)
         {
-            Log.e("no event channel has been registered");
+            _frame.error(_name, "no event channel has been registered", null);
             return;
         }
 
@@ -69,12 +71,16 @@ public abstract class EventHandler extends Component implements EventListener {
 
         try {
             enter();
+        } catch(SSJFatalException e) {
+            _frame.error(_name, "exception in enter", e);
+            _safeToKill = true;
+            return;
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
+            _frame.error(_name, "exception in enter", e);
         }
 
         //wait for framework
-        while (!_frame.isRunning()) {
+        while (!_terminate && !_frame.isRunning()) {
             try {
                 Thread.sleep(Cons.SLEEP_IN_LOOP);
             } catch (InterruptedException e) {
@@ -88,15 +94,19 @@ public abstract class EventHandler extends Component implements EventListener {
                 if(_doWakeLock) wakeLock.acquire();
                 process();
                 if(_doWakeLock) wakeLock.release();
+            } catch(SSJFatalException e) {
+                _frame.error(_name, "exception in loop", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(_name, "exception in loop", e);
             }
         }
 
         try {
             flush();
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
+            _frame.error(_name, "exception in flush", e);
         }
 
         _safeToKill = true;
@@ -105,12 +115,13 @@ public abstract class EventHandler extends Component implements EventListener {
     /**
      * initialization specific to sensor implementation
      */
-    protected void enter() {};
+    protected void enter() throws SSJFatalException {};
 
     /**
      * thread processing method, alternative to notify(), called in loop
      */
-    protected void process() {
+    protected void process() throws SSJFatalException
+    {
         try {
             Thread.sleep(SLEEP_ON_COMPONENT_IDLE);
         } catch (InterruptedException e) {
@@ -126,5 +137,5 @@ public abstract class EventHandler extends Component implements EventListener {
     /**
      * called once before termination
      */
-    protected void flush() {};
+    protected void flush() throws SSJFatalException {};
 }

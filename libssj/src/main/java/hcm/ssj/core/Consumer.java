@@ -62,8 +62,11 @@ public abstract class Consumer extends Component {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         if(!_isSetup) {
-            Log.e("not initialized");
+            _frame.error(_name, "not initialized", null);
+            _safeToKill = true;
             return;
         }
 
@@ -82,8 +85,12 @@ public abstract class Consumer extends Component {
 
         try {
             enter(_stream_in);
+        } catch(SSJFatalException e) {
+            _frame.error(_name, "exception in enter", e);
+            _safeToKill = true;
+            return;
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
+            _frame.error(_name, "exception in enter", e);
         }
 
         //wait for framework
@@ -136,11 +143,7 @@ public abstract class Consumer extends Component {
 
                 //if we received data from all sources, process it
                 if(ok) {
-                    if(_triggeredByEvent)
-                    {
-                        prepareForTriggerByEvent(ev);
-                    }
-                    consume(_stream_in);
+                    consume(_stream_in, ev);
                 }
 
                 if(_doWakeLock) wakeLock.release();
@@ -149,16 +152,21 @@ public abstract class Consumer extends Component {
                 if(ok && !_triggeredByEvent)
                     _timer.sync();
 
+            } catch(SSJFatalException e) {
+                _frame.error(_name, "exception in loop", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(_name, "exception in loop", e);
             }
         }
 
         try {
             flush(_stream_in);
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
+            _frame.error(_name, "exception in flush", e);
         }
+
         _safeToKill = true;
     }
 
@@ -169,29 +177,24 @@ public abstract class Consumer extends Component {
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
+     * @throws SSJFatalException causes immediate pipeline termination
      */
-    public void enter(Stream stream_in[]) {}
+    public void enter(Stream stream_in[]) throws SSJFatalException {}
 
     /**
      * main processing method
      */
-    protected abstract void consume(Stream stream_in[]);
+    protected abstract void consume(Stream[] stream_in, Event trigger) throws SSJFatalException;
 
     /**
      * called once prior to termination
      */
-    public void flush(Stream stream_in[]) {}
+    public void flush(Stream stream_in[]) throws SSJFatalException {}
 
     public void setTriggeredByEvent(boolean value)
     {
         _triggeredByEvent = value;
     }
-
-    /**
-     * Called immediately before the consume method in case of an event trigger
-     * @param ev the event which triggers the consume
-     */
-    protected void prepareForTriggerByEvent(Event ev) {}
 
     /**
      * initialization for continuous consumer

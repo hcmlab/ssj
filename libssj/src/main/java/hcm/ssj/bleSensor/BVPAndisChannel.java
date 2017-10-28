@@ -28,6 +28,7 @@
 package hcm.ssj.bleSensor;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.stream.Stream;
 
@@ -49,7 +50,8 @@ public class BVPAndisChannel extends SensorChannel {
     }
 
     @Override
-    public void enter(Stream stream_out) {
+	public void enter(Stream stream_out) throws SSJFatalException
+	{
 
         _listener = ((BLESensor) _sensor).listener;
 
@@ -57,7 +59,8 @@ public class BVPAndisChannel extends SensorChannel {
 
 
     @Override
-    protected boolean process(Stream stream_out) {
+    protected boolean process(Stream stream_out) throws SSJFatalException
+    {
         int dimension = getSampleDimension();
         int[] out = stream_out.ptrI();
 

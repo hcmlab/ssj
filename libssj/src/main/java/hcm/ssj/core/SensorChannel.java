@@ -58,8 +58,11 @@ public abstract class SensorChannel extends Provider {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         if(!_isSetup) {
-            Log.e("not initialized");
+            _frame.error(this.getComponentName(), "not initialized", null);
+            _safeToKill = true;
             return;
         }
 
@@ -89,8 +92,12 @@ public abstract class SensorChannel extends Provider {
 
         try {
             enter(_stream_out);
+        } catch(SSJFatalException e) {
+            _frame.error(this.getComponentName(), "exception in enter", e);
+            _safeToKill = true;
+            return;
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in enter", e);
+            _frame.error(this.getComponentName(), "exception in enter", e);
         }
 
         _timer.reset();
@@ -107,8 +114,12 @@ public abstract class SensorChannel extends Provider {
                 wakeLock.release();
 
                 _timer.sync();
+            } catch(SSJFatalException e) {
+                _frame.error(this.getComponentName(), "exception in loop", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
-                _frame.crash(this.getClass().getSimpleName(), "exception in loop", e);
+                _frame.error(this.getComponentName(), "exception in loop", e);
             }
         }
 
@@ -116,13 +127,13 @@ public abstract class SensorChannel extends Provider {
         try {
             dog.close();
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception closing watch dog", e);
+            _frame.error(this.getComponentName(), "exception closing watch dog", e);
         }
 
         try {
             flush(_stream_out);
         } catch(Exception e) {
-            _frame.crash(this.getClass().getSimpleName(), "exception in flush", e);
+            _frame.error(this.getComponentName(), "exception in flush", e);
         }
 
         _safeToKill = true;
@@ -131,22 +142,22 @@ public abstract class SensorChannel extends Provider {
     /**
      * early initialization specific to implementation (called by framework on instantiation)
      */
-    protected void init() {}
+    protected void init() throws SSJException {}
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start and after sensor connects)
      */
-    public void enter(Stream stream_out) {}
+    public void enter(Stream stream_out) throws SSJFatalException {}
 
     /**
      * main processing method
      */
-    protected abstract boolean process(Stream stream_out);
+    protected abstract boolean process(Stream stream_out) throws SSJFatalException;
 
     /**
      * called once prior to termination
      */
-    public void flush(Stream stream_out) {}
+    public void flush(Stream stream_out) throws SSJFatalException {}
 
     /**
      * general sensor initialization

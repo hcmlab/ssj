@@ -35,6 +35,7 @@ import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -93,10 +94,10 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected boolean connect()
+    protected boolean connect() throws SSJFatalException
     {
         manager = (SensorManager) SSJApplication.getAppContext().getSystemService(Context.SENSOR_SERVICE);
 
@@ -119,13 +120,15 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
     }
 
     /**
-     *
+	 *
      */
     @Override
-    protected void disconnect()
+    protected void disconnect() throws SSJFatalException
     {
-        for(int i = 0; i < listeners.size(); i++)
-            manager.unregisterListener(listeners.get(i));
+		for (int i = 0; i < listeners.size(); i++)
+		{
+			manager.unregisterListener(listeners.get(i));
+		}
     }
 
      @Override

@@ -36,6 +36,7 @@ import android.os.SystemClock;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -69,7 +70,7 @@ public class GPSSensor extends Sensor
 	}
 
 	@Override
-	protected boolean connect()
+	protected boolean connect() throws SSJFatalException
 	{
 		boolean connected = false;
 
@@ -126,7 +127,7 @@ public class GPSSensor extends Sensor
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		if (locationManager != null && listener != null)
 		{

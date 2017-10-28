@@ -36,6 +36,7 @@ import com.thalmic.myo.Hub;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -65,9 +66,10 @@ public class Myo extends Sensor
 	}
 	public final Options options = new Options();
 
-	protected Hub              hub;
-	protected MyoListener      listener;
-    protected boolean          myoInitialized;
+	protected Hub              		hub;
+	protected com.thalmic.myo.Myo 	myo;
+	protected MyoListener      		listener;
+    protected boolean          		myoInitialized;
     Configuration config;
 
 	public Myo()
@@ -75,63 +77,80 @@ public class Myo extends Sensor
 		_name = "Myo";
 	}
 
-	@Override
-	public boolean connect()
+	class MyoConnThread implements Runnable
 	{
-        myoInitialized = false;
+		public boolean finished = false;
+		public String errorMsg = "";
+
+		public void run()
+		{
+			finished = false;
+
+			// Check if hub can be initialized
+			if (!hub.init(SSJApplication.getAppContext()))
+			{
+				errorMsg = "Could not initialize the Hub.";
+				finished = true;
+				return;
+			}
+			else
+			{
+				myoInitialized = true;
+			}
+
+			hub.setLockingPolicy(options.locking.get() ? Hub.LockingPolicy.STANDARD : Hub.LockingPolicy.NONE);
+
+			// Disable usage data sending
+			hub.setSendUsageData(false);
+
+			// Add listener for callbacks
+			hub.addListener(listener);
+
+			// Connect to myo
+			if (hub.getConnectedDevices().isEmpty())
+			{
+				// If there is a mac address connect to it, otherwise look for myo nearby
+				if (options.macAddress.get() != null && !options.macAddress.get().isEmpty())
+				{
+					Log.i("Connecting to MAC: " + options.macAddress.get());
+					hub.attachByMacAddress(options.macAddress.get());
+				}
+				else
+				{
+					//Log.i("Connecting to nearest myo");
+					//hub.attachToAdjacentMyo(); //buggy, not usable
+					errorMsg = "Cannot connect, please specify MAC address of Myo.";
+				}
+			}
+
+			finished = true;
+		}
+	}
+
+	@Override
+	public boolean connect() throws SSJFatalException
+	{
+		myoInitialized = false;
 		hub = Hub.getInstance();
         listener = new MyoListener();
 
 		// Myo hub must be initialized in the main ui thread
 		Handler handler = new Handler(Looper.getMainLooper());
-		handler.postDelayed(new Runnable()
-		{
-			public void run()
-			{
-				// Check if hub can be initialized
-				if (!hub.init(SSJApplication.getAppContext()))
-				{
-					Log.e("Could not initialize the Hub.");
-				}
-				else
-				{
-					myoInitialized = true;
-				}
-
-				hub.setLockingPolicy(options.locking.get() ? Hub.LockingPolicy.STANDARD : Hub.LockingPolicy.NONE);
-
-				// Disable usage data sending
-				hub.setSendUsageData(false);
-
-                // Add listener for callbacks
-                hub.addListener(listener);
-
-				// Connect to myo
-				if (hub.getConnectedDevices().isEmpty())
-				{
-					// If there is a mac address connect to it, otherwise look for myo nearby
-					if (!options.macAddress.get().isEmpty())
-					{
-						Log.i("Connecting to MAC: " + options.macAddress.get());
-						hub.attachByMacAddress(options.macAddress.get());
-					}
-					else
-					{
-						//Log.i("Connecting to nearest myo");
-						//hub.attachToAdjacentMyo(); //buggy, not usable
-						Log.e("Cannot connect, please specify MAC address of Myo.");
-					}
-				}
-			}
-		}, 1);
+		MyoConnThread connThread = new MyoConnThread();
+		handler.postDelayed(connThread, 1);
 
 		// Wait until myo is connected
 		long time = SystemClock.elapsedRealtime();
-		while (!_terminate && hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000)
+		while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < _frame.options.waitSensorConnect.get() * 1000 && !_terminate)
 		{
 			try {
 				Thread.sleep(Cons.SLEEP_IN_LOOP);
 			} catch (InterruptedException e) {}
+		}
+
+		if(connThread.errorMsg != null && !connThread.errorMsg.isEmpty())
+		{
+			throw new SSJFatalException(connThread.errorMsg);
 		}
 
 		if(hub.getConnectedDevices().isEmpty())
@@ -142,7 +161,7 @@ public class Myo extends Sensor
 			return false;
 		}
 
-        com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
+        myo = hub.getConnectedDevices().get(0);
 
         //configure myo
         config = new Configuration(hub, listener, options.emg.get(), options.imu.get(), options.gestures.get());
@@ -155,12 +174,14 @@ public class Myo extends Sensor
 	}
 
 	@Override
-	public void disconnect()
+	public void disconnect() throws SSJFatalException
 	{
-		com.thalmic.myo.Myo myo = hub.getConnectedDevices().get(0);
-		myo.lock();
+		if(myo != null)
+		{
+			myo.lock();
+			config.undo(myo.getMacAddress());
+		}
 
-        config.undo(myo.getMacAddress());
 		hub.shutdown();
-    }
+	}
 }

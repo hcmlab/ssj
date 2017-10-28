@@ -29,6 +29,7 @@ package hcm.ssj.ioput;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -70,17 +71,22 @@ public class BluetoothChannel extends SensorChannel
     }
 
     @Override
-    public void enter(Stream stream_out) {
+	public void enter(Stream stream_out) throws SSJFatalException
+	{
 
-        if(options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
-            Log.e("input channel not configured");
+		if (options.sr.get() == 0 || options.bytes.get() == 0 || options.dim.get() == 0 || options.type.get() == Cons.Type.UNDEF)
+		{
+            throw new SSJFatalException("input channel not configured");
+		}
     }
 
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
-        if(!((BluetoothReader)_sensor).getConnection().isConnected())
+        if (!((BluetoothReader) _sensor).getConnection().isConnected())
+        {
             return false;
+        }
 
         byte[] data = ((BluetoothReader)_sensor).getData(options.channel_id.get());
 

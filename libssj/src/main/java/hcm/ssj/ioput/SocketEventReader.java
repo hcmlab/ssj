@@ -43,6 +43,7 @@ import java.net.SocketException;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
@@ -84,7 +85,7 @@ public class SocketEventReader extends EventHandler
     }
 
     @Override
-    public void enter()
+	public void enter() throws SSJFatalException
     {
         if (options.ip.get() == null)
         {
@@ -94,7 +95,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (SocketException e)
             {
-                Log.e("unable to determine local IP address", e);
+                throw new SSJFatalException("unable to determine local IP address", e);
             }
         }
 
@@ -109,8 +110,7 @@ public class SocketEventReader extends EventHandler
         }
         catch (IOException e)
         {
-            Log.e("ERROR: cannot bind socket", e);
-            return;
+            throw new SSJFatalException("ERROR: cannot bind socket", e);
         }
 
         _buffer = new byte[MAX_MSG_SIZE];
@@ -124,8 +124,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (XmlPullParserException e)
             {
-                Log.e("unable to initialize parser", e);
-                return;
+                throw new SSJFatalException("unable to initialize parser", e);
             }
         }
 
@@ -134,10 +133,12 @@ public class SocketEventReader extends EventHandler
     }
 
     @Override
-    protected void process()
+    protected void process() throws SSJFatalException
     {
-        if(!_connected)
+        if (!_connected)
+        {
             return;
+        }
 
         DatagramPacket packet = new DatagramPacket(_buffer, _buffer.length);
 
@@ -189,7 +190,9 @@ public class SocketEventReader extends EventHandler
                         _evchannel_out.pushEvent(ev);
                     }
                     if (_parser.getEventType() == XmlPullParser.END_TAG && _parser.getName().equalsIgnoreCase("events"))
+                    {
                         break;
+                    }
                 }
             }
             catch (IOException | XmlPullParserException e)
@@ -202,7 +205,7 @@ public class SocketEventReader extends EventHandler
     }
 
     @Override
-    public void flush()
+    public void flush() throws SSJFatalException
     {
         _socket.close();
     }

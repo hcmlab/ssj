@@ -48,7 +48,7 @@ public abstract class Provider extends Component {
     public Stream getOutputStream()
     {
         if(_stream_out == null)
-            Log.e("not initialized");
+            Log.e("output stream not initialized");
 
         return _stream_out;
     }

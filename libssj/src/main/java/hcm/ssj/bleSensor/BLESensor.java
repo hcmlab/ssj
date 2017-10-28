@@ -33,6 +33,7 @@ import android.bluetooth.BluetoothDevice;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -93,7 +94,8 @@ public class BLESensor extends Sensor {
     }
 
     @Override
-    public boolean connect() {
+	public boolean connect() throws SSJFatalException
+	{
         listener = new BLESensorListener(options.service.get(), options.characteristic.get());
 
         try {
@@ -113,7 +115,8 @@ public class BLESensor extends Sensor {
     }
 
     @Override
-    public void disconnect() {
+	public void disconnect() throws SSJFatalException
+	{
 
     }
 

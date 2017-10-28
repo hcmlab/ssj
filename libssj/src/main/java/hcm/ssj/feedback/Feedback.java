@@ -29,6 +29,7 @@ package hcm.ssj.feedback;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -61,13 +62,13 @@ public abstract class Feedback extends EventHandler
 	}
 
 	@Override
-	protected final void enter()
+	protected final void enter() throws SSJFatalException
 	{
 		lastExecutionTime = 0;
 		enterFeedback();
 	}
 
-	protected abstract void enterFeedback();
+	protected abstract void enterFeedback() throws SSJFatalException;
 
 	public boolean isActive()
 	{
@@ -102,7 +103,7 @@ public abstract class Feedback extends EventHandler
 	}
 
 	@Override
-	public void notify(Event event)
+	public final void notify(Event event)
 	{
 		if (active && activatedByEventName(event.name) && checkLock())
 		{

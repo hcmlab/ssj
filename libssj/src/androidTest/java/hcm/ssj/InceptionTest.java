@@ -57,7 +57,7 @@ public class InceptionTest
 	public void loadInceptionModel() throws Exception
 	{
 		String trainerName = "inception.trainer";
-		String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
+		String trainerURL = "https://hcm-lab.de/downloads/ssj/model";
 
 		// Option parameters for camera sensor
 		double sampleRate = 1;

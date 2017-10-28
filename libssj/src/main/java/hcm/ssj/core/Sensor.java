@@ -55,6 +55,8 @@ public abstract class Sensor extends Component {
     @Override
     public void run()
     {
+        Thread.currentThread().setName("SSJ_" + _name);
+
         //if user did not specify a custom priority, use low priority
         android.os.Process.setThreadPriority( (threadPriority == Cons.THREAD_PRIORITY_NORMAL) ? Cons.THREAD_PRIORIIY_LOW : threadPriority );
         _isConnected = false;
@@ -76,16 +78,23 @@ public abstract class Sensor extends Component {
                         this.notifyAll();
                     }
                 }
-                catch (Exception e)
-                {
-                    _frame.crash(this.getComponentName(), "failed to connect to sensor", e);
+                catch (SSJFatalException e) {
+                    _frame.error(this.getComponentName(), "failed to connect to sensor", e);
+                    _safeToKill = true;
+                    return;
+                } catch (Exception e) {
+                    _frame.error(this.getComponentName(), "failed to connect to sensor", e);
                 }
             }
 
             try {
                 update();
+            } catch(SSJFatalException e) {
+                _frame.error(this.getComponentName(), "exception in sensor update", e);
+                _safeToKill = true;
+                return;
             } catch(Exception e) {
-                _frame.crash(this.getComponentName(), "exception in sensor update", e);
+                _frame.error(this.getComponentName(), "exception in sensor update", e);
             }
 
             _isConnected = checkConnection();
@@ -94,7 +103,7 @@ public abstract class Sensor extends Component {
         try {
             disconnect();
         } catch(Exception e) {
-            _frame.crash(this.getComponentName(), "failed to disconnect from sensor", e);
+            _frame.error(this.getComponentName(), "failed to disconnect from sensor", e);
         }
         _isConnected = false;
         _safeToKill = true;
@@ -103,12 +112,12 @@ public abstract class Sensor extends Component {
     /**
      * early initialization specific to implementation (called by framework on instantiation)
      */
-    protected void init() {}
+    protected void init() throws SSJException {}
 
     /**
      * initialization specific to sensor implementation (called by local thread after framework start)
      */
-    protected abstract boolean connect();
+    protected abstract boolean connect() throws SSJFatalException;
     protected boolean checkConnection() {return true;}
 
     private void waitCheckConnect()
@@ -124,7 +133,7 @@ public abstract class Sensor extends Component {
     /**
      * called once per frame, can be overwritten
      */
-    protected void update()
+    protected void update() throws SSJFatalException
     {
         waitCheckConnect();
     }
@@ -132,7 +141,7 @@ public abstract class Sensor extends Component {
     /**
      * called once before termination
      */
-    protected abstract void disconnect();
+    protected abstract void disconnect() throws SSJFatalException;
 
     public boolean isConnected()
     {

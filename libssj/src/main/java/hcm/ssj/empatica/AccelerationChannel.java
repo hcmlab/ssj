@@ -28,6 +28,7 @@
 package hcm.ssj.empatica;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -61,13 +62,13 @@ public class AccelerationChannel extends SensorChannel
 	}
 
 	@Override
-	public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Empatica)_sensor).listener;
 	}
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
 		float[] out = stream_out.ptrF();
 

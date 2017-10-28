@@ -35,6 +35,7 @@ import org.bytedeco.javacv.FrameGrabber;
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -79,7 +80,7 @@ public class FFMPEGReader extends Sensor
 	}
 
 	@Override
-	protected boolean connect()
+	protected boolean connect() throws SSJFatalException
 	{
 		reading = true;
 
@@ -92,7 +93,7 @@ public class FFMPEGReader extends Sensor
 	}
 
 	@Override
-	protected void disconnect()
+	protected void disconnect() throws SSJFatalException
 	{
 		reading = false;
 

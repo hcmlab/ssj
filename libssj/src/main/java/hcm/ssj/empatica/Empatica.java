@@ -60,6 +60,7 @@ import java.util.Map;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -71,7 +72,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 {
 	public class Options extends OptionList
 	{
-		public final Option<String> apiKey = new Option<>("apiKey", null, String.class, "");
+		public final Option<String> apiKey = new Option<>("apiKey", null, String.class, "the api key from your empatica developer page");
 
 		/**
 		 *
@@ -94,17 +95,26 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public boolean connect()
+	public boolean connect() throws SSJFatalException
 	{
-		if(options.apiKey.get() == null || options.apiKey.get().length() == 0)
-			throw new RuntimeException("invalid apiKey - you need to set the apiKey in the sensor options");
+		if (options.apiKey.get() == null || options.apiKey.get().length() == 0)
+		{
+			throw new SSJFatalException("invalid apiKey - you need to set the apiKey in the sensor options");
+		}
 
 		// Create data listener
 		listener = new EmpaticaListener();
 
 		//pre-validate empatica to avoid the certificate being bound to one app
-		getCertificate();
-		applyCertificate();
+		try
+		{
+			getCertificate();
+			applyCertificate();
+		}
+		catch (IOException e)
+		{
+			throw new SSJFatalException("error in applying certificates - empatica needs to connect to the server once a month to validate", e);
+		}
 
 		// Empatica device manager must be initialized in the main ui thread
 		Handler handler = new Handler(Looper.getMainLooper());
@@ -137,7 +147,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 
 		if(!listener.receivedData) {
-			Log.e("Unable to connect to empatica. Make sure it is on and NOT paired to your smartphone.");
+			Log.w("Unable to connect to empatica. Make sure it is on and NOT paired to your smartphone.");
 			disconnect();
 			return false;
 		}
@@ -145,90 +155,77 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		return true;
 	}
 
-	private void applyCertificate()
+	private void applyCertificate() throws IOException
 	{
-		try
-		{
-			copyFile(new File(Environment.getExternalStorageDirectory(), "SSJ/empatica/profile"),
-					 new File(SSJApplication.getAppContext().getFilesDir(), "profile"));
+		copyFile(new File(Environment.getExternalStorageDirectory(), "SSJ/empatica/profile"),
+				 new File(SSJApplication.getAppContext().getFilesDir(), "profile"));
 
-			copyFile(new File(Environment.getExternalStorageDirectory(), "SSJ/empatica/signature"),
-					 new File(SSJApplication.getAppContext().getFilesDir(), "signature"));
-		}
-		catch (IOException e)
-		{
-			throw new RuntimeException("cannot find/copy empatica certificates", e);
-		}
+		copyFile(new File(Environment.getExternalStorageDirectory(), "SSJ/empatica/signature"),
+				 new File(SSJApplication.getAppContext().getFilesDir(), "signature"));
 	}
 
-	private void getCertificate()
+	private void getCertificate() throws IOException
 	{
-		try {
-			HashMap<String,String> p = new HashMap<>();
-			p.put("api_key", options.apiKey.get());
-			p.put("api_version", "AND_1.3");
-			String json = (new GsonBuilder()).create().toJson(p, Map.class);
+		HashMap<String,String> p = new HashMap<>();
+		p.put("api_key", options.apiKey.get());
+		p.put("api_version", "AND_1.3");
+		String json = (new GsonBuilder()).create().toJson(p, Map.class);
 
-			//execute json
-			URL url = new URL("https://www.empatica.com/connect/empalink/api_login.php");
-			HttpURLConnection urlConn;
-			DataOutputStream printout;
+		//execute json
+		URL url = new URL("https://www.empatica.com/connect/empalink/api_login.php");
+		HttpURLConnection urlConn;
+		DataOutputStream printout;
 
-			urlConn = (HttpURLConnection)url.openConnection();
-			urlConn.setDoInput(true);
-			urlConn.setDoOutput(true);
-			urlConn.setUseCaches(false);
-			urlConn.setRequestProperty("Accept","application/json");
-			urlConn.setRequestProperty("Content-Type","application/json");
-			urlConn.connect();
+		urlConn = (HttpURLConnection)url.openConnection();
+		urlConn.setDoInput(true);
+		urlConn.setDoOutput(true);
+		urlConn.setUseCaches(false);
+		urlConn.setRequestProperty("Accept","application/json");
+		urlConn.setRequestProperty("Content-Type","application/json");
+		urlConn.connect();
 
-			//send request
-			printout = new DataOutputStream(urlConn.getOutputStream ());
-			printout.write(json.getBytes("UTF-8"));
-			printout.flush ();
-			printout.close ();
+		//send request
+		printout = new DataOutputStream(urlConn.getOutputStream ());
+		printout.write(json.getBytes("UTF-8"));
+		printout.flush ();
+		printout.close ();
 
-			int HttpResult = urlConn.getResponseCode();
-			if(HttpResult == HttpURLConnection.HTTP_OK)
-			{
-				//get response
-				BufferedReader r = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
-				StringBuilder response = new StringBuilder();
-				String line;
-				while ((line = r.readLine()) != null) {
-					response.append(line);
-				}
+		int HttpResult = urlConn.getResponseCode();
+		if(HttpResult == HttpURLConnection.HTTP_OK)
+		{
+			//get response
+			BufferedReader r = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
+			StringBuilder response = new StringBuilder();
+			String line;
+			while ((line = r.readLine()) != null) {
+				response.append(line);
+			}
 
-				//check status
-				JsonElement jelement = (new JsonParser()).parse(response.toString());
-				JsonObject jobject = jelement.getAsJsonObject();
-				String status = jobject.get("status").getAsString();
-				if (!status.equals("ok"))
-					throw new IOException("status check failed");
+			//check status
+			JsonElement jelement = (new JsonParser()).parse(response.toString());
+			JsonObject jobject = jelement.getAsJsonObject();
+			String status = jobject.get("status").getAsString();
+			if (!status.equals("ok"))
+				throw new IOException("status check failed");
 
-				//save certificate
-				if (jobject.has("empaconf") && jobject.has("empasign")) {
-					String empaconf = jobject.get("empaconf").getAsString();
-					String empasign = jobject.get("empasign").getAsString();
-					byte[] empaconfBytes = Base64.decode(empaconf, 0);
-					byte[] empasignBytes = Base64.decode(empasign, 0);
+			//save certificate
+			if (jobject.has("empaconf") && jobject.has("empasign")) {
+				String empaconf = jobject.get("empaconf").getAsString();
+				String empasign = jobject.get("empasign").getAsString();
+				byte[] empaconfBytes = Base64.decode(empaconf, 0);
+				byte[] empasignBytes = Base64.decode(empasign, 0);
 
-					saveFile("profile", empaconfBytes);
-					saveFile("signature", empasignBytes);
+				saveFile("profile", empaconfBytes);
+				saveFile("signature", empasignBytes);
 
-					Log.i("Successfully retrieved and saved new Empatica certificates");
-				} else {
-					throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
-				}
+				Log.i("Successfully retrieved and saved new Empatica certificates");
+			} else {
+				throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
 			}
 		}
-		catch (IOException e)
-		{
-			Log.w("unable to connect to empatica server - empatica needs to connect to the server once a month to validate", e);
-		}
 	}
 
-	private void saveFile(String name, byte[] data)
+	private void saveFile(String name, byte[] data) throws IOException
 	{
 		File dir = new File(Environment.getExternalStorageDirectory(), "SSJ/empatica");
 		if (!dir.exists())
@@ -237,14 +234,9 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 		File file = new File(dir, name);
 
-		try	{
-			FileOutputStream fos = new FileOutputStream(file);
-			fos.write(data);
-			fos.close();
-		} catch(IOException e)
-		{
-			Log.w("unable to save empatica certificate", e);
-		}
+		FileOutputStream fos = new FileOutputStream(file);
+		fos.write(data);
+		fos.close();
 	}
 
 	public void copyFile(File src, File dst) throws IOException {
@@ -258,7 +250,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 	}
 
 	@Override
-	public void disconnect()
+	public void disconnect() throws SSJFatalException
 	{
 		Log.i("disconnecting...");
 		deviceManager.disconnect();
@@ -295,7 +287,7 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 		}
 		catch(Exception e)
 		{
-			Log.e("error reacting to status update", e);
+			Log.w("error reacting to status update", e);
 		}
 	}
 

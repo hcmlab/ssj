@@ -146,7 +146,7 @@ public class SSITest
         //start framework
         frame.start();
         //run test
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_LONG;
+        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
         try
         {
             while (System.currentTimeMillis() < end)

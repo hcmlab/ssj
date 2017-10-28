@@ -29,6 +29,8 @@ package hcm.ssj.camera;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -79,7 +81,7 @@ public class CameraChannel extends SensorChannel
      *
      */
     @Override
-    protected void init()
+    protected void init() throws SSJException
     {
         cameraSensor = (CameraSensor) _sensor;
         //get sample dimension from camera
@@ -90,10 +92,10 @@ public class CameraChannel extends SensorChannel
     }
 
     /**
-     * @param stream_out Stream
-     */
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream stream_out)
+    public void enter(Stream stream_out) throws SSJFatalException
     {
         if (stream_out.num != 1)
         {
@@ -105,7 +107,7 @@ public class CameraChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
         byte[] out = stream_out.ptrB();
         cameraSensor.swapBuffer(out, false);

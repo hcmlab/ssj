@@ -30,6 +30,7 @@ package hcm.ssj.feedback;
 import com.microsoft.band.notifications.VibrationType;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
@@ -54,12 +55,6 @@ public class MSBandTactileFeedback extends Feedback
 	}
 	public final Options options = new Options();
 
-	@Override
-	public Feedback.Options getOptions()
-	{
-		return options;
-	}
-
 	private BandComm msband = null;
 
 	public MSBandTactileFeedback()
@@ -69,7 +64,13 @@ public class MSBandTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enterFeedback()
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{

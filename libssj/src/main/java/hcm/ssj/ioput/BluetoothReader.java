@@ -35,6 +35,8 @@ import java.io.ObjectInputStream;
 import java.util.UUID;
 
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -73,7 +75,7 @@ public class BluetoothReader extends Sensor {
     }
 
     @Override
-    public void init()
+    public void init() throws SSJException
     {
         try {
             switch(options.connectionType.get())
@@ -87,22 +89,30 @@ public class BluetoothReader extends Sensor {
             }
 
         } catch (IOException e) {
-            Log.e("error in setting up connection "+ options.connectionName, e);
+           throw new SSJException("error in setting up connection "+ options.connectionName, e);
         }
     }
 
     @Override
-    public boolean connect()
+	public boolean connect() throws SSJFatalException
     {
-        if(options.numStreams.get() == null || options.numStreams.get() == 0)
-            numStreams = _provider.size();
-        else
-            numStreams = options.numStreams.get();
+		if (options.numStreams.get() == null || options.numStreams.get() == 0)
+		{
+			numStreams = _provider.size();
+		}
+		else
+		{
+			numStreams = options.numStreams.get();
+		}
 
-        if(numStreams < _provider.size())
-            Log.e("Invalid configuration. Expected incoming number of streams ("+numStreams+") is smaller than number of defined channels ("+_provider.size()+")");
-        else if(numStreams > _provider.size())
-            Log.w("Unusual configuration. Expected incoming number of streams ("+numStreams+") is greater than number of defined channels ("+_provider.size()+")");
+		if (numStreams < _provider.size())
+		{
+			throw new SSJFatalException("Invalid configuration. Expected incoming number of streams (" + numStreams + ") is smaller than number of defined channels (" + _provider.size() + ")");
+		}
+		else if (numStreams > _provider.size())
+		{
+			Log.w("Unusual configuration. Expected incoming number of streams (" + numStreams + ") is greater than number of defined channels (" + _provider.size() + ")");
+		}
 
         Log.i("setting up sensor to receive " + numStreams + " streams");
         _recvData = new byte[numStreams][];
@@ -120,10 +130,12 @@ public class BluetoothReader extends Sensor {
         return true;
     }
 
-    public void update()
+    public void update() throws SSJFatalException
     {
-        if(!_conn.isConnected())
+        if (!_conn.isConnected())
+        {
             return;
+        }
 
         try
         {
@@ -135,11 +147,15 @@ public class BluetoothReader extends Sensor {
             {
                 Stream recvStreams[] = (Stream[]) ((ObjectInputStream)_conn.input()).readObject();
 
-                if(recvStreams.length != _recvData.length)
+                if (recvStreams.length != _recvData.length)
+                {
                     throw new IOException("unexpected amount of incoming streams");
+                }
 
-                for(int i = 0; i< recvStreams.length && i < _recvData.length; ++i)
+                for (int i = 0; i < recvStreams.length && i < _recvData.length; ++i)
+                {
                     Util.arraycopy(recvStreams[i].ptr(), 0, _recvData[i], 0, _recvData[i].length);
+                }
             }
             _conn.notifyDataTranferResult(true);
         }
@@ -151,7 +167,7 @@ public class BluetoothReader extends Sensor {
     }
 
     @Override
-    public void disconnect()
+	public void disconnect() throws SSJFatalException
     {
         try {
             _conn.disconnect();

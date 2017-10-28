@@ -29,6 +29,7 @@ package hcm.ssj.biosig;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
@@ -43,10 +44,12 @@ public class HRVSpectral extends Transformer
 {
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		if (stream_in[0].num != 1)
+		{
 			Log.e("ambiguous call: more than one sample gathered from spectogram");
+		}
 
 		float ptr_in[] = stream_in[0].ptrF();
 		float ptr_out[] = stream_out.ptrF();

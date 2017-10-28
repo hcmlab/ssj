@@ -31,6 +31,7 @@ import java.util.Arrays;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -61,15 +62,15 @@ public class FloatsEventSender extends Consumer
     }
 
     @Override
-    public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in[0].type != Cons.Type.FLOAT) {
-            throw new RuntimeException("type "+ stream_in[0].type +" not supported");
+            throw new SSJFatalException("type "+ stream_in[0].type +" not supported");
         }
     }
 
     @Override
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         float ptr[] = stream_in[0].ptrF();
 
@@ -100,6 +101,6 @@ public class FloatsEventSender extends Consumer
     }
 
     @Override
-    public void flush(Stream[] stream_in)
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {}
 }

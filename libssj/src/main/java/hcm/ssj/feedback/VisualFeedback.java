@@ -50,6 +50,7 @@ import java.util.List;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
@@ -79,7 +80,7 @@ public class VisualFeedback extends Feedback
 	}
 
 	@Override
-	public void enterFeedback()
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -162,7 +163,7 @@ public class VisualFeedback extends Feedback
 	}
 
 	@Override
-	public void process()
+	public void process() throws SSJFatalException
 	{
 		try
 		{
@@ -188,7 +189,7 @@ public class VisualFeedback extends Feedback
 	}
 
 	@Override
-	public void flush()
+	public void flush() throws SSJFatalException
 	{
 		clearIcons();
 	}

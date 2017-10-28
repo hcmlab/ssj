@@ -42,6 +42,7 @@ import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventListener;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -114,10 +115,10 @@ public class CameraPainter extends Consumer implements EventListener
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public final void enter(Stream[] stream_in)
+    public final void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in.length != 1)
         {
@@ -153,9 +154,13 @@ public class CameraPainter extends Consumer implements EventListener
         bitmap = Bitmap.createBitmap(in.width, in.height, conf);
 
         //register listener
-        if(_evchannel_in != null && _evchannel_in.size() != 0)
-            for(EventChannel ch : _evchannel_in)
-                ch.addEventListener(this);
+		if (_evchannel_in != null && _evchannel_in.size() != 0)
+		{
+			for (EventChannel ch : _evchannel_in)
+			{
+				ch.addEventListener(this);
+			}
+		}
 
         if (options.showBestMatch.get())
         {
@@ -178,9 +183,10 @@ public class CameraPainter extends Consumer implements EventListener
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in)
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         //only draw first frame per call, since drawing multiple frames doesn't make sense without delay
         draw(stream_in[0].ptrB(), ((ImageStream)stream_in[0]).format);
@@ -190,7 +196,7 @@ public class CameraPainter extends Consumer implements EventListener
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[])
+    public final void flush(Stream stream_in[]) throws SSJFatalException
     {
         surfaceViewInner = null;
         iaRgbData = null;

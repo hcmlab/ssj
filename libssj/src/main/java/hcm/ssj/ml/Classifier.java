@@ -27,20 +27,16 @@
 
 package hcm.ssj.ml;
 
-import android.util.Xml;
-
-import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Locale;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.event.StringEvent;
@@ -69,6 +65,7 @@ public class Classifier extends Consumer
         public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
         public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
+        public final Option<Model> model = new Option<>("model", null, Model.class, "model to use (use null to load from file)");
 
         private Options()
         {
@@ -83,12 +80,7 @@ public class Classifier extends Consumer
     private Stream[] _stream_selected;
     private Merge _merge = null;
     private Model _model;
-    private Cons.Type type = Cons.Type.UNDEF;
-    private ArrayList<String> classNames = new ArrayList<>();
-
-    private int bytes = 0;
-    private int dim = 0;
-    private float sr = 0;
+    private ModelDescriptor modelInfo = null;
 
     public Classifier()
     {
@@ -100,85 +92,27 @@ public class Classifier extends Consumer
      */
     public void load(File file) throws XmlPullParserException, IOException
     {
-        XmlPullParser parser = Xml.newPullParser();
-        parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-        parser.setInput(new FileReader(file));
+        modelInfo = new ModelDescriptor();
+        modelInfo.parseTrainerFile(file);
 
-        parser.next();
-        if (parser.getEventType() != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("trainer"))
+        if(modelInfo.select_dimensions != null)
         {
-            Log.w("unknown or malformed trainer file");
-            return;
+            _selector = new Selector();
+            _selector.options.values.set(modelInfo.select_dimensions);
         }
 
-        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+        if(options.model.get() == null)
+        {
+            _model = Model.create(modelInfo.modelName);
+            _model.setNumClasses(modelInfo.classNames.size());
+            _model.setClassNames(modelInfo.classNames.toArray(new String[0]));
 
-            //STREAM
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams")) {
-
-                parser.nextTag(); //item
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
-                    bytes = Integer.valueOf(parser.getAttributeValue(null, "byte"));
-                    dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
-                    sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
-                    type = Cons.Type.valueOf(parser.getAttributeValue(null, "type"));
-                }
-            }
-
-            // CLASS
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("classes"))
-            {
-                parser.nextTag();
-
-                while (parser.getName().equalsIgnoreCase("item"))
-                {
-                    if (parser.getEventType() == XmlPullParser.START_TAG)
-                    {
-                        classNames.add(parser.getAttributeValue(null, "name"));
-                    }
-                    parser.nextTag();
-                }
-            }
-
-            //SELECT
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select")) {
-
-                parser.nextTag(); //item
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item")) {
-
-                    int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
-                    if (stream_id != 0)
-                        Log.w("multiple input streams not supported");
-                    String[] select = parser.getAttributeValue(null, "select").split(" ");
-                    int[] dims = new int[select.length];
-                    for (int i = 0; i < select.length; i++) {
-                        dims[i] = Integer.valueOf(select[i]);
-                    }
-
-                    _selector = new Selector();
-                    _selector.options.values.set(dims);
-                }
-            }
-
-            //MODEL
-            if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
-            {
-                String modelName = parser.getAttributeValue(null, "create");
-                _model = Model.create(modelName);
-
-                if (modelName.equalsIgnoreCase("PythonModel"))
-                {
-                    ((TensorFlow) _model).setNumClasses(classNames.size());
-                    ((TensorFlow) _model).setClassNames(classNames.toArray(new String[0]));
-                }
-
-                _model.load(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "path") + ".model"));
-                _model.loadOption(FileUtils.getFile(options.trainerPath.get(), parser.getAttributeValue(null, "option") + ".option"));
-            }
-
-            if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
-                break;
+            _model.load(FileUtils.getFile(options.trainerPath.get(), modelInfo.modelFileName));
+            _model.loadOption(FileUtils.getFile(options.trainerPath.get(), modelInfo.modelOptionFileName));
+        }
+        else
+        {
+            _model = options.model.get();
         }
     }
 
@@ -186,7 +120,7 @@ public class Classifier extends Consumer
      * @param stream_in  Stream[]
      */
     @Override
-    public void enter(Stream[] stream_in)
+    public void enter(Stream[] stream_in) throws SSJFatalException
     {
         try
         {
@@ -195,36 +129,32 @@ public class Classifier extends Consumer
         }
         catch (XmlPullParserException | IOException e)
         {
-            Log.e("unable to load model", e);
-            return;
+            throw new SSJFatalException("unable to load model", e);
         }
 
         if (stream_in.length > 1 && !options.merge.get())
         {
-            Log.e("sources count not supported");
+            throw new SSJFatalException("sources count not supported");
         }
 
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
-            Log.e("stream type not supported");
+            throw new SSJFatalException("stream type not supported");
         }
 
         if(_model == null || !_model.isTrained())
         {
-            Log.e("model not loaded");
-            return;
+            throw new SSJFatalException("model not loaded");
         }
 
         Stream[] input = stream_in;
-        if(input[0].bytes != bytes || input[0].type != type) {
-            Log.e("input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
-                          + ") does not match model's expected input (type=" + type + ", bytes=" + bytes + ", sr=" + sr + ")");
-            return;
+        if(input[0].bytes != modelInfo.bytes || input[0].type != modelInfo.type) {
+            throw new SSJFatalException("input stream (type=" + input[0].type + ", bytes=" + input[0].bytes
+                                                + ") does not match model's expected input (type=" + modelInfo.type + ", bytes=" + modelInfo.bytes + ", sr=" + modelInfo.sr + ")");
         }
-        if(input[0].sr != sr) {
-            Log.w("input stream (sr=" + input[0].sr + ") may not be correct for model (sr=" + sr + ")");
+        if(input[0].sr != modelInfo.sr) {
+            Log.w("input stream (sr=" + input[0].sr + ") may not be correct for model (sr=" + modelInfo.sr + ")");
         }
-
 
         if(options.merge.get())
         {
@@ -235,9 +165,8 @@ public class Classifier extends Consumer
             input = _stream_merged;
         }
 
-        if(input[0].dim != dim) {
-            Log.e("input stream (dim=" + input[0].dim + ") does not match model (dim=" + dim + ")");
-            return;
+        if(input[0].dim != modelInfo.dim) {
+            throw new SSJFatalException("input stream (dim=" + input[0].dim + ") does not match model (dim=" + modelInfo.dim + ")");
         }
         if (input[0].num > 1) {
             Log.w ("stream num > 1, only first sample is used");
@@ -253,9 +182,10 @@ public class Classifier extends Consumer
 
     /**
      * @param stream_in  Stream[]
+	 * @param trigger
      */
     @Override
-    public void consume(Stream[] stream_in)
+    public void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         Stream[] input = stream_in;
 

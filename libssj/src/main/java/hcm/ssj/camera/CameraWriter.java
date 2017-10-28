@@ -34,10 +34,13 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.os.Build;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
@@ -103,25 +106,32 @@ public class CameraWriter extends Mp4Writer
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public final void enter(Stream[] stream_in)
+    public final void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in.length != 1)
         {
-            Log.e("Stream count not supported");
-            return;
+            throw new SSJFatalException("Stream count not supported");
         }
         if(stream_in[0].type != Cons.Type.IMAGE || ((ImageStream)stream_in[0]).format != ImageFormat.NV21)
         {
-            Log.e("invalid input, writer only supports NV21 images");
-            return;
+            throw new SSJFatalException("invalid input, writer only supports NV21 images");
         }
 
         dFrameRate = stream_in[0].sr;
         initFiles(stream_in[0], options);
-        prepareEncoder(options.width.get(), options.height.get(), options.bitRate.get());
+
+        try
+        {
+            prepareEncoder(options.width.get(), options.height.get(), options.bitRate.get());
+        }
+        catch (IOException e)
+        {
+            throw new SSJFatalException("error preparing encoder", e);
+        }
+
         bufferInfo = new MediaCodec.BufferInfo();
 
         int reqBuffSize = stream_in[0].dim;
@@ -149,15 +159,25 @@ public class CameraWriter extends Mp4Writer
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in)
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         byte[] in = stream_in[0].ptrB();
         for (int i = 0; i < in.length; i += aByShuffle.length)
         {
             System.arraycopy(in, i, aByShuffle, 0, aByShuffle.length);
-            encode(aByShuffle);
+
+            try
+            {
+                encode(aByShuffle);
+            }
+            catch (IOException e)
+            {
+                throw new SSJFatalException("exception during encoding", e);
+            }
+
             save(false);
         }
     }
@@ -166,7 +186,7 @@ public class CameraWriter extends Mp4Writer
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[])
+    public final void flush(Stream stream_in[]) throws SSJFatalException
     {
         super.flush(stream_in);
         aByColorChange = null;
@@ -175,13 +195,12 @@ public class CameraWriter extends Mp4Writer
     /**
      * Configures the encoder
      */
-    private void prepareEncoder(int width, int height, int bitRate)
+    private void prepareEncoder(int width, int height, int bitRate) throws IOException
     {
         MediaCodecInfo mediaCodecInfo = CameraUtil.selectCodec(options.mimeType.get());
         if (mediaCodecInfo == null)
         {
-            Log.e("Unable to find an appropriate codec for " + options.mimeType.get());
-            return;
+            throw new IOException("Unable to find an appropriate codec for " + options.mimeType.get());
         }
         //set format properties
         MediaFormat videoFormat = MediaFormat.createVideoFormat(options.mimeType.get(), width, height);
@@ -198,7 +217,7 @@ public class CameraWriter extends Mp4Writer
             mediaMuxer.setOrientationHint(options.orientation.get());
         } else
         {
-            Log.e("Orientation is not valid: " + options.orientation.get());
+            Log.w("Orientation is not valid: " + options.orientation.get());
         }
     }
 
@@ -206,7 +225,7 @@ public class CameraWriter extends Mp4Writer
      * @param inputBuf  ByteBuffer
      * @param frameData byte[]
      */
-    protected final void fillBuffer(ByteBuffer inputBuf, byte[] frameData)
+    protected final void fillBuffer(ByteBuffer inputBuf, byte[] frameData) throws IOException
     {
         if (colorSwitch == ColorSwitch.DEFAULT)
         {
@@ -239,8 +258,7 @@ public class CameraWriter extends Mp4Writer
                 }
                 default:
                 {
-                    Log.e("Wrong color switch");
-                    throw new RuntimeException();
+                    throw new IOException("Wrong color switch");
                 }
             }
         }

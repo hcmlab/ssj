@@ -28,6 +28,8 @@
 package hcm.ssj.bitalino;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -60,29 +62,35 @@ public class GenericChannel extends SensorChannel
 	}
 
 	@Override
-	public void init()
+	public void init() throws SSJException
 	{
 		((Bitalino)_sensor).addChannel(options.channel.get());
 	}
 
 	@Override
-	public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Bitalino) _sensor).listener;
 	}
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
-		if(!_listener.isConnected())
+		if (!_listener.isConnected())
+		{
 			return false;
+		}
 
 		int[] out = stream_out.ptrI();
 
-		if(options.channelType.get() == 0)
+		if (options.channelType.get() == 0)
+		{
 			out[0] = _listener.getAnalogData(options.channel.get());
+		}
 		else
+		{
 			out[0] = _listener.getDigitalData(options.channel.get());
+		}
 
 		return true;
 	}

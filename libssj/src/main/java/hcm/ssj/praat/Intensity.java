@@ -29,6 +29,7 @@ package hcm.ssj.praat;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -64,12 +65,14 @@ public class Intensity extends Transformer {
     }
 
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         Stream audio = null;
         for(Stream s : stream_in) {
-            if (s.findDataClass("Audio") >= 0)
-                audio = s;
+			if (s.findDataClass("Audio") >= 0)
+			{
+				audio = s;
+			}
         }
         if(audio == null || audio.type != Cons.Type.FLOAT) {
             Log.e("invalid input stream");
@@ -101,7 +104,7 @@ public class Intensity extends Transformer {
     }
 
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         Stream in = stream_in[0];
         Stream out = stream_out;
@@ -150,7 +153,7 @@ public class Intensity extends Transformer {
     }
 
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {}
 
     @Override

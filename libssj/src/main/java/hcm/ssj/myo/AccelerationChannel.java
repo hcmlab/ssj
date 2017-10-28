@@ -29,6 +29,7 @@ package hcm.ssj.myo;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -60,28 +61,30 @@ public class AccelerationChannel extends SensorChannel
 	}
 
     @Override
-    public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
     {
         _listener = ((Myo)_sensor).listener;
 
-        if(stream_out.num != 1)
-            Log.w("unsupported stream format. sample number = " + stream_out.num);
+		if (stream_out.num != 1)
+		{
+			Log.w("unsupported stream format. sample number = " + stream_out.num);
+		}
     }
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
 		float[] out = stream_out.ptrF();
 
         out[0] = _listener.accelerationX;
-        out[1] = _listener.accelerationY;
+		out[1] = _listener.accelerationY;
         out[2] = _listener.accelerationZ;
 
         return true;
 	}
 
     @Override
-    public void flush(Stream stream_out)
+	public void flush(Stream stream_out) throws SSJFatalException
     {
     }
 

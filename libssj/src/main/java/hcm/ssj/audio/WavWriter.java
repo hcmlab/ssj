@@ -45,6 +45,8 @@ import java.nio.ByteOrder;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.FileCons;
@@ -119,15 +121,14 @@ public class WavWriter extends Consumer implements IFileWriter
     }
 
     /**
-     * @param stream_in Stream[]
-     */
+	 * @param stream_in Stream[]
+	 */
     @Override
-    public final void enter(Stream[] stream_in)
+    public final void enter(Stream[] stream_in) throws SSJFatalException
     {
         if (stream_in.length != 1)
         {
-            Log.e("Stream count not supported");
-            return;
+            throw new SSJFatalException("Stream count not supported");
         }
         switch (stream_in[0].type)
         {
@@ -151,17 +152,25 @@ public class WavWriter extends Consumer implements IFileWriter
                     dataFormat = WavWriter.DataFormat.FLOAT_8;
                 } else
                 {
-                    Log.e("Audio format not supported");
+                    throw new SSJFatalException("Audio format not supported");
                 }
                 break;
             }
             default:
             {
-                Log.e("Stream type not supported");
-                return;
+                throw new SSJFatalException("Stream type not supported");
             }
         }
-        initFiles(stream_in[0], options);
+
+        try
+        {
+            initFiles(stream_in[0], options);
+        }
+        catch (IOException e)
+        {
+            throw new SSJFatalException("error initializing files", e);
+        }
+
         Log.d("Format: " + dataFormat.toString());
         iSampleRate = (int) stream_in[0].sr;
         iSampleDimension = stream_in[0].dim;
@@ -176,16 +185,16 @@ public class WavWriter extends Consumer implements IFileWriter
             outputStream = new BufferedOutputStream(new FileOutputStream(file));
         } catch (IOException ex)
         {
-            Log.e("RawEncoder creation failed: " + ex.getMessage());
-            throw new RuntimeException("RawEncoder creation failed", ex);
+            throw new SSJFatalException("RawEncoder creation failed: " + ex.getMessage());
         }
     }
 
     /**
      * @param stream_in Stream[]
+	 * @param trigger
      */
     @Override
-    protected final void consume(Stream[] stream_in)
+    protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
         switch (dataFormat)
         {
@@ -247,7 +256,7 @@ public class WavWriter extends Consumer implements IFileWriter
      * @param stream_in Stream[]
      */
     @Override
-    public final void flush(Stream stream_in[])
+    public final void flush(Stream stream_in[]) throws SSJFatalException
     {
         if (outputStream != null)
         {
@@ -261,7 +270,15 @@ public class WavWriter extends Consumer implements IFileWriter
             }
         }
 
-        writeWavHeader(file);
+        try
+        {
+            writeWavHeader(file);
+        }
+        catch (IOException e)
+        {
+            throw new SSJFatalException("error writing header", e);
+        }
+
         dataFormat = null;
     }
 
@@ -270,7 +287,7 @@ public class WavWriter extends Consumer implements IFileWriter
      *
      * @param options Options
      */
-    protected final void initFiles(Stream in, Options options)
+    protected final void initFiles(Stream in, Options options) throws IOException
     {
         if (options.filePath.get() == null)
         {
@@ -282,8 +299,7 @@ public class WavWriter extends Consumer implements IFileWriter
         {
             if (!fileDirectory.mkdirs())
             {
-                Log.e(fileDirectory.getName() + " could not be created");
-                return;
+                throw new IOException(fileDirectory.getName() + " could not be created");
             }
         }
         if (options.fileName.get() == null)
@@ -315,64 +331,57 @@ public class WavWriter extends Consumer implements IFileWriter
      * by: Oliver Mahoney, Oak Bytes
      * @param fileToConvert File
      */
-    private void writeWavHeader(File fileToConvert)
+    private void writeWavHeader(File fileToConvert) throws IOException
     {
+        long mySubChunk1Size = 16;
+        int myBitsPerSample = 16;
+        int myFormat = 1;
+        long myChannels = iSampleDimension;
+        long mySampleRate = iSampleRate;
+        long myByteRate = mySampleRate * myChannels * myBitsPerSample / 8;
+        int myBlockAlign = (int) (myChannels * myBitsPerSample / 8);
+
+        int size = (int) fileToConvert.length();
+        byte[] bytes = new byte[size];
         try
         {
-            long mySubChunk1Size = 16;
-            int myBitsPerSample = 16;
-            int myFormat = 1;
-            long myChannels = iSampleDimension;
-            long mySampleRate = iSampleRate;
-            long myByteRate = mySampleRate * myChannels * myBitsPerSample / 8;
-            int myBlockAlign = (int) (myChannels * myBitsPerSample / 8);
-
-            int size = (int) fileToConvert.length();
-            byte[] bytes = new byte[size];
-            try
-            {
-                BufferedInputStream buf = new BufferedInputStream(new FileInputStream(fileToConvert));
-                buf.read(bytes, 0, bytes.length);
-                buf.close();
-            } catch (FileNotFoundException e)
-            {
-                e.printStackTrace();
-            }
-            long myDataSize = bytes.length;
-            long myChunk2Size = myDataSize * myChannels * myBitsPerSample / 8;
-            long myChunkSize = 36 + myChunk2Size;
-
-            OutputStream os;
-            os = new FileOutputStream(new File(fileToConvert.getPath()));
-            BufferedOutputStream bos = new BufferedOutputStream(os);
-            DataOutputStream outFile = new DataOutputStream(bos);
-
-            outFile.writeBytes("RIFF");                                 // 00 - RIFF
-            outFile.write(intToByteArray((int) myChunkSize), 0, 4);      // 04 - how big is the rest of this file?
-            outFile.writeBytes("WAVE");                                 // 08 - WAVE
-            outFile.writeBytes("fmt ");                                 // 12 - fmt
-            outFile.write(intToByteArray((int) mySubChunk1Size), 0, 4);  // 16 - size of this chunk
-            outFile.write(shortToByteArray((short) myFormat), 0, 2);     // 20 - what is the audio format? 1 for PCM = Pulse Code Modulation
-            outFile.write(shortToByteArray((short) myChannels), 0, 2);   // 22 - mono or stereo? 1 or 2?  (or 5 or ???)
-            outFile.write(intToByteArray((int) mySampleRate), 0, 4);     // 24 - samples per second (numbers per second)
-            outFile.write(intToByteArray((int) myByteRate), 0, 4);       // 28 - bytes per second
-            outFile.write(shortToByteArray((short) myBlockAlign), 0, 2); // 32 - # of bytes in one sample, for all channels
-            outFile.write(shortToByteArray((short) myBitsPerSample), 0, 2);  // 34 - how many bits in a sample(number)?  usually 16 or 24
-            outFile.writeBytes("data");                                 // 36 - data
-            outFile.write(intToByteArray((int) myDataSize), 0, 4);       // 40 - how big is this data chunk
-            outFile.write(bytes);                                    // 44 - the actual data itself - just a long string of numbers
-
-            outFile.flush();
-            outFile.close();
-            if (!fileToConvert.delete())
-            {
-                Log.e("File could not be deleted");
-            }
-        } catch (IOException e)
+            BufferedInputStream buf = new BufferedInputStream(new FileInputStream(fileToConvert));
+            buf.read(bytes, 0, bytes.length);
+            buf.close();
+        } catch (FileNotFoundException e)
         {
             e.printStackTrace();
         }
+        long myDataSize = bytes.length;
+        long myChunk2Size = myDataSize * myChannels * myBitsPerSample / 8;
+        long myChunkSize = 36 + myChunk2Size;
 
+        OutputStream os;
+        os = new FileOutputStream(new File(fileToConvert.getPath()));
+        BufferedOutputStream bos = new BufferedOutputStream(os);
+        DataOutputStream outFile = new DataOutputStream(bos);
+
+        outFile.writeBytes("RIFF");                                 // 00 - RIFF
+        outFile.write(intToByteArray((int) myChunkSize), 0, 4);      // 04 - how big is the rest of this file?
+        outFile.writeBytes("WAVE");                                 // 08 - WAVE
+        outFile.writeBytes("fmt ");                                 // 12 - fmt
+        outFile.write(intToByteArray((int) mySubChunk1Size), 0, 4);  // 16 - size of this chunk
+        outFile.write(shortToByteArray((short) myFormat), 0, 2);     // 20 - what is the audio format? 1 for PCM = Pulse Code Modulation
+        outFile.write(shortToByteArray((short) myChannels), 0, 2);   // 22 - mono or stereo? 1 or 2?  (or 5 or ???)
+        outFile.write(intToByteArray((int) mySampleRate), 0, 4);     // 24 - samples per second (numbers per second)
+        outFile.write(intToByteArray((int) myByteRate), 0, 4);       // 28 - bytes per second
+        outFile.write(shortToByteArray((short) myBlockAlign), 0, 2); // 32 - # of bytes in one sample, for all channels
+        outFile.write(shortToByteArray((short) myBitsPerSample), 0, 2);  // 34 - how many bits in a sample(number)?  usually 16 or 24
+        outFile.writeBytes("data");                                 // 36 - data
+        outFile.write(intToByteArray((int) myDataSize), 0, 4);       // 40 - how big is this data chunk
+        outFile.write(bytes);                                    // 44 - the actual data itself - just a long string of numbers
+
+        outFile.flush();
+        outFile.close();
+        if (!fileToConvert.delete())
+        {
+            throw new IOException("error deleting temp file");
+        }
     }
 
     /**

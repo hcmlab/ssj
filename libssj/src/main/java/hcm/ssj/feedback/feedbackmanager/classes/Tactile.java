@@ -96,8 +96,15 @@ public class Tactile extends FeedbackClass
             {
                 myoConnector = new hcm.ssj.myo.Myo();
                 myoConnector.options.macAddress.set(deviceId);
-                myoConnector.connect();
-            }
+				try
+				{
+					myoConnector.connect();
+				}
+				catch (hcm.ssj.core.SSJFatalException e)
+				{
+					e.printStackTrace();
+				}
+			}
 
             long time = SystemClock.elapsedRealtime();
             while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Pipeline.getInstance().options.waitSensorConnect.get() * 1000) {
@@ -229,7 +236,14 @@ public class Tactile extends FeedbackClass
         firstCall = true;
 
         if(myoConnector != null)
-            myoConnector.disconnect();
-        super.release();
+			try
+			{
+				myoConnector.disconnect();
+			}
+			catch (hcm.ssj.core.SSJFatalException e)
+			{
+				e.printStackTrace();
+			}
+		super.release();
     }
 }

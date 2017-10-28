@@ -61,33 +61,4 @@
             </item>
         </menu>
     </item>
-    <item
-        android:id="@+id/action_file"
-        android:icon="@android:drawable/ic_menu_manage"
-        android:orderInCategory="2"
-        android:title="@string/str_configMenu"
-        app:showAsAction="ifRoom|withText">
-        <menu>
-            <item
-                android:id="@+id/action_framework"
-                android:title="@string/str_options">
-            </item>
-            <item
-                android:id="@+id/action_save"
-                android:title="@string/str_save">
-            </item>
-            <item
-                android:id="@+id/action_load_pipeline"
-                android:title="@string/str_load_pipeline">
-            </item>
-            <item
-                android:id="@+id/action_load_strategy"
-                android:title="@string/str_load_strategy">
-            </item>
-            <item
-                android:id="@+id/action_delete"
-                android:title="@string/str_delete">
-            </item>
-        </menu>
-    </item>
 </menu>

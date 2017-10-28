@@ -37,7 +37,9 @@ import java.net.Socket;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -77,7 +79,7 @@ public class SocketWriter extends Consumer {
     }
 
     @Override
-    public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
     {
         //start client
         try {
@@ -94,8 +96,7 @@ public class SocketWriter extends Consumer {
         }
         catch (IOException e)
         {
-            Log.e("error in setting up connection", e);
-            return;
+            throw new SSJFatalException("error in setting up connection", e);
         }
 
         _data = new byte[stream_in[0].tot];
@@ -104,10 +105,12 @@ public class SocketWriter extends Consumer {
         _connected = true;
     }
 
-    protected void consume(Stream[] stream_in)
+    protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
-        if(!_connected)
+        if (!_connected)
+        {
             return;
+        }
 
         try {
             switch(options.type.get()) {
@@ -128,7 +131,7 @@ public class SocketWriter extends Consumer {
         }
     }
 
-    public void flush(Stream[] stream_in)
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {
         _connected = false;
 

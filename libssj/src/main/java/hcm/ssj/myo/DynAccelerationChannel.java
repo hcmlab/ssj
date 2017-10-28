@@ -29,6 +29,7 @@ package hcm.ssj.myo;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -69,16 +70,18 @@ public class DynAccelerationChannel extends SensorChannel
 	}
 
 	@Override
-	public void enter(Stream stream_out)
+	public void enter(Stream stream_out) throws SSJFatalException
 	{
-        _listener = ((Myo)_sensor).listener;
+		_listener = ((Myo)_sensor).listener;
 
-		if(stream_out.num != 1)
+		if (stream_out.num != 1)
+		{
 			Log.w("unsupported stream format. sample number = " + stream_out.num);
+		}
 	}
 
 	@Override
-	protected boolean process(Stream stream_out)
+	protected boolean process(Stream stream_out) throws SSJFatalException
 	{
 		float[] out = stream_out.ptrF();
 
@@ -101,7 +104,9 @@ public class DynAccelerationChannel extends SensorChannel
 		_gravity[2] = _ori[0] * _ori[0] - _ori[1] * _ori[1] - _ori[2] * _ori[2] + _ori[3] * _ori[3];
 
 		for (int k = 0; k < 3; k++)
-            out[k] = _acc[k] - _gravity[k];
+		{
+			out[k] = _acc[k] - _gravity[k];
+		}
 
 		if (options.absolute.get())
 		{
@@ -116,14 +121,16 @@ public class DynAccelerationChannel extends SensorChannel
 		if (options.meterPerSecond.get())
 		{
 			for (int k = 0; k < 3; k++)
+			{
 				out[k] *= options.gravity.get();
+			}
 		}
 
 		return true;
 	}
 
 	@Override
-	public void flush(Stream stream_out)
+	public void flush(Stream stream_out) throws SSJFatalException
 	{
 	}
 

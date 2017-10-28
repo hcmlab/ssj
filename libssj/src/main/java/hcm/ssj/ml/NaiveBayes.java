@@ -180,7 +180,7 @@ public class NaiveBayes extends Model
     }
 
     @Override
-    void train(Stream[] stream) {
+    void train(Stream[] stream, String label) {
         Log.e("training not supported yet");
     }
 

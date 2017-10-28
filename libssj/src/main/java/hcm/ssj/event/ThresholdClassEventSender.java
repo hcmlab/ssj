@@ -37,6 +37,7 @@ import java.util.Map;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
@@ -75,11 +76,11 @@ public class ThresholdClassEventSender extends Consumer
 	}
 
 	@Override
-	public void enter(Stream[] stream_in)
+	public void enter(Stream[] stream_in) throws SSJFatalException
 	{
 		if (stream_in[0].dim != 1)
 		{
-			throw new RuntimeException("Dimension != 1 unsupported");
+			throw new SSJFatalException("Dimension != 1 unsupported");
 		}
 
 		makeThresholdList();
@@ -87,18 +88,19 @@ public class ThresholdClassEventSender extends Consumer
 		samplesMaxDur = (int) (options.maxDur.get() * stream_in[0].sr);
 	}
 
-	private void makeThresholdList() {
+	private void makeThresholdList() throws SSJFatalException
+	{
 		String[] classes = options.classes.get();
 		float[] thresholds = options.thresholds.get();
 
 		if (classes == null || thresholds == null)
 		{
-			throw new RuntimeException("classes and thresholds not correctly set");
+			throw new SSJFatalException("classes and thresholds not correctly set");
 		}
 
 		if (classes.length != thresholds.length)
 		{
-			throw new RuntimeException("number of classes do not match number of thresholds");
+			throw new SSJFatalException("number of classes do not match number of thresholds");
 		}
 
 		thresholdList = new ArrayList<>();
@@ -110,7 +112,7 @@ public class ThresholdClassEventSender extends Consumer
 	}
 
 	@Override
-	protected void consume(Stream[] stream_in)
+	protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
 	{
 		makeThresholdList();
 

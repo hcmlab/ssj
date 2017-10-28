@@ -29,6 +29,7 @@ package hcm.ssj.signal;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -96,11 +97,11 @@ public class Functionals extends Transformer
     }
 
     /**
-     * @param stream_in  Stream[]
-     * @param stream_out Stream
-     */
+	 * @param stream_in  Stream[]
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream[] stream_in, Stream stream_out)
+    public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         if (stream_in.length != 1 || stream_in[0].dim < 1 || stream_in[0].type != Cons.Type.FLOAT)
         {
@@ -129,7 +130,7 @@ public class Functionals extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void flush(Stream[] stream_in, Stream stream_out)
+    public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         super.flush(stream_in, stream_out);
         _mean_val = null;
@@ -152,7 +153,7 @@ public class Functionals extends Transformer
      * @param stream_out Stream
      */
     @Override
-    public void transform(Stream[] stream_in, Stream stream_out)
+    public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
     {
         boolean first_call = true;
         int sample_number = stream_in[0].num, sample_dimension = stream_in[0].dim, c_in = 0, c_out = 0;

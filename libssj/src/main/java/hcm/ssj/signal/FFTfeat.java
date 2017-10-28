@@ -31,6 +31,7 @@ import org.jtransforms.fft.FloatFFT_1D;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
@@ -50,7 +51,7 @@ public class FFTfeat extends Transformer
 	private int rfft = 0;
 
 	@Override
-	public void enter(Stream[] stream_in, Stream stream_out)
+	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		fft_dim = stream_in[0].dim;
 		fft_size = stream_in[0].num;
@@ -66,7 +67,7 @@ public class FFTfeat extends Transformer
 	}
 
 	@Override
-	public void transform(Stream[] stream_in, Stream stream_out)
+	public void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		float[] in = stream_in[0].ptrF();
 		float[] out = stream_out.ptrF();

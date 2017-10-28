@@ -29,6 +29,8 @@ package hcm.ssj.androidSensor;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
@@ -77,10 +79,10 @@ public class AndroidSensorChannel extends SensorChannel
     }
 
     /**
-     *
+	 *
      */
     @Override
-    public void init()
+    public void init() throws SSJException
     {
         if (options.sensorType.get() == null)
         {
@@ -96,10 +98,10 @@ public class AndroidSensorChannel extends SensorChannel
     }
 
     /**
-     * @param stream_out Stream
-     */
+	 * @param stream_out Stream
+	 */
     @Override
-    public void enter(Stream stream_out)
+    public void enter(Stream stream_out) throws SSJFatalException
     {
         if (stream_out.num != 1)
         {
@@ -111,7 +113,7 @@ public class AndroidSensorChannel extends SensorChannel
      * @param stream_out Stream
      */
     @Override
-    protected boolean process(Stream stream_out)
+    protected boolean process(Stream stream_out) throws SSJFatalException
     {
         int dimension = getSampleDimension();
         float[] out = stream_out.ptrF();

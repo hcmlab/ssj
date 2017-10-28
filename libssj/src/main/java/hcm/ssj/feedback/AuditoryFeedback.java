@@ -36,6 +36,7 @@ import java.io.IOException;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
+import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 
@@ -45,27 +46,7 @@ import hcm.ssj.core.option.Option;
 
 public class AuditoryFeedback extends Feedback
 {
-	public class Options extends Feedback.Options
-	{
-		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
-		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
-		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load audio file from assets");
-
-		private Options()
-		{
-			super();
-			addOptions();
-		}
-	}
-
 	public final Options options = new Options();
-
-	@Override
-	public Feedback.Options getOptions()
-	{
-		return options;
-	}
-
 	private SoundPool player;
 	private int soundId;
 
@@ -76,7 +57,13 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void enterFeedback()
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
@@ -111,10 +98,22 @@ public class AuditoryFeedback extends Feedback
 		player.play(soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
 	}
 
-
 	@Override
-	public void flush()
+	public void flush() throws SSJFatalException
 	{
 		player.release();
+	}
+
+	public class Options extends Feedback.Options
+	{
+		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
+		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
+		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load audio file from assets");
+
+		private Options()
+		{
+			super();
+			addOptions();
+		}
 	}
 }
