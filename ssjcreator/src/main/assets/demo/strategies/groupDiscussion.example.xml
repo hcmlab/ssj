@@ -1,0 +1,109 @@
+<!--
+  ~ groupDiscussion.example.xml
+  ~ Copyright (c) 2017
+  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+  ~ Vitalijs Krumins, Antonio Grieco
+  ~ ******************************************************
+  ~ This file is part of the Social Signal Interpretation for Java (SSJ) framework
+  ~ developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+  ~
+  ~ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+  ~ one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+  ~ to offer SSI's comprehensive functionality and performance (this is java after all).
+  ~ Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ This library is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<!--
+    Example multimodal strategy for group discussion augmentation
+    Note: Resources not included!
+-->
+<ssj xmlns="hcm.ssj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="hcm.ssj http://hcmlab.github.io/ssj/res/feedback.xsd">
+    <strategy>
+        <!-- VISUAL -->
+        <feedback type="visual">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="0" to="30"/>
+            <action res="100percent.png"/>
+        </feedback>
+        <feedback type="visual">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
+            <action res="75percent.png"/>
+        </feedback>
+        <feedback type="visual">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
+            <action res="50percent.png"/>
+        </feedback>
+        <feedback type="visual">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
+            <action res="25percent.png"/>
+        </feedback>
+        <feedback type="visual">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
+            <action res="10percent.png"/>
+        </feedback>
+        <feedback type="visual">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
+            <action res="timeover.png"/>
+        </feedback>
+
+        <!-- AUDIO -->
+        <!-- events are only executed once -->
+        <feedback type="audio">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
+            <action res="75percent.mp3" lockSelf="60000"/>
+        </feedback>
+        <feedback type="audio">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
+            <action res="50percent.mp3" lockSelf="60000"/>
+        </feedback>
+        <feedback type="audio">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
+            <action res="25percent.mp3" lockSelf="60000"/>
+        </feedback>
+        <feedback type="audio">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
+            <action res="10percent.mp3" lockSelf="60000"/>
+        </feedback>
+        <!-- event is executed once every second while the user speaks -->
+        <feedback type="audio">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
+            <action res="timeover.mp3" lockSelf="1000"/>
+        </feedback>
+
+        <!-- TACTILE -->
+        <!-- events are only executed once -->
+        <feedback type="tactile">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
+            <action intensity="150" duration="500" lockSelf="60000"/>
+        </feedback>
+        <feedback type="tactile">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
+            <action intensity="150,150" duration="500,500" lockSelf="60000"/>
+        </feedback>
+        <feedback type="tactile">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
+            <action intensity="150,150,150" duration="500,500,500" lockSelf="60000"/>
+        </feedback>
+        <feedback type="tactile">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
+            <action intensity="150" duration="500" lockSelf="60000"/>
+        </feedback>
+        <!-- event is executed once every second while the user speaks -->
+        <feedback type="tactile">
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
+            <action intensity="150" duration="2000" lockSelf="1000"/>
+        </feedback>
+    </strategy>
+</ssj>
