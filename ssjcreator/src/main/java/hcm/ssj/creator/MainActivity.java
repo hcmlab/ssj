@@ -539,6 +539,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
 			startActivity(intent);
 		}
+		else if (itemId == R.id.action_graph)
+		{
+			Intent intent = new Intent(getApplicationContext(), GraphActivity.class);
+			startActivity(intent);
+		}
 		else if (itemId == R.id.action_save)
 		{
 			showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);

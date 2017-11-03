@@ -55,6 +55,11 @@
             android:name="hcm.ssj.creator.OptionsActivity"
             android:configChanges="orientation|screenSize">
         </activity>
+        <activity
+            android:theme="@style/AppThemeDefault"
+            android:name="hcm.ssj.creator.GraphActivity"
+            android:configChanges="orientation|screenSize">
+        </activity>
     </application>
 
 </manifest>
