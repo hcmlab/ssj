@@ -1,5 +1,5 @@
 /*
- * GraphActivity.java
+ * StreamDataDialog.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,35 +25,43 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.dialogs;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.view.View;
-import android.widget.Button;
+import android.support.annotation.NonNull;
+import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 
-import hcm.ssj.creator.dialogs.StreamDataDialog;
+import hcm.ssj.creator.R;
 
 /**
- * Visualize user-saved stream file data with the GraphView.
+ * Dialog for stream file selection to visualize data via GraphView.
  */
-public class GraphActivity extends AppCompatActivity
+public class StreamDataDialog extends DialogFragment
 {
+	@NonNull
 	@Override
-	public void onCreate(Bundle savedInstanceState)
+	public Dialog onCreateDialog(Bundle savedInstanceState)
 	{
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.graph_layout);
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle("Select stream file");
 
-		Button loadButton = (Button) findViewById(R.id.load_stream_file);
-		loadButton.setOnClickListener(new View.OnClickListener()
-		{
+		builder.setPositiveButton(R.string.str_ok, new DialogInterface.OnClickListener() {
 			@Override
-			public void onClick(View view)
+			public void onClick(DialogInterface dialogInterface, int i)
 			{
-				StreamDataDialog dialog = new StreamDataDialog();
-				dialog.show(getSupportFragmentManager(), GraphActivity.this.getClass().getSimpleName());
 			}
 		});
+
+		builder.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialogInterface, int i)
+			{
+			}
+		});
+
+		return builder.create();
 	}
 }
