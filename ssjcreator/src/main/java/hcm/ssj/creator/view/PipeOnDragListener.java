@@ -27,6 +27,9 @@
 
 package hcm.ssj.creator.view;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
@@ -36,8 +39,14 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 
+import java.util.Map;
+
+import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
+import hcm.ssj.creator.util.Util;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * On drag listener for pipe <br>
@@ -45,6 +54,7 @@ import hcm.ssj.creator.main.TwoDScrollView;
  */
 class PipeOnDragListener implements View.OnDragListener
 {
+    private final Context context;
     private ImageView recycleBin;
     private boolean dropped;
     private float xCoord, yCoord;
@@ -54,11 +64,9 @@ class PipeOnDragListener implements View.OnDragListener
         NOTHING, PLACED, DELETED, CONNECTED
     }
 
-    /**
-     *
-     */
-    PipeOnDragListener()
+    PipeOnDragListener(Context context)
     {
+        this.context = context;
     }
 
     /**
@@ -131,6 +139,10 @@ class PipeOnDragListener implements View.OnDragListener
         {
             pipeView.getGrid().setGridValue(componentView.getGridX(), componentView.getGridY(), false);
             PipelineBuilder.getInstance().remove(componentView.getElement());
+            if(componentView.getElement() instanceof FeedbackCollection)
+            {
+                openFeedbackCollectionDeleteDialog(pipeView, (FeedbackCollection)componentView.getElement());
+            }
             result = Result.DELETED;
         } //reposition
         else
@@ -160,6 +172,29 @@ class PipeOnDragListener implements View.OnDragListener
             pipeView.addView(componentView);
         }
         return result;
+    }
+
+    private void openFeedbackCollectionDeleteDialog(final PipeView pipeView, final FeedbackCollection feedbackCollection) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
+        builder.setTitle(R.string.keep_inner_components)
+                .setPositiveButton(R.string.yes, null)
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener()
+                {
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        for(Map<Feedback, FeedbackCollection.LevelBehaviour> levelMap : feedbackCollection.getFeedbackList())
+                        {
+                            for(Feedback feedback : levelMap.keySet())
+                            {
+                                PipelineBuilder.getInstance().remove(feedback);
+                            }
+                        }
+                        pipeView.recalculate(Util.AppAction.CLEAR, null);
+                        pipeView.recalculate(Util.AppAction.DISPLAYED, null);
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     /**

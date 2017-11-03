@@ -83,7 +83,7 @@ public class Annotation
 	{
 		name = "anno";
 		path = (Environment.getExternalStorageDirectory().getAbsolutePath()
-				+ File.separator + Util.DIR_1 + File.separator + "[time]");
+				+ File.separator + Util.SSJ + File.separator + "[time]");
 		classes.clear();
 	}
 

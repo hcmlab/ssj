@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -45,14 +45,13 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.net.URI;
-
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
@@ -137,13 +136,17 @@ public class OptionsActivity extends AppCompatActivity
 		}
 		if (innerObject != null)
 		{
-			//add possible event providers
-			TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
-																	(innerObject instanceof Transformer || innerObject instanceof Consumer)
-																			|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
-			if (eventTableRow != null)
+			// Do not add event provider for managed feedback
+			if(!PipelineBuilder.getInstance().isManagedFeedback(innerObject))
 			{
-				tableLayout.addView(eventTableRow);
+				//add possible event providers
+				TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
+																		(innerObject instanceof Transformer || innerObject instanceof Consumer)
+																				|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
+				if (eventTableRow != null)
+				{
+					tableLayout.addView(eventTableRow);
+				}
 			}
 		}
 	}

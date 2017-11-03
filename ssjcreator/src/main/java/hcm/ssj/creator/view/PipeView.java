@@ -57,6 +57,8 @@ import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.main.TwoDScrollView;
 import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.creator.util.Util;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
  * Draws a pipe<br>
@@ -98,7 +100,7 @@ public class PipeView extends ViewGroup
 	public PipeView(Context context)
 	{
 		super(context);
-		init();
+		init(context);
 	}
 
 	/**
@@ -108,13 +110,10 @@ public class PipeView extends ViewGroup
 	public PipeView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		init();
+		init(context);
 	}
 
-	/**
-	 *
-	 */
-	private void init()
+	private void init(Context context)
 	{
 		Log.i("init pipeview");
 		//children should not be clipped
@@ -122,7 +121,7 @@ public class PipeView extends ViewGroup
 		//create grid
 		gridLayout = new GridLayout(iGridWidthNumberOfBoxes, iGridHeightNumberOfBoxes);
 		//add drag listener
-		setOnDragListener(new PipeOnDragListener());
+		setOnDragListener(new PipeOnDragListener(context));
 		//initiate colors
 		paintElementGrid = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paintElementGrid.setStyle(Paint.Style.STROKE);
@@ -311,7 +310,6 @@ public class PipeView extends ViewGroup
 			int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
 			streamConnections = checkStreamConnections(streamHashes, streamConnections, componentViewSensor, componentViewsSensorChannel, false);
 			int[] eventHashes = componentViewSensor.getEventConnectionHashes();
-			//@TODO: Last parameter determines connection direction. Should sensors be handled like in streams or like other components?
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensor, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsSensorChannel, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewSensor, componentViewsTransformer, true);
@@ -443,6 +441,10 @@ public class PipeView extends ViewGroup
 	 */
 	private int checkEventConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews, boolean standardOrientation)
 	{
+		if(destination.getElement() instanceof Feedback && PipelineBuilder.getInstance().isManagedFeedback(destination.getElement()))
+		{
+			return connections;
+		}
 		if (hashes != null)
 		{
 			for (int hash : hashes)
@@ -465,6 +467,16 @@ public class PipeView extends ViewGroup
 							connectionView.invalidate();
 						}
 						connections++;
+
+						if(PipelineBuilder.getInstance().isManagedFeedback(componentView.getElement()))
+						{
+							connectionView.setVisibility(GONE);
+						}
+						else
+						{
+							setVisibility(VISIBLE);
+						}
+
 						break;
 					}
 				}
@@ -481,6 +493,19 @@ public class PipeView extends ViewGroup
 	{
 		for (ComponentView view : views)
 		{
+			// Prevent managed feedback to be drawn
+			if(view.getElement() instanceof Feedback)
+			{
+				if(PipelineBuilder.getInstance().isManagedFeedback(view.getElement()))
+				{
+					view.setVisibility(GONE);
+					continue;
+				}
+				else {
+					view.setVisibility(VISIBLE);
+				}
+			}
+
 			if (view.isPositioned())
 			{
 				placeElementView(view);
@@ -610,7 +635,25 @@ public class PipeView extends ViewGroup
 			int colY = componentView.getGridY();
 			if ((colX == x || colX == x - 1 || colX == x + 1) && (colY == y || colY == y - 1 || colY == y + 1))
 			{
-				if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
+				if(object instanceof Feedback && componentView.getElement() instanceof FeedbackCollection)
+				{
+					PipelineBuilder.getInstance().addFeedbackToCollectionContainer(
+							(FeedbackCollection) componentView.getElement(),
+							(Feedback)object,
+							0,
+							FeedbackCollection.LevelBehaviour.Neutral);
+					// Unposition managed feedback
+					for (ComponentView view : componentViewsEventHandler)
+					{
+						if(view.getElement().equals(object))
+						{
+							view.setGridX(-1);
+							view.setGridY(-1);
+						}
+					}
+					this.informListeners();
+				}
+				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.STREAMCONNECTION))
 				{
 					if (standard)
 					{

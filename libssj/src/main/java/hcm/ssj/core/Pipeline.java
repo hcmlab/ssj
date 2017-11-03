@@ -34,6 +34,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +43,8 @@ import hcm.ssj.BuildConfig;
 import hcm.ssj.R;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileDownloader;
 import hcm.ssj.mobileSSI.SSI;
@@ -528,6 +532,37 @@ public class Pipeline
     {
         components.add(c);
         return c.getEventChannelOut();
+    }
+
+    public void registerInFeedbackCollection(Feedback feedback, FeedbackCollection feedbackCollection, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
+    {
+        components.add(feedback);
+
+        if(feedback._evchannel_in != null)
+            feedback._evchannel_in.clear();
+
+        for(EventChannel eventChannel : feedbackCollection._evchannel_in)
+        {
+            registerEventListener(feedback, eventChannel);
+        }
+
+        feedbackCollection.addFeedback(feedback, level, levelBehaviour);
+    }
+
+    public void registerInFeedbackCollection(FeedbackCollection feedbackCollection, List<Map<Feedback,FeedbackCollection.LevelBehaviour>> feedbackList)
+    {
+        feedbackCollection.removeAllFeedbacks();
+
+        for (int level = 0; level < feedbackList.size(); level++)
+        {
+            for(Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(level).entrySet())
+            {
+                registerInFeedbackCollection(feedbackLevelBehaviourEntry.getKey(),
+                                                                   feedbackCollection,
+                                                                   level,
+                                                                   feedbackLevelBehaviourEntry.getValue());
+            }
+        }
     }
 
     void pushData(int buffer_id, Object data, int numBytes)

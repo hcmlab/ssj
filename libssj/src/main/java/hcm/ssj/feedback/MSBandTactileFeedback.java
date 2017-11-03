@@ -64,26 +64,25 @@ public class MSBandTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enter() throws SSJFatalException
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 		msband = new BandComm(options.deviceId.get());
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && ! options.eventName.get().isEmpty())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			Log.i("vibration " + options.vibrationType.get());
-			msband.vibrate(options.vibrationType.get());
-		}
+		Log.i("vibration " + options.vibrationType.get());
+		msband.vibrate(options.vibrationType.get());
 	}
 }

@@ -46,21 +46,7 @@ import hcm.ssj.core.option.Option;
 
 public class AuditoryFeedback extends Feedback
 {
-	public class Options extends Feedback.Options
-	{
-		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
-		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
-		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load  audio file from assets");
-
-		private Options()
-		{
-			super();
-			addOptions();
-		}
-	}
-
 	public final Options options = new Options();
-
 	private SoundPool player;
 	private int soundId;
 
@@ -71,11 +57,17 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void enter() throws SSJFatalException
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 
 		player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
@@ -101,22 +93,27 @@ public class AuditoryFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			player.play(soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
-		}
+		player.play(soundId, options.intensity.get(), options.intensity.get(), 1, 0, 1);
 	}
-
 
 	@Override
 	public void flush() throws SSJFatalException
 	{
 		player.release();
+	}
+
+	public class Options extends Feedback.Options
+	{
+		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
+		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
+		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load audio file from assets");
+
+		private Options()
+		{
+			super();
+			addOptions();
+		}
 	}
 }

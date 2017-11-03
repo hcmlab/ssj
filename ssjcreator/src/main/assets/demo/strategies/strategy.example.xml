@@ -1,59 +1,64 @@
 <!--
-  ~ default.xml
-  ~ Copyright (c) 2015
-  ~ Author: Ionut Damian
+strategy.example.xml.xml
+  ~ Copyright (c) 2017
+  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+  ~ Vitalijs Krumins, Antonio Grieco
   ~ ******************************************************
-  ~ This file is part of the Logue project developed at the Lab for Human Centered Multimedia
-  ~ of the University of Augsburg.
+  ~ This file is part of the Social Signal Interpretation for Java (SSJ) framework
+  ~ developed at the Lab for Human Centered Multimedia of the University of Augsburg.
   ~
-  ~ The applications and libraries are free software; you can redistribute them and/or modify them
-  ~ under the terms of the GNU General Public License as published by the Free Software
+  ~ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+  ~ one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+  ~ to offer SSI's comprehensive functionality and performance (this is java after all).
+  ~ Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software
   ~ Foundation; either version 3 of the License, or any later version.
   ~
-  ~ The software is distributed in the hope that it will be useful, but WITHOUT
+  ~ This library is distributed in the hope that it will be useful, but WITHOUT
   ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
   ~ FOR A PARTICULAR PURPOSE.
   ~ See the GNU General Public License for more details.
   ~
   ~ You should have received a copy of the GNU General Public License along
-  ~ with this library; if not, write to the Free Software Foundation, Inc.,
-  ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 <ssj xmlns="hcm.ssj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="hcm.ssj http://hcmlab.github.io/ssj/res/feedback.xsd">
     <strategy>
 
-        <feedback type="audio">
+        <feedback type="audio" level="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
             <action res="Creator/res/blop.mp3" intensity="0.0" lockSelf="1000"/>
         </feedback>
-        <feedback type="audio">
+        <feedback type="audio" level="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="12"/>
             <action res="Creator/res/blop.mp3" intensity="0.5" lockSelf="1000"/>
         </feedback>
-        <feedback type="audio">
+        <feedback type="audio" valence="Undesirable" level="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12" to="999"/>
             <action res="Creator/res/blop.mp3" intensity="1.0" lockSelf="1000"/>
         </feedback>
 
-        <feedback type="tactile" device="Android">
+        <feedback type="tactile" device="Android" level="1" valence="Desirable">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
             <action duration="0,100,100,100" lockSelf="1000"/>
         </feedback>
-        <feedback type="tactile" device="Android">
+        <feedback type="tactile" device="Android" level="1" valence="Undesirable">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12" to="999"/>
             <action duration="0,200,100,200" lockSelf="1000"/>
         </feedback>
 
-        <feedback type="visual" position="0">
+        <feedback type="visual" position="0" level="2" valence="Desirable">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3.0"/>
             <action res="Creator/res/orientation_low.png, Creator/res/thumb_negative.png"/>
         </feedback>
-        <feedback type="visual" position="0">
+        <feedback type="visual" position="0" level="2">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="12.0"/>
             <action res="Creator/res/orientation_med.png, Creator/res/thumb_positive.png"/>
         </feedback>
-        <feedback type="visual" position="0">
+        <feedback type="visual" position="0" level="2">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12.0" to="999.0"/>
             <action res="Creator/res/orientation_high.png, Creator/res/thumb_negative.png"/>
         </feedback>

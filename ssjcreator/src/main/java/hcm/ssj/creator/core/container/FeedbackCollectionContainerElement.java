@@ -1,5 +1,5 @@
 /*
- * FeedbackListener.java
+ * FeedbackCollectionContainerElement.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,14 +25,47 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.feedbackmanager.classes;
+package hcm.ssj.creator.core.container;
 
-import hcm.ssj.feedback.feedbackmanager.actions.Action;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import hcm.ssj.feedback.Feedback;
+import hcm.ssj.feedback.FeedbackCollection;
 
 /**
- * Created by Johnny on 03.06.2016.
+ * Created by Antonio Grieco on 18.10.2017.
  */
-public interface FeedbackListener
+
+public class FeedbackCollectionContainerElement extends ContainerElement
 {
-    void onPostFeedback(hcm.ssj.core.event.Event ssjEvent, Action action, float value);
+
+	private List<Map<Feedback, FeedbackCollection.LevelBehaviour>> feedbackList;
+
+	public FeedbackCollectionContainerElement(FeedbackCollection element)
+	{
+		super(element);
+		feedbackList = element.getFeedbackList();
+	}
+
+	public List<Map<Feedback, FeedbackCollection.LevelBehaviour>> getFeedbackList()
+	{
+		return feedbackList;
+	}
+
+	public void addFeedback(Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
+	{
+		while (feedbackList.size() <= level)
+		{
+			feedbackList.add(new LinkedHashMap<Feedback, FeedbackCollection.LevelBehaviour>());
+		}
+		feedbackList.get(level).put(feedback, levelBehaviour);
+	}
+
+	public void removeAllFeedbacks()
+	{
+		feedbackList = new ArrayList<>();
+	}
 }
