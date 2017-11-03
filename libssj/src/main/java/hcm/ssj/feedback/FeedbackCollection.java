@@ -30,7 +30,6 @@ package hcm.ssj.feedback;
 import android.widget.TableLayout;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +75,7 @@ public class FeedbackCollection extends EventHandler
 		}
 
 		List<Long> lastProgressExecutionTimes = new ArrayList<>();
+		List<Long> lastNeutralExecutionTimes = new ArrayList<>();
 		List<Long> lastRegressExecutionTimes = new ArrayList<>();
 
 		for (Map.Entry<Feedback, LevelBehaviour> feedbackEntry : feedbackList.get(currentLevel).entrySet())
@@ -87,6 +87,7 @@ public class FeedbackCollection extends EventHandler
 					lastRegressExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
 				case Neutral:
+					lastNeutralExecutionTimes.add(feedbackEntryLastExecutionTime);
 					break;
 				case Progress:
 					lastProgressExecutionTimes.add(feedbackEntryLastExecutionTime);
@@ -94,23 +95,32 @@ public class FeedbackCollection extends EventHandler
 			}
 		}
 
-		//if all progress feedback classes are active and no regress class is active, check if we should progress to next level
+		//if all progress feedback classes are active and no other class is active, check if we should progress to next level
 		if ((currentLevel + 1) < feedbackList.size() &&
+				lastLevelActivationExceedsTime(options.progression.get()*1000) &&
 				allTimeStampsInIntervalFromNow(lastProgressExecutionTimes, (long) (options.progression.get() * 1000)) &&
+				noTimeStampInIntervalFromNow(lastNeutralExecutionTimes, (long) (options.progression.get() * 1000)) &&
 				noTimeStampInIntervalFromNow(lastRegressExecutionTimes, (long) (options.progression.get() * 1000)))
 		{
 			Log.d("progressing");
 			setLevelActive(currentLevel + 1);
 		}
 
-		//if all regress feedback classes are active and no progress class is active, check if we can go back to the previous level
+		//if all regress feedback classes are active and no other class is active, check if we can go back to the previous level
 		else if (currentLevel > 0 &&
-				allTimeStampsInIntervalFromNow(lastRegressExecutionTimes, (long) (options.regression.get() * 1000)) &&
-				noTimeStampInIntervalFromNow(lastProgressExecutionTimes, (long) (options.regression.get() * 1000)))
+				lastLevelActivationExceedsTime(options.regression.get()*1000) &&
+				noTimeStampInIntervalFromNow(lastProgressExecutionTimes, (long) (options.regression.get() * 1000)) &&
+				noTimeStampInIntervalFromNow(lastNeutralExecutionTimes, (long) (options.regression.get() * 1000)) &&
+				allTimeStampsInIntervalFromNow(lastRegressExecutionTimes, (long) (options.regression.get() * 1000)))
 		{
 			Log.d("regressing");
 			setLevelActive(currentLevel - 1);
 		}
+	}
+
+	private boolean lastLevelActivationExceedsTime(float time)
+	{
+		return (System.currentTimeMillis() - lastLevelActivationTime) >= time;
 	}
 
 	private boolean allTimeStampsInIntervalFromNow(List<Long> timeStamps, long interval)

@@ -30,6 +30,7 @@ package hcm.ssj;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,8 +84,8 @@ public class FeedbackCollectionTest
 
 
 		feedbackCollection = new FeedbackCollection();
-		feedbackCollection.options.progression.set(2.0f);
-		feedbackCollection.options.regression.set(3.0f);
+		feedbackCollection.options.progression.set(1.0f);
+		feedbackCollection.options.regression.set(1.5f);
 		pipeline.registerEventListener(feedbackCollection, floatsEventSender);
 		// LEVEL 0
 		AndroidTactileFeedback androidTactileFeedback1 = new AndroidTactileFeedback();
@@ -131,7 +132,8 @@ public class FeedbackCollectionTest
 
 		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(0).entrySet())
 		{
-			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress) ||
+					feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Neutral))
 			{
 				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000) * 2);
 			}
@@ -159,7 +161,8 @@ public class FeedbackCollectionTest
 	{
 		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(0).entrySet())
 		{
-			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress) ||
+					feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Neutral))
 			{
 				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000) * 2);
 			}
@@ -190,14 +193,16 @@ public class FeedbackCollectionTest
 	{
 		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(0).entrySet())
 		{
-			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress))
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Regress) ||
+					feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Neutral))
 			{
 				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.progression.get() * 1000) * 2);
 			}
 		}
 		for (Map.Entry<Feedback, FeedbackCollection.LevelBehaviour> feedbackLevelBehaviourEntry : feedbackList.get(1).entrySet())
 		{
-			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Progress))
+			if (feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Progress) ||
+					feedbackLevelBehaviourEntry.getValue().equals(FeedbackCollection.LevelBehaviour.Neutral))
 			{
 				((AndroidTactileFeedback) feedbackLevelBehaviourEntry.getKey()).options.lock.set((int) (feedbackCollection.options.regression.get() * 1000) * 2);
 			}
@@ -240,5 +245,11 @@ public class FeedbackCollectionTest
 				}
 			}
 		}
+	}
+
+	@After
+	public void clearPipeline()
+	{
+		Pipeline.getInstance().clear();
 	}
 }
