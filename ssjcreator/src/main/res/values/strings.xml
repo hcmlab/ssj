@@ -102,7 +102,7 @@
     <string name="level_behaviour_message">
         The level behaviours of feedback components are taken into account to decide, whether we\
         should progress to the next level (all \"Progress\" components are active and no\
-        \"Regress\" component) or regress to the previous level (all \"Regress\" components\
-        are active and no \"Progress\" component). \"Neutral\" components are not taken into account.
+        other component) or regress to the previous level (all \"Regress\" components\
+        are active and no other component).
     </string>
 </resources>
