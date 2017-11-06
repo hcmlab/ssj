@@ -59,12 +59,7 @@ public class StreamDataDialog extends DialogFragment
 			}
 		});
 
-		builder.setNegativeButton(R.string.str_cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialogInterface, int i)
-			{
-			}
-		});
+		builder.setNegativeButton(R.string.str_cancel, null);
 
 		builder.setSingleChoiceItems(streamData.getDirNames(), streamData.getDefaultSelected(),
 									 new DialogInterface.OnClickListener() {
