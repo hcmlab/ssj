@@ -53,8 +53,10 @@
             android:theme="@style/AppThemeDefault"
             android:configChanges="orientation|screenSize">
         </activity>
-        <activity android:name=".activity.FeedbackCollectionActivity"
-                  android:configChanges="orientation|screenSize">
+        <activity
+            android:name=".activity.FeedbackCollectionActivity"
+            android:theme="@style/AppThemeDefault"
+            android:configChanges="orientation|screenSize">
         </activity>
         <activity
             android:theme="@style/AppThemeDefault"
