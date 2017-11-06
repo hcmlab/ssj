@@ -155,8 +155,8 @@
     </eventHandler>
     <eventHandler class="hcm.ssj.feedback.FeedbackCollection" id="120849030" delta="0.0" eventTrigger="false">
       <options>
-        <option name="progression" value="2.0" />
-        <option name="regression" value="4.0" />
+        <option name="progression" value="4.0" />
+        <option name="regression" value="6.0" />
       </options>
       <providerList />
       <eventProviderList>
