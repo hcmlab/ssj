@@ -39,5 +39,5 @@
         android:id="@+id/load_stream_file"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/str_load"/>
+        android:text="@string/str_load_pipeline"/>
 </LinearLayout>

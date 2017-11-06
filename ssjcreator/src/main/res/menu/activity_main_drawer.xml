@@ -59,7 +59,7 @@
         <menu>
             <item
                 android:id="@+id/action_load_strategy"
-                android:icon="@drawable/ic_exit_to_app_white_24dp"
+                android:icon="@drawable/ic_exit_to_app_black_24dp"
                 android:title="@string/str_load_strategy" />
         </menu>
     </item>

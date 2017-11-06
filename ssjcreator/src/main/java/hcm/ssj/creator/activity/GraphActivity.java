@@ -25,13 +25,14 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import hcm.ssj.creator.R;
 import hcm.ssj.creator.dialogs.StreamDataDialog;
 
 /**
