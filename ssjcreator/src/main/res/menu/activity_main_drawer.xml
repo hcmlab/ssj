@@ -32,6 +32,10 @@
             android:id="@+id/action_framework"
             android:icon="@drawable/ic_settings_black_24dp"
             android:title="@string/str_options" />
+        <item
+            android:id="@+id/action_graph"
+            android:icon="@drawable/ic_show_chart_black_24dp"
+            android:title="@string/visualize_data" />
     </group>
 
     <item android:title="@string/drawer_pipelines_separator">
@@ -42,7 +46,7 @@
                 android:title="@string/str_save" />
             <item
                 android:id="@+id/action_load_pipeline"
-                android:icon="@drawable/ic_exit_to_app_white_24dp"
+                android:icon="@drawable/ic_exit_to_app_black_24dp"
                 android:title="@string/str_load_pipeline" />
             <item
                 android:id="@+id/action_delete_pipeline"
