@@ -32,6 +32,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.File;
+
 import hcm.ssj.creator.dialogs.StreamDataDialog;
 
 /**
@@ -39,6 +41,8 @@ import hcm.ssj.creator.dialogs.StreamDataDialog;
  */
 public class GraphActivity extends AppCompatActivity
 {
+	private static File[] streamFiles;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -55,5 +59,10 @@ public class GraphActivity extends AppCompatActivity
 				dialog.show(getSupportFragmentManager(), GraphActivity.this.getClass().getSimpleName());
 			}
 		});
+	}
+
+	public static void setStreamFiles(File[] files)
+	{
+		streamFiles = files;
 	}
 }
