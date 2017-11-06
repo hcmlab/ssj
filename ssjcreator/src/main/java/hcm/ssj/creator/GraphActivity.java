@@ -47,8 +47,8 @@ import hcm.ssj.creator.dialogs.StreamDataDialog;
  */
 public class GraphActivity extends AppCompatActivity
 {
-	private static File[] streamFiles;
 	private static GraphView graph;
+	private static LineGraphSeries<DataPoint>[] series;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -72,30 +72,46 @@ public class GraphActivity extends AppCompatActivity
 
 	public static void setStreamFiles(File[] files)
 	{
-		streamFiles = files;
-
 		for (File f : files)
 		{
+			int columnNum = getColumnNum(f);
 			try
 			{
-				BufferedReader br = new BufferedReader(new FileReader(f));
-				LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-				int i = 0;
-
-				String line;
-				while ((line = br.readLine()) != null)
+				for (int col = 0; col < columnNum; col++)
 				{
-					String[] currentColumn = line.split(" ");
-					float point = Float.parseFloat(currentColumn[2]);
-					series.appendData(new DataPoint(i++, point), false, Integer.MAX_VALUE);
+					BufferedReader br = new BufferedReader(new FileReader(f));
+					LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+					int count = 0;
+					String dataRow;
+					while ((dataRow = br.readLine()) != null)
+					{
+
+						DataPoint point = new DataPoint(count++, Float.parseFloat(dataRow.split(" ")[col]));
+						series.appendData(point, false, Integer.MAX_VALUE);
+					}
+					graph.addSeries(series);
 				}
-				graph.addSeries(series);
 			}
 			catch (Exception e)
 			{
 				e.printStackTrace();
 				return;
 			}
+		}
+	}
+
+	private static int getColumnNum(File file)
+	{
+		try
+		{
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line = br.readLine();
+			return line.split(" ").length;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return 0;
 		}
 	}
 }
