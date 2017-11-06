@@ -32,7 +32,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.series.DataPoint;
+import com.jjoe64.graphview.series.LineGraphSeries;
+
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 
 import hcm.ssj.creator.dialogs.StreamDataDialog;
 
@@ -42,12 +48,15 @@ import hcm.ssj.creator.dialogs.StreamDataDialog;
 public class GraphActivity extends AppCompatActivity
 {
 	private static File[] streamFiles;
+	private static GraphView graph;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
+
+		graph = (GraphView) findViewById(R.id.graph);
 
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
@@ -64,5 +73,29 @@ public class GraphActivity extends AppCompatActivity
 	public static void setStreamFiles(File[] files)
 	{
 		streamFiles = files;
+
+		for (File f : files)
+		{
+			try
+			{
+				BufferedReader br = new BufferedReader(new FileReader(f));
+				LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+				int i = 0;
+
+				String line;
+				while ((line = br.readLine()) != null)
+				{
+					String[] currentColumn = line.split(" ");
+					float point = Float.parseFloat(currentColumn[2]);
+					series.appendData(new DataPoint(i++, point), false, Integer.MAX_VALUE);
+				}
+				graph.addSeries(series);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				return;
+			}
+		}
 	}
 }
