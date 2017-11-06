@@ -48,7 +48,6 @@ import hcm.ssj.creator.dialogs.StreamDataDialog;
 public class GraphActivity extends AppCompatActivity
 {
 	private static GraphView graph;
-	private static LineGraphSeries<DataPoint>[] series;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -72,6 +71,7 @@ public class GraphActivity extends AppCompatActivity
 
 	public static void setStreamFiles(File[] files)
 	{
+		graph.removeAllSeries();
 		for (File f : files)
 		{
 			int columnNum = getColumnNum(f);
