@@ -28,7 +28,10 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:padding="@dimen/graph_layout_padding"
+              android:paddingBottom="@dimen/activity_bottom_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_bottom_margin"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
@@ -36,12 +39,12 @@
         android:id="@+id/graph"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="0.9"/>
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/load_stream_file"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="0.1"
-        android:text="@string/str_load"/>
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/load_button_top_padding"
+        android:text="@string/str_load" />
 </LinearLayout>

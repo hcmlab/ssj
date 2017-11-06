@@ -35,5 +35,5 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin_end">32dp</dimen>
     <dimen name="fab_bottom">72dp</dimen>
-    <dimen name="graph_layout_padding">6dp</dimen>
+    <dimen name="load_button_top_padding">10dp</dimen>
 </resources>
