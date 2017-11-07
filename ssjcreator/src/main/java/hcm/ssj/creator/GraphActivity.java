@@ -67,9 +67,9 @@ public class GraphActivity extends AppCompatActivity implements StreamDataDialog
 	}
 
 	@Override
-	public void onStreamDataSelected(File file)
+	public void onStreamDataSelected(File[] files)
 	{
-		GraphDrawer drawer = new GraphDrawer(graph, file);
-		drawer.drawData();
+		GraphDrawer drawer = new GraphDrawer(graph);
+		drawer.drawData(files);
 	}
 }

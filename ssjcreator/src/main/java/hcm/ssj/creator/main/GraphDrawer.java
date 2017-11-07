@@ -41,25 +41,23 @@ import java.io.FileReader;
 public class GraphDrawer
 {
 	private GraphView graph;
-	private File directory;
 
 	/**
 	 * Instantiate stream data visualizer.
 	 * @param graphView Reference to the GraphView on which to draw the data.
-	 * @param dir Directory that contains stream file to visualize.
 	 */
-	public GraphDrawer(GraphView graphView, File dir)
+	public GraphDrawer(GraphView graphView)
 	{
 		graph = graphView;
-		directory = dir;
 	}
 
 	/**
 	 * Visualize all stream file data located in a selected directory.
+	 * @param streamFiles List of stream data files to visualize.
 	 */
-	public void drawData()
+	public void drawData(File[] streamFiles)
 	{
-		for (File steamFile : directory.listFiles())
+		for (File steamFile : streamFiles)
 		{
 			drawGraph(steamFile);
 		}

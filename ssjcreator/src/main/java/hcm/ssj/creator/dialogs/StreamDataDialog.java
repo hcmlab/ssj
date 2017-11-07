@@ -51,10 +51,10 @@ public class StreamDataDialog extends DialogFragment
 	public interface OnStreamDataSelectedListener
 	{
 		/**
-		 * Pass selected stream file to the listener.
-		 * @param file Selected stream file.
+		 * Pass stream files to the listener.
+		 * @param files Selected stream file.
 		 */
-		void onStreamDataSelected(File file);
+		void onStreamDataSelected(File[] files);
 	}
 
 	private static final int CHECKED_ITEM_INDEX = 0;
@@ -74,7 +74,7 @@ public class StreamDataDialog extends DialogFragment
 			@Override
 			public void onClick(DialogInterface dialogInterface, int i)
 			{
-				listener.onStreamDataSelected(selectedDir);
+				listener.onStreamDataSelected(streamData.getStreamFiles(selectedDir));
 			}
 		});
 
