@@ -72,7 +72,7 @@ public abstract class SaveLoad
 {
 	private final static String ROOT = "ssjSaveFile";
 	private final static String VERSION = "version";
-	private final static String VERSION_NUMBER = "3";
+	private final static String VERSION_NUMBER = "4";
 	private final static String FRAMEWORK = "framework";
 	private final static String SENSOR_CHANNEL_LIST = "sensorChannelList";
 	private final static String SENSOR_LIST = "sensorList";
@@ -222,22 +222,22 @@ public abstract class SaveLoad
 				if (versionFile < versionCurrent)
 				{
 					Log.i("old file version detected, converting from v" + versionFile + " to v" + versionCurrent);
-					String text = convertOldVersion(file);
+					String text = convertOldVersion(file, versionFile);
 					inputStream.close();
 					inputStream = new ByteArrayInputStream(text.getBytes());
 
-					//reset stream
-					parser.setInput(inputStream, null);
-					parser.nextTag();
-				}
-			}
-			else
-			{
-				return false;
-			}
-			//clear previous content
-			Pipeline.getInstance().clear();
-			PipelineBuilder.getInstance().clear();
+                    //reset stream
+                    parser.setInput(inputStream, null);
+                    parser.nextTag();
+                }
+            } else
+            {
+                return false;
+            }
+            //clear previous content
+            Pipeline.getInstance().clear();
+            PipelineBuilder.getInstance().clear();
+            Annotation.getInstance().clear();
 
 			//load classes
 			parser.nextTag();
@@ -301,11 +301,16 @@ public abstract class SaveLoad
 							Double frame = (parser.getAttributeValue(null, FRAME_SIZE) != null) ? Double.valueOf(parser.getAttributeValue(null, FRAME_SIZE)) : null;
 							PipelineBuilder.getInstance().setFrameSize(context, frame);
 							PipelineBuilder.getInstance().setDelta(context, Double.valueOf(parser.getAttributeValue(null, DELTA)));
-							PipelineBuilder.getInstance().setEventTrigger(context, Boolean.valueOf(parser.getAttributeValue(null, EVENT_TRIGGER)));
+
 							String hash = parser.getAttributeValue(null, ID);
 							LinkContainer container = new LinkContainer();
 							container.hash = Integer.parseInt(hash);
 							connectionMap.put(context, container);
+
+							String trigger_hash = parser.getAttributeValue(null, EVENT_TRIGGER);
+							if(trigger_hash != null)
+								connectionMap.get(context).typedHashes.put(Integer.parseInt(trigger_hash), ConnectionType.EVENTTRIGGERCONNECTION);
+
 							if (context instanceof FeedbackCollection)
 							{
 								LinkFeedbackCollection linkFeedbackCollection  = new LinkFeedbackCollection();
@@ -408,9 +413,13 @@ public abstract class SaveLoad
 						{
 							PipelineBuilder.getInstance().addStreamProvider(key, (Provider) candidateKey);
 						}
-						if (value.typedHashes.get(provider).equals(ConnectionType.EVENTCONNECTION))
+						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTCONNECTION))
 						{
 							PipelineBuilder.getInstance().addEventProvider(key, (Component) candidateKey);
+						}
+						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTTRIGGERCONNECTION))
+						{
+							PipelineBuilder.getInstance().setEventTrigger(key, candidateKey);
 						}
 					}
 				}
@@ -517,7 +526,11 @@ public abstract class SaveLoad
 				serializer.attribute(null, FRAME_SIZE, String.valueOf(containerElement.getFrameSize()));
 			}
 			serializer.attribute(null, DELTA, String.valueOf(containerElement.getDelta()));
-			serializer.attribute(null, EVENT_TRIGGER, String.valueOf(containerElement.getEventTrigger()));
+
+			if(containerElement.getEventTrigger() != null)
+			{
+				serializer.attribute(null, EVENT_TRIGGER, String.valueOf(containerElement.getEventTrigger().hashCode()));
+			}
 		}
 		addOptions(serializer, containerElement.getElement());
 
@@ -575,7 +588,7 @@ public abstract class SaveLoad
 		serializer.endTag(null, FEEDBACK_LEVEL_LIST);
 	}
 
-	private static String convertOldVersion(File file) throws IOException
+	private static String convertOldVersion(File file, float from_version) throws IOException
 	{
 		int bufferSize = 10240;
 		char[] buffer = new char[bufferSize];
@@ -587,11 +600,19 @@ public abstract class SaveLoad
 		String text = new String(buffer, 0, len);
 
 		//from v0.2 to v3
-		text = text.replace("Provider", "Channel");
-		text = text.replace("SimpleFile", "File");
-		text = text.replace("Classifier", "ClassifierT");
-		text = text.replace("option name=\"timeoutThread\"", "option name=\"waitThreadKill\"");
-		text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
+		if(from_version == 0.2)
+		{
+			text = text.replace("Provider", "Channel");
+			text = text.replace("SimpleFile", "File");
+			text = text.replace("Classifier", "ClassifierT");
+			text = text.replace("option name=\"timeoutThread\"", "option name=\"waitThreadKill\"");
+			text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
+		}
+
+		if(from_version == 3)
+		{
+			text = text.replaceAll("eventTrigger=\"(true|false)\"", "");
+		}
 
 		java.io.FileWriter writer = new java.io.FileWriter(file);
 		writer.write(text);

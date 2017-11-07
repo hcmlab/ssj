@@ -29,6 +29,7 @@ package hcm.ssj.creator.core;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -50,6 +51,7 @@ import hcm.ssj.creator.core.container.ContainerElement;
 import hcm.ssj.creator.core.container.FeedbackCollectionContainerElement;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
+import hcm.ssj.ml.Trainer;
 
 /**
  * Linker for a pipeline.<br>
@@ -373,7 +375,8 @@ public class PipelineBuilder
 		LinkedHashSet<ContainerElement<Consumer>> hsConsumerElementsNotTriggeredByEvent = new LinkedHashSet<>();
 		for (ContainerElement<Consumer> element : hsConsumerElements)
 		{
-			element.getElement().setTriggeredByEvent(element.getEventTrigger());
+			EventChannel trigger = ((Consumer)element.getEventTrigger()).getEventTrigger();
+			element.getElement().setEventTrigger(trigger);
 
 			if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
 			{
@@ -381,22 +384,28 @@ public class PipelineBuilder
 				element.getHmStreamProviders().keySet().toArray(sources);
 				double frame = (element.getFrameSize() != null) ? element.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
 
-				if (element.getEventTrigger())
+                if(trigger != null)
+                {
+                    framework.addConsumer(element.getElement(), sources, trigger);
+                }
+                else
 				{
-					List<EventChannel> eventChannels = new ArrayList<>();
-					for (Component c : element.getHmEventProviders().keySet())
-					{
-						eventChannels.add(c.getEventChannelOut());
-					}
-					framework.addConsumer(element.getElement(), sources, eventChannels.toArray(new EventChannel[eventChannels.size()]));
-				}
-				else
-				{
-					framework.addConsumer(element.getElement(), sources, frame, element.getDelta());
-					hsConsumerElementsNotTriggeredByEvent.add(element);
-				}
-			}
-		}
+                    framework.addConsumer(element.getElement(), sources, frame, element.getDelta());
+                    hsConsumerElementsNotTriggeredByEvent.add(element);
+                }
+
+                //special case: Trainer
+                if(element.getElement() instanceof Trainer)
+                {
+                    Trainer trainer = (Trainer)element.getElement();
+
+                    //populate annotation with the trainer's model's classes
+                    ArrayList<String> annos = new ArrayList<>();
+                    annos.addAll(Arrays.asList(trainer.getModelDescriptor().getClassNames()));
+                    Annotation.getInstance().setClasses(annos);
+                }
+            }
+        }
 
 		buildEventPipeline(hsSensorElements);
 		buildEventPipeline(hsSensorChannelElements);
@@ -626,7 +635,7 @@ public class PipelineBuilder
 			}
 		}
 	}
-	
+
 	/**
 	 * @param o        Object
 	 * @param provider Provider
@@ -903,7 +912,7 @@ public class PipelineBuilder
 	}
 
 
-	public boolean setEventTrigger(Object o, boolean eventTrigger)
+	public boolean setEventTrigger(Object o, Object trigger)
 	{
 		if (o instanceof Consumer)
 		{
@@ -911,7 +920,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					element.setEventTrigger(eventTrigger);
+					element.setEventTrigger(trigger);
 					return true;
 				}
 			}
@@ -919,7 +928,7 @@ public class PipelineBuilder
 		return false;
 	}
 
-	public boolean getEventTrigger(Object o)
+	public Object getEventTrigger(Object o)
 	{
 		if (o instanceof Consumer)
 		{
@@ -931,7 +940,7 @@ public class PipelineBuilder
 				}
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/**
@@ -1400,5 +1409,49 @@ public class PipelineBuilder
 	public enum Type
 	{
 		Sensor, SensorChannel, Transformer, Consumer, EventHandler
+	}
+
+	/**
+	 * @return Object[]
+	 */
+	public Object[] getPossibleEventInputs(Object object)
+	{
+		//add possible providers
+		ArrayList<Object> alCandidates = new ArrayList<>();
+		alCandidates.addAll(Arrays.asList(getAll(PipelineBuilder.Type.Sensor)));
+		alCandidates.addAll(Arrays.asList(getAll(PipelineBuilder.Type.SensorChannel)));
+		alCandidates.addAll(Arrays.asList(getAll(PipelineBuilder.Type.Transformer)));
+		alCandidates.addAll(Arrays.asList(getAll(PipelineBuilder.Type.Consumer)));
+		alCandidates.addAll(Arrays.asList(getAll(PipelineBuilder.Type.EventHandler)));
+
+		//remove oneself
+		alCandidates.remove(object);
+
+		return alCandidates.toArray();
+	}
+
+	/**
+	 * @return Object[]
+	 */
+	public Object[] getPossibleStreamInputs(Object object)
+	{
+		//add possible providers
+		Object[] sensProvCandidates = getAll(PipelineBuilder.Type.SensorChannel);
+		ArrayList<Object> alCandidates = new ArrayList<>();
+		//only add sensorChannels for sensors
+		if (!(object instanceof Sensor))
+		{
+			alCandidates.addAll(Arrays.asList(getAll(PipelineBuilder.Type.Transformer)));
+			//remove oneself
+			for (int i = 0; i < alCandidates.size(); i++)
+			{
+				if (object.equals(alCandidates.get(i)))
+				{
+					alCandidates.remove(i);
+				}
+			}
+		}
+		alCandidates.addAll(0, Arrays.asList(sensProvCandidates));
+		return alCandidates.toArray();
 	}
 }

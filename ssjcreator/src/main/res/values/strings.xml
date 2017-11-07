@@ -55,7 +55,7 @@
     <!--provider options-->
     <string name="str_frameSize">Frame size (s)</string>
     <string name="str_delta">Delta (s)</string>
-    <string name="str_eventrigger">Event triggered</string>
+    <string name="str_eventrigger">Event trigger:</string>
     <string name="str_frameSizeSmallest">smallest</string>
     <!--tabs-->
     <string name="str_pipe">Pipe</string>

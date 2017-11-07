@@ -1,5 +1,5 @@
 /*
- * ConnectionType.java
+ * IFileWriter.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,39 +25,36 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator.util;
+package hcm.ssj.ml;
 
-import android.graphics.DashPathEffect;
-import android.graphics.PathEffect;
-
-import hcm.ssj.creator.R;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
+import hcm.ssj.file.FileCons;
 
 /**
- * Created by Antonio Grieco on 29.06.2017.
+ * Interface for objects which work with models
  */
+public interface IModelHandler
+{
 
-public enum ConnectionType{
+	/**
+     * Standard options
+     */
+    class Options extends OptionList
+    {
+        public final Option<String> trainerPath = new Option<>("trainerPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
+        public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
+        public final Option<IModelHandler> modelSource = new Option<>("modelSource", null, IModelHandler.class, "use the model of another component");
 
-	STREAMCONNECTION(new PathEffect(), R.color.colorConnectionStream),
-	EVENTCONNECTION(new DashPathEffect(new float[]{45f,  30f}, 0), R.color.colorConnectionEvent),
-	EVENTTRIGGERCONNECTION(null, R.color.colorConnectionEvent);
+        /**
+         *
+         */
+        protected Options()
+        {
+            addOptions();
+        }
+    }
 
-	private final PathEffect pathEffect;
-	private final int color;
-
-	ConnectionType(PathEffect pathEffect, int color)
-	{
-		this.pathEffect = pathEffect;
-		this.color = color;
-	}
-
-	public PathEffect getPathEffect()
-	{
-		return pathEffect;
-	}
-
-	public int getColor()
-	{
-		return color;
-	}
+    boolean hasReferableModel();
+    ModelDescriptor getModelDescriptor();
 }

@@ -93,13 +93,13 @@ public class FileDialog extends DialogFragment
                                 File dir1 = new File(Environment.getExternalStorageDirectory(), Util.SSJ);
                                 File dir2 = new File(dir1.getPath(), Util.CREATOR);
                                 File dir3 = new File(dir2, Util.PIPELINES);
-                                if (!fileName.isEmpty() && (dir2.exists() || dir2.mkdirs()))
+                                if (!fileName.isEmpty() && (dir3.exists() || dir3.mkdirs()))
                                 {
                                     if (!fileName.endsWith(Util.SUFFIX))
                                     {
                                         fileName += Util.SUFFIX;
                                     }
-                                    File file = new File(dir2, fileName);
+                                    File file = new File(dir3, fileName);
                                     if (isValidFileName(file) && SaveLoad.save(file))
                                     {
                                         for (Listener listener : alListeners)

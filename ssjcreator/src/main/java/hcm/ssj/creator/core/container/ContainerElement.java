@@ -41,7 +41,7 @@ public class ContainerElement<T>
     private T element;
     private Double frameSize = null;
     private double delta = 0;
-	private boolean eventTrigger = false;
+	private Object eventTrigger = null;
     private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
     private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
 
@@ -94,12 +94,12 @@ public class ContainerElement<T>
         this.delta = delta;
     }
 
-    public void setEventTrigger(boolean eventTrigger)
+    public void setEventTrigger(Object eventTrigger)
 	{
 		this.eventTrigger = eventTrigger;
 	}
 
-	public boolean getEventTrigger()
+	public Object getEventTrigger()
 	{
 		return eventTrigger;
 	}

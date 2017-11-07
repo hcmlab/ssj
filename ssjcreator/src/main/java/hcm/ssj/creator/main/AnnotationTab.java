@@ -54,6 +54,8 @@ import java.io.File;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.event.Event;
+import hcm.ssj.core.event.StringEvent;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
@@ -291,19 +293,37 @@ public class AnnotationTab implements ITab
                     //only append to running pipeline
                     if (Pipeline.getInstance().isRunning())
                     {
+                        String name = ((TextView) (((ViewGroup) (buttonView.getParent())).getChildAt(0))).getText().toString();
+
                         if (isChecked)
                         {
                             curAnnoStartTime = time;
-                        } else
+
+                            //create start event
+                            StringEvent ev = new StringEvent(name);
+                            ev.time = (long)(time * 1000);
+                            ev.dur = 0;
+                            ev.state = Event.State.CONTINUED;
+                            Annotation.getInstance().getChannel().pushEvent(ev);
+                        }
+                        else
                         {
-                            String name = ((TextView) (((ViewGroup) (buttonView.getParent())).getChildAt(0))).getText().toString();
                             Util.appendFile(fileAnno, curAnnoStartTime + " " + time + " " + name + FileCons.DELIMITER_LINE);
+
+                            //create end event
+                            StringEvent ev = new StringEvent(name);
+                            ev.time = (long)(curAnnoStartTime * 1000);
+                            ev.dur = (int)((time - curAnnoStartTime) * 1000);
+                            ev.state = Event.State.COMPLETED;
+                            Annotation.getInstance().getChannel().pushEvent(ev);
+
                             curAnnoStartTime = 0;
                         }
                     }
                 }
             }
         });
+
         textView.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -391,14 +411,16 @@ public class AnnotationTab implements ITab
      */
     void startAnnotation()
     {
+        syncWithModel();
         enableComponents(false);
         running = true;
-        //activate buttons
+
         activity.runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
+                //activate buttons
                 for (int i = 0; i < annoClassList.getChildCount(); i++)
                 {
                     SwitchCompat button = (SwitchCompat) ((LinearLayout) (annoClassList.getChildAt(i))).getChildAt(1);
@@ -567,5 +589,26 @@ public class AnnotationTab implements ITab
         {
             annoClassList.addView(createClassSwitch(activity, anno));
         }
+    }
+
+    public void syncWithModel()
+    {
+        activity.runOnUiThread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                setAnnoClasses(Annotation.getInstance().getClasses());
+
+                if (editTextPathAnno != null)
+                {
+                    editTextPathAnno.setText(Annotation.getInstance().getFilePath());
+                }
+                if (editTextNameAnno != null)
+                {
+                    editTextNameAnno.setText(Annotation.getInstance().getFileName());
+                }
+            }
+        });
     }
 }

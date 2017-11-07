@@ -47,7 +47,7 @@ public abstract class Consumer extends Component {
     private int[] _num_frame;
     private int[] _num_delta;
 
-    private boolean _triggeredByEvent = false;
+    private EventChannel _triggerChannel = null;
 
     private Timer _timer;
 
@@ -103,14 +103,14 @@ public abstract class Consumer extends Component {
         }
 
         //maintain update rate starting from now
-        if(!_triggeredByEvent)
+        if(_triggerChannel == null)
             _timer.reset();
 
         while(!_terminate && _frame.isRunning())
         {
             try {
-                if(_triggeredByEvent) {
-                    ev = _evchannel_in.get(0).getEvent(eventID++, true);
+                if(_triggerChannel != null) {
+                    ev = _triggerChannel.getEvent(eventID++, true);
                     if (ev == null || ev.dur == 0)
                         continue;
                 }
@@ -122,7 +122,7 @@ public abstract class Consumer extends Component {
                 int pos, numSamples;
                 for(int i = 0; i < _bufferID_in.length; i++)
                 {
-                    if(_triggeredByEvent)
+                    if(_triggerChannel != null)
                     {
                         pos = (int) ((ev.time / 1000.0) * _stream_in[i].sr + 0.5);
                         numSamples = ((int) (((ev.time + ev.dur) / 1000.0) * _stream_in[i].sr + 0.5)) - pos;
@@ -149,7 +149,7 @@ public abstract class Consumer extends Component {
                 if(_doWakeLock) wakeLock.release();
 
                 //maintain update rate
-                if(ok && !_triggeredByEvent)
+                if(ok && _triggerChannel == null)
                     _timer.sync();
 
             } catch(SSJFatalException e) {
@@ -175,7 +175,7 @@ public abstract class Consumer extends Component {
      */
     protected void init(Stream stream_in[]) throws SSJException {}
 
-    /**
+	/**
      * initialization specific to sensor implementation (called by local thread after framework start)
      * @throws SSJFatalException causes immediate pipeline termination
      */
@@ -191,9 +191,13 @@ public abstract class Consumer extends Component {
      */
     public void flush(Stream stream_in[]) throws SSJFatalException {}
 
-    public void setTriggeredByEvent(boolean value)
+    public void setEventTrigger(EventChannel channel)
     {
-        _triggeredByEvent = value;
+        _triggerChannel = channel;
+    }
+    public EventChannel getEventTrigger()
+    {
+        return _triggerChannel;
     }
 
     /**

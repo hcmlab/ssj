@@ -52,6 +52,7 @@ import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
 import hcm.ssj.graphic.SignalPainter;
+import hcm.ssj.ml.Trainer;
 
 
 public class TabHandler
@@ -195,7 +196,9 @@ public class TabHandler
 	private void checkAnnotationTabs()
 	{
 		List<Component> iFileWriters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IFileWriter.class);
-		if (iFileWriters.isEmpty())
+		List<Component> trainers = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, Trainer.class);
+
+		if (iFileWriters.isEmpty() && trainers.isEmpty())
 		{
 			removeComponentsOfClass(firstTabs, AnnotationTab.class);
 		}
@@ -204,6 +207,10 @@ public class TabHandler
 			AnnotationTab annotationTab = new AnnotationTab(activity);
 			TabHost.TabSpec annotationTabSpec = getTabSpecForITab(annotationTab);
 			firstTabs.put(annotationTab, annotationTabSpec);
+		}
+		else //Annotation tab is already here, refresh it
+		{
+			getAnnotation().syncWithModel();
 		}
 	}
 
