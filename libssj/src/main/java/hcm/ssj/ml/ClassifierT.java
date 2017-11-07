@@ -146,8 +146,10 @@ public class ClassifierT extends Transformer implements IModelHandler
             throw new SSJFatalException("model validation failed", e);
         }
 
-        if(selector != null)
+        if(modelDescriptor.getSelectDimensions() != null)
         {
+            selector = new Selector();
+            selector.options.values.set(modelDescriptor.getSelectDimensions());
             stream_selected = new Stream[1];
             stream_selected[0] = Stream.create(input[0].num, selector.options.values.get().length, input[0].sr, input[0].type);
             selector.enter(input, stream_selected[0]);
