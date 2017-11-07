@@ -75,7 +75,7 @@
   <eventHandlerList>
     <eventHandler class="hcm.ssj.feedback.AuditoryFeedback" id="153979406" delta="0.0" eventTrigger="false">
       <options>
-        <option name="eventName" value="high" />
+        <option name="eventNames" value="high" />
         <option name="lock" value="1000" />
         <option name="audioFile" value="demo/res/blop.mp3" />
         <option name="fromAssets" value="true" />
@@ -88,7 +88,7 @@
     </eventHandler>
     <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="86383043" delta="0.0" eventTrigger="false">
       <options>
-        <option name="eventName" value="medium" />
+        <option name="eventNames" value="medium" />
         <option name="lock" value="1000" />
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
@@ -106,7 +106,7 @@
     </eventHandler>
     <eventHandler class="hcm.ssj.feedback.AndroidTactileFeedback" id="60854892" delta="0.0" eventTrigger="false">
       <options>
-        <option name="eventName" value="low" />
+        <option name="eventNames" value="low" />
         <option name="lock" value="1000" />
         <option name="vibrationPattern" value="[0, 500]" />
       </options>
@@ -117,7 +117,7 @@
     </eventHandler>
     <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="225324777" delta="0.0" eventTrigger="false">
       <options>
-        <option name="eventName" value="low" />
+        <option name="eventNames" value="low" />
         <option name="lock" value="1000" />
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
@@ -135,7 +135,7 @@
     </eventHandler>
     <eventHandler class="hcm.ssj.feedback.VisualFeedback" id="192803026" delta="0.0" eventTrigger="false">
       <options>
-        <option name="eventName" value="high" />
+        <option name="eventNames" value="high" />
         <option name="lock" value="1000" />
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
