@@ -33,21 +33,17 @@ import android.view.View;
 import android.widget.Button;
 
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 
 import hcm.ssj.creator.dialogs.StreamDataDialog;
+import hcm.ssj.creator.main.GraphDrawer;
 
 /**
  * Visualize user-saved stream file data with the GraphView.
  */
 public class GraphActivity extends AppCompatActivity
 {
-	private static GraphView graph;
+	private GraphView graph;
+	private GraphDrawer drawer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -67,51 +63,5 @@ public class GraphActivity extends AppCompatActivity
 				dialog.show(getSupportFragmentManager(), GraphActivity.this.getClass().getSimpleName());
 			}
 		});
-	}
-
-	public static void setStreamFiles(File[] files)
-	{
-		graph.removeAllSeries();
-		for (File f : files)
-		{
-			int columnNum = getColumnNum(f);
-			try
-			{
-				for (int col = 0; col < columnNum; col++)
-				{
-					BufferedReader br = new BufferedReader(new FileReader(f));
-					LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-					int count = 0;
-					String dataRow;
-					while ((dataRow = br.readLine()) != null)
-					{
-
-						DataPoint point = new DataPoint(count++, Float.parseFloat(dataRow.split(" ")[col]));
-						series.appendData(point, false, Integer.MAX_VALUE);
-					}
-					graph.addSeries(series);
-				}
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				return;
-			}
-		}
-	}
-
-	private static int getColumnNum(File file)
-	{
-		try
-		{
-			BufferedReader br = new BufferedReader(new FileReader(file));
-			String line = br.readLine();
-			return line.split(" ").length;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return 0;
-		}
 	}
 }

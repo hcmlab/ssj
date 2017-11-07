@@ -37,11 +37,9 @@ import hcm.ssj.file.FileCons;
  */
 public class StreamData
 {
-	private static final int DEFAULT_SELECTED = 0;
 	private static final String SUFFIX = "~";
 
 	private File[] streamDirs = new File(FileCons.SSJ_DATA).listFiles();
-	private File selectedDir = streamDirs[DEFAULT_SELECTED];
 
 	/**
 	 * Return folder names of all directories that contain stream data files.
@@ -58,9 +56,10 @@ public class StreamData
 
 	/**
 	 * Return only data files containing stream data in the selected directory.
+	 * @param dir Directory from which to load all stream files.
 	 * @return Stream file array.
 	 */
-	public File[] getStreamFiles()
+	public File[] getStreamFiles(File dir)
 	{
 		FileFilter filter = new FileFilter()
 		{
@@ -70,25 +69,16 @@ public class StreamData
 				return file.getName().endsWith(SUFFIX);
 			}
 		};
-		return selectedDir.listFiles(filter);
+		return dir.listFiles(filter);
 	}
 
 	/**
 	 * Select a specific stream directory for data visualization.
 	 * @param index Stream file index.
+	 * @return Stream file of a given index.
 	 */
-	public void selectDir(int index)
+	public File selectDir(int index)
 	{
-		selectedDir = streamDirs[index];
-	}
-
-	/**
-	 * Return index of a file that is selected by default.
-	 * This index is used to check radio box in a file selection dialog window when it first appears.
-	 * @return Default file index.
-	 */
-	public int getDefaultSelected()
-	{
-		return DEFAULT_SELECTED;
+		return streamDirs[index];
 	}
 }

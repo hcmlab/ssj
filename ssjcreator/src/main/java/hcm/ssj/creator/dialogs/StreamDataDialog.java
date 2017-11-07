@@ -34,7 +34,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
 
-import hcm.ssj.creator.GraphActivity;
+import java.io.File;
+
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.util.StreamData;
 
@@ -43,7 +44,10 @@ import hcm.ssj.creator.util.StreamData;
  */
 public class StreamDataDialog extends DialogFragment
 {
+	private static final int CHECKED_ITEM_INDEX = 0;
+
 	private StreamData streamData = new StreamData();
+	private File selectedDir = streamData.selectDir(CHECKED_ITEM_INDEX);
 
 	@NonNull
 	@Override
@@ -55,18 +59,18 @@ public class StreamDataDialog extends DialogFragment
 			@Override
 			public void onClick(DialogInterface dialogInterface, int i)
 			{
-				GraphActivity.setStreamFiles(streamData.getStreamFiles());
+				File[] streamFiles = streamData.getStreamFiles(selectedDir);
 			}
 		});
 
 		builder.setNegativeButton(R.string.str_cancel, null);
 
-		builder.setSingleChoiceItems(streamData.getDirNames(), streamData.getDefaultSelected(),
+		builder.setSingleChoiceItems(streamData.getDirNames(), CHECKED_ITEM_INDEX,
 									 new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which)
 			{
-				streamData.selectDir(which);
+				selectedDir = streamData.selectDir(which);
 			}
 		});
 
