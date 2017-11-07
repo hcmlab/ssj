@@ -375,8 +375,8 @@ public class PipelineBuilder
 		LinkedHashSet<ContainerElement<Consumer>> hsConsumerElementsNotTriggeredByEvent = new LinkedHashSet<>();
 		for (ContainerElement<Consumer> element : hsConsumerElements)
 		{
-			EventChannel trigger = ((Consumer)element.getEventTrigger()).getEventTrigger();
-			element.getElement().setEventTrigger(trigger);
+			Object triggerSource = element.getEventTrigger();
+			EventChannel trigger = (triggerSource == null) ? null : ((Consumer)triggerSource).getEventChannelOut();
 
 			if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
 			{
