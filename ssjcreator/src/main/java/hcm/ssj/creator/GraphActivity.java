@@ -38,13 +38,12 @@ import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
-import hcm.ssj.creator.dialogs.StreamDataDialog;
 import hcm.ssj.creator.main.GraphDrawer;
 
 /**
  * Visualize user-saved stream file data with the GraphView.
  */
-public class GraphActivity extends AppCompatActivity implements StreamDataDialog.OnStreamDataSelectedListener
+public class GraphActivity extends AppCompatActivity
 {
 	private GraphView graph;
 	private ChooserDialog chooserDialog;
@@ -75,12 +74,5 @@ public class GraphActivity extends AppCompatActivity implements StreamDataDialog
 				chooserDialog.show();
 			}
 		});
-	}
-
-	@Override
-	public void onStreamDataSelected(File[] files)
-	{
-		GraphDrawer drawer = new GraphDrawer(graph);
-		drawer.drawData(files);
 	}
 }
