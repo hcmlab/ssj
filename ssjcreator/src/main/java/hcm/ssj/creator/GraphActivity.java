@@ -28,11 +28,13 @@
 package hcm.ssj.creator;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
 import com.jjoe64.graphview.GraphView;
+import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
@@ -45,6 +47,7 @@ import hcm.ssj.creator.main.GraphDrawer;
 public class GraphActivity extends AppCompatActivity implements StreamDataDialog.OnStreamDataSelectedListener
 {
 	private GraphView graph;
+	private ChooserDialog chooserDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -60,8 +63,16 @@ public class GraphActivity extends AppCompatActivity implements StreamDataDialog
 			@Override
 			public void onClick(View view)
 			{
-				StreamDataDialog dialog = new StreamDataDialog();
-				dialog.show(getSupportFragmentManager(), GraphActivity.this.getClass().getSimpleName());
+				chooserDialog = new ChooserDialog().with(GraphActivity.this);
+				chooserDialog.withStartFile(Environment.getExternalStorageDirectory().getPath());
+				chooserDialog.withChosenListener(new ChooserDialog.Result() {
+					@Override
+					public void onChoosePath(String path, File pathFile) {
+						GraphDrawer drawer = new GraphDrawer(graph);
+						drawer.drawGraph(pathFile);
+					}
+				}).build();
+				chooserDialog.show();
 			}
 		});
 	}

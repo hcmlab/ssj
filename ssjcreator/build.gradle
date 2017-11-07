@@ -66,4 +66,5 @@ dependencies {
     compile 'com.android.support:design:25.4.0'
     compile project(path: ':libssj')
     compile 'com.github.paolorotolo:appintro:4.0.0'
+    compile 'com.obsez.android.lib.filechooser:filechooser:1.1.5'
 }

@@ -67,7 +67,7 @@ public class GraphDrawer
 	 * Visualize data of a given stream file.
 	 * @param file Stream file.
 	 */
-	private void drawGraph(File file)
+	public void drawGraph(File file)
 	{
 		graph.removeAllSeries();
 		int columnNum = getColumnNum(file);
