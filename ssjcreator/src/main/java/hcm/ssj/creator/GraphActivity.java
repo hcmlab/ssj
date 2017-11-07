@@ -34,16 +34,17 @@ import android.widget.Button;
 
 import com.jjoe64.graphview.GraphView;
 
+import java.io.File;
+
 import hcm.ssj.creator.dialogs.StreamDataDialog;
 import hcm.ssj.creator.main.GraphDrawer;
 
 /**
  * Visualize user-saved stream file data with the GraphView.
  */
-public class GraphActivity extends AppCompatActivity
+public class GraphActivity extends AppCompatActivity implements StreamDataDialog.OnStreamDataSelectedListener
 {
 	private GraphView graph;
-	private GraphDrawer drawer;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -63,5 +64,12 @@ public class GraphActivity extends AppCompatActivity
 				dialog.show(getSupportFragmentManager(), GraphActivity.this.getClass().getSimpleName());
 			}
 		});
+	}
+
+	@Override
+	public void onStreamDataSelected(File file)
+	{
+		GraphDrawer drawer = new GraphDrawer(graph, file);
+		drawer.drawData();
 	}
 }

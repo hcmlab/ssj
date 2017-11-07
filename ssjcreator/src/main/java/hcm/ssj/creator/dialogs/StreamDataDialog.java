@@ -28,6 +28,7 @@
 package hcm.ssj.creator.dialogs;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -40,11 +41,25 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.util.StreamData;
 
 /**
- * Dialog for stream file selection to visualize data via GraphView.
+ * Dialog for stream file selection.
  */
 public class StreamDataDialog extends DialogFragment
 {
+	/**
+	 * Interface to notify listeners when new stream data directory is selected.
+	 */
+	public interface OnStreamDataSelectedListener
+	{
+		/**
+		 * Pass selected stream file to the listener.
+		 * @param file Selected stream file.
+		 */
+		void onStreamDataSelected(File file);
+	}
+
 	private static final int CHECKED_ITEM_INDEX = 0;
+
+	private OnStreamDataSelectedListener listener;
 
 	private StreamData streamData = new StreamData();
 	private File selectedDir = streamData.selectDir(CHECKED_ITEM_INDEX);
@@ -59,7 +74,7 @@ public class StreamDataDialog extends DialogFragment
 			@Override
 			public void onClick(DialogInterface dialogInterface, int i)
 			{
-				File[] streamFiles = streamData.getStreamFiles(selectedDir);
+				listener.onStreamDataSelected(selectedDir);
 			}
 		});
 
@@ -75,5 +90,19 @@ public class StreamDataDialog extends DialogFragment
 		});
 
 		return builder.create();
+	}
+
+	@Override
+	public void onAttach(Context context)
+	{
+		super.onAttach(context);
+		try
+		{
+			listener = (OnStreamDataSelectedListener) context;
+		}
+		catch (ClassCastException e)
+		{
+			throw new ClassCastException(context.toString() + " must implement OnStreamDataSelectedListener");
+		}
 	}
 }
