@@ -1,5 +1,5 @@
 /*
- * build.gradle
+ * FeedbackLevelListener.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,51 +25,13 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-apply plugin: 'com.android.application'
-apply from: '../version.gradle'
+package hcm.ssj.creator.view.Feedback;
 
-android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+/**
+ * Created by Antonio Grieco on 05.10.2017.
+ */
 
-    lintOptions {
-        abortOnError false
-    }
-    aaptOptions {
-        noCompress "demo"
-    }
-    defaultConfig {
-        applicationId "hcm.ssj.creator"
-        minSdkVersion 19
-        targetSdkVersion 25
-        versionName getVerName()
-        versionCode getVerCode()
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        ndk {
-            abiFilters "armeabi-v7a", "x86"
-        }
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
-
-repositories {
-    mavenCentral()
-    google()
-}
-
-dependencies {
-    androidTestCompile 'com.android.support:support-annotations:25.4.0'
-    androidTestCompile 'com.android.support.test:runner:1.0.1'
-    androidTestCompile 'com.android.support.test:rules:1.0.1'
-
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support:design:25.4.0'
-    compile project(path: ':libssj')
-    compile 'com.github.paolorotolo:appintro:4.0.0'
-    compile 'com.obsez.android.lib.filechooser:filechooser:1.1.5'
+public interface FeedbackListener
+{
+	void onComponentAdded();
 }

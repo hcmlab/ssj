@@ -32,6 +32,7 @@ import android.os.Environment;
 import java.io.File;
 import java.util.ArrayList;
 
+import hcm.ssj.core.EventChannel;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -40,9 +41,11 @@ import hcm.ssj.creator.util.Util;
 
 public class Annotation
 {
-	ArrayList<String> classes = new ArrayList<>();
-	String name;
-	String path;
+	private ArrayList<String> classes = new ArrayList<>();
+	private String name;
+	private String path;
+
+	private EventChannel channel = new EventChannel();
 
 	private static Annotation instance;
 
@@ -83,7 +86,7 @@ public class Annotation
 	{
 		name = "anno";
 		path = (Environment.getExternalStorageDirectory().getAbsolutePath()
-				+ File.separator + Util.DIR_1 + File.separator + "[time]");
+				+ File.separator + Util.SSJ + File.separator + "[time]");
 		classes.clear();
 	}
 
@@ -106,5 +109,10 @@ public class Annotation
 	public void setFilePath(String path)
 	{
 		this.path = path;
+	}
+
+	public EventChannel getChannel()
+	{
+		return channel;
 	}
 }

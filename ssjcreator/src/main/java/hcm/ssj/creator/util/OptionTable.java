@@ -57,8 +57,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import hcm.ssj.core.Component;
+import hcm.ssj.core.Consumer;
+import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.ml.IModelHandler;
 
 /**
  * Create a table row which includes every option
@@ -75,14 +80,14 @@ public class OptionTable
 
 	public static final Map<Integer, TextView> mapRequestCodesTextViews = new HashMap<>();
 
-	public static TableRow createTable(Activity activity, Option[] options, boolean dividerTop)
+	public static TableRow createTable(Activity activity, Option[] options, Object owner)
 	{
 		TableRow tableRow = new TableRow(activity);
 		tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
 		//
 		LinearLayout linearLayout = new LinearLayout(activity);
 		linearLayout.setOrientation(LinearLayout.VERTICAL);
-		if (dividerTop)
+		if (owner != null && (owner instanceof Transformer || owner instanceof Consumer))
 		{
 			//add divider
 			linearLayout.addView(Util.addDivider(activity));
@@ -99,9 +104,9 @@ public class OptionTable
 		//options
 		for (int i = 0; i < options.length; i++)
 		{
-			if (options[i].isAssignableByString())
+			if (options[i].isAssignableByString() || options[i].getType() == IModelHandler.class)
 			{
-				linearLayoutOptions.addView(addOption(activity, options[i]));
+				linearLayoutOptions.addView(addOption(activity, options[i], owner));
 			}
 		}
 		linearLayout.addView(linearLayoutOptions);
@@ -114,7 +119,7 @@ public class OptionTable
 	 * @param option   Option
 	 * @return LinearLayout
 	 */
-	private static LinearLayout addOption(final Activity activity, final Option option)
+	private static LinearLayout addOption(final Activity activity, final Option option, Object owner)
 	{
 		final Object value = option.get();
 		// Set up the view
@@ -163,22 +168,42 @@ public class OptionTable
 				}
 			});
 		}
-		else if (value != null && value.getClass().isEnum())
+		else if (option.getType().isEnum() || option.getType() == IModelHandler.class)
 		{
 			//create spinner selection for enums which are not null
 			inputView = new Spinner(activity);
-			Object[] enums = value.getClass().getEnumConstants();
-			((Spinner) inputView).setAdapter(new ArrayAdapter<>(
-					activity, android.R.layout.simple_spinner_item, enums));
-			//preselect item
-			for (int i = 0; i < enums.length; i++)
+
+			//pupulate spinner
+			ArrayList<Object> items = new ArrayList<>();;
+			if(option.getType().isEnum())
 			{
-				if (enums[i].equals(value))
+				items.addAll(Arrays.asList((Object[])option.getType().getEnumConstants()));
+				((Spinner) inputView).setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, items));
+			}
+			else
+			{
+				items.add(null); //default element
+				items.addAll(getModelSources(owner));
+				((Spinner) inputView).setAdapter(new ArrayAdapterWithNull(activity, android.R.layout.simple_spinner_item, items, "<load model from file>"));
+			}
+
+			//preselect item
+			if(value == null)
+			{
+				((Spinner) inputView).setSelection(0);
+			}
+			else
+			{
+				for (int i = 0; i < items.size(); i++)
 				{
-					((Spinner) inputView).setSelection(i);
-					break;
+					if (items.get(i) != null && items.get(i).equals(value))
+					{
+						((Spinner) inputView).setSelection(i);
+						break;
+					}
 				}
 			}
+
 			((Spinner) inputView).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
 			{
 				@Override
@@ -322,6 +347,25 @@ public class OptionTable
 		}
 		linearLayout.addView(inputView);
 		return linearLayout;
+	}
+
+	private static ArrayList<Object> getModelSources(Object owner)
+	{
+		ArrayList<Object> result = new ArrayList<>();
+
+		List<Component> modelHandlers = new ArrayList<>();
+		modelHandlers.addAll(PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IModelHandler.class));
+		modelHandlers.addAll(PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Transformer, IModelHandler.class));
+
+		for(Component comp : modelHandlers)
+		{
+			IModelHandler handler = (IModelHandler) comp;
+
+			if(handler != null && handler.hasReferableModel() && handler != owner)
+				result.add(handler);
+		}
+
+		return result;
 	}
 
 	public static void performFileSearch(final Activity activity, int requestCode)

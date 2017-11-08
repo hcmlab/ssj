@@ -29,8 +29,11 @@ package hcm.ssj.feedback;
 
 import hcm.ssj.core.EventHandler;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
+
 
 /**
  * Created by Antonio Grieco on 06.09.2017.
@@ -38,28 +41,89 @@ import hcm.ssj.core.option.OptionList;
 
 public abstract class Feedback extends EventHandler
 {
-	protected long lastExecutionTime = 0;
 
-	public class Options extends OptionList
+	private long lastExecutionTime = 0;
+	private boolean active = true;
+
+	private boolean checkLock()
 	{
-		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
-		public final Option<String> eventName = new Option<>("eventName", "", String.class, "event name to listen on");
-		protected Options()
+		if (System.currentTimeMillis() - lastExecutionTime < getOptions().lock.get())
 		{
-			addOptions();
+			Log.i("ignoring event, lock active for another " +
+						  (getOptions().lock.get() - (System.currentTimeMillis() - lastExecutionTime)) +
+						  "ms");
+			return false;
+		}
+		else
+		{
+			lastExecutionTime = System.currentTimeMillis();
+			return true;
 		}
 	}
 
-	protected boolean checkLock(int lock)
+	@Override
+	protected final void enter() throws SSJFatalException
 	{
-		if (System.currentTimeMillis() - lastExecutionTime < lock)
+		lastExecutionTime = 0;
+		enterFeedback();
+	}
+
+	protected abstract void enterFeedback() throws SSJFatalException;
+
+	public boolean isActive()
+	{
+		return active;
+	}
+
+	protected void setActive(boolean active)
+	{
+		this.active = active;
+	}
+
+	long getLastExecutionTime()
+	{
+		return lastExecutionTime;
+	}
+
+	private boolean activatedByEventName(String eventName)
+	{
+		// Allways activate if no eventnames are specified
+		if (getOptions().eventNames.get() == null || getOptions().eventNames.get().length == 0)
 		{
-			Log.i("ignoring event, lock active for another " + (lock - (System.currentTimeMillis() - lastExecutionTime)) + "ms");
-			return false;
-		}
-		else{
-			lastExecutionTime = System.currentTimeMillis();
 			return true;
+		}
+		for (String eventNameToActivate : getOptions().eventNames.get())
+		{
+			if (eventNameToActivate.equals(eventName))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public final void notify(Event event)
+	{
+		if (active && activatedByEventName(event.name) && checkLock())
+		{
+			notifyFeedback(event);
+		}
+	}
+
+	public abstract Options getOptions();
+
+	public abstract void notifyFeedback(Event event);
+
+	public class Options extends OptionList
+	{
+
+		public final Option<Integer> lock = new Option<>("lock", 0, Integer.class, "lock time in ms");
+		public final Option<String[]> eventNames = new Option<>("eventNames", null, String[].class, "event names to listen on");
+
+		protected Options()
+		{
+			addOptions();
 		}
 	}
 }

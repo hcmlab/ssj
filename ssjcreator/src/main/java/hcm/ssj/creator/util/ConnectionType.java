@@ -39,7 +39,8 @@ import hcm.ssj.creator.R;
 public enum ConnectionType{
 
 	STREAMCONNECTION(new PathEffect(), R.color.colorConnectionStream),
-	EVENTCONNECTION(new DashPathEffect(new float[]{45f,  30f}, 0), R.color.colorConnectionEvent);
+	EVENTCONNECTION(new DashPathEffect(new float[]{45f,  30f}, 0), R.color.colorConnectionEvent),
+	EVENTTRIGGERCONNECTION(null, R.color.colorConnectionEvent);
 
 	private final PathEffect pathEffect;
 	private final int color;

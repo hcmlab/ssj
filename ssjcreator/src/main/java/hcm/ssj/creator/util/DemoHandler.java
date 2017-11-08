@@ -62,10 +62,16 @@ public abstract class DemoHandler
 
         copyFiles(assetManager,
                   Util.DEMO,
-                  Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2);
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR);
         copyFiles(assetManager,
                   Util.DEMO + File.separator + Util.RES,
-                  Environment.getExternalStorageDirectory() + File.separator + Util.DIR_1 + File.separator + Util.DIR_2  + File.separator + Util.RES);
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.RES);
+        copyFiles(assetManager,
+                  Util.DEMO + File.separator + Util.PIPELINES,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.PIPELINES);
+        copyFiles(assetManager,
+                  Util.DEMO + File.separator + Util.STRATEGIES,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.STRATEGIES);
     }
 
     public static void copyFiles(AssetManager assetManager, String src_dir, String dst_dir)

@@ -50,6 +50,7 @@ import java.util.ArrayList;
 import hcm.ssj.core.Log;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.SaveLoad;
+import hcm.ssj.creator.util.StrategyLoader;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -60,7 +61,7 @@ public class FileDialog extends DialogFragment
 {
     public enum Type
     {
-        SAVE, LOAD, DELETE
+        SAVE, LOAD_PIPELINE, LOAD_STRATEGY, DELETE_PIPELINE
     }
 
     private Type type = Type.SAVE;
@@ -89,15 +90,16 @@ public class FileDialog extends DialogFragment
                             case SAVE:
                             {
                                 String fileName = editText.getText().toString().trim();
-                                File dir1 = new File(Environment.getExternalStorageDirectory(), Util.DIR_1);
-                                File dir2 = new File(dir1.getPath(), Util.DIR_2);
-                                if (!fileName.isEmpty() && (dir2.exists() || dir2.mkdirs()))
+                                File dir1 = new File(Environment.getExternalStorageDirectory(), Util.SSJ);
+                                File dir2 = new File(dir1.getPath(), Util.CREATOR);
+                                File dir3 = new File(dir2, Util.PIPELINES);
+                                if (!fileName.isEmpty() && (dir3.exists() || dir3.mkdirs()))
                                 {
                                     if (!fileName.endsWith(Util.SUFFIX))
                                     {
                                         fileName += Util.SUFFIX;
                                     }
-                                    File file = new File(dir2, fileName);
+                                    File file = new File(dir3, fileName);
                                     if (isValidFileName(file) && SaveLoad.save(file))
                                     {
                                         for (Listener listener : alListeners)
@@ -113,7 +115,7 @@ public class FileDialog extends DialogFragment
                                 }
                                 return;
                             }
-                            case LOAD:
+                            case LOAD_PIPELINE:
                             {
                                 if (xmlFiles != null && xmlFiles.length > 0)
                                 {
@@ -139,9 +141,37 @@ public class FileDialog extends DialogFragment
                                 {
                                     listener.onNegativeEvent(null);
                                 }
-                                break;
                             }
-                            case DELETE:
+							break;
+							case LOAD_STRATEGY:
+                            {
+                                if (xmlFiles != null && xmlFiles.length > 0)
+                                {
+                                    int pos = listView.getCheckedItemPosition();
+                                    if (pos > AbsListView.INVALID_POSITION)
+                                    {
+                                        if (new StrategyLoader(xmlFiles[pos]).load())
+                                        {
+                                            for (Listener listener : alListeners)
+                                            {
+                                                listener.onPositiveEvent(new File[]{xmlFiles[pos]});
+                                            }
+                                            return;
+                                        }
+                                        for (Listener listener : alListeners)
+                                        {
+                                            listener.onNegativeEvent(new Boolean[]{false});
+                                        }
+                                        return;
+                                    }
+                                }
+                                for (Listener listener : alListeners)
+                                {
+                                    listener.onNegativeEvent(null);
+                                }
+                            }
+							break;
+							case DELETE_PIPELINE:
                             {
                                 if (xmlFiles != null && xmlFiles.length > 0)
                                 {
@@ -198,42 +228,58 @@ public class FileDialog extends DialogFragment
                 builder.setView(editText);
                 break;
             }
-            case LOAD:
-            case DELETE:
+            case LOAD_PIPELINE:
+            case DELETE_PIPELINE:
             {
-                listView = new ListView(getContext());
-                listView.setChoiceMode(type == Type.DELETE
-                        ? ListView.CHOICE_MODE_MULTIPLE
-                        : ListView.CHOICE_MODE_SINGLE);
-                File dir1 = new File(Environment.getExternalStorageDirectory(), Util.DIR_1);
-                File dir2 = new File(dir1.getPath(), Util.DIR_2);
-                xmlFiles = dir2.listFiles(new FilenameFilter()
-                {
-                    @Override
-                    public boolean accept(File folder, String name)
-                    {
-                        return name.toLowerCase().endsWith(Util.SUFFIX);
-                    }
-                });
-                if (xmlFiles != null && xmlFiles.length > 0)
-                {
-                    String[] ids = new String[xmlFiles.length];
-                    for (int i = 0; i < ids.length; i++)
-                    {
-                        ids[i] = xmlFiles[i].getName();
-                    }
-                    listView.setAdapter(new ArrayAdapter<>(getContext(), type == Type.DELETE
-                            ? android.R.layout.simple_list_item_multiple_choice
-                            : android.R.layout.simple_list_item_single_choice, ids));
-                } else
-                {
-                    listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice));
-                }
+                File ssjDir = new File(Environment.getExternalStorageDirectory(), Util.SSJ);
+                File creatorDir = new File(ssjDir.getPath(), Util.CREATOR);
+                File piplineDir = new File(creatorDir.getPath(), Util.PIPELINES);
+                ListView listView = getXmlFileListView(piplineDir);
+                builder.setView(listView);
+                break;
+            }
+            case LOAD_STRATEGY:
+            {
+                File ssjDir = new File(Environment.getExternalStorageDirectory(), Util.SSJ);
+                File creatorDir = new File(ssjDir.getPath(), Util.CREATOR);
+                File piplineDir = new File(creatorDir.getPath(), Util.STRATEGIES);
+                ListView listView = getXmlFileListView(piplineDir);
                 builder.setView(listView);
                 break;
             }
         }
         return builder.create();
+    }
+
+    private ListView getXmlFileListView(File directory)
+    {
+        listView = new ListView(getContext());
+        listView.setChoiceMode(type == Type.DELETE_PIPELINE
+                                       ? ListView.CHOICE_MODE_MULTIPLE
+                                       : ListView.CHOICE_MODE_SINGLE);
+        xmlFiles = directory.listFiles(new FilenameFilter()
+        {
+            @Override
+            public boolean accept(File folder, String name)
+            {
+                return name.toLowerCase().endsWith(Util.SUFFIX);
+            }
+        });
+        if (xmlFiles != null && xmlFiles.length > 0)
+        {
+            String[] ids = new String[xmlFiles.length];
+            for (int i = 0; i < ids.length; i++)
+            {
+                ids[i] = xmlFiles[i].getName();
+            }
+            listView.setAdapter(new ArrayAdapter<>(getContext(), type == Type.DELETE_PIPELINE
+                    ? android.R.layout.simple_list_item_multiple_choice
+                    : android.R.layout.simple_list_item_single_choice, ids));
+        } else
+        {
+            listView.setAdapter(new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_single_choice));
+        }
+        return listView;
     }
 
     /**

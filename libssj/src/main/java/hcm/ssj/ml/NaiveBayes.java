@@ -45,6 +45,7 @@ import hcm.ssj.file.SimpleXmlParser;
  * Evaluates live data depending on the naive bayes classifier files of SSI.<br>
  * Created by Frank Gaibler on 22.09.2015.
  */
+@Deprecated
 public class NaiveBayes extends Model
 {
     /**
@@ -91,7 +92,7 @@ public class NaiveBayes extends Model
      * @param stream Stream
      * @return double[]
      */
-    protected float[] forward(Stream[] stream)
+    public float[] forward(Stream[] stream)
     {
         if (stream.length != 1)
         {
@@ -187,7 +188,7 @@ public class NaiveBayes extends Model
     /**
      * Load data from option file
      */
-    protected void loadOption(File file)
+    public void loadOption(File file)
     {
         if (file == null)
         {
@@ -228,7 +229,7 @@ public class NaiveBayes extends Model
     /**
      * Load data from model file
      */
-    protected void load(File file)
+    public void load(File file)
     {
         if (file == null)
         {

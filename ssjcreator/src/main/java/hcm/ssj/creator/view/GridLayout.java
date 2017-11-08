@@ -92,7 +92,7 @@ class GridLayout
     void setGridValue(int x, int y, boolean placed)
     {
         //check for valid input
-        if (x + 1 < grid.length && y + 1 < grid[0].length)
+        if (x>= 0 && x + 1 < grid.length && y >= 0 && y + 1 < grid[0].length)
         {
             grid[x][y] = placed;
             grid[x + 1][y] = placed;

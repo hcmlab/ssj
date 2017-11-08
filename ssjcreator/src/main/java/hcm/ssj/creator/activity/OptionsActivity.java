@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -37,15 +37,16 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
@@ -53,9 +54,13 @@ import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.creator.R;
+import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.creator.util.ArrayAdapterWithNull;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
+import hcm.ssj.ml.Trainer;
 
 public class OptionsActivity extends AppCompatActivity
 {
@@ -98,19 +103,16 @@ public class OptionsActivity extends AppCompatActivity
 
 			if (innerObject instanceof Consumer)
 			{
-				boolean triggeredByEvent = PipelineBuilder.getInstance().getEventTrigger(innerObject);
+				boolean triggeredByEvent = PipelineBuilder.getInstance().getEventTrigger(innerObject) != null;
 				setEnabledRecursive(frameSizeTableRow, !triggeredByEvent);
 				setEnabledRecursive(deltaTableRow, !triggeredByEvent);
-				tableLayout.addView(createConsumerTextView(frameSizeTableRow, deltaTableRow));
+				tableLayout.addView(createConsumerTextView(innerObject, frameSizeTableRow, deltaTableRow));
 			}
 		}
 		//add options
 		if (options != null && options.length > 0)
 		{
-			tableLayout.addView(OptionTable.createTable(this, options,
-														innerObject != null
-																&& (innerObject instanceof Transformer
-																|| innerObject instanceof Consumer)));
+			tableLayout.addView(OptionTable.createTable(this, options, innerObject));
 		}
 		//add possible providers for sensor, transformer or consumer
 		if (innerObject != null && innerObject instanceof Sensor)
@@ -138,12 +140,16 @@ public class OptionsActivity extends AppCompatActivity
 		if (innerObject != null)
 		{
 			//add possible event providers
-			TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
-																	(innerObject instanceof Transformer || innerObject instanceof Consumer)
-																			|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
-			if (eventTableRow != null)
+			// Do not add event provider for managed feedback
+			if(!PipelineBuilder.getInstance().isManagedFeedback(innerObject))
 			{
-				tableLayout.addView(eventTableRow);
+				TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
+																		(innerObject instanceof Transformer || innerObject instanceof Consumer)
+																				|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
+				if (eventTableRow != null)
+				{
+					tableLayout.addView(eventTableRow);
+				}
 			}
 		}
 	}
@@ -241,7 +247,7 @@ public class OptionsActivity extends AppCompatActivity
 	 * @param deltaTableRow
 	 * @return
 	 */
-	private TableRow createConsumerTextView(final TableRow frameSizeTableRow, final TableRow deltaTableRow)
+	private TableRow createConsumerTextView(Object mainObject, final TableRow frameSizeTableRow, final TableRow deltaTableRow)
 	{
 		TableRow tableRow = new TableRow(this);
 		tableRow.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.MATCH_PARENT));
@@ -250,35 +256,71 @@ public class OptionsActivity extends AppCompatActivity
 		linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 		linearLayout.setWeightSum(1.0f);
 
-		final CheckBox eventTriggerCheckbox = new CheckBox(this);
-		eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
-		eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-		{
-			@Override
-			public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked)
-			{
-				setEnabledRecursive(frameSizeTableRow, !isChecked);
-				setEnabledRecursive(deltaTableRow, !isChecked);
-				PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
-			}
-		});
-		linearLayout.addView(eventTriggerCheckbox);
+//		final CheckBox eventTriggerCheckbox = new CheckBox(this);
+//		eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
+//		eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
+//		{
+//			@Override
+//			public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked)
+//			{
+//				setEnabledRecursive(frameSizeTableRow, !isChecked);
+//				setEnabledRecursive(deltaTableRow, !isChecked);
+//				PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
+//			}
+//		});
+//		linearLayout.addView(eventTriggerCheckbox);
+
 		TextView textView = new TextView(this);
 		textView.setText(R.string.str_eventrigger);
 		textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
-		textView.setLayoutParams(new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.4f));
-		textView.setOnClickListener(new View.OnClickListener()
+		linearLayout.addView(textView);
+
+		final Spinner eventTriggerList = new Spinner(this);
+		ArrayList<Object> items = new ArrayList<>();
+		items.add(null); //default element
+		if(mainObject instanceof Trainer)
+			items.add(Annotation.getInstance()); //annotation channel
+		items.addAll(Arrays.asList(PipelineBuilder.getInstance().getPossibleEventInputs(mainObject)));
+		eventTriggerList.setAdapter(new ArrayAdapterWithNull(this, android.R.layout.simple_spinner_item, items, "<none>"));
+
+		//preselect item
+		Object selection = PipelineBuilder.getInstance().getEventTrigger(mainObject);
+		if(selection == null)
+		{
+			eventTriggerList.setSelection(0);
+		}
+		else
+		{
+			for (int i = 0; i < items.size(); i++)
+			{
+				if (items.get(i) != null && items.get(i).equals(selection))
+				{
+					eventTriggerList.setSelection(i);
+					break;
+				}
+			}
+		}
+
+		eventTriggerList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
 		{
 			@Override
-			public void onClick(View v)
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
 			{
-				eventTriggerCheckbox.toggle();
+				setEnabledRecursive(frameSizeTableRow, position == 0);
+				setEnabledRecursive(deltaTableRow, position == 0);
+
+				Object src = parent.getItemAtPosition(position);
+				PipelineBuilder.getInstance().setEventTrigger(innerObject, src);
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView parent)
+			{
 			}
 		});
-		linearLayout.addView(textView);
-		tableRow.addView(linearLayout);
+		linearLayout.addView(eventTriggerList);
 
+		tableRow.addView(linearLayout);
 		return tableRow;
 	}
 

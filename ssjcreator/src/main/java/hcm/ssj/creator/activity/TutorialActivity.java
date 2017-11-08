@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.content.Intent;
 import android.graphics.Color;
@@ -35,6 +35,8 @@ import android.support.v4.app.Fragment;
 
 import com.github.paolorotolo.appintro.AppIntro;
 import com.github.paolorotolo.appintro.AppIntroFragment;
+
+import hcm.ssj.creator.R;
 
 /**
  * Created by Johnny on 22.08.2016.

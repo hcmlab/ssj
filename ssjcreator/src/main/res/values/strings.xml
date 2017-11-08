@@ -41,8 +41,9 @@
     <!--file menu-->
     <string name="str_configMenu">Menu</string>
     <string name="str_save">Save</string>
-    <string name="str_load">Load</string>
-    <string name="str_delete">Delete</string>
+    <string name="str_load_pipeline">Load Pipeline</string>
+    <string name="str_delete_pipeline">Delete Pipeline</string>
+    <string name="str_load_strategy">Load Strategy</string>
     <string name="str_clear">Clear</string>
     <!--dialogs-->
     <string name="str_error">Error</string>
@@ -54,7 +55,7 @@
     <!--provider options-->
     <string name="str_frameSize">Frame size (s)</string>
     <string name="str_delta">Delta (s)</string>
-    <string name="str_eventrigger">Event triggered</string>
+    <string name="str_eventrigger">Event trigger:</string>
     <string name="str_frameSizeSmallest">smallest</string>
     <!--tabs-->
     <string name="str_pipe">Pipe</string>
@@ -67,6 +68,14 @@
     <!--toasts-->
     <string name="err_invalidOption">Invalid option value</string>
     <string name="err_buildPipe">Error building pipeline</string>
+
+    <!--dialog-->
+    <string name="no">No</string>
+    <string name="yes">Yes</string>
+    <string name="feedback">Feedback</string>
+    <string name="select_action">Select an action to proceed</string>
+    <string name="keep_inner_components">Keep inner components?</string>
+
     <!--tutorial-->
     <string name="slide1_title">Welcome</string>
     <string name="slide1_text">SSJ Creator allows you to perform signal processing activities by creating, editing and executing SSJ pipelines</string>
@@ -81,10 +90,20 @@
     <string name="slide6_title">Enjoy</string>
     <string name="slide6_text">You can check out your pipeline in action using the different views</string>
     <string name="anno_msband">Annotate using MS Band 2</string>
+
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="drawer_canvas_separator">Canvas</string>
     <string name="drawer_pipelines_separator">Pipelines</string>
+    <string name="drawer_strategy_separator">Feedback Strategy</string>
     <string name="drawer_settings">Settings</string>
     <string name="visualize_data">Visualize Data</string>
+
+    <!--explaning text-->
+    <string name="level_behaviour_message">
+        The level behaviours of feedback components are taken into account to decide, whether we\
+        should progress to the next level (all \"Progress\" components are active and no\
+        other component) or regress to the previous level (all \"Regress\" components\
+        are active and no other component).
+    </string>
 </resources>

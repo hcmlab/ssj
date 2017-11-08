@@ -1,5 +1,5 @@
 /*
- * TactileAction.java
+ * IFileWriter.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,54 +25,36 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.feedback.feedbackmanager.actions;
+package hcm.ssj.ml;
 
-import android.content.Context;
-
-import com.microsoft.band.notifications.VibrationType;
-
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
-
-import java.io.IOException;
-
-import hcm.ssj.core.Log;
-import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
+import hcm.ssj.file.FileCons;
 
 /**
- * Created by Johnny on 01.12.2014.
+ * Interface for objects which work with models
  */
-public class TactileAction extends Action
+public interface IModelHandler
 {
-    public int[] duration = {500};
-    public byte[] intensity = {(byte)150};
-    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
-    public TactileAction()
+	/**
+     * Standard options
+     */
+    class Options extends OptionList
     {
-        type = FeedbackClass.Type.Tactile;
-    }
+        public final Option<String> trainerPath = new Option<>("trainerPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
+        public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
+        public final Option<IModelHandler> modelSource = new Option<>("modelSource", null, IModelHandler.class, "use the model of another component");
 
-    protected void load(XmlPullParser xml, Context context)
-    {
-        super.load(xml, context);
-
-        try
+        /**
+         *
+         */
+        protected Options()
         {
-            xml.require(XmlPullParser.START_TAG, null, "action");
-
-            String str = xml.getAttributeValue(null, "intensity");
-            if(str != null) intensity = parseByteArray(str, ",");
-
-            str = xml.getAttributeValue(null, "duration");
-            if(str != null) duration = parseIntArray(str, ",");
-
-            str = xml.getAttributeValue(null, "type");
-            if(str != null) vibrationType = VibrationType.valueOf(str);
-        }
-        catch(IOException | XmlPullParserException e)
-        {
-            Log.e("error parsing config file", e);
+            addOptions();
         }
     }
+
+    boolean hasReferableModel();
+    ModelDescriptor getModelDescriptor();
 }

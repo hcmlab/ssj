@@ -49,7 +49,14 @@ import hcm.ssj.core.Pipeline;
  */
 public abstract class Util
 {
-    public final static String DIR_1 = "SSJ", DIR_2 = "Creator", SUFFIX = ".xml", DEMO = "demo", RES = "res";
+    public final static String SSJ = "SSJ";
+    public final static String CREATOR = "Creator";
+    public final static String SUFFIX = ".xml";
+    public final static String STRATEGIES = "strategies";
+    public final static String PIPELINES = "pipelines";
+    public final static String DEMO = "demo";
+    public final static String RES = "res";
+
 
     public enum AppAction
     {

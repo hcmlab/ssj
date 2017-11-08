@@ -60,7 +60,6 @@ public class MyoTactileFeedback extends Feedback
 	}
 	public final Options options = new Options();
 
-
 	private Myo myo = null;
 	private hcm.ssj.myo.Myo myoConnector = null;
 	private Vibrate2Command cmd = null;
@@ -72,11 +71,17 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void enter() throws SSJFatalException
+	public Feedback.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	public void enterFeedback() throws SSJFatalException
 	{
 		if (_evchannel_in == null || _evchannel_in.size() == 0)
 		{
-			throw new RuntimeException("no input channels");
+			throw new SSJFatalException("no input channels");
 		}
 
 
@@ -111,7 +116,7 @@ public class MyoTactileFeedback extends Feedback
 
 		if (hub.getConnectedDevices().isEmpty())
 		{
-			throw new RuntimeException("device not found");
+			throw new SSJFatalException("device not found");
 		}
 
 		Log.i("connected to Myo");
@@ -121,17 +126,10 @@ public class MyoTactileFeedback extends Feedback
 	}
 
 	@Override
-	public void notify(Event event)
+	public void notifyFeedback(Event event)
 	{
-		if(!event.name.equals(options.eventName.get()) && !options.eventName.get().isEmpty())
-			return;
-
-		// Execute only if lock has expired
-		if (checkLock(options.lock.get()))
-		{
-			Log.i("vibration " + options.duration.get()[0] + "/" + (int) options.intensity.get()[0]);
-			cmd.vibrate(myo, options.duration.get(), options.intensity.get());
-		}
+		Log.i("vibration " + options.duration.get()[0] + "/" + (int) options.intensity.get()[0]);
+		cmd.vibrate(myo, options.duration.get(), options.intensity.get());
 	}
 
 	@Override

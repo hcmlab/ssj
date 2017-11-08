@@ -51,7 +51,7 @@ public abstract class Model {
     public static Model create(String name)
     {
         if(name.compareToIgnoreCase("NaiveBayes") == 0)
-            return new NaiveBayes();
+            return new OnlineNaiveBayes();
         else if (name.compareToIgnoreCase("SVM") == 0)
             return new SVM();
         else if (name.compareToIgnoreCase("PythonModel") == 0)

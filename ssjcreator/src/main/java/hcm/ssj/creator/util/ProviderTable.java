@@ -36,12 +36,8 @@ import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.Sensor;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 
@@ -74,7 +70,7 @@ public class ProviderTable
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
         //get possible providers
-        final Object[] objects = getStreamProvider(mainObject);
+        final Object[] objects = PipelineBuilder.getInstance().getPossibleStreamInputs(mainObject);
         //
         if (objects.length > 0) {
             for (int i = 0; i < objects.length; i++) {
@@ -136,10 +132,14 @@ public class ProviderTable
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
         //get possible providers
-        final Object[] objects = getEventProvider(mainObject);
+        final Object[] objects = PipelineBuilder.getInstance().getPossibleEventInputs(mainObject);
         //
         if (objects.length > 0) {
             for (int i = 0; i < objects.length; i++) {
+
+                if(PipelineBuilder.getInstance().isManagedFeedback(objects[i]))
+                    continue;
+
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
@@ -173,48 +173,5 @@ public class ProviderTable
         }
         tableRow.addView(linearLayout);
         return tableRow;
-    }
-
-    /**
-     * @return Object[]
-     */
-    private static Object[] getEventProvider(Object mainObject)
-    {
-        //add possible providers
-        ArrayList<Object> alCandidates = new ArrayList<>();
-        alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Sensor)));
-        alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.SensorChannel)));
-        alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Transformer)));
-        alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Consumer)));
-        alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.EventHandler)));
-
-        alCandidates.remove(mainObject);
-
-        return alCandidates.toArray();
-    }
-
-    /**
-     * @return Object[]
-     */
-    private static Object[] getStreamProvider(Object mainObject)
-    {
-        //add possible providers
-        Object[] sensProvCandidates = PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.SensorChannel);
-        ArrayList<Object> alCandidates = new ArrayList<>();
-        //only add sensorChannels for sensors
-        if (!(mainObject instanceof Sensor))
-        {
-            alCandidates.addAll(Arrays.asList(PipelineBuilder.getInstance().getAll(PipelineBuilder.Type.Transformer)));
-            //remove itself
-            for (int i = 0; i < alCandidates.size(); i++)
-            {
-                if (mainObject.equals(alCandidates.get(i)))
-                {
-                    alCandidates.remove(i);
-                }
-            }
-        }
-        alCandidates.addAll(0, Arrays.asList(sensProvCandidates));
-        return alCandidates.toArray();
     }
 }
