@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.creator;
+package hcm.ssj.creator.activity;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -38,6 +38,7 @@ import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
+import hcm.ssj.creator.R;
 import hcm.ssj.creator.main.GraphDrawer;
 
 /**
