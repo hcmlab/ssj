@@ -89,6 +89,7 @@ public class ModelDescriptor
 			model.loadOption(FileUtils.getFile(path, modelOptionFileName));
 
 			//wake up threads waiting for model load
+			Log.d("model loaded, waking up waiting threads ... ");
 			synchronized (this)
 			{
 				this.notifyAll();

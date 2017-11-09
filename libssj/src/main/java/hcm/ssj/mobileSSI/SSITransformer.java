@@ -72,6 +72,7 @@ public class SSITransformer extends Transformer
     @Override
     public void init(double frame, double delta) throws SSJException
     {
+        Log.i("loading SSI libraries (" + SSI.getVersion()+ ")");
         ssi_object = SSI.create(options.name.get().toString(), options.name.get().lib, FileCons.INTERNAL_LIB_DIR);
         if(ssi_object == 0)
         {

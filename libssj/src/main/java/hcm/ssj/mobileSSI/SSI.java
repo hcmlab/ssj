@@ -43,6 +43,8 @@ public class SSI
 		loadLibrary("ssissjbridge");
 	}
 
+	public static native String getVersion();
+
 	public static native long create(String name, String libname, String libpath);
 
 	public static native boolean setOption(long ssiobj, String name, String value);
