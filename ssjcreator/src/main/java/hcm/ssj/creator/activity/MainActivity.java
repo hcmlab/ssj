@@ -489,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				{
 					if (actionButtonsVisible)
 					{
-						hideActionButtons();
+						toggleActionButtons(false);
 					}
 					fab.hide();
 				}
@@ -604,11 +604,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			{
 				if (actionButtonsVisible)
 				{
-					hideActionButtons();
+					toggleActionButtons(false);
 				}
 				else
 				{
-					showActionButtons();
+					toggleActionButtons(true);
 				}
 			}
 		});
@@ -689,61 +689,48 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	 */
 	private void loadAnimations()
 	{
-		showButton = AnimationUtils.loadAnimation(MainActivity.this,
-												  R.anim.show_button);
-		hideButton = AnimationUtils.loadAnimation(MainActivity.this,
-												  R.anim.hide_button);
-		showLayout = AnimationUtils.loadAnimation(MainActivity.this,
-												  R.anim.show_layout);
-		hideLayout = AnimationUtils.loadAnimation(MainActivity.this,
-												  R.anim.hide_layout);
+		showButton = AnimationUtils.loadAnimation(MainActivity.this, R.anim.show_button);
+		hideButton = AnimationUtils.loadAnimation(MainActivity.this, R.anim.hide_button);
+		showLayout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.show_layout);
+		hideLayout = AnimationUtils.loadAnimation(MainActivity.this, R.anim.hide_layout);
 	}
 
 	/**
-	 * Animate appearance of action buttons.
+	 * Toggle visibility of all floating action buttons.
+	 * @param enable True to enable visibility, false otherwise.
 	 */
-	private void showActionButtons()
+	private void toggleActionButtons(boolean enable)
 	{
-		sensorLayout.setVisibility(View.VISIBLE);
-		sensorLayout.startAnimation(showLayout);
-
-		sensorChannelLayout.setVisibility(View.VISIBLE);
-		sensorChannelLayout.startAnimation(showLayout);
-
-		transformerLayout.setVisibility(View.VISIBLE);
-		transformerLayout.startAnimation(showLayout);
-
-		consumerLayout.setVisibility(View.VISIBLE);
-		consumerLayout.startAnimation(showLayout);
-
-		eventHandlerLayout.setVisibility(View.VISIBLE);
-		eventHandlerLayout.startAnimation(showLayout);
-
-		fab.startAnimation(showButton);
-		actionButtonsVisible = true;
+		toggleLayout(sensorLayout, enable);
+		toggleLayout(sensorChannelLayout, enable);
+		toggleLayout(transformerLayout, enable);
+		toggleLayout(consumerLayout, enable);
+		toggleLayout(eventHandlerLayout, enable);
 	}
 
 	/**
-	 * Animate hiding of action buttons.
+	 * Toggle visibility of a linear layout and all of it's children.
+	 * @param layout LinearLayout to show/hide.
+	 * @param enable True to enable visibility, false otherwise.
 	 */
-	private void hideActionButtons()
+	private void toggleLayout(LinearLayout layout, boolean enable)
 	{
-		sensorLayout.setVisibility(View.GONE);
-		sensorLayout.startAnimation(hideLayout);
-
-		sensorChannelLayout.setVisibility(View.GONE);
-		sensorChannelLayout.startAnimation(hideLayout);
-
-		transformerLayout.setVisibility(View.GONE);
-		transformerLayout.startAnimation(hideLayout);
-
-		consumerLayout.setVisibility(View.GONE);
-		consumerLayout.startAnimation(hideLayout);
-
-		eventHandlerLayout.setVisibility(View.GONE);
-		eventHandlerLayout.startAnimation(hideLayout);
-
-		fab.startAnimation(hideButton);
-		actionButtonsVisible = false;
+		actionButtonsVisible = enable;
+		if (enable)
+		{
+			layout.setVisibility(View.VISIBLE);
+			layout.startAnimation(showLayout);
+			fab.startAnimation(showButton);
+		}
+		else
+		{
+			layout.setVisibility(View.GONE);
+			layout.startAnimation(hideLayout);
+			fab.startAnimation(hideButton);
+		}
+		for (int i = 0; i < layout.getChildCount(); i++)
+		{
+			layout.getChildAt(i).setEnabled(enable);
+		}
 	}
 }

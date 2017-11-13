@@ -36,7 +36,7 @@
     android:paddingTop="@dimen/activity_top_margin"
     android:keepScreenOn="true"
     tools:showIn="@layout/activity_main"
-    tools:context="hcm.ssj.creator.MainActivity">
+    tools:context="hcm.ssj.creator.activity.MainActivity">
 
     <TableRow
         android:layout_width="match_parent"
