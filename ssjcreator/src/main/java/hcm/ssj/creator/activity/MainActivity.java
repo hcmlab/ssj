@@ -704,19 +704,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	 */
 	private void showActionButtons()
 	{
-		sensorLayout.setVisibility(View.VISIBLE);
+		toggleLayout(sensorLayout, View.VISIBLE);
 		sensorLayout.startAnimation(showLayout);
 
-		sensorChannelLayout.setVisibility(View.VISIBLE);
+		toggleLayout(sensorChannelLayout, View.VISIBLE);
 		sensorChannelLayout.startAnimation(showLayout);
 
-		transformerLayout.setVisibility(View.VISIBLE);
+		toggleLayout(transformerLayout, View.VISIBLE);
 		transformerLayout.startAnimation(showLayout);
 
-		consumerLayout.setVisibility(View.VISIBLE);
+		toggleLayout(consumerLayout, View.VISIBLE);
 		consumerLayout.startAnimation(showLayout);
 
-		eventHandlerLayout.setVisibility(View.VISIBLE);
+		toggleLayout(eventHandlerLayout, View.VISIBLE);
 		eventHandlerLayout.startAnimation(showLayout);
 
 		fab.startAnimation(showButton);
@@ -728,22 +728,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	 */
 	private void hideActionButtons()
 	{
-		sensorLayout.setVisibility(View.GONE);
+		toggleLayout(sensorLayout, View.GONE);
 		sensorLayout.startAnimation(hideLayout);
 
-		sensorChannelLayout.setVisibility(View.GONE);
+		toggleLayout(sensorChannelLayout, View.GONE);
 		sensorChannelLayout.startAnimation(hideLayout);
 
-		transformerLayout.setVisibility(View.GONE);
+		toggleLayout(transformerLayout, View.GONE);
 		transformerLayout.startAnimation(hideLayout);
 
-		consumerLayout.setVisibility(View.GONE);
+		toggleLayout(consumerLayout, View.GONE);
 		consumerLayout.startAnimation(hideLayout);
 
-		eventHandlerLayout.setVisibility(View.GONE);
+		toggleLayout(eventHandlerLayout, View.GONE);
 		eventHandlerLayout.startAnimation(hideLayout);
 
 		fab.startAnimation(hideButton);
 		actionButtonsVisible = false;
+	}
+
+	/**
+	 * Toggle visibility of a linear layout and all of it's children.
+	 * @param layout LinearLayout to show/hide.
+	 * @param visibility View.GONE or View.VISIBLE.
+	 */
+	private void toggleLayout(LinearLayout layout, int visibility)
+	{
+		layout.setVisibility(visibility);
+		for (int i = 0; i < layout.getChildCount(); i++)
+		{
+			layout.getChildAt(i).setVisibility(visibility);
+		}
 	}
 }
