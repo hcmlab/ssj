@@ -28,23 +28,34 @@
 package hcm.ssj.creator.activity;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.jjoe64.graphview.GraphView;
+import com.obsez.android.lib.filechooser.ChooserDialog;
+
+import java.io.File;
+
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.dialogs.StreamDataDialog;
+import hcm.ssj.creator.main.GraphDrawer;
 
 /**
  * Visualize user-saved stream file data with the GraphView.
  */
 public class GraphActivity extends AppCompatActivity
 {
+	private GraphView graph;
+	private ChooserDialog chooserDialog;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
+
+		graph = (GraphView) findViewById(R.id.graph);
 
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
@@ -52,8 +63,16 @@ public class GraphActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				StreamDataDialog dialog = new StreamDataDialog();
-				dialog.show(getSupportFragmentManager(), GraphActivity.this.getClass().getSimpleName());
+				chooserDialog = new ChooserDialog().with(GraphActivity.this);
+				chooserDialog.withStartFile(Environment.getExternalStorageDirectory().getPath());
+				chooserDialog.withChosenListener(new ChooserDialog.Result() {
+					@Override
+					public void onChoosePath(String path, File pathFile) {
+						GraphDrawer drawer = new GraphDrawer(graph);
+						drawer.drawGraph(pathFile);
+					}
+				}).build();
+				chooserDialog.show();
 			}
 		});
 	}

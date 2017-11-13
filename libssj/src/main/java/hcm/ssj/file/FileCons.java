@@ -47,6 +47,7 @@ public class FileCons
     public static final String FILE_EXTENSION_EVENT = "events";
     public static final String FILE_EXTENSION_ANNO_PLAIN = "anno";
     public static final String SSJ_EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory(), "SSJ").getPath();
+    public static final String SSJ_DATA = SSJ_EXTERNAL_STORAGE + File.separator + "Data";
     public static final String DOWNLOAD_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "download";
     public static final String INTERNAL_LIB_DIR = SSJApplication.getAppContext().getApplicationInfo().nativeLibraryDir + File.separator; //getFilesDir().toString() + "/lib";
     public static final String REMOTE_LIB_PATH = "https://hcm-lab.de/downloads/ssj/lib/" + Build.CPU_ABI;

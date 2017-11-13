@@ -28,16 +28,23 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
+              android:paddingBottom="@dimen/activity_bottom_margin"
+              android:paddingLeft="@dimen/activity_horizontal_margin"
+              android:paddingRight="@dimen/activity_horizontal_margin"
+              android:paddingTop="@dimen/activity_bottom_margin"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
     <com.jjoe64.graphview.GraphView
+        android:id="@+id/graph"
         android:layout_width="match_parent"
-        android:layout_height="540dp"/>
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/load_stream_file"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/str_load_pipeline"/>
+        android:paddingTop="@dimen/load_button_top_padding"
+        android:text="@string/select_file"/>
 </LinearLayout>
