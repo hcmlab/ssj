@@ -33,7 +33,7 @@
     android:layout_height="match_parent"
     android:clipChildren="false"
     android:clipToPadding="false"
-    tools:context="hcm.ssj.creator.MainActivity">
+    tools:context="hcm.ssj.creator.activity.MainActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
