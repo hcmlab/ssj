@@ -103,29 +103,24 @@ public class SVM extends Model
      * @param stream Stream
      * @return double[]
      */
-    protected float[] forward(Stream[] stream)
+    protected float[] forward(Stream stream)
     {
-        if (stream.length != 1)
-        {
-            Log.w("only one input stream currently supported, consider using merge");
-            return null;
-        }
         if (!_isTrained)
         {
             Log.w("not trained");
             return null;
         }
-        if (stream[0].dim != n_features)
+        if (stream.dim != n_features)
         {
             Log.w("feature dimension differs");
             return null;
         }
-        if (stream[0].type != Cons.Type.FLOAT) {
+        if (stream.type != Cons.Type.FLOAT) {
             Log.w ("invalid stream type");
             return null;
         }
 
-        float[] ptr = stream[0].ptrF();
+        float[] ptr = stream.ptrF();
         for (int i = 0; i < n_features; i++) {
             nodes[i].index = i + 1;
             nodes[i].value = ptr[i];
@@ -150,7 +145,7 @@ public class SVM extends Model
     }
 
     @Override
-    void train(Stream[] stream, String label) {
+    void train(Stream stream, String label) {
         Log.e("training not supported yet");
     }
 

@@ -153,6 +153,14 @@ public abstract class Stream implements Serializable
     public abstract Stream select(int new_dim);
     public abstract Stream clone();
 
+    /**
+     * Extracts a subgroup of the stream. WARNING: may initialize large amounts of memory
+     * @param from time in seconds pointing to the start of the substream
+     * @param to time in seconds pointing to the end of the substream
+     * @return new stream object
+     */
+    public abstract Stream substream(double from, double to);
+
     public int findDataClass(String name)
     {
         if(desc == null || desc.length == 0)

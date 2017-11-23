@@ -58,6 +58,24 @@ public class ImageStream extends ByteStream
         this.format = format;
     }
 
+    @Override
+    public Stream substream(double from, double to)
+    {
+        int pos = (int)(from * sr + 0.5);
+        int pos_stop = (int)(to * sr + 0.5);
+        int len = pos_stop - pos;
+
+        ImageStream out = new ImageStream(len, dim, sr, width, height, format);
+        byte[] data = out.ptr();
+
+        for(int i = pos, j = 0; i < pos_stop; i++)
+        {
+            data[j++] = _ptr[i];
+        }
+
+        return out;
+    }
+
     public ImageStream select(int[] new_dims)
     {
         if(dim == new_dims.length)

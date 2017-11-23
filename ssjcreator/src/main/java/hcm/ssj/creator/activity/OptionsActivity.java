@@ -55,7 +55,6 @@ import hcm.ssj.core.Sensor;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.ArrayAdapterWithNull;
 import hcm.ssj.creator.util.OptionTable;
@@ -256,20 +255,6 @@ public class OptionsActivity extends AppCompatActivity
 		linearLayout.setOrientation(LinearLayout.HORIZONTAL);
 		linearLayout.setWeightSum(1.0f);
 
-//		final CheckBox eventTriggerCheckbox = new CheckBox(this);
-//		eventTriggerCheckbox.setChecked(PipelineBuilder.getInstance().getEventTrigger(innerObject));
-//		eventTriggerCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
-//		{
-//			@Override
-//			public void onCheckedChanged(CompoundButton buttonView, final boolean isChecked)
-//			{
-//				setEnabledRecursive(frameSizeTableRow, !isChecked);
-//				setEnabledRecursive(deltaTableRow, !isChecked);
-//				PipelineBuilder.getInstance().setEventTrigger(innerObject, isChecked);
-//			}
-//		});
-//		linearLayout.addView(eventTriggerCheckbox);
-
 		TextView textView = new TextView(this);
 		textView.setText(R.string.str_eventrigger);
 		textView.setTextAppearance(this, android.R.style.TextAppearance_Medium);
@@ -279,7 +264,7 @@ public class OptionsActivity extends AppCompatActivity
 		ArrayList<Object> items = new ArrayList<>();
 		items.add(null); //default element
 		if(mainObject instanceof Trainer)
-			items.add(Annotation.getInstance()); //annotation channel
+			items.add(PipelineBuilder.getInstance().getAnnotation()); //annotation channel
 		items.addAll(Arrays.asList(PipelineBuilder.getInstance().getPossibleEventInputs(mainObject)));
 		eventTriggerList.setAdapter(new ArrayAdapterWithNull(this, android.R.layout.simple_spinner_item, items, "<none>"));
 

@@ -53,12 +53,13 @@ import android.widget.Toast;
 import java.io.File;
 import java.util.ArrayList;
 
+import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.event.StringEvent;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.Annotation;
 import hcm.ssj.creator.core.BandComm;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.file.FileCons;
 
@@ -86,13 +87,18 @@ public class AnnotationTab implements ITab
     private int annoWithBand = -1;
     private CheckBox externalAnno = null;
 
+    private Annotation anno = null;
+
     /**
      * @param activity Activity
      */
     AnnotationTab(Activity activity)
     {
         this.activity = activity;
+
+        anno = PipelineBuilder.getInstance().getAnnotation();
         view = createContent(activity);
+
         title = activity.getResources().getString(R.string.str_annotation);
         icon = android.R.drawable.ic_menu_agenda;
 
@@ -137,7 +143,7 @@ public class AnnotationTab implements ITab
                 {
                     String name = context.getString(R.string.str_defaultAnno, annoClassList.getChildCount());
                     annoClassList.addView(createClassSwitch(context, name));
-                    Annotation.getInstance().addClass(name);
+                    anno.addClass(name);
                 }
             }
         });
@@ -150,7 +156,7 @@ public class AnnotationTab implements ITab
         linearLayout.addView(textViewDescriptionName);
         editTextNameAnno = new EditText(context);
         editTextNameAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAnno.setText(Annotation.getInstance().getFileName(), TextView.BufferType.NORMAL);
+        editTextNameAnno.setText(anno.getFileName(), TextView.BufferType.NORMAL);
         editTextNameAnno.addTextChangedListener(new TextWatcher()
         {
             @Override
@@ -166,7 +172,7 @@ public class AnnotationTab implements ITab
             @Override
             public void afterTextChanged(Editable s)
             {
-                Annotation.getInstance().setFileName(s.toString().trim());
+                anno.setFileName(s.toString().trim());
             }
         });
         linearLayout.addView(editTextNameAnno);
@@ -178,7 +184,7 @@ public class AnnotationTab implements ITab
         linearLayout.addView(textViewDescriptionPath);
         editTextPathAnno = new EditText(context);
         editTextPathAnno.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextPathAnno.setText(Annotation.getInstance().getFilePath(), TextView.BufferType.NORMAL);
+        editTextPathAnno.setText(anno.getFilePath(), TextView.BufferType.NORMAL);
         editTextPathAnno.addTextChangedListener(new TextWatcher()
         {
             @Override
@@ -194,7 +200,7 @@ public class AnnotationTab implements ITab
             @Override
             public void afterTextChanged(Editable s)
             {
-                Annotation.getInstance().setFilePath(s.toString().trim());
+                anno.setFilePath(s.toString().trim());
             }
         });
         linearLayout.addView(editTextPathAnno);
@@ -225,7 +231,7 @@ public class AnnotationTab implements ITab
         margin = (int) (dpValue * d); // margin in pixels
 
         annoClassList = new LinearLayout(context);
-        setAnnoClasses(Annotation.getInstance().getClasses());
+        setAnnoClasses(anno.getClasses());
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(margin, margin, margin, 0);
@@ -304,7 +310,7 @@ public class AnnotationTab implements ITab
                             ev.time = (long)(time * 1000);
                             ev.dur = 0;
                             ev.state = Event.State.CONTINUED;
-                            Annotation.getInstance().getChannel().pushEvent(ev);
+                            anno.getChannel().pushEvent(ev);
                         }
                         else
                         {
@@ -315,7 +321,7 @@ public class AnnotationTab implements ITab
                             ev.time = (long)(curAnnoStartTime * 1000);
                             ev.dur = (int)((time - curAnnoStartTime) * 1000);
                             ev.state = Event.State.COMPLETED;
-                            Annotation.getInstance().getChannel().pushEvent(ev);
+                            anno.getChannel().pushEvent(ev);
 
                             curAnnoStartTime = 0;
                         }
@@ -350,11 +356,11 @@ public class AnnotationTab implements ITab
                             ViewGroup viewGroup = (ViewGroup) v.getParent();
                             String name = editText.getText().toString().trim();
                             ((TextView) viewGroup.getChildAt(0)).setText(name);
-                            Annotation.getInstance().setClasses(getAnnoClasses());
+                            anno.setClasses(getAnnoClasses());
                         }
                     });
                     builder.setNegativeButton(R.string.str_cancel, null);
-                    builder.setNeutralButton(R.string.str_delete_pipeline, new DialogInterface.OnClickListener()
+                    builder.setNeutralButton(R.string.str_delete, new DialogInterface.OnClickListener()
                     {
                         public void onClick(DialogInterface dialog, int id)
                         {
@@ -362,7 +368,7 @@ public class AnnotationTab implements ITab
                             if (viewGroup != null)
                             {
                                 ((SwitchCompat) viewGroup.getChildAt(1)).setChecked(false);
-                                Annotation.getInstance().removeClass(((TextView) viewGroup.getChildAt(0)).getText().toString());
+                                anno.removeClass(((TextView) viewGroup.getChildAt(0)).getText().toString());
                                 ((ViewGroup) viewGroup.getParent()).removeView(viewGroup);
                             }
                             v.invalidate();
@@ -598,15 +604,15 @@ public class AnnotationTab implements ITab
             @Override
             public void run()
             {
-                setAnnoClasses(Annotation.getInstance().getClasses());
+                setAnnoClasses(anno.getClasses());
 
                 if (editTextPathAnno != null)
                 {
-                    editTextPathAnno.setText(Annotation.getInstance().getFilePath());
+                    editTextPathAnno.setText(anno.getFilePath());
                 }
                 if (editTextNameAnno != null)
                 {
-                    editTextNameAnno.setText(Annotation.getInstance().getFileName());
+                    editTextNameAnno.setText(anno.getFileName());
                 }
             }
         });

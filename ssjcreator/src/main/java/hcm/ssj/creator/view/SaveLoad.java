@@ -41,8 +41,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Log;
-import hcm.ssj.creator.core.Annotation;
+import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -139,14 +140,15 @@ abstract class SaveLoad
             serializer.endTag(null, PIPE_GROUP);
 
             //annotations
+            Annotation anno = PipelineBuilder.getInstance().getAnnotation();
             serializer.startTag(null, ANNO_GROUP);
-            serializer.attribute(null, FILE_NAME, Annotation.getInstance().getFileName());
-            serializer.attribute(null, FILE_PATH, Annotation.getInstance().getFilePath());
-            ArrayList<String> annos = Annotation.getInstance().getClasses();
-            for(String anno : annos)
+            serializer.attribute(null, FILE_NAME, anno.getFileName());
+            serializer.attribute(null, FILE_PATH, anno.getFilePath());
+            ArrayList<String> anno_classes = anno.getClasses();
+            for(String cl : anno_classes)
             {
                 serializer.startTag(null, ANNO);
-                serializer.attribute(null, NAME, anno);
+                serializer.attribute(null, NAME, cl);
                 serializer.endTag(null, ANNO);
             }
             serializer.endTag(null, ANNO_GROUP);
@@ -240,14 +242,14 @@ abstract class SaveLoad
                         }
                         case ANNO_GROUP:
                         {
-                            Annotation.getInstance().setFileName(parser.getAttributeValue(null, FILE_NAME));
-                            Annotation.getInstance().setFilePath(parser.getAttributeValue(null, FILE_PATH));
+                            PipelineBuilder.getInstance().getAnnotation().setFileName(parser.getAttributeValue(null, FILE_NAME));
+                            PipelineBuilder.getInstance().getAnnotation().setFilePath(parser.getAttributeValue(null, FILE_PATH));
                             break;
                         }
                         case ANNO:
                         {
                             String name = parser.getAttributeValue(null, NAME);
-                            Annotation.getInstance().addClass(name);
+                            PipelineBuilder.getInstance().getAnnotation().addClass(name);
                             break;
                         }
                     }

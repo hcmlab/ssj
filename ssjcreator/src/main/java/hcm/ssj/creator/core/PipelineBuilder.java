@@ -35,6 +35,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.EventChannel;
@@ -65,6 +66,8 @@ public class PipelineBuilder
 	protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
 	protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
 	protected LinkedHashSet<ContainerElement<EventHandler>> hsEventHandlerElements = new LinkedHashSet<>();
+
+	protected Annotation anno;
 
 	/**
 	 *
@@ -135,6 +138,9 @@ public class PipelineBuilder
 		hsTransformerElements.clear();
 		hsConsumerElements.clear();
 		hsEventHandlerElements.clear();
+
+		if(anno != null)
+			anno.clear();
 	}
 
 	public Component getComponentForHash(int hash)
@@ -402,7 +408,7 @@ public class PipelineBuilder
                     //populate annotation with the trainer's model's classes
                     ArrayList<String> annos = new ArrayList<>();
                     annos.addAll(Arrays.asList(trainer.getModelDescriptor().getClassNames()));
-                    Annotation.getInstance().setClasses(annos);
+                    getAnnotation().setClasses(annos);
                 }
             }
         }
@@ -1453,5 +1459,13 @@ public class PipelineBuilder
 		}
 		alCandidates.addAll(0, Arrays.asList(sensProvCandidates));
 		return alCandidates.toArray();
+	}
+
+	public synchronized Annotation getAnnotation()
+	{
+		if(anno == null)
+			anno = new Annotation();
+
+		return anno;
 	}
 }

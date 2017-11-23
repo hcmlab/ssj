@@ -49,6 +49,7 @@
     <string name="str_error">Error</string>
     <string name="str_ok">OK</string>
     <string name="str_cancel">Cancel</string>
+    <string name="str_delete">Delete</string>
     <string name="str_saveError">Could not save file</string>
     <string name="str_loadError">Could not load file</string>
     <string name="str_deleteError">Could not delete file</string>

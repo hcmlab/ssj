@@ -237,7 +237,6 @@ public abstract class SaveLoad
             //clear previous content
             Pipeline.getInstance().clear();
             PipelineBuilder.getInstance().clear();
-            Annotation.getInstance().clear();
 
 			//load classes
 			parser.nextTag();

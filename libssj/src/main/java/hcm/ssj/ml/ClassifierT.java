@@ -174,7 +174,7 @@ public class ClassifierT extends Transformer implements IModelHandler
             input = stream_selected;
         }
 
-        float[] probs = modelDescriptor.getModel().forward(input);
+        float[] probs = modelDescriptor.getModel().forward(input[0]);
         if (probs != null)
         {
             float[] out = stream_out.ptrF();

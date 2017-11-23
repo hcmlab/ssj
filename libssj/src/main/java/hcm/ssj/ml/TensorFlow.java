@@ -77,13 +77,8 @@ public class TensorFlow extends Model
 
 
 	@Override
-	protected float[] forward(Stream[] stream)
+	protected float[] forward(Stream stream)
 	{
-		if (stream.length != 1)
-		{
-			Log.w("only one input stream currently supported, consider using merge");
-			return null;
-		}
 		if (!_isTrained)
 		{
 			Log.w("not trained");
@@ -95,7 +90,7 @@ public class TensorFlow extends Model
 			return null;
 		}
 
-		float[] floatValues = stream[0].ptrF();
+		float[] floatValues = stream.ptrF();
 		float[] probabilities = makePrediction(floatValues);
 
 		return probabilities;
@@ -103,7 +98,7 @@ public class TensorFlow extends Model
 
 
 	@Override
-	protected void train(Stream[] stream, String label)
+	protected void train(Stream stream, String label)
 	{
 		Log.e("training not supported yet");
 	}

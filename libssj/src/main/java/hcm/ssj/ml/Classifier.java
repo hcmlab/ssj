@@ -178,7 +178,7 @@ public class Classifier extends Consumer implements IModelHandler
             input = stream_selected;
         }
 
-        float[] probs = modelDescriptor.getModel().forward(input);
+        float[] probs = modelDescriptor.getModel().forward(input[0]);
 
         if(options.bestMatchOnly.get())
         {

@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
@@ -96,13 +97,12 @@ public class NaiveBayesTest
 		newImpl.load(FileUtils.getFile(modelPath, modelFileName));
 		newImpl.loadOption(FileUtils.getFile(modelPath, modelOptionFileName));
 
-		Stream[] inputStream = new Stream[1];
-		inputStream[0] = Stream.create(1, select_dimensions.length, sr, type);
+		Stream inputStream = Stream.create(1, select_dimensions.length, sr, type);
 
 		// Fill stream
 		for (int i = 0; i < select_dimensions.length; i++)
 		{
-			inputStream[0].ptrF()[i] = 0.5f;
+			inputStream.ptrF()[i] = 0.5f;
 		}
 
 		float[] oldProbs = oldImpl.forward(inputStream);
@@ -209,5 +209,47 @@ public class NaiveBayesTest
 		}
 
 		classNames = classNamesList.toArray(new String[0]);
+	}
+
+	@Test
+	public void batchTrainingTest() throws Exception
+	{
+		// Init new model
+		OnlineNaiveBayes model = new OnlineNaiveBayes();
+		model.setNumClasses(2);
+		model.setClassNames(new String[]{"a", "b"});
+
+		Stream trainStream = Stream.create(100, 1, 1, Cons.Type.FLOAT);
+
+		// Fill stream
+		for (int i = 0; i < trainStream.num / 2; i++)
+		{
+			trainStream.ptrF()[i] = 0.0f + (float)(Math.random() / 10f);
+		}
+		for (int i = trainStream.num / 2; i < trainStream.num; i++)
+		{
+			trainStream.ptrF()[i] = 0.9f + (float)(Math.random() / 10f);
+		}
+
+		Annotation anno = new Annotation();
+		anno.addEntry(model.getClassNames()[0], 0, trainStream.num / 2 * trainStream.sr);
+		anno.addEntry(model.getClassNames()[1], trainStream.num / 2 * trainStream.sr, trainStream.num * trainStream.sr);
+		anno.convertToFrames(1, null, 0, 0.5);
+
+		//train
+		model.train(trainStream, anno);
+
+		//eval
+		Stream testStream = Stream.create(1, 1, 1, Cons.Type.FLOAT);
+
+		testStream.ptrF()[0] = 0;
+		float[] probs = model.forward(testStream);
+		Log.d("test for input "+testStream.ptrF()[0]+":    " + Arrays.toString(probs));
+		Assert.assertArrayEquals("unexpected result!", new float[]{1.0f,0.0f}, probs, 1E-5f);
+
+		testStream.ptrF()[0] = 1;
+		probs = model.forward(testStream);
+		Log.d("test for input "+testStream.ptrF()[0]+":    " + Arrays.toString(probs));
+		Assert.assertArrayEquals("unexpected result!", new float[]{0.0f,1.0f}, probs, 1E-5f);
 	}
 }

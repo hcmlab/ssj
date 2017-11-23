@@ -29,6 +29,7 @@ package hcm.ssj.ml;
 
 import java.io.File;
 
+import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -72,14 +73,34 @@ public abstract class Model {
      * @param stream Stream
      * @return double[] classification/inference probabilities as outputed by the model
      */
-    abstract float[] forward(Stream[] stream);
+    abstract float[] forward(Stream stream);
 
     /**
-     * Train model with data from the stream
-     * @param stream data to use for training
+     * Train model with one sample (incremental training)
+     * @param stream data of the sample to use for training
      * @param label the label of the data, should match one of the model's classes
      */
-    abstract void train(Stream[] stream, String label);
+    abstract void train(Stream stream, String label);
+
+    /**
+     * Train model with multiple samples (batch training)
+     * @param stream data from where to extract the samples
+     * @param anno annotation
+     */
+    public void train(Stream stream, Annotation anno)
+    {
+        if(isTrained())
+            Log.w("model already trained, overwriting");
+
+        init(anno.getClasses().toArray(new String[]{}), stream.dim);
+
+        for(Annotation.Entry e : anno.getEntries())
+        {
+            train(stream.substream(e.from, e.to), e.classlabel);
+        }
+
+        _isTrained = true;
+    }
 
     /**
      * Load model from file
@@ -95,6 +116,13 @@ public abstract class Model {
      * Save model to file
      */
     abstract void save(File file);
+
+    /**
+     * Initialize model variables
+     * @param classes
+     * @param n_features
+     */
+    protected void init(String[] classes, int n_features) {}
 
     public boolean isTrained() {
         return _isTrained;

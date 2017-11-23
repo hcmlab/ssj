@@ -117,26 +117,21 @@ public class OnlineNaiveBayes extends Model
 	}
 
 	@Override
-	public float[] forward(Stream[] stream)
+	public float[] forward(Stream stream)
 	{
-		if (stream.length != 1)
-		{
-			Log.w("Only one input stream currently supported, consider using merge");
-			return null;
-		}
-		if (classDistribution == null || classDistribution.length <= 0)
+		if (!_isTrained)
 		{
 			Log.w("Not trained");
 			return null;
 		}
-		if (stream[0].dim != featureCount)
+		if (stream.dim != featureCount)
 		{
-			Log.w("Feature dimension (" + featureCount + ") differs from input stream dimension (" + stream[0].dim + ")");
+			Log.w("Feature dimension (" + featureCount + ") differs from input stream dimension (" + stream.dim + ")");
 			return null;
 		}
 
 		// Convert stream to double values
-		featureValues = getValuesAsDouble(stream[0], featureValues);
+		featureValues = getValuesAsDouble(stream, featureValues);
 
 		double classDistributionSum = getClassDistributionSum();
 
@@ -248,19 +243,14 @@ public class OnlineNaiveBayes extends Model
 	}
 
 	@Override
-	public void train(Stream[] stream, String label)
+	public void train(Stream stream, String label)
 	{
-		if (stream.length != 1)
-		{
-			Log.w("Only one input stream currently supported, consider using merge");
-			return;
-		}
 		if (classDistribution == null || classDistribution.length <= 0)
 		{
 			Log.w("Base model not loaded");
 			return;
 		}
-		if (stream[0].dim != featureCount)
+		if (stream.dim != featureCount)
 		{
 			Log.w("Feature dimension differs");
 			return;
@@ -279,10 +269,10 @@ public class OnlineNaiveBayes extends Model
 		classDistribution[classIndex] += weight;
 
 		// Convert stream to double values
-		featureValues = getValuesAsDouble(stream[0], featureValues);
+		featureValues = getValuesAsDouble(stream, featureValues);
 
 		// Train model for each feature dimension independently
-		for (int featureIndex = 0; featureIndex < stream[0].dim; featureIndex++)
+		for (int featureIndex = 0; featureIndex < stream.dim; featureIndex++)
 		{
 			trainOnSample(featureValues[featureIndex], featureIndex, classIndex, weight);
 		}
@@ -309,6 +299,37 @@ public class OnlineNaiveBayes extends Model
 		{
 			mean[classIndex][featureIndex] = featureValue;
 			weightSum[classIndex][featureIndex] = weight;
+		}
+	}
+
+	protected void init(String[] classes, int n_features)
+	{
+		classCount = classes.length;
+		featureCount = n_features;
+
+		// Initialize model variables
+		class_names = classes.clone();
+		mean = new double[classCount][];
+		varianceSum = new double[classCount][];
+		weightSum = new double[classCount][];
+		classDistribution = new double[classCount];
+
+		for (int classIndex = 0; classIndex < classCount; classIndex++)
+		{
+			// Create arrays
+			mean[classIndex] = new double[featureCount];
+			varianceSum[classIndex] = new double[featureCount];
+			weightSum[classIndex] = new double[featureCount];
+		}
+
+		classProbabilities = new float[classCount];
+
+		// Store class indices for reverse lookup used in online learning
+		classNameIndices = new HashMap<>();
+
+		for (int i = 0; i < class_names.length; i++)
+		{
+			classNameIndices.put(class_names[i], i);
 		}
 	}
 

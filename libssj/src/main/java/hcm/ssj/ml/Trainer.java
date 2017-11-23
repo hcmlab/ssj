@@ -174,7 +174,7 @@ public class Trainer extends Consumer implements IModelHandler
             input = stream_selected;
         }
 
-        modelDescriptor.getModel().train(input, trigger.ptrStr());
+        modelDescriptor.getModel().train(input[0], trigger.ptrStr());
     }
 
     public boolean hasReferableModel()
