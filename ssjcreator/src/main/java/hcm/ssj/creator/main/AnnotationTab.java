@@ -48,12 +48,14 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.File;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Annotation;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.event.StringEvent;
@@ -61,7 +63,6 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
-import hcm.ssj.file.FileCons;
 
 /**
  * Annotation tab for main activity.<br>
@@ -80,8 +81,6 @@ public class AnnotationTab implements ITab
     private EditText editTextPathAnno = null;
     private EditText editTextNameAnno = null;
     private LinearLayout annoClassList = null;
-    private File fileAnno = null;
-    private final static String SUFFIX = ".anno";
     private boolean running = false;
     private BandComm bandComm;
     private int annoWithBand = -1;
@@ -290,41 +289,35 @@ public class AnnotationTab implements ITab
                         }
                     }
                 }
-                if (fileAnno == null)
+
+                //only modify anno when pipeline is running
+                if (Pipeline.getInstance().isRunning())
                 {
-                    fileAnno = createAnnoFile();
-                }
-                if (fileAnno != null)
-                {
-                    //only append to running pipeline
-                    if (Pipeline.getInstance().isRunning())
+                    String name = ((TextView) (((ViewGroup) (buttonView.getParent())).getChildAt(0))).getText().toString();
+
+                    if (isChecked)
                     {
-                        String name = ((TextView) (((ViewGroup) (buttonView.getParent())).getChildAt(0))).getText().toString();
+                        curAnnoStartTime = time;
 
-                        if (isChecked)
-                        {
-                            curAnnoStartTime = time;
+                        //create start event
+                        StringEvent ev = new StringEvent(name);
+                        ev.time = (long)(time * 1000);
+                        ev.dur = 0;
+                        ev.state = Event.State.CONTINUED;
+                        anno.getChannel().pushEvent(ev);
+                    }
+                    else
+                    {
+                        anno.addEntry(name, curAnnoStartTime, time);
 
-                            //create start event
-                            StringEvent ev = new StringEvent(name);
-                            ev.time = (long)(time * 1000);
-                            ev.dur = 0;
-                            ev.state = Event.State.CONTINUED;
-                            anno.getChannel().pushEvent(ev);
-                        }
-                        else
-                        {
-                            Util.appendFile(fileAnno, curAnnoStartTime + " " + time + " " + name + FileCons.DELIMITER_LINE);
+                        //create end event
+                        StringEvent ev = new StringEvent(name);
+                        ev.time = (long)(curAnnoStartTime * 1000);
+                        ev.dur = (int)((time - curAnnoStartTime) * 1000);
+                        ev.state = Event.State.COMPLETED;
+                        anno.getChannel().pushEvent(ev);
 
-                            //create end event
-                            StringEvent ev = new StringEvent(name);
-                            ev.time = (long)(curAnnoStartTime * 1000);
-                            ev.dur = (int)((time - curAnnoStartTime) * 1000);
-                            ev.state = Event.State.COMPLETED;
-                            anno.getChannel().pushEvent(ev);
-
-                            curAnnoStartTime = 0;
-                        }
+                        curAnnoStartTime = 0;
                     }
                 }
             }
@@ -383,36 +376,6 @@ public class AnnotationTab implements ITab
     }
 
     /**
-     * @return File
-     */
-    private File createAnnoFile()
-    {
-        String name = editTextNameAnno.getText().toString().trim();
-        if (name.isEmpty() || annoClassList.getChildCount() == 0)
-        {
-            return null;
-        }
-        String path = editTextPathAnno.getText().toString();
-        //parse wildcards
-        if (path.contains("[time]"))
-        {
-            path = path.replace("[time]", hcm.ssj.core.Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
-        }
-        File parent = new File(path);
-        File anno = null;
-        if (parent.exists() || parent.mkdirs())
-        {
-            anno = new File(parent, name.endsWith(SUFFIX) ? name : name + SUFFIX);
-            //delete existing annotation file
-            anno.deleteOnExit();
-        } else
-        {
-            Toast.makeText(activity, "unnable to create anno file", Toast.LENGTH_SHORT).show();
-        }
-        return anno;
-    }
-
-    /**
      *
      */
     void startAnnotation()
@@ -441,6 +404,15 @@ public class AnnotationTab implements ITab
      */
     void finishAnnotation()
     {
+        try
+        {
+            anno.save();
+        }
+        catch (IOException | XmlPullParserException e)
+        {
+            Log.e("unnable to save annotation file", e);
+        }
+
         activity.runOnUiThread(new Runnable()
         {
             @Override
@@ -454,6 +426,7 @@ public class AnnotationTab implements ITab
                 }
             }
         });
+
         //wait for buttons to "uncheck"
         try
         {
@@ -462,7 +435,7 @@ public class AnnotationTab implements ITab
         {
             e.printStackTrace();
         }
-        fileAnno = null;
+
         running = false;
         enableComponents(true);
     }

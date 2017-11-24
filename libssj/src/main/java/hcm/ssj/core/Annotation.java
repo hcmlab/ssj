@@ -29,11 +29,25 @@ package hcm.ssj.core;
 
 import android.os.Environment;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+
+import hcm.ssj.file.FileCons;
+import hcm.ssj.file.SimpleXmlParser;
 
 import static hcm.ssj.core.Cons.GARBAGE_CLASS;
 import static java.lang.Math.max;
@@ -57,6 +71,14 @@ public class Annotation
 			this.classlabel = classlabel;
 			this.from = from;
 			this.to = to;
+		}
+
+		public Entry(String classlabel, double from, double to, float confidence)
+		{
+			this.classlabel = classlabel;
+			this.from = from;
+			this.to = to;
+			this.confidence = confidence;
 		}
 	}
 
@@ -210,23 +232,23 @@ public class Annotation
 		double frame_from = 0;
 		double frame_to = frame_dur;
 
-		int n_classes = classes.size();
 		HashMap<String, Double> percent_class = new HashMap<>();
 		double percent_garbage;
 
 		// copy labels and clear annotation
-		Annotation clone = new Annotation(this);
-		clone.sort();
-		clear();
+		Annotation original = new Annotation(this);
+		original.sort();
+		entries.clear();
+
 		int iter = 0;
 		int last_iter = iter;
-		int clone_end = clone.getEntries().size();
+		int clone_end = original.getEntries().size();
 
 		for (int i = 0; i < n_frames; i++)
 		{
 			Entry new_entry = new Entry(emptyClassName, frame_from, frame_from + frame_dur);
 
-			for (String cl : clone.getClasses())
+			for (String cl : original.getClasses())
 			{
 				percent_class.put(cl, 0.0);
 			}
@@ -234,7 +256,7 @@ public class Annotation
 
 			// skip labels before the current frame
 			iter = last_iter;
-			while (iter != clone_end && clone.getEntries().get(iter).to < frame_from)
+			while (iter != clone_end && original.getEntries().get(iter).to < frame_from)
 			{
 				iter++;
 				last_iter++;
@@ -245,9 +267,9 @@ public class Annotation
 				boolean found_at_least_one = false;
 
 				// find all classes within the current frame
-				while (iter != clone_end && clone.getEntries().get(iter).from < frame_to)
+				while (iter != clone_end && original.getEntries().get(iter).from < frame_to)
 				{
-					Entry e = clone.getEntries().get(iter);
+					Entry e = original.getEntries().get(iter);
 					double dur = (min(frame_to, e.to) - max(frame_from, e.from)) / frame_dur;
 					if (e.classlabel == null)
 					{
@@ -267,7 +289,7 @@ public class Annotation
 					double max_percent = percent_garbage;
 					double percent_sum = percent_garbage;
 					String max_class = GARBAGE_CLASS;
-					for (String cl : clone.getClasses())
+					for (String cl : original.getClasses())
 					{
 						if (max_percent < percent_class.get(cl))
 						{
@@ -301,5 +323,167 @@ public class Annotation
 			frame_to += frame_s;
 		}
 		return true;
+	}
+
+
+	public void load() throws IOException, XmlPullParserException
+	{
+		load(path + File.separator + name);
+	}
+
+	public void load(String path) throws IOException, XmlPullParserException
+	{
+		if(path.endsWith(FileCons.FILE_EXTENSION_ANNO + FileCons.TAG_DATA_FILE))
+		{
+			path = path.substring(0, path.length()-2);
+		}
+		else if(!path.endsWith(FileCons.FILE_EXTENSION_ANNO))
+		{
+			path += "." + FileCons.FILE_EXTENSION_ANNO;
+		}
+
+		/*
+		 * INFO
+		 */
+		SimpleXmlParser simpleXmlParser = new SimpleXmlParser();
+		SimpleXmlParser.XmlValues xmlValues = simpleXmlParser.parse(
+				new FileInputStream(new File(path)),
+				new String[]{"annotation", "info"},
+				new String[]{"size"}
+		);
+		//resize array list
+		for(int i = 0; i < Integer.valueOf(xmlValues.foundAttributes.get(0)[0]); i++)
+			classes.add(null);
+
+		/*
+		 * SCHEME
+		 */
+		simpleXmlParser = new SimpleXmlParser();
+		xmlValues = simpleXmlParser.parse(
+				new FileInputStream(new File(path)),
+				new String[]{"annotation", "scheme"},
+				new String[]{"type"}
+		);
+
+		for(String[] scheme : xmlValues.foundAttributes)
+		{
+			if (!scheme[0].equalsIgnoreCase("DISCRETE"))
+			{
+				Log.e("unsupported annotation scheme: " + scheme[0]);
+				return;
+			}
+		}
+
+		/*
+		 * SCHEME ITEMS
+		 */
+		simpleXmlParser = new SimpleXmlParser();
+		xmlValues = simpleXmlParser.parse(
+				new FileInputStream(new File(path)),
+				new String[]{"annotation", "scheme", "item"},
+				new String[]{"id", "name"}
+		);
+
+		for(String[] item : xmlValues.foundAttributes)
+		{
+			classes.set(Integer.valueOf(item[0]), item[1]); //id, name
+		}
+
+		loadData(path + FileCons.TAG_DATA_FILE);
+	}
+
+	private void loadData(String path) throws IOException, XmlPullParserException
+	{
+		InputStream inputStream = new FileInputStream(new File(path));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+		String line = reader.readLine();
+		while(line != null)
+		{
+			String[] tokens = line.split(FileCons.DELIMITER_ANNOTATION);
+			Entry e = new Entry(classes.get(Integer.valueOf(tokens[2])),
+								Double.valueOf(tokens[0]),
+								Double.valueOf(tokens[1]),
+								Float.valueOf(tokens[3]));
+			addEntry(e);
+			line = reader.readLine();
+		}
+	}
+
+	public void save() throws IOException, XmlPullParserException
+	{
+		save(path + File.separator + name);
+	}
+
+	public void save(String path) throws IOException, XmlPullParserException
+	{
+		if(path.endsWith(FileCons.FILE_EXTENSION_ANNO + FileCons.TAG_DATA_FILE))
+		{
+			path = path.substring(0, path.length()-2);
+		}
+		else if(!path.endsWith(FileCons.FILE_EXTENSION_ANNO))
+		{
+			path += "." + FileCons.FILE_EXTENSION_ANNO;
+		}
+
+		//parse wildcards
+		if (path.contains("[time]"))
+		{
+			path = path.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+		}
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("<annotation ssi-v=\"3\" ssj-v=\"");
+		builder.append(Pipeline.getVersion());
+		builder.append("\">").append(FileCons.DELIMITER_LINE);
+
+		builder.append("<info ftype=\"ASCII\" size=\"");
+		builder.append(classes.size());
+		builder.append("\"/>").append(FileCons.DELIMITER_LINE);
+
+		builder.append("<scheme name=\"ssj\" type=\"DISCRETE\">").append(FileCons.DELIMITER_LINE);
+		for(int i = 0; i < classes.size(); ++i)
+		{
+			builder.append("<item name=\"");
+			builder.append(classes.get(i));
+			builder.append("\" id=\"");
+			builder.append(i);
+			builder.append("\"/>").append(FileCons.DELIMITER_LINE);
+		}
+		builder.append("</scheme>").append(FileCons.DELIMITER_LINE);
+		builder.append("</annotation>").append(FileCons.DELIMITER_LINE);
+
+		OutputStream ouputStream = new FileOutputStream(new File(path));
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ouputStream));
+
+		writer.write(builder.toString());
+		writer.flush();
+		writer.close();
+
+		saveData(path + FileCons.TAG_DATA_FILE);
+	}
+
+	private void saveData(String path) throws IOException, XmlPullParserException
+	{
+		OutputStream ouputStream = new FileOutputStream(new File(path));
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ouputStream));
+
+		StringBuilder builder = new StringBuilder();
+		for(Entry e : entries)
+		{
+			builder.delete(0, builder.length());
+
+			builder.append(e.from).append(FileCons.DELIMITER_ANNOTATION);
+			builder.append(e.to).append(FileCons.DELIMITER_ANNOTATION);
+			builder.append(classes.indexOf(e.classlabel)).append(FileCons.DELIMITER_ANNOTATION);
+			builder.append(e.confidence);
+
+			writer.write(builder.toString());
+			writer.newLine();
+		}
+
+		writer.flush();
+		writer.close();
 	}
 }
