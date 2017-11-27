@@ -483,6 +483,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				if (currentTabId == 0)
 				{
 					fab.show();
+					fab.setEnabled(true);
 				}
 				else
 				{
@@ -491,6 +492,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 						toggleActionButtons(false);
 					}
 					fab.hide();
+					fab.setEnabled(false);
 				}
 			}
 		});
