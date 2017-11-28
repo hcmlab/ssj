@@ -27,19 +27,37 @@
 
 package hcm.ssj.creator.main;
 
+import android.media.MediaCodec;
+import android.media.MediaExtractor;
+import android.media.MediaFormat;
+
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.ShortBuffer;
+
+import hcm.ssj.file.FileCons;
+import hcm.ssj.file.FileUtils;
 
 /**
  * Visualize stream file data on the GraphView.
  */
 public class GraphDrawer
 {
+	/**
+	 * Amount of data points shown on screen at once.
+	 */
+	private static final int MAX_DATA_POINTS = 200;
+
 	private GraphView graph;
 
 	/**
@@ -51,23 +69,65 @@ public class GraphDrawer
 		graph = graphView;
 	}
 
-	/**
-	 * Visualize all stream file data located in a selected directory.
-	 * @param streamFiles List of stream data files to visualize.
-	 */
-	public void drawData(File[] streamFiles)
+	public void plot(File file)
 	{
-		for (File steamFile : streamFiles)
+		String type = FileUtils.getFileType(file);
+		if (type.equalsIgnoreCase("mp4"))
 		{
-			drawGraph(steamFile);
+			try
+			{
+				File decoded = decode(file.getPath());
+				drawWaveform(decoded);
+			}
+			catch (Exception e)
+			{
+				e.printStackTrace();
+			}
 		}
+		else if (type.equalsIgnoreCase("stream~"))
+		{
+			drawGraph(file);
+		}
+	}
+
+	private void drawWaveform(File file)
+	{
+		try
+		{
+			LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+			short[] samples = getAudioSample(file);
+			int i = 0;
+			for (short sample : samples)
+			{
+				DataPoint point = new DataPoint(i++, sample);
+				series.appendData(point, false, MAX_DATA_POINTS);
+			}
+			graph.addSeries(series);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	private short[] getAudioSample(File file) throws IOException
+	{
+		byte[] data = new byte[(int) file.length()];
+
+		FileInputStream fileInputStream = new FileInputStream(file);
+		fileInputStream.read(data);
+
+		ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		short[] samples = new short[sb.limit()];
+		sb.get(samples);
+		return samples;
 	}
 
 	/**
 	 * Visualize data of a given stream file.
 	 * @param file Stream file.
 	 */
-	public void drawGraph(File file)
+	private void drawGraph(File file)
 	{
 		graph.removeAllSeries();
 		int columnNum = getColumnNum(file);
@@ -83,7 +143,7 @@ public class GraphDrawer
 				{
 
 					DataPoint point = new DataPoint(count++, Float.parseFloat(dataRow.split(" ")[col]));
-					series.appendData(point, false, Integer.MAX_VALUE);
+					series.appendData(point, false, MAX_DATA_POINTS);
 				}
 				graph.addSeries(series);
 			}
@@ -111,6 +171,97 @@ public class GraphDrawer
 		{
 			e.printStackTrace();
 			return 0;
+		}
+	}
+
+	/**
+	 * Decode MP4 audio into a raw file.
+	 * @param filepath Path of the file to decode.
+	 * @return Decoded raw audio file.
+	 * @throws Exception IOException or FileNotFound exception.
+	 */
+	private File decode(String filepath) throws Exception
+	{
+		// TODO: Create a separate thread for decoding.
+
+		// Set audio source for the extractor.
+		MediaExtractor extractor = new MediaExtractor();
+		extractor.setDataSource(filepath);
+
+		// Get audio format.
+		MediaFormat format = extractor.getTrackFormat(0);
+		String mime = format.getString(MediaFormat.KEY_MIME);
+
+		// Create and configure decoder based on audio format.
+		MediaCodec decoder = MediaCodec.createDecoderByType(mime);
+		decoder.configure(format, null, null, 0);
+		decoder.start();
+
+		// Create input/output buffers.
+		ByteBuffer[] inputBuffers = decoder.getInputBuffers();
+		ByteBuffer[] outputBuffers = decoder.getOutputBuffers();
+		MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
+		extractor.selectTrack(0);
+
+		File dst = new File(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "output.raw");
+		FileOutputStream f = new FileOutputStream(dst);
+
+		boolean endOfStreamReached = false;
+
+		while (true)
+		{
+			if (!endOfStreamReached)
+			{
+				int inputBufferIndex = decoder.dequeueInputBuffer(10 * 1000);
+				if (inputBufferIndex >= 0)
+				{
+					ByteBuffer inputBuffer = inputBuffers[inputBufferIndex];
+					int sampleSize = extractor.readSampleData(inputBuffer, 0);
+					if (sampleSize < 0)
+					{
+						// Pass empty buffer and the end of stream flag to the codec.
+						decoder.queueInputBuffer(inputBufferIndex, 0, 0,
+												 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+						endOfStreamReached = true;
+					}
+					else
+					{
+						// Pass data-filled buffer to the decoder.
+						decoder.queueInputBuffer(inputBufferIndex, 0, sampleSize,
+												 extractor.getSampleTime(), 0);
+						extractor.advance();
+					}
+				}
+			}
+
+			int outputBufferIndex = decoder.dequeueOutputBuffer(bufferInfo, 10 * 1000);
+			if (outputBufferIndex >= 0)
+			{
+				ByteBuffer outputBuffer = outputBuffers[outputBufferIndex];
+				byte[] data = new byte[bufferInfo.size];
+				outputBuffer.get(data);
+				outputBuffer.clear();
+
+				if (data.length > 0)
+				{
+					f.write(data, 0, data.length);
+				}
+				decoder.releaseOutputBuffer(outputBufferIndex, false);
+
+				if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0)
+				{
+					endOfStreamReached = true;
+				}
+			}
+			else if (outputBufferIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED)
+			{
+				outputBuffers = decoder.getOutputBuffers();
+			}
+
+			if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0)
+			{
+				return dst;
+			}
 		}
 	}
 }
