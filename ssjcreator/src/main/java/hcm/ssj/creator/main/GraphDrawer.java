@@ -27,9 +27,6 @@
 
 package hcm.ssj.creator.main;
 
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -59,10 +56,7 @@ public class GraphDrawer
 	/**
 	 * Amount of data points shown on screen at once.
 	 */
-	private static final int MAX_DATA_POINTS = 200;
-
-	private ShortBuffer sb;
-	private int sampleNum;
+	private static final int MAX_DATA_POINTS = Integer.MAX_VALUE;
 
 	private GraphView graph;
 
@@ -96,86 +90,46 @@ public class GraphDrawer
 		}
 	}
 
+	/**
+	 * Draw waveform out of bytes from a given raw audio file.
+	 * @param file Raw file containing audio data.
+	 */
 	private void drawWaveform(File file)
 	{
+		LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
+		short[] samples = getAudioSample(file);
+		int i = 0;
+		for (short sample : samples)
+		{
+			DataPoint point = new DataPoint(i++, sample);
+			series.appendData(point, false, MAX_DATA_POINTS);
+		}
+		graph.addSeries(series);
+	}
+
+	/**
+	 * Convert given audio file into a byte array.
+	 * @param file Audio file to convert.
+	 * @return Byte array in little-endian byte order.
+	 */
+	private short[] getAudioSample(File file)
+	{
+		byte[] data = new byte[(int) file.length()];
 		try
 		{
-			LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-			short[] samples = getAudioSample(file);
-			sampleNum = samples.length;
-			int i = 0;
-			for (short sample : samples)
-			{
-				DataPoint point = new DataPoint(i++, sample);
-				series.appendData(point, false, MAX_DATA_POINTS);
-			}
-			graph.addSeries(series);
-			play();
+			FileInputStream fileInputStream = new FileInputStream(file);
+			fileInputStream.read(data);
 		}
-		catch (Exception e)
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-	}
-
-	private short[] getAudioSample(File file) throws IOException
-	{
-		byte[] data = new byte[(int) file.length()];
-
-		FileInputStream fileInputStream = new FileInputStream(file);
-		fileInputStream.read(data);
-
-		sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 		short[] samples = new short[sb.limit()];
 		sb.get(samples);
 		return samples;
 	}
 
-	private void play()
-	{
-		int bufferSize = AudioTrack.getMinBufferSize(44100,
-													 AudioFormat.CHANNEL_OUT_MONO,
-													 AudioFormat.ENCODING_PCM_16BIT);
-		if (bufferSize == AudioTrack.ERROR || bufferSize == AudioTrack.ERROR_BAD_VALUE)
-		{
-			bufferSize = 44100 * 2;
-		}
-
-		AudioTrack audioTrack = new AudioTrack(
-				AudioManager.STREAM_MUSIC,
-				44100,
-				AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT,
-				bufferSize,
-				AudioTrack.MODE_STREAM
-		);
-		audioTrack.play();
-
-		short[] buffer = new short[bufferSize];
-		sb.rewind();
-		int limit = sampleNum;
-
-		while (sb.position() < limit)
-		{
-			int numSamplesLeft = limit - sb.position();
-			int samplesToWrite;
-			if (numSamplesLeft >= buffer.length)
-			{
-				sb.get(buffer);
-				samplesToWrite = buffer.length;
-			}
-			else
-			{
-				for (int i = numSamplesLeft; i < buffer.length; i++)
-				{
-					buffer[i] = 0;
-				}
-				sb.get(buffer, 0, numSamplesLeft);
-				samplesToWrite = numSamplesLeft;
-			}
-			audioTrack.write(buffer, 0, samplesToWrite);
-		}
-	}
 
 	/**
 	 * Visualize data of a given stream file.
@@ -229,15 +183,13 @@ public class GraphDrawer
 	}
 
 	/**
-	 * Decode MP4 audio into a raw file.
+	 * Decode audio file into a raw file.
 	 * @param filepath Path of the file to decode.
 	 * @return Decoded raw audio file.
 	 * @throws Exception IOException or FileNotFound exception.
 	 */
 	private File decode(String filepath) throws Exception
 	{
-		// TODO: Create a separate thread for decoding.
-
 		// Set audio source for the extractor.
 		MediaExtractor extractor = new MediaExtractor();
 		extractor.setDataSource(filepath);
