@@ -27,6 +27,9 @@
 
 package hcm.ssj.creator.main;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -57,6 +60,9 @@ public class GraphDrawer
 	 * Amount of data points shown on screen at once.
 	 */
 	private static final int MAX_DATA_POINTS = 200;
+
+	private ShortBuffer sb;
+	private int sampleNum;
 
 	private GraphView graph;
 
@@ -96,6 +102,7 @@ public class GraphDrawer
 		{
 			LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
 			short[] samples = getAudioSample(file);
+			sampleNum = samples.length;
 			int i = 0;
 			for (short sample : samples)
 			{
@@ -103,6 +110,7 @@ public class GraphDrawer
 				series.appendData(point, false, MAX_DATA_POINTS);
 			}
 			graph.addSeries(series);
+			play();
 		}
 		catch (Exception e)
 		{
@@ -117,10 +125,56 @@ public class GraphDrawer
 		FileInputStream fileInputStream = new FileInputStream(file);
 		fileInputStream.read(data);
 
-		ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
 		short[] samples = new short[sb.limit()];
 		sb.get(samples);
 		return samples;
+	}
+
+	private void play()
+	{
+		int bufferSize = AudioTrack.getMinBufferSize(44100,
+													 AudioFormat.CHANNEL_OUT_MONO,
+													 AudioFormat.ENCODING_PCM_16BIT);
+		if (bufferSize == AudioTrack.ERROR || bufferSize == AudioTrack.ERROR_BAD_VALUE)
+		{
+			bufferSize = 44100 * 2;
+		}
+
+		AudioTrack audioTrack = new AudioTrack(
+				AudioManager.STREAM_MUSIC,
+				44100,
+				AudioFormat.CHANNEL_OUT_MONO,
+				AudioFormat.ENCODING_PCM_16BIT,
+				bufferSize,
+				AudioTrack.MODE_STREAM
+		);
+		audioTrack.play();
+
+		short[] buffer = new short[bufferSize];
+		sb.rewind();
+		int limit = sampleNum;
+
+		while (sb.position() < limit)
+		{
+			int numSamplesLeft = limit - sb.position();
+			int samplesToWrite;
+			if (numSamplesLeft >= buffer.length)
+			{
+				sb.get(buffer);
+				samplesToWrite = buffer.length;
+			}
+			else
+			{
+				for (int i = numSamplesLeft; i < buffer.length; i++)
+				{
+					buffer[i] = 0;
+				}
+				sb.get(buffer, 0, numSamplesLeft);
+				samplesToWrite = numSamplesLeft;
+			}
+			audioTrack.write(buffer, 0, samplesToWrite);
+		}
 	}
 
 	/**
