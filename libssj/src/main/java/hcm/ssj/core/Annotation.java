@@ -417,6 +417,9 @@ public class Annotation
 
 	public void save(String path) throws IOException, XmlPullParserException
 	{
+		if(entries == null || entries.size() == 0 || classes == null || classes.size() == 0)
+			return;
+
 		if(path.endsWith(FileCons.FILE_EXTENSION_ANNO + FileCons.TAG_DATA_FILE))
 		{
 			path = path.substring(0, path.length()-2);
