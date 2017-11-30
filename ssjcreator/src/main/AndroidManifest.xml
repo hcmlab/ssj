@@ -63,6 +63,11 @@
             android:name=".activity.GraphActivity"
             android:configChanges="orientation|screenSize">
         </activity>
+        <activity
+            android:theme="@style/AppThemeDefault"
+            android:name=".activity.TrainActivity"
+            android:configChanges="orientation|screenSize">
+        </activity>
     </application>
 
 </manifest>

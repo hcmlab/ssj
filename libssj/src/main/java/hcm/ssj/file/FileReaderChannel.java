@@ -55,7 +55,7 @@ public class FileReaderChannel extends SensorChannel
     public class Options extends OptionList
     {
         public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");
-        public final Option<String> separator = new Option<>("separator", FileCons.DELIMITER_ATTRIBUTE, String.class, "Attribute separator of the file");
+        public final Option<String> separator = new Option<>("separator", FileCons.DELIMITER_DIMENSION, String.class, "Attribute separator of the file");
         public final Option<Double> offset = new Option<>("offset", 0.0, Double.class, "start reading from indicated time (in seconds)");
         public final Option<Double> chunk = new Option<>("chunk", 0.1, Double.class, "how many samples to read at once (in seconds)");
 

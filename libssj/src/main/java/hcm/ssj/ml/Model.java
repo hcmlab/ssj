@@ -42,6 +42,7 @@ public abstract class Model {
 
     protected String _name = "Model";
     protected boolean _isTrained = false;
+    protected boolean _isInit = false;
 
     protected int n_classes;
     protected String[] class_names = null;
@@ -51,7 +52,7 @@ public abstract class Model {
 
     public static Model create(String name)
     {
-        if(name.compareToIgnoreCase("NaiveBayes") == 0)
+        if(name.compareToIgnoreCase("NaiveBayes") == 0 || name.compareToIgnoreCase("OnlineNaiveBayes") == 0)
             return new OnlineNaiveBayes();
         else if (name.compareToIgnoreCase("SVM") == 0)
             return new SVM();
@@ -87,13 +88,8 @@ public abstract class Model {
      * @param stream data from where to extract the samples
      * @param anno annotation
      */
-    public void train(Stream stream, Annotation anno)
+    public void train(Stream stream, Annotation anno, String sessionName)
     {
-        if(isTrained())
-            Log.w("model already trained, overwriting");
-
-        init(anno.getClasses().toArray(new String[]{}), stream.dim);
-
         for(Annotation.Entry e : anno.getEntries())
         {
             train(stream.substream(e.from, e.to), e.classlabel);
@@ -122,7 +118,7 @@ public abstract class Model {
      * @param classes
      * @param n_features
      */
-    protected void init(String[] classes, int n_features) {}
+    public void init(String[] classes, int n_features) {}
 
     public boolean isTrained() {
         return _isTrained;

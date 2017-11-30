@@ -32,14 +32,21 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
+import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileUtils;
 
 /**
@@ -51,12 +58,12 @@ public class ModelDescriptor
 	private String classNames[];
 
 	private int[] select_dimensions = null;
-	private String modelName = null;
+	private String modelType = null;
 	private String modelFileName;
 	private String modelOptionFileName;
 	private int bytes = 0;
 	private int dim = 0;
-	private float sr = 0;
+	private double sr = 0;
 	private Cons.Type type = Cons.Type.UNDEF;
 
 	private IModelHandler source = null;
@@ -72,6 +79,19 @@ public class ModelDescriptor
 		parseTrainerFile(file);
 	}
 
+	public ModelDescriptor(Model model, int bytes_input, int dim_input, double sr_input, Cons.Type type_input)
+	{
+		this.model = model;
+		modelType = model.getClass().getSimpleName();
+
+		this.bytes = bytes_input;
+		this.dim = dim_input;
+		this.sr = sr_input;
+		this.type = type_input;
+
+		this.classNames = model.getClassNames();
+	}
+
 	public void loadModel(String path) throws IOException
 	{
 		if(source != null)
@@ -81,12 +101,14 @@ public class ModelDescriptor
 		}
 		else
 		{
-			model = Model.create(modelName);
+			model = Model.create(modelType);
 			model.setNumClasses(classNames.length);
 			model.setClassNames(classNames);
 
-			model.load(FileUtils.getFile(path, modelFileName));
-			model.loadOption(FileUtils.getFile(path, modelOptionFileName));
+			model.load(FileUtils.getFile(path, modelFileName + "." + FileCons.FILE_EXTENSION_MODEL));
+
+			if(modelOptionFileName != null && !modelOptionFileName.isEmpty())
+				model.loadOption(FileUtils.getFile(path, modelOptionFileName + "." + FileCons.FILE_EXTENSION_OPTION));
 
 			//wake up threads waiting for model load
 			Log.d("model loaded, waking up waiting threads ... ");
@@ -214,9 +236,9 @@ public class ModelDescriptor
 			//MODEL
 			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
 			{
-				modelName = parser.getAttributeValue(null, "create");
-				modelFileName = parser.getAttributeValue(null, "path") + ".model";
-				modelOptionFileName =  parser.getAttributeValue(null, "option") + ".option";
+				modelType = parser.getAttributeValue(null, "create");
+				modelFileName = parser.getAttributeValue(null, "path");
+				modelOptionFileName =  parser.getAttributeValue(null, "option");
 			}
 
 			if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
@@ -224,6 +246,84 @@ public class ModelDescriptor
 		}
 
 		classNames = classNamesList.toArray(new String[0]);
+	}
+
+	public void save(String path, String name) throws IOException
+	{
+		if(model == null)
+			return;
+
+		if(name.endsWith(FileCons.FILE_EXTENSION_TRAINER + FileCons.TAG_DATA_FILE))
+		{
+			name = name.substring(0, name.length()-2);
+		}
+		else if(!name.endsWith(FileCons.FILE_EXTENSION_TRAINER))
+		{
+			name += "." + FileCons.FILE_EXTENSION_TRAINER;
+		}
+
+		//parse wildcards
+		if (path.contains("[time]"))
+		{
+			path = path.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+		}
+
+		StringBuilder builder = new StringBuilder();
+
+		builder.append("<trainer ssi-v=\"5\" ssj-v=\"");
+		builder.append(Pipeline.getVersion());
+		builder.append("\">").append(FileCons.DELIMITER_LINE);
+
+		builder.append("<info trained=\"");
+		builder.append(model.isTrained());
+		builder.append("\"/>").append(FileCons.DELIMITER_LINE);
+
+		builder.append("<streams>").append(FileCons.DELIMITER_LINE);
+		builder.append("<item byte=\"");
+		builder.append(bytes);
+		builder.append("\" dim=\"");
+		builder.append(dim);
+		builder.append("\" sr=\"");
+		builder.append(sr);
+		builder.append("\" type=\"");
+		builder.append(type);
+		builder.append("\"/>").append(FileCons.DELIMITER_LINE);
+		builder.append("</streams>").append(FileCons.DELIMITER_LINE);
+
+		builder.append("<classes>").append(FileCons.DELIMITER_LINE);
+		for(String className : classNames)
+		{
+			builder.append("<item name=\"");
+			builder.append(className);
+			builder.append("\"/>").append(FileCons.DELIMITER_LINE);
+		}
+		builder.append("</classes>").append(FileCons.DELIMITER_LINE);
+
+		builder.append("<users>").append(FileCons.DELIMITER_LINE);
+		builder.append("<item name=\"userLocal\"/>").append(FileCons.DELIMITER_LINE);
+		builder.append("</users>").append(FileCons.DELIMITER_LINE);
+
+		modelFileName = name + "." + modelType;
+		modelOptionFileName = name + "." + modelType;
+
+		builder.append("<model create=\"");
+		builder.append(modelType);
+		builder.append("\" stream=\"0\" path=\"");
+		builder.append(modelFileName);
+		//builder.append("\" option=\"");
+		//builder.append(modelOptionFileName);
+		builder.append("\"/>").append(FileCons.DELIMITER_LINE);
+
+		builder.append("</trainer>").append(FileCons.DELIMITER_LINE);
+
+		OutputStream ouputStream = new FileOutputStream(new File(path, name));
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ouputStream));
+
+		writer.write(builder.toString());
+		writer.flush();
+		writer.close();
+
+		model.save(new File(path, modelFileName + "." + FileCons.FILE_EXTENSION_MODEL));
 	}
 
 	public String[] getClassNames()
@@ -250,12 +350,12 @@ public class ModelDescriptor
 		return select_dimensions;
 	}
 
-	public String getModelName()
+	public String getModelType()
 	{
 		if(source != null)
-			return source.getModelDescriptor().getModelName();
+			return source.getModelDescriptor().getModelType();
 
-		return modelName;
+		return modelType;
 	}
 
 	public String getModelFileName()
@@ -290,7 +390,7 @@ public class ModelDescriptor
 		return dim;
 	}
 
-	public float getStreamSampleRate()
+	public double getStreamSampleRate()
 	{
 		if(source != null)
 			return source.getModelDescriptor().getStreamSampleRate();

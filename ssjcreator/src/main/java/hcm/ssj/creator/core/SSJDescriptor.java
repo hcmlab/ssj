@@ -57,6 +57,7 @@ public class SSJDescriptor
     public ArrayList<Class> transformers = new ArrayList<>();
     public ArrayList<Class> consumers = new ArrayList<>();
     public ArrayList<Class> eventHandlers = new ArrayList<>();
+    public ArrayList<Class> models = new ArrayList<>();
     private HashSet<String> hsClassNames = new HashSet<>();
 
     /**
@@ -145,6 +146,9 @@ public class SSJDescriptor
                         } else if (parent.getSimpleName().compareToIgnoreCase("EventHandler") == 0)
                         {
                             eventHandlers.add(aClass);
+                        } else if (parent.getSimpleName().compareToIgnoreCase("Model") == 0)
+                        {
+                            models.add(aClass);
                         }
                         parent = parent.getSuperclass();
                     }

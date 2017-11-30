@@ -302,7 +302,7 @@ public class OnlineNaiveBayes extends Model
 		}
 	}
 
-	protected void init(String[] classes, int n_features)
+	public void init(String[] classes, int n_features)
 	{
 		classCount = classes.length;
 		featureCount = n_features;
