@@ -236,8 +236,10 @@ public class NaiveBayesTest
 		anno.addEntry(model.getClassNames()[1], trainStream.num / 2 * trainStream.sr, trainStream.num * trainStream.sr);
 		anno.convertToFrames(1, null, 0, 0.5);
 
+		model.init(anno.getClasses().toArray(new String[]{}), trainStream.dim);
+
 		//train
-		model.train(trainStream, anno);
+		model.train(trainStream, anno, "session1");
 
 		//eval
 		Stream testStream = Stream.create(1, 1, 1, Cons.Type.FLOAT);

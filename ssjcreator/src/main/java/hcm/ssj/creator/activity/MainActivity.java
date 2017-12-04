@@ -583,6 +583,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			PipelineBuilder.getInstance().clear();
 			actualizeContent(Util.AppAction.CLEAR, null);
 		}
+		else if (itemId == R.id.action_train_model)
+		{
+			Intent intent = new Intent(getApplicationContext(), TrainActivity.class);
+			startActivity(intent);
+		}
 
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawer.closeDrawer(GravityCompat.START);

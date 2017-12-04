@@ -40,7 +40,7 @@ import hcm.ssj.core.SSJApplication;
  */
 public class FileCons
 {
-    public static final String DELIMITER_ATTRIBUTE = " ";
+    public static final String DELIMITER_DIMENSION = " ";
     public static final String DELIMITER_LINE = "\r\n"; //works on android and windows, System.getProperty("line.separator") might not
     public static final String TAG_DATA_FILE = "~";
     public static final String DELIMITER_ANNOTATION = ";";
@@ -48,6 +48,9 @@ public class FileCons
     public static final String FILE_EXTENSION_EVENT = "events";
     public static final String FILE_EXTENSION_ANNO_PLAIN = "anno";
     public static final String FILE_EXTENSION_ANNO = "annotation";
+    public static final String FILE_EXTENSION_TRAINER = "trainer";
+    public static final String FILE_EXTENSION_MODEL = "model";
+    public static final String FILE_EXTENSION_OPTION= "option";
     public static final String SSJ_EXTERNAL_STORAGE = new File(Environment.getExternalStorageDirectory(), "SSJ").getPath();
     public static final String SSJ_DATA = SSJ_EXTERNAL_STORAGE + File.separator + "Data";
     public static final String DOWNLOAD_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "download";

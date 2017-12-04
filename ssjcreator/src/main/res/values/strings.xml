@@ -108,4 +108,17 @@
         other component) or regress to the previous level (all \"Regress\" components\
         are active and no other component).
     </string>
+    <string name="train_load_anno_hint">anno file</string>
+    <string name="train_load_stream_hint">stream file</string>
+    <string name="train_select_model_label">Select model type</string>
+    <string name="train_anno_convert_frames">Convert to frames</string>
+    <string name="train_anno_convert_size">frame size</string>
+    <string name="train_anno_convert_label">Default label</string>
+    <string name="train_anno_convert_percent">Min class fill</string>
+    <string name="train_button">Train Model</string>
+    <string name="train_model_path">Save to path</string>
+    <string name="train_model_name">Model name</string>
+    <string name="train_model_action">Train Model</string>
+    <string name="drawer_model_separator">Model</string>
+    <string name="select_folder">Select Folder</string>
 </resources>

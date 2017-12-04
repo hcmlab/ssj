@@ -27,10 +27,22 @@
 
 package hcm.ssj.core.stream;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Serializable;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Provider;
+import hcm.ssj.core.Util;
+import hcm.ssj.file.FileCons;
+import hcm.ssj.file.SimpleXmlParser;
 
 /**
  * Created by Johnny on 17.03.2015.
@@ -176,5 +188,123 @@ public abstract class Stream implements Serializable
     public void reset()
     {
         time = 0;
+    }
+
+    public static Stream load(String path) throws IOException, XmlPullParserException
+    {
+        if(path.endsWith(FileCons.FILE_EXTENSION_STREAM + FileCons.TAG_DATA_FILE))
+        {
+            path = path.substring(0, path.length()-2);
+        }
+        else if(!path.endsWith(FileCons.FILE_EXTENSION_STREAM))
+        {
+            path += "." + FileCons.FILE_EXTENSION_STREAM;
+        }
+
+        File header = new File(path);
+
+        /*
+		 * INFO
+		 */
+        SimpleXmlParser simpleXmlParser = new SimpleXmlParser();
+        SimpleXmlParser.XmlValues xmlValues = simpleXmlParser.parse(
+                new FileInputStream(header),
+                new String[]{"stream", "info"},
+                new String[]{"ftype", "sr", "dim", "byte", "type"}
+        );
+
+        String ftype = xmlValues.foundAttributes.get(0)[0];
+
+        double sr = Double.valueOf(xmlValues.foundAttributes.get(0)[1]);
+        int dim = Integer.valueOf(xmlValues.foundAttributes.get(0)[2]);
+        int bytes = Integer.valueOf(xmlValues.foundAttributes.get(0)[3]);
+        Cons.Type type = Cons.Type.valueOf(xmlValues.foundAttributes.get(0)[4]);
+
+        /*
+		 * CHUNK
+		 */
+        xmlValues = simpleXmlParser.parse(
+                new FileInputStream(header),
+                new String[]{"stream", "chunk"},
+                new String[]{"from", "num"}
+        );
+
+        double time = Double.valueOf(xmlValues.foundAttributes.get(0)[0]);
+        int num = Integer.valueOf(xmlValues.foundAttributes.get(0)[1]);
+
+        Stream stream = create(num, dim, sr, type);
+        stream.time = time;
+
+        if (ftype.equals("ASCII"))
+        {
+            loadDataASCII(stream, path + FileCons.TAG_DATA_FILE);
+        }
+        else if (ftype.equals("BINARY"))
+        {
+            loadDataBinary(stream, path + FileCons.TAG_DATA_FILE);
+        }
+
+        return stream;
+    }
+
+    private static void loadDataASCII(Stream stream, String path) throws IOException, XmlPullParserException
+    {
+        InputStream inputStream = new FileInputStream(new File(path));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+
+        int cnt = 0;
+        String line = reader.readLine();
+        while(line != null)
+        {
+            String[] tokens = line.split(FileCons.DELIMITER_DIMENSION);
+            for(String value : tokens)
+            {
+                switch (stream.type)
+                {
+                    case BYTE:
+                    case IMAGE:
+                        stream.ptrB()[cnt++] = Byte.valueOf(value);
+                        break;
+                    case CHAR:
+                        stream.ptrC()[cnt++] = (char)Byte.valueOf(value).byteValue();
+                        break;
+                    case SHORT:
+                        stream.ptrS()[cnt++] = Short.valueOf(value);
+                        break;
+                    case INT:
+                        stream.ptrI()[cnt++] = Integer.valueOf(value);
+                        break;
+                    case LONG:
+                        stream.ptrL()[cnt++] = Long.valueOf(value);
+                        break;
+                    case FLOAT:
+                        stream.ptrF()[cnt++] = Float.valueOf(value);
+                        break;
+                    case DOUBLE:
+                        stream.ptrD()[cnt++] = Double.valueOf(value);
+                        break;
+                    case BOOL:
+                        stream.ptrBool()[cnt++] = Boolean.valueOf(value);
+                        break;
+                    default:
+                        throw new UnsupportedOperationException("Stream type not supported");
+                }
+            }
+            line = reader.readLine();
+        }
+    }
+
+    private static void loadDataBinary(Stream stream, String path) throws IOException, XmlPullParserException
+    {
+        InputStream inputStream = new FileInputStream(new File(path));
+        BufferedInputStream reader = new BufferedInputStream(inputStream);
+
+        byte buffer[] = new byte[stream.tot];
+        int len = reader.read(buffer, 0, stream.tot);
+        while(len != -1)
+        {
+            Util.arraycopy(buffer, 0, stream.ptr(),0, len);
+            len = reader.read(buffer, 0, stream.tot);
+        }
     }
 }

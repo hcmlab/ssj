@@ -406,7 +406,8 @@ public class AnnotationTab implements ITab
     {
         try
         {
-            anno.save();
+            if(anno != null)
+                anno.save();
         }
         catch (IOException | XmlPullParserException e)
         {
