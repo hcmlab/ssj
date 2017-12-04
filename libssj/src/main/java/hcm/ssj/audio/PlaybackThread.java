@@ -45,12 +45,10 @@ import java.nio.ShortBuffer;
 import hcm.ssj.file.FileCons;
 
 /**
- * Created by hiwi on 04.12.2017.
+ * Background thread for audio playback.
  */
-
 public class PlaybackThread
 {
-	private File rawData;
 	private Thread thread;
 	private PlaybackListener playbackListener;
 
@@ -66,8 +64,7 @@ public class PlaybackThread
 		playbackListener = listener;
 		try
 		{
-			rawData = decode(file.getPath());
-			short[] samples = getAudioSample(rawData);
+			short[] samples = getAudioSample(decode(file.getPath()));
 			numSamples = samples.length;
 			samplesBuffer = ShortBuffer.wrap(samples);
 		}
@@ -110,6 +107,11 @@ public class PlaybackThread
 		return thread != null;
 	}
 
+	/**
+	 * Play raw audio file. Correct sample rate is set automatically.
+	 * To query the encoding type the API level of at least 24 is necessary, so for now
+	 * default encoding (PCM-16bit) is hard coded.
+	 */
 	private void play()
 	{
 		int bufferSize = AudioTrack.getMinBufferSize(sampleRate,

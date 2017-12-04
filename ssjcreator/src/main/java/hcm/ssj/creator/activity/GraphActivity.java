@@ -51,6 +51,8 @@ public class GraphActivity extends AppCompatActivity
 {
 	private ChooserDialog chooserDialog;
 	private PlaybackThread playbackThread;
+	private GraphView graph;
+	private GraphDrawer drawer = new GraphDrawer(graph);
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -58,8 +60,8 @@ public class GraphActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
 
-		GraphView graph = (GraphView) findViewById(R.id.graph);
-		final GraphDrawer drawer = new GraphDrawer(graph);
+		graph = (GraphView) findViewById(R.id.graph);
+		drawer = new GraphDrawer(graph);
 
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
@@ -90,10 +92,10 @@ public class GraphActivity extends AppCompatActivity
 
 									}
 								});
-								playbackThread.startPlayback();
 							}
 							else if (type.equalsIgnoreCase("stream~"))
 							{
+								graph.setVisibility(View.VISIBLE);
 								drawer.drawGraph(file);
 							}
 						}
