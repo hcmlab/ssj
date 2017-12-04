@@ -38,8 +38,11 @@ import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
+import hcm.ssj.audio.PlaybackListener;
+import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.main.GraphDrawer;
+import hcm.ssj.file.FileUtils;
 
 /**
  * Visualize user-saved stream file data with the GraphView.
@@ -47,6 +50,7 @@ import hcm.ssj.creator.main.GraphDrawer;
 public class GraphActivity extends AppCompatActivity
 {
 	private ChooserDialog chooserDialog;
+	private PlaybackThread playbackThread;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -70,7 +74,28 @@ public class GraphActivity extends AppCompatActivity
 					public void onChoosePath(String path, File file) {
 						try
 						{
-							drawer.plot(file);
+							String type = FileUtils.getFileType(file);
+							if (type.equalsIgnoreCase("mp4"))
+							{
+								playbackThread = new PlaybackThread(file, new PlaybackListener() {
+									@Override
+									public void onProgress(int progress)
+									{
+
+									}
+
+									@Override
+									public void onCompletion()
+									{
+
+									}
+								});
+								playbackThread.startPlayback();
+							}
+							else if (type.equalsIgnoreCase("stream~"))
+							{
+								drawer.drawGraph(file);
+							}
 						}
 						catch (Exception e)
 						{

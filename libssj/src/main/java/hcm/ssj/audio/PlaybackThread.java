@@ -1,5 +1,5 @@
 /*
- * AudioUtils.java
+ * PlaybackThread.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -27,6 +27,9 @@
 
 package hcm.ssj.audio;
 
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.MediaCodec;
 import android.media.MediaExtractor;
 import android.media.MediaFormat;
@@ -41,30 +44,120 @@ import java.nio.ShortBuffer;
 
 import hcm.ssj.file.FileCons;
 
+/**
+ * Created by hiwi on 04.12.2017.
+ */
 
-public final class AudioUtils
+public class PlaybackThread
 {
-	/**
-	 * Convert given audio file into a byte array.
-	 * @param file Audio file to convert.
-	 * @return Byte array in little-endian byte order.
-	 */
-	public static short[] getAudioSample(File file)
+	private File rawData;
+	private Thread thread;
+	private PlaybackListener playbackListener;
+
+	private ShortBuffer samplesBuffer;
+
+	private int sampleRate;
+	private int numSamples;
+
+	private boolean shouldContinue;
+
+	public PlaybackThread(File file, PlaybackListener listener)
 	{
-		byte[] data = new byte[(int) file.length()];
+		playbackListener = listener;
 		try
 		{
-			FileInputStream fileInputStream = new FileInputStream(file);
-			fileInputStream.read(data);
+			rawData = decode(file.getPath());
+			short[] samples = getAudioSample(rawData);
+			numSamples = samples.length;
+			samplesBuffer = ShortBuffer.wrap(samples);
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-		short[] samples = new short[sb.limit()];
-		sb.get(samples);
-		return samples;
+	}
+
+	public void startPlayback()
+	{
+		if (thread != null)
+		{
+			return;
+		}
+		shouldContinue = true;
+		thread = new Thread(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				play();
+			}
+		});
+		thread.start();
+	}
+
+	public void stopPlayback()
+	{
+		if (thread == null)
+		{
+			return;
+		}
+		shouldContinue = false;
+		thread = null;
+	}
+
+	public boolean isPlaying()
+	{
+		return thread != null;
+	}
+
+	private void play()
+	{
+		int bufferSize = AudioTrack.getMinBufferSize(sampleRate,
+													 AudioFormat.CHANNEL_OUT_MONO,
+													 AudioFormat.ENCODING_PCM_16BIT);
+		if (bufferSize == AudioTrack.ERROR || bufferSize == AudioTrack.ERROR_BAD_VALUE)
+		{
+			bufferSize = sampleRate * 2;
+		}
+
+		AudioTrack audioTrack = new AudioTrack(
+				AudioManager.STREAM_MUSIC,
+				sampleRate,
+				AudioFormat.CHANNEL_OUT_MONO,
+				AudioFormat.ENCODING_PCM_16BIT,
+				bufferSize,
+				AudioTrack.MODE_STREAM
+		);
+		audioTrack.play();
+
+		short[] buffer = new short[bufferSize];
+		samplesBuffer.rewind();
+		int limit = numSamples;
+		while (samplesBuffer.position() < limit && shouldContinue)
+		{
+			int numSamplesLeft = limit - samplesBuffer.position();
+			int samplesToWrite;
+			if (numSamplesLeft >= buffer.length)
+			{
+				samplesBuffer.get(buffer);
+				samplesToWrite = buffer.length;
+			}
+			else
+			{
+				for (int i = numSamplesLeft; i < buffer.length; i++)
+				{
+					buffer[i] = 0;
+				}
+				samplesBuffer.get(buffer, 0, numSamplesLeft);
+				samplesToWrite = numSamplesLeft;
+			}
+			audioTrack.write(buffer, 0, samplesToWrite);
+		}
+
+		if (!shouldContinue)
+		{
+			audioTrack.release();
+		}
 	}
 
 	/**
@@ -73,14 +166,15 @@ public final class AudioUtils
 	 * @return Decoded raw audio file.
 	 * @throws Exception IOException or FileNotFound exception.
 	 */
-	public static File decode(String filepath) throws Exception
+	private File decode(String filepath) throws Exception
 	{
-		// Set audio source for the extractor.
+		// Set selected audio file as a source.
 		MediaExtractor extractor = new MediaExtractor();
 		extractor.setDataSource(filepath);
 
 		// Get audio format.
 		MediaFormat format = extractor.getTrackFormat(0);
+		sampleRate = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 		String mime = format.getString(MediaFormat.KEY_MIME);
 
 		// Create and configure decoder based on audio format.
@@ -154,5 +248,28 @@ public final class AudioUtils
 				return dst;
 			}
 		}
+	}
+
+	/**
+	 * Convert given audio file into a byte array.
+	 * @param file Audio file to convert.
+	 * @return Byte array in little-endian byte order.
+	 */
+	private static short[] getAudioSample(File file)
+	{
+		byte[] data = new byte[(int) file.length()];
+		try
+		{
+			FileInputStream fileInputStream = new FileInputStream(file);
+			fileInputStream.read(data);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+		short[] samples = new short[sb.limit()];
+		sb.get(samples);
+		return samples;
 	}
 }
