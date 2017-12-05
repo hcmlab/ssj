@@ -38,10 +38,12 @@ import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
+import hcm.ssj.audio.AudioUtils;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.main.GraphDrawer;
+import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
 
 /**
@@ -53,6 +55,7 @@ public class GraphActivity extends AppCompatActivity
 	private PlaybackThread playbackThread;
 	private GraphView graph;
 	private GraphDrawer drawer = new GraphDrawer(graph);
+	private WaveformView waveformView;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -60,8 +63,9 @@ public class GraphActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
 
-		graph = (GraphView) findViewById(R.id.graph);
+		//graph = (GraphView) findViewById(R.id.graph);
 		drawer = new GraphDrawer(graph);
+		waveformView = (WaveformView) findViewById(R.id.waveform);
 
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
@@ -79,7 +83,15 @@ public class GraphActivity extends AppCompatActivity
 							String type = FileUtils.getFileType(file);
 							if (type.equalsIgnoreCase("mp4"))
 							{
-								playbackThread = new PlaybackThread(file, new PlaybackListener() {
+								File rawData = AudioUtils.decode(file.getPath());
+								int sampleRate = AudioUtils.getSampleRate(file.getPath());
+								short[] samples = AudioUtils.getAudioSample(rawData);
+
+								waveformView.setChannelNum(1);
+								waveformView.setSampleRate(sampleRate);
+								waveformView.setSamples(samples);
+
+								playbackThread = new PlaybackThread(samples, new PlaybackListener() {
 									@Override
 									public void onProgress(int progress)
 									{

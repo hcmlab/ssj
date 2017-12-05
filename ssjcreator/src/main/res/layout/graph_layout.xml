@@ -27,6 +27,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:paddingBottom="@dimen/activity_bottom_margin"
               android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -35,12 +36,24 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
 
+    <!--
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph"
         android:visibility="invisible"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1" />
+    -->
+
+    <hcm.ssj.creator.view.WaveformView
+        android:id="@+id/waveform"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        app:waveformStrokeThickness="3"
+        app:waveformColor="#e5dc33"
+        app:waveformFillColor="#e93519"
+        android:background="#eee" />
 
     <Button
         android:id="@+id/load_stream_file"
@@ -48,4 +61,5 @@
         android:layout_height="wrap_content"
         android:paddingTop="@dimen/load_button_top_padding"
         android:text="@string/select_file"/>
+
 </LinearLayout>
