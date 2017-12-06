@@ -276,14 +276,17 @@ public class WaveformView extends View
 		int secondStep = (int) (textWidth * seconds * 2) / width;
 		secondStep = Math.max(secondStep, 1);
 
+		int startPadding = getPaddingStart();
+		int endPadding = getPaddingEnd();
+
 		for (float i = 0; i <= seconds; i += secondStep)
 		{
 			canvas.drawText(String.format(Locale.ENGLISH,"%.1f", i),
-							i * xStep, height - 475, textPaint);
-			canvas.drawLine(i * xStep, height - 540,
-							i * xStep, height - 515, axisPaint);
+							startPadding + i * xStep, height - 475, textPaint);
+			canvas.drawLine(startPadding +i * xStep, height - 540,
+							startPadding +i * xStep, height - 515, axisPaint);
 		}
-		canvas.drawLine(0, height - 540, width,
+		canvas.drawLine(startPadding, height - 540, width - endPadding,
 						height - 540, axisPaint);
 	}
 }
