@@ -53,7 +53,8 @@
         app:waveformStrokeThickness="4"
         app:waveformColor="#e54e33"
         app:waveformFillColor="#dce44e33"
-        app:timecodeColor="#000000"
+        app:timeCodeColor="#000000"
+        app:axisColor="#000000"
         android:background="@color/colorBackground" />
 
     <Button

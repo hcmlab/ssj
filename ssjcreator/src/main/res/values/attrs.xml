@@ -48,7 +48,8 @@
         <attr name="waveformColor" format="color" />
         <attr name="waveformFillColor" format="color" />
         <attr name="playbackIndicatorColor" format="color" />
-        <attr name="timecodeColor" format="color" />
+        <attr name="timeCodeColor" format="color" />
+        <attr name="axisColor" format="color" />
     </declare-styleable>
 
 </resources>

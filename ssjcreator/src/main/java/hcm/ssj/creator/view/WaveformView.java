@@ -52,11 +52,15 @@ import hcm.ssj.creator.R;
 public class WaveformView extends View
 {
 	private static final int CHANNEL_NUMBER = 1;
+	private static final int TEXT_SIZE = 36;
+	private static final int AXIS_STROKE_WIDTH = 4;
+	private static final boolean ENABLE_ANTI_ALIAS = true;
 
 	private TextPaint textPaint;
 	private Paint strokePaint;
 	private Paint fillPaint;
 	private Paint markerPaint;
+	private Paint axisPaint;
 	private Rect drawRect;
 
 	private int width;
@@ -69,7 +73,6 @@ public class WaveformView extends View
 
 	private short[] samples;
 	private Bitmap cachedWaveformBitmap;
-	private boolean showTextAxis = true;
 
 	public WaveformView(Context context)
 	{
@@ -136,32 +139,40 @@ public class WaveformView extends View
 								   ContextCompat.getColor(context, R.color.colorPrimary));
 		int markerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
 									 ContextCompat.getColor(context, R.color.colorPrimary));
-		int textColor = a.getColor(R.styleable.WaveformView_timecodeColor,
+		int timeCodeColor = a.getColor(R.styleable.WaveformView_timeCodeColor,
 								   ContextCompat.getColor(context, R.color.colorPrimary));
+		int axisColor = a.getColor(R.styleable.WaveformView_axisColor,
+									   ContextCompat.getColor(context, R.color.colorPrimary));
 		a.recycle();
 
 		textPaint = new TextPaint();
 		textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		textPaint.setTextAlign(Paint.Align.CENTER);
-		textPaint.setColor(textColor);
-		textPaint.setTextSize(36);
+		textPaint.setColor(timeCodeColor);
+		textPaint.setTextSize(TEXT_SIZE);
 
 		strokePaint = new Paint();
 		strokePaint.setColor(strokeColor);
 		strokePaint.setStyle(Paint.Style.STROKE);
 		strokePaint.setStrokeWidth(strokeThickness);
-		strokePaint.setAntiAlias(true);
+		strokePaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 
 		fillPaint = new Paint();
 		fillPaint.setStyle(Paint.Style.FILL);
-		fillPaint.setAntiAlias(true);
+		fillPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 		fillPaint.setColor(fillColor);
 
 		markerPaint = new Paint();
 		markerPaint.setStyle(Paint.Style.STROKE);
 		markerPaint.setStrokeWidth(0);
-		markerPaint.setAntiAlias(true);
+		markerPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 		markerPaint.setColor(markerColor);
+
+		axisPaint = new Paint();
+		axisPaint.setStyle(Paint.Style.STROKE);
+		axisPaint.setStrokeWidth(AXIS_STROKE_WIDTH);
+		axisPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
+		axisPaint.setColor(axisColor);
 
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -224,7 +235,7 @@ public class WaveformView extends View
 	private Path drawWaveform(int width, int height, short[] buffer)
 	{
 		Path waveformPath = new Path();
-		float centerY = height / 2.5f;
+		float centerY = height / 2.75f;
 		float max = Short.MAX_VALUE;
 
 		short[][] extremes = AudioUtils.getExtremes(buffer, width);
@@ -252,15 +263,15 @@ public class WaveformView extends View
 		return waveformPath;
 	}
 
+	/**
+	 * Draw time axis with appropriate time steps as labels.
+	 * @param canvas Canvas to draw the axis on.
+	 * @param width The width of the axis.
+	 */
 	private void drawTimeAxis(Canvas canvas, int width)
 	{
-		if (!showTextAxis)
-		{
-			return;
-		}
 		int seconds = audioLength / 1000;
 		float xStep = width / (audioLength / 1000f);
-		float textHeight = textPaint.getTextSize();
 		float textWidth = textPaint.measureText("10.00");
 		int secondStep = (int) (textWidth * seconds * 2) / width;
 		secondStep = Math.max(secondStep, 1);
@@ -268,7 +279,11 @@ public class WaveformView extends View
 		for (float i = 0; i <= seconds; i += secondStep)
 		{
 			canvas.drawText(String.format(Locale.ENGLISH,"%.1f", i),
-							i * xStep + 35, textHeight, textPaint);
+							i * xStep, height - 475, textPaint);
+			canvas.drawLine(i * xStep, height - 540,
+							i * xStep, height - 515, axisPaint);
 		}
+		canvas.drawLine(0, height - 540, width,
+						height - 540, axisPaint);
 	}
 }
