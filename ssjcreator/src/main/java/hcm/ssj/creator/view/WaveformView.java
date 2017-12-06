@@ -27,7 +27,6 @@
 
 package hcm.ssj.creator.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -38,7 +37,6 @@ import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.View;
 
 import java.util.Locale;
@@ -55,6 +53,10 @@ public class WaveformView extends View
 	private static final int TEXT_SIZE = 36;
 	private static final int AXIS_STROKE_WIDTH = 4;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
+	private static final int TIME_AXIS_OFFSET = 80;
+	private static final int TIME_CODE_OFFSET = 25;
+	private static final int TIME_STEP_PEG_LENGTH = 20;
+
 
 	private TextPaint textPaint;
 	private Paint strokePaint;
@@ -68,6 +70,9 @@ public class WaveformView extends View
 	private int audioLength;
 	private int markerPosition;
 	private int sampleRate;
+	private int startPadding;
+	private int endPadding;
+
 
 	private float xStep;
 
@@ -103,6 +108,14 @@ public class WaveformView extends View
 	{
 		sampleRate = rate;
 		calculateAudioLength();
+	}
+
+	@Override
+	protected void onSizeChanged(int w, int h, int ow, int oh)
+	{
+		width = getMeasuredWidth();
+		height = getMeasuredHeight();
+		drawRect = new Rect(0, 0, width, height);
 	}
 
 	@Override
@@ -174,10 +187,8 @@ public class WaveformView extends View
 		axisPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 		axisPaint.setColor(axisColor);
 
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-		width = displayMetrics.widthPixels;
-		height = displayMetrics.heightPixels;
+		startPadding = getPaddingStart();
+		endPadding = getPaddingEnd();
 
 		xStep = width / (audioLength * 1.0f);
 		drawRect = new Rect(0, 0, width, height);
@@ -221,7 +232,7 @@ public class WaveformView extends View
 		Path waveformPath = drawWaveform(width, height, samples);
 		canvas.drawPath(waveformPath, fillPaint);
 		canvas.drawPath(waveformPath, strokePaint);
-		drawTimeAxis(canvas, width);
+		drawTimeAxis(canvas);
 		invalidate();
 	}
 
@@ -235,7 +246,7 @@ public class WaveformView extends View
 	private Path drawWaveform(int width, int height, short[] buffer)
 	{
 		Path waveformPath = new Path();
-		float centerY = height / 2.75f;
+		float centerY = height / 2.0f;
 		float max = Short.MAX_VALUE;
 
 		short[][] extremes = AudioUtils.getExtremes(buffer, width);
@@ -266,9 +277,8 @@ public class WaveformView extends View
 	/**
 	 * Draw time axis with appropriate time steps as labels.
 	 * @param canvas Canvas to draw the axis on.
-	 * @param width The width of the axis.
 	 */
-	private void drawTimeAxis(Canvas canvas, int width)
+	private void drawTimeAxis(Canvas canvas)
 	{
 		int seconds = audioLength / 1000;
 		float xStep = width / (audioLength / 1000f);
@@ -276,17 +286,19 @@ public class WaveformView extends View
 		int secondStep = (int) (textWidth * seconds * 2) / width;
 		secondStep = Math.max(secondStep, 1);
 
-		int startPadding = getPaddingStart();
-		int endPadding = getPaddingEnd();
-
 		for (float i = 0; i <= seconds; i += secondStep)
 		{
 			canvas.drawText(String.format(Locale.ENGLISH,"%.1f", i),
-							startPadding + i * xStep, height - 475, textPaint);
-			canvas.drawLine(startPadding +i * xStep, height - 540,
-							startPadding +i * xStep, height - 515, axisPaint);
+							startPadding + i * xStep, height - TIME_CODE_OFFSET, textPaint);
+
+			// Make every second time step peg half the length.
+			int cutOff = i % 2 != 0 ? TIME_STEP_PEG_LENGTH / 2 : 0;
+			canvas.drawLine(startPadding + i * xStep, height - TIME_AXIS_OFFSET,
+							startPadding + i * xStep,
+							height - TIME_AXIS_OFFSET + TIME_STEP_PEG_LENGTH - cutOff,
+							axisPaint);
 		}
-		canvas.drawLine(startPadding, height - 540, width - endPadding,
-						height - 540, axisPaint);
+		canvas.drawLine(0, height - TIME_AXIS_OFFSET, width - endPadding,
+						height - TIME_AXIS_OFFSET, axisPaint);
 	}
 }

@@ -31,6 +31,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 
 import com.jjoe64.graphview.GraphView;
@@ -66,6 +67,16 @@ public class GraphActivity extends AppCompatActivity
 		//graph = (GraphView) findViewById(R.id.graph);
 		drawer = new GraphDrawer(graph);
 		waveformView = (WaveformView) findViewById(R.id.waveform);
+
+		ViewTreeObserver viewTreeObserver = waveformView.getViewTreeObserver();
+		viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
+		{
+			@Override
+			public void onGlobalLayout()
+			{
+				//init();
+			}
+		});
 
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
