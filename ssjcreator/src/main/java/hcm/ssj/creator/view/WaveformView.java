@@ -41,6 +41,8 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.View;
 
+import java.util.Locale;
+
 import hcm.ssj.audio.AudioUtils;
 import hcm.ssj.creator.R;
 
@@ -49,6 +51,8 @@ import hcm.ssj.creator.R;
  */
 public class WaveformView extends View
 {
+	private static final int CHANNEL_NUMBER = 1;
+
 	private TextPaint textPaint;
 	private Paint strokePaint;
 	private Paint fillPaint;
@@ -57,14 +61,11 @@ public class WaveformView extends View
 
 	private int width;
 	private int height;
-	private int mode;
 	private int audioLength;
 	private int markerPosition;
 	private int sampleRate;
-	private int channelNum;
 
 	private float xStep;
-	private float centerY;
 
 	private short[] samples;
 	private Bitmap cachedWaveformBitmap;
@@ -101,12 +102,6 @@ public class WaveformView extends View
 		calculateAudioLength();
 	}
 
-	public void setChannelNum(int channels)
-	{
-		channelNum = channels;
-		calculateAudioLength();
-	}
-
 	@Override
 	protected void onDraw(Canvas canvas)
 	{
@@ -140,7 +135,7 @@ public class WaveformView extends View
 		int fillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
 								   ContextCompat.getColor(context, R.color.colorPrimary));
 		int markerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
-						 			    ContextCompat.getColor(context, R.color.colorPrimary));
+									 ContextCompat.getColor(context, R.color.colorPrimary));
 		int textColor = a.getColor(R.styleable.WaveformView_timecodeColor,
 								   ContextCompat.getColor(context, R.color.colorPrimary));
 		a.recycle();
@@ -149,7 +144,7 @@ public class WaveformView extends View
 		textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
 		textPaint.setTextAlign(Paint.Align.CENTER);
 		textPaint.setColor(textColor);
-		textPaint.setTextSize(12f);
+		textPaint.setTextSize(36);
 
 		strokePaint = new Paint();
 		strokePaint.setColor(strokeColor);
@@ -172,8 +167,8 @@ public class WaveformView extends View
 		((Activity) getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 		width = displayMetrics.widthPixels;
 		height = displayMetrics.heightPixels;
+
 		xStep = width / (audioLength * 1.0f);
-		centerY = height / 2f;
 		drawRect = new Rect(0, 0, width, height);
 	}
 
@@ -182,11 +177,11 @@ public class WaveformView extends View
 	 */
 	private void calculateAudioLength()
 	{
-		if (samples == null || sampleRate == 0 || channelNum == 0)
+		if (samples == null || sampleRate == 0)
 		{
 			return;
 		}
-		audioLength = AudioUtils.calculateAudioLength(samples.length, sampleRate, channelNum);
+		audioLength = AudioUtils.calculateAudioLength(samples.length, sampleRate, CHANNEL_NUMBER);
 	}
 
 	/**
@@ -197,7 +192,6 @@ public class WaveformView extends View
 		markerPosition = -1;
 		xStep = width / (audioLength * 1.0f);
 		createWaveform();
-		invalidate();
 	}
 
 	/**
@@ -216,6 +210,8 @@ public class WaveformView extends View
 		Path waveformPath = drawWaveform(width, height, samples);
 		canvas.drawPath(waveformPath, fillPaint);
 		canvas.drawPath(waveformPath, strokePaint);
+		drawTimeAxis(canvas, width);
+		invalidate();
 	}
 
 	/**
@@ -228,7 +224,7 @@ public class WaveformView extends View
 	private Path drawWaveform(int width, int height, short[] buffer)
 	{
 		Path waveformPath = new Path();
-		float centerY = height / 2f;
+		float centerY = height / 2.5f;
 		float max = Short.MAX_VALUE;
 
 		short[][] extremes = AudioUtils.getExtremes(buffer, width);
@@ -254,5 +250,25 @@ public class WaveformView extends View
 
 		waveformPath.close();
 		return waveformPath;
+	}
+
+	private void drawTimeAxis(Canvas canvas, int width)
+	{
+		if (!showTextAxis)
+		{
+			return;
+		}
+		int seconds = audioLength / 1000;
+		float xStep = width / (audioLength / 1000f);
+		float textHeight = textPaint.getTextSize();
+		float textWidth = textPaint.measureText("10.00");
+		int secondStep = (int) (textWidth * seconds * 2) / width;
+		secondStep = Math.max(secondStep, 1);
+
+		for (float i = 0; i <= seconds; i += secondStep)
+		{
+			canvas.drawText(String.format(Locale.ENGLISH,"%.1f", i),
+							i * xStep + 35, textHeight, textPaint);
+		}
 	}
 }

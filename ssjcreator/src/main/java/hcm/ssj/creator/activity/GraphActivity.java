@@ -87,7 +87,6 @@ public class GraphActivity extends AppCompatActivity
 								int sampleRate = AudioUtils.getSampleRate(file.getPath());
 								short[] samples = AudioUtils.getAudioSample(rawData);
 
-								waveformView.setChannelNum(1);
 								waveformView.setSampleRate(sampleRate);
 								waveformView.setSamples(samples);
 
