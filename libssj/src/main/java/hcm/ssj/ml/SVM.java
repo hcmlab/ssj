@@ -97,6 +97,8 @@ public class SVM extends Model
 
         prob_estimates = new double[n_classes];
         probs = new float[n_classes];
+
+        _isInit = true;
     }
 
     /**

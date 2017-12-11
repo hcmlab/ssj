@@ -53,7 +53,7 @@ public abstract class Model {
     public static Model create(String name)
     {
         if(name.compareToIgnoreCase("NaiveBayes") == 0 || name.compareToIgnoreCase("OnlineNaiveBayes") == 0)
-            return new OnlineNaiveBayes();
+            return new NaiveBayes();
         else if (name.compareToIgnoreCase("SVM") == 0)
             return new SVM();
         else if (name.compareToIgnoreCase("PythonModel") == 0)
@@ -93,6 +93,12 @@ public abstract class Model {
      */
     public void train(Stream stream, Annotation anno, String sessionName)
     {
+        if(!_isInit)
+        {
+            Log.e("model not initialized");
+            return;
+        }
+
         for(Annotation.Entry e : anno.getEntries())
         {
             train(stream.substream(e.from, e.to), e.classlabel);

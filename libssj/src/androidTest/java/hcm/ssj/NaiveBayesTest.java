@@ -49,7 +49,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.FileUtils;
 import hcm.ssj.ml.NaiveBayes;
-import hcm.ssj.ml.OnlineNaiveBayes;
+import hcm.ssj.ml.NaiveBayesOld;
 
 /**
  * Created by Michael Dietz on 07.11.2017.
@@ -82,7 +82,7 @@ public class NaiveBayesTest
 		//modelFileName = "tmp_activity.NaiveBayes.model";
 
 		// Init old model
-		NaiveBayes oldImpl = new NaiveBayes();
+		NaiveBayesOld oldImpl = new NaiveBayesOld();
 		oldImpl.setNumClasses(classNames.length);
 		oldImpl.setClassNames(classNames);
 
@@ -90,7 +90,7 @@ public class NaiveBayesTest
 		oldImpl.loadOption(FileUtils.getFile(modelPath, modelOptionFileName));
 
 		// Init new model
-		OnlineNaiveBayes newImpl = new OnlineNaiveBayes();
+		NaiveBayes newImpl = new NaiveBayes();
 		newImpl.setNumClasses(classNames.length);
 		newImpl.setClassNames(classNames);
 
@@ -215,7 +215,7 @@ public class NaiveBayesTest
 	public void batchTrainingTest() throws Exception
 	{
 		// Init new model
-		OnlineNaiveBayes model = new OnlineNaiveBayes();
+		NaiveBayes model = new NaiveBayes();
 		model.setNumClasses(2);
 		model.setClassNames(new String[]{"a", "b"});
 
