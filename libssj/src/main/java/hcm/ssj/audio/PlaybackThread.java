@@ -27,153 +27,65 @@
 
 package hcm.ssj.audio;
 
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
-import java.nio.ShortBuffer;
+import android.content.Context;
+import android.media.MediaPlayer;
+import android.net.Uri;
+
+import java.io.File;
 
 /**
  * Background thread for audio playback.
  */
 public class PlaybackThread
 {
-	private Thread thread;
 	private PlaybackListener playbackListener;
+	private MediaPlayer mediaPlayer;
+	private Context context;
+	private File audioFile;
 
-	private ShortBuffer samplesBuffer;
-
-	private int sampleRate;
-	private int numSamples;
-
-	private boolean shouldContinue;
-
-	public PlaybackThread(short[] samples, int rate, PlaybackListener listener)
+	public PlaybackThread(Context c, File file, PlaybackListener listener)
 	{
 		playbackListener = listener;
-		sampleRate = rate;
-		try
+		context = c.getApplicationContext();
+		audioFile = file;
+		loadMedia();
+	}
+
+	public void play()
+	{
+		if (mediaPlayer != null && !mediaPlayer.isPlaying())
 		{
-			numSamples = samples.length;
-			samplesBuffer = ShortBuffer.wrap(samples);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
+			mediaPlayer.start();
 		}
 	}
 
-	public void startPlayback()
+	public void pause()
 	{
-		if (thread != null)
+		if (mediaPlayer != null && mediaPlayer.isPlaying())
 		{
-			return;
+			mediaPlayer.pause();
 		}
-		shouldContinue = true;
-		thread = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				play();
-			}
-		});
-		thread.start();
 	}
 
-	public void stopPlayback()
+	public void reset()
 	{
-		if (thread == null)
+		if (mediaPlayer != null)
 		{
-			return;
+			mediaPlayer.reset();
 		}
-		shouldContinue = false;
-		thread = null;
+		loadMedia();
 	}
 
 	public boolean isPlaying()
 	{
-		return thread != null;
+		return mediaPlayer.isPlaying();
 	}
 
-	/**
-	 * Play raw audio file. Correct sample rate is set automatically.
-	 * To query the encoding type the API level of at least 24 is necessary, so for now
-	 * default encoding (PCM-16bit) is hard coded.
-	 */
-	private void play()
+	private void loadMedia()
 	{
-		int bufferSize = AudioTrack.getMinBufferSize(sampleRate,
-													 AudioFormat.CHANNEL_OUT_MONO,
-													 AudioFormat.ENCODING_PCM_16BIT);
-		if (bufferSize == AudioTrack.ERROR || bufferSize == AudioTrack.ERROR_BAD_VALUE)
+		if (context != null && audioFile != null)
 		{
-			bufferSize = sampleRate * 2;
-		}
-
-		AudioTrack audioTrack = new AudioTrack(
-				AudioManager.STREAM_MUSIC,
-				sampleRate,
-				AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_DEFAULT,
-				bufferSize,
-				AudioTrack.MODE_STREAM
-		);
-
-		audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener()
-		{
-			@Override
-			public void onPeriodicNotification(AudioTrack track)
-			{
-				if (playbackListener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING)
-				{
-					playbackListener.onProgress((track.getPlaybackHeadPosition() * 1000) / sampleRate);
-				}
-			}
-			@Override
-			public void onMarkerReached(AudioTrack track)
-			{
-				track.release();
-				stopPlayback();
-				if (playbackListener != null)
-				{
-					playbackListener.onCompletion();
-				}
-			}
-		});
-
-		// Notification occurs 30 times per second.
-		audioTrack.setPositionNotificationPeriod(sampleRate / 30);
-		audioTrack.setNotificationMarkerPosition(numSamples);
-
-		audioTrack.play();
-
-		short[] buffer = new short[bufferSize];
-		samplesBuffer.rewind();
-		int limit = numSamples;
-		while (samplesBuffer.position() < limit && shouldContinue)
-		{
-			int numSamplesLeft = limit - samplesBuffer.position();
-			int samplesToWrite;
-			if (numSamplesLeft >= buffer.length)
-			{
-				samplesBuffer.get(buffer);
-				samplesToWrite = buffer.length;
-			}
-			else
-			{
-				for (int i = numSamplesLeft; i < buffer.length; i++)
-				{
-					buffer[i] = 0;
-				}
-				samplesBuffer.get(buffer, 0, numSamplesLeft);
-				samplesToWrite = numSamplesLeft;
-			}
-			audioTrack.write(buffer, 0, samplesToWrite);
-		}
-
-		if (!shouldContinue)
-		{
-			audioTrack.release();
+			mediaPlayer = MediaPlayer.create(context.getApplicationContext(), Uri.fromFile(audioFile));
 		}
 	}
 }

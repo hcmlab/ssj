@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 
 import com.jjoe64.graphview.GraphView;
@@ -69,35 +68,41 @@ public class GraphActivity extends AppCompatActivity
 		waveformView = (WaveformView) findViewById(R.id.waveform);
 		waveformView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-			ViewTreeObserver viewTreeObserver = waveformView.getViewTreeObserver();
-		viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
-		{
-			@Override
-			public void onGlobalLayout()
-			{
-				//init();
-			}
-		});
+		initializeUI();
+	}
 
+	private void initializeUI()
+	{
 		final Button playButton = (Button) findViewById(R.id.play);
 		playButton.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
 			public void onClick(View view)
 			{
-				if (!playbackThread.isPlaying())
+				if (playbackThread.isPlaying())
 				{
-					playbackThread.startPlayback();
-					playButton.setText(R.string.stop);
+					playbackThread.pause();
+					playButton.setText(R.string.play);
 				}
 				else
 				{
-					playbackThread.stopPlayback();
-					playButton.setText(R.string.play);
-					waveformView.setMarkerPosition(-1);
+					playbackThread.play();
+					playButton.setText(R.string.pause);
 				}
 			}
 		});
+
+		final Button resetButton = (Button) findViewById(R.id.reset);
+		resetButton.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				playbackThread.reset();
+				playButton.setText(R.string.play);
+			}
+		});
+
 
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
@@ -123,18 +128,16 @@ public class GraphActivity extends AppCompatActivity
 								waveformView.setSamples(samples);
 
 								playButton.setVisibility(View.VISIBLE);
+								resetButton.setVisibility(View.VISIBLE);
 
-								playbackThread = new PlaybackThread(samples, sampleRate, new PlaybackListener() {
+								playbackThread = new PlaybackThread(GraphActivity.this, file, new PlaybackListener() {
 									@Override
 									public void onProgress(int progress)
 									{
-										waveformView.setMarkerPosition(progress);
 									}
 									@Override
 									public void onCompletion()
 									{
-										playButton.setText(R.string.play);
-										waveformView.setMarkerPosition(-1);
 									}
 								});
 							}
