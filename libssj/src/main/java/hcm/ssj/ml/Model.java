@@ -81,7 +81,10 @@ public abstract class Model {
      * @param stream data of the sample to use for training
      * @param label the label of the data, should match one of the model's classes
      */
-    abstract void train(Stream stream, String label);
+    void train(Stream stream, String label)
+    {
+        Log.e("train not supported");
+    }
 
     /**
      * Train model with multiple samples (batch training)
@@ -111,7 +114,10 @@ public abstract class Model {
     /**
      * Save model to file
      */
-    abstract void save(File file);
+    void save(File file)
+    {
+        Log.e("save not supported");
+    }
 
     /**
      * Initialize model variables

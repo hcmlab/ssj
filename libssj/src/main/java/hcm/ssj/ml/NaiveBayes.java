@@ -175,11 +175,6 @@ public class NaiveBayes extends Model
         return probs;
     }
 
-    @Override
-    void train(Stream stream, String label) {
-        Log.e("training not supported yet");
-    }
-
     /**
      * Load data from option file
      */
@@ -214,11 +209,6 @@ public class NaiveBayes extends Model
             e.printStackTrace();
             Log.e("file could not be parsed", e);
         }
-    }
-
-    @Override
-    void save(File file) {
-        Log.e("saving not supported yet");
     }
 
     /**

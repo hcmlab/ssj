@@ -28,6 +28,7 @@
 package hcm.ssj.core;
 
 import android.os.Environment;
+import android.util.SparseArray;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -82,7 +83,7 @@ public class Annotation
 		}
 	}
 
-	private ArrayList<String> classes = new ArrayList<>();
+	private SparseArray<String> classes = new SparseArray<>();
 	private ArrayList<Entry> entries = new ArrayList<>();
 	private String name;
 	private String path;
@@ -104,15 +105,34 @@ public class Annotation
 			this.getEntries().add(new Entry(e.classlabel, e.from, e.to));
 		}
 
-		for(String classlabel : original.getClasses())
-		{
-			this.getClasses().add(classlabel);
-		}
+		this.classes = original.classes.clone();
 	}
 
-	public ArrayList<String> getClasses()
+	public SparseArray<String> getClasses()
 	{
 		return classes;
+	}
+
+	/**
+	 * @return an array of classes sorted by their IDs
+	 */
+	public String[] getClassArray()
+	{
+		int max_key = Integer.MIN_VALUE;
+		for (int i = 0; i < classes.size(); i++)
+		{
+			max_key = max(max_key, classes.keyAt(i));
+		}
+
+		String classes_array[] = new String[classes.size()];
+		for (int i = 0, j = 0; i <= max_key; i++)
+		{
+			String cl = classes.get(i);
+			if(cl != null)
+				classes_array[j++] = cl;
+		}
+
+		return classes_array;
 	}
 
 	public ArrayList<Entry> getEntries()
@@ -120,14 +140,28 @@ public class Annotation
 		return entries;
 	}
 
-	public void setClasses(ArrayList<String> classes)
+	public void setClasses(String[] cls)
 	{
-		this.classes = classes;
+		this.classes.clear();
+
+		for (int i = 0; i < cls.length; i++)
+		{
+			this.classes.put(i, cls[i]);
+		}
 	}
 
-	public void addClass(String anno)
+	public void addClass(int id, String anno)
 	{
-		this.classes.add(anno);
+		this.classes.put(id, anno);
+	}
+
+	public void appendClass(String anno)
+	{
+		int id = 0;
+		if(classes.size() > 0)
+			id = classes.keyAt(classes.size()-1) +1; //one more than the id of the last element
+
+		this.classes.append(id, anno);
 	}
 
 	public void addEntry(String label, double from, double to)
@@ -138,16 +172,12 @@ public class Annotation
 	public void addEntry(Entry e)
 	{
 		this.entries.add(e);
-
-		if(classes.indexOf(e.classlabel) == -1)
-		{
-			classes.add(e.classlabel);
-		}
 	}
 
 	public void removeClass(String anno)
 	{
-		this.classes.remove(anno);
+		int index = classes.indexOfValue(anno);
+		classes.removeAt(index);
 	}
 
 	public void clear()
@@ -248,9 +278,9 @@ public class Annotation
 		{
 			Entry new_entry = new Entry(emptyClassName, frame_from, frame_from + frame_dur);
 
-			for (String cl : original.getClasses())
+			for (int j = 0; j < original.classes.size(); j++)
 			{
-				percent_class.put(cl, 0.0);
+				percent_class.put(original.classes.valueAt(j), 0.0);
 			}
 			percent_garbage = 0;
 
@@ -289,8 +319,10 @@ public class Annotation
 					double max_percent = percent_garbage;
 					double percent_sum = percent_garbage;
 					String max_class = GARBAGE_CLASS;
-					for (String cl : original.getClasses())
+
+					for (int j = 0; j < original.classes.size(); j++)
 					{
+						String cl = original.classes.valueAt(j);
 						if (max_percent < percent_class.get(cl))
 						{
 							max_class = cl;
@@ -351,9 +383,6 @@ public class Annotation
 				new String[]{"annotation", "info"},
 				new String[]{"size"}
 		);
-		//resize array list
-		for(int i = 0; i < Integer.valueOf(xmlValues.foundAttributes.get(0)[0]); i++)
-			classes.add(null);
 
 		/*
 		 * SCHEME
@@ -386,7 +415,7 @@ public class Annotation
 
 		for(String[] item : xmlValues.foundAttributes)
 		{
-			classes.set(Integer.valueOf(item[0]), item[1]); //id, name
+			classes.put(Integer.valueOf(item[0]), item[1]); //id, name
 		}
 
 		loadData(path + FileCons.TAG_DATA_FILE);
@@ -479,7 +508,9 @@ public class Annotation
 
 			builder.append(e.from).append(FileCons.DELIMITER_ANNOTATION);
 			builder.append(e.to).append(FileCons.DELIMITER_ANNOTATION);
-			builder.append(classes.indexOf(e.classlabel)).append(FileCons.DELIMITER_ANNOTATION);
+
+			int class_index = classes.indexOfValue(e.classlabel);
+			builder.append(classes.keyAt(class_index)).append(FileCons.DELIMITER_ANNOTATION);
 			builder.append(e.confidence);
 
 			writer.write(builder.toString());

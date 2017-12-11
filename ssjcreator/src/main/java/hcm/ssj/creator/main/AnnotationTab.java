@@ -52,7 +52,6 @@ import android.widget.TextView;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Log;
@@ -140,9 +139,10 @@ public class AnnotationTab implements ITab
             {
                 if (annoClassList != null)
                 {
-                    String name = context.getString(R.string.str_defaultAnno, annoClassList.getChildCount());
+                    int id = annoClassList.getChildCount();
+                    String name = context.getString(R.string.str_defaultAnno, id);
                     annoClassList.addView(createClassSwitch(context, name));
-                    anno.addClass(name);
+                    anno.addClass(id, name);
                 }
             }
         });
@@ -230,7 +230,7 @@ public class AnnotationTab implements ITab
         margin = (int) (dpValue * d); // margin in pixels
 
         annoClassList = new LinearLayout(context);
-        setAnnoClasses(anno.getClasses());
+        setAnnoClasses(anno.getClassArray());
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lp.setMargins(margin, margin, margin, 0);
@@ -349,7 +349,7 @@ public class AnnotationTab implements ITab
                             ViewGroup viewGroup = (ViewGroup) v.getParent();
                             String name = editText.getText().toString().trim();
                             ((TextView) viewGroup.getChildAt(0)).setText(name);
-                            anno.setClasses(getAnnoClasses());
+                            anno.setClasses(getAnnoClassesFromView());
                         }
                     });
                     builder.setNegativeButton(R.string.str_cancel, null);
@@ -543,21 +543,21 @@ public class AnnotationTab implements ITab
         return true;
     }
 
-    public ArrayList<String> getAnnoClasses()
+    public String[] getAnnoClassesFromView()
     {
         if (annoClassList == null)
             return null;
 
-        ArrayList<String> classes = new ArrayList<>();
+        String[] classes = new String[annoClassList.getChildCount()];
         for(int i = 0; i < annoClassList.getChildCount(); i++)
         {
             LinearLayout anno = (LinearLayout) annoClassList.getChildAt(i);
-            classes.add(((TextView) anno.getChildAt(0)).getText().toString());
+            classes[i] = ((TextView) anno.getChildAt(0)).getText().toString();
         }
         return classes;
     }
 
-    public void setAnnoClasses(ArrayList<String> classes)
+    public void setAnnoClasses(String[] classes)
     {
         if (annoClassList == null)
             return;
@@ -565,9 +565,9 @@ public class AnnotationTab implements ITab
         //clear existing annotations
         annoClassList.removeAllViews();
 
-        for(String anno : classes)
+        for (String aClass : classes)
         {
-            annoClassList.addView(createClassSwitch(activity, anno));
+            annoClassList.addView(createClassSwitch(activity, aClass));
         }
     }
 
@@ -578,7 +578,7 @@ public class AnnotationTab implements ITab
             @Override
             public void run()
             {
-                setAnnoClasses(anno.getClasses());
+                setAnnoClasses(anno.getClassArray());
 
                 if (editTextPathAnno != null)
                 {

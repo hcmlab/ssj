@@ -39,6 +39,7 @@ import java.io.InputStreamReader;
 import java.io.Serializable;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.Provider;
 import hcm.ssj.core.Util;
 import hcm.ssj.file.FileCons;
@@ -166,12 +167,29 @@ public abstract class Stream implements Serializable
     public abstract Stream clone();
 
     /**
-     * Extracts a subgroup of the stream. WARNING: may initialize large amounts of memory
+     * Extracts a subset of the stream. WARNING: may initialize large amounts of memory
      * @param from time in seconds pointing to the start of the substream
      * @param to time in seconds pointing to the end of the substream
      * @return new stream object
      */
-    public abstract Stream substream(double from, double to);
+    public Stream substream(double from, double to)
+    {
+        int pos = (int)(from * sr + 0.5);
+        int pos_stop = (int)(to * sr + 0.5);
+        int len = pos_stop - pos;
+
+        if(len <= 0)
+        {
+            Log.e("Duration too small");
+            return null;
+        }
+
+        Stream out = create(len, dim, sr, type);
+        int bytesPerSample = dim * bytes;
+        Util.arraycopy(ptr(), pos * bytesPerSample, out.ptr(), 0, len * bytesPerSample);
+
+        return out;
+    }
 
     public int findDataClass(String name)
     {
