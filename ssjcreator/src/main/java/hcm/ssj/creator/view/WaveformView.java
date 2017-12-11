@@ -110,6 +110,12 @@ public class WaveformView extends View
 		calculateAudioLength();
 	}
 
+	public void setMarkerPosition(int position)
+	{
+		markerPosition = position;
+		postInvalidate();
+	}
+
 	@Override
 	protected void onSizeChanged(int w, int h, int ow, int oh)
 	{

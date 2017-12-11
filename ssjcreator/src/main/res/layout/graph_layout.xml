@@ -59,11 +59,29 @@
         app:axisColor="#000000"
         android:background="@color/colorBackground" />
 
-    <Button
-        android:id="@+id/load_stream_file"
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/load_button_top_padding"
-        android:text="@string/select_file"/>
+        android:layout_height="wrap_content">
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/load_stream_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/load_button_top_padding"
+            android:text="@string/select_file"/>
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:visibility="gone"
+            android:id="@+id/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/load_button_top_padding"
+            android:text="@string/play"/>
+
+    </LinearLayout>
 
 </LinearLayout>

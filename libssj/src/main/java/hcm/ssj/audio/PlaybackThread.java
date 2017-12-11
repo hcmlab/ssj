@@ -47,9 +47,10 @@ public class PlaybackThread
 
 	private boolean shouldContinue;
 
-	public PlaybackThread(short[] samples, PlaybackListener listener)
+	public PlaybackThread(short[] samples, int rate, PlaybackListener listener)
 	{
 		playbackListener = listener;
+		sampleRate = rate;
 		try
 		{
 			numSamples = samples.length;
@@ -117,6 +118,33 @@ public class PlaybackThread
 				bufferSize,
 				AudioTrack.MODE_STREAM
 		);
+
+		audioTrack.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener()
+		{
+			@Override
+			public void onPeriodicNotification(AudioTrack track)
+			{
+				if (playbackListener != null && track.getPlayState() == AudioTrack.PLAYSTATE_PLAYING)
+				{
+					playbackListener.onProgress((track.getPlaybackHeadPosition() * 1000) / sampleRate);
+				}
+			}
+			@Override
+			public void onMarkerReached(AudioTrack track)
+			{
+				track.release();
+				stopPlayback();
+				if (playbackListener != null)
+				{
+					playbackListener.onCompletion();
+				}
+			}
+		});
+
+		// Notification occurs 30 times per second.
+		audioTrack.setPositionNotificationPeriod(sampleRate / 30);
+		audioTrack.setNotificationMarkerPosition(numSamples);
+
 		audioTrack.play();
 
 		short[] buffer = new short[bufferSize];

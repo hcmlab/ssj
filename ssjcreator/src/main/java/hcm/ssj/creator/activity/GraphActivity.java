@@ -78,6 +78,25 @@ public class GraphActivity extends AppCompatActivity
 			}
 		});
 
+		final Button playButton = (Button) findViewById(R.id.play);
+		playButton.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				if (!playbackThread.isPlaying())
+				{
+					playbackThread.startPlayback();
+					playButton.setText(R.string.stop);
+				}
+				else
+				{
+					playbackThread.stopPlayback();
+					playButton.setText(R.string.play);
+				}
+			}
+		});
+
 		Button loadButton = (Button) findViewById(R.id.load_stream_file);
 		loadButton.setOnClickListener(new View.OnClickListener()
 		{
@@ -101,17 +120,18 @@ public class GraphActivity extends AppCompatActivity
 								waveformView.setSampleRate(sampleRate);
 								waveformView.setSamples(samples);
 
-								playbackThread = new PlaybackThread(samples, new PlaybackListener() {
+								playButton.setVisibility(View.VISIBLE);
+
+								playbackThread = new PlaybackThread(samples, sampleRate, new PlaybackListener() {
 									@Override
 									public void onProgress(int progress)
 									{
-
+										waveformView.setMarkerPosition(progress);
 									}
-
 									@Override
 									public void onCompletion()
 									{
-
+										playButton.setText(R.string.play);
 									}
 								});
 							}
