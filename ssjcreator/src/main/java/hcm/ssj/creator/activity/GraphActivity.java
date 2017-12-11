@@ -67,8 +67,9 @@ public class GraphActivity extends AppCompatActivity
 		//graph = (GraphView) findViewById(R.id.graph);
 		drawer = new GraphDrawer(graph);
 		waveformView = (WaveformView) findViewById(R.id.waveform);
+		waveformView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-		ViewTreeObserver viewTreeObserver = waveformView.getViewTreeObserver();
+			ViewTreeObserver viewTreeObserver = waveformView.getViewTreeObserver();
 		viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener()
 		{
 			@Override
@@ -93,6 +94,7 @@ public class GraphActivity extends AppCompatActivity
 				{
 					playbackThread.stopPlayback();
 					playButton.setText(R.string.play);
+					waveformView.setMarkerPosition(-1);
 				}
 			}
 		});
@@ -111,7 +113,7 @@ public class GraphActivity extends AppCompatActivity
 						try
 						{
 							String type = FileUtils.getFileType(file);
-							if (type.equalsIgnoreCase("mp4"))
+							if (type.equalsIgnoreCase("mp4") || type.equalsIgnoreCase("mp3"))
 							{
 								File rawData = AudioUtils.decode(file.getPath());
 								int sampleRate = AudioUtils.getSampleRate(file.getPath());
@@ -132,6 +134,7 @@ public class GraphActivity extends AppCompatActivity
 									public void onCompletion()
 									{
 										playButton.setText(R.string.play);
+										waveformView.setMarkerPosition(-1);
 									}
 								});
 							}

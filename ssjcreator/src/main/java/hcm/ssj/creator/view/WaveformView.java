@@ -31,6 +31,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
@@ -56,6 +57,7 @@ public class WaveformView extends View
 	private static final int TIME_AXIS_OFFSET = 80;
 	private static final int TIME_CODE_OFFSET = 25;
 	private static final int TIME_STEP_PEG_LENGTH = 20;
+	private static final int MARKER_WIDTH = 3;
 
 
 	private TextPaint textPaint;
@@ -136,7 +138,7 @@ public class WaveformView extends View
 		if (markerPosition > -1 && markerPosition < audioLength)
 		{
 			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
-							height, markerPaint);
+							height - TIME_AXIS_OFFSET, markerPaint);
 		}
 	}
 
@@ -157,7 +159,7 @@ public class WaveformView extends View
 		int fillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
 								   ContextCompat.getColor(context, R.color.colorPrimary));
 		int markerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
-									 ContextCompat.getColor(context, R.color.colorPrimary));
+									 ContextCompat.getColor(context, R.color.colorMarker));
 		int timeCodeColor = a.getColor(R.styleable.WaveformView_timeCodeColor,
 								   ContextCompat.getColor(context, R.color.colorPrimary));
 		int axisColor = a.getColor(R.styleable.WaveformView_axisColor,
@@ -183,9 +185,10 @@ public class WaveformView extends View
 
 		markerPaint = new Paint();
 		markerPaint.setStyle(Paint.Style.STROKE);
-		markerPaint.setStrokeWidth(0);
+		markerPaint.setStrokeWidth(MARKER_WIDTH);
 		markerPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 		markerPaint.setColor(markerColor);
+		markerPaint.setPathEffect(new DashPathEffect(new float[] {20, 10}, 0));
 
 		axisPaint = new Paint();
 		axisPaint.setStyle(Paint.Style.STROKE);

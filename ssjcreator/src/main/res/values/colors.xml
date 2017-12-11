@@ -42,5 +42,6 @@
 
     <color name="colorConnectionStream">#9e9e9e</color>
     <color name="colorConnectionEvent">#383838</color>
+    <color name="colorMarker">#767676</color>
 
 </resources>

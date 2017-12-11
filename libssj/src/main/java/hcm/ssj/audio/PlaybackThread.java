@@ -114,7 +114,7 @@ public class PlaybackThread
 				AudioManager.STREAM_MUSIC,
 				sampleRate,
 				AudioFormat.CHANNEL_OUT_MONO,
-				AudioFormat.ENCODING_PCM_16BIT,
+				AudioFormat.ENCODING_DEFAULT,
 				bufferSize,
 				AudioTrack.MODE_STREAM
 		);
