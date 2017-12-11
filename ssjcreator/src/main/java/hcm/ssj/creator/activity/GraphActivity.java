@@ -134,10 +134,12 @@ public class GraphActivity extends AppCompatActivity
 									@Override
 									public void onProgress(int progress)
 									{
+										waveformView.setMarkerPosition(progress);
 									}
 									@Override
 									public void onCompletion()
 									{
+										playButton.setText(R.string.play);
 									}
 								});
 							}

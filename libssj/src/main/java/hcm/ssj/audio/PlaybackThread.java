@@ -32,16 +32,24 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 
 import java.io.File;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Background thread for audio playback.
  */
 public class PlaybackThread
 {
+	private final static int INITIAL_PLAYBACK_DELAY = 0;
+	private final static int MARKER_UPDATE_INTERVAL = 1000 / 30;
+
 	private PlaybackListener playbackListener;
 	private MediaPlayer mediaPlayer;
 	private Context context;
 	private File audioFile;
+	private ScheduledExecutorService executor;
+	private Runnable markerUpdateTask;
 
 	public PlaybackThread(Context c, File file, PlaybackListener listener)
 	{
@@ -56,6 +64,7 @@ public class PlaybackThread
 		if (mediaPlayer != null && !mediaPlayer.isPlaying())
 		{
 			mediaPlayer.start();
+			startUpdatingMarkerPosition();
 		}
 	}
 
@@ -74,11 +83,12 @@ public class PlaybackThread
 			mediaPlayer.reset();
 		}
 		loadMedia();
+		stopUpdatingMarkerPosition();
 	}
 
 	public boolean isPlaying()
 	{
-		return mediaPlayer.isPlaying();
+		return mediaPlayer != null && mediaPlayer.isPlaying();
 	}
 
 	private void loadMedia()
@@ -86,6 +96,59 @@ public class PlaybackThread
 		if (context != null && audioFile != null)
 		{
 			mediaPlayer = MediaPlayer.create(context.getApplicationContext(), Uri.fromFile(audioFile));
+			mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener()
+			{
+				@Override
+				public void onCompletion(MediaPlayer mp)
+				{
+					playbackListener.onCompletion();
+				}
+			});
+		}
+	}
+
+	private void startUpdatingMarkerPosition()
+	{
+		if (executor == null)
+		{
+			executor = Executors.newSingleThreadScheduledExecutor();
+		}
+		if (markerUpdateTask == null)
+		{
+			markerUpdateTask = new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					updateMarkerProgress();
+				}
+			};
+		}
+		executor.scheduleAtFixedRate(
+				markerUpdateTask,
+				INITIAL_PLAYBACK_DELAY,
+				MARKER_UPDATE_INTERVAL,
+				TimeUnit.MILLISECONDS
+		);
+	}
+
+	private void stopUpdatingMarkerPosition()
+	{
+		if (executor != null)
+		{
+			executor.shutdown();
+			executor = null;
+			markerUpdateTask = null;
+			playbackListener.onProgress(-1);
+		}
+	}
+
+	private void updateMarkerProgress()
+	{
+		if (mediaPlayer != null && mediaPlayer.isPlaying())
+		{
+			int currentPosition = mediaPlayer.getCurrentPosition() * 2;
+			playbackListener.onProgress(currentPosition);
 		}
 	}
 }
