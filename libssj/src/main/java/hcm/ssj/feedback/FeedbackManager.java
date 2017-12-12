@@ -28,13 +28,15 @@
 package hcm.ssj.feedback;
 
 import android.content.Context;
-import android.net.Uri;
+import android.os.Environment;
 import android.util.Xml;
 import android.widget.TableLayout;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -58,10 +60,12 @@ public class FeedbackManager extends EventHandler
 {
     private static int MANAGER_UPDATE_TIMEOUT = 100; //ms
 
+    private final String STARTEGY_FOLDER = Environment.getExternalStorageDirectory() + File.separator + "logue";
+
     public class Options extends OptionList
     {
 
-        public final Option<Uri> strategyFile = new Option<>("strategyFile", null, Uri.class, "strategy file");
+        public final Option<String> strategy = new Option<>("strategy", null, String.class, "strategy file");
         public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load feedback strategy file from assets");
         public final Option<Float> progression = new Option<>("progression", 12f, Float.class, "timeout for progressing to the next feedback level");
         public final Option<Float> regression = new Option<>("regression", 60f, Float.class, "timeout for going back to the previous feedback level");
@@ -106,7 +110,7 @@ public class FeedbackManager extends EventHandler
 
         try
         {
-            load(options.strategyFile.get(), options.fromAssets.get());
+            load(options.strategy.get(), options.fromAssets.get());
         }
         catch (IOException | XmlPullParserException e)
         {
@@ -191,13 +195,13 @@ public class FeedbackManager extends EventHandler
         }
     }
 
-    private void load(Uri uri, boolean fromAsset) throws IOException, XmlPullParserException
+    private void load(String path, boolean fromAsset) throws IOException, XmlPullParserException
     {
         InputStream in;
         if(fromAsset)
-            in = SSJApplication.getAppContext().getAssets().open(uri.toString());
+            in = SSJApplication.getAppContext().getAssets().open(path);
         else
-            in = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
+            in = new FileInputStream(new File(STARTEGY_FOLDER, path));
 
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
