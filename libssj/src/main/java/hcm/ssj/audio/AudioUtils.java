@@ -211,4 +211,12 @@ public final class AudioUtils
 		MediaFormat format = extractor.getTrackFormat(0);
 		return format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
 	}
+
+	public static int getChannelCount(String filepath) throws IOException
+	{
+		MediaExtractor extractor = new MediaExtractor();
+		extractor.setDataSource(filepath);
+		MediaFormat format = extractor.getTrackFormat(0);
+		return format.getInteger(MediaFormat.KEY_CHANNEL_COUNT);
+	}
 }

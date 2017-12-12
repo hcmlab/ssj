@@ -50,7 +50,6 @@ import hcm.ssj.creator.R;
  */
 public class WaveformView extends View
 {
-	private static final int CHANNEL_NUMBER = 1;
 	private static final int TEXT_SIZE = 36;
 	private static final int AXIS_STROKE_WIDTH = 4;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
@@ -58,7 +57,6 @@ public class WaveformView extends View
 	private static final int TIME_CODE_OFFSET = 25;
 	private static final int TIME_STEP_PEG_LENGTH = 20;
 	private static final int MARKER_WIDTH = 3;
-
 
 	private TextPaint textPaint;
 	private Paint strokePaint;
@@ -70,11 +68,11 @@ public class WaveformView extends View
 	private int width;
 	private int height;
 	private int audioLength;
+	private int channelCount;
 	private int markerPosition;
 	private int sampleRate;
 	private int startPadding;
 	private int endPadding;
-
 
 	private float xStep;
 
@@ -109,6 +107,12 @@ public class WaveformView extends View
 	public void setSampleRate(int rate)
 	{
 		sampleRate = rate;
+		calculateAudioLength();
+	}
+
+	public void setChannelCount(int channels)
+	{
+		channelCount = channels;
 		calculateAudioLength();
 	}
 
@@ -212,7 +216,7 @@ public class WaveformView extends View
 		{
 			return;
 		}
-		audioLength = AudioUtils.calculateAudioLength(samples.length, sampleRate, CHANNEL_NUMBER);
+		audioLength = AudioUtils.calculateAudioLength(samples.length, sampleRate, channelCount);
 	}
 
 	/**
