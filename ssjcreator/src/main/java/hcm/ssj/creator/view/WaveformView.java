@@ -274,16 +274,17 @@ public class WaveformView extends View
 		int seconds = audioLength / 1000;
 		float xStep = width / (audioLength / 1000f);
 		float textWidth = textPaint.measureText("10.00");
-		int secondStep = (int) (textWidth * seconds * 2) / width;
-		secondStep = Math.max(secondStep, 1);
+		float secondStep = (textWidth * seconds * 2) / width;
+		secondStep = Math.max(secondStep, 1) - 0.5f;
 
 		for (float i = 0; i <= seconds; i += secondStep)
 		{
+			// Draw timestamp labels.
 			canvas.drawText(String.format(Locale.ENGLISH,"%.1f", i),
 							startPadding + i * xStep, height - TIME_CODE_OFFSET, textPaint);
 
 			// Make every second time step peg half the length.
-			int cutOff = i % 2 != 0 ? TIME_STEP_PEG_LENGTH / 2 : 0;
+			int cutOff = i % 1 != 0 ? TIME_STEP_PEG_LENGTH / 2 : 0;
 			canvas.drawLine(startPadding + i * xStep, height - TIME_AXIS_OFFSET,
 							startPadding + i * xStep,
 							height - TIME_AXIS_OFFSET + TIME_STEP_PEG_LENGTH - cutOff,
