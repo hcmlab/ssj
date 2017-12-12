@@ -28,6 +28,7 @@
     <xs:restriction base="xs:NMTOKEN">
       <xs:enumeration value="Myo" />
       <xs:enumeration value="MsBand" />
+      <xs:enumeration value="Android" />
     </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="vibration_type">
