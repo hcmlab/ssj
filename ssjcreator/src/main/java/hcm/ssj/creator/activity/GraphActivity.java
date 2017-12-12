@@ -38,7 +38,7 @@ import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
-import hcm.ssj.audio.AudioUtils;
+import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
@@ -118,16 +118,14 @@ public class GraphActivity extends AppCompatActivity
 						try
 						{
 							String type = FileUtils.getFileType(file);
-							if (type.equalsIgnoreCase("mp4") || type.equalsIgnoreCase("mp3"))
+							if (type.equalsIgnoreCase("mp4")
+									|| type.equalsIgnoreCase("mp3")
+									|| type.equalsIgnoreCase("wav"))
 							{
-								File rawData = AudioUtils.decode(file.getPath());
-								int sampleRate = AudioUtils.getSampleRate(file.getPath());
-								int channelCount = AudioUtils.getChannelCount(file.getPath());
-								short[] samples = AudioUtils.getAudioSample(rawData);
+								AudioDecoder decoder = new AudioDecoder(file.getPath());
 
-								waveformView.setChannelCount(channelCount);
-								waveformView.setSampleRate(sampleRate);
-								waveformView.setSamples(samples);
+								waveformView.setAudioLength(decoder.getAudioLength());
+								waveformView.setSamples(decoder.getSamples());
 
 								playButton.setVisibility(View.VISIBLE);
 								resetButton.setVisibility(View.VISIBLE);

@@ -42,6 +42,7 @@ import android.view.View;
 
 import java.util.Locale;
 
+import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.AudioUtils;
 import hcm.ssj.creator.R;
 
@@ -68,9 +69,7 @@ public class WaveformView extends View
 	private int width;
 	private int height;
 	private int audioLength;
-	private int channelCount;
 	private int markerPosition;
-	private int sampleRate;
 	private int startPadding;
 	private int endPadding;
 
@@ -100,20 +99,12 @@ public class WaveformView extends View
 	public void setSamples(short[] s)
 	{
 		samples = s;
-		calculateAudioLength();
 		onSamplesChanged();
 	}
 
-	public void setSampleRate(int rate)
+	public void setAudioLength(int length)
 	{
-		sampleRate = rate;
-		calculateAudioLength();
-	}
-
-	public void setChannelCount(int channels)
-	{
-		channelCount = channels;
-		calculateAudioLength();
+		audioLength = length;
 	}
 
 	public void setMarkerPosition(int position)
@@ -205,18 +196,6 @@ public class WaveformView extends View
 
 		xStep = width / (audioLength * 1.0f);
 		drawRect = new Rect(0, 0, width, height);
-	}
-
-	/**
-	 * Cache audio length if samples, sample rate and number of channelNum is given.
-	 */
-	private void calculateAudioLength()
-	{
-		if (samples == null || sampleRate == 0)
-		{
-			return;
-		}
-		audioLength = AudioUtils.calculateAudioLength(samples.length, sampleRate, channelCount);
 	}
 
 	/**
