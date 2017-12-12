@@ -36,12 +36,11 @@ import hcm.ssj.core.stream.Stream;
 
 public class Session
 {
-	public Stream[] streams;
-	public Annotation anno;
+	public String name;
 
-	public Session(Stream[] streams, Annotation anno)
-	{
-		this.streams = streams;
-		this.anno = anno;
-	}
+	public String anno_path;
+	public String stream_path;
+
+	public Stream stream;
+	public Annotation anno;
 }

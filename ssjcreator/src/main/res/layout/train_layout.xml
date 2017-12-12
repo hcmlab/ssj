@@ -26,176 +26,170 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:paddingBottom="@dimen/activity_bottom_margin"
-              android:paddingLeft="@dimen/activity_horizontal_margin"
-              android:paddingRight="@dimen/activity_horizontal_margin"
-              android:paddingTop="@dimen/activity_bottom_margin"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent">
 
-        <EditText
-            android:id="@+id/text_stream"
+    <LinearLayout android:orientation="vertical"
+                  android:paddingBottom="@dimen/activity_bottom_margin"
+                  android:paddingLeft="@dimen/activity_horizontal_margin"
+                  android:paddingRight="@dimen/activity_horizontal_margin"
+                  android:paddingTop="@dimen/activity_bottom_margin"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/session_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="0.9"
-            android:hint="@string/train_load_stream_hint"/>
+            android:orientation="vertical"
+            android:background="@drawable/border"
+            android:padding="10dip"
+            android:gravity="center_horizontal">
 
-        <ImageButton
-            android:id="@+id/load_stream"
-            android:layout_width="50dp"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/train_session_list_title"/>
+
+            <Button
+                android:id="@+id/button_session_list_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/button_session_list_add"/>
+
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/train_anno_garbage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/train_anno_garbage"/>
+
+        <!--<CheckBox-->
+            <!--android:id="@+id/train_anno_convert"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@string/train_anno_convert_frames"/>-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/train_anno_convert_frame_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="200dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="@string/train_anno_convert_size"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/train_anno_convert_frame"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:text="1.0"/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/train_anno_convert_label_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="200dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="@string/train_anno_convert_label"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/train_anno_convert_label"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:text=""/>-->
+        <!--</LinearLayout>-->
+
+        <!--<LinearLayout-->
+            <!--android:id="@+id/train_anno_convert_fill_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:orientation="horizontal">-->
+
+            <!--<TextView-->
+                <!--android:layout_width="200dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="@string/train_anno_convert_percent"/>-->
+
+            <!--<EditText-->
+                <!--android:id="@+id/train_anno_convert_fill"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:text="0.5"/>-->
+        <!--</LinearLayout>-->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/train_select_model_label"/>
+
+            <Spinner
+                android:id="@+id/model_selector"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/load_button_top_padding"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <EditText
+                android:id="@+id/model_filepath"
+                android:layout_width="0dp"
+                android:layout_weight="0.9"
+                android:layout_height="wrap_content"
+                android:hint="@string/train_model_path"/>
+
+            <ImageButton
+                android:id="@+id/model_filepath_button"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="@dimen/load_button_top_padding"
+                android:contentDescription="@string/select_folder"
+                android:src="@drawable/ic_insert_drive_file_black_24dp"/>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/train_model_name"/>
+
+            <EditText
+                android:id="@+id/model_filename"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:text="model"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/train_button"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/load_button_top_padding"
-            android:contentDescription="@string/select_file"
-            android:src="@drawable/ic_insert_drive_file_black_24dp"/>
+            android:text="@string/train_button"/>
+
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/text_anno"
-            android:layout_width="0dp"
-            android:layout_weight="0.9"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_load_anno_hint"/>
-
-        <ImageButton
-            android:id="@+id/load_anno"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/load_button_top_padding"
-            android:contentDescription="@string/select_file"
-            android:src="@drawable/ic_insert_drive_file_black_24dp"/>
-    </LinearLayout>
-
-    <CheckBox
-        android:id="@+id/train_anno_convert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/train_anno_convert_frames"/>
-
-    <LinearLayout
-        android:id="@+id/train_anno_convert_frame_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_anno_convert_size"/>
-
-        <EditText
-            android:id="@+id/train_anno_convert_frame"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="1.0"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/train_anno_convert_label_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_anno_convert_label"/>
-
-        <EditText
-            android:id="@+id/train_anno_convert_label"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text=""/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/train_anno_convert_fill_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_anno_convert_percent"/>
-
-        <EditText
-            android:id="@+id/train_anno_convert_fill"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="0.5"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_select_model_label"/>
-
-        <Spinner
-            android:id="@+id/model_selector"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/load_button_top_padding"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <EditText
-            android:id="@+id/model_filepath"
-            android:layout_width="0dp"
-            android:layout_weight="0.9"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_model_path"/>
-
-        <ImageButton
-            android:id="@+id/model_filepath_button"
-            android:layout_width="50dp"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/load_button_top_padding"
-            android:contentDescription="@string/select_folder"
-            android:src="@drawable/ic_insert_drive_file_black_24dp"/>
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/train_model_name"/>
-
-        <EditText
-            android:id="@+id/model_filename"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:text="model"/>
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/train_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/load_button_top_padding"
-        android:text="@string/train_button"/>
-
-</LinearLayout>
+</ScrollView>

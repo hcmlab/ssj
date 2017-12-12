@@ -96,21 +96,6 @@ public class TensorFlow extends Model
 		return probabilities;
 	}
 
-
-	@Override
-	protected void train(Stream stream, String label)
-	{
-		Log.e("training not supported yet");
-	}
-
-
-	@Override
-	protected void save(File file)
-	{
-		Log.e("saving not supported yet");
-	}
-
-
 	@Override
 	protected void loadOption(File file)
 	{

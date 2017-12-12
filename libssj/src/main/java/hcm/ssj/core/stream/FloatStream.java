@@ -57,24 +57,6 @@ public class FloatStream extends Stream
         return _ptr;
     }
 
-    @Override
-    public Stream substream(double from, double to)
-    {
-        int pos = (int)(from * sr + 0.5);
-        int pos_stop = (int)(to * sr + 0.5);
-        int len = pos_stop - pos;
-
-        FloatStream out = new FloatStream(len, dim, sr);
-        float[] data = out.ptrF();
-
-        for(int i = pos, j = 0; i < pos_stop; i++)
-        {
-            data[j++] = _ptr[i];
-        }
-
-        return out;
-    }
-
     public void adjust(int num)
     {
         if(num < this.num)

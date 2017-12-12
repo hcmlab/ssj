@@ -404,11 +404,7 @@ public class PipelineBuilder
                 if(element.getElement() instanceof Trainer)
                 {
                     Trainer trainer = (Trainer)element.getElement();
-
-                    //populate annotation with the trainer's model's classes
-                    ArrayList<String> annos = new ArrayList<>();
-                    annos.addAll(Arrays.asList(trainer.getModelDescriptor().getClassNames()));
-                    getAnnotation().setClasses(annos);
+					getAnnotation().setClasses(trainer.getModelDescriptor().getClassNames());
                 }
             }
         }

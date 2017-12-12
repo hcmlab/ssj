@@ -144,11 +144,12 @@ abstract class SaveLoad
             serializer.startTag(null, ANNO_GROUP);
             serializer.attribute(null, FILE_NAME, anno.getFileName());
             serializer.attribute(null, FILE_PATH, anno.getFilePath());
-            ArrayList<String> anno_classes = anno.getClasses();
-            for(String cl : anno_classes)
+
+            String[] anno_classes = anno.getClassArray();
+            for (String anno_class : anno_classes)
             {
                 serializer.startTag(null, ANNO);
-                serializer.attribute(null, NAME, cl);
+                serializer.attribute(null, NAME, anno_class);
                 serializer.endTag(null, ANNO);
             }
             serializer.endTag(null, ANNO_GROUP);
@@ -227,6 +228,7 @@ abstract class SaveLoad
             parser.nextTag();
             String tag;
             ArrayList<Point> alPoints = new ArrayList<>();
+
             while (!(tag = parser.getName()).equals(ROOT))
             {
                 if (parser.getEventType() == XmlPullParser.START_TAG)
@@ -249,7 +251,7 @@ abstract class SaveLoad
                         case ANNO:
                         {
                             String name = parser.getAttributeValue(null, NAME);
-                            PipelineBuilder.getInstance().getAnnotation().addClass(name);
+                            PipelineBuilder.getInstance().getAnnotation().appendClass(name);
                             break;
                         }
                     }

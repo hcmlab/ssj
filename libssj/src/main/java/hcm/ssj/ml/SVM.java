@@ -97,6 +97,8 @@ public class SVM extends Model
 
         prob_estimates = new double[n_classes];
         probs = new float[n_classes];
+
+        _isInit = true;
     }
 
     /**
@@ -144,21 +146,11 @@ public class SVM extends Model
         return probs;
     }
 
-    @Override
-    void train(Stream stream, String label) {
-        Log.e("training not supported yet");
-    }
-
     /**
      * Load data from option file
      */
     protected void loadOption(File file)
     {
-    }
-
-    @Override
-    void save(File file) {
-        Log.e("saving not supported yet");
     }
 
     /**
