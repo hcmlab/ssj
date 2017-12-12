@@ -30,10 +30,11 @@ package hcm.ssj.creator.activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
-import com.jjoe64.graphview.GraphView;
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
@@ -42,7 +43,6 @@ import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.main.GraphDrawer;
 import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
 
@@ -53,9 +53,8 @@ public class GraphActivity extends AppCompatActivity
 {
 	private ChooserDialog chooserDialog;
 	private PlaybackThread playbackThread;
-	private GraphView graph;
-	private GraphDrawer drawer = new GraphDrawer(graph);
 	private WaveformView waveformView;
+	private DisplayMetrics displayMetrics;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -63,12 +62,27 @@ public class GraphActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
 
-		//graph = (GraphView) findViewById(R.id.graph);
-		drawer = new GraphDrawer(graph);
+		displayMetrics = new DisplayMetrics();
+
 		waveformView = (WaveformView) findViewById(R.id.waveform);
 		waveformView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
 		initializeUI();
+	}
+
+	@Override
+	public boolean onTouchEvent(MotionEvent event) {
+		int x = (int) event.getX();
+		if (waveformView != null && playbackThread != null)
+		{
+			getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+			int width = displayMetrics.widthPixels;
+			int length = playbackThread.getAudioLength();
+			float progress = ((float) x / (float) width) * length;
+			waveformView.setMarkerPosition((int) progress);
+			playbackThread.seekTo((int) progress);
+		}
+		return false;
 	}
 
 	private void initializeUI()
@@ -143,11 +157,6 @@ public class GraphActivity extends AppCompatActivity
 										waveformView.setMarkerPosition(-1);
 									}
 								});
-							}
-							else if (type.equalsIgnoreCase("stream~"))
-							{
-								graph.setVisibility(View.VISIBLE);
-								drawer.drawGraph(file);
 							}
 						}
 						catch (Exception e)

@@ -91,6 +91,23 @@ public class PlaybackThread
 		return mediaPlayer != null && mediaPlayer.isPlaying();
 	}
 
+	public void seekTo(int progress)
+	{
+		if (mediaPlayer != null)
+		{
+			mediaPlayer.seekTo(progress);
+		}
+	}
+
+	public int getAudioLength()
+	{
+		if (mediaPlayer != null)
+		{
+			return mediaPlayer.getDuration();
+		}
+		return 0;
+	}
+
 	private void loadMedia()
 	{
 		if (context != null && audioFile != null)

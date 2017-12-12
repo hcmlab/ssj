@@ -42,7 +42,6 @@ import android.view.View;
 
 import java.util.Locale;
 
-import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.AudioUtils;
 import hcm.ssj.creator.R;
 

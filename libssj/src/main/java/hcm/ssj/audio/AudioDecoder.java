@@ -45,6 +45,7 @@ import hcm.ssj.file.FileCons;
 public final class AudioDecoder
 {
 	private static final int EOF = -1;
+
 	private int sampleRate;
 	private int channelCount;
 	private int audioLength;
@@ -113,7 +114,8 @@ public final class AudioDecoder
 	}
 
 	/**
-	 * Decode audio file into a raw file.
+	 * Decode audio file into a raw file. This method accepts audio file formats with valid
+	 * headers (like .mp3, .mp4, and .wav).
 	 * @param filepath Path of the file to decode.
 	 * @return Decoded raw audio file.
 	 * @throws IOException when file cannot be read.
