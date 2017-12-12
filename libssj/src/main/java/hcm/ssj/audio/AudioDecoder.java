@@ -44,6 +44,7 @@ import hcm.ssj.file.FileCons;
 
 public final class AudioDecoder
 {
+	private static final int EOF = -1;
 	private int sampleRate;
 	private int channelCount;
 	private int audioLength;
@@ -79,22 +80,20 @@ public final class AudioDecoder
 	/**
 	 * Convert given raw audio file to a byte array.
 	 * @return Byte array in little-endian byte order.
+	 * @throws IOException If given file couldn't be read.
 	 */
-	private short[] getAudioSample(File file)
+	private short[] getAudioSample(File file) throws IOException
 	{
+		FileInputStream fileInputStream = new FileInputStream(file);
 		byte[] data = new byte[(int) file.length()];
-		try
+		int bytesRead = fileInputStream.read(data);
+		short[] samples = null;
+		if (bytesRead != EOF)
 		{
-			FileInputStream fileInputStream = new FileInputStream(file);
-			fileInputStream.read(data);
+			ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
+			samples = new short[sb.limit()];
+			sb.get(samples);
 		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-		ShortBuffer sb = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).asShortBuffer();
-		short[] samples = new short[sb.limit()];
-		sb.get(samples);
 		return samples;
 	}
 
