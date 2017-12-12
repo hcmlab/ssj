@@ -33,6 +33,8 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageNormalizer;
@@ -157,8 +159,7 @@ public class SendImageTest
 		frame.addTransformer(imageNormalizer, resizer, frameSize, delta);
 
 		Classifier classifier = new Classifier();
-		classifier.options.trainerPath.set(trainerURL);
-		classifier.options.trainerFile.set(trainerName);
+		classifier.options.trainerFile.setValue(trainerURL + File.separator + trainerName);
 		classifier.options.merge.set(false);
 		classifier.options.log.set(true);
 		frame.addConsumer(classifier, imageNormalizer, frameSize, delta);

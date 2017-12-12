@@ -77,8 +77,7 @@
       <options>
         <option name="eventNames" value="high" />
         <option name="lock" value="1000" />
-        <option name="audioFile" value="demo/res/blop.mp3" />
-        <option name="fromAssets" value="true" />
+        <option name="audioFile" value="/storage/emulated/0/SSJ/Creator/res/blop.mp3" />
         <option name="intensity" value="1.0" />
       </options>
       <providerList />
@@ -93,11 +92,9 @@
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
         <option name="fade" value="0" />
-        <option name="feedbackIcon" value="demo/res/orientation_med.png" />
-        <option name="feedbackIconFromAssets" value="true" />
+        <option name="feedbackIcon" value="/storage/emulated/0/SSJ/Creator/res/orientation_med.png" />
         <option name="position" value="0" />
-        <option name="qualityIcon" value="demo/res/thumb_positive.png" />
-        <option name="qualityIconFromAssets" value="true" />
+        <option name="qualityIcon" value="/storage/emulated/0/SSJ/Creator/res/thumb_positive.png" />
       </options>
       <providerList />
       <eventProviderList>
@@ -124,11 +121,9 @@
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
         <option name="fade" value="0" />
-        <option name="feedbackIcon" value="demo/res/orientation_low.png" />
-        <option name="feedbackIconFromAssets" value="true" />
+        <option name="feedbackIcon" value="/storage/emulated/0/SSJ/Creator/res/orientation_low.png" />
         <option name="position" value="0" />
-        <option name="qualityIcon" value="demo/res/thumb_negative.png" />
-        <option name="qualityIconFromAssets" value="true" />
+        <option name="qualityIcon" value="/storage/emulated/0/SSJ/Creator/res/thumb_negative.png" />
       </options>
       <providerList />
       <eventProviderList>
@@ -142,11 +137,9 @@
         <option name="brightness" value="1.0" />
         <option name="duration" value="0" />
         <option name="fade" value="0" />
-        <option name="feedbackIcon" value="demo/res/orientation_high.png" />
-        <option name="feedbackIconFromAssets" value="true" />
+        <option name="feedbackIcon" value="/storage/emulated/0/SSJ/Creator/res/orientation_high.png" />
         <option name="position" value="0" />
-        <option name="qualityIcon" value="demo/res/thumb_negative.png" />
-        <option name="qualityIconFromAssets" value="true" />
+        <option name="qualityIcon" value="/storage/emulated/0/SSJ/Creator/res/thumb_negative.png" />
       </options>
       <providerList />
       <eventProviderList>

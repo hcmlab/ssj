@@ -33,41 +33,41 @@
     <strategy>
         <feedback type="visual" position="0">
             <condition type="SpeechRate" event="SpeechRate" sender="SSJ" history="5" from="0.0" to="2.0"/>
-            <action res="icons/speechrate/orientation_low.png, icons/feedback/thumb_negative.png"/>
+            <action res="/storage/emulated/0/SSJ/orientation_low.png, /storage/emulated/0/SSJ/thumb_negative.png"/>
         </feedback>
         <feedback type="visual" position="0">
             <condition type="SpeechRate" event="SpeechRate" sender="SSJ" history="5" from="2.0" to="3.6"/>
-            <action res="icons/speechrate/orientation_med.png, icons/feedback/thumb_positive.png"/>
+            <action res="/storage/emulated/0/SSJ/orientation_med.png, /storage/emulated/0/SSJ/thumb_positive.png"/>
         </feedback>
         <feedback type="visual" position="0">
             <condition type="SpeechRate" event="SpeechRate" sender="SSJ" history="5" from="3.6" to="999"/>
-            <action res="icons/speechrate/orientation_high.png, icons/feedback/thumb_negative.png"/>
+            <action res="/storage/emulated/0/SSJ/orientation_high.png, /storage/emulated/0/SSJ/thumb_negative.png"/>
         </feedback>
 
         <feedback type="visual" position="1">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="0.8"/>
-            <action  res="icons/energy/area_low.png, icons/feedback/thumb_negative.png"/>
+            <action  res="/storage/emulated/0/SSJ/area_low.png, /storage/emulated/0/SSJ/thumb_negative.png"/>
         </feedback>
         <feedback type="visual" position="1">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.8" to="2.0"/>
-            <action  res="icons/energy/area_med.png, icons/feedback/thumb_positive.png"/>
+            <action  res="/storage/emulated/0/SSJ/area_med.png, /storage/emulated/0/SSJ/thumb_positive.png"/>
         </feedback>
         <feedback type="visual" position="1">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="2.0" to="999"/>
-            <action  res="icons/energy/area_high.png, icons/feedback/thumb_negative.png"/>
+            <action  res="/storage/emulated/0/SSJ/area_high.png, /storage/emulated/0/SSJ/thumb_negative.png"/>
         </feedback>
 
         <feedback type="visual" position="2">
             <condition type="Loudness" event="Intensity" sender="SSJ" history="3" from="0" to="50"/>
-            <action res="icons/loudness/quantity_low.png, icons/feedback/thumb_negative.png"/>
+            <action res="/storage/emulated/0/SSJ/quantity_low.png, /storage/emulated/0/SSJ/thumb_negative.png"/>
         </feedback>
         <feedback type="visual" position="2">
             <condition type="Loudness" event="Intensity" sender="SSJ" history="3" from="50" to="65"/>
-            <action res="icons/loudness/quantity_med.png, icons/feedback/thumb_positive.png"/>
+            <action res="/storage/emulated/0/SSJ/quantity_med.png, /storage/emulated/0/SSJ/thumb_positive.png"/>
         </feedback>
         <feedback type="visual" position="2">
             <condition type="Loudness" event="Intensity" sender="SSJ" history="3" from="65" to="999"/>
-            <action res="icons/loudness/quantity_high.png, icons/feedback/thumb_positive.png"/>
+            <action res="/storage/emulated/0/SSJ/quantity_high.png, /storage/emulated/0/SSJ/thumb_positive.png"/>
         </feedback>
     </strategy>
 </ssj>

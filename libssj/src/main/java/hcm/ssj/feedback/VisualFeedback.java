@@ -31,7 +31,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
@@ -43,15 +42,13 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.ViewSwitcher;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.FilePath;
 import hcm.ssj.core.option.Option;
 
 /**
@@ -67,6 +64,7 @@ public class VisualFeedback extends Feedback
 	private Activity activity = null;
 	private long timeout = 0;
 	private float defaultBrightness;
+
 	public VisualFeedback()
 	{
 		_name = "VisualFeedback";
@@ -106,49 +104,21 @@ public class VisualFeedback extends Feedback
 		clearIcons();
 	}
 
-	private void loadIcons() throws SSJFatalException
+	private void loadIcons()
 	{
-		try
-		{
-			iconList = new ArrayList<>();
+		iconList = new ArrayList<>();
 
-			Drawable feedbackDrawable = getDrawable(options.feedbackIcon.get(), options.feedbackIconFromAssets.get());
-			if (feedbackDrawable != null)
-			{
-				iconList.add(feedbackDrawable);
-			}
-
-			Drawable qualityDrawable = getDrawable(options.qualityIcon.get(), options.qualityIconFromAssets.get());
-			if (qualityDrawable != null)
-			{
-				iconList.add(qualityDrawable);
-			}
-		}
-		catch (IOException e)
+		Drawable feedbackDrawable = Drawable.createFromPath(options.feedbackIcon.get().value);
+		if (feedbackDrawable != null)
 		{
-			throw new SSJFatalException("icons could not be loaded", e);
-		}
-	}
-
-	public Drawable getDrawable(Uri uri, boolean fromAssets) throws IOException
-	{
-		if (uri == null || uri.toString().isEmpty())
-		{
-			return null;
+			iconList.add(feedbackDrawable);
 		}
 
-		InputStream inputStream;
-		if (fromAssets)
+		Drawable qualityDrawable = Drawable.createFromPath(options.qualityIcon.get().value);
+		if (qualityDrawable != null)
 		{
-			inputStream = activity.getAssets().open(uri.toString());
+			iconList.add(qualityDrawable);
 		}
-		else
-		{
-			inputStream = SSJApplication.getAppContext().getContentResolver().openInputStream(uri);
-		}
-		Drawable drawable = Drawable.createFromStream(inputStream, uri.toString());
-		inputStream.close();
-		return drawable;
 	}
 
 	@Override
@@ -345,10 +315,8 @@ public class VisualFeedback extends Feedback
 
 	public class Options extends Feedback.Options
 	{
-		public final Option<Uri> feedbackIcon = new Option<>("feedbackIcon", null, Uri.class, "feedback icon file");
-		public final Option<Boolean> feedbackIconFromAssets = new Option<>("feedbackIconFromAssets", false, Boolean.class, "load feedback icon from assets");
-		public final Option<Uri> qualityIcon = new Option<>("qualityIcon", null, Uri.class, "quality icon file");
-		public final Option<Boolean> qualityIconFromAssets = new Option<>("qualityIconFromAssets", false, Boolean.class, "load quality icon from assets");
+		public final Option<FilePath> feedbackIcon = new Option<>("feedbackIcon", null, FilePath.class, "feedback icon file");
+		public final Option<FilePath> qualityIcon = new Option<>("qualityIcon", null, FilePath.class, "quality icon file");
 
 		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
 		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear");

@@ -27,9 +27,9 @@
 
 package hcm.ssj.ml;
 
+import hcm.ssj.core.option.FilePath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
-import hcm.ssj.file.FileCons;
 
 /**
  * Interface for objects which work with models
@@ -42,8 +42,7 @@ public interface IModelHandler
      */
     class Options extends OptionList
     {
-        public final Option<String> trainerPath = new Option<>("trainerPath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "path where trainer is located");
-        public final Option<String> trainerFile = new Option<>("trainerFile", null, String.class, "trainer file name");
+        public final Option<FilePath> trainerFile = new Option<>("trainerFile", null, FilePath.class, "trainer file containing model information");
         public final Option<IModelHandler> modelSource = new Option<>("modelSource", null, IModelHandler.class, "use the model of another component");
 
         /**

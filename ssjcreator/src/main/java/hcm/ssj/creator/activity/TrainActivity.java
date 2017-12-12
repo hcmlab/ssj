@@ -47,8 +47,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.obsez.android.lib.filechooser.ChooserDialog;
-
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
@@ -60,6 +58,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.SSJDescriptor;
+import hcm.ssj.creator.util.FileChooser;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.ml.Model;
 import hcm.ssj.ml.ModelDescriptor;
@@ -70,7 +69,6 @@ import hcm.ssj.ml.Session;
  */
 public class TrainActivity extends AppCompatActivity
 {
-	private ChooserDialog chooserDialog;
 	private Activity activity = this;
 
 	ArrayList<Session> sessions = new ArrayList<>();
@@ -130,24 +128,18 @@ public class TrainActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				chooserDialog = new ChooserDialog().with(TrainActivity.this);
-				chooserDialog.withFilter(true, false, "");
 
-				if(textModelPath.getText().toString().isEmpty())
-					chooserDialog.withStartFile(FileCons.SSJ_EXTERNAL_STORAGE);
-				else
-					chooserDialog.withStartFile(textModelPath.getText().toString());
+				String startPath = (textModelPath.getText().toString().isEmpty()) ?
+						FileCons.SSJ_EXTERNAL_STORAGE : textModelPath.getText().toString();
 
-				chooserDialog.withChosenListener(new ChooserDialog.Result()
-				{
+				FileChooser chooser = new FileChooser(activity, startPath, true, null) {
 					@Override
-					public void onChoosePath(String path, File pathFile)
+					public void onResult(String path, File pathFile)
 					{
-						EditText textview = (EditText) findViewById(R.id.model_filepath);
-						textview.setText(path);
+						textModelPath.setText(path);
 					}
-				}).build();
-				chooserDialog.show();
+				};
+				chooser.show();
 			}
 		});
 
@@ -245,21 +237,18 @@ public class TrainActivity extends AppCompatActivity
 					@Override
 					public void onClick(View view)
 					{
-						chooserDialog = new ChooserDialog().with(TrainActivity.this);
-						chooserDialog.withFilter(false, "stream");
 
-						if(streamFile.getText().toString().isEmpty())
-							chooserDialog.withStartFile(FileCons.SSJ_EXTERNAL_STORAGE);
-						else
-							chooserDialog.withStartFile(streamFile.getText().toString());
+						String startPath = (streamFile.getText().toString().isEmpty()) ?
+								FileCons.SSJ_EXTERNAL_STORAGE : streamFile.getText().toString();
 
-						chooserDialog.withChosenListener(new ChooserDialog.Result() {
+						FileChooser chooser = new FileChooser(activity, startPath, false, "stream") {
 							@Override
-							public void onChoosePath(String path, File pathFile) {
+							public void onResult(String path, File pathFile)
+							{
 								streamFile.setText(path);
 							}
-						}).build();
-						chooserDialog.show();
+						};
+						chooser.show();
 					}
 				});
 				streamLayout.addView(streamLoadButton);
@@ -286,23 +275,21 @@ public class TrainActivity extends AppCompatActivity
 					@Override
 					public void onClick(View view)
 					{
-						chooserDialog = new ChooserDialog().with(TrainActivity.this);
-						chooserDialog.withFilter(false, "annotation");
 
-						if(annoFile.getText().toString().isEmpty() && streamFile.getText().toString().isEmpty())
-							chooserDialog.withStartFile(FileCons.SSJ_EXTERNAL_STORAGE);
+						String startPath = FileCons.SSJ_EXTERNAL_STORAGE;
+						if(!annoFile.getText().toString().isEmpty())
+							startPath = annoFile.getText().toString();
 						else if(!annoFile.getText().toString().isEmpty())
-							chooserDialog.withStartFile(annoFile.getText().toString());
-						else if(!streamFile.getText().toString().isEmpty())
-							chooserDialog.withStartFile(streamFile.getText().toString());
+							startPath = annoFile.getText().toString();
 
-						chooserDialog.withChosenListener(new ChooserDialog.Result() {
+						FileChooser chooser = new FileChooser(activity, startPath, false, "annotation") {
 							@Override
-							public void onChoosePath(String path, File pathFile) {
+							public void onResult(String path, File pathFile)
+							{
 								annoFile.setText(path);
 							}
-						}).build();
-						chooserDialog.show();
+						};
+						chooser.show();
 					}
 				});
 				annoLayout.addView(annoLoadButton);

@@ -37,6 +37,7 @@ import java.nio.ByteBuffer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.FilePath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -51,7 +52,8 @@ public class FFMPEGReader extends Sensor
 	 */
 	public class Options extends OptionList
 	{
-		public final Option<String> url = new Option<>("url", "udp://127.0.0.1:5000", String.class, "Url (file path or streaming address, e.g. udp://<ip:port>)");
+		public final Option<FilePath> file = new Option<>("file", null, FilePath.class, "file path");
+		public final Option<String> url = new Option<>("url", "udp://127.0.0.1:5000", String.class, "streaming address, e.g. udp://<ip:port>. If set, file option is ignored");
 		public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width in pixel");
 		public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height in pixel");
 		public final Option<Double> fps = new Option<>("fps", 15., Double.class, "fps");
@@ -140,7 +142,9 @@ public class FFMPEGReader extends Sensor
 
 			try
 			{
-				reader = new FFmpegFrameGrabber(options.url.get());
+				String address = (options.url.get() != null) ? options.url.get() : options.file.get().value;
+
+				reader = new FFmpegFrameGrabber(address);
 				reader.setImageWidth(options.width.get());
 				reader.setImageHeight(options.height.get());
 				reader.setFrameRate(options.fps.get());

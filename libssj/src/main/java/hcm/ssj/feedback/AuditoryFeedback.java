@@ -27,17 +27,13 @@
 
 package hcm.ssj.feedback;
 
-import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.SoundPool;
-import android.net.Uri;
-
-import java.io.IOException;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.FilePath;
 import hcm.ssj.core.option.Option;
 
 /**
@@ -71,25 +67,7 @@ public class AuditoryFeedback extends Feedback
 		}
 
 		player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
-
-		try
-		{
-			AssetFileDescriptor fd;
-			if (options.fromAssets.get())
-			{
-				fd = SSJApplication.getAppContext().getAssets().openFd(options.audioFile.get().toString());
-			}
-			else
-			{
-				fd = SSJApplication.getAppContext().getContentResolver().openAssetFileDescriptor(options.audioFile.get(), "r");
-			}
-			soundId = player.load(fd, 1);
-			fd.close();
-		}
-		catch (IOException e)
-		{
-			Log.e("error loading audio file", e);
-		}
+		soundId = player.load(options.audioFile.get().value, 1);
 	}
 
 	@Override
@@ -107,8 +85,7 @@ public class AuditoryFeedback extends Feedback
 	public class Options extends Feedback.Options
 	{
 		public final Option<Float> intensity = new Option<>("intensity", 1.0f, Float.class, "intensity of auditory feedback");
-		public final Option<Uri> audioFile = new Option<>("audioFile", null, Uri.class, "audiofile to play");
-		public final Option<Boolean> fromAssets = new Option<>("fromAssets", false, Boolean.class, "load audio file from assets");
+		public final Option<FilePath> audioFile = new Option<>("audioFile", null, FilePath.class, "audiofile to play");
 
 		private Options()
 		{

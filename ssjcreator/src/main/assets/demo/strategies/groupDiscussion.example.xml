@@ -35,51 +35,51 @@
         <!-- VISUAL -->
         <feedback type="visual">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="0" to="30"/>
-            <action res="100percent.png"/>
+            <action res="/storage/emulated/0/SSJ/100percent.png"/>
         </feedback>
         <feedback type="visual">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
-            <action res="75percent.png"/>
+            <action res="/storage/emulated/0/SSJ/75percent.png"/>
         </feedback>
         <feedback type="visual">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
-            <action res="50percent.png"/>
+            <action res="/storage/emulated/0/SSJ/50percent.png"/>
         </feedback>
         <feedback type="visual">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
-            <action res="25percent.png"/>
+            <action res="/storage/emulated/0/SSJ/25percent.png"/>
         </feedback>
         <feedback type="visual">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
-            <action res="10percent.png"/>
+            <action res="/storage/emulated/0/SSJ/10percent.png"/>
         </feedback>
         <feedback type="visual">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
-            <action res="timeover.png"/>
+            <action res="/storage/emulated/0/SSJ/timeover.png"/>
         </feedback>
 
         <!-- AUDIO -->
         <!-- events are only executed once -->
         <feedback type="audio">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
-            <action res="75percent.mp3" lockSelf="60000"/>
+            <action res="/storage/emulated/0/SSJ/75percent.mp3" lockSelf="60000"/>
         </feedback>
         <feedback type="audio">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
-            <action res="50percent.mp3" lockSelf="60000"/>
+            <action res="/storage/emulated/0/SSJ/50percent.mp3" lockSelf="60000"/>
         </feedback>
         <feedback type="audio">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
-            <action res="25percent.mp3" lockSelf="60000"/>
+            <action res="/storage/emulated/0/SSJ/25percent.mp3" lockSelf="60000"/>
         </feedback>
         <feedback type="audio">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
-            <action res="10percent.mp3" lockSelf="60000"/>
+            <action res="/storage/emulated/0/SSJ/10percent.mp3" lockSelf="60000"/>
         </feedback>
         <!-- event is executed once every second while the user speaks -->
         <feedback type="audio">
             <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
-            <action res="timeover.mp3" lockSelf="1000"/>
+            <action res="/storage/emulated/0/SSJ/timeover.mp3" lockSelf="1000"/>
         </feedback>
 
         <!-- TACTILE -->

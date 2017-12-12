@@ -30,15 +30,15 @@ strategy.example.xml.xml
 
         <feedback type="audio" level="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
-            <action res="Creator/res/blop.mp3" intensity="0.0" lockSelf="1000"/>
+            <action res="/storage/emulated/0/SSJ/Creator/res/blop.mp3" intensity="0.0" lockSelf="1000"/>
         </feedback>
         <feedback type="audio" level="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="12"/>
-            <action res="Creator/res/blop.mp3" intensity="0.5" lockSelf="1000"/>
+            <action res="/storage/emulated/0/SSJ/Creator/res/blop.mp3" intensity="0.5" lockSelf="1000"/>
         </feedback>
         <feedback type="audio" valence="Undesirable" level="0">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12" to="999"/>
-            <action res="Creator/res/blop.mp3" intensity="1.0" lockSelf="1000"/>
+            <action res="/storage/emulated/0/SSJ/Creator/res/blop.mp3" intensity="1.0" lockSelf="1000"/>
         </feedback>
 
         <feedback type="tactile" device="Android" level="1" valence="Desirable">
@@ -52,15 +52,15 @@ strategy.example.xml.xml
 
         <feedback type="visual" position="0" level="2" valence="Desirable">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3.0"/>
-            <action res="Creator/res/orientation_low.png, Creator/res/thumb_negative.png"/>
+            <action res="/storage/emulated/0/SSJ/Creator/res/orientation_low.png, /storage/emulated/0/SSJ/Creator/res/thumb_negative.png"/>
         </feedback>
         <feedback type="visual" position="0" level="2">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="12.0"/>
-            <action res="Creator/res/orientation_med.png, Creator/res/thumb_positive.png"/>
+            <action res="/storage/emulated/0/SSJ/Creator/res/orientation_med.png, /storage/emulated/0/SSJ/Creator/res/thumb_positive.png"/>
         </feedback>
         <feedback type="visual" position="0" level="2">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="12.0" to="999.0"/>
-            <action res="Creator/res/orientation_high.png, Creator/res/thumb_negative.png"/>
+            <action res="/storage/emulated/0/SSJ/Creator/res/orientation_high.png, /storage/emulated/0/SSJ/Creator/res/thumb_negative.png"/>
         </feedback>
 
     </strategy>

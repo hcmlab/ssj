@@ -28,9 +28,7 @@
 package hcm.ssj.creator.util;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
@@ -50,19 +48,21 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.FilePath;
+import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.ml.IModelHandler;
 
 /**
@@ -74,12 +74,9 @@ public class OptionTable
 	/**
 	 * @param activity   Activity
 	 * @param options    Option[]
-	 * @param dividerTop boolean
+	 * @param owner Object
 	 * @return TableRow
 	 */
-
-	public static final Map<Integer, TextView> mapRequestCodesTextViews = new HashMap<>();
-
 	public static TableRow createTable(Activity activity, Option[] options, Object owner)
 	{
 		TableRow tableRow = new TableRow(activity);
@@ -225,12 +222,13 @@ public class OptionTable
 
 			//normal text view for everything else
 			inputView = new EditText(activity);
-			LinearLayout.LayoutParams layoutParamsinputView = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+			LinearLayout.LayoutParams layoutParamsinputView = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.9f);
 			inputView.setLayoutParams(layoutParamsinputView);
 			((EditText) inputView).setMaxWidth(linearLayout.getWidth()); //workaround for bug in layout params
+			linearLayoutInput.addView(inputView);
 
 			//specify the expected input type
-			Class<?> type = option.getType();
+			final Class<?> type = option.getType();
 			if (type == Byte.class || type == Short.class || type == Integer.class || type == Long.class)
 			{
 				((TextView) inputView).setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_SIGNED);
@@ -286,16 +284,63 @@ public class OptionTable
 				ImageButton fileChooserButton = new ImageButton(activity);
 				fileChooserButton.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_insert_drive_file_black_24dp));
 				final TextView innerInputView = (TextView) inputView;
+
 				fileChooserButton.setOnClickListener(new View.OnClickListener()
 				{
 					@Override
 					public void onClick(View v)
 					{
-						int newRequestCode = mapRequestCodesTextViews.size();
-						mapRequestCodesTextViews.put(newRequestCode, innerInputView);
-						performFileSearch(activity, newRequestCode);
+						String startPath = (innerInputView.getText().toString().isEmpty()) ?
+								FileCons.SSJ_EXTERNAL_STORAGE : innerInputView.getText().toString();
+
+						FileChooser chooser = new FileChooser(activity, startPath, false, null) {
+							@Override
+							public void onResult(String path, File pathFile)
+							{
+								innerInputView.setText(path);
+							}
+						};
+						chooser.show();
 					}
 				});
+				linearLayoutInput.addView(fileChooserButton);
+			}
+			else if (type == FilePath.class || type == FolderPath.class)
+			{
+				((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
+
+				String value_str = "";
+				if(value != null && type == FilePath.class)
+					value_str = ((FilePath)value).value;
+				else if(value != null && type == FolderPath.class)
+					value_str = ((FolderPath)value).value;
+
+				((TextView) inputView).setText(value_str, TextView.BufferType.NORMAL);
+
+				// FileChooserButton
+				ImageButton fileChooserButton = new ImageButton(activity);
+				fileChooserButton.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_insert_drive_file_black_24dp));
+				final TextView innerInputView = (TextView) inputView;
+
+				fileChooserButton.setOnClickListener(new View.OnClickListener()
+				{
+					@Override
+					public void onClick(View view)
+					{
+						String startPath = (innerInputView.getText().toString().isEmpty()) ?
+								FileCons.SSJ_EXTERNAL_STORAGE : innerInputView.getText().toString();
+
+						FileChooser chooser = new FileChooser(activity, startPath, type == FolderPath.class, null) {
+							@Override
+							public void onResult(String path, File pathFile)
+							{
+								innerInputView.setText(path);
+							}
+						};
+						chooser.show();
+					}
+				});
+
 				linearLayoutInput.addView(fileChooserButton);
 			}
 			else
@@ -342,7 +387,6 @@ public class OptionTable
 					}
 				}
 			});
-			linearLayoutInput.addView(inputView);
 			inputView = linearLayoutInput;
 		}
 		linearLayout.addView(inputView);
@@ -366,21 +410,6 @@ public class OptionTable
 		}
 
 		return result;
-	}
-
-	public static void performFileSearch(final Activity activity, int requestCode)
-	{
-		Intent intent;
-		if (Build.VERSION.SDK_INT < 19) {
-			intent = new Intent();
-			intent.setAction(Intent.ACTION_GET_CONTENT);
-			intent.setType("*/*");
-		} else {
-			intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-			intent.addCategory(Intent.CATEGORY_OPENABLE);
-			intent.setType("*/*");
-		}
-		activity.startActivityForResult(intent, requestCode);
 	}
 
 	private static byte getByteFromUnsignedStringRepresentation(String s) throws NumberFormatException

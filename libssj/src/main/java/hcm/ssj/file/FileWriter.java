@@ -46,6 +46,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
 
@@ -110,7 +111,7 @@ public class FileWriter extends Consumer implements IFileWriter
         if (options.filePath.get() == null)
         {
             Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
-            options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
+            options.filePath.set(new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE));
         }
         File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
 

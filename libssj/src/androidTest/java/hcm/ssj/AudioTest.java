@@ -76,7 +76,7 @@ public class AudioTest
 
         //consumer
         AudioWriter audioWriter = new AudioWriter();
-        audioWriter.options.filePath.set(dir.getPath());
+        audioWriter.options.filePath.setValue(dir.getPath());
         audioWriter.options.fileName.set(fileName);
         frame.addConsumer(audioWriter, audio, 1, 0);
 

@@ -39,7 +39,6 @@ import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.FileUtils;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
 
@@ -83,9 +82,9 @@ public class Trainer extends Consumer implements IModelHandler
             {
                 modelDescriptor = new ModelDescriptor(options.modelSource.get());
             }
-            else if(options.trainerFile.get() != null && !options.trainerFile.get().isEmpty())
+            else if(options.trainerFile.get() != null)
             {
-                modelDescriptor = new ModelDescriptor(FileUtils.getFile(options.trainerPath.get(), options.trainerFile.get()));
+                modelDescriptor = new ModelDescriptor(options.trainerFile.get().value);
             }
             else
             {
@@ -115,7 +114,7 @@ public class Trainer extends Consumer implements IModelHandler
         try
         {
             Log.d("loading model ...");
-            modelDescriptor.loadModel(options.trainerPath.get());
+            modelDescriptor.loadModel();
             Log.d("model loaded");
         }
         catch (IOException e)
@@ -180,9 +179,8 @@ public class Trainer extends Consumer implements IModelHandler
     public boolean hasReferableModel()
     {
         return (options.trainerFile.get() != null
-                && options.trainerPath.get() != null
-                && !options.trainerFile.get().isEmpty()
-                && !options.trainerPath.get().isEmpty());
+                && options.trainerFile.get().value != null
+                && !options.trainerFile.get().value.isEmpty());
     }
 
     @Override

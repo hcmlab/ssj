@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.FilePath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
@@ -56,8 +57,7 @@ public class FileReader extends Sensor
      */
     public class Options extends OptionList
     {
-        public final Option<String> filePath = new Option<>("filePath", FileCons.SSJ_EXTERNAL_STORAGE, String.class, "file path");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
+        public final Option<FilePath> file = new Option<>("file", null, FilePath.class, "file path");
         public final Option<Boolean> loop = new Option<>("loop", true, Boolean.class, "");
 
         /**
@@ -94,23 +94,13 @@ public class FileReader extends Sensor
         if (!initialized)
         {
             initialized = true;
-            if (options.filePath.get() == null)
+
+            if (options.file.get() == null)
             {
-                Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
-                options.filePath.set(FileCons.SSJ_EXTERNAL_STORAGE);
+                throw new IOException("file not specified");
             }
-            File fileDirectory = new File(options.filePath.get());
-            if (!fileDirectory.exists())
-            {
-                throw new IOException("directory \"" + fileDirectory.getName() + "\" does not exist");
-            }
-            if (options.fileName.get() == null)
-            {
-                String defaultName = this.getClass().getSimpleName();
-                Log.w("file name not set, setting to " + defaultName);
-                options.fileName.set(defaultName);
-            }
-            this.fileHeader = new File(fileDirectory, options.fileName.get());
+
+            this.fileHeader = new File(options.file.get().value);
             setFiles();
         }
     }

@@ -1,5 +1,5 @@
 /*
- * IFileWriter.java
+ * FileChooser.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,34 +25,42 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
+package hcm.ssj.creator.util;
+
+import android.app.Activity;
+
+import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
 
-import hcm.ssj.core.option.FolderPath;
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
-
 /**
- * Standard file options.<br>
- * Created by Frank Gaibler on 22.09.2016.
+ * Created by Ionut Damian on 12.12.2017.
  */
-public interface IFileWriter
-{
-    /**
-     * Standard options
-     */
-    class Options extends OptionList
-    {
-        public final Option<FolderPath> filePath = new Option<>("path", new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]"), FolderPath.class, "where to save the file");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
 
-        /**
-         *
-         */
-        protected Options()
-        {
-            addOptions();
-        }
-    }
+public abstract class FileChooser
+{
+	private ChooserDialog chooserDialog;
+
+	public FileChooser(Activity activity, String startPath, boolean dirOnly, String... extensions)
+	{
+		chooserDialog = new ChooserDialog().with(activity);
+		chooserDialog.withStartFile(startPath);
+		chooserDialog.withFilter(dirOnly, false, extensions);
+
+		chooserDialog.withChosenListener(new ChooserDialog.Result()
+		{
+			@Override
+			public void onChoosePath(String path, File pathFile)
+			{
+				onResult(path, pathFile);
+			}
+		}).build();
+	}
+
+	public void show()
+	{
+		chooserDialog.show();
+	}
+
+	public abstract void onResult(String path, File pathFile);
 }

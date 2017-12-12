@@ -33,6 +33,8 @@ import android.support.test.runner.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageNormalizer;
@@ -105,8 +107,7 @@ public class InceptionTest
 
 		// Add classifier transformer to the pipeline
 		Classifier classifier = new Classifier();
-		classifier.options.trainerPath.set(trainerURL);
-		classifier.options.trainerFile.set(trainerName);
+		classifier.options.trainerFile.setValue(trainerURL + File.separator + trainerName);
 		classifier.options.merge.set(false);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 

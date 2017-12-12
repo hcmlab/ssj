@@ -76,17 +76,31 @@ public class Option<T>
 	/**
 	 * @return T
 	 */
-	public T parseWildcards()
+	public String parseWildcards()
 	{
-		if (type == String.class && value != null)
+		if (value != null && (type == String.class || type == FilePath.class || type == FolderPath.class))
 		{
-			String str = (String) value;
+			String str = "";
+			if (type == String.class)
+				str = (String) value;
+			else if (type == FilePath.class)
+				str = ((FilePath) value).value;
+			else if (type == FolderPath.class)
+				str = ((FolderPath) value).value;
+
 			if (str.contains("[time]"))
 			{
-				return (T) str.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+				return str.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+			}
+			else
+			{
+				return str;
 			}
 		}
-		return value;
+		else
+		{
+			return null;
+		}
 	}
 
 	/**
@@ -301,6 +315,14 @@ public class Option<T>
 				set((T) value);
 				return true;
 			}
+			if (type == FilePath.class)
+			{
+				return setValue(new FilePath(value));
+			}
+			if (type == FolderPath.class)
+			{
+				return setValue(new FolderPath(value));
+			}
 			if (type == Boolean.class)
 			{
 				return setValue(Boolean.valueOf(value));
@@ -345,6 +367,8 @@ public class Option<T>
 				|| type == Float.class
 				|| type == Double.class
 				|| type == String.class
-				|| type == Uri.class);
+				|| type == Uri.class
+				|| type == FilePath.class
+				|| type == FolderPath.class);
 	}
 }

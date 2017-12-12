@@ -35,6 +35,7 @@ import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameRecorder;
 
+import java.io.File;
 import java.nio.ByteBuffer;
 
 import hcm.ssj.core.Cons;
@@ -43,22 +44,22 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.IFileWriter;
 
 /**
  * Created by Michael Dietz on 04.09.2017.
  */
 
-public class FFMPEGWriter extends Consumer
+public class FFMPEGWriter extends Consumer implements IFileWriter
 {
 	/**
 	 * FFMPEG writer options
 	 */
-	public class Options extends OptionList
+	public class Options extends IFileWriter.Options
 	{
-		public final Option<String> url = new Option<>("url", "/mnt/sdcard/output.mp4", String.class, "Url (file path or streaming address, e.g. udp://<ip:port>)");
+		public final Option<String> url = new Option<>("url", null, String.class, "streaming address, e.g. udp://<ip:port>. If set, path is ignored.");
 		public final Option<Boolean> stream = new Option<>("stream", false, Boolean.class, "Set this flag for very fast decoding in streaming applications (forces h264 codec)");
 		public final Option<String> format = new Option<>("format", "mp4", String.class, "Default output format, set to 'mpegts' in streaming applications");
 		public final Option<Integer> bitRate = new Option<>("bitRate", 500, Integer.class, "Bitrate in kB/s");
@@ -108,7 +109,9 @@ public class FFMPEGWriter extends Consumer
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
 
-		writer = new FFmpegFrameRecorder(options.url.get(), width, height, 0);
+		String address = (options.url.get() != null) ? options.url.get() : options.filePath.get().value + File.pathSeparator + options.fileName.get();
+
+		writer = new FFmpegFrameRecorder(address, width, height, 0);
 		writer.setFormat(options.format.get());
 		writer.setFrameRate(stream_in[0].sr);
 		writer.setVideoBitrate(options.bitRate.get() * 1000);

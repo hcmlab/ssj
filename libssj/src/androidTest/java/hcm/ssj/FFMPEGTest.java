@@ -72,6 +72,7 @@ public class FFMPEGTest
 
 		// Consumer
 		FFMPEGWriter ffmpegWriter = new FFMPEGWriter();
+		ffmpegWriter.options.fileName.set("test.mp4");
 		frame.addConsumer(ffmpegWriter, cameraChannel, 1.0 / frameRate);
 
 		// Start framework

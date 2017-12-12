@@ -109,7 +109,7 @@ public class CameraTest
                 String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
                 //
                 CameraWriter cameraWriter = new CameraWriter();
-                cameraWriter.options.filePath.set(dir.getPath());
+                cameraWriter.options.filePath.setValue(dir.getPath());
                 cameraWriter.options.fileName.set(fileName);
                 cameraWriter.options.width.set(width);
                 cameraWriter.options.height.set(height);

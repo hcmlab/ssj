@@ -76,8 +76,7 @@ public class SignalTest
 
 		// Sensor
 		FileReader file = new FileReader();
-		file.options.filePath.set(dir.getAbsolutePath());
-		file.options.fileName.set(fileName);
+		file.options.file.setValue(dir.getAbsolutePath() + File.separator + fileName);
 		FileReaderChannel channel = new FileReaderChannel();
 		channel.setWatchInterval(0);
 		channel.setSyncInterval(0);
@@ -214,8 +213,7 @@ public class SignalTest
 
 		// Sensor
 		FileReader file = new FileReader();
-		file.options.filePath.set(dir.getAbsolutePath());
-		file.options.fileName.set(fileName);
+		file.options.file.setValue(dir.getAbsolutePath() + File.separator + fileName);
 
 		FileReaderChannel channel = new FileReaderChannel();
 		channel.options.chunk.set(0.032);
