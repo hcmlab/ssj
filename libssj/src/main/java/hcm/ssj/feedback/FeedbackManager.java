@@ -50,8 +50,10 @@ import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 import hcm.ssj.feedback.feedbackmanager.classes.FeedbackListener;
 
 /**
- * Created by Johnny on 02.12.2014.
+ * Enables the loading and execution of feedback as configured in a strategy file
+ * Note: strategy files are deprecated, use feedback collections instead
  */
+@Deprecated
 public class FeedbackManager extends EventHandler
 {
     private static int MANAGER_UPDATE_TIMEOUT = 100; //ms
