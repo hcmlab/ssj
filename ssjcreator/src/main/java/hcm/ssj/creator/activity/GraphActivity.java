@@ -140,6 +140,7 @@ public class GraphActivity extends AppCompatActivity
 									public void onCompletion()
 									{
 										playButton.setText(R.string.play);
+										waveformView.setMarkerPosition(-1);
 									}
 								});
 							}

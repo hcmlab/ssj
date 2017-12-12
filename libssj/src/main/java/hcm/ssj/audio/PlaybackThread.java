@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit;
 public class PlaybackThread
 {
 	private final static int INITIAL_PLAYBACK_DELAY = 0;
-	private final static int MARKER_UPDATE_INTERVAL = 1000 / 30;
+	private final static int MARKER_UPDATE_INTERVAL = 1000 / 60;
 
 	private PlaybackListener playbackListener;
 	private MediaPlayer mediaPlayer;
@@ -139,7 +139,7 @@ public class PlaybackThread
 			executor.shutdown();
 			executor = null;
 			markerUpdateTask = null;
-			playbackListener.onProgress(-1);
+			playbackListener.onCompletion();
 		}
 	}
 
@@ -147,7 +147,7 @@ public class PlaybackThread
 	{
 		if (mediaPlayer != null && mediaPlayer.isPlaying())
 		{
-			int currentPosition = mediaPlayer.getCurrentPosition() * 2;
+			int currentPosition = mediaPlayer.getCurrentPosition();
 			playbackListener.onProgress(currentPosition);
 		}
 	}
