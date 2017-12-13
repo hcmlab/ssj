@@ -27,9 +27,6 @@
 
 package hcm.ssj.creator.activity;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -340,28 +337,5 @@ public class OptionsActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_options);
 		init();
-	}
-
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent resultData)
-	{
-		if (resultCode == Activity.RESULT_OK)
-		{
-			Uri uri;
-			if (resultData != null)
-			{
-				uri = resultData.getData();
-
-				TextView textViewToChange = OptionTable.mapRequestCodesTextViews.get(requestCode);
-				if (textViewToChange != null)
-				{
-					textViewToChange.setText(uri.toString());
-				}
-				else
-				{
-					Log.e("No text view found!");
-				}
-			}
-		}
 	}
 }

@@ -83,12 +83,12 @@ public class BodyTest
 		frame.addConsumer(log, features, 2, 0);
 
 		FileWriter rawWriter = new FileWriter();
-		rawWriter.options.filePath.set(dir.getAbsolutePath());
+		rawWriter.options.filePath.setValue(dir.getAbsolutePath());
 		rawWriter.options.fileName.set(fileName);
 		frame.addConsumer(rawWriter, channel, 1, 0);
 
 		FileWriter featureWriter = new FileWriter();
-		featureWriter.options.filePath.set(dir.getAbsolutePath());
+		featureWriter.options.filePath.setValue(dir.getAbsolutePath());
 		featureWriter.options.fileName.set(fileName2);
 		frame.addConsumer(featureWriter, features, 2, 0);
 

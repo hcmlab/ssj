@@ -1,5 +1,5 @@
 /*
- * IFileWriter.java
+ * TactileAction.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,34 +25,54 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
+package hcm.ssj.feedback.feedbackmanager.actions;
 
-import java.io.File;
+import android.content.Context;
 
-import hcm.ssj.core.option.FolderPath;
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
+import com.microsoft.band.notifications.VibrationType;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+
+import hcm.ssj.core.Log;
+import hcm.ssj.feedback.feedbackmanager.classes.FeedbackClass;
 
 /**
- * Standard file options.<br>
- * Created by Frank Gaibler on 22.09.2016.
+ * Created by Johnny on 01.12.2014.
  */
-public interface IFileWriter
+public class TactileAction extends Action
 {
-    /**
-     * Standard options
-     */
-    class Options extends OptionList
-    {
-        public final Option<FolderPath> filePath = new Option<>("path", new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]"), FolderPath.class, "where to save the file");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
+    public int[] duration = {500};
+    public byte[] intensity = {(byte)150};
+    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
-        /**
-         *
-         */
-        protected Options()
+    public TactileAction()
+    {
+        type = FeedbackClass.Type.Tactile;
+    }
+
+    protected void load(XmlPullParser xml, Context context)
+    {
+        super.load(xml, context);
+
+        try
         {
-            addOptions();
+            xml.require(XmlPullParser.START_TAG, null, "action");
+
+            String str = xml.getAttributeValue(null, "intensity");
+            if(str != null) intensity = parseByteArray(str, ",");
+
+            str = xml.getAttributeValue(null, "duration");
+            if(str != null) duration = parseIntArray(str, ",");
+
+            str = xml.getAttributeValue(null, "type");
+            if(str != null) vibrationType = VibrationType.valueOf(str);
+        }
+        catch(IOException | XmlPullParserException e)
+        {
+            Log.e("error parsing config file", e);
         }
     }
 }

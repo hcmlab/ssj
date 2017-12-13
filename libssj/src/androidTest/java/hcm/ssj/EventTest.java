@@ -114,8 +114,7 @@ public class EventTest
 
         // Sensor
         FileReader file = new FileReader();
-        file.options.filePath.set(dir.getAbsolutePath());
-        file.options.fileName.set(fileName);
+        file.options.file.setValue(dir.getAbsolutePath() + File.separator + fileName);
         FileReaderChannel audio = new FileReaderChannel();
         audio.options.chunk.set(0.032);
         audio.setWatchInterval(0);

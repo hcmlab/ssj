@@ -88,8 +88,7 @@
         <option name="log" value="false" />
         <option name="merge" value="false" />
         <option name="sender" value="Classifier" />
-        <option name="trainerFile" value="inception.trainer" />
-        <option name="trainerPath" value="https://hcm-lab.de/downloads/ssj/model" />
+        <option name="trainerFile" value="https://hcm-lab.de/downloads/ssj/model/inception.trainer" />
       </options>
       <providerList>
         <providerId id="242568698" />

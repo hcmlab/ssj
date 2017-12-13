@@ -46,26 +46,26 @@ import hcm.ssj.core.Pipeline;
 public class FileUtils
 {
 	/**
-	 * @param filePath Option
+	 * @param dirPath Option
 	 * @param fileName Option
 	 * @return File
 	 */
-	public static File getFile(String filePath, String fileName) throws IOException
+	public static File getFile(String dirPath, String fileName) throws IOException
 	{
-		boolean isURL = filePath.startsWith("http://") || filePath.startsWith("https://");
+		boolean isURL = dirPath.startsWith("http://") || dirPath.startsWith("https://");
 
 		if (isURL)
 		{
-			Pipeline.getInstance().download(fileName, filePath, FileCons.DOWNLOAD_DIR, true);
-			filePath = FileCons.DOWNLOAD_DIR;
+			Pipeline.getInstance().download(fileName, dirPath, FileCons.DOWNLOAD_DIR, true);
+			dirPath = FileCons.DOWNLOAD_DIR;
 		}
 
-		if (filePath == null)
+		if (dirPath == null)
 		{
 			Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
-			filePath = FileCons.SSJ_EXTERNAL_STORAGE;
+			dirPath = FileCons.SSJ_EXTERNAL_STORAGE;
 		}
-		File fileDirectory = new File(filePath);
+		File fileDirectory = new File(dirPath);
 		if (fileName == null)
 		{
 			Log.e("file name not set");

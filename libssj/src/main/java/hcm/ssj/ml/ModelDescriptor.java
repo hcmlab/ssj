@@ -65,6 +65,7 @@ public class ModelDescriptor
 	private int dim = 0;
 	private double sr = 0;
 	private Cons.Type type = Cons.Type.UNDEF;
+	private String dirPath = null;
 
 	private IModelHandler source = null;
 	private Model model;
@@ -74,9 +75,12 @@ public class ModelDescriptor
 		this.source = source;
 	}
 
-	public ModelDescriptor(File file) throws IOException, XmlPullParserException
+	public ModelDescriptor(String filePath) throws IOException, XmlPullParserException
 	{
-		parseTrainerFile(file);
+		String fileName = filePath.substring(filePath.lastIndexOf(File.separator));
+		dirPath = filePath.substring(0, filePath.lastIndexOf(File.separator));
+
+		parseTrainerFile(FileUtils.getFile(dirPath, fileName));
 	}
 
 	public ModelDescriptor(Model model, int bytes_input, int dim_input, double sr_input, Cons.Type type_input)
@@ -92,7 +96,7 @@ public class ModelDescriptor
 		this.classNames = model.getClassNames();
 	}
 
-	public void loadModel(String path) throws IOException
+	public void loadModel() throws IOException
 	{
 		if(source != null)
 		{
@@ -105,10 +109,10 @@ public class ModelDescriptor
 			model.setNumClasses(classNames.length);
 			model.setClassNames(classNames);
 
-			model.load(FileUtils.getFile(path, modelFileName + "." + FileCons.FILE_EXTENSION_MODEL));
+			model.load(FileUtils.getFile(dirPath, modelFileName + "." + FileCons.FILE_EXTENSION_MODEL));
 
 			if(modelOptionFileName != null && !modelOptionFileName.isEmpty())
-				model.loadOption(FileUtils.getFile(path, modelOptionFileName + "." + FileCons.FILE_EXTENSION_OPTION));
+				model.loadOption(FileUtils.getFile(dirPath, modelOptionFileName + "." + FileCons.FILE_EXTENSION_OPTION));
 
 			//wake up threads waiting for model load
 			Log.d("model loaded, waking up waiting threads ... ");

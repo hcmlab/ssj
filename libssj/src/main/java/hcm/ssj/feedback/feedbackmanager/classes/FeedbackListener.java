@@ -1,5 +1,5 @@
 /*
- * IFileWriter.java
+ * FeedbackListener.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,34 +25,14 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
+package hcm.ssj.feedback.feedbackmanager.classes;
 
-import java.io.File;
-
-import hcm.ssj.core.option.FolderPath;
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
+import hcm.ssj.feedback.feedbackmanager.actions.Action;
 
 /**
- * Standard file options.<br>
- * Created by Frank Gaibler on 22.09.2016.
+ * Created by Johnny on 03.06.2016.
  */
-public interface IFileWriter
+public interface FeedbackListener
 {
-    /**
-     * Standard options
-     */
-    class Options extends OptionList
-    {
-        public final Option<FolderPath> filePath = new Option<>("path", new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]"), FolderPath.class, "where to save the file");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
-
-        /**
-         *
-         */
-        protected Options()
-        {
-            addOptions();
-        }
-    }
+    void onPostFeedback(hcm.ssj.core.event.Event ssjEvent, Action action, float value);
 }

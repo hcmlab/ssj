@@ -1,5 +1,5 @@
 /*
- * IFileWriter.java
+ * FolderPath.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,34 +25,18 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.file;
-
-import java.io.File;
-
-import hcm.ssj.core.option.FolderPath;
-import hcm.ssj.core.option.Option;
-import hcm.ssj.core.option.OptionList;
+package hcm.ssj.core.option;
 
 /**
- * Standard file options.<br>
- * Created by Frank Gaibler on 22.09.2016.
+ * Created by Ionut Damian on 11.12.2017.
  */
-public interface IFileWriter
-{
-    /**
-     * Standard options
-     */
-    class Options extends OptionList
-    {
-        public final Option<FolderPath> filePath = new Option<>("path", new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]"), FolderPath.class, "where to save the file");
-        public final Option<String> fileName = new Option<>("fileName", null, String.class, "file name");
 
-        /**
-         *
-         */
-        protected Options()
-        {
-            addOptions();
-        }
-    }
+public class FolderPath
+{
+	public String value = null;
+
+	public FolderPath(String value)
+	{
+		this.value = value;
+	}
 }

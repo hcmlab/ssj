@@ -27,8 +27,6 @@
 
 package hcm.ssj.core.option;
 
-import android.net.Uri;
-
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Util;
 
@@ -76,17 +74,31 @@ public class Option<T>
 	/**
 	 * @return T
 	 */
-	public T parseWildcards()
+	public String parseWildcards()
 	{
-		if (type == String.class && value != null)
+		if (value != null && (type == String.class || type == FilePath.class || type == FolderPath.class))
 		{
-			String str = (String) value;
+			String str = "";
+			if (type == String.class)
+				str = (String) value;
+			else if (type == FilePath.class)
+				str = ((FilePath) value).value;
+			else if (type == FolderPath.class)
+				str = ((FolderPath) value).value;
+
 			if (str.contains("[time]"))
 			{
-				return (T) str.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+				return str.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+			}
+			else
+			{
+				return str;
 			}
 		}
-		return value;
+		else
+		{
+			return null;
+		}
 	}
 
 	/**
@@ -155,10 +167,6 @@ public class Option<T>
 				if (type == Double.class)
 				{
 					return setValue(Double.valueOf(value));
-				}
-				if (type == Uri.class)
-				{
-					return setValue(Uri.parse(value));
 				}
 				//arrays
 				if (type.isArray())
@@ -270,12 +278,22 @@ public class Option<T>
 							return true;
 						}
 					}
-					if (Uri.class.isAssignableFrom(componentType))
+					else if (FilePath.class.isAssignableFrom(componentType))
 					{
-						Uri[] ar = new Uri[strings.length];
+						FilePath[] ar = new FilePath[strings.length];
 						for (int i = 0; i < strings.length; i++)
 						{
-							ar[i] = Uri.parse(strings[i]);
+							ar[i] = new FilePath(strings[i]);
+						}
+						set((T) ar);
+						return true;
+					}
+					else if (FolderPath.class.isAssignableFrom(componentType))
+					{
+						FolderPath[] ar = new FolderPath[strings.length];
+						for (int i = 0; i < strings.length; i++)
+						{
+							ar[i] = new FolderPath(strings[i]);
 						}
 						set((T) ar);
 						return true;
@@ -300,6 +318,14 @@ public class Option<T>
 			{
 				set((T) value);
 				return true;
+			}
+			if (type == FilePath.class)
+			{
+				return setValue(new FilePath(value));
+			}
+			if (type == FolderPath.class)
+			{
+				return setValue(new FolderPath(value));
 			}
 			if (type == Boolean.class)
 			{
@@ -345,6 +371,7 @@ public class Option<T>
 				|| type == Float.class
 				|| type == Double.class
 				|| type == String.class
-				|| type == Uri.class);
+				|| type == FilePath.class
+				|| type == FolderPath.class);
 	}
 }

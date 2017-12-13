@@ -220,7 +220,7 @@ public class FileTest
         frame.addSensor(sensorConnection,sensorConnectionChannel);
         //consumer
         FileWriter fileWriter = new FileWriter();
-        fileWriter.options.filePath.set(file.getParent());
+        fileWriter.options.filePath.setValue(file.getParent());
         fileWriter.options.fileName.set(file.getName());
         frame.addConsumer(fileWriter, sensorConnectionChannel, 0.25, 0);
     }
@@ -234,8 +234,7 @@ public class FileTest
     {
         //sensor
         FileReader fileReader = new FileReader();
-        fileReader.options.filePath.set(file.getParent());
-        fileReader.options.fileName.set(file.getName());
+        fileReader.options.file.setValue(file.getParent() + File.separator + file.getName());
         fileReader.options.loop.set(true);
 
         //channel

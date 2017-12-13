@@ -94,8 +94,7 @@ public class SvmTest
 
         // SVM
         ClassifierT classifier = new ClassifierT();
-        classifier.options.trainerPath.set(dir.getAbsolutePath());
-        classifier.options.trainerFile.set(modelName);
+        classifier.options.trainerFile.setValue(dir.getAbsolutePath() + File.separator + modelName);
         frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);
 
         // Consumer
@@ -103,7 +102,7 @@ public class SvmTest
         frame.addConsumer(log, classifier, 2, 0);
 
         FileWriter svmWriter = new FileWriter();
-        svmWriter.options.filePath.set(dir.getAbsolutePath());
+        svmWriter.options.filePath.setValue(dir.getAbsolutePath());
         svmWriter.options.fileName.set(outputFileName);
         frame.addConsumer(svmWriter, classifier, 2, 0);
 
