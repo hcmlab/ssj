@@ -27,20 +27,18 @@
 
 package hcm.ssj.creator.view;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.support.v4.content.ContextCompat;
-import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
-
-import java.util.Locale;
+import android.widget.LinearLayout;
 
 import hcm.ssj.audio.AudioUtils;
 import hcm.ssj.creator.R;
@@ -50,29 +48,14 @@ import hcm.ssj.creator.R;
  */
 public class WaveformView extends View
 {
-	private static final int TEXT_SIZE = 36;
-	private static final int AXIS_STROKE_WIDTH = 4;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
-	private static final int TIME_AXIS_OFFSET = 80;
-	private static final int TIME_CODE_OFFSET = 25;
-	private static final int TIME_STEP_PEG_LENGTH = 20;
-	private static final int MARKER_WIDTH = 3;
 
-	private TextPaint textPaint;
 	private Paint strokePaint;
 	private Paint fillPaint;
-	private Paint markerPaint;
-	private Paint axisPaint;
 	private Rect drawRect;
 
 	private int width;
 	private int height;
-	private int audioLength;
-	private int markerPosition;
-	private int startPadding;
-	private int endPadding;
-
-	private float xStep;
 
 	private short[] samples;
 	private Bitmap cachedWaveformBitmap;
@@ -98,18 +81,7 @@ public class WaveformView extends View
 	public void setSamples(short[] s)
 	{
 		samples = s;
-		onSamplesChanged();
-	}
-
-	public void setAudioLength(int length)
-	{
-		audioLength = length;
-	}
-
-	public void setMarkerPosition(int position)
-	{
-		markerPosition = position;
-		postInvalidate();
+		createWaveform();
 	}
 
 	@Override
@@ -117,7 +89,10 @@ public class WaveformView extends View
 	{
 		width = getMeasuredWidth();
 		height = getMeasuredHeight();
-		drawRect = new Rect(0, 0, width, height);
+		drawRect = new Rect(getPaddingLeft(), getPaddingTop(),
+							width - getPaddingLeft() - getPaddingRight(),
+							height - getPaddingTop() - getPaddingBottom());
+		createWaveform();
 	}
 
 	@Override
@@ -129,11 +104,6 @@ public class WaveformView extends View
 		{
 			canvas.drawBitmap(cachedWaveformBitmap, null, drawRect, null);
 		}
-		if (markerPosition > -1 && markerPosition < audioLength)
-		{
-			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
-							height - TIME_AXIS_OFFSET, markerPaint);
-		}
 	}
 
 	/**
@@ -144,27 +114,17 @@ public class WaveformView extends View
 	 */
 	private void init(Context context, AttributeSet attrs, int defStyle)
 	{
-		final TypedArray a = getContext().obtainStyledAttributes(
-				attrs, R.styleable.WaveformView, defStyle, 0);
+		final TypedArray a = getContext().obtainStyledAttributes(attrs,
+																 R.styleable.WaveformView,
+																 defStyle, 0);
 
 		float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 1f);
 		int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
 									 ContextCompat.getColor(context, R.color.colorPrimary));
 		int fillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
 								   ContextCompat.getColor(context, R.color.colorPrimary));
-		int markerColor = a.getColor(R.styleable.WaveformView_playbackIndicatorColor,
-									 ContextCompat.getColor(context, R.color.colorMarker));
-		int timeCodeColor = a.getColor(R.styleable.WaveformView_timeCodeColor,
-								   ContextCompat.getColor(context, R.color.colorPrimary));
-		int axisColor = a.getColor(R.styleable.WaveformView_axisColor,
-									   ContextCompat.getColor(context, R.color.colorPrimary));
 		a.recycle();
 
-		textPaint = new TextPaint();
-		textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
-		textPaint.setTextAlign(Paint.Align.CENTER);
-		textPaint.setColor(timeCodeColor);
-		textPaint.setTextSize(TEXT_SIZE);
 
 		strokePaint = new Paint();
 		strokePaint.setColor(strokeColor);
@@ -177,34 +137,11 @@ public class WaveformView extends View
 		fillPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 		fillPaint.setColor(fillColor);
 
-		markerPaint = new Paint();
-		markerPaint.setStyle(Paint.Style.STROKE);
-		markerPaint.setStrokeWidth(MARKER_WIDTH);
-		markerPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
-		markerPaint.setColor(markerColor);
-		markerPaint.setPathEffect(new DashPathEffect(new float[] {20, 10}, 0));
-
-		axisPaint = new Paint();
-		axisPaint.setStyle(Paint.Style.STROKE);
-		axisPaint.setStrokeWidth(AXIS_STROKE_WIDTH);
-		axisPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
-		axisPaint.setColor(axisColor);
-
-		startPadding = getPaddingStart();
-		endPadding = getPaddingEnd();
-
-		xStep = width / (audioLength * 1.0f);
 		drawRect = new Rect(0, 0, width, height);
-	}
 
-	/**
-	 * Reset marker position, recalculate step along x-axis and re-create waveform.
-	 */
-	private void onSamplesChanged()
-	{
-		markerPosition = -1;
-		xStep = width / (audioLength * 1.0f);
-		createWaveform();
+		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.MATCH_PARENT, 200);
+		setLayoutParams(layoutParams);
 	}
 
 	/**
@@ -223,7 +160,6 @@ public class WaveformView extends View
 		Path waveformPath = drawWaveform(width, height, samples);
 		canvas.drawPath(waveformPath, fillPaint);
 		canvas.drawPath(waveformPath, strokePaint);
-		drawTimeAxis(canvas);
 		invalidate();
 	}
 
@@ -263,34 +199,5 @@ public class WaveformView extends View
 
 		waveformPath.close();
 		return waveformPath;
-	}
-
-	/**
-	 * Draw time axis with appropriate time steps as labels.
-	 * @param canvas Canvas to draw the axis on.
-	 */
-	private void drawTimeAxis(Canvas canvas)
-	{
-		int seconds = audioLength / 1000;
-		float xStep = width / (audioLength / 1000f);
-		float textWidth = textPaint.measureText("10.00");
-		float secondStep = (textWidth * seconds * 2) / width;
-		secondStep = Math.max(secondStep, 1) - 0.5f;
-
-		for (float i = 0; i <= seconds; i += secondStep)
-		{
-			// Draw timestamp labels.
-			canvas.drawText(String.format(Locale.ENGLISH,"%.1f", i),
-							startPadding + i * xStep, height - TIME_CODE_OFFSET, textPaint);
-
-			// Make every second time step peg half the length.
-			int cutOff = i % 1 != 0 ? TIME_STEP_PEG_LENGTH / 2 : 0;
-			canvas.drawLine(startPadding + i * xStep, height - TIME_AXIS_OFFSET,
-							startPadding + i * xStep,
-							height - TIME_AXIS_OFFSET + TIME_STEP_PEG_LENGTH - cutOff,
-							axisPaint);
-		}
-		canvas.drawLine(0, height - TIME_AXIS_OFFSET, width - endPadding,
-						height - TIME_AXIS_OFFSET, axisPaint);
 	}
 }

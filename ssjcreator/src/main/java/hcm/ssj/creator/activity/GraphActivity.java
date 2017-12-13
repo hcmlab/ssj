@@ -34,15 +34,18 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.view.TimeAxisView;
 import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
 
@@ -53,8 +56,11 @@ public class GraphActivity extends AppCompatActivity
 {
 	private ChooserDialog chooserDialog;
 	private PlaybackThread playbackThread;
-	private WaveformView waveformView;
+	private TimeAxisView timeAxisView;
 	private DisplayMetrics displayMetrics;
+	private LinearLayout streamLayout;
+
+	private ArrayList<WaveformView> waveforms = new ArrayList<>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -64,12 +70,13 @@ public class GraphActivity extends AppCompatActivity
 
 		displayMetrics = new DisplayMetrics();
 
-		waveformView = (WaveformView) findViewById(R.id.waveform);
-		waveformView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+		timeAxisView = (TimeAxisView) findViewById(R.id.time_axis);
+		streamLayout = (LinearLayout) findViewById(R.id.stream_layout);
 
 		initializeUI();
 	}
 
+	/*
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		int x = (int) event.getX();
@@ -79,11 +86,12 @@ public class GraphActivity extends AppCompatActivity
 			int width = displayMetrics.widthPixels;
 			int length = playbackThread.getAudioLength();
 			float progress = ((float) x / (float) width) * length;
-			waveformView.setMarkerPosition((int) progress);
+			timeAxisView.setMarkerPosition((int) progress);
 			playbackThread.seekTo((int) progress);
 		}
 		return false;
 	}
+	*/
 
 	private void initializeUI()
 	{
@@ -138,8 +146,10 @@ public class GraphActivity extends AppCompatActivity
 							{
 								AudioDecoder decoder = new AudioDecoder(file.getPath());
 
-								waveformView.setAudioLength(decoder.getAudioLength());
-								waveformView.setSamples(decoder.getSamples());
+								timeAxisView.setAudioLength(decoder.getAudioLength());
+								WaveformView waveform = new WaveformView(GraphActivity.this);
+								waveform.setSamples(decoder.getSamples());
+								streamLayout.addView(waveform, 0);
 
 								playButton.setVisibility(View.VISIBLE);
 								resetButton.setVisibility(View.VISIBLE);
@@ -148,13 +158,13 @@ public class GraphActivity extends AppCompatActivity
 									@Override
 									public void onProgress(int progress)
 									{
-										waveformView.setMarkerPosition(progress);
+										timeAxisView.setMarkerPosition(progress);
 									}
 									@Override
 									public void onCompletion()
 									{
 										playButton.setText(R.string.play);
-										waveformView.setMarkerPosition(-1);
+										timeAxisView.setMarkerPosition(-1);
 									}
 								});
 							}

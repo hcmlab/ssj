@@ -47,6 +47,9 @@
         <attr name="waveformStrokeThickness" format="float" />
         <attr name="waveformColor" format="color" />
         <attr name="waveformFillColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="TimeAxisView">
         <attr name="playbackIndicatorColor" format="color" />
         <attr name="timeCodeColor" format="color" />
         <attr name="axisColor" format="color" />
