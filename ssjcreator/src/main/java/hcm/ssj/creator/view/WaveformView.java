@@ -48,6 +48,10 @@ public class WaveformView extends View
 {
 	private static final boolean ENABLE_ANTI_ALIAS = true;
 	private static final float STROKE_THICKNESS = 4;
+	private static final int LAYOUT_HEIGHT = 350;
+	private static final int LAYOUT_MARGIN_TOP = 20;
+	private static final int LAYOUT_MARGIN_BOTTOM = 20;
+	private static final int LAYOUT_MARGIN_LEFT = 25;
 
 	private Paint strokePaint;
 	private Paint fillPaint;
@@ -135,7 +139,8 @@ public class WaveformView extends View
 		drawRect = new Rect(0, 0, width, height);
 
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-				LinearLayout.LayoutParams.MATCH_PARENT, 200);
+				LinearLayout.LayoutParams.MATCH_PARENT, LAYOUT_HEIGHT);
+		layoutParams.setMargins(LAYOUT_MARGIN_LEFT, LAYOUT_MARGIN_TOP, 0, LAYOUT_MARGIN_BOTTOM);
 		setLayoutParams(layoutParams);
 	}
 

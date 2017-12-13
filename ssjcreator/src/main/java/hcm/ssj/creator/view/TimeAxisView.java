@@ -48,6 +48,7 @@ public class TimeAxisView extends View
 {
 	private static final int TIME_AXIS_OFFSET = 80;
 	private static final int TIME_CODE_OFFSET = 25;
+	private static final int PADDING = 25;
 	private static final int TIME_STEP_PEG_LENGTH = 20;
 	private static final int TEXT_SIZE = 36;
 	private static final int AXIS_STROKE_WIDTH = 4;
@@ -170,12 +171,12 @@ public class TimeAxisView extends View
 		{
 			// Draw timestamp labels.
 			canvas.drawText(String.format(Locale.ENGLISH, "%.1f", i),
-							i * xStep, height - TIME_CODE_OFFSET, textPaint);
+							PADDING + i * xStep, height - TIME_CODE_OFFSET, textPaint);
 
 			// Make every second time step peg half the length.
 			int cutOff = i % 1 != 0 ? TIME_STEP_PEG_LENGTH / 2 : 0;
-			canvas.drawLine(i * xStep, height - TIME_AXIS_OFFSET,
-							i * xStep,
+			canvas.drawLine(PADDING + i * xStep, height - TIME_AXIS_OFFSET,
+							PADDING + i * xStep,
 							height - TIME_AXIS_OFFSET + TIME_STEP_PEG_LENGTH - cutOff,
 							axisPaint);
 		}

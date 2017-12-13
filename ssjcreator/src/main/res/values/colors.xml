@@ -48,4 +48,6 @@
     <color name="colorWaveform">#5cb982</color>
     <color name="colorWaveformFill">#6dde9c</color>
 
+    <color name="colorSeparator">#9e767676</color>
+
 </resources>

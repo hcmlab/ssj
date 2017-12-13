@@ -30,16 +30,15 @@ package hcm.ssj.creator.activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
@@ -57,18 +56,13 @@ public class GraphActivity extends AppCompatActivity
 	private ChooserDialog chooserDialog;
 	private PlaybackThread playbackThread;
 	private TimeAxisView timeAxisView;
-	private DisplayMetrics displayMetrics;
 	private LinearLayout streamLayout;
-
-	private ArrayList<WaveformView> waveforms = new ArrayList<>();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
-
-		displayMetrics = new DisplayMetrics();
 
 		timeAxisView = (TimeAxisView) findViewById(R.id.time_axis);
 		streamLayout = (LinearLayout) findViewById(R.id.stream_layout);
@@ -150,6 +144,17 @@ public class GraphActivity extends AppCompatActivity
 								WaveformView waveform = new WaveformView(GraphActivity.this);
 								waveform.setSamples(decoder.getSamples());
 								streamLayout.addView(waveform, 0);
+
+								View separator = new View(GraphActivity.this);
+								ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+										ViewGroup.LayoutParams.MATCH_PARENT, 4
+								);
+								separator.setLayoutParams(params);
+								separator.setBackgroundColor(getResources().getColor(R.color.colorSeparator));
+								if (streamLayout.getChildCount() > 2)
+								{
+									streamLayout.addView(separator, 1);
+								}
 
 								playButton.setVisibility(View.VISIBLE);
 								resetButton.setVisibility(View.VISIBLE);
