@@ -28,7 +28,6 @@
 package hcm.ssj.creator.util;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
@@ -274,36 +273,6 @@ public class OptionTable
 					((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
 					((TextView) inputView).setText(value.toString(), TextView.BufferType.NORMAL);
 				}
-			}
-			else if (type == Uri.class)
-			{
-				((TextView) inputView).setInputType(InputType.TYPE_CLASS_TEXT);
-				((TextView) inputView).setText(value != null ? ((Uri) value).toString() : "", TextView.BufferType.NORMAL);
-
-				// FileChooserButton
-				ImageButton fileChooserButton = new ImageButton(activity);
-				fileChooserButton.setImageDrawable(ContextCompat.getDrawable(activity, R.drawable.ic_insert_drive_file_black_24dp));
-				final TextView innerInputView = (TextView) inputView;
-
-				fileChooserButton.setOnClickListener(new View.OnClickListener()
-				{
-					@Override
-					public void onClick(View v)
-					{
-						String startPath = (innerInputView.getText().toString().isEmpty()) ?
-								FileCons.SSJ_EXTERNAL_STORAGE : innerInputView.getText().toString();
-
-						FileChooser chooser = new FileChooser(activity, startPath, false, null) {
-							@Override
-							public void onResult(String path, File pathFile)
-							{
-								innerInputView.setText(path);
-							}
-						};
-						chooser.show();
-					}
-				});
-				linearLayoutInput.addView(fileChooserButton);
 			}
 			else if (type == FilePath.class || type == FolderPath.class)
 			{

@@ -27,8 +27,6 @@
 
 package hcm.ssj.core.option;
 
-import android.net.Uri;
-
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Util;
 
@@ -170,10 +168,6 @@ public class Option<T>
 				{
 					return setValue(Double.valueOf(value));
 				}
-				if (type == Uri.class)
-				{
-					return setValue(Uri.parse(value));
-				}
 				//arrays
 				if (type.isArray())
 				{
@@ -284,12 +278,22 @@ public class Option<T>
 							return true;
 						}
 					}
-					if (Uri.class.isAssignableFrom(componentType))
+					else if (FilePath.class.isAssignableFrom(componentType))
 					{
-						Uri[] ar = new Uri[strings.length];
+						FilePath[] ar = new FilePath[strings.length];
 						for (int i = 0; i < strings.length; i++)
 						{
-							ar[i] = Uri.parse(strings[i]);
+							ar[i] = new FilePath(strings[i]);
+						}
+						set((T) ar);
+						return true;
+					}
+					else if (FolderPath.class.isAssignableFrom(componentType))
+					{
+						FolderPath[] ar = new FolderPath[strings.length];
+						for (int i = 0; i < strings.length; i++)
+						{
+							ar[i] = new FolderPath(strings[i]);
 						}
 						set((T) ar);
 						return true;
@@ -367,7 +371,6 @@ public class Option<T>
 				|| type == Float.class
 				|| type == Double.class
 				|| type == String.class
-				|| type == Uri.class
 				|| type == FilePath.class
 				|| type == FolderPath.class);
 	}
