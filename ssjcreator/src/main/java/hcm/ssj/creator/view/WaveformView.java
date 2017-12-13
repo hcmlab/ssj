@@ -27,7 +27,6 @@
 
 package hcm.ssj.creator.view;
 
-import android.app.ActionBar;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -35,7 +34,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -49,6 +47,7 @@ import hcm.ssj.creator.R;
 public class WaveformView extends View
 {
 	private static final boolean ENABLE_ANTI_ALIAS = true;
+	private static final float STROKE_THICKNESS = 4;
 
 	private Paint strokePaint;
 	private Paint fillPaint;
@@ -63,19 +62,19 @@ public class WaveformView extends View
 	public WaveformView(Context context)
 	{
 		super(context);
-		init(context, null, 0);
+		init(null, 0);
 	}
 
 	public WaveformView(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
-		init(context, attrs, 0);
+		init(attrs, 0);
 	}
 
 	public WaveformView(Context context, AttributeSet attrs, int defStyle)
 	{
 		super(context, attrs, defStyle);
-		init(context, attrs, defStyle);
+		init(attrs, defStyle);
 	}
 
 	public void setSamples(short[] s)
@@ -108,28 +107,24 @@ public class WaveformView extends View
 
 	/**
 	 * Read XML attribute values of a waveform view and initialize colors.
-	 * @param context Context which uses WaveformView.
 	 * @param attrs Set of XML attributes for customization options.
 	 * @param defStyle Integer which represents the default style.
 	 */
-	private void init(Context context, AttributeSet attrs, int defStyle)
+	private void init(AttributeSet attrs, int defStyle)
 	{
 		final TypedArray a = getContext().obtainStyledAttributes(attrs,
 																 R.styleable.WaveformView,
 																 defStyle, 0);
 
-		float strokeThickness = a.getFloat(R.styleable.WaveformView_waveformStrokeThickness, 1f);
-		int strokeColor = a.getColor(R.styleable.WaveformView_waveformColor,
-									 ContextCompat.getColor(context, R.color.colorPrimary));
-		int fillColor = a.getColor(R.styleable.WaveformView_waveformFillColor,
-								   ContextCompat.getColor(context, R.color.colorPrimary));
+		int strokeColor = getResources().getColor(R.color.colorWaveform);
+		int fillColor = getResources().getColor(R.color.colorWaveformFill);
 		a.recycle();
 
 
 		strokePaint = new Paint();
 		strokePaint.setColor(strokeColor);
 		strokePaint.setStyle(Paint.Style.STROKE);
-		strokePaint.setStrokeWidth(strokeThickness);
+		strokePaint.setStrokeWidth(STROKE_THICKNESS);
 		strokePaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 
 		fillPaint = new Paint();

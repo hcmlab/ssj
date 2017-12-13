@@ -45,4 +45,7 @@
     <color name="colorMarker">#767676</color>
     <color name="colorBlack">#000000</color>
 
+    <color name="colorWaveform">#5cb982</color>
+    <color name="colorWaveformFill">#6dde9c</color>
+
 </resources>
