@@ -430,24 +430,24 @@ public class PipelineBuilder
 				element.getHmStreamProviders().keySet().toArray(sources);
 				double frame = (element.getFrameSize() != null) ? element.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
 
-                if(trigger != null)
-                {
-                    framework.addConsumer(element.getElement(), sources, trigger);
-                }
-                else
+				if (trigger != null)
 				{
-                    framework.addConsumer(element.getElement(), sources, frame, element.getDelta());
-                    hsConsumerElementsNotTriggeredByEvent.add(element);
-                }
+					framework.addConsumer(element.getElement(), sources, trigger);
+				}
+				else
+				{
+					framework.addConsumer(element.getElement(), sources, frame, element.getDelta());
+					hsConsumerElementsNotTriggeredByEvent.add(element);
+				}
+			}
 
-                //special case: Trainer
-                if(element.getElement() instanceof Trainer)
-                {
-                    Trainer trainer = (Trainer)element.getElement();
-					getAnnotation().setClasses(trainer.getModel().getClassNames());
-                }
-            }
-        }
+			//special case: Trainer
+			if(element.getElement() instanceof Trainer)
+			{
+				Trainer trainer = (Trainer)element.getElement();
+				getAnnotation().setClasses(trainer.getModel().getClassNames());
+			}
+		}
 
 		buildEventPipeline(hsSensorElements);
 		buildEventPipeline(hsSensorChannelElements);
