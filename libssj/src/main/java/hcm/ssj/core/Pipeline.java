@@ -149,6 +149,11 @@ public class Pipeline
         return instance;
     }
 
+    public OptionList getOptions()
+    {
+        return options;
+    }
+
     /**
      * Starts the SSJ pipeline.
      * Automatically resets buffers and component states.

@@ -76,7 +76,7 @@ public class OptionsActivity extends AppCompatActivity
 		if (innerObject == null)
 		{
 			//change title
-			setTitle("SSJ_Framework");
+			setTitle(R.string.str_options_pipe);
 			options = PipelineBuilder.getOptionList(Pipeline.getInstance());
 		}
 		else
