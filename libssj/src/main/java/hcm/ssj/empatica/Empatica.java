@@ -170,64 +170,75 @@ public class Empatica extends Sensor implements EmpaStatusDelegate
 				 new File(SSJApplication.getAppContext().getFilesDir(), "signature"));
 	}
 
-	private void getCertificate() throws IOException
+	private void getCertificate()
 	{
-		HashMap<String,String> p = new HashMap<>();
-		p.put("api_key", options.apiKey.get());
-		p.put("api_version", "AND_1.3");
-		String json = (new GsonBuilder()).create().toJson(p, Map.class);
-
-		//execute json
-		URL url = new URL("https://www.empatica.com/connect/empalink/api_login.php");
-		HttpURLConnection urlConn;
-		DataOutputStream printout;
-
-		urlConn = (HttpURLConnection)url.openConnection();
-		urlConn.setDoInput(true);
-		urlConn.setDoOutput(true);
-		urlConn.setUseCaches(false);
-		urlConn.setRequestProperty("Accept","application/json");
-		urlConn.setRequestProperty("Content-Type","application/json");
-		urlConn.connect();
-
-		//send request
-		printout = new DataOutputStream(urlConn.getOutputStream ());
-		printout.write(json.getBytes("UTF-8"));
-		printout.flush ();
-		printout.close ();
-
-		int HttpResult = urlConn.getResponseCode();
-		if(HttpResult == HttpURLConnection.HTTP_OK)
+		try
 		{
-			//get response
-			BufferedReader r = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
-			StringBuilder response = new StringBuilder();
-			String line;
-			while ((line = r.readLine()) != null) {
-				response.append(line);
+			HashMap<String, String> p = new HashMap<>();
+			p.put("api_key", options.apiKey.get());
+			p.put("api_version", "AND_1.3");
+			String json = (new GsonBuilder()).create().toJson(p, Map.class);
+
+			//execute json
+			URL url = new URL("https://www.empatica.com/connect/empalink/api_login.php");
+			HttpURLConnection urlConn;
+			DataOutputStream printout;
+
+			urlConn = (HttpURLConnection) url.openConnection();
+			urlConn.setDoInput(true);
+			urlConn.setDoOutput(true);
+			urlConn.setUseCaches(false);
+			urlConn.setRequestProperty("Accept", "application/json");
+			urlConn.setRequestProperty("Content-Type", "application/json");
+			urlConn.connect();
+
+			//send request
+			printout = new DataOutputStream(urlConn.getOutputStream());
+			printout.write(json.getBytes("UTF-8"));
+			printout.flush();
+			printout.close();
+
+			int HttpResult = urlConn.getResponseCode();
+			if (HttpResult == HttpURLConnection.HTTP_OK)
+			{
+				//get response
+				BufferedReader r = new BufferedReader(new InputStreamReader(urlConn.getInputStream(), "UTF-8"));
+				StringBuilder response = new StringBuilder();
+				String line;
+				while ((line = r.readLine()) != null)
+				{
+					response.append(line);
+				}
+
+				//check status
+				JsonElement jelement = (new JsonParser()).parse(response.toString());
+				JsonObject jobject = jelement.getAsJsonObject();
+				String status = jobject.get("status").getAsString();
+				if (!status.equals("ok"))
+					throw new IOException("status check failed");
+
+				//save certificate
+				if (jobject.has("empaconf") && jobject.has("empasign"))
+				{
+					String empaconf = jobject.get("empaconf").getAsString();
+					String empasign = jobject.get("empasign").getAsString();
+					byte[] empaconfBytes = Base64.decode(empaconf, 0);
+					byte[] empasignBytes = Base64.decode(empasign, 0);
+
+					saveFile("profile", empaconfBytes);
+					saveFile("signature", empasignBytes);
+
+					Log.i("Successfully retrieved and saved new Empatica certificates");
+				}
+				else
+				{
+					throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
+				}
 			}
-
-			//check status
-			JsonElement jelement = (new JsonParser()).parse(response.toString());
-			JsonObject jobject = jelement.getAsJsonObject();
-			String status = jobject.get("status").getAsString();
-			if (!status.equals("ok"))
-				throw new IOException("status check failed");
-
-			//save certificate
-			if (jobject.has("empaconf") && jobject.has("empasign")) {
-				String empaconf = jobject.get("empaconf").getAsString();
-				String empasign = jobject.get("empasign").getAsString();
-				byte[] empaconfBytes = Base64.decode(empaconf, 0);
-				byte[] empasignBytes = Base64.decode(empasign, 0);
-
-				saveFile("profile", empaconfBytes);
-				saveFile("signature", empasignBytes);
-
-				Log.i("Successfully retrieved and saved new Empatica certificates");
-			} else {
-				throw new IOException("Failed loading certificates. Empaconf and Empasign missing from http response.");
-			}
+		}
+		catch (IOException e)
+		{
+			Log.w("Failed to retrieve certificate", e);
 		}
 	}
 
