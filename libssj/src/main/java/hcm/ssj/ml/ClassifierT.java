@@ -27,17 +27,15 @@
 
 package hcm.ssj.ml;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
@@ -48,7 +46,13 @@ import hcm.ssj.signal.Selector;
 public class ClassifierT extends Transformer implements IModelHandler
 {
 
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the transformer
      */
     public class Options extends IModelHandler.Options
@@ -69,32 +73,11 @@ public class ClassifierT extends Transformer implements IModelHandler
     private Stream[] stream_selected;
     private Merge merge = null;
 
-    private ModelDescriptor modelDescriptor = null;
+    private Model model = null;
 
     public ClassifierT()
     {
         _name = this.getClass().getSimpleName();
-    }
-
-    @Override
-    public void init(double frame, double delta) throws SSJException
-    {
-        try {
-            if(options.modelSource.get() != null)
-            {
-                modelDescriptor = new ModelDescriptor(options.modelSource.get());
-            }
-            else if(options.trainerFile.get() != null)
-            {
-                modelDescriptor = new ModelDescriptor(options.trainerFile.get().value);
-            }
-            else
-            {
-                throw new IOException("neither model source nor trainer file has been provided");
-            }
-        } catch (IOException | XmlPullParserException e) {
-            throw new SSJException("unable to load trainer file", e);
-        }
     }
 
     /**
@@ -114,16 +97,14 @@ public class ClassifierT extends Transformer implements IModelHandler
             throw new SSJFatalException("stream type not supported");
         }
 
-        try
+        if (!model.isSetup())
         {
-            Log.d("loading model ...");
-            modelDescriptor.loadModel();
-            Log.d("model loaded");
+            throw new SSJFatalException("model not initialized. Did you provide a trainer file?");
         }
-        catch (IOException e)
-        {
-            throw new SSJFatalException("unable to load model", e);
-        }
+
+        Log.d("waiting for model to become ready ...");
+        model.waitUntilReady();
+        Log.d("model ready");
 
         Stream[] input = stream_in;
 
@@ -138,17 +119,17 @@ public class ClassifierT extends Transformer implements IModelHandler
 
         try
         {
-            modelDescriptor.validateInput(input);
+            model.validateInput(input);
         }
         catch (IOException e)
         {
             throw new SSJFatalException("model validation failed", e);
         }
 
-        if(modelDescriptor.getSelectDimensions() != null)
+        if(model.getInputDim() != null)
         {
             selector = new Selector();
-            selector.options.values.set(modelDescriptor.getSelectDimensions());
+            selector.options.values.set(model.getInputDim());
             stream_selected = new Stream[1];
             stream_selected[0] = Stream.create(input[0].num, selector.options.values.get().length, input[0].sr, input[0].type);
             selector.enter(input, stream_selected[0]);
@@ -173,7 +154,7 @@ public class ClassifierT extends Transformer implements IModelHandler
             input = stream_selected;
         }
 
-        float[] probs = modelDescriptor.getModel().forward(input[0]);
+        float[] probs = model.forward(input[0]);
         if (probs != null)
         {
             float[] out = stream_out.ptrF();
@@ -191,13 +172,13 @@ public class ClassifierT extends Transformer implements IModelHandler
     @Override
     public int getSampleDimension(Stream[] stream_in)
     {
-        if(modelDescriptor == null)
+        if(model == null)
         {
             Log.e("model header not loaded, cannot determine num classes.");
             return 0;
         }
 
-        return modelDescriptor.getNumClasses();
+        return model.getNumClasses();
     }
 
     /**
@@ -231,16 +212,15 @@ public class ClassifierT extends Transformer implements IModelHandler
     }
 
     @Override
-    public ModelDescriptor getModelDescriptor()
+    public void setModel(Model model)
     {
-        return modelDescriptor;
+        this.model = model;
     }
 
-    public boolean hasReferableModel()
+    @Override
+    public Model getModel()
     {
-        return (options.trainerFile.get() != null
-                && options.trainerFile.get().value != null
-                && !options.trainerFile.get().value.isEmpty());
+        return model;
     }
 
     /**
@@ -253,11 +233,11 @@ public class ClassifierT extends Transformer implements IModelHandler
         int overallDimension = getSampleDimension(stream_in);
         stream_out.desc = new String[overallDimension];
 
-        if(modelDescriptor != null)
+        if(model != null)
         {
             //define output stream
-            if (modelDescriptor.getClassNames() != null)
-                System.arraycopy(modelDescriptor.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
+            if (model.getClassNames() != null)
+                System.arraycopy(model.getClassNames(), 0, stream_out.desc, 0, stream_out.desc.length);
         }
         else
         {

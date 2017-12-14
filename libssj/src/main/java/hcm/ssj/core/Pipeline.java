@@ -47,6 +47,7 @@ import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileDownloader;
+import hcm.ssj.ml.Model;
 import hcm.ssj.mobileSSI.SSI;
 
 /**
@@ -435,6 +436,24 @@ public class Pipeline
         c.setEventTrigger(trigger);
         c.setup(sources);
         components.add(c);
+    }
+
+    /**
+     * Adds a model to the pipeline.
+     *
+     * @param m the Model to be added
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addModel(Model m) throws SSJException {
+
+        if(components.contains(m))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
+        m.setup();
+        components.add(m);
     }
 
     /**

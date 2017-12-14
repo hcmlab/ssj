@@ -41,7 +41,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Energy extends Transformer {
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Boolean> computeRMS = new Option<>("computeRMS", false, Boolean.class, "");
         public final Option<Boolean> computeSPL = new Option<>("computeSPL", true, Boolean.class, "");

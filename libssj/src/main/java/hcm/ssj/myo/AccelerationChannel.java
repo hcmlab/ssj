@@ -40,7 +40,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class AccelerationChannel extends SensorChannel
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "");
 

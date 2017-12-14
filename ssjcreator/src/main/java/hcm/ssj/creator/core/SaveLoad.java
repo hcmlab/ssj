@@ -63,6 +63,8 @@ import hcm.ssj.creator.core.container.ContainerElement;
 import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
+import hcm.ssj.ml.IModelHandler;
+import hcm.ssj.ml.Model;
 
 /**
  * Save and load files in a {@link PipelineBuilder} friendly format.<br>
@@ -72,7 +74,7 @@ public abstract class SaveLoad
 {
 	private final static String ROOT = "ssjSaveFile";
 	private final static String VERSION = "version";
-	private final static String VERSION_NUMBER = "4";
+	private final static String VERSION_NUMBER = "5";
 	private final static String FRAMEWORK = "framework";
 	private final static String SENSOR_CHANNEL_LIST = "sensorChannelList";
 	private final static String SENSOR_LIST = "sensorList";
@@ -84,6 +86,8 @@ public abstract class SaveLoad
 	private final static String TRANSFORMER = "transformer";
 	private final static String CONSUMER = "consumer";
 	private final static String EVENT_HANDLER = "eventHandler";
+	private final static String MODEL = "model";
+	private static final String MODEL_LIST = "modelList";
 	private final static String CLASS = "class";
 	private final static String ID = "id";
 	private final static String OPTIONS = "options";
@@ -94,10 +98,11 @@ public abstract class SaveLoad
 	private final static String CHANNEL_LIST = "providerList";
 	private final static String EVENT_CHANNEL_ID = "eventProviderId";
 	private final static String EVENT_CHANNEL_LIST = "eventProviderList";
+	private final static String MODEL_HANDLER_ID = "modelHandlerId";
+	private static final String MODEL_HANDLER_LIST = "modelHandlerList";
 	private final static String FRAME_SIZE = "frameSize";
 	private final static String DELTA = "delta";
 	private final static String EVENT_TRIGGER = "eventTrigger";
-
 
 	private static final String FEEDBACK_LEVEL_LIST = "feedbackLevelList";
 	private static final String FEEDBACK_LEVEL = "feedbackLevel";
@@ -173,6 +178,13 @@ public abstract class SaveLoad
 				addContainerElement(serializer, EVENT_HANDLER, containerElement, true);
 			}
 			serializer.endTag(null, EVENT_HANDLER_LIST);
+			//models
+			serializer.startTag(null, MODEL_LIST);
+			for (ContainerElement<Model> containerElement : PipelineBuilder.getInstance().hsModelElements)
+			{
+				addContainerElement(serializer, MODEL, containerElement, false);
+			}
+			serializer.endTag(null, MODEL_LIST);
 			//finish document
 			serializer.endTag(null, ROOT);
 			serializer.endDocument();
@@ -280,6 +292,7 @@ public abstract class SaveLoad
 						}
 						case SENSOR_CHANNEL:
 						case SENSOR:
+						case MODEL:
 						{
 							String clazz = parser.getAttributeValue(null, CLASS);
 							context = Class.forName(clazz).newInstance();
@@ -328,6 +341,12 @@ public abstract class SaveLoad
 						{
 							String hash = parser.getAttributeValue(null, ID);
 							connectionMap.get(context).typedHashes.put(Integer.parseInt(hash), ConnectionType.EVENTCONNECTION);
+							break;
+						}
+						case MODEL_HANDLER_ID:
+						{
+							String hash = parser.getAttributeValue(null, ID);
+							connectionMap.get(context).typedHashes.put(Integer.parseInt(hash), ConnectionType.MODELCONNECTION);
 							break;
 						}
 						case FEEDBACK_LEVEL:
@@ -419,6 +438,10 @@ public abstract class SaveLoad
 						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTTRIGGERCONNECTION))
 						{
 							PipelineBuilder.getInstance().setEventTrigger(key, candidateKey);
+						}
+						else if (value.typedHashes.get(provider).equals(ConnectionType.MODELCONNECTION))
+						{
+							PipelineBuilder.getInstance().addModelConnection((Component) key, (Component) candidateKey);
 						}
 					}
 				}
@@ -534,28 +557,47 @@ public abstract class SaveLoad
 		addOptions(serializer, containerElement.getElement());
 
 		HashMap<Provider, Boolean> streamHashMap = containerElement.getHmStreamProviders();
-		serializer.startTag(null, CHANNEL_LIST);
-		for (Map.Entry<Provider, Boolean> element : streamHashMap.entrySet())
+		if(streamHashMap.size() > 0)
 		{
-			serializer.startTag(null, CHANNEL_ID);
-			serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
-			serializer.endTag(null, CHANNEL_ID);
+			serializer.startTag(null, CHANNEL_LIST);
+			for (Map.Entry<Provider, Boolean> element : streamHashMap.entrySet())
+			{
+				serializer.startTag(null, CHANNEL_ID);
+				serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+				serializer.endTag(null, CHANNEL_ID);
+			}
+			serializer.endTag(null, CHANNEL_LIST);
 		}
-		serializer.endTag(null, CHANNEL_LIST);
 
 		HashMap<Component, Boolean> eventHashMap = containerElement.getHmEventProviders();
-		serializer.startTag(null, EVENT_CHANNEL_LIST);
-		for (Map.Entry<Component, Boolean> element : eventHashMap.entrySet())
+		if(eventHashMap.size() > 0)
 		{
-			serializer.startTag(null, EVENT_CHANNEL_ID);
-			serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
-			serializer.endTag(null, EVENT_CHANNEL_ID);
+			serializer.startTag(null, EVENT_CHANNEL_LIST);
+			for (Map.Entry<Component, Boolean> element : eventHashMap.entrySet())
+			{
+				serializer.startTag(null, EVENT_CHANNEL_ID);
+				serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+				serializer.endTag(null, EVENT_CHANNEL_ID);
+			}
+			serializer.endTag(null, EVENT_CHANNEL_LIST);
 		}
-		serializer.endTag(null, EVENT_CHANNEL_LIST);
 
 		if (containerElement.getElement() instanceof FeedbackCollection)
 		{
 			addFeedbackCollectionTag(serializer, containerElement);
+		}
+
+		HashMap<IModelHandler, Boolean> modelMap = containerElement.getHmModelHandlers();
+		if(modelMap.size() > 0)
+		{
+			serializer.startTag(null, MODEL_HANDLER_LIST);
+			for (Map.Entry<IModelHandler, Boolean> element : modelMap.entrySet())
+			{
+				serializer.startTag(null, MODEL_HANDLER_ID);
+				serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+				serializer.endTag(null, MODEL_HANDLER_ID);
+			}
+			serializer.endTag(null, MODEL_HANDLER_LIST);
 		}
 
 		serializer.endTag(null, tag);
@@ -611,6 +653,7 @@ public abstract class SaveLoad
 		if(from_version == 3)
 		{
 			text = text.replaceAll("eventTrigger=\"(true|false)\"", "");
+			text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
 		}
 
 		java.io.FileWriter writer = new java.io.FileWriter(file);

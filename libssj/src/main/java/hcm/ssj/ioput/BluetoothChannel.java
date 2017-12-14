@@ -42,7 +42,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class BluetoothChannel extends SensorChannel
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> channel_id = new Option<>("channel_id", 0, Integer.class, "the channel index as defined by the order in which the streams were sent");
         public final Option<Integer> bytes = new Option<>("bytes", 0, Integer.class, "");

@@ -46,6 +46,12 @@ import hcm.ssj.core.option.OptionList;
  */
 public class GPSSensor extends Sensor
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Long>    minTime     = new Option<>("minTime", 200L, Long.class, "Minimum time interval between location updates, in milliseconds");

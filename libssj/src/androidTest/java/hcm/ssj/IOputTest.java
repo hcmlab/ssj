@@ -216,8 +216,8 @@ public class IOputTest {
         frame.registerEventListener(log, channel);
 
         SocketEventWriter sock = new SocketEventWriter();
-        sock.options.port = 34300;
-        sock.options.ip = "192.168.0.101";
+        sock.options.port.set(34300);
+        sock.options.ip.set("192.168.0.101");
         frame.registerEventListener(sock, channel);
 
         try {

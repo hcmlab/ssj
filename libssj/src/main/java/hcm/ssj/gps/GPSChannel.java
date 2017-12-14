@@ -39,6 +39,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class GPSChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> sampleRate = new Option<>("sampleRate", 5, Integer.class, "");

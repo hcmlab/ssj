@@ -61,8 +61,10 @@ import hcm.ssj.creator.core.SSJDescriptor;
 import hcm.ssj.creator.util.FileChooser;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.ml.Model;
-import hcm.ssj.ml.ModelDescriptor;
+import hcm.ssj.ml.NaiveBayes;
+import hcm.ssj.ml.SVM;
 import hcm.ssj.ml.Session;
+import hcm.ssj.ml.TensorFlow;
 
 /**
  * Visualize user-saved stream file data with the GraphView.
@@ -95,29 +97,6 @@ public class TrainActivity extends AppCompatActivity
 				sessionList.addView(createSessionView(session), id +1);
 			}
 		});
-
-//		CheckBox checkBox = (CheckBox) findViewById(R.id.train_anno_convert);
-//		checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//			@Override
-//			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
-//			{
-//				int visibility = (isChecked) ? View.VISIBLE : View.GONE;
-//				findViewById(R.id.train_anno_convert_frame_layout).setVisibility(visibility);
-//				findViewById(R.id.train_anno_convert_fill_layout).setVisibility(visibility);
-//				findViewById(R.id.train_anno_convert_label_layout).setVisibility(visibility);
-//
-//				findViewById(R.id.train_anno_convert_frame_layout).setEnabled(isChecked);
-//				findViewById(R.id.train_anno_convert_fill_layout).setEnabled(isChecked);
-//				findViewById(R.id.train_anno_convert_label_layout).setEnabled(isChecked);
-//			}
-//		});
-//
-//		findViewById(R.id.train_anno_convert_frame_layout).setVisibility(View.GONE);
-//		findViewById(R.id.train_anno_convert_fill_layout).setVisibility(View.GONE);
-//		findViewById(R.id.train_anno_convert_label_layout).setVisibility(View.GONE);
-//		findViewById(R.id.train_anno_convert_frame_layout).setEnabled(false);
-//		findViewById(R.id.train_anno_convert_fill_layout).setEnabled(false);
-//		findViewById(R.id.train_anno_convert_label_layout).setEnabled(false);
 
 		final EditText textModelPath = (EditText) findViewById(R.id.model_filepath);
 		textModelPath.setText(FileCons.MODELS_DIR);
@@ -279,8 +258,8 @@ public class TrainActivity extends AppCompatActivity
 						String startPath = FileCons.SSJ_EXTERNAL_STORAGE;
 						if(!annoFile.getText().toString().isEmpty())
 							startPath = annoFile.getText().toString();
-						else if(!annoFile.getText().toString().isEmpty())
-							startPath = annoFile.getText().toString();
+						else if(!streamFile.getText().toString().isEmpty())
+							startPath = streamFile.getText().toString();
 
 						FileChooser chooser = new FileChooser(activity, startPath, false, "annotation") {
 							@Override
@@ -413,41 +392,19 @@ public class TrainActivity extends AppCompatActivity
 				emptyClass = "GARBAGE";
 			}
 
-//			CheckBox checkBox = (CheckBox) findViewById(R.id.train_anno_convert);
-//			if (checkBox.isChecked())
-//			{
-//				String str_frame = ((EditText) findViewById(R.id.train_anno_convert_frame)).getText().toString();
-//				String str_fill = ((EditText) findViewById(R.id.train_anno_convert_fill)).getText().toString();
-//
-//				String str_label = ((EditText) findViewById(R.id.train_anno_convert_label)).getText().toString();
-//				if (str_label.isEmpty())
-//					str_label = null;
-//
-//				if (!str_frame.isEmpty() && !str_fill.isEmpty())
-//				{
-//					float frame = Float.valueOf(str_frame);
-//					if(frame < 1.0 / session.stream.sr)
-//					{
-//						String msg = "frame value too small for stream: min frame = " + 1.0 / session.stream.sr;
-//						Log.e(msg);
-//						showToast(msg, Toast.LENGTH_SHORT);
-//						return;
-//					}
-//
-//					session.anno.convertToFrames(frame, str_label, 0, Float.valueOf(str_fill));
-//				}
-//				else
-//				{
-//					Log.e("error converting anno to frames");
-//					showToast("error converting anno to frames", Toast.LENGTH_SHORT);
-//					return;
-//				}
-//			}
 			session.anno.convertToFrames(1.0 / session.stream.sr, emptyClass, 0, 0.5f);
 		}
 
 		String str_model = ((Spinner) findViewById(R.id.model_selector)).getSelectedItem().toString();
-		Model model = Model.create(str_model);
+
+		Model model = null;
+		if(str_model.compareToIgnoreCase("NaiveBayes") == 0 || str_model.compareToIgnoreCase("OnlineNaiveBayes") == 0)
+			model = new NaiveBayes();
+		else if (str_model.compareToIgnoreCase("SVM") == 0)
+			model = new SVM();
+		else if (str_model.compareToIgnoreCase("PythonModel") == 0)
+			model = new TensorFlow();
+
 		if (model == null)
 		{
 			showToast("unknown model", Toast.LENGTH_SHORT);
@@ -463,21 +420,20 @@ public class TrainActivity extends AppCompatActivity
 		{
 			classes_array[i] = classes.valueAt(i);
 		}
-		model.init(classes_array, sessions.get(0).stream.dim);
+
+		Stream stream = sessions.get(0).stream;
+		model.setup(classes_array, stream.bytes, stream.dim, stream.sr, stream.type);
 
 		//train
 		for(Session session : sessions)
 			model.train(session.stream, session.anno, session.name);
 
 		// save model
-		Stream stream = sessions.get(0).stream;
-		ModelDescriptor desc = new ModelDescriptor(model, stream.bytes, stream.dim, stream.sr, stream.type);
-
 		String str_path = ((EditText) findViewById(R.id.model_filepath)).getText().toString();
 		String str_name = ((EditText) findViewById(R.id.model_filename)).getText().toString();
 		try
 		{
-			desc.save(str_path, str_name);
+			model.save(str_path, str_name);
 			showToast("model training finished", Toast.LENGTH_SHORT);
 		}
 		catch (IOException e)

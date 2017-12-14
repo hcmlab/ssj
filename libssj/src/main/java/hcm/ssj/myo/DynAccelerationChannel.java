@@ -42,6 +42,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class DynAccelerationChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Float> gravity = new Option<>("gravity", 9.814f, Float.class, "Frankfurt");

@@ -209,4 +209,10 @@ public class BluetoothReader extends Sensor {
         _conn = null;
         super.clear();
     }
+
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
 }

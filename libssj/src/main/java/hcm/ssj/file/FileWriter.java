@@ -48,6 +48,7 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 import static hcm.ssj.file.FileCons.FILE_EXTENSION_STREAM;
@@ -58,7 +59,13 @@ import static hcm.ssj.file.FileCons.FILE_EXTENSION_STREAM;
  */
 public class FileWriter extends Consumer implements IFileWriter
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      *
      */
     public class Options extends IFileWriter.Options

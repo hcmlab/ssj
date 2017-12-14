@@ -37,6 +37,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.OptionList;
 
 public class AngelSensor extends Sensor
 {
@@ -115,4 +116,10 @@ public class AngelSensor extends Sensor
 	private BleScanner       mBleScanner;
 	private BluetoothAdapter bluetoothAdapter;
 	BluetoothDevice bluetoothDevice;
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
+	}
 }

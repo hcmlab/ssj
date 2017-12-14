@@ -54,15 +54,23 @@ import hcm.ssj.core.stream.Stream;
 
 public class TensorFlow extends Model
 {
+	public class Options extends Model.Options
+	{
+		public final Option<String> inputNode = new Option<>("input", "input", String.class, "name of the input node");
+		public final Option<String> outputNode = new Option<>("output", "output", String.class, "name of the output node");
+		public final Option<long[]> shape = new Option<>("shape", null, long[].class, "shape of the input tensor");
+
+		private Options()
+		{
+			super();
+			addOptions();
+		}
+	}
+
+	public Options options = new Options();
+
 	private Graph graph;
 	private Session session;
-
-	private long[] inputTensorShape;
-
-	private String inputNode;
-	private String outputNode;
-
-	private boolean optionsSet = false;
 
 	static
 	{
@@ -77,16 +85,21 @@ public class TensorFlow extends Model
 
 
 	@Override
+	public Model.Options getOptions()
+	{
+		return options;
+	}
+
+	@Override
+	void init(String[] classes, int n_features)
+	{}
+
+	@Override
 	protected float[] forward(Stream stream)
 	{
-		if (!_isTrained)
+		if (!isTrained)
 		{
 			Log.w("not trained");
-			return null;
-		}
-		if (!optionsSet)
-		{
-			Log.e("not all options were set");
 			return null;
 		}
 
@@ -123,30 +136,7 @@ public class TensorFlow extends Model
 					{
 						String optionName = parser.getAttributeValue(null, "name");
 						String optionValue = parser.getAttributeValue(null, "value");
-
-						if (optionName.equalsIgnoreCase("input"))
-						{
-							// Create and add option for input tensor node name.
-							Option<String> inputNode = new Option<>(optionName, "input", String.class, "name of the input node");
-							inputNode.set(optionValue);
-							options.add(inputNode);
-						}
-
-						if (optionName.equalsIgnoreCase("output"))
-						{
-							// Create and add option for output tensor node name.
-							Option<String> outputNode = new Option<>(optionName, "output", String.class, "name of the output node");
-							outputNode.set(optionValue);
-							options.add(outputNode);
-						}
-
-						if (optionName.equalsIgnoreCase("shape"))
-						{
-							// Create and add option for input tensor shape.
-							Option<long[]> shape = new Option<>(optionName, null, long[].class, "shape of the input tensor");
-							shape.set(parseTensorShape(optionValue));
-							options.add(shape);
-						}
+						options.setOptionValue(optionName, optionValue);
 					}
 				}
 				eventType = parser.next();
@@ -156,13 +146,10 @@ public class TensorFlow extends Model
 		{
 			Log.e(e.getMessage());
 		}
-
-		setVariablesFromOptions();
 	}
 
-
 	@Override
-	protected void load(File file)
+	protected void loadModel(File file)
 	{
 		FileInputStream fileInputStream;
 		byte[] fileBytes = new byte[(int) file.length()];
@@ -183,7 +170,7 @@ public class TensorFlow extends Model
 			return;
 		}
 
-		_isTrained = true;
+		isTrained = true;
 	}
 
 
@@ -195,10 +182,10 @@ public class TensorFlow extends Model
 	 */
 	private float[] makePrediction(float[] floatValues)
 	{
-		Tensor input = Tensor.create(inputTensorShape, FloatBuffer.wrap(floatValues));
+		Tensor input = Tensor.create(options.shape.get(), FloatBuffer.wrap(floatValues));
 		Tensor result = session.runner()
-				.feed(inputNode, input)
-				.fetch(outputNode)
+				.feed(options.inputNode.get(), input)
+				.fetch(options.outputNode.get())
 				.run().get(0);
 
 		long[] rshape = result.shape();
@@ -238,26 +225,5 @@ public class TensorFlow extends Model
 		}
 
 		return tensorShape;
-	}
-
-
-	/**
-	 * Sets variable values necessary for prediction making.
-	 */
-	private void setVariablesFromOptions()
-	{
-		try
-		{
-			// Parse option values.
-			inputNode = (String)options.getOptionValue("input");
-			outputNode = (String)options.getOptionValue("output");
-			inputTensorShape = (long[])options.getOptionValue("shape");
-
-			optionsSet = true;
-		}
-		catch (Exception e)
-		{
-			Log.e("Error while parsing option values. " + e.getMessage());
-		}
 	}
 }

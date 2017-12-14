@@ -62,7 +62,13 @@ public class FeedbackManager extends EventHandler
 
     private final String STARTEGY_FOLDER = Environment.getExternalStorageDirectory() + File.separator + "logue";
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
 
         public final Option<String> strategy = new Option<>("strategy", null, String.class, "strategy file");

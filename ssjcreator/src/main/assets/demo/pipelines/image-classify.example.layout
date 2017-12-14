@@ -9,6 +9,7 @@
     <component X="9" Y="17" />
     <component X="9" Y="21" />
     <component X="4" Y="9" />
+    <component X="13" Y="21" />
   </pipeLayout>
   <annotation fileName="anno" filePath="/storage/emulated/0/SSJ/[time]" />
 </ssjCreator>

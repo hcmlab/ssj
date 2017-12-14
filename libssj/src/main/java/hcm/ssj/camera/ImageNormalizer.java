@@ -44,6 +44,12 @@ import hcm.ssj.core.stream.Stream;
 
 public class ImageNormalizer extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> imageMean = new Option<>("imageMean", 0, Integer.class, "image mean");

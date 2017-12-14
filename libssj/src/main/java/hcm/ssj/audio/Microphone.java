@@ -32,6 +32,7 @@ import android.media.AudioFormat;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Audio Sensor - "connects" to the audio interface
@@ -88,4 +89,10 @@ public class Microphone extends Sensor {
                 return Cons.Type.UNDEF;
         }
     }
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
+	}
 }

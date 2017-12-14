@@ -46,7 +46,13 @@ public class BLESensor extends Sensor {
     private BluetoothAdapter bluetoothAdapter;
     BluetoothDevice bluetoothDevice;
 
-    public class Options extends OptionList {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList {
         public final Option<String> sensorName = new Option<>("sensorName", "HCM", String.class, "Sensor Name to connect to");
         //public final Option<String> service = new Option<>("service", "0000180d-0000-1000-8000-00805f9b34fb", String.class, "UUID of service" );//hr
         //public final Option<String> service = new Option<>("service", "481d178c-10dd-11e4-b514-b2227cce2b54", String.class, "UUID of service" ); //angel

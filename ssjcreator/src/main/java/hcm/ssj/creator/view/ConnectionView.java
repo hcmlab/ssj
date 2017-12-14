@@ -105,7 +105,9 @@ public class ConnectionView extends View
 
 		setLine(destinationComponentView.getX(), destinationComponentView.getY(),
 				startComponentView.getX(), startComponentView.getY(),
-				boxSize);
+				boxSize,
+				connectionType == ConnectionType.EVENTCONNECTION,
+				connectionType != ConnectionType.MODELCONNECTION);
 	}
 
 	/**
@@ -115,13 +117,14 @@ public class ConnectionView extends View
 	 * @param startY  float
 	 * @param boxSize int
 	 */
-	private void setLine(float stopX, float stopY, float startX, float startY, final int boxSize)
+	private void setLine(float stopX, float stopY, float startX, float startY, final int boxSize, boolean curved, boolean arrow)
 	{
 		//calc triangle
 		int arrowLength = (int) (boxSize / 1.42f + 0.5f);
 		double triangleA = arrowLength * Math.cos(Math.toRadians(90 - ARROW_ANGLE));
 		double triangleB = Math.sqrt(Math.pow(arrowLength, 2) - Math.pow(triangleA, 2));
 		double triangleAlpha = Math.toRadians(ARROW_ANGLE);
+
 		//draw line
 		//start and end are in the middle of the element box
 		stopX += boxSize;
@@ -130,7 +133,6 @@ public class ConnectionView extends View
 		startY += boxSize;
 		path = new Path();
 
-		//draw arrow
 		//direction
 		float dx = stopX - startX;
 		float dy = stopY - startY;
@@ -139,11 +141,10 @@ public class ConnectionView extends View
 		double middleX = (stopX + startX) / 2;
 		double middleY = (stopY + startY) / 2;
 
-
 		path.moveTo(stopX, stopY);
 
 		// Draw connection as a curve if it's a event connection
-		if (connectionType == ConnectionType.EVENTCONNECTION)
+		if (curved)
 		{
 			float vLength = (float) Math.sqrt(dx * dx + dy * dy);
 			float normX = (dx / vLength) * boxSize * 2.0f;
@@ -157,19 +158,23 @@ public class ConnectionView extends View
 			path.lineTo(startX, startY);
 		}
 
-		//position arrow in the middle
-		middleX += triangleB / 2 * Math.cos(theta);
-		middleY += triangleB / 2 * Math.sin(theta);
-		//draw first line
-		double x = middleX - arrowLength * Math.cos(theta + triangleAlpha);
-		double y = middleY - arrowLength * Math.sin(theta + triangleAlpha);
-		path.moveTo((float) middleX, (float) middleY);
-		path.lineTo((float) x, (float) y);
-		//draw second line
-		double x2 = middleX - arrowLength * Math.cos(theta - triangleAlpha);
-		double y2 = middleY - arrowLength * Math.sin(theta - triangleAlpha);
-		path.moveTo((float) middleX, (float) middleY);
-		path.lineTo((float) x2, (float) y2);
+		//draw arrow
+		if(arrow)
+		{
+			//position arrow in the middle
+			middleX += triangleB / 2 * Math.cos(theta);
+			middleY += triangleB / 2 * Math.sin(theta);
+			//draw first line
+			double x = middleX - arrowLength * Math.cos(theta + triangleAlpha);
+			double y = middleY - arrowLength * Math.sin(theta + triangleAlpha);
+			path.moveTo((float) middleX, (float) middleY);
+			path.lineTo((float) x, (float) y);
+			//draw second line
+			double x2 = middleX - arrowLength * Math.cos(theta - triangleAlpha);
+			double y2 = middleY - arrowLength * Math.sin(theta - triangleAlpha);
+			path.moveTo((float) middleX, (float) middleY);
+			path.lineTo((float) x2, (float) y2);
+		}
 	}
 
 	/**

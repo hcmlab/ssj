@@ -95,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private LinearLayout transformerLayout;
 	private LinearLayout consumerLayout;
 	private LinearLayout eventHandlerLayout;
+	private LinearLayout modelLayout;
 
 	private Animation showButton;
 	private Animation hideButton;
@@ -630,6 +631,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
 		consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
 		eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+		modelLayout = (LinearLayout) findViewById(R.id.model_layout);
 	}
 
 	/**
@@ -687,6 +689,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
 			}
 		});
+
+		FloatingActionButton addModel = (FloatingActionButton) findViewById(R.id.action_models);
+		addModel.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_models, SSJDescriptor.getInstance().models);
+			}
+		});
 	}
 
 	/**
@@ -711,6 +723,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		toggleLayout(transformerLayout, enable);
 		toggleLayout(consumerLayout, enable);
 		toggleLayout(eventHandlerLayout, enable);
+		toggleLayout(modelLayout, enable);
 	}
 
 	/**

@@ -40,6 +40,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class AltimeterChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");

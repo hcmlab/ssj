@@ -41,6 +41,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Butfilt extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public enum Type
 	{
 		LOW,

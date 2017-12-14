@@ -39,7 +39,13 @@ import hcm.ssj.core.stream.Stream;
 
 public class FloatsEventSender extends Consumer
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<String> sender = new Option<>("sender", null, String.class, "");
         public final Option<String> event = new Option<>("event", "event", String.class, "");

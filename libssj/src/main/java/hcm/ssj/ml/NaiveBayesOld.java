@@ -37,7 +37,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.SimpleXmlParser;
 
@@ -51,7 +50,7 @@ public class NaiveBayesOld extends Model
     /**
      * All options for the transformer
      */
-    public class Options extends OptionList
+    public class Options extends Model.Options
     {
         /**
          *
@@ -79,15 +78,20 @@ public class NaiveBayesOld extends Model
      */
     public NaiveBayesOld()
     {
-        _name = this.getClass().getSimpleName();
+        _name = "NaiveBayes";
     }
 
-
-    private void init()
+    @Override
+    protected void init(String[] classes, int n_features)
     {
         probs = new float[n_classes];
+        _isSetup = true;
+    }
 
-        _isInit = true;
+    @Override
+    public Model.Options getOptions()
+    {
+        return options;
     }
 
     /**
@@ -96,7 +100,7 @@ public class NaiveBayesOld extends Model
      */
     public float[] forward(Stream stream)
     {
-        if (!_isTrained || class_probs == null || class_probs.length <= 0)
+        if (!isTrained || class_probs == null || class_probs.length <= 0)
         {
             Log.w("not trained");
             return null;
@@ -216,7 +220,7 @@ public class NaiveBayesOld extends Model
     /**
      * Load data from model file
      */
-    public void load(File file)
+    public void loadModel(File file)
     {
         if (file == null)
         {
@@ -305,8 +309,7 @@ public class NaiveBayesOld extends Model
             Log.e("could not close reader");
         }
 
-        init();
-        _isTrained = true;
+        isTrained = true;
     }
 
     /**

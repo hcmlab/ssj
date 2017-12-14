@@ -45,6 +45,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class MvgMinMax extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public enum Method
 	{
 		MOVING,

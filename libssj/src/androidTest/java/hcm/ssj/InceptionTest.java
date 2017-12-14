@@ -43,6 +43,7 @@ import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
+import hcm.ssj.ml.TensorFlow;
 
 /**
  * Tests setting up, loading, and evaluating object classification
@@ -105,9 +106,13 @@ public class InceptionTest
 		imageNormalizer.options.imageStd.set(IMAGE_STD);
 		frame.addTransformer(imageNormalizer, resizer, 1, 0);
 
+		TensorFlow tensorFlow = new TensorFlow();
+		tensorFlow.options.file.setValue(trainerURL + File.separator + trainerName);
+		frame.addModel(tensorFlow);
+
 		// Add classifier transformer to the pipeline
 		Classifier classifier = new Classifier();
-		classifier.options.trainerFile.setValue(trainerURL + File.separator + trainerName);
+		classifier.setModel(tensorFlow);
 		classifier.options.merge.set(false);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
 

@@ -31,6 +31,7 @@ import java.util.LinkedHashMap;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Provider;
+import hcm.ssj.ml.IModelHandler;
 
 /**
  * Container element for pipeline builder.<br>
@@ -44,7 +45,7 @@ public class ContainerElement<T>
 	private Object eventTrigger = null;
     private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
     private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
-
+	private LinkedHashMap<IModelHandler, Boolean> hmModelHandlers = new LinkedHashMap<>();
 
     /**
      * @param element T
@@ -178,5 +179,56 @@ public class ContainerElement<T>
 	public boolean removeEventProvider(Component provider)
 	{
 		return hmEventProviders.remove(provider) != null;
+	}
+
+
+	/**
+	 * @return LinkedHashMap
+	 */
+	public LinkedHashMap<IModelHandler, Boolean> getHmModelHandlers()
+	{
+		return hmModelHandlers;
+	}
+
+	/**
+	 * @param handler IModelHandler
+	 * @return boolean
+	 */
+	public boolean setConnectionAdded(IModelHandler handler)
+	{
+		return hmModelHandlers.containsKey(handler) && !hmModelHandlers.put(handler, true);
+	}
+
+	/**
+	 * @return boolean
+	 */
+	public boolean allConnectionsAdded()
+	{
+		for (boolean value : hmModelHandlers.values())
+		{
+			if (!value)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * @param handler IModelHandler
+	 * @return boolean
+	 */
+	public boolean addConnection(IModelHandler handler)
+	{
+		return !hmModelHandlers.containsKey(handler) && hmModelHandlers.put(handler, false) == null;
+	}
+
+	/**
+	 * @param handler IModelHandler
+	 * @return boolean
+	 */
+	public boolean removeConnection(IModelHandler handler)
+	{
+		return hmModelHandlers.remove(handler) != null;
 	}
 }

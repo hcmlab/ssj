@@ -56,6 +56,8 @@ import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.ArrayAdapterWithNull;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
+import hcm.ssj.ml.IModelHandler;
+import hcm.ssj.ml.Model;
 import hcm.ssj.ml.Trainer;
 
 public class OptionsActivity extends AppCompatActivity
@@ -133,7 +135,16 @@ public class OptionsActivity extends AppCompatActivity
 				tableLayout.addView(streamTableRow);
 			}
 		}
-		if (innerObject != null)
+		if (innerObject != null && (innerObject instanceof IModelHandler || innerObject instanceof Model))
+		{
+			//add possible model connections
+			TableRow modelTableRow = ProviderTable.createModelTable(this, innerObject,true, (innerObject instanceof IModelHandler ? R.string.str_model_conn : R.string.str_modelhandler_conn));
+			if (modelTableRow != null)
+			{
+				tableLayout.addView(modelTableRow);
+			}
+		}
+		if (innerObject != null && !(innerObject instanceof Model))
 		{
 			//add possible event providers
 			// Do not add event provider for managed feedback

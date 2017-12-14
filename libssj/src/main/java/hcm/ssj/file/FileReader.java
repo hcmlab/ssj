@@ -52,7 +52,13 @@ import hcm.ssj.core.option.OptionList;
  */
 public class FileReader extends Sensor
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      *
      */
     public class Options extends OptionList

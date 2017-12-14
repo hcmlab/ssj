@@ -47,6 +47,12 @@ import hcm.ssj.core.stream.Stream;
 
 public class ImageResizer extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> size = new Option<>("size", 0, Integer.class, "size of the image after resizing");

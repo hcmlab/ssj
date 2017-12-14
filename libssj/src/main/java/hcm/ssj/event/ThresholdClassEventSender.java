@@ -45,6 +45,12 @@ import hcm.ssj.core.stream.Stream;
 
 public class ThresholdClassEventSender extends Consumer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<String> sender = new Option<>("sender", null, String.class, "name of event sender");

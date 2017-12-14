@@ -77,7 +77,7 @@ abstract class SaveLoad
     static boolean save(Object o,
                         ArrayList<ComponentView> providers, ArrayList<ComponentView> sensors,
                         ArrayList<ComponentView> transformers, ArrayList<ComponentView> consumers,
-                        ArrayList<ComponentView> eventHandlers)
+                        ArrayList<ComponentView> eventHandlers, ArrayList<ComponentView> models)
     {
         File fileOrig = (File) o;
         File file = new File(fileOrig.getParentFile().getPath(), fileOrig.getName().replace(Util.SUFFIX, "") + SUFFIX);
@@ -134,6 +134,11 @@ abstract class SaveLoad
             }
             //eventHandlers
             for (ComponentView componentView : eventHandlers)
+            {
+                addComponentView(serializer, componentView);
+            }
+            //models
+            for (ComponentView componentView : models)
             {
                 addComponentView(serializer, componentView);
             }

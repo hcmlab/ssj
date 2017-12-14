@@ -39,8 +39,10 @@
     <color name="colorTransformer">#0F9D58</color>
     <color name="colorConsumer">#29b6f6</color>
     <color name="colorEventHandler">#7c4dff</color>
+    <color name="colorModel">#607D8B</color>
 
     <color name="colorConnectionStream">#9e9e9e</color>
     <color name="colorConnectionEvent">#383838</color>
+    <color name="colorConnectionModel">#9e9e9e</color>
 
 </resources>

@@ -48,6 +48,7 @@ import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothReader;
 import hcm.ssj.ioput.BluetoothWriter;
 import hcm.ssj.ml.Classifier;
+import hcm.ssj.ml.TensorFlow;
 import hcm.ssj.test.Logger;
 
 @RunWith(AndroidJUnit4.class)
@@ -158,10 +159,14 @@ public class SendImageTest
 		imageNormalizer.options.imageStd.set(1f);
 		frame.addTransformer(imageNormalizer, resizer, frameSize, delta);
 
+		TensorFlow tf = new TensorFlow();
+		tf.options.file.setValue(trainerURL + File.separator + trainerName);
+		frame.addModel(tf);
+
 		Classifier classifier = new Classifier();
-		classifier.options.trainerFile.setValue(trainerURL + File.separator + trainerName);
 		classifier.options.merge.set(false);
 		classifier.options.log.set(true);
+		classifier.setModel(tf);
 		frame.addConsumer(classifier, imageNormalizer, frameSize, delta);
 
 		Logger logger = new Logger();

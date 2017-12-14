@@ -248,4 +248,10 @@ public class BluetoothEventReader extends EventHandler
         super.clear();
     }
 
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 }

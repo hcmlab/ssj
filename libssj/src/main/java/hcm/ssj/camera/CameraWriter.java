@@ -42,6 +42,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.Mp4Writer;
@@ -54,7 +55,13 @@ import hcm.ssj.file.Mp4Writer;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
 public class CameraWriter extends Mp4Writer
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the camera writer
      */
     public class Options extends Mp4Writer.Options

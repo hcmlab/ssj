@@ -70,6 +70,12 @@ import hcm.ssj.core.option.OptionList;
  */
 public class Empatica extends Sensor implements EmpaStatusDelegate
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<String> apiKey = new Option<>("apiKey", null, String.class, "the api key from your empatica developer page");

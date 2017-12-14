@@ -45,6 +45,7 @@ import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 
 import static hcm.ssj.file.FileCons.FILE_EXTENSION_ANNO_PLAIN;
 import static hcm.ssj.file.FileCons.FILE_EXTENSION_EVENT;
@@ -55,7 +56,13 @@ import static hcm.ssj.file.FileCons.FILE_EXTENSION_EVENT;
  */
 public class FileEventWriter extends EventHandler implements IFileWriter
 {
-    public enum Format
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public enum Format
     {
         EVENT,
         ANNO_PLAIN

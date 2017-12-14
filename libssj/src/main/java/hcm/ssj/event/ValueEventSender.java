@@ -42,6 +42,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class ValueEventSender extends Consumer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<String>    sender   = new Option<>("sender", null, String.class, "");

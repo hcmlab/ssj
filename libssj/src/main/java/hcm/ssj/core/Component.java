@@ -29,6 +29,8 @@ package hcm.ssj.core;
 
 import java.util.ArrayList;
 
+import hcm.ssj.core.option.OptionList;
+
 /**
  * Created by Johnny on 05.03.2015.
  */
@@ -137,4 +139,6 @@ public abstract class Component implements Runnable
             _evchannel_in.clear();
         }
     }
+
+    public abstract OptionList getOptions();
 }

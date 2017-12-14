@@ -88,7 +88,6 @@
         <option name="log" value="false" />
         <option name="merge" value="false" />
         <option name="sender" value="Classifier" />
-        <option name="trainerFile" value="https://hcm-lab.de/downloads/ssj/model/inception.trainer" />
       </options>
       <providerList>
         <providerId id="242568698" />
@@ -110,4 +109,14 @@
     </consumer>
   </consumerList>
   <eventHandlerList />
+  <modelList>
+    <model class="hcm.ssj.ml.TensorFlow" id="74776647">
+      <options>
+        <option name="file" value="https://hcm-lab.de/downloads/ssj/model/inception.trainer" />
+      </options>
+      <modelHandlerList>
+        <modelHandlerId id="268149330" />
+      </modelHandlerList>
+    </model>
+  </modelList>
 </ssjSaveFile>

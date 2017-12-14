@@ -57,7 +57,13 @@ public class Pitch extends Transformer {
     public final static int FFT_PITCH = 4;
     public final static int YIN = 5;
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> detector = new Option<>("detector", YIN, Integer.class, "");
         public final Option<Boolean> computePitch = new Option<>("computePitch", true, Boolean.class, "");

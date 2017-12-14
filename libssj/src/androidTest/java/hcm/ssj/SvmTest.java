@@ -45,6 +45,7 @@ import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.file.FileWriter;
 import hcm.ssj.ml.ClassifierT;
+import hcm.ssj.ml.SVM;
 import hcm.ssj.test.Logger;
 
 import static android.support.test.InstrumentationRegistry.getContext;
@@ -93,8 +94,12 @@ public class SvmTest
         frame.addTransformer(gyrFeatures, gyrChannel, 2, 2);
 
         // SVM
+        SVM svm = new SVM();
+        svm.options.file.setValue(dir.getAbsolutePath() + File.separator + modelName);
+        frame.addModel(svm);
+
         ClassifierT classifier = new ClassifierT();
-        classifier.options.trainerFile.setValue(dir.getAbsolutePath() + File.separator + modelName);
+        classifier.setModel(svm);
         frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);
 
         // Consumer

@@ -44,6 +44,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class GSRChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Float> sampleRate = new Option<>("sampleRate", 5.0f, Float.class, "supported sample rates: 0.2, 5.0 Hz");

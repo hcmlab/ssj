@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import hcm.ssj.core.Log;
-import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.SimpleXmlParser;
 
@@ -56,13 +55,14 @@ public class NaiveBayes extends Model
 	/**
 	 * All options for OnlineNaiveBayes
 	 */
-	public class Options extends OptionList
+	public class Options extends Model.Options
 	{
 		/**
 		 *
 		 */
 		private Options()
 		{
+			super();
 			addOptions();
 		}
 	}
@@ -79,7 +79,6 @@ public class NaiveBayes extends Model
 
 	// Helper variables
 	private Map<String, Integer> classNameIndices = null;
-	private double[] featureValues = null;
 
 	private int classCount;
 	private int featureCount;
@@ -117,9 +116,15 @@ public class NaiveBayes extends Model
 	}
 
 	@Override
-	public float[] forward(Stream stream)
+	public Model.Options getOptions()
 	{
-		if (!_isTrained)
+		return options;
+	}
+
+	@Override
+	public synchronized float[] forward(Stream stream)
+	{
+		if (!isTrained)
 		{
 			Log.w("Not trained");
 			return null;
@@ -129,9 +134,6 @@ public class NaiveBayes extends Model
 			Log.w("Feature dimension (" + featureCount + ") differs from input stream dimension (" + stream.dim + ")");
 			return null;
 		}
-
-		// Convert stream to double values
-		featureValues = getValuesAsDouble(stream, featureValues);
 
 		double classDistributionSum = getClassDistributionSum();
 
@@ -150,7 +152,7 @@ public class NaiveBayes extends Model
 
 					if (stdDev != 0)
 					{
-						probability += getProbabilityLog(featureValues[featureIndex], stdDev, mean[classIndex][featureIndex], weightSum[classIndex][featureIndex]);
+						probability += getProbabilityLog(getDoubleValue(stream, featureIndex), stdDev, mean[classIndex][featureIndex], weightSum[classIndex][featureIndex]);
 					}
 				}
 
@@ -166,7 +168,7 @@ public class NaiveBayes extends Model
 
 				for (int featureIndex = 0; featureIndex < featureCount; featureIndex++)
 				{
-					probability *= getProbability(featureValues[featureIndex], getStdDev(classIndex, featureIndex), mean[classIndex][featureIndex], weightSum[classIndex][featureIndex]);
+					probability *= getProbability(getDoubleValue(stream, featureIndex), getStdDev(classIndex, featureIndex), mean[classIndex][featureIndex], weightSum[classIndex][featureIndex]);
 				}
 
 				classProbabilities[classIndex] = (float) probability;
@@ -268,13 +270,10 @@ public class NaiveBayes extends Model
 		// Add to class distribution
 		classDistribution[classIndex] += weight;
 
-		// Convert stream to double values
-		featureValues = getValuesAsDouble(stream, featureValues);
-
 		// Train model for each feature dimension independently
 		for (int featureIndex = 0; featureIndex < stream.dim; featureIndex++)
 		{
-			trainOnSample(featureValues[featureIndex], featureIndex, classIndex, weight);
+			trainOnSample(getDoubleValue(stream, featureIndex), featureIndex, classIndex, weight);
 		}
 	}
 
@@ -302,13 +301,13 @@ public class NaiveBayes extends Model
 		}
 	}
 
-	public void init(String[] classes, int n_features)
+	@Override
+	protected void init(String[] classes, int n_features)
 	{
 		classCount = classes.length;
 		featureCount = n_features;
 
 		// Initialize model variables
-		class_names = classes.clone();
 		mean = new double[classCount][];
 		varianceSum = new double[classCount][];
 		weightSum = new double[classCount][];
@@ -327,16 +326,14 @@ public class NaiveBayes extends Model
 		// Store class indices for reverse lookup used in online learning
 		classNameIndices = new HashMap<>();
 
-		for (int i = 0; i < class_names.length; i++)
+		for (int i = 0; i < classes.length; i++)
 		{
-			classNameIndices.put(class_names[i], i);
+			classNameIndices.put(classes[i], i);
 		}
-
-		_isInit = true;
 	}
 
 	@Override
-	public void load(File file)
+	public void loadModel(File file)
 	{
 		BufferedReader reader;
 		try
@@ -389,19 +386,8 @@ public class NaiveBayes extends Model
 			return;
 		}
 
-		// Initialize model variables
-		mean = new double[classCount][];
-		varianceSum = new double[classCount][];
-		weightSum = new double[classCount][];
-		classDistribution = new double[classCount];
-
 		for (int classIndex = 0; classIndex < classCount; classIndex++)
 		{
-			// Create arrays
-			mean[classIndex] = new double[featureCount];
-			varianceSum[classIndex] = new double[featureCount];
-			weightSum[classIndex] = new double[featureCount];
-
 			// Load model values
 			do
 			{
@@ -459,17 +445,7 @@ public class NaiveBayes extends Model
 			Log.e("Could not close reader");
 		}
 
-		classProbabilities = new float[classCount];
-
-		// Store class indices for reverse lookup used in online learning
-		classNameIndices = new HashMap<>();
-
-		for (int i = 0; i < class_names.length; i++)
-		{
-			classNameIndices.put(class_names[i], i);
-		}
-
-		_isTrained = true;
+		isTrained = true;
 	}
 
 	/**
@@ -513,7 +489,7 @@ public class NaiveBayes extends Model
 	}
 
 	@Override
-	public void save(File file)
+	public void saveModel(File file)
 	{
 		if (file == null)
 		{
@@ -600,63 +576,25 @@ public class NaiveBayes extends Model
 		return x > (1e-20) ? Math.log(x) : -46; // Smallest log value
 	}
 
-	/**
-	 * Transforms an input array of a stream into a double array and returns it.
-	 *
-	 * @param stream Stream
-	 */
-	private double[] getValuesAsDouble(Stream stream, double[] data)
+	private double getDoubleValue(Stream stream, int pos)
 	{
-		if (data == null)
-		{
-			data = new double[stream.num * stream.dim];
-		}
-
 		switch (stream.type)
 		{
 			case CHAR:
-				char[] chars = stream.ptrC();
-				for (int i = 0; i < data.length; i++)
-				{
-					data[i] = (double) chars[i];
-				}
-				break;
+				return stream.ptrC()[pos];
 			case SHORT:
-				short[] shorts = stream.ptrS();
-				for (int i = 0; i < data.length; i++)
-				{
-					data[i] = (double) shorts[i];
-				}
-				break;
+				return stream.ptrS()[pos];
 			case INT:
-				int[] ints = stream.ptrI();
-				for (int i = 0; i < data.length; i++)
-				{
-					data[i] = (double) ints[i];
-				}
-				break;
+				return stream.ptrI()[pos];
 			case LONG:
-				long[] longs = stream.ptrL();
-				for (int i = 0; i < data.length; i++)
-				{
-					data[i] = (double) longs[i];
-				}
-				break;
+				return stream.ptrL()[pos];
 			case FLOAT:
-				float[] floats = stream.ptrF();
-				for (int i = 0; i < data.length; i++)
-				{
-					data[i] = (double) floats[i];
-				}
-				break;
+				return stream.ptrF()[pos];
 			case DOUBLE:
-				data = stream.ptrD();
-				break;
+				return stream.ptrD()[pos];
 			default:
 				Log.e("invalid input stream type");
-				break;
+				return 0;
 		}
-
-		return data;
 	}
 }

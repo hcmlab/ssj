@@ -37,7 +37,6 @@ import java.io.InputStreamReader;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import libsvm.svm;
 import libsvm.svm_model;
@@ -53,7 +52,7 @@ public class SVM extends Model
     /**
      * All options for the transformer
      */
-    public class Options extends OptionList
+    public class Options extends Model.Options
     {
         /**
          *
@@ -85,8 +84,11 @@ public class SVM extends Model
         _name = this.getClass().getSimpleName();
     }
 
-    private void init()
+    @Override
+    protected void init(String[] classes, int n_features)
     {
+        n_features = input_dim;
+
         nodes = new svm_node[n_features+1];
         for(int i = 0; i < nodes.length; i++)
             nodes[i] = new svm_node();
@@ -97,8 +99,12 @@ public class SVM extends Model
 
         prob_estimates = new double[n_classes];
         probs = new float[n_classes];
+    }
 
-        _isInit = true;
+    @Override
+    public Model.Options getOptions()
+    {
+        return options;
     }
 
     /**
@@ -107,7 +113,7 @@ public class SVM extends Model
      */
     protected float[] forward(Stream stream)
     {
-        if (!_isTrained)
+        if (!isTrained)
         {
             Log.w("not trained");
             return null;
@@ -156,7 +162,7 @@ public class SVM extends Model
     /**
      * Load data from model file
      */
-    protected void load(File file)
+    protected void loadModel(File file)
     {
         if (file == null)
         {
@@ -252,8 +258,7 @@ public class SVM extends Model
             }
         }
 
-        init();
-        _isTrained = true;
+        isTrained = true;
     }
 
     /**

@@ -44,6 +44,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.IFileWriter;
@@ -54,6 +55,12 @@ import hcm.ssj.file.IFileWriter;
 
 public class FFMPEGWriter extends Consumer implements IFileWriter
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	/**
 	 * FFMPEG writer options
 	 */

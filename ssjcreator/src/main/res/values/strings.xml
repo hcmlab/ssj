@@ -125,4 +125,7 @@
     <string name="train_session_list_title">Data Sources</string>
     <string name="button_session_list_add">Add Source ...</string>
     <string name="train_anno_garbage">Fill up empty spaces in anno</string>
+    <string name="str_model_conn">Model</string>
+    <string name="str_modelhandler_conn">Model Handler</string>
+    <string name="str_models">Models</string>
 </resources>

@@ -49,7 +49,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class FileReaderChannel extends SensorChannel
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      *
      */
     public class Options extends OptionList

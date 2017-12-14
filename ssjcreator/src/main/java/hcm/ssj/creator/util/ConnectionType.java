@@ -40,7 +40,8 @@ public enum ConnectionType{
 
 	STREAMCONNECTION(new PathEffect(), R.color.colorConnectionStream),
 	EVENTCONNECTION(new DashPathEffect(new float[]{45f,  30f}, 0), R.color.colorConnectionEvent),
-	EVENTTRIGGERCONNECTION(null, R.color.colorConnectionEvent);
+	EVENTTRIGGERCONNECTION(null, R.color.colorConnectionEvent),
+	MODELCONNECTION(new DashPathEffect(new float[]{10f,  10f}, 0), R.color.colorConnectionModel);
 
 	private final PathEffect pathEffect;
 	private final int color;

@@ -43,7 +43,13 @@ import hcm.ssj.file.FileCons;
  */
 public class SSITransformer extends Transformer
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      *
      */
     public class Options extends OptionList

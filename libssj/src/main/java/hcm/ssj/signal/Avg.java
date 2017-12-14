@@ -41,7 +41,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Avg extends Transformer {
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         /**
          *

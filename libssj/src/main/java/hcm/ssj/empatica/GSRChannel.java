@@ -39,6 +39,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class GSRChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> sampleRate = new Option<>("sampleRate", 4, Integer.class, "");

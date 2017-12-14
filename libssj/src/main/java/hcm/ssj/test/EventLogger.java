@@ -41,7 +41,13 @@ import hcm.ssj.core.option.OptionList;
  */
 public class EventLogger extends EventHandler
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         /**
          *

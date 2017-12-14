@@ -51,7 +51,13 @@ import hcm.ssj.core.option.OptionList;
  */
 public class SocketReader extends Sensor
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public Option<String> ip = new Option<>("ip", null, String.class, "");
         public Option<Integer> port = new Option<>("port", 0, Integer.class, "");
