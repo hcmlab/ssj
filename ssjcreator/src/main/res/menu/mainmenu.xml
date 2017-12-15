@@ -40,10 +40,6 @@
                 android:title="@string/str_options">
             </item>
             <item
-                android:id="@+id/action_clear"
-                android:title="@string/str_clear">
-            </item>
-            <item
                 android:id="@+id/action_save"
                 android:title="@string/str_save">
             </item>
@@ -58,6 +54,10 @@
             <item
                 android:id="@+id/action_delete_pipeline"
                 android:title="@string/str_delete_pipeline">
+            </item>
+            <item
+                android:id="@+id/action_clear"
+                android:title="@string/str_clear">
             </item>
         </menu>
     </item>

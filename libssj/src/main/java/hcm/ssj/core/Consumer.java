@@ -265,4 +265,13 @@ public abstract class Consumer extends Component {
 
         _isSetup = true;
     }
+
+    @Override
+    public void close()
+    {
+        if(_triggerChannel != null)
+            _triggerChannel.close();
+
+        super.close();
+    }
 }

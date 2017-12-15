@@ -65,7 +65,7 @@ public class Pipeline
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "size of all inter-component buffers (in seconds)");
         /** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
-        /** How long to wait for a sensor to connect. Default: 5.0 */
+        /** How long to wait for a sensor to connect. Default: 30.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 30.f, Float.class, "How long to wait for a sensor to connect");
         /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");

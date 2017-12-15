@@ -426,7 +426,7 @@ public class TrainActivity extends AppCompatActivity
 
 		//train
 		for(Session session : sessions)
-			model.train(session.stream, session.anno, session.name);
+			model.train(session.stream, session.anno);
 
 		// save model
 		String str_path = ((EditText) findViewById(R.id.model_filepath)).getText().toString();

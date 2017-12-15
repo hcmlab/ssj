@@ -136,7 +136,10 @@ public class TensorFlow extends Model
 					{
 						String optionName = parser.getAttributeValue(null, "name");
 						String optionValue = parser.getAttributeValue(null, "value");
-						options.setOptionValue(optionName, optionValue);
+
+						Object currentValue = options.getOptionValue(optionName);
+						if(currentValue == null)
+							options.setOptionValue(optionName, optionValue);
 					}
 				}
 				eventType = parser.next();

@@ -302,6 +302,10 @@ public abstract class Model extends Component
         if(!_isSetup)
             return;
 
+        File dir = Util.createDirectory(Util.parseWildcards(path));
+        if(dir == null)
+            return;
+
         if(name.endsWith(FileCons.FILE_EXTENSION_TRAINER + FileCons.TAG_DATA_FILE))
         {
             name = name.substring(0, name.length()-2);
@@ -309,12 +313,6 @@ public abstract class Model extends Component
         else if(!name.endsWith(FileCons.FILE_EXTENSION_TRAINER))
         {
             name += "." + FileCons.FILE_EXTENSION_TRAINER;
-        }
-
-        //parse wildcards
-        if (path.contains("[time]"))
-        {
-            path = path.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
         }
 
         StringBuilder builder = new StringBuilder();
@@ -365,14 +363,14 @@ public abstract class Model extends Component
 
         builder.append("</trainer>").append(FileCons.DELIMITER_LINE);
 
-        OutputStream ouputStream = new FileOutputStream(new File(path, name));
+        OutputStream ouputStream = new FileOutputStream(new File(dir, name));
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ouputStream));
 
         writer.write(builder.toString());
         writer.flush();
         writer.close();
 
-        saveModel(new File(path, modelFileName + "." + FileCons.FILE_EXTENSION_MODEL));
+        saveModel(new File(dir, modelFileName + "." + FileCons.FILE_EXTENSION_MODEL));
     }
 
     public abstract Options getOptions();
@@ -391,7 +389,7 @@ public abstract class Model extends Component
      */
     void train(Stream stream, String label)
     {
-        Log.e("train not supported");
+        Log.e(_name + " does not supported training");
     }
 
     /**
@@ -399,7 +397,7 @@ public abstract class Model extends Component
      * @param stream data from where to extract the samples
      * @param anno annotation
      */
-    public void train(Stream stream, Annotation anno, String sessionName)
+    public void train(Stream stream, Annotation anno)
     {
         if(!_isSetup)
         {

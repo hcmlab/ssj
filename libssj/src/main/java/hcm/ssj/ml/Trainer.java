@@ -27,6 +27,7 @@
 
 package hcm.ssj.ml;
 
+import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Cons;
@@ -34,9 +35,11 @@ import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
 
@@ -57,6 +60,8 @@ public class Trainer extends Consumer implements IModelHandler
     public class Options extends IModelHandler.Options
     {
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
+        public final Option<FolderPath> filePath = new Option<>("path", new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]"), FolderPath.class, "where to save the model on pipeline stop");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "model file name");
 
         private Options()
         {
@@ -141,15 +146,35 @@ public class Trainer extends Consumer implements IModelHandler
         Stream[] input = stream_in;
 
         if(options.merge.get()) {
+            // since this is an event consumer, input num can change
+            stream_merged[0].adjust(input[0].num);
             merge.transform(input, stream_merged[0]);
             input = stream_merged;
         }
         if(selector != null) {
+            // since this is an event consumer, input num can change
+            stream_selected[0].adjust(input[0].num);
             selector.transform(input, stream_selected[0]);
             input = stream_selected;
         }
 
         model.train(input[0], trigger.ptrStr());
+    }
+
+    @Override
+    public void flush(Stream stream_in[]) throws SSJFatalException
+    {
+        if(options.fileName.get() != null && !options.fileName.get().isEmpty())
+        {
+            try
+            {
+                model.save(options.filePath.get().value, options.fileName.get());
+            }
+            catch (IOException e)
+            {
+                Log.e("error saving trained model", e);
+            }
+        }
     }
 
     @Override

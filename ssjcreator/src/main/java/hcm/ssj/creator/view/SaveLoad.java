@@ -41,9 +41,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Log;
-import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 
 /**
@@ -55,11 +53,7 @@ abstract class SaveLoad
     private final static String SUFFIX = ".layout";
     private final static String ROOT = "ssjCreator";
     private final static String PIPE_GROUP = "pipeLayout";
-    private final static String ANNO_GROUP = "annotation";
-    private final static String ANNO = "annoClass";
     private final static String NAME = "name";
-    private final static String FILE_NAME = "fileName";
-    private final static String FILE_PATH = "filePath";
     private final static String VERSION = "version";
     private final static String VERSION_NUMBER = "1";
     private final static String COMPONENT = "component";
@@ -143,21 +137,6 @@ abstract class SaveLoad
                 addComponentView(serializer, componentView);
             }
             serializer.endTag(null, PIPE_GROUP);
-
-            //annotations
-            Annotation anno = PipelineBuilder.getInstance().getAnnotation();
-            serializer.startTag(null, ANNO_GROUP);
-            serializer.attribute(null, FILE_NAME, anno.getFileName());
-            serializer.attribute(null, FILE_PATH, anno.getFilePath());
-
-            String[] anno_classes = anno.getClassArray();
-            for (String anno_class : anno_classes)
-            {
-                serializer.startTag(null, ANNO);
-                serializer.attribute(null, NAME, anno_class);
-                serializer.endTag(null, ANNO);
-            }
-            serializer.endTag(null, ANNO_GROUP);
 
             //finish document
             serializer.endTag(null, ROOT);
@@ -245,18 +224,6 @@ abstract class SaveLoad
                             String x = parser.getAttributeValue(null, X);
                             String y = parser.getAttributeValue(null, Y);
                             alPoints.add(new Point(Integer.valueOf(x), Integer.valueOf(y)));
-                            break;
-                        }
-                        case ANNO_GROUP:
-                        {
-                            PipelineBuilder.getInstance().getAnnotation().setFileName(parser.getAttributeValue(null, FILE_NAME));
-                            PipelineBuilder.getInstance().getAnnotation().setFilePath(parser.getAttributeValue(null, FILE_PATH));
-                            break;
-                        }
-                        case ANNO:
-                        {
-                            String name = parser.getAttributeValue(null, NAME);
-                            PipelineBuilder.getInstance().getAnnotation().appendClass(name);
                             break;
                         }
                     }

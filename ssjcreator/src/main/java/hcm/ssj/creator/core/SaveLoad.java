@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.EventHandler;
@@ -109,6 +110,11 @@ public abstract class SaveLoad
 	private static final String FEEDBACK = "feedback";
 	private static final String LEVEL = "level";
 	private static final String FEEDBACK_BEHAVIOUR = "feedbackBehaviour";
+
+	private final static String ANNOTATION = "annotation";
+	private final static String ANNOTATION_CLASS = "class";
+	private final static String FILE_NAME = "fileName";
+	private final static String FILE_PATH = "filePath";
 
 	/**
 	 * Saves the values in {@link PipelineBuilder}
@@ -185,6 +191,11 @@ public abstract class SaveLoad
 				addContainerElement(serializer, MODEL, containerElement, false);
 			}
 			serializer.endTag(null, MODEL_LIST);
+			//annotation
+			if(PipelineBuilder.getInstance().annotationExists())
+			{
+				addAnnotation(serializer, PipelineBuilder.getInstance().getAnnotation());
+			}
 			//finish document
 			serializer.endTag(null, ROOT);
 			serializer.endDocument();
@@ -371,6 +382,30 @@ public abstract class SaveLoad
 								parser.nextTag();
 							}
 
+							break;
+						}
+						case ANNOTATION:
+						{
+							String hash = parser.getAttributeValue(null, ID);
+							LinkContainer container = new LinkContainer();
+							container.hash = Integer.parseInt(hash);
+							container.typedHashes.put(Integer.parseInt(hash), ConnectionType.EVENTTRIGGERCONNECTION);
+							connectionMap.put(PipelineBuilder.getInstance().getAnnotation(), container);
+
+							String filename = parser.getAttributeValue(null, FILE_NAME);
+							if(filename != null && !filename.isEmpty())
+								PipelineBuilder.getInstance().getAnnotation().setFileName(filename);
+
+							String filepath = parser.getAttributeValue(null, FILE_PATH);
+							if(filepath != null && !filepath.isEmpty())
+								PipelineBuilder.getInstance().getAnnotation().setFilePath(filepath);
+
+							break;
+						}
+						case ANNOTATION_CLASS:
+						{
+							String annoClass = parser.getAttributeValue(null, NAME);
+							PipelineBuilder.getInstance().getAnnotation().appendClass(annoClass);
 							break;
 						}
 					}
@@ -627,6 +662,27 @@ public abstract class SaveLoad
 		}
 
 		serializer.endTag(null, FEEDBACK_LEVEL_LIST);
+	}
+
+	/**
+	 * @param serializer       XmlSerializer
+	 * @param anno Annotation
+	 */
+	private static void addAnnotation(XmlSerializer serializer, Annotation anno) throws IOException
+	{
+		serializer.startTag(null, ANNOTATION);
+		addStandard(serializer, anno);
+		serializer.attribute(null, FILE_NAME, anno.getFileName());
+		serializer.attribute(null, FILE_PATH, anno.getFilePath());
+
+		String[] anno_classes = anno.getClassArray();
+		for (String anno_class : anno_classes)
+		{
+			serializer.startTag(null, ANNOTATION_CLASS);
+			serializer.attribute(null, NAME, anno_class);
+			serializer.endTag(null, ANNOTATION_CLASS);
+		}
+		serializer.endTag(null, ANNOTATION);
 	}
 
 	private static String convertOldVersion(File file, float from_version) throws IOException

@@ -247,6 +247,8 @@ public class NaiveBayes extends Model
 	@Override
 	public void train(Stream stream, String label)
 	{
+		Log.i("training model with " + stream.num + " sample(s)");
+
 		if (classDistribution == null || classDistribution.length <= 0)
 		{
 			Log.w("Base model not loaded");
@@ -264,17 +266,21 @@ public class NaiveBayes extends Model
 		}
 
 		int classIndex = classNameIndices.get(label);
-
 		double weight = DEFAULT_SAMPLE_WEIGHT;
 
-		// Add to class distribution
-		classDistribution[classIndex] += weight;
-
-		// Train model for each feature dimension independently
-		for (int featureIndex = 0; featureIndex < stream.dim; featureIndex++)
+		for (int i = 0; i < stream.num; i++)
 		{
-			trainOnSample(getDoubleValue(stream, featureIndex), featureIndex, classIndex, weight);
+			// Add to class distribution
+			classDistribution[classIndex] += weight;
+
+			// Train model for each feature dimension independently
+			for (int j = 0; j < stream.dim; j++)
+			{
+				trainOnSample(getDoubleValue(stream, i * stream.dim + j), j, classIndex, weight);
+			}
 		}
+
+		isTrained = true;
 	}
 
 	private void trainOnSample(double featureValue, int featureIndex, int classIndex, double weight)

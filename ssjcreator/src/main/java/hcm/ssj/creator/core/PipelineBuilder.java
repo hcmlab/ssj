@@ -421,8 +421,12 @@ public class PipelineBuilder
 		LinkedHashSet<ContainerElement<Consumer>> hsConsumerElementsNotTriggeredByEvent = new LinkedHashSet<>();
 		for (ContainerElement<Consumer> element : hsConsumerElements)
 		{
+			EventChannel trigger = null;
 			Object triggerSource = element.getEventTrigger();
-			EventChannel trigger = (triggerSource == null) ? null : ((Consumer)triggerSource).getEventChannelOut();
+			if(triggerSource != null && triggerSource instanceof Component)
+				trigger = ((Component)triggerSource).getEventChannelOut();
+			else if(triggerSource != null && triggerSource instanceof Annotation)
+				trigger = ((Annotation)triggerSource).getChannel();
 
 			if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
 			{
@@ -1674,6 +1678,11 @@ public class PipelineBuilder
 		}
 		alCandidates.addAll(0, Arrays.asList(sensProvCandidates));
 		return alCandidates.toArray();
+	}
+
+	public synchronized boolean annotationExists()
+	{
+		return anno != null;
 	}
 
 	public synchronized Annotation getAnnotation()
