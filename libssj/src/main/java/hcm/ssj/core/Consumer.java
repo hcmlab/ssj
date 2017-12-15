@@ -274,4 +274,13 @@ public abstract class Consumer extends Component {
 
         super.close();
     }
+
+    @Override
+    public void reset()
+    {
+        if(_triggerChannel != null)
+            _triggerChannel.reset();
+
+        super.reset();
+    }
 }
