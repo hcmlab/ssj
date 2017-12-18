@@ -42,6 +42,11 @@ import java.nio.ShortBuffer;
 import hcm.ssj.core.Log;
 import hcm.ssj.file.FileCons;
 
+/**
+ * Class that is responsible for decoding of audio files into a sequence of raw bytes.
+ * Bytes are represented in little-endian ordering.
+ * Supports and was tested with mp3, mp4, and wav files.
+ */
 public final class AudioDecoder
 {
 	private static final int EOF = -1;
@@ -67,7 +72,7 @@ public final class AudioDecoder
 	}
 
 	/**
-	 * Calculate the length of the audio file in milliseconds.
+	 * Calculates the length of the audio file in milliseconds.
 	 * @param sampleCount Number of samples.
 	 * @param sampleRate Sample rate (i.e. 16000, 44100, ..)
 	 * @param channelCount Number of audio channels.
@@ -79,7 +84,7 @@ public final class AudioDecoder
 	}
 
 	/**
-	 * Convert given raw audio file to a byte array.
+	 * Converts given raw audio file to a byte array.
 	 * @return Byte array in little-endian byte order.
 	 * @throws IOException If given file couldn't be read.
 	 */
@@ -114,7 +119,7 @@ public final class AudioDecoder
 	}
 
 	/**
-	 * Decode audio file into a raw file. This method accepts audio file formats with valid
+	 * Decodes audio file into a raw file. This method accepts audio file formats with valid
 	 * headers (like .mp3, .mp4, and .wav).
 	 * @param filepath Path of the file to decode.
 	 * @return Decoded raw audio file.

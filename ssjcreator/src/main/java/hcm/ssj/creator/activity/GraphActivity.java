@@ -39,6 +39,7 @@ import android.widget.LinearLayout;
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
@@ -55,7 +56,7 @@ import hcm.ssj.file.FileUtils;
 public class GraphActivity extends AppCompatActivity
 {
 	private ChooserDialog chooserDialog;
-	private PlaybackThread playbackThread;
+	private ArrayList<PlaybackThread> playbackThreads = new ArrayList<>();
 	private TimeAxisView timeAxisView;
 	private LinearLayout streamLayout;
 
@@ -96,15 +97,10 @@ public class GraphActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				if (playbackThread.isPlaying())
-				{
-					playbackThread.pause();
-					playButton.setText(R.string.play);
-				}
-				else
+				for (PlaybackThread playbackThread : playbackThreads)
 				{
 					playbackThread.play();
-					playButton.setText(R.string.pause);
+					playButton.setText(R.string.play);
 				}
 			}
 		});
@@ -115,7 +111,10 @@ public class GraphActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				playbackThread.reset();
+				for (PlaybackThread playbackThread : playbackThreads)
+				{
+					playbackThread.reset();
+				}
 				playButton.setText(R.string.play);
 			}
 		});
@@ -135,13 +134,11 @@ public class GraphActivity extends AppCompatActivity
 						try
 						{
 							String type = FileUtils.getFileType(file);
-							if (type.equalsIgnoreCase("mp4")
-									|| type.equalsIgnoreCase("mp3")
-									|| type.equalsIgnoreCase("wav"))
+							if (type.matches("mp3|mp4|wav"))
 							{
 								AudioDecoder decoder = new AudioDecoder(file.getPath());
-
 								timeAxisView.setAudioLength(decoder.getAudioLength());
+
 								WaveformView waveform = new WaveformView(GraphActivity.this);
 								waveform.setSamples(decoder.getSamples());
 								streamLayout.addView(waveform, 0);
@@ -160,7 +157,8 @@ public class GraphActivity extends AppCompatActivity
 								playButton.setVisibility(View.VISIBLE);
 								resetButton.setVisibility(View.VISIBLE);
 
-								playbackThread = new PlaybackThread(GraphActivity.this, file, new PlaybackListener() {
+								playbackThreads.add(new PlaybackThread(GraphActivity.this, file, new PlaybackListener()
+								{
 									@Override
 									public void onProgress(int progress)
 									{
@@ -172,7 +170,7 @@ public class GraphActivity extends AppCompatActivity
 										playButton.setText(R.string.play);
 										timeAxisView.setMarkerPosition(-1);
 									}
-								});
+								}));
 							}
 						}
 						catch (Exception e)

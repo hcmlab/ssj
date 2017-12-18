@@ -106,14 +106,15 @@ public class FileUtils
 
 
 	/**
-	 * Get the extension of a given file.
+	 * Returns the extension of a given file.
 	 * @param file File to identify.
-	 * @return Extension of the file.
+	 * @return Extension of the file without the preceding dot.
+	 * Example: example-file.stream -> "stream"
 	 */
 	public static String getFileType(File file)
 	{
 		String filename = file.getName();
-		int i = filename.lastIndexOf('.');
-		return filename.substring(i + 1);
+		int dotPosition = filename.lastIndexOf('.');
+		return filename.substring(dotPosition + 1);
 	}
 }
