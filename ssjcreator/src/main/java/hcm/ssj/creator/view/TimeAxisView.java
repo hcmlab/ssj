@@ -53,19 +53,14 @@ public class TimeAxisView extends View
 	private static final int TIME_STEP_PEG_LENGTH = 20;
 	private static final int TEXT_SIZE = 36;
 	private static final int AXIS_STROKE_WIDTH = 4;
-	private static final int MARKER_WIDTH = 3;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
 
 	private int audioLength;
 	private int width;
 	private int height;
-	private int markerPosition;
-
-	private float xStep;
 
 	private TextPaint textPaint;
 	private Paint axisPaint;
-	private Paint markerPaint;
 
 	public TimeAxisView(Context context)
 	{
@@ -94,13 +89,6 @@ public class TimeAxisView extends View
 		}
 		super.onDraw(canvas);
 		drawTimeAxis(canvas);
-
-		// Draw playback marker.
-		if (markerPosition > -1 && markerPosition < audioLength)
-		{
-			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
-							height - TIME_AXIS_OFFSET, markerPaint);
-		}
 	}
 
 	@Override
@@ -108,16 +96,6 @@ public class TimeAxisView extends View
 	{
 		width = getMeasuredWidth();
 		height = getMeasuredHeight();
-	}
-
-	/**
-	 * Sets position of the marker that moves forward as audio file is being played.
-	 * @param position Position of the marker on the canvas.
-	 */
-	public void setMarkerPosition(int position)
-	{
-		markerPosition = position;
-		postInvalidate();
 	}
 
 	/**
@@ -149,8 +127,6 @@ public class TimeAxisView extends View
 									   ContextCompat.getColor(context, R.color.colorBlack));
 		int axisColor = a.getColor(R.styleable.TimeAxisView_axisColor,
 								   ContextCompat.getColor(context, R.color.colorBlack));
-		int markerColor = a.getColor(R.styleable.TimeAxisView_playbackIndicatorColor,
-									 ContextCompat.getColor(context, R.color.colorMarker));
 		a.recycle();
 
 		textPaint = new TextPaint();
@@ -164,15 +140,6 @@ public class TimeAxisView extends View
 		axisPaint.setStrokeWidth(AXIS_STROKE_WIDTH);
 		axisPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
 		axisPaint.setColor(axisColor);
-
-		markerPaint = new Paint();
-		markerPaint.setStyle(Paint.Style.STROKE);
-		markerPaint.setStrokeWidth(MARKER_WIDTH);
-		markerPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
-		markerPaint.setColor(markerColor);
-		markerPaint.setPathEffect(new DashPathEffect(new float[] {20, 10}, 0));
-
-		xStep = width / (audioLength * 1.0f);
 	}
 
 	/**

@@ -50,7 +50,6 @@
     </declare-styleable>
 
     <declare-styleable name="TimeAxisView">
-        <attr name="playbackIndicatorColor" format="color" />
         <attr name="timeCodeColor" format="color" />
         <attr name="axisColor" format="color" />
     </declare-styleable>

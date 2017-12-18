@@ -54,10 +54,15 @@ import hcm.ssj.file.FileUtils;
  */
 public class GraphActivity extends AppCompatActivity
 {
+	private static final String SUPPORTED_MEDIA_TYPES = "mp3|mp4|wav";
+
 	private ChooserDialog chooserDialog;
 	private ArrayList<PlaybackThread> playbackThreads = new ArrayList<>();
 	private TimeAxisView timeAxisView;
 	private StreamLayout streamLayout;
+
+	private Button playButton;
+	private Button resetButton;
 
 	private int maxAudioLength = Integer.MIN_VALUE;
 
@@ -73,26 +78,9 @@ public class GraphActivity extends AppCompatActivity
 		initializeUI();
 	}
 
-	/*
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		int x = (int) event.getX();
-		if (waveformView != null && playbackThread != null)
-		{
-			getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-			int width = displayMetrics.widthPixels;
-			int length = playbackThread.getAudioLength();
-			float progress = ((float) x / (float) width) * length;
-			timeAxisView.setMarkerPosition((int) progress);
-			playbackThread.seekTo((int) progress);
-		}
-		return false;
-	}
-	*/
-
 	private void initializeUI()
 	{
-		final Button playButton = (Button) findViewById(R.id.play);
+		playButton = (Button) findViewById(R.id.play);
 		playButton.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
@@ -106,7 +94,7 @@ public class GraphActivity extends AppCompatActivity
 			}
 		});
 
-		final Button resetButton = (Button) findViewById(R.id.reset);
+		resetButton = (Button) findViewById(R.id.reset);
 		resetButton.setOnClickListener(new View.OnClickListener()
 		{
 			@Override
@@ -135,37 +123,30 @@ public class GraphActivity extends AppCompatActivity
 						try
 						{
 							String type = FileUtils.getFileType(file);
-							if (type.matches("mp3|mp4|wav"))
+							if (type.matches(SUPPORTED_MEDIA_TYPES))
 							{
 								AudioDecoder decoder = new AudioDecoder(file.getPath());
 								int audioLength = decoder.getAudioLength();
-								timeAxisView.setAudioLength(audioLength);
-								streamLayout.setAudioLength(audioLength);
 
 								WaveformView waveform = new WaveformView(GraphActivity.this);
 								waveform.setSamples(decoder.getSamples());
 								streamLayout.addView(waveform, 0);
 
-								View separator = new View(GraphActivity.this);
-								ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-										ViewGroup.LayoutParams.MATCH_PARENT, 4);
-								separator.setLayoutParams(params);
-								separator.setBackgroundColor(getResources().getColor(R.color.colorSeparator));
-
 								// Create horizontal separator line if multiple waveforms are present.
 								if (streamLayout.getChildCount() > 2)
 								{
-									streamLayout.addView(separator, 1);
+									addWaveformSeparator();
 								}
 
-								playButton.setVisibility(View.VISIBLE);
-								resetButton.setVisibility(View.VISIBLE);
+								showMediaButtons();
 
 								playbackThreads.add(new PlaybackThread(GraphActivity.this, file));
 
 								if (audioLength > maxAudioLength)
 								{
 									maxAudioLength = audioLength;
+									timeAxisView.setAudioLength(audioLength);
+									streamLayout.setAudioLength(audioLength);
 
 									for (PlaybackThread playbackThread : playbackThreads)
 									{
@@ -199,5 +180,21 @@ public class GraphActivity extends AppCompatActivity
 				chooserDialog.show();
 			}
 		});
+	}
+
+	private void showMediaButtons()
+	{
+		playButton.setVisibility(View.VISIBLE);
+		resetButton.setVisibility(View.VISIBLE);
+	}
+
+	private void addWaveformSeparator()
+	{
+		View separator = new View(GraphActivity.this);
+		ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, 4);
+		separator.setLayoutParams(params);
+		separator.setBackgroundColor(getResources().getColor(R.color.colorSeparator));
+		streamLayout.addView(separator, 1);
 	}
 }
