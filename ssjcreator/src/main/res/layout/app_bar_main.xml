@@ -84,6 +84,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -114,6 +116,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -144,6 +148,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -174,6 +180,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -204,6 +212,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -234,6 +244,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
