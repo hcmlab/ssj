@@ -39,10 +39,11 @@ import android.view.View;
 
 import java.util.Locale;
 
+import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.creator.R;
 
 /**
- * View that draws time axis with timestamp labels.
+ * View that draws time axis with timestamp labels and playback marker.
  */
 public class TimeAxisView extends View
 {
@@ -93,6 +94,8 @@ public class TimeAxisView extends View
 		}
 		super.onDraw(canvas);
 		drawTimeAxis(canvas);
+
+		// Draw playback marker.
 		if (markerPosition > -1 && markerPosition < audioLength)
 		{
 			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
@@ -107,18 +110,35 @@ public class TimeAxisView extends View
 		height = getMeasuredHeight();
 	}
 
+	/**
+	 * Sets position of the marker that moves forward as audio file is being played.
+	 * @param position Position of the marker on the canvas.
+	 */
 	public void setMarkerPosition(int position)
 	{
 		markerPosition = position;
 		postInvalidate();
 	}
 
+	/**
+	 * Sets the length of the audio in milliseconds. To set the length of the audio use
+	 * {@link AudioDecoder#getAudioLength()} which will calculate appropriate length of the decoded
+	 * audio file.
+	 * @param length Length of the audio file in milliseconds.
+	 */
 	public void setAudioLength(int length)
 	{
 		audioLength = length;
 		invalidate();
 	}
 
+	/**
+	 * Retrieves custom XML attribute values of TimeAxisView and initializes
+	 * colors and text size.
+	 * @param context Context of activity that uses the TimeAxisView.
+	 * @param attrs Set of attributes.
+	 * @param defStyle Default style.
+	 */
 	private void init(Context context, AttributeSet attrs, int defStyle)
 	{
 		final TypedArray a = getContext().obtainStyledAttributes(attrs,
@@ -156,7 +176,7 @@ public class TimeAxisView extends View
 	}
 
 	/**
-	 * Draw time axis with appropriate time steps as labels.
+	 * Draws time axis with appropriate time steps as labels.
 	 * @param canvas Canvas to draw the axis on.
 	 */
 	private void drawTimeAxis(Canvas canvas)

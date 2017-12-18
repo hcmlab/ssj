@@ -49,7 +49,8 @@ import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
 
 /**
- * Visualize user-saved stream file data with the GraphView.
+ * Visualizes user-saved data. This class supports visualization of stream files (.stream~) as well
+ * as multiple media files like .mp3, .mp4, and .wav.
  */
 public class GraphActivity extends AppCompatActivity
 {

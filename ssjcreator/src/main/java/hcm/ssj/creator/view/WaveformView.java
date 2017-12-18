@@ -42,7 +42,7 @@ import hcm.ssj.audio.AudioUtils;
 import hcm.ssj.creator.R;
 
 /**
- * Custom view to display audio waveform.
+ * View that draws audio file waveform.
  */
 public class WaveformView extends View
 {
@@ -110,7 +110,7 @@ public class WaveformView extends View
 	}
 
 	/**
-	 * Read XML attribute values of a waveform view and initialize colors.
+	 * Reads XML attribute values of WaveformView and initializes colors.
 	 * @param attrs Set of XML attributes for customization options.
 	 * @param defStyle Integer which represents the default style.
 	 */
@@ -145,7 +145,7 @@ public class WaveformView extends View
 	}
 
 	/**
-	 * Show audio waveform on screen.
+	 * Shows audio waveform on screen.
 	 */
 	private void createWaveform()
 	{
@@ -164,7 +164,7 @@ public class WaveformView extends View
 	}
 
 	/**
-	 * Draw waveform as a line path from given audio samples.
+	 * Draws waveform as a line path from given audio samples.
 	 * @param width Width of view.
 	 * @param height Height of view.
 	 * @param buffer Audio samples.
