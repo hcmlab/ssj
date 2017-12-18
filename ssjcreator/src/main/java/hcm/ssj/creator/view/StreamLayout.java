@@ -44,7 +44,7 @@ import hcm.ssj.creator.R;
 /**
  * Layout group that contains custom views representing different stream files.
  * This layout group draws time axis with corresponding time-steps as well as playback marker
- * that is moved forward as audio file(s) are being played.
+ * that is moved forward as audio files are being played.
  */
 public class StreamLayout extends LinearLayout
 {
@@ -54,8 +54,8 @@ public class StreamLayout extends LinearLayout
 	private static final int TIME_STEP_PEG_LENGTH = 20;
 	private static final int TEXT_SIZE = 36;
 	private static final int AXIS_STROKE_WIDTH = 4;
-	private static final int MARKER_ORIGIN = TIME_AXIS_OFFSET + PADDING;
-	private static final int MARKER_WIDTH = 3;
+	private static final int MARKER_ORIGIN = PADDING;
+	private static final int MARKER_WIDTH = 4;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
 
 	private int markerPosition = MARKER_ORIGIN;
@@ -114,11 +114,17 @@ public class StreamLayout extends LinearLayout
 		}
 		drawTimeAxis(canvas);
 
-		// Draw playback marker.
-		if (markerPosition > -1 && markerPosition < audioLength)
+		if (markerPosition > MARKER_ORIGIN && markerPosition < audioLength)
 		{
+			// Move marker forward as audio is being played.
 			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
-							height, markerPaint);
+							height - TIME_AXIS_OFFSET, markerPaint);
+		}
+		else
+		{
+			// Put marker at the origin.
+			canvas.drawLine(MARKER_ORIGIN, 0, MARKER_ORIGIN,
+							height - TIME_AXIS_OFFSET, markerPaint);
 		}
 	}
 
