@@ -30,6 +30,7 @@ package hcm.ssj.creator.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
@@ -53,9 +54,11 @@ public class StreamLayout extends LinearLayout
 	private static final int TIME_STEP_PEG_LENGTH = 20;
 	private static final int TEXT_SIZE = 36;
 	private static final int AXIS_STROKE_WIDTH = 4;
+	private static final int MARKER_ORIGIN = TIME_AXIS_OFFSET + PADDING;
+	private static final int MARKER_WIDTH = 3;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
 
-	private int markerPosition = -1;
+	private int markerPosition = MARKER_ORIGIN;
 	private int width;
 	private int height;
 	private int audioLength;
@@ -85,8 +88,13 @@ public class StreamLayout extends LinearLayout
 
 	public void setMarkerPosition(int position)
 	{
-		markerPosition = position;
+		markerPosition = position + MARKER_ORIGIN;
 		postInvalidate();
+	}
+
+	public void resetMarker()
+	{
+		setMarkerPosition(0);
 	}
 
 	public void setAudioLength(int length)
@@ -155,7 +163,9 @@ public class StreamLayout extends LinearLayout
 		axisPaint.setColor(axisColor);
 
 		markerPaint = new Paint();
-		markerPaint.setStrokeWidth(4);
+		markerPaint.setStrokeWidth(MARKER_WIDTH);
+		markerPaint.setStyle(Paint.Style.STROKE);
+		markerPaint.setPathEffect(new DashPathEffect(new float[] {5, 5}, 0));
 		markerPaint.setColor(markerColor);
 	}
 

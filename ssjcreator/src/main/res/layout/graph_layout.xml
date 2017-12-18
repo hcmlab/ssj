@@ -27,6 +27,7 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:custom="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:paddingBottom="@dimen/activity_bottom_margin"
               android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -41,6 +42,7 @@
 
         <hcm.ssj.creator.view.StreamLayout
             android:id="@+id/stream_layout"
+            custom:markerColor="@color/colorMarker"
             android:orientation="vertical"
             android:paddingBottom="30dp"
             android:layout_width="match_parent"

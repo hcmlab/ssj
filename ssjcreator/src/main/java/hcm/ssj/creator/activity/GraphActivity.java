@@ -160,7 +160,7 @@ public class GraphActivity extends AppCompatActivity
 										public void onCompletion()
 										{
 											playButton.setText(R.string.play);
-											streamLayout.setMarkerPosition(-1);
+											streamLayout.resetMarker();
 										}
 									};
 									playbackThreads.get(playbackThreads.size() - 1).setPlaybackListener(playbackListener);
