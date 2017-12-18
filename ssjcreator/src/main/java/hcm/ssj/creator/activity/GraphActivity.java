@@ -30,11 +30,9 @@ package hcm.ssj.creator.activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
@@ -45,6 +43,7 @@ import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.view.StreamLayout;
 import hcm.ssj.creator.view.TimeAxisView;
 import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
@@ -58,7 +57,7 @@ public class GraphActivity extends AppCompatActivity
 	private ChooserDialog chooserDialog;
 	private ArrayList<PlaybackThread> playbackThreads = new ArrayList<>();
 	private TimeAxisView timeAxisView;
-	private LinearLayout streamLayout;
+	private StreamLayout streamLayout;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -67,7 +66,7 @@ public class GraphActivity extends AppCompatActivity
 		setContentView(R.layout.graph_layout);
 
 		timeAxisView = (TimeAxisView) findViewById(R.id.time_axis);
-		streamLayout = (LinearLayout) findViewById(R.id.stream_layout);
+		streamLayout = (StreamLayout) findViewById(R.id.stream_layout);
 
 		initializeUI();
 	}
@@ -138,6 +137,7 @@ public class GraphActivity extends AppCompatActivity
 							{
 								AudioDecoder decoder = new AudioDecoder(file.getPath());
 								timeAxisView.setAudioLength(decoder.getAudioLength());
+								streamLayout.setAudioLength(decoder.getAudioLength());
 
 								WaveformView waveform = new WaveformView(GraphActivity.this);
 								waveform.setSamples(decoder.getSamples());
@@ -145,10 +145,11 @@ public class GraphActivity extends AppCompatActivity
 
 								View separator = new View(GraphActivity.this);
 								ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-										ViewGroup.LayoutParams.MATCH_PARENT, 4
-								);
+										ViewGroup.LayoutParams.MATCH_PARENT, 4);
 								separator.setLayoutParams(params);
 								separator.setBackgroundColor(getResources().getColor(R.color.colorSeparator));
+
+								// Create horizontal separator line if multiple waveforms are present.
 								if (streamLayout.getChildCount() > 2)
 								{
 									streamLayout.addView(separator, 1);
@@ -162,13 +163,13 @@ public class GraphActivity extends AppCompatActivity
 									@Override
 									public void onProgress(int progress)
 									{
-										timeAxisView.setMarkerPosition(progress);
+										streamLayout.setMarkerPosition(progress);
 									}
 									@Override
 									public void onCompletion()
 									{
 										playButton.setText(R.string.play);
-										timeAxisView.setMarkerPosition(-1);
+										streamLayout.setMarkerPosition(-1);
 									}
 								}));
 							}

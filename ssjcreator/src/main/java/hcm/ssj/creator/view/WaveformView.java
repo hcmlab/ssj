@@ -52,6 +52,7 @@ public class WaveformView extends View
 	private static final int LAYOUT_MARGIN_TOP = 20;
 	private static final int LAYOUT_MARGIN_BOTTOM = 20;
 	private static final int LAYOUT_MARGIN_LEFT = 25;
+	private static final int LAYOUT_MARGIN_RIGHT = 0;
 
 	private Paint strokePaint;
 	private Paint fillPaint;
@@ -124,7 +125,6 @@ public class WaveformView extends View
 		int fillColor = getResources().getColor(R.color.colorWaveformFill);
 		a.recycle();
 
-
 		strokePaint = new Paint();
 		strokePaint.setColor(strokeColor);
 		strokePaint.setStyle(Paint.Style.STROKE);
@@ -140,7 +140,7 @@ public class WaveformView extends View
 
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, LAYOUT_HEIGHT);
-		layoutParams.setMargins(LAYOUT_MARGIN_LEFT, LAYOUT_MARGIN_TOP, 0, LAYOUT_MARGIN_BOTTOM);
+		layoutParams.setMargins(LAYOUT_MARGIN_LEFT, LAYOUT_MARGIN_TOP, LAYOUT_MARGIN_RIGHT, LAYOUT_MARGIN_BOTTOM);
 		setLayoutParams(layoutParams);
 	}
 

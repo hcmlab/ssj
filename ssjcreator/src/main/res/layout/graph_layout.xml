@@ -39,7 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="500dp">
 
-        <LinearLayout
+        <hcm.ssj.creator.view.StreamLayout
             android:id="@+id/stream_layout"
             android:paddingLeft="6dp"
             android:paddingRight="6dp"
@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="32dp" />
 
-        </LinearLayout>
+        </hcm.ssj.creator.view.StreamLayout>
 
     </ScrollView>
 
