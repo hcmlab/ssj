@@ -41,19 +41,10 @@
 
         <hcm.ssj.creator.view.StreamLayout
             android:id="@+id/stream_layout"
-            android:paddingLeft="6dp"
-            android:paddingRight="6dp"
             android:orientation="vertical"
+            android:paddingBottom="30dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <hcm.ssj.creator.view.TimeAxisView
-                android:id="@+id/time_axis"
-                android:paddingLeft="6dp"
-                android:paddingRight="6dp"
-                android:layout_gravity="bottom"
-                android:layout_width="match_parent"
-                android:layout_height="32dp" />
 
         </hcm.ssj.creator.view.StreamLayout>
 

@@ -44,7 +44,6 @@ import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.view.StreamLayout;
-import hcm.ssj.creator.view.TimeAxisView;
 import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
 
@@ -58,7 +57,6 @@ public class GraphActivity extends AppCompatActivity
 
 	private ChooserDialog chooserDialog;
 	private ArrayList<PlaybackThread> playbackThreads = new ArrayList<>();
-	private TimeAxisView timeAxisView;
 	private StreamLayout streamLayout;
 
 	private Button playButton;
@@ -72,7 +70,6 @@ public class GraphActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
 
-		timeAxisView = (TimeAxisView) findViewById(R.id.time_axis);
 		streamLayout = (StreamLayout) findViewById(R.id.stream_layout);
 
 		initializeUI();
@@ -133,7 +130,7 @@ public class GraphActivity extends AppCompatActivity
 								streamLayout.addView(waveform, 0);
 
 								// Create horizontal separator line if multiple waveforms are present.
-								if (streamLayout.getChildCount() > 2)
+								if (streamLayout.getChildCount() > 1)
 								{
 									addWaveformSeparator();
 								}
@@ -145,7 +142,6 @@ public class GraphActivity extends AppCompatActivity
 								if (audioLength > maxAudioLength)
 								{
 									maxAudioLength = audioLength;
-									timeAxisView.setAudioLength(audioLength);
 									streamLayout.setAudioLength(audioLength);
 
 									for (PlaybackThread playbackThread : playbackThreads)

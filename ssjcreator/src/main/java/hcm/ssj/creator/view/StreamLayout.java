@@ -28,34 +28,59 @@
 package hcm.ssj.creator.view;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.support.v4.content.ContextCompat;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
+import java.util.Locale;
+
 import hcm.ssj.creator.R;
 
+/**
+ * Layout group that contains custom views representing different stream files.
+ * This layout group draws time axis with corresponding time-steps as well as playback marker
+ * that is moved forward as audio file(s) are being played.
+ */
 public class StreamLayout extends LinearLayout
 {
+	private static final int TIME_AXIS_OFFSET = 80;
+	private static final int TIME_CODE_OFFSET = 25;
+	private static final int PADDING = 25;
+	private static final int TIME_STEP_PEG_LENGTH = 20;
+	private static final int TEXT_SIZE = 36;
+	private static final int AXIS_STROKE_WIDTH = 4;
+	private static final boolean ENABLE_ANTI_ALIAS = true;
+
 	private int markerPosition = -1;
 	private int width;
 	private int height;
 	private int audioLength;
 	float xStep;
 
+	private TextPaint textPaint;
+	private Paint axisPaint;
+	private Paint markerPaint;
+
 	public StreamLayout(Context context)
 	{
 		super(context);
+		init(context, null, 0);
 	}
 
 	public StreamLayout(Context context, AttributeSet attrs)
 	{
 		super(context, attrs);
+		init(context, attrs, 0);
 	}
 
 	public StreamLayout(Context context, AttributeSet attrs, int defStyle)
 	{
 		super(context, attrs, defStyle);
+		init(context, attrs, defStyle);
 	}
 
 	public void setMarkerPosition(int position)
@@ -75,15 +100,17 @@ public class StreamLayout extends LinearLayout
 	{
 		super.dispatchDraw(canvas);
 
-		Paint paint = new Paint();
-		paint.setStrokeWidth(4);
-		paint.setColor(getResources().getColor(R.color.colorBlack));
+		if (audioLength == 0)
+		{
+			return;
+		}
+		drawTimeAxis(canvas);
 
 		// Draw playback marker.
 		if (markerPosition > -1 && markerPosition < audioLength)
 		{
 			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
-							height, paint);
+							height, markerPaint);
 		}
 	}
 
@@ -92,5 +119,72 @@ public class StreamLayout extends LinearLayout
 	{
 		width = getMeasuredWidth();
 		height = getMeasuredHeight();
+	}
+
+	/**
+	 * Retrieves custom XML attribute values of StreamLayout and initializes
+	 * colors and text size.
+	 * @param context Context of activity that uses the StreamLayout.
+	 * @param attrs Set of attributes.
+	 * @param defStyle Default style.
+	 */
+	private void init(Context context, AttributeSet attrs, int defStyle)
+	{
+		final TypedArray a = getContext().obtainStyledAttributes(attrs,
+																 R.styleable.StreamLayout,
+																 defStyle, 0);
+
+		int timeCodeColor = a.getColor(R.styleable.StreamLayout_timeCodeColor,
+									   ContextCompat.getColor(context, R.color.colorBlack));
+		int axisColor = a.getColor(R.styleable.StreamLayout_axisColor,
+								   ContextCompat.getColor(context, R.color.colorBlack));
+		int markerColor = a.getColor(R.styleable.StreamLayout_markerColor,
+								     ContextCompat.getColor(context, R.color.colorBlack));
+		a.recycle();
+
+		textPaint = new TextPaint();
+		textPaint.setFlags(Paint.ANTI_ALIAS_FLAG);
+		textPaint.setTextAlign(Paint.Align.CENTER);
+		textPaint.setColor(timeCodeColor);
+		textPaint.setTextSize(TEXT_SIZE);
+
+		axisPaint = new Paint();
+		axisPaint.setStyle(Paint.Style.STROKE);
+		axisPaint.setStrokeWidth(AXIS_STROKE_WIDTH);
+		axisPaint.setAntiAlias(ENABLE_ANTI_ALIAS);
+		axisPaint.setColor(axisColor);
+
+		markerPaint = new Paint();
+		markerPaint.setStrokeWidth(4);
+		markerPaint.setColor(markerColor);
+	}
+
+	/**
+	 * Draws time axis with appropriate time steps as labels.
+	 * @param canvas Canvas to draw the axis on.
+	 */
+	private void drawTimeAxis(Canvas canvas)
+	{
+		int seconds = audioLength / 1000;
+		float xStep = width / (audioLength / 1000f);
+		float textWidth = textPaint.measureText("10.00");
+		float secondStep = (textWidth * seconds * 2) / width;
+		secondStep = Math.max(secondStep, 1) - 0.5f;
+
+		for (float i = 0; i <= seconds; i += secondStep)
+		{
+			// Draw timestamp labels.
+			canvas.drawText(String.format(Locale.ENGLISH, "%.1f", i),
+							PADDING + i * xStep, height - TIME_CODE_OFFSET, textPaint);
+
+			// Make every second time step peg half the length.
+			int cutOff = i % 1 != 0 ? TIME_STEP_PEG_LENGTH / 2 : 0;
+			canvas.drawLine(PADDING + i * xStep, height - TIME_AXIS_OFFSET,
+							PADDING + i * xStep,
+							height - TIME_AXIS_OFFSET + TIME_STEP_PEG_LENGTH - cutOff,
+							axisPaint);
+		}
+		canvas.drawLine(0, height - TIME_AXIS_OFFSET, width,
+						height - TIME_AXIS_OFFSET, axisPaint);
 	}
 }

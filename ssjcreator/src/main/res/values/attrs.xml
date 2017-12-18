@@ -49,9 +49,10 @@
         <attr name="waveformFillColor" format="color" />
     </declare-styleable>
 
-    <declare-styleable name="TimeAxisView">
+    <declare-styleable name="StreamLayout">
         <attr name="timeCodeColor" format="color" />
         <attr name="axisColor" format="color" />
+        <attr name="markerColor" format="color" />
     </declare-styleable>
 
 </resources>
