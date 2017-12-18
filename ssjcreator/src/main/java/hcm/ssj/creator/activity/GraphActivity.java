@@ -59,6 +59,8 @@ public class GraphActivity extends AppCompatActivity
 	private TimeAxisView timeAxisView;
 	private StreamLayout streamLayout;
 
+	private int maxAudioLength = Integer.MIN_VALUE;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -136,8 +138,9 @@ public class GraphActivity extends AppCompatActivity
 							if (type.matches("mp3|mp4|wav"))
 							{
 								AudioDecoder decoder = new AudioDecoder(file.getPath());
-								timeAxisView.setAudioLength(decoder.getAudioLength());
-								streamLayout.setAudioLength(decoder.getAudioLength());
+								int audioLength = decoder.getAudioLength();
+								timeAxisView.setAudioLength(audioLength);
+								streamLayout.setAudioLength(audioLength);
 
 								WaveformView waveform = new WaveformView(GraphActivity.this);
 								waveform.setSamples(decoder.getSamples());
@@ -158,20 +161,33 @@ public class GraphActivity extends AppCompatActivity
 								playButton.setVisibility(View.VISIBLE);
 								resetButton.setVisibility(View.VISIBLE);
 
-								playbackThreads.add(new PlaybackThread(GraphActivity.this, file, new PlaybackListener()
+								playbackThreads.add(new PlaybackThread(GraphActivity.this, file));
+
+								if (audioLength > maxAudioLength)
 								{
-									@Override
-									public void onProgress(int progress)
+									maxAudioLength = audioLength;
+
+									for (PlaybackThread playbackThread : playbackThreads)
 									{
-										streamLayout.setMarkerPosition(progress);
+										playbackThread.removePlaybackListener();
 									}
-									@Override
-									public void onCompletion()
-									{
-										playButton.setText(R.string.play);
-										streamLayout.setMarkerPosition(-1);
-									}
-								}));
+
+									PlaybackListener playbackListener = new PlaybackListener() {
+										@Override
+										public void onProgress(int progress)
+										{
+											streamLayout.setMarkerPosition(progress);
+										}
+
+										@Override
+										public void onCompletion()
+										{
+											playButton.setText(R.string.play);
+											streamLayout.setMarkerPosition(-1);
+										}
+									};
+									playbackThreads.get(playbackThreads.size() - 1).setPlaybackListener(playbackListener);
+								}
 							}
 						}
 						catch (Exception e)

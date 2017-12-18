@@ -51,9 +51,8 @@ public class PlaybackThread
 	private ScheduledExecutorService executor;
 	private Runnable markerUpdateTask;
 
-	public PlaybackThread(Context c, File file, PlaybackListener listener)
+	public PlaybackThread(Context c, File file)
 	{
-		playbackListener = listener;
 		context = c.getApplicationContext();
 		audioFile = file;
 		loadMedia();
@@ -84,6 +83,16 @@ public class PlaybackThread
 		}
 		loadMedia();
 		stopUpdatingMarkerPosition();
+	}
+
+	public void setPlaybackListener(PlaybackListener listener)
+	{
+		playbackListener = listener;
+	}
+
+	public void removePlaybackListener()
+	{
+		playbackListener = null;
 	}
 
 	public boolean isPlaying()
@@ -118,7 +127,10 @@ public class PlaybackThread
 				@Override
 				public void onCompletion(MediaPlayer mp)
 				{
-					playbackListener.onCompletion();
+					if (playbackListener != null)
+					{
+						playbackListener.onCompletion();
+					}
 				}
 			});
 		}
@@ -156,7 +168,10 @@ public class PlaybackThread
 			executor.shutdown();
 			executor = null;
 			markerUpdateTask = null;
-			playbackListener.onCompletion();
+			if (playbackListener != null)
+			{
+				playbackListener.onCompletion();
+			}
 		}
 	}
 
@@ -165,7 +180,10 @@ public class PlaybackThread
 		if (mediaPlayer != null && mediaPlayer.isPlaying())
 		{
 			int currentPosition = mediaPlayer.getCurrentPosition();
-			playbackListener.onProgress(currentPosition);
+			if (playbackListener != null)
+			{
+				playbackListener.onProgress(currentPosition);
+			}
 		}
 	}
 }
