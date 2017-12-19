@@ -85,22 +85,41 @@ public class WaveformView extends View
 		init(attrs, defStyle);
 	}
 
+	/**
+	 * Sets samples that are used to draw the waveform and draws the waveform based on samples given.
+	 * @param s The result of {@link hcm.ssj.audio.AudioDecoder#getSamples()}
+	 */
 	public void setSamples(short[] s)
 	{
 		samples = s;
 		createWaveform();
 	}
 
+	/**
+	 * Sets the length of the audio file to visualize.
+	 * @param length The length of the audio file that this WaveformView is visualizing.
+	 */
 	public void setAudioLength(int length)
 	{
 		audioLength = length;
 	}
 
+	/**
+	 * Returns the length of the audio file that this WaveformView is visualizing.
+	 * @return Length of the audio file in milliseconds.
+	 */
 	public int getAudioLength()
 	{
 		return audioLength;
 	}
 
+	/**
+	 * Rescales the width of this WaveformView according to the given factor.
+	 * The new width is calculated as a product of old width and a given scaling factor, thereafter
+	 * the view is redrawn for the changes to take effect.
+	 * @param factor Factor to scale the width of WaveformView by. Should be bigger than 0 and less
+	 *               than 1.
+	 */
 	public void setWidthScale(float factor)
 	{
 		scalingFactor = factor;
@@ -128,6 +147,9 @@ public class WaveformView extends View
 		}
 	}
 
+	/**
+	 * Shrinks the width of this WaveformView according to scaling factor.
+	 */
 	private void rescale()
 	{
 		int newWidth = (int) (width * scalingFactor);

@@ -42,7 +42,6 @@ import android.widget.LinearLayout;
 import java.util.Locale;
 
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.activity.GraphActivity;
 
 /**
  * Layout group that contains custom views representing different stream files.
@@ -89,17 +88,29 @@ public class StreamLayout extends LinearLayout
 		init(context, attrs, defStyle);
 	}
 
+	/**
+	 * Updates the position of the playback marker.
+	 * @param progress The playback progress of the audio file.
+	 */
 	public void setMarkerProgress(int progress)
 	{
 		markerProgress = progress;
 		postInvalidate();
 	}
 
+	/**
+	 * Puts the playback marker at the start position.
+	 */
 	public void resetMarker()
 	{
 		setMarkerProgress(MARKER_ORIGIN);
 	}
 
+	/**
+	 * Keeps track of maximal audio length and recalculates movement step of playback marker along
+	 * time axis.
+	 * @param length The new length of the longest audio file in StreamLayout.
+	 */
 	public void setMaxAudioLength(int length)
 	{
 		maxAudioLength = length;
@@ -139,7 +150,7 @@ public class StreamLayout extends LinearLayout
 			}
 			catch (ClassCastException e)
 			{
-				// ....
+				// Empty on purpose, as we only rescale waveform views and not horizontal lines.
 			}
 		}
 	}
@@ -171,7 +182,7 @@ public class StreamLayout extends LinearLayout
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int ow, int oh)
+	protected void onSizeChanged(int w, int h, int oldWidth, int oldHeight)
 	{
 		width = getMeasuredWidth();
 		height = getMeasuredHeight();
@@ -246,6 +257,9 @@ public class StreamLayout extends LinearLayout
 						height - TIME_AXIS_OFFSET, axisPaint);
 	}
 
+	/**
+	 * Adds vertical line to separate multiple stream file visualizations.
+	 */
 	private void addSeparator()
 	{
 		View separator = new View(getContext());
