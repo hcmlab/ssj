@@ -337,6 +337,7 @@ public class PipelineBuilder
 	 */
 	public void buildPipe() throws SSJException
 	{
+		resetElementsState();
 		Pipeline framework = Pipeline.getInstance();
 		//add to framework
 		//sensors and sensorChannels
@@ -458,6 +459,34 @@ public class PipelineBuilder
 		buildEventPipeline(hsTransformerElements);
 		buildEventPipeline(hsConsumerElementsNotTriggeredByEvent);
 		buildEventPipeline(hsEventHandlerElements);
+	}
+
+	private void resetElementsState()
+	{
+		for (ContainerElement<?> element : hsSensorElements)
+		{
+			element.resetStreamAdded();
+		}
+		for (ContainerElement<?> element : hsSensorChannelElements)
+		{
+			element.resetStreamAdded();
+		}
+		for (ContainerElement<?> element : hsTransformerElements)
+		{
+			element.resetStreamAdded();
+		}
+		for (ContainerElement<?> element : hsConsumerElements)
+		{
+			element.resetStreamAdded();
+		}
+		for (ContainerElement<?> element : hsModelElements)
+		{
+			element.resetStreamAdded();
+		}
+		for (ContainerElement<?> element : hsEventHandlerElements)
+		{
+			element.resetStreamAdded();
+		}
 	}
 
 	private <T extends Component> void buildEventPipeline(LinkedHashSet<ContainerElement<T>> hsElements)

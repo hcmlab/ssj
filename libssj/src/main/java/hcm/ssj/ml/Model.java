@@ -448,10 +448,6 @@ public abstract class Model extends Component
         return isTrained;
     }
 
-    public boolean isSetup() {
-        return _isSetup;
-    }
-
     /**
      * Set label count for the classifier.
      *

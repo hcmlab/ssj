@@ -141,4 +141,9 @@ public abstract class Component implements Runnable
     }
 
     public abstract OptionList getOptions();
+
+    public boolean isSetup()
+    {
+        return _isSetup;
+    }
 }

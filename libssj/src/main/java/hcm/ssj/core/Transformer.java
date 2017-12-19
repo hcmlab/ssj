@@ -167,6 +167,14 @@ public abstract class Transformer extends Provider {
      */
     public final void setup(Provider[] sources, double frame, double delta) throws SSJException
     {
+        for (Provider source : sources)
+        {
+            if (!source.isSetup())
+            {
+                throw new SSJException("Components must be added in the correct order. Cannot add " + _name + " before its source " + source.getComponentName());
+            }
+        }
+
         try {
             _bufferID_in = new int[sources.length];
             _stream_in = new Stream[sources.length];

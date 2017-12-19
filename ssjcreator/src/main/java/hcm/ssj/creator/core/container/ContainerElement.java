@@ -28,6 +28,7 @@
 package hcm.ssj.creator.core.container;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Provider;
@@ -136,6 +137,14 @@ public class ContainerElement<T>
         }
         return true;
     }
+
+	public void resetStreamAdded()
+	{
+		for (Map.Entry<Provider, Boolean> entry : hmStreamProviders.entrySet())
+		{
+			entry.setValue(false);
+		}
+	}
 
     /**
      * @param provider Provider
