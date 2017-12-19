@@ -34,11 +34,14 @@ import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -155,6 +158,47 @@ public class OptionTable
 				public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 				{
 					option.set(isChecked);
+				}
+			});
+		}
+		else if (option.getType().isEnum())
+		{
+			//create spinner selection for enums which are not null
+			inputView = new Spinner(activity);
+
+			//pupulate spinner
+			ArrayList<Object> items = new ArrayList<>();
+			items.addAll(Arrays.asList((Object[])option.getType().getEnumConstants()));
+			((Spinner) inputView).setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, items));
+
+			//preselect item
+			if(value == null)
+			{
+				((Spinner) inputView).setSelection(0);
+			}
+			else
+			{
+				for (int i = 0; i < items.size(); i++)
+				{
+					if (items.get(i) != null && items.get(i).equals(value))
+					{
+						((Spinner) inputView).setSelection(i);
+						break;
+					}
+				}
+			}
+
+			((Spinner) inputView).setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
+			{
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+				{
+					option.set(parent.getItemAtPosition(position));
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView parent)
+				{
 				}
 			});
 		}
