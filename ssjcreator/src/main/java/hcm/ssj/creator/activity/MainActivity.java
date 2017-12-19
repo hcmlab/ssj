@@ -496,7 +496,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					}
 					fab.hide();
 					fab.setEnabled(false);
-					fab.setVisibility(View.GONE);
 				}
 			}
 		});

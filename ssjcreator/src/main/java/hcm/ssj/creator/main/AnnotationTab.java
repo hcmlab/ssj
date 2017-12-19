@@ -248,30 +248,33 @@ public class AnnotationTab implements ITab
      */
     private LinearLayout createClassSwitch(final Context context, String name)
     {
-        SwitchCompat switchButton = new SwitchCompat(context);
-        switchButton.setEnabled(false);
-        //
-        TextView textView = new TextView(context);
-        textView.setText(name);
-        textView.setTextSize(textView.getTextSize() * 0.5f);
-        //
         LinearLayout layout = new LinearLayout(context);
         layout.setBackgroundColor(Color.parseColor("#EEEEEE"));
-        //
+
         int dpValue = 8; // margin in dips
         float d = context.getResources().getDisplayMetrics().density;
         int margin = (int) (dpValue * d); // margin in pixels
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         params.setMargins(margin, margin, margin, 0);
         layout.setLayoutParams(params);
+
+        TextView textView = new TextView(context);
+        textView.setText(name);
+        textView.setTextSize(textView.getTextSize() * 0.5f);
         layout.addView(textView);
-        layout.addView(switchButton);
-        //
-        switchButton.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
-        LinearLayout.LayoutParams paramsBtn = (LinearLayout.LayoutParams) switchButton.getLayoutParams();
-        paramsBtn.height = LinearLayout.LayoutParams.WRAP_CONTENT;
-        paramsBtn.width = LinearLayout.LayoutParams.MATCH_PARENT;
-        switchButton.setLayoutParams(paramsBtn);
+
+        LinearLayout buttonLayout = new LinearLayout(context);
+        buttonLayout.setGravity(Gravity.CENTER_VERTICAL | Gravity.END);
+        LinearLayout.LayoutParams paramsBtn = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        paramsBtn.gravity = Gravity.END;
+//        paramsBtn.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+//        paramsBtn.width = LinearLayout.LayoutParams.WRAP_CONTENT;
+        buttonLayout.setLayoutParams(paramsBtn);
+        SwitchCompat switchButton = new SwitchCompat(context);
+        switchButton.setEnabled(false);
+        buttonLayout.addView(switchButton);
+        layout.addView(buttonLayout);
+
         switchButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener()
         {
             @Override
@@ -282,7 +285,7 @@ public class AnnotationTab implements ITab
                 {
                     for (int i = 0; i < annoClassList.getChildCount(); i++)
                     {
-                        SwitchCompat button = (SwitchCompat) ((LinearLayout) (annoClassList.getChildAt(i))).getChildAt(1);
+                        SwitchCompat button = (SwitchCompat) ((LinearLayout)((LinearLayout)(annoClassList.getChildAt(i))).getChildAt(1)).getChildAt(0);
                         if (button != buttonView)
                         {
                             button.setChecked(false);
@@ -293,7 +296,7 @@ public class AnnotationTab implements ITab
                 //only modify anno when pipeline is running
                 if (Pipeline.getInstance().isRunning())
                 {
-                    String name = ((TextView) (((ViewGroup) (buttonView.getParent())).getChildAt(0))).getText().toString();
+                    String name = ((TextView) (((ViewGroup) (buttonView.getParent().getParent())).getChildAt(0))).getText().toString();
 
                     if (isChecked)
                     {
@@ -346,9 +349,8 @@ public class AnnotationTab implements ITab
                     {
                         public void onClick(DialogInterface dialog, int id)
                         {
-                            ViewGroup viewGroup = (ViewGroup) v.getParent();
                             String name = editText.getText().toString().trim();
-                            ((TextView) viewGroup.getChildAt(0)).setText(name);
+                            ((TextView) v).setText(name);
                             anno.setClasses(getAnnoClassesFromView());
                         }
                     });
@@ -360,7 +362,7 @@ public class AnnotationTab implements ITab
                             ViewGroup viewGroup = (ViewGroup) v.getParent();
                             if (viewGroup != null)
                             {
-                                ((SwitchCompat) viewGroup.getChildAt(1)).setChecked(false);
+                                ((SwitchCompat)((LinearLayout) viewGroup.getChildAt(1)).getChildAt(0)).setChecked(false);
                                 anno.removeClass(((TextView) viewGroup.getChildAt(0)).getText().toString());
                                 ((ViewGroup) viewGroup.getParent()).removeView(viewGroup);
                             }
@@ -392,7 +394,7 @@ public class AnnotationTab implements ITab
                 //activate buttons
                 for (int i = 0; i < annoClassList.getChildCount(); i++)
                 {
-                    SwitchCompat button = (SwitchCompat) ((LinearLayout) (annoClassList.getChildAt(i))).getChildAt(1);
+                    SwitchCompat button = (SwitchCompat) ((LinearLayout)((LinearLayout)(annoClassList.getChildAt(i))).getChildAt(1)).getChildAt(0);
                     button.setEnabled(true);
                 }
             }
@@ -421,7 +423,7 @@ public class AnnotationTab implements ITab
             {
                 for (int i = 0; i < annoClassList.getChildCount(); i++)
                 {
-                    SwitchCompat button = (SwitchCompat) ((LinearLayout) (annoClassList.getChildAt(i))).getChildAt(1);
+                    SwitchCompat button = (SwitchCompat) ((LinearLayout)((LinearLayout)(annoClassList.getChildAt(i))).getChildAt(1)).getChildAt(0);
                     button.setChecked(false);
                     button.setEnabled(false);
                 }
@@ -535,7 +537,7 @@ public class AnnotationTab implements ITab
             @Override
             public void run()
             {
-                SwitchCompat button = (SwitchCompat) anno.getChildAt(1);
+                SwitchCompat button = (SwitchCompat) ((LinearLayout)anno.getChildAt(1)).getChildAt(0);
                 if (button.isEnabled())
                     button.setChecked(value);
             }
