@@ -58,7 +58,7 @@ public class StreamLayout extends LinearLayout
 	private static final int MARKER_WIDTH = 4;
 	private static final boolean ENABLE_ANTI_ALIAS = true;
 
-	private int markerPosition = MARKER_ORIGIN;
+	private int markerProgress = MARKER_ORIGIN;
 	private int width;
 	private int height;
 	private int audioLength;
@@ -86,15 +86,15 @@ public class StreamLayout extends LinearLayout
 		init(context, attrs, defStyle);
 	}
 
-	public void setMarkerPosition(int position)
+	public void setMarkerProgress(int progress)
 	{
-		markerPosition = position + MARKER_ORIGIN;
+		markerProgress = progress;
 		postInvalidate();
 	}
 
 	public void resetMarker()
 	{
-		setMarkerPosition(0);
+		setMarkerProgress(MARKER_ORIGIN);
 	}
 
 	public void setAudioLength(int length)
@@ -114,10 +114,11 @@ public class StreamLayout extends LinearLayout
 		}
 		drawTimeAxis(canvas);
 
-		if (markerPosition > MARKER_ORIGIN && markerPosition < audioLength)
+		if (markerProgress > MARKER_ORIGIN && markerProgress < audioLength)
 		{
+			float markerPosition = xStep * markerProgress + MARKER_ORIGIN;
 			// Move marker forward as audio is being played.
-			canvas.drawLine(xStep * markerPosition, 0, xStep * markerPosition,
+			canvas.drawLine(markerPosition, 0, markerPosition,
 							height - TIME_AXIS_OFFSET, markerPaint);
 		}
 		else

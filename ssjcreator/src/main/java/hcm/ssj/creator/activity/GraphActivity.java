@@ -153,7 +153,7 @@ public class GraphActivity extends AppCompatActivity
 										@Override
 										public void onProgress(int progress)
 										{
-											streamLayout.setMarkerPosition(progress);
+											streamLayout.setMarkerProgress(progress);
 										}
 
 										@Override
