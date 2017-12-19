@@ -31,7 +31,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.obsez.android.lib.filechooser.ChooserDialog;
@@ -127,13 +126,8 @@ public class GraphActivity extends AppCompatActivity
 
 								WaveformView waveform = new WaveformView(GraphActivity.this);
 								waveform.setSamples(decoder.getSamples());
+								waveform.setAudioLength(audioLength);
 								streamLayout.addView(waveform, 0);
-
-								// Create horizontal separator line if multiple waveforms are present.
-								if (streamLayout.getChildCount() > 1)
-								{
-									addWaveformSeparator();
-								}
 
 								showMediaButtons();
 
@@ -142,7 +136,6 @@ public class GraphActivity extends AppCompatActivity
 								if (audioLength > maxAudioLength)
 								{
 									maxAudioLength = audioLength;
-									streamLayout.setAudioLength(audioLength);
 
 									for (PlaybackThread playbackThread : playbackThreads)
 									{
@@ -182,15 +175,5 @@ public class GraphActivity extends AppCompatActivity
 	{
 		playButton.setVisibility(View.VISIBLE);
 		resetButton.setVisibility(View.VISIBLE);
-	}
-
-	private void addWaveformSeparator()
-	{
-		View separator = new View(GraphActivity.this);
-		ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
-				ViewGroup.LayoutParams.MATCH_PARENT, 4);
-		separator.setLayoutParams(params);
-		separator.setBackgroundColor(getResources().getColor(R.color.colorSeparator));
-		streamLayout.addView(separator, 1);
 	}
 }

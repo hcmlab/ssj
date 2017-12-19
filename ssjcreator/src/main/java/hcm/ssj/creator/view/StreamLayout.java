@@ -35,11 +35,14 @@ import android.graphics.Paint;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
 import java.util.Locale;
 
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.activity.GraphActivity;
 
 /**
  * Layout group that contains custom views representing different stream files.
@@ -61,7 +64,7 @@ public class StreamLayout extends LinearLayout
 	private int markerProgress = MARKER_ORIGIN;
 	private int width;
 	private int height;
-	private int audioLength;
+	private int maxAudioLength;
 	float xStep;
 
 	private TextPaint textPaint;
@@ -97,10 +100,28 @@ public class StreamLayout extends LinearLayout
 		setMarkerProgress(MARKER_ORIGIN);
 	}
 
-	public void setAudioLength(int length)
+	public void setMaxAudioLength(int length)
 	{
-		audioLength = length;
-		xStep = width / (audioLength * 1.0f);
+		maxAudioLength = length;
+		xStep = width / (maxAudioLength * 1.0f);
+	}
+
+	@Override
+	public void onViewAdded(View view)
+	{
+		// Keep track of the length of the longest audio file.
+		int currentLength = ((WaveformView) view).getAudioLength();
+		if (currentLength > maxAudioLength)
+		{
+			setMaxAudioLength(currentLength);
+		}
+		// Rescale width of all child views according to the length of the longest audio file.
+		for (int i = 0; i < getChildCount(); i++)
+		{
+			WaveformView waveformView = (WaveformView) getChildAt(i);
+			float factor  = (float) waveformView.getAudioLength() / maxAudioLength;
+			waveformView.setWidthScale(factor);
+		}
 	}
 
 	@Override
@@ -108,13 +129,13 @@ public class StreamLayout extends LinearLayout
 	{
 		super.dispatchDraw(canvas);
 
-		if (audioLength == 0)
+		if (maxAudioLength == 0)
 		{
 			return;
 		}
 		drawTimeAxis(canvas);
 
-		if (markerProgress > MARKER_ORIGIN && markerProgress < audioLength)
+		if (markerProgress > MARKER_ORIGIN && markerProgress < maxAudioLength)
 		{
 			float markerPosition = xStep * markerProgress + MARKER_ORIGIN;
 			// Move marker forward as audio is being played.
@@ -182,8 +203,8 @@ public class StreamLayout extends LinearLayout
 	 */
 	private void drawTimeAxis(Canvas canvas)
 	{
-		int seconds = audioLength / 1000;
-		float xStep = width / (audioLength / 1000f);
+		int seconds = maxAudioLength / 1000;
+		float xStep = width / (maxAudioLength / 1000f);
 		float textWidth = textPaint.measureText("10.00");
 		float secondStep = (textWidth * seconds * 2) / width;
 		secondStep = Math.max(secondStep, 1) - 0.5f;
@@ -203,5 +224,15 @@ public class StreamLayout extends LinearLayout
 		}
 		canvas.drawLine(0, height - TIME_AXIS_OFFSET, width,
 						height - TIME_AXIS_OFFSET, axisPaint);
+	}
+
+	private void addSeparator()
+	{
+		View separator = new View(getContext());
+		ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+				ViewGroup.LayoutParams.MATCH_PARENT, 4);
+		separator.setLayoutParams(params);
+		separator.setBackgroundColor(getResources().getColor(R.color.colorSeparator));
+		addView(separator, 1);
 	}
 }

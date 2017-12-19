@@ -60,6 +60,9 @@ public class WaveformView extends View
 
 	private int width;
 	private int height;
+	private int audioLength;
+
+	private float scalingFactor = 1;
 
 	private short[] samples;
 	private Bitmap cachedWaveformBitmap;
@@ -88,14 +91,29 @@ public class WaveformView extends View
 		createWaveform();
 	}
 
+	public void setAudioLength(int length)
+	{
+		audioLength = length;
+	}
+
+	public int getAudioLength()
+	{
+		return audioLength;
+	}
+
+	public void setWidthScale(float factor)
+	{
+		scalingFactor = factor;
+		rescale();
+		invalidate();
+	}
+
 	@Override
-	protected void onSizeChanged(int w, int h, int ow, int oh)
+	protected void onSizeChanged(int w, int h, int oldWidth, int oldHeight)
 	{
 		width = getMeasuredWidth();
 		height = getMeasuredHeight();
-		drawRect = new Rect(getPaddingLeft(), getPaddingTop(),
-							width - getPaddingLeft() - getPaddingRight(),
-							height - getPaddingTop() - getPaddingBottom());
+		rescale();
 		createWaveform();
 	}
 
@@ -108,6 +126,14 @@ public class WaveformView extends View
 		{
 			canvas.drawBitmap(cachedWaveformBitmap, null, drawRect, null);
 		}
+	}
+
+	private void rescale()
+	{
+		int newWidth = (int) (width * scalingFactor);
+		drawRect = new Rect(getPaddingLeft(), getPaddingTop(),
+							newWidth - getPaddingLeft() - getPaddingRight(),
+							height - getPaddingTop() - getPaddingBottom());
 	}
 
 	/**
