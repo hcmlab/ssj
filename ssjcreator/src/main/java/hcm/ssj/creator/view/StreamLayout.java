@@ -109,18 +109,38 @@ public class StreamLayout extends LinearLayout
 	@Override
 	public void onViewAdded(View view)
 	{
+		int currentLength;
+		try
+		{
+			currentLength = ((WaveformView) view).getAudioLength();
+		}
+		catch (ClassCastException e)
+		{
+			return;
+		}
 		// Keep track of the length of the longest audio file.
-		int currentLength = ((WaveformView) view).getAudioLength();
 		if (currentLength > maxAudioLength)
 		{
 			setMaxAudioLength(currentLength);
 		}
+		// Add horizontal line to separate multiple waveforms.
+		if (getChildCount() > 1)
+		{
+			addSeparator();
+		}
 		// Rescale width of all child views according to the length of the longest audio file.
 		for (int i = 0; i < getChildCount(); i++)
 		{
-			WaveformView waveformView = (WaveformView) getChildAt(i);
-			float factor  = (float) waveformView.getAudioLength() / maxAudioLength;
-			waveformView.setWidthScale(factor);
+			try
+			{
+				WaveformView waveformView = (WaveformView) getChildAt(i);
+				float factor  = (float) waveformView.getAudioLength() / maxAudioLength;
+				waveformView.setWidthScale(factor);
+			}
+			catch (ClassCastException e)
+			{
+				// ....
+			}
 		}
 	}
 
