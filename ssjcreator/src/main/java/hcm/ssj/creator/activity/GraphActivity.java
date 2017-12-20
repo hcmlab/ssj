@@ -36,12 +36,12 @@ import android.widget.Button;
 import com.obsez.android.lib.filechooser.ChooserDialog;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 import hcm.ssj.creator.R;
+import hcm.ssj.creator.util.PlaybackThreadList;
 import hcm.ssj.creator.view.StreamLayout;
 import hcm.ssj.creator.view.WaveformView;
 import hcm.ssj.file.FileUtils;
@@ -55,7 +55,7 @@ public class GraphActivity extends AppCompatActivity
 	private static final String SUPPORTED_MEDIA_TYPES = "mp3|mp4|wav";
 
 	private ChooserDialog chooserDialog;
-	private ArrayList<PlaybackThread> playbackThreads = new ArrayList<>();
+	private PlaybackThreadList playbackThreads = new PlaybackThreadList();
 	private StreamLayout streamLayout;
 
 	private Button playButton;
@@ -82,11 +82,8 @@ public class GraphActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				for (PlaybackThread playbackThread : playbackThreads)
-				{
-					playbackThread.play();
-					playButton.setText(R.string.play);
-				}
+				playbackThreads.play();
+				playButton.setText(R.string.play);
 			}
 		});
 
@@ -96,10 +93,7 @@ public class GraphActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				for (PlaybackThread playbackThread : playbackThreads)
-				{
-					playbackThread.reset();
-				}
+				playbackThreads.reset();
 				playButton.setText(R.string.play);
 			}
 		});
@@ -137,10 +131,7 @@ public class GraphActivity extends AppCompatActivity
 								{
 									maxAudioLength = audioLength;
 
-									for (PlaybackThread playbackThread : playbackThreads)
-									{
-										playbackThread.removePlaybackListener();
-									}
+									playbackThreads.removePlaybackListeners();
 
 									PlaybackListener playbackListener = new PlaybackListener() {
 										@Override
@@ -156,7 +147,7 @@ public class GraphActivity extends AppCompatActivity
 											streamLayout.resetMarker();
 										}
 									};
-									playbackThreads.get(playbackThreads.size() - 1).setPlaybackListener(playbackListener);
+									playbackThreads.setPlaybackListener(playbackListener);
 								}
 							}
 						}
