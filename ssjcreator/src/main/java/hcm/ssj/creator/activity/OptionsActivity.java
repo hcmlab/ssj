@@ -273,7 +273,7 @@ public class OptionsActivity extends AppCompatActivity
 		items.add(null); //default element
 		if(mainObject instanceof Trainer)
 			items.add(PipelineBuilder.getInstance().getAnnotation()); //annotation channel
-		items.addAll(Arrays.asList(PipelineBuilder.getInstance().getPossibleEventInputs(mainObject)));
+		items.addAll(Arrays.asList(PipelineBuilder.getInstance().getPossibleEventConnections(mainObject)));
 		eventTriggerList.setAdapter(new ArrayAdapterWithNull(this, android.R.layout.simple_spinner_item, items, "<none>"));
 
 		//preselect item

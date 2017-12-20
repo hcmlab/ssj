@@ -133,7 +133,7 @@ public class ProviderTable
         textViewName.setTextSize(TypedValue.COMPLEX_UNIT_SP, 22);
         linearLayout.addView(textViewName);
         //get possible providers
-        final Object[] objects = PipelineBuilder.getInstance().getPossibleEventInputs(mainObject);
+        final Object[] objects = PipelineBuilder.getInstance().getPossibleEventConnections(mainObject);
         //
         if (objects.length > 0) {
             for (int i = 0; i < objects.length; i++) {
@@ -144,7 +144,7 @@ public class ProviderTable
                 CheckBox checkBox = new CheckBox(activity);
                 checkBox.setText(objects[i].getClass().getSimpleName());
                 checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 19);
-                Object[] providers = PipelineBuilder.getInstance().getEventInputs(mainObject);
+                Object[] providers = PipelineBuilder.getInstance().getEventConnections(mainObject);
                 if (providers != null) {
                     for (Object provider : providers) {
                         if (objects[i].equals(provider)) {
@@ -160,9 +160,9 @@ public class ProviderTable
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         if (isChecked) {
-                            PipelineBuilder.getInstance().addEventInput(mainObject, (Component) o);
+                            PipelineBuilder.getInstance().addEventConnection(mainObject, (Component) o);
                         } else {
-                            PipelineBuilder.getInstance().removeEventInput(mainObject, (Component) o);
+                            PipelineBuilder.getInstance().removeEventConnection(mainObject, (Component) o);
                         }
                     }
                 });

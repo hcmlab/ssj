@@ -47,8 +47,8 @@ public class ContainerElement<T>
 	private boolean added;
 
 	private LinkedHashSet<ContainerElement<Provider>> hsStreamConnections = new LinkedHashSet<>();
-    private LinkedHashSet<ContainerElement<Component>> hsEventInputs = new LinkedHashSet<>();
-	private LinkedHashSet<ContainerElement<IModelHandler>> hsModelHandlers = new LinkedHashSet<>();
+    private LinkedHashSet<ContainerElement<Component>> hsEventConnections = new LinkedHashSet<>();
+	private LinkedHashSet<ContainerElement<IModelHandler>> hsModelConnections = new LinkedHashSet<>();
 
     /**
      * @param element T
@@ -178,17 +178,17 @@ public class ContainerElement<T>
 	/**
 	 * @return LinkedHashMap
 	 */
-	public LinkedHashSet<ContainerElement<Component>> getEventInputContainers()
+	public LinkedHashSet<ContainerElement<Component>> getEventConnectionContainers()
 	{
-		return hsEventInputs;
+		return hsEventConnections;
 	}
 
-	public Component[] getEventInputs()
+	public Component[] getEventConnections()
 	{
-		Component[] components = new Component[hsEventInputs.size()];
+		Component[] components = new Component[hsEventConnections.size()];
 
 		int i = 0;
-		for (ContainerElement<Component> element : hsEventInputs)
+		for (ContainerElement<Component> element : hsEventConnections)
 		{
 			components[i++] = element.getElement();
 		}
@@ -200,34 +200,34 @@ public class ContainerElement<T>
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addEventInput(ContainerElement<Component> provider)
+	public boolean addEventConnection(ContainerElement<Component> provider)
 	{
-		return !hsEventInputs.contains(provider) && hsEventInputs.add(provider);
+		return !hsEventConnections.contains(provider) && hsEventConnections.add(provider);
 	}
 
 	/**
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeEventInput(ContainerElement<Component> provider)
+	public boolean removeEventConnection(ContainerElement<Component> provider)
 	{
-		return hsEventInputs.remove(provider);
+		return hsEventConnections.remove(provider);
 	}
 
 	/**
 	 * @return LinkedHashMap
 	 */
-	public LinkedHashSet<ContainerElement<IModelHandler>> getModelHandlerContainers()
+	public LinkedHashSet<ContainerElement<IModelHandler>> getModelConnectionContainers()
 	{
-		return hsModelHandlers;
+		return hsModelConnections;
 	}
 
-	public IModelHandler[] getModelHandlers()
+	public IModelHandler[] getModelConnections()
 	{
-		IModelHandler[] handlers = new IModelHandler[hsModelHandlers.size()];
+		IModelHandler[] handlers = new IModelHandler[hsModelConnections.size()];
 
 		int i = 0;
-		for (ContainerElement<IModelHandler> element : hsModelHandlers)
+		for (ContainerElement<IModelHandler> element : hsModelConnections)
 		{
 			handlers[i++] = element.getElement();
 		}
@@ -241,7 +241,7 @@ public class ContainerElement<T>
 	 */
 	public boolean addModelConnection(ContainerElement<IModelHandler> handler)
 	{
-		return !hsModelHandlers.contains(handler) && hsModelHandlers.add(handler);
+		return !hsModelConnections.contains(handler) && hsModelConnections.add(handler);
 	}
 
 	/**
@@ -250,6 +250,6 @@ public class ContainerElement<T>
 	 */
 	public boolean removeModelConnection(ContainerElement<IModelHandler> handler)
 	{
-		return hsModelHandlers.remove(handler);
+		return hsModelConnections.remove(handler);
 	}
 }

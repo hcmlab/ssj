@@ -322,7 +322,7 @@ public class PipelineBuilder
 			Model model = element.getElement();
 			framework.addModel(model);
 
-			HashSet<ContainerElement<IModelHandler>> handlers = element.getModelHandlerContainers();
+			HashSet<ContainerElement<IModelHandler>> handlers = element.getModelConnectionContainers();
 			if (handlers.size() > 0)
 			{
 				for (ContainerElement<IModelHandler> handler : handlers)
@@ -432,9 +432,9 @@ public class PipelineBuilder
 	{
 		for (ContainerElement<T> element : hsElements)
 		{
-			if (!element.getEventInputContainers().isEmpty())
+			if (!element.getEventConnectionContainers().isEmpty())
 			{
-				for (Component component : element.getEventInputs())
+				for (Component component : element.getEventConnections())
 				{
 					Pipeline.getInstance().registerEventListener(element.getElement(), component.getEventChannelOut());
 				}
@@ -624,7 +624,7 @@ public class PipelineBuilder
 			{
 				sensor.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			sensor.removeEventInput((ContainerElement<Component>)containerElement);
+			sensor.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<SensorChannel> sensorChannel : hsSensorChannelElements)
 		{
@@ -632,7 +632,7 @@ public class PipelineBuilder
 			{
 				sensorChannel.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			sensorChannel.removeEventInput((ContainerElement<Component>)containerElement);
+			sensorChannel.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<Transformer> transformer : hsTransformerElements)
 		{
@@ -640,7 +640,7 @@ public class PipelineBuilder
 			{
 				transformer.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			transformer.removeEventInput((ContainerElement<Component>)containerElement);
+			transformer.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<Consumer> consumer : hsConsumerElements)
 		{
@@ -648,11 +648,11 @@ public class PipelineBuilder
 			{
 				consumer.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			consumer.removeEventInput((ContainerElement<Component>)containerElement);
+			consumer.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<EventHandler> eventHandler : hsEventHandlerElements)
 		{
-			eventHandler.removeEventInput((ContainerElement<Component>)containerElement);
+			eventHandler.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<Model> model : hsModelElements)
 		{
@@ -1132,7 +1132,7 @@ public class PipelineBuilder
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addEventInput(Object o, Component provider)
+	public boolean addEventConnection(Object o, Component provider)
 	{
 		ContainerElement<Component> providerContainer = (ContainerElement<Component>) getContainerElement(provider);
 
@@ -1144,7 +1144,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventInput(providerContainer);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1155,7 +1155,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventInput(providerContainer);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1167,7 +1167,7 @@ public class PipelineBuilder
 				//prevent adding it to itself
 				if (element.getElement().equals(o) && !element.getElement().equals(provider))
 				{
-					return element.addEventInput(providerContainer);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1178,7 +1178,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventInput(providerContainer);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1189,7 +1189,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventInput(providerContainer);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1201,7 +1201,7 @@ public class PipelineBuilder
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeEventInput(Object o, Component provider)
+	public boolean removeEventConnection(Object o, Component provider)
 	{
 		ContainerElement<Component> providerContainer = (ContainerElement<Component>) getContainerElement(provider);
 
@@ -1213,7 +1213,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventInput(providerContainer);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1224,7 +1224,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventInput(providerContainer);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1235,7 +1235,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventInput(providerContainer);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1246,7 +1246,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventInput(providerContainer);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1257,7 +1257,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventInput(providerContainer);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1268,7 +1268,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventInput(providerContainer);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1283,23 +1283,23 @@ public class PipelineBuilder
 		int number = 0;
 		for (ContainerElement<Sensor> element : hsSensorElements)
 		{
-			number += element.getEventInputContainers().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<SensorChannel> element : hsSensorChannelElements)
 		{
-			number += element.getEventInputContainers().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<Transformer> element : hsTransformerElements)
 		{
-			number += element.getEventInputContainers().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<Consumer> element : hsConsumerElements)
 		{
-			number += element.getEventInputContainers().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
 		{
-			number += element.getEventInputContainers().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		return number;
 	}
@@ -1308,7 +1308,7 @@ public class PipelineBuilder
 	 * @param o Object
 	 * @return Object[]
 	 */
-	public Object[] getEventInputs(Object o)
+	public Object[] getEventConnections(Object o)
 	{
 		if (o instanceof Sensor)
 		{
@@ -1316,7 +1316,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getEventInputs();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1326,7 +1326,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getEventInputs();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1336,7 +1336,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getEventInputs();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1346,7 +1346,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getEventInputs();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1356,7 +1356,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getEventInputs();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1376,7 +1376,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getEventInputs();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1397,7 +1397,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getEventInputs();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1418,7 +1418,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getEventInputs();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1439,7 +1439,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getEventInputs();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1460,7 +1460,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getEventInputs();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1575,7 +1575,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getModelHandlers();
+					return element.getModelConnections();
 				}
 			}
 		}
@@ -1585,7 +1585,7 @@ public class PipelineBuilder
 
 			for (ContainerElement<Model> element : hsModelElements)
 			{
-				for(IModelHandler mh : element.getModelHandlers())
+				for(IModelHandler mh : element.getModelConnections())
 				{
 					if (mh.equals(o))
 					{
@@ -1606,7 +1606,7 @@ public class PipelineBuilder
 		int number = 0;
 		for (ContainerElement<Model> element : hsModelElements)
 		{
-			number += element.getModelHandlerContainers().size();
+			number += element.getModelConnectionContainers().size();
 		}
 		return number;
 	}
@@ -1620,7 +1620,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getModelHandlers();
+					Object[] objects = element.getModelConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1645,7 +1645,7 @@ public class PipelineBuilder
 	/**
 	 * @return Object[]
 	 */
-	public Object[] getPossibleEventInputs(Object object)
+	public Object[] getPossibleEventConnections(Object object)
 	{
 		//add possible providers
 		ArrayList<Object> alCandidates = new ArrayList<>();

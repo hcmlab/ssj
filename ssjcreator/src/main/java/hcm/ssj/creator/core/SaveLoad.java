@@ -467,7 +467,7 @@ public abstract class SaveLoad
 						}
 						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTCONNECTION))
 						{
-							PipelineBuilder.getInstance().addEventInput(key, (Component) candidateKey);
+							PipelineBuilder.getInstance().addEventConnection(key, (Component) candidateKey);
 						}
 						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTTRIGGERCONNECTION))
 						{
@@ -603,7 +603,7 @@ public abstract class SaveLoad
 			serializer.endTag(null, CHANNEL_LIST);
 		}
 
-		Component[] eventInputs = containerElement.getEventInputs();
+		Component[] eventInputs = containerElement.getEventConnections();
 		if(eventInputs.length > 0)
 		{
 			serializer.startTag(null, EVENT_CHANNEL_LIST);
@@ -621,7 +621,7 @@ public abstract class SaveLoad
 			addFeedbackCollectionTag(serializer, containerElement);
 		}
 
-		IModelHandler[] modelHandlers = containerElement.getModelHandlers();
+		IModelHandler[] modelHandlers = containerElement.getModelConnections();
 		if(modelHandlers.length > 0)
 		{
 			serializer.startTag(null, MODEL_HANDLER_LIST);
