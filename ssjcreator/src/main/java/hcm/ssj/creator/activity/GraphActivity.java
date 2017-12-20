@@ -82,8 +82,16 @@ public class GraphActivity extends AppCompatActivity
 			@Override
 			public void onClick(View view)
 			{
-				playbackThreads.play();
-				playButton.setText(R.string.play);
+				if (playbackThreads.isPlaying())
+				{
+					playbackThreads.pause();
+					playButton.setText(R.string.play);
+				}
+				else
+				{
+					playbackThreads.play();
+					playButton.setText(R.string.pause);
+				}
 			}
 		});
 
@@ -130,9 +138,7 @@ public class GraphActivity extends AppCompatActivity
 								if (audioLength > maxAudioLength)
 								{
 									maxAudioLength = audioLength;
-
 									playbackThreads.removePlaybackListeners();
-
 									PlaybackListener playbackListener = new PlaybackListener() {
 										@Override
 										public void onProgress(int progress)

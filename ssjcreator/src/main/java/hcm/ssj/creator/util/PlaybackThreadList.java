@@ -77,4 +77,16 @@ public class PlaybackThreadList
 	{
 		playbackThreads.get(playbackThreads.size() - 1).setPlaybackListener(listener);
 	}
+
+	public boolean isPlaying()
+	{
+		for (PlaybackThread thread : playbackThreads)
+		{
+			if (thread.isPlaying())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }
