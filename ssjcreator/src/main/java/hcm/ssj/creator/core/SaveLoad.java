@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -464,11 +463,11 @@ public abstract class SaveLoad
 					{
 						if (value.typedHashes.get(provider).equals(ConnectionType.STREAMCONNECTION))
 						{
-							PipelineBuilder.getInstance().addStreamProvider(key, (Provider) candidateKey);
+							PipelineBuilder.getInstance().addStreamConnection(key, (Provider) candidateKey);
 						}
 						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTCONNECTION))
 						{
-							PipelineBuilder.getInstance().addEventProvider(key, (Component) candidateKey);
+							PipelineBuilder.getInstance().addEventInput(key, (Component) candidateKey);
 						}
 						else if (value.typedHashes.get(provider).equals(ConnectionType.EVENTTRIGGERCONNECTION))
 						{
@@ -591,27 +590,27 @@ public abstract class SaveLoad
 		}
 		addOptions(serializer, containerElement.getElement());
 
-		HashMap<Provider, Boolean> streamHashMap = containerElement.getHmStreamProviders();
-		if(streamHashMap.size() > 0)
+		Provider[] providers = containerElement.getStreamConnections();
+		if(providers.length > 0)
 		{
 			serializer.startTag(null, CHANNEL_LIST);
-			for (Map.Entry<Provider, Boolean> element : streamHashMap.entrySet())
+			for (Provider element : providers)
 			{
 				serializer.startTag(null, CHANNEL_ID);
-				serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+				serializer.attribute(null, ID, String.valueOf(element.hashCode()));
 				serializer.endTag(null, CHANNEL_ID);
 			}
 			serializer.endTag(null, CHANNEL_LIST);
 		}
 
-		HashMap<Component, Boolean> eventHashMap = containerElement.getHmEventProviders();
-		if(eventHashMap.size() > 0)
+		Component[] eventInputs = containerElement.getEventInputs();
+		if(eventInputs.length > 0)
 		{
 			serializer.startTag(null, EVENT_CHANNEL_LIST);
-			for (Map.Entry<Component, Boolean> element : eventHashMap.entrySet())
+			for (Component element : eventInputs)
 			{
 				serializer.startTag(null, EVENT_CHANNEL_ID);
-				serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+				serializer.attribute(null, ID, String.valueOf(element.hashCode()));
 				serializer.endTag(null, EVENT_CHANNEL_ID);
 			}
 			serializer.endTag(null, EVENT_CHANNEL_LIST);
@@ -622,14 +621,14 @@ public abstract class SaveLoad
 			addFeedbackCollectionTag(serializer, containerElement);
 		}
 
-		HashMap<IModelHandler, Boolean> modelMap = containerElement.getHmModelHandlers();
-		if(modelMap.size() > 0)
+		IModelHandler[] modelHandlers = containerElement.getModelHandlers();
+		if(modelHandlers.length > 0)
 		{
 			serializer.startTag(null, MODEL_HANDLER_LIST);
-			for (Map.Entry<IModelHandler, Boolean> element : modelMap.entrySet())
+			for(IModelHandler element : modelHandlers)
 			{
 				serializer.startTag(null, MODEL_HANDLER_ID);
-				serializer.attribute(null, ID, String.valueOf(element.getKey().hashCode()));
+				serializer.attribute(null, ID, String.valueOf(element.hashCode()));
 				serializer.endTag(null, MODEL_HANDLER_ID);
 			}
 			serializer.endTag(null, MODEL_HANDLER_LIST);

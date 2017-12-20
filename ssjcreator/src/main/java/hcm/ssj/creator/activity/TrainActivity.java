@@ -381,7 +381,7 @@ public class TrainActivity extends AppCompatActivity
 			//update known classes
 			for (int j = 0; j < session.anno.getClasses().size(); j++)
 			{
-				classes.put(session.anno.getClasses().keyAt(i), session.anno.getClasses().valueAt(i));
+				classes.put(session.anno.getClasses().keyAt(j), session.anno.getClasses().valueAt(j));
 			}
 
 			String emptyClass = null;

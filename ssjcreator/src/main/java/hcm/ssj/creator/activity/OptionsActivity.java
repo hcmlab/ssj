@@ -152,7 +152,7 @@ public class OptionsActivity extends AppCompatActivity
 			{
 				TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
 																		(innerObject instanceof Transformer || innerObject instanceof Consumer)
-																				|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
+																				|| (innerObject instanceof Sensor && options != null && options.length > 0));
 				if (eventTableRow != null)
 				{
 					tableLayout.addView(eventTableRow);

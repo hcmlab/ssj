@@ -51,6 +51,11 @@ public class FFTfeat extends Transformer
 	private int fft_size = 0;
 	private int rfft = 0;
 
+	public FFTfeat()
+	{
+		_name = this.getClass().getSimpleName();
+	}
+
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{

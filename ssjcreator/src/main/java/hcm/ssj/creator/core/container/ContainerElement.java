@@ -27,8 +27,7 @@
 
 package hcm.ssj.creator.core.container;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.LinkedHashSet;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Provider;
@@ -44,9 +43,12 @@ public class ContainerElement<T>
     private Double frameSize = null;
     private double delta = 0;
 	private Object eventTrigger = null;
-    private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
-    private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
-	private LinkedHashMap<IModelHandler, Boolean> hmModelHandlers = new LinkedHashMap<>();
+
+	private boolean added;
+
+	private LinkedHashSet<ContainerElement<Provider>> hsStreamConnections = new LinkedHashSet<>();
+    private LinkedHashSet<ContainerElement<Component>> hsEventInputs = new LinkedHashSet<>();
+	private LinkedHashSet<ContainerElement<IModelHandler>> hsModelHandlers = new LinkedHashSet<>();
 
     /**
      * @param element T
@@ -106,138 +108,148 @@ public class ContainerElement<T>
 		return eventTrigger;
 	}
 
-    /**
+	public void setAdded(boolean value)
+	{
+		added = value;
+	}
+
+	public boolean hasBeenAdded()
+	{
+		return added;
+	}
+
+	public void reset()
+	{
+		added = false;
+	}
+
+	/**
      * @return LinkedHashMap
      */
-    public LinkedHashMap<Provider, Boolean> getHmStreamProviders()
+    public LinkedHashSet<ContainerElement<Provider>> getStreamConnectionContainers()
     {
-        return hmStreamProviders;
+        return hsStreamConnections;
     }
 
-    /**
-     * @param provider Provider
-     * @return boolean
-     */
-    public boolean setStreamAdded(Provider provider)
-    {
-        return hmStreamProviders.containsKey(provider) && !hmStreamProviders.put(provider, true);
-    }
-
-    /**
-     * @return boolean
-     */
-    public boolean allStreamAdded()
-    {
-        for (boolean value : hmStreamProviders.values())
-        {
-            if (!value)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-	public void resetStreamAdded()
+	public Provider[] getStreamConnections()
 	{
-		for (Map.Entry<Provider, Boolean> entry : hmStreamProviders.entrySet())
+		Provider[] providers = new Provider[hsStreamConnections.size()];
+
+		int i = 0;
+		for (ContainerElement<Provider> element : hsStreamConnections)
 		{
-			entry.setValue(false);
+			providers[i++] = element.getElement();
 		}
+
+		return providers;
 	}
 
     /**
-     * @param provider Provider
      * @return boolean
      */
-    public boolean addStreamProvider(Provider provider)
+    public boolean allStreamConnectionsAdded()
     {
-        return !hmStreamProviders.containsKey(provider) && hmStreamProviders.put(provider, false) == null;
+    	boolean allAdded = true;
+		for (ContainerElement<?> element : hsStreamConnections)
+		{
+			allAdded &= element.hasBeenAdded();
+		}
+		return allAdded;
     }
 
     /**
-     * @param provider Provider
+     * @param element ContainerElement
      * @return boolean
      */
-    public boolean removeStreamProvider(Provider provider)
+    public boolean addStreamConnection(ContainerElement<Provider> element)
     {
-        return hmStreamProviders.remove(provider) != null;
+        return !hsStreamConnections.contains(element) && hsStreamConnections.add(element);
+    }
+
+    /**
+     * @param element ContainerElement
+     * @return boolean
+     */
+    public boolean removeStreamConnection(ContainerElement<Provider> element)
+    {
+        return hsStreamConnections.remove(element);
     }
 
 	/**
 	 * @return LinkedHashMap
 	 */
-	public LinkedHashMap<Component, Boolean> getHmEventProviders()
+	public LinkedHashSet<ContainerElement<Component>> getEventInputContainers()
 	{
-		return hmEventProviders;
+		return hsEventInputs;
+	}
+
+	public Component[] getEventInputs()
+	{
+		Component[] components = new Component[hsEventInputs.size()];
+
+		int i = 0;
+		for (ContainerElement<Component> element : hsEventInputs)
+		{
+			components[i++] = element.getElement();
+		}
+
+		return components;
 	}
 
 	/**
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addEventProvider(Component provider)
+	public boolean addEventInput(ContainerElement<Component> provider)
 	{
-		return !hmEventProviders.containsKey(provider) && hmEventProviders.put(provider, false) == null;
+		return !hsEventInputs.contains(provider) && hsEventInputs.add(provider);
 	}
 
 	/**
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeEventProvider(Component provider)
+	public boolean removeEventInput(ContainerElement<Component> provider)
 	{
-		return hmEventProviders.remove(provider) != null;
+		return hsEventInputs.remove(provider);
 	}
-
 
 	/**
 	 * @return LinkedHashMap
 	 */
-	public LinkedHashMap<IModelHandler, Boolean> getHmModelHandlers()
+	public LinkedHashSet<ContainerElement<IModelHandler>> getModelHandlerContainers()
 	{
-		return hmModelHandlers;
+		return hsModelHandlers;
 	}
 
-	/**
-	 * @param handler IModelHandler
-	 * @return boolean
-	 */
-	public boolean setConnectionAdded(IModelHandler handler)
+	public IModelHandler[] getModelHandlers()
 	{
-		return hmModelHandlers.containsKey(handler) && !hmModelHandlers.put(handler, true);
-	}
+		IModelHandler[] handlers = new IModelHandler[hsModelHandlers.size()];
 
-	/**
-	 * @return boolean
-	 */
-	public boolean allConnectionsAdded()
-	{
-		for (boolean value : hmModelHandlers.values())
+		int i = 0;
+		for (ContainerElement<IModelHandler> element : hsModelHandlers)
 		{
-			if (!value)
-			{
-				return false;
-			}
+			handlers[i++] = element.getElement();
 		}
-		return true;
+
+		return handlers;
 	}
 
 	/**
 	 * @param handler IModelHandler
 	 * @return boolean
 	 */
-	public boolean addConnection(IModelHandler handler)
+	public boolean addModelConnection(ContainerElement<IModelHandler> handler)
 	{
-		return !hmModelHandlers.containsKey(handler) && hmModelHandlers.put(handler, false) == null;
+		return !hsModelHandlers.contains(handler) && hsModelHandlers.add(handler);
 	}
 
 	/**
 	 * @param handler IModelHandler
 	 * @return boolean
 	 */
-	public boolean removeConnection(IModelHandler handler)
+	public boolean removeModelConnection(ContainerElement<IModelHandler> handler)
 	{
-		return hmModelHandlers.remove(handler) != null;
+		return hsModelHandlers.remove(handler);
 	}
 }
