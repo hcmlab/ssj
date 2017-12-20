@@ -29,25 +29,18 @@ package hcm.ssj;
 
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
-import android.util.Xml;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.FileUtils;
 import hcm.ssj.ml.NaiveBayes;
 import hcm.ssj.ml.NaiveBayesOld;
 
@@ -62,45 +55,25 @@ public class NaiveBayesTest
 	private String trainerFileName = "activity.NaiveBayes.trainer";
 	private String modelPath = "/sdcard/SSJ/Creator/res";
 
-	// Helper variables
-	private String modelFileName;
-	private String modelOptionFileName;
-
-	private int[] select_dimensions;
-	private String[] classNames;
-	private int bytes;
-	private int dim;
-	private float sr;
-	private Cons.Type type;
-
 	@Test
 	public void compareImplementations() throws Exception
 	{
-		parseTrainerFile(FileUtils.getFile(modelPath, trainerFileName));
-
-		// Select newly trained model
-		//modelFileName = "tmp_activity.NaiveBayes.model";
-
 		// Init old model
 		NaiveBayesOld oldImpl = new NaiveBayesOld();
-		oldImpl.setNumClasses(classNames.length);
-		oldImpl.setClassNames(classNames);
-
-		oldImpl.load(FileUtils.getFile(modelPath, modelFileName));
-		oldImpl.loadOption(FileUtils.getFile(modelPath, modelOptionFileName));
+		oldImpl.getOptions().file.setValue(modelPath + File.separator + trainerFileName);
+		oldImpl.setup();
+		oldImpl.load();
 
 		// Init new model
 		NaiveBayes newImpl = new NaiveBayes();
-		newImpl.setNumClasses(classNames.length);
-		newImpl.setClassNames(classNames);
+		newImpl.getOptions().file.setValue(modelPath + File.separator + trainerFileName);
+		newImpl.setup();
+		newImpl.load();
 
-		newImpl.load(FileUtils.getFile(modelPath, modelFileName));
-		newImpl.loadOption(FileUtils.getFile(modelPath, modelOptionFileName));
-
-		Stream inputStream = Stream.create(1, select_dimensions.length, sr, type);
+		Stream inputStream = Stream.create(1, newImpl.getInputDim().length, newImpl.getInputSr(), newImpl.getInputType());
 
 		// Fill stream
-		for (int i = 0; i < select_dimensions.length; i++)
+		for (int i = 0; i < newImpl.getInputDim().length; i++)
 		{
 			inputStream.ptrF()[i] = 0.5f;
 		}
@@ -120,95 +93,6 @@ public class NaiveBayesTest
 
 		float[] trainedProbs = newImpl.forward(inputStream);
 		Log.d("Trained:" + Arrays.toString(trainedProbs));
-
-		//newImpl.save(FileUtils.getFile(modelPath, "tmp_" + modelFileName));
-	}
-
-
-	private void parseTrainerFile(File file) throws XmlPullParserException, IOException
-	{
-		XmlPullParser parser = Xml.newPullParser();
-		parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-		parser.setInput(new FileReader(file));
-
-		parser.next();
-		if (parser.getEventType() != XmlPullParser.START_TAG || !parser.getName().equalsIgnoreCase("trainer"))
-		{
-			Log.w("unknown or malformed trainer file");
-			return;
-		}
-
-		ArrayList<String> classNamesList = new ArrayList<>();
-
-		while (parser.next() != XmlPullParser.END_DOCUMENT)
-		{
-
-			//STREAM
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("streams"))
-			{
-
-				parser.nextTag(); //item
-				if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
-				{
-
-					bytes = Integer.valueOf(parser.getAttributeValue(null, "byte"));
-					dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
-					sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
-					type = Cons.Type.valueOf(parser.getAttributeValue(null, "type"));
-				}
-			}
-
-			// CLASS
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("classes"))
-			{
-				parser.nextTag();
-
-				while (parser.getName().equalsIgnoreCase("item"))
-				{
-					if (parser.getEventType() == XmlPullParser.START_TAG)
-					{
-						classNamesList.add(parser.getAttributeValue(null, "name"));
-					}
-					parser.nextTag();
-				}
-			}
-
-			//SELECT
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("select"))
-			{
-
-				parser.nextTag(); //item
-				if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
-				{
-
-					int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
-					if (stream_id != 0)
-					{
-						Log.w("multiple input streams not supported");
-					}
-					String[] select = parser.getAttributeValue(null, "select").split(" ");
-					select_dimensions = new int[select.length];
-					for (int i = 0; i < select.length; i++)
-					{
-						select_dimensions[i] = Integer.valueOf(select[i]);
-					}
-				}
-			}
-
-			//MODEL
-			if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("model"))
-			{
-				modelFileName = parser.getAttributeValue(null, "path") + ".model";
-				modelOptionFileName = parser.getAttributeValue(null, "option") + ".option";
-			}
-
-			if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))
-			{
-				break;
-			}
-		}
-
-		classNames = classNamesList.toArray(new String[0]);
 	}
 
 	@Test
@@ -232,14 +116,15 @@ public class NaiveBayesTest
 		}
 
 		Annotation anno = new Annotation();
+		anno.setClasses(model.getClassNames());
 		anno.addEntry(model.getClassNames()[0], 0, trainStream.num / 2 * trainStream.sr);
 		anno.addEntry(model.getClassNames()[1], trainStream.num / 2 * trainStream.sr, trainStream.num * trainStream.sr);
 		anno.convertToFrames(1, null, 0, 0.5);
 
-		model.init(anno.getClassArray(), trainStream.dim);
+		model.setup(anno.getClassArray(), trainStream.bytes, trainStream.dim, trainStream.sr, trainStream.type);
 
 		//train
-		model.train(trainStream, anno, "session1");
+		model.train(trainStream, anno);
 
 		//eval
 		Stream testStream = Stream.create(1, 1, 1, Cons.Type.FLOAT);

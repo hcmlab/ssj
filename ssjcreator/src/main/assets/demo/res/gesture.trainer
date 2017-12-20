@@ -1,0 +1,14 @@
+<trainer ssi-v="5" ssj-v="0.6.3.165-dirty">
+<info trained="true"/>
+<streams>
+<item byte="4" dim="33" sr="0.5" type="FLOAT"/>
+</streams>
+<classes>
+<item name="gesture"/>
+<item name="garbage"/>
+</classes>
+<users>
+<item name="userLocal"/>
+</users>
+<model create="NaiveBayes" stream="0" path="gesture.trainer.NaiveBayes"/>
+</trainer>

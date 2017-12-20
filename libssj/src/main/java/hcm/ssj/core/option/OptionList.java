@@ -58,13 +58,13 @@ public abstract class OptionList
      * @param value Object
      * @return boolean
      */
-    public final boolean setOptionValue(String name, Object value)
+    public final boolean setOptionValue(String name, String value)
     {
         for (Option option : hashSetOptions)
         {
             if (option.getName().equals(name))
             {
-                option.set(value);
+                option.setValue(value);
                 return true;
             }
         }

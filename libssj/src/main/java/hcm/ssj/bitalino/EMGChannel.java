@@ -41,6 +41,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class EMGChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> channel = new Option<>("channel", 0, Integer.class, "channel id (between 0 and 5)");

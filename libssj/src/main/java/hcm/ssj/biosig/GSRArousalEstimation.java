@@ -45,6 +45,12 @@ import hcm.ssj.signal.MvgNorm;
 public class GSRArousalEstimation extends Transformer
 {
 
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Double> windowSizeShortTerm = new Option<>("windowSizeShortTerm", 5., Double.class, "Size of short time window in seconds");

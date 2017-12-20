@@ -47,6 +47,12 @@ import hcm.ssj.core.option.OptionList;
 
 public class FFMPEGReader extends Sensor
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	/**
 	 * All options for the FFMPEGReader
 	 */

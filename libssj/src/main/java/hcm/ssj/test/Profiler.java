@@ -29,6 +29,7 @@ package hcm.ssj.test;
 
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Device profiler
@@ -50,4 +51,10 @@ public class Profiler extends Sensor {
 	public void disconnect() throws SSJFatalException
     {
     }
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
+	}
 }

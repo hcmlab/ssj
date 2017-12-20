@@ -50,7 +50,13 @@ import hcm.ssj.core.stream.Stream;
 public class SocketWriter extends Consumer {
 
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> port = new Option<>("port", 34300, Integer.class, "");
         public final Option<String> ip = new Option<>("ip", "127.0.0.1", String.class, "");

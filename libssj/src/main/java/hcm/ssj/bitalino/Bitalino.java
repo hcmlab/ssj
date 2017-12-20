@@ -212,4 +212,10 @@ public class Bitalino extends Sensor
 		channels.clear();
 		super.clear();
 	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
 }

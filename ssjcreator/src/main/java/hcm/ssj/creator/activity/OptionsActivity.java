@@ -56,6 +56,8 @@ import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.ArrayAdapterWithNull;
 import hcm.ssj.creator.util.OptionTable;
 import hcm.ssj.creator.util.ProviderTable;
+import hcm.ssj.ml.IModelHandler;
+import hcm.ssj.ml.Model;
 import hcm.ssj.ml.Trainer;
 
 public class OptionsActivity extends AppCompatActivity
@@ -74,7 +76,7 @@ public class OptionsActivity extends AppCompatActivity
 		if (innerObject == null)
 		{
 			//change title
-			setTitle("SSJ_Framework");
+			setTitle(R.string.str_options_pipe);
 			options = PipelineBuilder.getOptionList(Pipeline.getInstance());
 		}
 		else
@@ -133,7 +135,16 @@ public class OptionsActivity extends AppCompatActivity
 				tableLayout.addView(streamTableRow);
 			}
 		}
-		if (innerObject != null)
+		if (innerObject != null && (innerObject instanceof IModelHandler || innerObject instanceof Model))
+		{
+			//add possible model connections
+			TableRow modelTableRow = ProviderTable.createModelTable(this, innerObject,true, (innerObject instanceof IModelHandler ? R.string.str_model_conn : R.string.str_modelhandler_conn));
+			if (modelTableRow != null)
+			{
+				tableLayout.addView(modelTableRow);
+			}
+		}
+		if (innerObject != null && !(innerObject instanceof Model))
 		{
 			//add possible event providers
 			// Do not add event provider for managed feedback
@@ -141,7 +152,7 @@ public class OptionsActivity extends AppCompatActivity
 			{
 				TableRow eventTableRow = ProviderTable.createEventTable(this, innerObject,
 																		(innerObject instanceof Transformer || innerObject instanceof Consumer)
-																				|| (innerObject instanceof Sensor && options != null && options.length > 0), R.string.str_event_input);
+																				|| (innerObject instanceof Sensor && options != null && options.length > 0));
 				if (eventTableRow != null)
 				{
 					tableLayout.addView(eventTableRow);
@@ -262,7 +273,7 @@ public class OptionsActivity extends AppCompatActivity
 		items.add(null); //default element
 		if(mainObject instanceof Trainer)
 			items.add(PipelineBuilder.getInstance().getAnnotation()); //annotation channel
-		items.addAll(Arrays.asList(PipelineBuilder.getInstance().getPossibleEventInputs(mainObject)));
+		items.addAll(Arrays.asList(PipelineBuilder.getInstance().getPossibleEventConnections(mainObject)));
 		eventTriggerList.setAdapter(new ArrayAdapterWithNull(this, android.R.layout.simple_spinner_item, items, "<none>"));
 
 		//preselect item

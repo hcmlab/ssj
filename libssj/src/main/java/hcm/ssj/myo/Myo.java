@@ -46,6 +46,12 @@ import hcm.ssj.core.option.OptionList;
  */
 public class Myo extends Sensor
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<String> macAddress = new Option<>("macAddress", "F3:41:FA:27:EB:08", String.class, "");

@@ -441,27 +441,25 @@ public class Annotation
 
 	public void save() throws IOException, XmlPullParserException
 	{
-		save(path + File.separator + name);
+		save(path, name);
 	}
 
-	public void save(String path) throws IOException, XmlPullParserException
+	public void save(String path, String filename) throws IOException, XmlPullParserException
 	{
 		if(entries == null || entries.size() == 0 || classes == null || classes.size() == 0)
 			return;
 
-		if(path.endsWith(FileCons.FILE_EXTENSION_ANNO + FileCons.TAG_DATA_FILE))
-		{
-			path = path.substring(0, path.length()-2);
-		}
-		else if(!path.endsWith(FileCons.FILE_EXTENSION_ANNO))
-		{
-			path += "." + FileCons.FILE_EXTENSION_ANNO;
-		}
+		File dir = Util.createDirectory(Util.parseWildcards(path));
+		if(dir == null)
+			return;
 
-		//parse wildcards
-		if (path.contains("[time]"))
+		if(filename.endsWith(FileCons.FILE_EXTENSION_ANNO + FileCons.TAG_DATA_FILE))
 		{
-			path = path.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+			filename = filename.substring(0, path.length()-2);
+		}
+		else if(!filename.endsWith(FileCons.FILE_EXTENSION_ANNO))
+		{
+			filename += "." + FileCons.FILE_EXTENSION_ANNO;
 		}
 
 		StringBuilder builder = new StringBuilder();
@@ -486,14 +484,14 @@ public class Annotation
 		builder.append("</scheme>").append(FileCons.DELIMITER_LINE);
 		builder.append("</annotation>").append(FileCons.DELIMITER_LINE);
 
-		OutputStream ouputStream = new FileOutputStream(new File(path));
+		OutputStream ouputStream = new FileOutputStream(new File(dir, filename));
 		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(ouputStream));
 
 		writer.write(builder.toString());
 		writer.flush();
 		writer.close();
 
-		saveData(path + FileCons.TAG_DATA_FILE);
+		saveData(dir.getAbsolutePath() + File.separator + filename + FileCons.TAG_DATA_FILE);
 	}
 
 	private void saveData(String path) throws IOException, XmlPullParserException

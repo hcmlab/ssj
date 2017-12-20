@@ -45,6 +45,12 @@ import hcm.ssj.signal.MathTools;
 
 public class AccelerationFeatures extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Boolean> meanX = new Option<>("meanX", true, Boolean.class, "Mean acceleration for x-axis");

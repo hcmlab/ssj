@@ -77,9 +77,6 @@
       </providerList>
     </transformer>
     <transformer class="hcm.ssj.ml.ClassifierT" id="1" frameSize="1.0" delta="0.0">
-      <options>
-        <option name="trainerFile" value="/storage/emulated/0/SSJ/Creator/res/activity.NaiveBayes.trainer" />
-      </options>
       <providerList>
         <providerId id="168988805" />
         <providerId id="660696742" />
@@ -109,4 +106,14 @@
       </providerList>
     </consumer>
   </consumerList>
+  <modelList>
+    <model class="hcm.ssj.ml.NaiveBayes" id="74776647">
+      <options>
+        <option name="file" value="/storage/emulated/0/SSJ/Creator/res/activity.NaiveBayes.trainer" />
+      </options>
+      <modelHandlerList>
+        <modelHandlerId id="1" />
+      </modelHandlerList>
+    </model>
+  </modelList>
 </ssjSaveFile>

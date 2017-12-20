@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
+<ssjSaveFile version="5">
+  <framework>
+    <options>
+      <option name="bufferSize" value="60.0" />
+      <option name="clockSyncInterval" value="1.0" />
+      <option name="clockSyncPort" value="0" />
+      <option name="countdown" value="2" />
+      <option name="log" value="false" />
+      <option name="loglevel" value="VERBOSE" />
+      <option name="logpath" value="/storage/emulated/0/SSJ/[time]" />
+      <option name="logtimeout" value="1.0" />
+      <option name="startSyncPort" value="0" />
+      <option name="terminateOnError" value="true" />
+      <option name="waitSensorConnect" value="30.0" />
+      <option name="waitThreadKill" value="30.0" />
+    </options>
+  </framework>
+  <sensorChannelList>
+    <sensorChannel class="hcm.ssj.androidSensor.AndroidSensorChannel" id="252590988">
+      <options>
+        <option name="sampleRate" value="50" />
+        <option name="sensorType" value="ACCELEROMETER" />
+      </options>
+    </sensorChannel>
+  </sensorChannelList>
+  <sensorList>
+    <sensor class="hcm.ssj.androidSensor.AndroidSensor" id="53052536">
+      <options>
+        <option name="sensorDelay" value="0" />
+      </options>
+      <providerList>
+        <providerId id="252590988" />
+      </providerList>
+    </sensor>
+  </sensorList>
+  <transformerList>
+    <transformer class="hcm.ssj.signal.Functionals" id="105053096" frameSize="2.0" delta="0.0">
+      <options>
+        <option name="delta" value="2" />
+        <option name="energy" value="true" />
+        <option name="len" value="true" />
+        <option name="max" value="true" />
+        <option name="maxPos" value="true" />
+        <option name="mean" value="true" />
+        <option name="min" value="true" />
+        <option name="minPos" value="true" />
+        <option name="path" value="false" />
+        <option name="peaks" value="true" />
+        <option name="range" value="true" />
+        <option name="std" value="true" />
+        <option name="zeros" value="true" />
+      </options>
+      <providerList>
+        <providerId id="252590988" />
+      </providerList>
+    </transformer>
+  </transformerList>
+  <consumerList>
+    <consumer class="hcm.ssj.graphic.SignalPainter" id="144611771" frameSize="0.1" delta="0.0">
+      <options>
+        <option name="legend" value="true" />
+        <option name="manualBounds" value="false" />
+        <option name="max" value="1.0" />
+        <option name="min" value="0.0" />
+        <option name="numHLabels" value="2" />
+        <option name="numVLabels" value="5" />
+        <option name="renderMax" value="true" />
+        <option name="secondScaleDim" value="0" />
+        <option name="secondScaleMax" value="1.0" />
+        <option name="secondScaleMin" value="0.0" />
+        <option name="secondScaleStream" value="1" />
+        <option name="size" value="20.0" />
+      </options>
+      <providerList>
+        <providerId id="252590988" />
+      </providerList>
+    </consumer>
+    <consumer class="hcm.ssj.ml.Classifier" id="39126178" delta="0.0">
+      <options>
+        <option name="bestMatchOnly" value="true" />
+        <option name="event" value="Result" />
+        <option name="log" value="true" />
+        <option name="merge" value="true" />
+        <option name="sender" value="Classifier" />
+      </options>
+      <providerList>
+        <providerId id="105053096" />
+      </providerList>
+    </consumer>
+    <consumer class="hcm.ssj.ml.Trainer" id="85737871" delta="0.0" eventTrigger="220555179">
+      <options>
+        <option name="fileName" value="gesture" />
+        <option name="path" value="/storage/emulated/0/SSJ/[time]" />
+        <option name="merge" value="true" />
+      </options>
+      <providerList>
+        <providerId id="105053096" />
+      </providerList>
+    </consumer>
+  </consumerList>
+  <eventHandlerList />
+  <modelList>
+    <model class="hcm.ssj.ml.NaiveBayes" id="116819450">
+      <options>
+        <option name="file" value="/storage/emulated/0/SSJ/Creator/res/gesture.trainer" />
+      </options>
+      <modelHandlerList>
+        <modelHandlerId id="39126178" />
+        <modelHandlerId id="85737871" />
+      </modelHandlerList>
+    </model>
+  </modelList>
+  <annotation class="hcm.ssj.core.Annotation" id="220555179" fileName="anno" filePath="/storage/emulated/0/SSJ/[time]">
+    <class name="gesture" />
+    <class name="garbage" />
+  </annotation>
+</ssjSaveFile>

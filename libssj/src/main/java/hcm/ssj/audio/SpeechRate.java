@@ -296,4 +296,10 @@ public class SpeechRate extends Consumer
         _intensity_ind = -1;
         _voiced_ind = -1;
     }
+
+    @Override
+    public OptionList getOptions()
+    {
+        return options;
+    }
 }

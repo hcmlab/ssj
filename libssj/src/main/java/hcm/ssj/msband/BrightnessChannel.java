@@ -40,6 +40,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class BrightnessChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<Integer> sampleRate = new Option<>("sampleRate", 2, Integer.class, "");

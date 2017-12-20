@@ -27,10 +27,11 @@
 
 package hcm.ssj.creator.core;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -52,6 +53,8 @@ import hcm.ssj.creator.core.container.ContainerElement;
 import hcm.ssj.creator.core.container.FeedbackCollectionContainerElement;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
+import hcm.ssj.ml.IModelHandler;
+import hcm.ssj.ml.Model;
 import hcm.ssj.ml.Trainer;
 
 /**
@@ -66,6 +69,7 @@ public class PipelineBuilder
 	protected LinkedHashSet<ContainerElement<Transformer>> hsTransformerElements = new LinkedHashSet<>();
 	protected LinkedHashSet<ContainerElement<Consumer>> hsConsumerElements = new LinkedHashSet<>();
 	protected LinkedHashSet<ContainerElement<EventHandler>> hsEventHandlerElements = new LinkedHashSet<>();
+	protected LinkedHashSet<ContainerElement<Model>> hsModelElements = new LinkedHashSet<>();
 
 	protected Annotation anno;
 
@@ -96,20 +100,20 @@ public class PipelineBuilder
 	{
 		try
 		{
-			Field[] fields = o.getClass().getFields();
-			for (Field field : fields)
+			Method[] methods = o.getClass().getMethods();
+			for (Method method : methods)
 			{
-				Object obj = field.get(o);
-				if (obj != null)
+				if (method.getName().equals("getOptions"))
 				{
-					if (obj instanceof OptionList)
-					{
-						return ((OptionList) obj).getOptions();
-					}
+					OptionList list = (OptionList) method.invoke(o);
+					if(list != null)
+						return list.getOptions();
+					else
+						return null;
 				}
 			}
 		}
-		catch (SecurityException | IllegalArgumentException | IllegalAccessException ex)
+		catch (SecurityException | IllegalArgumentException | IllegalAccessException | InvocationTargetException ex)
 		{
 			throw new RuntimeException(ex);
 		}
@@ -138,6 +142,7 @@ public class PipelineBuilder
 		hsTransformerElements.clear();
 		hsConsumerElements.clear();
 		hsEventHandlerElements.clear();
+		hsModelElements.clear();
 
 		if(anno != null)
 			anno.clear();
@@ -185,43 +190,12 @@ public class PipelineBuilder
 				return element;
 			}
 		}
-		return null;
-	}
-
-	/**
-	 * @param o Object
-	 * @return Object[]
-	 */
-	public Object[] getStreamProviders(Object o)
-	{
-		if (o instanceof Sensor)
+		for (ContainerElement containerElement : hsModelElements)
 		{
-			for (ContainerElement element : hsSensorElements)
+			Model element = (Model) containerElement.getElement();
+			if (element.hashCode() == hash)
 			{
-				if (element.getElement().equals(o))
-				{
-					return element.getHmStreamProviders().keySet().toArray();
-				}
-			}
-		}
-		else if (o instanceof Transformer)
-		{
-			for (ContainerElement element : hsTransformerElements)
-			{
-				if (element.getElement().equals(o))
-				{
-					return element.getHmStreamProviders().keySet().toArray();
-				}
-			}
-		}
-		else if (o instanceof Consumer)
-		{
-			for (ContainerElement element : hsConsumerElements)
-			{
-				if (element.getElement().equals(o))
-				{
-					return element.getHmStreamProviders().keySet().toArray();
-				}
+				return element;
 			}
 		}
 		return null;
@@ -303,6 +277,17 @@ public class PipelineBuilder
 				}
 				return objects;
 			}
+			case Model:
+			{
+				Object[] objects = new Object[hsModelElements.size()];
+				int i = 0;
+				for (ContainerElement element : hsModelElements)
+				{
+					objects[i] = element.getElement();
+					i++;
+				}
+				return objects;
+			}
 			default:
 				throw new RuntimeException();
 		}
@@ -313,29 +298,36 @@ public class PipelineBuilder
 	 */
 	public void buildPipe() throws SSJException
 	{
+		resetElementsState();
 		Pipeline framework = Pipeline.getInstance();
+
 		//add to framework
 		//sensors and sensorChannels
-		for (ContainerElement<Sensor> element : hsSensorElements)
+		for (ContainerElement<Sensor> sensor : hsSensorElements)
 		{
-			Sensor sensor = element.getElement();
-			HashMap<Provider, Boolean> hmStreamProviders = element.getHmStreamProviders();
-			if (hmStreamProviders.size() > 0)
+			HashSet<ContainerElement<Provider>> channels = sensor.getStreamConnectionContainers();
+			if (channels.size() > 0)
 			{
-				for (Map.Entry<Provider, Boolean> entry : hmStreamProviders.entrySet())
+				for (ContainerElement<?> channel : channels)
 				{
-					SensorChannel sensorChannel = (SensorChannel) entry.getKey();
-					framework.addSensor(sensor, sensorChannel);
-					//activate in transformer
-					for (ContainerElement<Transformer> element2 : hsTransformerElements)
-					{
-						element2.setStreamAdded(sensorChannel);
-					}
-					//activate in consumer
-					for (ContainerElement<Consumer> element2 : hsConsumerElements)
-					{
-						element2.setStreamAdded(sensorChannel);
-					}
+					framework.addSensor(sensor.getElement(), (SensorChannel) channel.getElement());
+					sensor.setAdded(true);
+					channel.setAdded(true);
+				}
+			}
+		}
+		//models
+		for (ContainerElement<Model> element : hsModelElements)
+		{
+			Model model = element.getElement();
+			framework.addModel(model);
+
+			HashSet<ContainerElement<IModelHandler>> handlers = element.getModelConnectionContainers();
+			if (handlers.size() > 0)
+			{
+				for (ContainerElement<IModelHandler> handler : handlers)
+				{
+					handler.getElement().setModel(model);
 				}
 			}
 		}
@@ -345,29 +337,18 @@ public class PipelineBuilder
 		while (count < hsTransformerElements.size() && count != lastCount)
 		{
 			lastCount = count;
-			for (ContainerElement<Transformer> element : hsTransformerElements)
+			for (ContainerElement<Transformer> transformer : hsTransformerElements)
 			{
-				if (element.getHmStreamProviders().size() > 0)
+				if (transformer.getStreamConnectionContainers().size() > 0)
 				{
-					if (element.allStreamAdded())
+					if (transformer.allStreamConnectionsAdded() && !transformer.hasBeenAdded())
 					{
-						Provider[] sources = new Provider[element.getHmStreamProviders().size()];
-						element.getHmStreamProviders().keySet().toArray(sources);
-						double frame = (element.getFrameSize() != null) ? element.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
+						Provider[] sources = transformer.getStreamConnections();
+						double frame = (transformer.getFrameSize() != null) ? transformer.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
 
-						framework.addTransformer(element.getElement(), sources, frame, element.getDelta());
+						framework.addTransformer(transformer.getElement(), sources, frame, transformer.getDelta());
+						transformer.setAdded(true);
 						count++;
-
-						//activate in transformer
-						for (ContainerElement<Transformer> element2 : hsTransformerElements)
-						{
-							element2.setStreamAdded(element.getElement());
-						}
-						//activate in consumer
-						for (ContainerElement<Consumer> element2 : hsConsumerElements)
-						{
-							element2.setStreamAdded(element.getElement());
-						}
 					}
 				}
 				else
@@ -379,35 +360,38 @@ public class PipelineBuilder
 		//consumers
 		//Avoid reregistering consumers as eventlisteners if they are triggered by event
 		LinkedHashSet<ContainerElement<Consumer>> hsConsumerElementsNotTriggeredByEvent = new LinkedHashSet<>();
-		for (ContainerElement<Consumer> element : hsConsumerElements)
+		for (ContainerElement<Consumer> consumer : hsConsumerElements)
 		{
-			Object triggerSource = element.getEventTrigger();
-			EventChannel trigger = (triggerSource == null) ? null : ((Consumer)triggerSource).getEventChannelOut();
+			EventChannel trigger = null;
+			Object triggerSource = consumer.getEventTrigger();
+			if(triggerSource != null && triggerSource instanceof Component)
+				trigger = ((Component)triggerSource).getEventChannelOut();
+			else if(triggerSource != null && triggerSource instanceof Annotation)
+				trigger = ((Annotation)triggerSource).getChannel();
 
-			if (element.getHmStreamProviders().size() > 0 && element.allStreamAdded())
+			if (consumer.getStreamConnectionContainers().size() > 0 && consumer.allStreamConnectionsAdded())
 			{
-				Provider[] sources = new Provider[element.getHmStreamProviders().size()];
-				element.getHmStreamProviders().keySet().toArray(sources);
-				double frame = (element.getFrameSize() != null) ? element.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
+				Provider[] sources = consumer.getStreamConnections();
+				double frame = (consumer.getFrameSize() != null) ? consumer.getFrameSize() : sources[0].getOutputStream().num / sources[0].getOutputStream().sr;
 
-                if(trigger != null)
-                {
-                    framework.addConsumer(element.getElement(), sources, trigger);
-                }
-                else
+				if (trigger != null)
 				{
-                    framework.addConsumer(element.getElement(), sources, frame, element.getDelta());
-                    hsConsumerElementsNotTriggeredByEvent.add(element);
-                }
+					framework.addConsumer(consumer.getElement(), sources, trigger);
+				}
+				else
+				{
+					framework.addConsumer(consumer.getElement(), sources, frame, consumer.getDelta());
+					hsConsumerElementsNotTriggeredByEvent.add(consumer);
+				}
+			}
 
-                //special case: Trainer
-                if(element.getElement() instanceof Trainer)
-                {
-                    Trainer trainer = (Trainer)element.getElement();
-					getAnnotation().setClasses(trainer.getModelDescriptor().getClassNames());
-                }
-            }
-        }
+			//special case: Trainer
+			if(consumer.getElement() instanceof Trainer)
+			{
+				Trainer trainer = (Trainer)consumer.getElement();
+				getAnnotation().setClasses(trainer.getModel().getClassNames());
+			}
+		}
 
 		buildEventPipeline(hsSensorElements);
 		buildEventPipeline(hsSensorChannelElements);
@@ -416,15 +400,43 @@ public class PipelineBuilder
 		buildEventPipeline(hsEventHandlerElements);
 	}
 
+	private void resetElementsState()
+	{
+		for (ContainerElement<?> element : hsSensorElements)
+		{
+			element.reset();
+		}
+		for (ContainerElement<?> element : hsSensorChannelElements)
+		{
+			element.reset();
+		}
+		for (ContainerElement<?> element : hsTransformerElements)
+		{
+			element.reset();
+		}
+		for (ContainerElement<?> element : hsConsumerElements)
+		{
+			element.reset();
+		}
+		for (ContainerElement<?> element : hsModelElements)
+		{
+			element.reset();
+		}
+		for (ContainerElement<?> element : hsEventHandlerElements)
+		{
+			element.reset();
+		}
+	}
+
 	private <T extends Component> void buildEventPipeline(LinkedHashSet<ContainerElement<T>> hsElements)
 	{
 		for (ContainerElement<T> element : hsElements)
 		{
-			if (!element.getHmEventProviders().isEmpty())
+			if (!element.getEventConnectionContainers().isEmpty())
 			{
-				for (Component provider : element.getHmEventProviders().keySet())
+				for (Component component : element.getEventConnections())
 				{
-					Pipeline.getInstance().registerEventListener(element.getElement(), provider.getEventChannelOut());
+					Pipeline.getInstance().registerEventListener(element.getElement(), component.getEventChannelOut());
 				}
 			}
 		}
@@ -510,6 +522,18 @@ public class PipelineBuilder
 			else
 				return hsEventHandlerElements.add(new ContainerElement<>((EventHandler) o));
 		}
+		//Models
+		else if (o instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					return false;
+				}
+			}
+			return hsModelElements.add(new ContainerElement<>((Model) o));
+		}
 		return false;
 	}
 
@@ -519,7 +543,6 @@ public class PipelineBuilder
 	 */
 	public boolean remove(Object o)
 	{
-
 		removeAllReferences((Component) o);
 
 		//sensor
@@ -577,51 +600,106 @@ public class PipelineBuilder
 				}
 			}
 		}
+		//Models
+		else if (o instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					return hsModelElements.remove(element);
+				}
+			}
+		}
 		return false;
 	}
 
 	private void removeAllReferences(Component component)
 	{
+		ContainerElement<?> containerElement = getContainerElement(component);
+
 		for (ContainerElement<Sensor> sensor : hsSensorElements)
 		{
 			if (component instanceof Provider)
 			{
-				sensor.removeStreamProvider((Provider) component);
+				sensor.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			sensor.removeEventProvider(component);
+			sensor.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<SensorChannel> sensorChannel : hsSensorChannelElements)
 		{
 			if (component instanceof Provider)
 			{
-				sensorChannel.removeStreamProvider((Provider) component);
+				sensorChannel.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			sensorChannel.removeEventProvider(component);
+			sensorChannel.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<Transformer> transformer : hsTransformerElements)
 		{
 			if (component instanceof Provider)
 			{
-				transformer.removeStreamProvider((Provider) component);
+				transformer.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			transformer.removeEventProvider(component);
+			transformer.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<Consumer> consumer : hsConsumerElements)
 		{
 			if (component instanceof Provider)
 			{
-				consumer.removeStreamProvider((Provider) component);
+				consumer.removeStreamConnection((ContainerElement<Provider>)containerElement);
 			}
-			consumer.removeEventProvider(component);
+			consumer.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
 		for (ContainerElement<EventHandler> eventHandler : hsEventHandlerElements)
 		{
-			if (component instanceof Provider)
-			{
-				eventHandler.removeStreamProvider((Provider) component);
-			}
-			eventHandler.removeEventProvider(component);
+			eventHandler.removeEventConnection((ContainerElement<Component>)containerElement);
 		}
+		for (ContainerElement<Model> model : hsModelElements)
+		{
+			if (component instanceof IModelHandler)
+			{
+				model.removeModelConnection((ContainerElement<IModelHandler>)containerElement);
+			}
+		}
+	}
+
+	/**
+	 * @param o Object
+	 * @return Object[]
+	 */
+	public Object[] getStreamConnections(Object o)
+	{
+		if (o instanceof Transformer)
+		{
+			for (ContainerElement element : hsTransformerElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					return element.getStreamConnections();
+				}
+			}
+		}
+		else if (o instanceof Consumer)
+		{
+			for (ContainerElement element : hsConsumerElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					return element.getStreamConnections();
+				}
+			}
+		}
+		else if (o instanceof Sensor)
+		{
+			for (ContainerElement element : hsSensorElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					return element.getStreamConnections();
+				}
+			}
+		}
+		return null;
 	}
 
 	public void addFeedbackToCollectionContainer(FeedbackCollection feedbackCollection, Feedback feedback, int level, FeedbackCollection.LevelBehaviour levelBehaviour)
@@ -638,46 +716,87 @@ public class PipelineBuilder
 		}
 	}
 
+	public ContainerElement<?> getContainerElement(Component component)
+	{
+		//sensorChannels
+		if (component instanceof SensorChannel)
+		{
+			for (ContainerElement<SensorChannel> element : hsSensorChannelElements)
+			{
+				if (element.getElement().equals(component))
+				{
+					return element;
+				}
+			}
+		}
+		//transformers
+		else if (component instanceof Transformer)
+		{
+			for (ContainerElement<Transformer> element : hsTransformerElements)
+			{
+				if (element.getElement().equals(component))
+				{
+					return element;
+				}
+			}
+		}
+		//consumers
+		else if (component instanceof Consumer)
+		{
+			for (ContainerElement<Consumer> element : hsConsumerElements)
+			{
+				if (element.getElement().equals(component))
+				{
+					return element;
+				}
+			}
+		}
+		//sensors
+		else if (component instanceof Sensor)
+		{
+			for (ContainerElement<Sensor> element : hsSensorElements)
+			{
+				if (element.getElement().equals(component))
+				{
+					return element;
+				}
+			}
+		}
+		//models
+		else if (component instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(component))
+				{
+					return element;
+				}
+			}
+		}
+		//eventhandlers
+		else if (component instanceof EventHandler)
+		{
+			for (ContainerElement<EventHandler> element : hsEventHandlerElements)
+			{
+				if (element.getElement().equals(component))
+				{
+					return element;
+				}
+			}
+		}
+
+		return null;
+	}
+
 	/**
 	 * @param o        Object
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addStreamProvider(Object o, Provider provider)
+	public boolean addStreamConnection(Object o, Provider provider)
 	{
-		//check for existence in
-		//sensorChannels
-		if (provider instanceof SensorChannel)
-		{
-			boolean found = false;
-			for (ContainerElement<SensorChannel> element : hsSensorChannelElements)
-			{
-				if (element.getElement().equals(provider))
-				{
-					found = true;
-				}
-			}
-			if (!found)
-			{
-				return false;
-			}
-		}
-		//transformers
-		else if (provider instanceof Transformer)
-		{
-			boolean found = false;
-			for (ContainerElement<Transformer> element : hsTransformerElements)
-			{
-				if (element.getElement().equals(provider))
-				{
-					found = true;
-				}
-			}
-			if (!found)
-			{
-				return false;
-			}
-		}
+		ContainerElement<Provider> providerContainer = (ContainerElement<Provider>)getContainerElement(provider);
+
 		//add to sensor
 		if (o instanceof Sensor && provider instanceof SensorChannel)
 		{
@@ -685,10 +804,11 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addStreamProvider(provider);
+					return element.addStreamConnection(providerContainer);
 				}
 			}
 		}
+
 		//add to transformer
 		if (o instanceof Transformer)
 		{
@@ -697,7 +817,7 @@ public class PipelineBuilder
 				//prevent adding it to itself
 				if (element.getElement().equals(o) && !element.getElement().equals(provider))
 				{
-					return element.addStreamProvider(provider);
+					return element.addStreamConnection(providerContainer);
 				}
 			}
 		}
@@ -708,7 +828,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addStreamProvider(provider);
+					return element.addStreamConnection(providerContainer);
 				}
 			}
 		}
@@ -720,41 +840,10 @@ public class PipelineBuilder
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeStreamProvider(Object o, Provider provider)
+	public boolean removeStreamConnection(Object o, Provider provider)
 	{
-		//check for existence in
-		//sensorChannels
-		if (provider instanceof SensorChannel)
-		{
-			boolean found = false;
-			for (ContainerElement<SensorChannel> element : hsSensorChannelElements)
-			{
-				if (element.getElement().equals(provider))
-				{
-					found = true;
-				}
-			}
-			if (!found)
-			{
-				return false;
-			}
-		}
-		//transformers
-		else if (provider instanceof Transformer)
-		{
-			boolean found = false;
-			for (ContainerElement<Transformer> element : hsTransformerElements)
-			{
-				if (element.getElement().equals(provider))
-				{
-					found = true;
-				}
-			}
-			if (!found)
-			{
-				return false;
-			}
-		}
+		ContainerElement<Provider> providerContainer = (ContainerElement<Provider>)getContainerElement(provider);
+
 		//remove from sensor
 		if (o instanceof Sensor && provider instanceof SensorChannel)
 		{
@@ -762,7 +851,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeStreamProvider(provider);
+					return element.removeStreamConnection(providerContainer);
 				}
 			}
 		}
@@ -773,7 +862,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeStreamProvider(provider);
+					return element.removeStreamConnection(providerContainer);
 				}
 			}
 		}
@@ -784,7 +873,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeStreamProvider(provider);
+					return element.removeStreamConnection(providerContainer);
 				}
 			}
 		}
@@ -953,15 +1042,15 @@ public class PipelineBuilder
 		int number = 0;
 		for (ContainerElement<Sensor> element : hsSensorElements)
 		{
-			number += element.getHmStreamProviders().size();
+			number += element.getStreamConnectionContainers().size();
 		}
 		for (ContainerElement<Transformer> element : hsTransformerElements)
 		{
-			number += element.getHmStreamProviders().size();
+			number += element.getStreamConnectionContainers().size();
 		}
 		for (ContainerElement<Consumer> element : hsConsumerElements)
 		{
-			number += element.getHmStreamProviders().size();
+			number += element.getStreamConnectionContainers().size();
 		}
 		return number;
 	}
@@ -979,7 +1068,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmStreamProviders().keySet().toArray();
+					Object[] objects = element.getStreamConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1000,7 +1089,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmStreamProviders().keySet().toArray();
+					Object[] objects = element.getStreamConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1021,7 +1110,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmStreamProviders().keySet().toArray();
+					Object[] objects = element.getStreamConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1043,8 +1132,10 @@ public class PipelineBuilder
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addEventProvider(Object o, Component provider)
+	public boolean addEventConnection(Object o, Component provider)
 	{
+		ContainerElement<Component> providerContainer = (ContainerElement<Component>) getContainerElement(provider);
+
 		//check for existence in
 		//sensorChannels
 		if (o instanceof SensorChannel)
@@ -1053,7 +1144,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventProvider(provider);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1064,7 +1155,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventProvider(provider);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1076,7 +1167,7 @@ public class PipelineBuilder
 				//prevent adding it to itself
 				if (element.getElement().equals(o) && !element.getElement().equals(provider))
 				{
-					return element.addEventProvider(provider);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1087,7 +1178,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventProvider(provider);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1098,7 +1189,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.addEventProvider(provider);
+					return element.addEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1110,8 +1201,10 @@ public class PipelineBuilder
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeEventProvider(Object o, Component provider)
+	public boolean removeEventConnection(Object o, Component provider)
 	{
+		ContainerElement<Component> providerContainer = (ContainerElement<Component>) getContainerElement(provider);
+
 		//check for existence in
 		//sensorChannels
 		if (o instanceof SensorChannel)
@@ -1120,7 +1213,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventProvider(provider);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1131,7 +1224,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventProvider(provider);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1142,7 +1235,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventProvider(provider);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1153,7 +1246,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventProvider(provider);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1164,7 +1257,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventProvider(provider);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1175,7 +1268,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.removeEventProvider(provider);
+					return element.removeEventConnection(providerContainer);
 				}
 			}
 		}
@@ -1190,23 +1283,23 @@ public class PipelineBuilder
 		int number = 0;
 		for (ContainerElement<Sensor> element : hsSensorElements)
 		{
-			number += element.getHmEventProviders().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<SensorChannel> element : hsSensorChannelElements)
 		{
-			number += element.getHmEventProviders().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<Transformer> element : hsTransformerElements)
 		{
-			number += element.getHmEventProviders().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<Consumer> element : hsConsumerElements)
 		{
-			number += element.getHmEventProviders().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		for (ContainerElement<EventHandler> element : hsEventHandlerElements)
 		{
-			number += element.getHmEventProviders().size();
+			number += element.getEventConnectionContainers().size();
 		}
 		return number;
 	}
@@ -1215,7 +1308,7 @@ public class PipelineBuilder
 	 * @param o Object
 	 * @return Object[]
 	 */
-	public Object[] getEventProviders(Object o)
+	public Object[] getEventConnections(Object o)
 	{
 		if (o instanceof Sensor)
 		{
@@ -1223,7 +1316,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getHmEventProviders().keySet().toArray();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1233,7 +1326,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getHmEventProviders().keySet().toArray();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1243,7 +1336,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getHmEventProviders().keySet().toArray();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1253,7 +1346,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getHmEventProviders().keySet().toArray();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1263,7 +1356,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					return element.getHmEventProviders().keySet().toArray();
+					return element.getEventConnections();
 				}
 			}
 		}
@@ -1283,7 +1376,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmEventProviders().keySet().toArray();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1304,7 +1397,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmEventProviders().keySet().toArray();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1325,7 +1418,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmEventProviders().keySet().toArray();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1346,7 +1439,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmEventProviders().keySet().toArray();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1367,7 +1460,7 @@ public class PipelineBuilder
 			{
 				if (element.getElement().equals(o))
 				{
-					Object[] objects = element.getHmEventProviders().keySet().toArray();
+					Object[] objects = element.getEventConnections();
 					if (objects.length > 0)
 					{
 						int[] hashes = new int[objects.length];
@@ -1408,15 +1501,151 @@ public class PipelineBuilder
 		return false;
 	}
 
+	/**
+	 * @param start Component
+	 * @param end Component
+	 * @return boolean
+	 */
+	public boolean addModelConnection(Component start, Component end)
+	{
+		if (start instanceof IModelHandler && end instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(end))
+				{
+					return element.addModelConnection((ContainerElement<IModelHandler>) getContainerElement(start));
+				}
+			}
+		}
+		//add to sensor
+		if (start instanceof Model && end instanceof IModelHandler)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(start))
+				{
+					return element.addModelConnection((ContainerElement<IModelHandler>) getContainerElement(end));
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param start Component
+	 * @param end Component
+	 * @return boolean
+	 */
+	public boolean removeModelConnection(Component start, Component end)
+	{
+		if (start instanceof IModelHandler && end instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(end))
+				{
+					return element.removeModelConnection((ContainerElement<IModelHandler>) getContainerElement(start));
+				}
+			}
+		}
+		//add to sensor
+		if (start instanceof Model && end instanceof IModelHandler)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(start))
+				{
+					return element.removeModelConnection((ContainerElement<IModelHandler>) getContainerElement(end));
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * @param o Object
+	 * @return Object[]
+	 */
+	public Object[] getModelConnections(Object o)
+	{
+		if (o instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					return element.getModelConnections();
+				}
+			}
+		}
+		if (o instanceof IModelHandler)
+		{
+			ArrayList<Model> connections = new ArrayList<>();
+
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				for(IModelHandler mh : element.getModelConnections())
+				{
+					if (mh.equals(o))
+					{
+						connections.add(element.getElement());
+					}
+				}
+			}
+			return connections.toArray();
+		}
+		return null;
+	}
+
+	/**
+	 * @return int
+	 */
+	public int getNumberOfModelConnections()
+	{
+		int number = 0;
+		for (ContainerElement<Model> element : hsModelElements)
+		{
+			number += element.getModelConnectionContainers().size();
+		}
+		return number;
+	}
+
+	public int[] getModelConnectionHashes(Object o)
+	{
+		//model
+		if (o instanceof Model)
+		{
+			for (ContainerElement<Model> element : hsModelElements)
+			{
+				if (element.getElement().equals(o))
+				{
+					Object[] objects = element.getModelConnections();
+					if (objects.length > 0)
+					{
+						int[] hashes = new int[objects.length];
+						for (int i = 0; i < objects.length; i++)
+						{
+							hashes[i] = objects[i].hashCode();
+						}
+						return hashes;
+					}
+					return null;
+				}
+			}
+		}
+		return null;
+	}
+
 	public enum Type
 	{
-		Sensor, SensorChannel, Transformer, Consumer, EventHandler
+		Sensor, SensorChannel, Transformer, Consumer, EventHandler, Model, ModelHandler
 	}
 
 	/**
 	 * @return Object[]
 	 */
-	public Object[] getPossibleEventInputs(Object object)
+	public Object[] getPossibleEventConnections(Object object)
 	{
 		//add possible providers
 		ArrayList<Object> alCandidates = new ArrayList<>();
@@ -1435,7 +1664,20 @@ public class PipelineBuilder
 	/**
 	 * @return Object[]
 	 */
-	public Object[] getPossibleStreamInputs(Object object)
+	public Object[] getModelHandlers()
+	{
+		//add possible providers
+		ArrayList<Object> alCandidates = new ArrayList<>();
+		alCandidates.addAll(PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IModelHandler.class));
+		alCandidates.addAll(PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Transformer, IModelHandler.class));
+
+		return alCandidates.toArray();
+	}
+
+	/**
+	 * @return Object[]
+	 */
+	public Object[] getPossibleStreamConnections(Object object)
 	{
 		//add possible providers
 		Object[] sensProvCandidates = getAll(PipelineBuilder.Type.SensorChannel);
@@ -1455,6 +1697,11 @@ public class PipelineBuilder
 		}
 		alCandidates.addAll(0, Arrays.asList(sensProvCandidates));
 		return alCandidates.toArray();
+	}
+
+	public synchronized boolean annotationExists()
+	{
+		return anno != null;
 	}
 
 	public synchronized Annotation getAnnotation()

@@ -44,7 +44,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class AudioChannel extends SensorChannel
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> sampleRate = new Option<>("sampleRate", 8000, Integer.class, "");
         public final Option<Cons.ChannelFormat> channelConfig = new Option<>("channelConfig", Cons.ChannelFormat.CHANNEL_IN_MONO, Cons.ChannelFormat.class, "");

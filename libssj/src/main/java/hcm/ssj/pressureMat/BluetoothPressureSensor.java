@@ -48,7 +48,13 @@ public class BluetoothPressureSensor extends BluetoothReader {
 
     protected short[][] _irecvData;
 
-    public class Options extends OptionList {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList {
         public final Option<String> connectionName = new Option<>("connectionName", "SSJ", String.class, "must match that of the peer");
         public final Option<String> serverName = new Option<>("serverName", "SSJ_BLServer", String.class, "");
         public final Option<String> serverAddr = new Option<>("serverAddr", null, String.class, "if this is a client");

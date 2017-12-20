@@ -27,18 +27,19 @@
 
 package hcm.ssj.ml;
 
-import org.xmlpull.v1.XmlPullParserException;
-
+import java.io.File;
 import java.io.IOException;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
 
@@ -47,12 +48,20 @@ import hcm.ssj.signal.Selector;
  */
 public class Trainer extends Consumer implements IModelHandler
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the consumer
      */
     public class Options extends IModelHandler.Options
     {
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
+        public final Option<FolderPath> filePath = new Option<>("path", new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE + File.separator + "[time]"), FolderPath.class, "where to save the model on pipeline stop");
+        public final Option<String> fileName = new Option<>("fileName", null, String.class, "model file name");
 
         private Options()
         {
@@ -67,32 +76,11 @@ public class Trainer extends Consumer implements IModelHandler
     private Stream[] stream_merged;
     private Stream[] stream_selected;
     private Merge merge = null;
-    private ModelDescriptor modelDescriptor = null;
+    private Model model = null;
 
     public Trainer()
     {
         _name = this.getClass().getSimpleName();
-    }
-
-    @Override
-    public void init(Stream stream_in[]) throws SSJException
-    {
-        try {
-            if(options.modelSource.get() != null)
-            {
-                modelDescriptor = new ModelDescriptor(options.modelSource.get());
-            }
-            else if(options.trainerFile.get() != null)
-            {
-                modelDescriptor = new ModelDescriptor(options.trainerFile.get().value);
-            }
-            else
-            {
-                throw new IOException("neither model source nor trainer file has been provided");
-            }
-        } catch (IOException | XmlPullParserException e) {
-            throw new SSJException("unable to load trainer file", e);
-        }
     }
 
     /**
@@ -111,16 +99,9 @@ public class Trainer extends Consumer implements IModelHandler
             throw new SSJFatalException("stream type not supported");
         }
 
-        try
-        {
-            Log.d("loading model ...");
-            modelDescriptor.loadModel();
-            Log.d("model loaded");
-        }
-        catch (IOException e)
-        {
-            throw new SSJFatalException("unable to load model", e);
-        }
+        Log.d("waiting for model to become ready ...");
+        model.waitUntilReady();
+        Log.d("model ready");
 
         Stream[] input = stream_in;
 
@@ -135,17 +116,17 @@ public class Trainer extends Consumer implements IModelHandler
 
         try
         {
-            modelDescriptor.validateInput(input);
+            model.validateInput(input);
         }
         catch (IOException e)
         {
             throw new SSJFatalException("model validation failed", e);
         }
 
-        if(modelDescriptor.getSelectDimensions() != null)
+        if(model.getInputDim() != null)
         {
             selector = new Selector();
-            selector.options.values.set(modelDescriptor.getSelectDimensions());
+            selector.options.values.set(model.getInputDim());
             stream_selected = new Stream[1];
             stream_selected[0] = Stream.create(input[0].num, selector.options.values.get().length, input[0].sr, input[0].type);
             selector.enter(input, stream_selected[0]);
@@ -165,27 +146,46 @@ public class Trainer extends Consumer implements IModelHandler
         Stream[] input = stream_in;
 
         if(options.merge.get()) {
+            // since this is an event consumer, input num can change
+            stream_merged[0].adjust(input[0].num);
             merge.transform(input, stream_merged[0]);
             input = stream_merged;
         }
         if(selector != null) {
+            // since this is an event consumer, input num can change
+            stream_selected[0].adjust(input[0].num);
             selector.transform(input, stream_selected[0]);
             input = stream_selected;
         }
 
-        modelDescriptor.getModel().train(input[0], trigger.ptrStr());
-    }
-
-    public boolean hasReferableModel()
-    {
-        return (options.trainerFile.get() != null
-                && options.trainerFile.get().value != null
-                && !options.trainerFile.get().value.isEmpty());
+        model.train(input[0], trigger.ptrStr());
     }
 
     @Override
-    public ModelDescriptor getModelDescriptor()
+    public void flush(Stream stream_in[]) throws SSJFatalException
     {
-        return modelDescriptor;
+        if(options.fileName.get() != null && !options.fileName.get().isEmpty())
+        {
+            try
+            {
+                model.save(options.filePath.get().value, options.fileName.get());
+            }
+            catch (IOException e)
+            {
+                Log.e("error saving trained model", e);
+            }
+        }
+    }
+
+    @Override
+    public void setModel(Model model)
+    {
+        this.model = model;
+    }
+
+    @Override
+    public Model getModel()
+    {
+        return model;
     }
 }

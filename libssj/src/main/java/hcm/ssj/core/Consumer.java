@@ -205,6 +205,14 @@ public abstract class Consumer extends Component {
      */
     public void setup(Provider[] sources, double frame, double delta) throws SSJException
     {
+        for (Provider source : sources)
+        {
+            if (!source.isSetup())
+            {
+                throw new SSJException("Components must be added in the correct order. Cannot add " + _name + " before its source " + source.getComponentName());
+            }
+        }
+
         try
         {
             _bufferID_in = new int[sources.length];
@@ -245,7 +253,16 @@ public abstract class Consumer extends Component {
     /**
      * initialization for event consumer
      */
-    public void setup(Provider[] sources) throws SSJException {
+    public void setup(Provider[] sources) throws SSJException
+    {
+        for (Provider source : sources)
+        {
+            if (!source.isSetup())
+            {
+                throw new SSJException("Components must be added in the correct order. Cannot add " + _name + " before its source " + source.getComponentName());
+            }
+        }
+
         try {
             _bufferID_in = new int[sources.length];
             _stream_in = new Stream[sources.length];
@@ -264,5 +281,23 @@ public abstract class Consumer extends Component {
         }
 
         _isSetup = true;
+    }
+
+    @Override
+    public void close()
+    {
+        if(_triggerChannel != null)
+            _triggerChannel.close();
+
+        super.close();
+    }
+
+    @Override
+    public void reset()
+    {
+        if(_triggerChannel != null)
+            _triggerChannel.reset();
+
+        super.reset();
     }
 }

@@ -29,46 +29,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/action_framework"
-            android:icon="@drawable/ic_settings_black_24dp"
-            android:title="@string/str_options" />
+            android:id="@+id/action_pipeline"
+            android:icon="@drawable/ic_file"
+            android:title="@string/str_canvas" />
         <item
             android:id="@+id/action_graph"
             android:icon="@drawable/ic_show_chart_black_24dp"
             android:title="@string/visualize_data" />
+        <item
+            android:id="@+id/action_train_model"
+            android:icon="@drawable/ic_folder"
+            android:title="@string/train_model_action" />
     </group>
-
-    <item android:title="@string/drawer_pipelines_separator">
-        <menu>
-            <item
-                android:id="@+id/action_save"
-                android:icon="@drawable/ic_save_black_24dp"
-                android:title="@string/str_save" />
-            <item
-                android:id="@+id/action_load_pipeline"
-                android:icon="@drawable/ic_exit_to_app_black_24dp"
-                android:title="@string/str_load_pipeline" />
-            <item
-                android:id="@+id/action_load_strategy"
-                android:icon="@drawable/ic_file"
-                android:title="@string/str_load_strategy" />
-            <item
-                android:id="@+id/action_delete_pipeline"
-                android:icon="@drawable/ic_delete_forever_black_24dp"
-                android:title="@string/str_delete_pipeline" />
-            <item
-                android:id="@+id/action_clear"
-                android:icon="@drawable/ic_remove_circle_black_24dp"
-                android:title="@string/str_clear" />
-        </menu>
-    </item>
-
-    <item android:title="@string/drawer_model_separator">
-        <menu>
-            <item
-                android:id="@+id/action_train_model"
-                android:icon="@drawable/ic_file"
-                android:title="@string/train_model_action" />
-        </menu>
-    </item>
 </menu>

@@ -27,8 +27,6 @@
 
 package hcm.ssj.ml;
 
-import hcm.ssj.core.option.FilePath;
-import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 
 /**
@@ -41,19 +39,8 @@ public interface IModelHandler
      * Standard options
      */
     class Options extends OptionList
-    {
-        public final Option<FilePath> trainerFile = new Option<>("trainerFile", null, FilePath.class, "trainer file containing model information");
-        public final Option<IModelHandler> modelSource = new Option<>("modelSource", null, IModelHandler.class, "use the model of another component");
+    {}
 
-        /**
-         *
-         */
-        protected Options()
-        {
-            addOptions();
-        }
-    }
-
-    boolean hasReferableModel();
-    ModelDescriptor getModelDescriptor();
+    void setModel(Model model);
+	Model getModel();
 }

@@ -40,7 +40,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Logger extends Consumer
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Boolean> reduceNum = new Option<>("reduceNum", true, Boolean.class, "");
 

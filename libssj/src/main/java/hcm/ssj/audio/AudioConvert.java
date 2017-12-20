@@ -40,7 +40,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class AudioConvert extends Transformer {
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         /**
          *

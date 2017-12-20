@@ -84,6 +84,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -114,6 +116,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -144,6 +148,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -174,6 +180,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -204,6 +212,8 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="9dp"
@@ -217,6 +227,38 @@
             android:clickable="true"
             android:focusable="true"
             app:backgroundTint="@color/colorEventHandler"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/model_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="390dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_models"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_models"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorModel"
             app:fabSize="mini" />
     </LinearLayout>
 

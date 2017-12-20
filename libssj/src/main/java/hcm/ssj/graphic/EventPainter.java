@@ -48,7 +48,13 @@ import hcm.ssj.core.option.OptionList;
  */
 public class EventPainter extends EventHandler
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<String> title = new Option<>("title", "events", String.class, "");
         public final Option<String> color = new Option<>("color", "blue", String.class, "Chart color either as HEX or color name (e.g. blue, red ...)");

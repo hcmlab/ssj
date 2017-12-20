@@ -27,20 +27,18 @@
 
 package hcm.ssj.ml;
 
-import org.xmlpull.v1.XmlPullParserException;
-
 import java.io.IOException;
 import java.util.Locale;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
-import hcm.ssj.core.SSJException;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.event.StringEvent;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.signal.Merge;
 import hcm.ssj.signal.Selector;
@@ -50,7 +48,13 @@ import hcm.ssj.signal.Selector;
  */
 public class Classifier extends Consumer implements IModelHandler
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the consumer
      */
     public class Options extends IModelHandler.Options
@@ -74,32 +78,12 @@ public class Classifier extends Consumer implements IModelHandler
     private Stream[] stream_merged;
     private Stream[] stream_selected;
     private Merge merge = null;
-    private ModelDescriptor modelDescriptor = null;
+
+    private Model model = null;
 
     public Classifier()
     {
         _name = this.getClass().getSimpleName();
-    }
-
-    @Override
-    public void init(Stream stream_in[]) throws SSJException
-    {
-        try {
-            if(options.modelSource.get() != null)
-            {
-                modelDescriptor = new ModelDescriptor(options.modelSource.get());
-            }
-            else if(options.trainerFile.get() != null)
-            {
-                modelDescriptor = new ModelDescriptor(options.trainerFile.get().value);
-            }
-            else
-            {
-                throw new IOException("neither model source nor trainer file has been provided");
-            }
-        } catch (IOException | XmlPullParserException e) {
-            throw new SSJException("unable to load trainer file", e);
-        }
     }
 
     /**
@@ -112,22 +96,22 @@ public class Classifier extends Consumer implements IModelHandler
         {
             throw new SSJFatalException("sources count not supported");
         }
-
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
             throw new SSJFatalException("stream type not supported");
         }
+        if (model == null)
+        {
+            throw new SSJFatalException("no model defined");
+        }
+        if (!model.isSetup())
+        {
+            throw new SSJFatalException("model not initialized.");
+        }
 
-        try
-        {
-            Log.d("loading model ...");
-            modelDescriptor.loadModel();
-            Log.d("model loaded");
-        }
-        catch (IOException e)
-        {
-            throw new SSJFatalException("unable to load model", e);
-        }
+        Log.d("waiting for model to become ready ...");
+        model.waitUntilReady();
+        Log.d("model ready");
 
         Stream[] input = stream_in;
 
@@ -142,17 +126,17 @@ public class Classifier extends Consumer implements IModelHandler
 
         try
         {
-            modelDescriptor.validateInput(input);
+            model.validateInput(input);
         }
         catch (IOException e)
         {
             throw new SSJFatalException("model validation failed", e);
         }
 
-        if(modelDescriptor.getSelectDimensions() != null)
+        if(model.getInputDim() != null)
         {
             selector = new Selector();
-            selector.options.values.set(modelDescriptor.getSelectDimensions());
+            selector.options.values.set(model.getInputDim());
             stream_selected = new Stream[1];
             stream_selected[0] = Stream.create(input[0].num, selector.options.values.get().length, input[0].sr, input[0].type);
             selector.enter(input, stream_selected[0]);
@@ -177,14 +161,14 @@ public class Classifier extends Consumer implements IModelHandler
             input = stream_selected;
         }
 
-        float[] probs = modelDescriptor.getModel().forward(input[0]);
+        float[] probs = model.forward(input[0]);
 
         if(options.bestMatchOnly.get())
         {
             // Get array index of element with largest probability.
             int bestLabelIdx = Util.maxIndex(probs);
             String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
-                                             modelDescriptor.getClassNames()[bestLabelIdx],
+                                             model.getClassNames()[bestLabelIdx],
                                              probs[bestLabelIdx] * 100f);
 
             if (_evchannel_out != null)
@@ -223,7 +207,7 @@ public class Classifier extends Consumer implements IModelHandler
 
             if (options.log.get())
             {
-                String[] class_names = modelDescriptor.getClassNames();
+                String[] class_names = model.getClassNames();
                 StringBuilder stringBuilder = new StringBuilder();
                 for (int i = 0; i < probs.length; i++)
                 {
@@ -239,15 +223,14 @@ public class Classifier extends Consumer implements IModelHandler
     }
 
     @Override
-    public ModelDescriptor getModelDescriptor()
+    public void setModel(Model model)
     {
-        return modelDescriptor;
+        this.model = model;
     }
 
-    public boolean hasReferableModel()
+    @Override
+    public Model getModel()
     {
-        return (options.trainerFile.get() != null
-                && options.trainerFile.get().value != null
-                && !options.trainerFile.get().value.isEmpty());
+        return model;
     }
 }

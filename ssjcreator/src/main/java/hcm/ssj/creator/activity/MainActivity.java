@@ -50,6 +50,8 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -95,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private LinearLayout transformerLayout;
 	private LinearLayout consumerLayout;
 	private LinearLayout eventHandlerLayout;
+	private LinearLayout modelLayout;
 
 	private Animation showButton;
 	private Animation hideButton;
@@ -547,42 +550,105 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		t.start();
 	}
 
+	/**
+	 * @param menu Menu
+	 * @return boolean
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu)
+	{
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.mainmenu, menu);
+		return true;
+	}
+
+	/**
+	 * @param item MenuItem
+	 * @return boolean
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{
+		switch (item.getItemId())
+		{
+			case R.id.action_framework:
+			{
+				Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+				startActivity(intent);
+				return true;
+			}
+			case R.id.action_save:
+			{
+				showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
+				return true;
+			}
+			case R.id.action_load_pipeline:
+			{
+				showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
+				return true;
+			}
+			case R.id.action_load_strategy:
+			{
+				showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
+				return true;
+			}
+			case R.id.action_delete_pipeline:
+			{
+				showFileDialog(R.string.str_delete, FileDialog.Type.DELETE_PIPELINE, R.string.str_deleteError);
+				return true;
+			}
+			case R.id.action_clear:
+			{
+				PipelineBuilder.getInstance().clear();
+				actualizeContent(Util.AppAction.CLEAR, null);
+				return true;
+			}
+		}
+		return true;
+	}
+
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item)
 	{
 		int itemId = item.getItemId();
 
-		if (itemId == R.id.action_framework)
+		if (itemId == R.id.action_pipeline)
 		{
-			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
-			startActivity(intent);
+			//todo
+			//Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+			//startActivity(intent);
 		}
 		else if (itemId == R.id.action_graph)
 		{
 			Intent intent = new Intent(getApplicationContext(), GraphActivity.class);
 			startActivity(intent);
 		}
-		else if (itemId == R.id.action_save)
-		{
-			showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
-		}
-		else if (itemId == R.id.action_load_pipeline)
-		{
-			showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
-		}
-		else if (itemId == R.id.action_delete_pipeline)
-		{
-			showFileDialog(R.string.str_delete_pipeline, FileDialog.Type.DELETE_PIPELINE, R.string.str_deleteError);
-		}
-		else if (itemId == R.id.action_load_strategy)
-		{
-			showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
-		}
-		else if (itemId == R.id.action_clear)
-		{
-			PipelineBuilder.getInstance().clear();
-			actualizeContent(Util.AppAction.CLEAR, null);
-		}
+//		else if (itemId == R.id.action_framework)
+//		{
+//			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+//			startActivity(intent);
+//		}
+//		else if (itemId == R.id.action_save)
+//		{
+//			showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
+//		}
+//		else if (itemId == R.id.action_load_pipeline)
+//		{
+//			showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
+//		}
+//		else if (itemId == R.id.action_delete_pipeline)
+//		{
+//			showFileDialog(R.string.str_delete_pipeline, FileDialog.Type.DELETE_PIPELINE, R.string.str_deleteError);
+//		}
+//		else if (itemId == R.id.action_load_strategy)
+//		{
+//			showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
+//		}
+//		else if (itemId == R.id.action_clear)
+//		{
+//			PipelineBuilder.getInstance().clear();
+//			actualizeContent(Util.AppAction.CLEAR, null);
+//		}
 		else if (itemId == R.id.action_train_model)
 		{
 			Intent intent = new Intent(getApplicationContext(), TrainActivity.class);
@@ -630,6 +696,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		transformerLayout = (LinearLayout) findViewById(R.id.transformers_layout);
 		consumerLayout = (LinearLayout) findViewById(R.id.consumer_layout);
 		eventHandlerLayout = (LinearLayout) findViewById(R.id.event_handler_layout);
+		modelLayout = (LinearLayout) findViewById(R.id.model_layout);
 	}
 
 	/**
@@ -687,6 +754,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 				showAddDialog(R.string.str_eventhandlers, SSJDescriptor.getInstance().eventHandlers);
 			}
 		});
+
+		FloatingActionButton addModel = (FloatingActionButton) findViewById(R.id.action_models);
+		addModel.setOnClickListener(new View.OnClickListener()
+		{
+			@Override
+			public void onClick(View view)
+			{
+				showAddDialog(R.string.str_models, SSJDescriptor.getInstance().models);
+			}
+		});
 	}
 
 	/**
@@ -711,6 +788,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		toggleLayout(transformerLayout, enable);
 		toggleLayout(consumerLayout, enable);
 		toggleLayout(eventHandlerLayout, enable);
+		toggleLayout(modelLayout, enable);
 	}
 
 	/**

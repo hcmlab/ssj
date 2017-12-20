@@ -42,7 +42,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Invert extends Transformer {
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Float> max  = new Option<>("max", 1.0f, Float.class, "");
         /**

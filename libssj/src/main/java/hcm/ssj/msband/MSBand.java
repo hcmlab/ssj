@@ -47,6 +47,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Sensor;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Created by Michael Dietz on 06.07.2016.
@@ -192,5 +193,11 @@ public class MSBand extends Sensor
 		}
 
 		client = null;
+	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
 	}
 }

@@ -204,4 +204,10 @@ public class BluetoothEventWriter extends EventHandler
         _conn = null;
         super.clear();
     }
+
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
 }

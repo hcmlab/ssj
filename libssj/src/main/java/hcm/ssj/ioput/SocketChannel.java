@@ -41,7 +41,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class SocketChannel extends SensorChannel
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> bytes = new Option<>("bytes", 0, Integer.class, "");
         public final Option<Integer> dim = new Option<>("dim", 0, Integer.class, "");

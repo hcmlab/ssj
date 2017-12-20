@@ -27,10 +27,11 @@
 
 package hcm.ssj.creator.core.container;
 
-import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 
 import hcm.ssj.core.Component;
 import hcm.ssj.core.Provider;
+import hcm.ssj.ml.IModelHandler;
 
 /**
  * Container element for pipeline builder.<br>
@@ -42,9 +43,12 @@ public class ContainerElement<T>
     private Double frameSize = null;
     private double delta = 0;
 	private Object eventTrigger = null;
-    private LinkedHashMap<Provider, Boolean> hmStreamProviders = new LinkedHashMap<>();
-    private LinkedHashMap<Component, Boolean> hmEventProviders = new LinkedHashMap<>();
 
+	private boolean added;
+
+	private LinkedHashSet<ContainerElement<Provider>> hsStreamConnections = new LinkedHashSet<>();
+    private LinkedHashSet<ContainerElement<Component>> hsEventConnections = new LinkedHashSet<>();
+	private LinkedHashSet<ContainerElement<IModelHandler>> hsModelConnections = new LinkedHashSet<>();
 
     /**
      * @param element T
@@ -104,79 +108,148 @@ public class ContainerElement<T>
 		return eventTrigger;
 	}
 
-    /**
+	public void setAdded(boolean value)
+	{
+		added = value;
+	}
+
+	public boolean hasBeenAdded()
+	{
+		return added;
+	}
+
+	public void reset()
+	{
+		added = false;
+	}
+
+	/**
      * @return LinkedHashMap
      */
-    public LinkedHashMap<Provider, Boolean> getHmStreamProviders()
+    public LinkedHashSet<ContainerElement<Provider>> getStreamConnectionContainers()
     {
-        return hmStreamProviders;
+        return hsStreamConnections;
+    }
+
+	public Provider[] getStreamConnections()
+	{
+		Provider[] providers = new Provider[hsStreamConnections.size()];
+
+		int i = 0;
+		for (ContainerElement<Provider> element : hsStreamConnections)
+		{
+			providers[i++] = element.getElement();
+		}
+
+		return providers;
+	}
+
+    /**
+     * @return boolean
+     */
+    public boolean allStreamConnectionsAdded()
+    {
+    	boolean allAdded = true;
+		for (ContainerElement<?> element : hsStreamConnections)
+		{
+			allAdded &= element.hasBeenAdded();
+		}
+		return allAdded;
     }
 
     /**
-     * @param provider Provider
+     * @param element ContainerElement
      * @return boolean
      */
-    public boolean setStreamAdded(Provider provider)
+    public boolean addStreamConnection(ContainerElement<Provider> element)
     {
-        return hmStreamProviders.containsKey(provider) && !hmStreamProviders.put(provider, true);
+        return !hsStreamConnections.contains(element) && hsStreamConnections.add(element);
     }
 
     /**
+     * @param element ContainerElement
      * @return boolean
      */
-    public boolean allStreamAdded()
+    public boolean removeStreamConnection(ContainerElement<Provider> element)
     {
-        for (boolean value : hmStreamProviders.values())
-        {
-            if (!value)
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @param provider Provider
-     * @return boolean
-     */
-    public boolean addStreamProvider(Provider provider)
-    {
-        return !hmStreamProviders.containsKey(provider) && hmStreamProviders.put(provider, false) == null;
-    }
-
-    /**
-     * @param provider Provider
-     * @return boolean
-     */
-    public boolean removeStreamProvider(Provider provider)
-    {
-        return hmStreamProviders.remove(provider) != null;
+        return hsStreamConnections.remove(element);
     }
 
 	/**
 	 * @return LinkedHashMap
 	 */
-	public LinkedHashMap<Component, Boolean> getHmEventProviders()
+	public LinkedHashSet<ContainerElement<Component>> getEventConnectionContainers()
 	{
-		return hmEventProviders;
+		return hsEventConnections;
+	}
+
+	public Component[] getEventConnections()
+	{
+		Component[] components = new Component[hsEventConnections.size()];
+
+		int i = 0;
+		for (ContainerElement<Component> element : hsEventConnections)
+		{
+			components[i++] = element.getElement();
+		}
+
+		return components;
 	}
 
 	/**
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean addEventProvider(Component provider)
+	public boolean addEventConnection(ContainerElement<Component> provider)
 	{
-		return !hmEventProviders.containsKey(provider) && hmEventProviders.put(provider, false) == null;
+		return !hsEventConnections.contains(provider) && hsEventConnections.add(provider);
 	}
 
 	/**
 	 * @param provider Provider
 	 * @return boolean
 	 */
-	public boolean removeEventProvider(Component provider)
+	public boolean removeEventConnection(ContainerElement<Component> provider)
 	{
-		return hmEventProviders.remove(provider) != null;
+		return hsEventConnections.remove(provider);
+	}
+
+	/**
+	 * @return LinkedHashMap
+	 */
+	public LinkedHashSet<ContainerElement<IModelHandler>> getModelConnectionContainers()
+	{
+		return hsModelConnections;
+	}
+
+	public IModelHandler[] getModelConnections()
+	{
+		IModelHandler[] handlers = new IModelHandler[hsModelConnections.size()];
+
+		int i = 0;
+		for (ContainerElement<IModelHandler> element : hsModelConnections)
+		{
+			handlers[i++] = element.getElement();
+		}
+
+		return handlers;
+	}
+
+	/**
+	 * @param handler IModelHandler
+	 * @return boolean
+	 */
+	public boolean addModelConnection(ContainerElement<IModelHandler> handler)
+	{
+		return !hsModelConnections.contains(handler) && hsModelConnections.add(handler);
+	}
+
+	/**
+	 * @param handler IModelHandler
+	 * @return boolean
+	 */
+	public boolean removeModelConnection(ContainerElement<IModelHandler> handler)
+	{
+		return hsModelConnections.remove(handler);
 	}
 }

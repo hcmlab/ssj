@@ -53,16 +53,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import hcm.ssj.core.Component;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.FilePath;
 import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.creator.R;
-import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.file.FileCons;
-import hcm.ssj.ml.IModelHandler;
 
 /**
  * Create a table row which includes every option
@@ -100,7 +97,7 @@ public class OptionTable
 		//options
 		for (int i = 0; i < options.length; i++)
 		{
-			if (options[i].isAssignableByString() || options[i].getType() == IModelHandler.class)
+			if (options[i].isAssignableByString())
 			{
 				linearLayoutOptions.addView(addOption(activity, options[i], owner));
 			}
@@ -164,24 +161,15 @@ public class OptionTable
 				}
 			});
 		}
-		else if (option.getType().isEnum() || option.getType() == IModelHandler.class)
+		else if (option.getType().isEnum())
 		{
 			//create spinner selection for enums which are not null
 			inputView = new Spinner(activity);
 
 			//pupulate spinner
-			ArrayList<Object> items = new ArrayList<>();;
-			if(option.getType().isEnum())
-			{
-				items.addAll(Arrays.asList((Object[])option.getType().getEnumConstants()));
-				((Spinner) inputView).setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, items));
-			}
-			else
-			{
-				items.add(null); //default element
-				items.addAll(getModelSources(owner));
-				((Spinner) inputView).setAdapter(new ArrayAdapterWithNull(activity, android.R.layout.simple_spinner_item, items, "<load model from file>"));
-			}
+			ArrayList<Object> items = new ArrayList<>();
+			items.addAll(Arrays.asList((Object[])option.getType().getEnumConstants()));
+			((Spinner) inputView).setAdapter(new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, items));
 
 			//preselect item
 			if(value == null)
@@ -360,25 +348,6 @@ public class OptionTable
 		}
 		linearLayout.addView(inputView);
 		return linearLayout;
-	}
-
-	private static ArrayList<Object> getModelSources(Object owner)
-	{
-		ArrayList<Object> result = new ArrayList<>();
-
-		List<Component> modelHandlers = new ArrayList<>();
-		modelHandlers.addAll(PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, IModelHandler.class));
-		modelHandlers.addAll(PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Transformer, IModelHandler.class));
-
-		for(Component comp : modelHandlers)
-		{
-			IModelHandler handler = (IModelHandler) comp;
-
-			if(handler != null && handler.hasReferableModel() && handler != owner)
-				result.add(handler);
-		}
-
-		return result;
 	}
 
 	private static byte getByteFromUnsignedStringRepresentation(String s) throws NumberFormatException

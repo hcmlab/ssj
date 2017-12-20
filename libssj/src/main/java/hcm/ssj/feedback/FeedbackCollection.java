@@ -213,6 +213,12 @@ public class FeedbackCollection extends EventHandler
 		feedbackList = new ArrayList<>();
 	}
 
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public enum LevelBehaviour
 	{
 		Regress,

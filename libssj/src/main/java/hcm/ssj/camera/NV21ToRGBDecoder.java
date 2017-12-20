@@ -33,6 +33,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
 
@@ -114,5 +115,11 @@ public class NV21ToRGBDecoder extends Transformer
 		((ImageStream) stream_out).width = ((ImageStream) stream_in[0]).width;
 		((ImageStream) stream_out).height = ((ImageStream) stream_in[0]).height;
 		((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
+	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
 	}
 }

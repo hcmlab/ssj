@@ -41,7 +41,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class InfraredChannel extends SensorChannel
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the sensor provider
      */
     public class Options extends OptionList

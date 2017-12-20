@@ -50,7 +50,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class SignalPainter extends Consumer
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Double> size = new Option<>("size", 20., Double.class, "size of X-axis in seconds");
         public final Option<Boolean> legend = new Option<>("legend", true, Boolean.class, "show legend");

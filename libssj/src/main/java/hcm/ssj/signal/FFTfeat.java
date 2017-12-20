@@ -34,6 +34,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -49,6 +50,11 @@ public class FFTfeat extends Transformer
 	private int fft_dim = 0;
 	private int fft_size = 0;
 	private int rfft = 0;
+
+	public FFTfeat()
+	{
+		_name = this.getClass().getSimpleName();
+	}
 
 	@Override
 	public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException
@@ -131,5 +137,11 @@ public class FFTfeat extends Transformer
 	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
 		stream_out.desc = new String[]{"fft"};
+	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
 	}
 }

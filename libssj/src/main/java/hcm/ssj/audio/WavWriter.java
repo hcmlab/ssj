@@ -49,6 +49,7 @@ import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.IFileWriter;
@@ -59,6 +60,12 @@ import hcm.ssj.file.IFileWriter;
  */
 public class WavWriter extends Consumer implements IFileWriter
 {
+    @Override
+    public OptionList getOptions()
+    {
+        return options;
+    }
+
     private enum DataFormat
     {
         BYTE(Microphone.audioFormatSampleBytes(AudioFormat.ENCODING_PCM_8BIT)),

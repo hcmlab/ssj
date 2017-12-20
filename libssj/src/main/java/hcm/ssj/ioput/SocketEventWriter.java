@@ -41,6 +41,8 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.file.FileCons;
 
 /**
@@ -51,12 +53,18 @@ public class SocketEventWriter extends EventHandler
     public final static int SOCKET_TYPE_UDP = 0;
     public final static int SOCKET_TYPE_TCP = 1;
 
-    public class Options
+    public class Options extends OptionList
     {
-        public int port = 34300;
-        public String ip = "127.0.0.1";
-        public int type = SOCKET_TYPE_UDP;
+        public final Option<Integer> port = new Option<>("port", 34300, Integer.class, "port");
+        public final Option<Integer> type = new Option<>("type", SOCKET_TYPE_UDP, Integer.class, "connection type (0 = UDP, 1 = TCP)");
+        public final Option<String> ip = new Option<>("ip", "127.0.0.1", String.class, "remote ip address");
+
+        private Options()
+        {
+            addOptions();
+        }
     }
+
     public Options options = new Options();
 
     private DatagramSocket _socket_udp;
@@ -87,14 +95,14 @@ public class SocketEventWriter extends EventHandler
         //start client
         String protocol = "";
         try {
-            _addr = InetAddress.getByName(options.ip);
-            switch(options.type) {
+            _addr = InetAddress.getByName(options.ip.get());
+            switch(options.type.get()) {
                 case SOCKET_TYPE_UDP:
                     _socket_udp = new DatagramSocket();
                     protocol = "UDP";
                     break;
                 case SOCKET_TYPE_TCP:
-                    _socket_tcp = new Socket(_addr, options.port);
+                    _socket_tcp = new Socket(_addr, options.port.get());
                     _out = new DataOutputStream(_socket_tcp.getOutputStream());
                     protocol = "TCP";
                     break;
@@ -150,10 +158,10 @@ public class SocketEventWriter extends EventHandler
             byte[] data;
             try
             {
-                switch(options.type) {
+                switch(options.type.get()) {
                     case SOCKET_TYPE_UDP:
                         data = _builder.toString().getBytes();
-                        DatagramPacket pack = new DatagramPacket(data, data.length, _addr, options.port);
+                        DatagramPacket pack = new DatagramPacket(data, data.length, _addr, options.port.get());
                         _socket_udp.send(pack);
                         break;
                     case SOCKET_TYPE_TCP:
@@ -176,7 +184,7 @@ public class SocketEventWriter extends EventHandler
         _connected = false;
 
         try {
-            switch(options.type) {
+            switch(options.type.get()) {
                 case SOCKET_TYPE_UDP:
                     _socket_udp.close();
                     _socket_udp = null;
@@ -189,5 +197,11 @@ public class SocketEventWriter extends EventHandler
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public OptionList getOptions()
+    {
+        return options;
     }
 }

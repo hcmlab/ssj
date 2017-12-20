@@ -47,6 +47,7 @@ import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileDownloader;
+import hcm.ssj.ml.Model;
 import hcm.ssj.mobileSSI.SSI;
 
 /**
@@ -64,7 +65,7 @@ public class Pipeline
         public final Option<Float> bufferSize = new Option<>("bufferSize", 2.f, Float.class, "size of all inter-component buffers (in seconds)");
         /** How long to wait for threads to finish on pipeline shutdown. Default: 30.0 */
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
-        /** How long to wait for a sensor to connect. Default: 5.0 */
+        /** How long to wait for a sensor to connect. Default: 30.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 30.f, Float.class, "How long to wait for a sensor to connect");
         /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
         public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
@@ -146,6 +147,11 @@ public class Pipeline
             instance = new Pipeline();
 
         return instance;
+    }
+
+    public OptionList getOptions()
+    {
+        return options;
     }
 
     /**
@@ -435,6 +441,24 @@ public class Pipeline
         c.setEventTrigger(trigger);
         c.setup(sources);
         components.add(c);
+    }
+
+    /**
+     * Adds a model to the pipeline.
+     *
+     * @param m the Model to be added
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addModel(Model m) throws SSJException {
+
+        if(components.contains(m))
+        {
+            Log.w("Component already added.");
+            return;
+        }
+
+        m.setup();
+        components.add(m);
     }
 
     /**

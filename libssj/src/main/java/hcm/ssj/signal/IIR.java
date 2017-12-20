@@ -32,6 +32,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -179,5 +180,11 @@ public class IIR extends Transformer
 	{
 		stream_out.desc = new String[stream_in[0].dim];
 		System.arraycopy(stream_in[0].desc, 0, stream_out.desc, 0, stream_in[0].desc.length);
+	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
 	}
 }

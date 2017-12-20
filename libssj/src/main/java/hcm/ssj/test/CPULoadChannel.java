@@ -47,7 +47,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class CPULoadChannel extends SensorChannel
 {
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
         public final Option<String> packagename = new Option<>("packagename", SSJApplication.getAppContext().getPackageName(), String.class, "name of the package to monitor");

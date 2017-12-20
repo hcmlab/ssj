@@ -57,7 +57,13 @@ public class SocketEventReader extends EventHandler
 {
     final int MAX_MSG_SIZE = 4096;
 
-    public class Options extends OptionList
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList
     {
         public Option<String> ip = new Option<>("ip", null, String.class, "");
         public Option<Integer> port = new Option<>("port", 0, Integer.class, "");

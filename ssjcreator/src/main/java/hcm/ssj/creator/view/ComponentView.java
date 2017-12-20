@@ -55,6 +55,7 @@ import hcm.ssj.creator.activity.OptionsActivity;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.core.container.FeedbackCollectionContainerElement;
 import hcm.ssj.feedback.FeedbackCollection;
+import hcm.ssj.ml.Model;
 
 /**
  * Draws elements.<br>
@@ -62,8 +63,8 @@ import hcm.ssj.feedback.FeedbackCollection;
  */
 public class ComponentView extends View
 {
-	private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler};
-	private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
+	private final static int[] boxColor = {R.color.colorSensor, R.color.colorProvider, R.color.colorTransformer, R.color.colorConsumer, R.color.colorEventHandler, R.color.colorModel};
+	private final static int[] textColor = {Color.BLACK, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE, Color.WHITE};
 	private final static float STROKE_WIDTH = 0.25f;
 	private static Paint[] paintsElementBox;
 	private static Paint[] paintElementText;
@@ -73,6 +74,7 @@ public class ComponentView extends View
 
 	private int[] streamConnectionHashes;
 	private int[] eventConnectionHashes;
+	private int[] modelConnectionHashes;
 
 	private String text;
 	private int gridX = -1;
@@ -192,6 +194,22 @@ public class ComponentView extends View
 	}
 
 	/**
+	 * @return int[]
+	 */
+	protected int[] getModelConnectionHashes()
+	{
+		return modelConnectionHashes;
+	}
+
+	/**
+	 * @param connectionHashes int[]
+	 */
+	protected void setModelConnectionHashes(int[] connectionHashes)
+	{
+		this.modelConnectionHashes = connectionHashes;
+	}
+
+	/**
 	 * @param text String
 	 */
 	protected void setText(String text)
@@ -296,6 +314,10 @@ public class ComponentView extends View
 		else if (element instanceof EventHandler)
 		{
 			paintType = 4;
+		}
+		else if (element instanceof Model)
+		{
+			paintType = 5;
 		}
 	}
 

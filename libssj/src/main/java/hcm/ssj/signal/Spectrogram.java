@@ -52,6 +52,12 @@ import static hcm.ssj.signal.Matrix.MATRIX_DIMENSION;
 
 public class Spectrogram extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public class Options extends OptionList
 	{
 		public final Option<String[]> outputClass = new Option<>("outputClass", null, String[].class, "Describes the output names for every dimension in e.g. a graph");

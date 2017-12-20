@@ -43,7 +43,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class CameraChannel extends SensorChannel
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the camera provider
      */
     public class Options extends OptionList

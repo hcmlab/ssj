@@ -30,14 +30,23 @@ package hcm.ssj.bleSensor;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
  * Created by Michael Dietz on 15.04.2015.
  */
 public class BVPBLEChannel extends SensorChannel {
-    public class Options {
-        public int sampleRate = 100;
+
+    public class Options extends OptionList
+    {
+        public final Option<Float> sampleRate = new Option<>("sampleRate", 100f, Float.class, "sensor sample rate in Hz");
+
+        private Options()
+        {
+            addOptions();
+        }
     }
 
     public Options options = new Options();
@@ -67,7 +76,7 @@ public class BVPBLEChannel extends SensorChannel {
 
     @Override
     public double getSampleRate() {
-        return options.sampleRate;
+        return options.sampleRate.get();
     }
 
     @Override
@@ -89,5 +98,11 @@ public class BVPBLEChannel extends SensorChannel {
     protected void describeOutput(Stream stream_out) {
         stream_out.desc = new String[stream_out.dim];
         stream_out.desc[0] = "BVP";
+    }
+
+    @Override
+    public OptionList getOptions()
+    {
+        return options;
     }
 }

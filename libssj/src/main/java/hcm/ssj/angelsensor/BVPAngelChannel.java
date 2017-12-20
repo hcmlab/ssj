@@ -30,6 +30,8 @@ package hcm.ssj.angelsensor;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
+import hcm.ssj.core.option.Option;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -37,11 +39,17 @@ import hcm.ssj.core.stream.Stream;
  */
 public class BVPAngelChannel extends SensorChannel
 {
-	public class Options
+
+	public class Options extends OptionList
 	{
-		public int sampleRate = 100;
+		public final Option<Float> sampleRate = new Option<>("sampleRate", 100f, Float.class, "sensor sample rate");
+
+		private Options()
+		{
+			addOptions();
+		}
 	}
-	public Options options = new Options();
+	public final Options options = new Options();
 
 	protected AngelSensorListener _listener;
 
@@ -68,7 +76,7 @@ public class BVPAngelChannel extends SensorChannel
 	@Override
 	public double getSampleRate()
 	{
-		return options.sampleRate;
+		return options.sampleRate.get();
 	}
 
 	@Override
@@ -94,5 +102,11 @@ public class BVPAngelChannel extends SensorChannel
 	{
 		stream_out.desc = new String[stream_out.dim];
 		stream_out.desc[0] = "BVP";
+	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
 	}
 }

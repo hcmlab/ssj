@@ -32,6 +32,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 
 /**
@@ -126,5 +127,11 @@ public class HRVSpectral extends Transformer
 	protected void describeOutput(Stream[] stream_in, Stream stream_out)
 	{
 		stream_out.desc = new String[]{"VLF", "LF", "HF", "nVLF", "nLF", "nHF", "dLFHF", "SMI", "VMI", "SVI"};
+	}
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
 	}
 }

@@ -59,6 +59,8 @@ import hcm.ssj.creator.util.ConnectionType;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.feedback.Feedback;
 import hcm.ssj.feedback.FeedbackCollection;
+import hcm.ssj.ml.IModelHandler;
+import hcm.ssj.ml.Model;
 
 /**
  * Draws a pipe<br>
@@ -77,9 +79,11 @@ public class PipeView extends ViewGroup
 	private ArrayList<ComponentView> componentViewsTransformer = new ArrayList<>();
 	private ArrayList<ComponentView> componentViewsConsumer = new ArrayList<>();
 	private ArrayList<ComponentView> componentViewsEventHandler = new ArrayList<>();
+	private ArrayList<ComponentView> componentViewsModel = new ArrayList<>();
 	//connections
 	private ArrayList<ConnectionView> streamConnectionViews = new ArrayList<>();
 	private ArrayList<ConnectionView> eventConnectionViews = new ArrayList<>();
+	private ArrayList<ConnectionView> modelConnectionViews = new ArrayList<>();
 	//colors
 	private Paint paintElementGrid;
 	private Paint paintElementShadow;
@@ -143,7 +147,8 @@ public class PipeView extends ViewGroup
 			case SAVE:
 			{
 				SaveLoad.save(o, componentViewsSensorChannel, componentViewsSensor,
-							  componentViewsTransformer, componentViewsConsumer, componentViewsEventHandler);
+							  componentViewsTransformer, componentViewsConsumer,
+							  componentViewsEventHandler, componentViewsModel);
 				break;
 			}
 			case LOAD:
@@ -203,6 +208,7 @@ public class PipeView extends ViewGroup
 	{
 		// clear views
 		removeAllViews();
+
 		//add connections
 		streamConnectionViews.clear();
 		for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfStreamConnections(); i++)
@@ -220,6 +226,15 @@ public class PipeView extends ViewGroup
 			eventConnectionViews.add(connectionView);
 			addView(eventConnectionViews.get(i));
 		}
+		modelConnectionViews.clear();
+		for (int i = 0; i < PipelineBuilder.getInstance().getNumberOfModelConnections(); i++)
+		{
+			ConnectionView connectionView = new ConnectionView(getContext());
+			connectionView.setConnectionType(ConnectionType.MODELCONNECTION);
+			modelConnectionViews.add(connectionView);
+			addView(modelConnectionViews.get(i));
+		}
+
 		//add providers
 		componentViewsSensorChannel = fillList(componentViewsSensorChannel, PipelineBuilder.Type.SensorChannel);
 		//add sensors
@@ -230,6 +245,8 @@ public class PipeView extends ViewGroup
 		componentViewsConsumer = fillList(componentViewsConsumer, PipelineBuilder.Type.Consumer);
 		//add eventhandler
 		componentViewsEventHandler = fillList(componentViewsEventHandler, PipelineBuilder.Type.EventHandler);
+		//add models
+		componentViewsModel = fillList(componentViewsModel, PipelineBuilder.Type.Model);
 
 	}
 
@@ -254,6 +271,7 @@ public class PipeView extends ViewGroup
 					found = true;
 					v.setStreamConnectionHashes(PipelineBuilder.getInstance().getStreamConnectionHashes(object));
 					v.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
+					v.setModelConnectionHashes(PipelineBuilder.getInstance().getModelConnectionHashes(object));
 					alInterim.add(v);
 					break;
 				}
@@ -264,6 +282,7 @@ public class PipeView extends ViewGroup
 				ComponentView view = new ComponentView(getContext(), object);
 				view.setStreamConnectionHashes(PipelineBuilder.getInstance().getStreamConnectionHashes(object));
 				view.setEventConnectionHashes(PipelineBuilder.getInstance().getEventConnectionHashes(object));
+				view.setModelConnectionHashes(PipelineBuilder.getInstance().getModelConnectionHashes(object));
 				alInterim.add(view);
 			}
 		}
@@ -294,6 +313,8 @@ public class PipeView extends ViewGroup
 		setLayouts(componentViewsConsumer, initHeight);
 		initHeight += divider;
 		setLayouts(componentViewsEventHandler, initHeight);
+		setLayouts(componentViewsModel, initHeight);
+
 		//connections
 		for (ConnectionView connectionView : streamConnectionViews)
 		{
@@ -303,8 +324,14 @@ public class PipeView extends ViewGroup
 		{
 			connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
 		}
+		for (ConnectionView connectionView : modelConnectionViews)
+		{
+			connectionView.layout(0, 0, iSizeWidth, iSizeHeight);
+		}
+
 		int streamConnections = 0;
 		int eventConnections = 0;
+		int modelConnections = 0;
 		for (ComponentView componentViewSensor : componentViewsSensor)
 		{
 			int[] streamHashes = componentViewSensor.getStreamConnectionHashes();
@@ -358,6 +385,15 @@ public class PipeView extends ViewGroup
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsConsumer, true);
 			eventConnections = checkEventConnections(eventHashes, eventConnections, componentViewEventHandler, componentViewsEventHandler, true);
 		}
+		for (ComponentView componentViewModel : componentViewsModel)
+		{
+			int[] connectionHashes = componentViewModel.getModelConnectionHashes();
+			modelConnections = checkModelConnections(connectionHashes, modelConnections, componentViewModel, componentViewsSensor);
+			modelConnections = checkModelConnections(connectionHashes, modelConnections, componentViewModel, componentViewsSensorChannel);
+			modelConnections = checkModelConnections(connectionHashes, modelConnections, componentViewModel, componentViewsTransformer);
+			modelConnections = checkModelConnections(connectionHashes, modelConnections, componentViewModel, componentViewsConsumer);
+			modelConnections = checkModelConnections(connectionHashes, modelConnections, componentViewModel, componentViewsEventHandler);
+		}
 	}
 
 	/**
@@ -372,6 +408,7 @@ public class PipeView extends ViewGroup
 			count = changeElementPositions(alPoints, componentViewsSensor, count);
 			count = changeElementPositions(alPoints, componentViewsTransformer, count);
 			count = changeElementPositions(alPoints, componentViewsConsumer, count);
+			count = changeElementPositions(alPoints, componentViewsModel, count);
 			changeElementPositions(alPoints, componentViewsEventHandler, count);
 		}
 	}
@@ -477,6 +514,35 @@ public class PipeView extends ViewGroup
 							setVisibility(VISIBLE);
 						}
 
+						break;
+					}
+				}
+			}
+		}
+		return connections;
+	}
+
+	/**
+	 * @param hashes              int[]
+	 * @param connections         int
+	 * @param destination         View
+	 * @param componentViews      ArrayList
+	 * @return int
+	 */
+	private int checkModelConnections(int[] hashes, int connections, ComponentView destination, ArrayList<ComponentView> componentViews)
+	{
+		if (hashes != null)
+		{
+			for (int hash : hashes)
+			{
+				for (ComponentView componentView : componentViews)
+				{
+					if (hash == componentView.getElementHash())
+					{
+						ConnectionView connectionView = modelConnectionViews.get(connections);
+						connectionView.drawConnectionViews(componentView, destination, iGridBoxSize);
+						connectionView.invalidate();
+						connections++;
 						break;
 					}
 				}
@@ -599,21 +665,25 @@ public class PipeView extends ViewGroup
 			result = addCollisionConnection(object, x, y, componentViewsSensorChannel, true);
 		}
 
-		if (!result)
+		if (!result && object instanceof IModelHandler)
 		{
-			result = result || addCollisionConnection(object, x, y, componentViewsSensor, true);
+			result = addCollisionConnection(object, x, y, componentViewsModel, true);
 		}
 		if (!result)
 		{
-			result = result || addCollisionConnection(object, x, y, componentViewsTransformer, true);
+			result = addCollisionConnection(object, x, y, componentViewsSensor, true);
 		}
 		if (!result)
 		{
-			result = result || addCollisionConnection(object, x, y, componentViewsConsumer, true);
+			result = addCollisionConnection(object, x, y, componentViewsTransformer, true);
 		}
 		if (!result)
 		{
-			result = result || addCollisionConnection(object, x, y, componentViewsEventHandler, true);
+			result = addCollisionConnection(object, x, y, componentViewsConsumer, true);
+		}
+		if (!result)
+		{
+			result = addCollisionConnection(object, x, y, componentViewsEventHandler, true);
 		}
 
 		return result;
@@ -657,16 +727,20 @@ public class PipeView extends ViewGroup
 				{
 					if (standard)
 					{
-						PipelineBuilder.getInstance().addStreamProvider(componentView.getElement(), (Provider) object);
+						PipelineBuilder.getInstance().addStreamConnection(componentView.getElement(), (Provider) object);
 					}
 					else
 					{
-						PipelineBuilder.getInstance().addStreamProvider(object, (Provider) componentView.getElement());
+						PipelineBuilder.getInstance().addStreamConnection(object, (Provider) componentView.getElement());
 					}
 				}
-				else
+				else if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.MODELCONNECTION))
 				{
-					PipelineBuilder.getInstance().addEventProvider(componentView.getElement(), (Component) object);
+					PipelineBuilder.getInstance().addModelConnection((Component) object, (Component) componentView.getElement());
+				}
+				else  if (isValidConnection((Component) object, (Component) componentView.getElement(), ConnectionType.EVENTCONNECTION))
+				{
+					PipelineBuilder.getInstance().addEventConnection(componentView.getElement(), (Component) object);
 				}
 				return true;
 			}
@@ -868,24 +942,24 @@ public class PipeView extends ViewGroup
 			case STREAMCONNECTION:
 				if (startComponent instanceof Sensor)
 				{
-					PipelineBuilder.getInstance().removeStreamProvider(startComponent, (Provider) destinationComponent);
+					PipelineBuilder.getInstance().removeStreamConnection(startComponent, (Provider) destinationComponent);
 				}
 				else
 				{
-					PipelineBuilder.getInstance().removeStreamProvider(destinationComponent, (Provider) startComponent);
+					PipelineBuilder.getInstance().removeStreamConnection(destinationComponent, (Provider) startComponent);
 				}
-				PipelineBuilder.getInstance().addEventProvider(destinationComponent, startComponent);
+				PipelineBuilder.getInstance().addEventConnection(destinationComponent, startComponent);
 				break;
 
 			case EVENTCONNECTION:
-				PipelineBuilder.getInstance().removeEventProvider(destinationComponent, startComponent);
+				PipelineBuilder.getInstance().removeEventConnection(destinationComponent, startComponent);
 				if (startComponent instanceof Sensor)
 				{
-					PipelineBuilder.getInstance().addStreamProvider(startComponent, (Provider) destinationComponent);
+					PipelineBuilder.getInstance().addStreamConnection(startComponent, (Provider) destinationComponent);
 				}
 				else
 				{
-					PipelineBuilder.getInstance().addStreamProvider(destinationComponent, (Provider) startComponent);
+					PipelineBuilder.getInstance().addStreamConnection(destinationComponent, (Provider) startComponent);
 				}
 				break;
 			default:
@@ -897,7 +971,13 @@ public class PipeView extends ViewGroup
 
 	public static boolean isValidConnection(Component src, Component dst, ConnectionType type)
 	{
-		if (type == ConnectionType.EVENTCONNECTION)
+		if (type == ConnectionType.EVENTCONNECTION && !(src instanceof Model))
+		{
+			return true;
+		}
+		if (type == ConnectionType.MODELCONNECTION &&
+				((src instanceof Model && dst instanceof IModelHandler)
+			||	(src instanceof IModelHandler && dst instanceof Model)))
 		{
 			return true;
 		}

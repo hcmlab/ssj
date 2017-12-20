@@ -743,6 +743,25 @@ public class Util
         return fileDirectory;
     }
 
+    public static String parseWildcards(String value)
+    {
+        if (value != null)
+        {
+            if (value.contains("[time]"))
+            {
+                return value.replace("[time]", Util.getTimestamp(Pipeline.getInstance().getCreateTimeMs()));
+            }
+            else
+            {
+                return value;
+            }
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     public static void eventToXML(StringBuilder builder, Event ev)
     {
         builder.append("<event sender=\"").append(ev.sender).append("\"");

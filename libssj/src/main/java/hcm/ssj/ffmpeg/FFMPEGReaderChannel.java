@@ -42,6 +42,12 @@ import hcm.ssj.core.stream.Stream;
 
 public class FFMPEGReaderChannel extends SensorChannel
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	/**
 	 * All options for the provider
 	 */

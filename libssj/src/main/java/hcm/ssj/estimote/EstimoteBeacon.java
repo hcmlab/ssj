@@ -50,6 +50,12 @@ import hcm.ssj.core.option.OptionList;
 
 public class EstimoteBeacon extends Sensor implements BeaconManager.ServiceReadyCallback
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public enum IdentificationMode
 	{
 		MAC_ADDRESS,

@@ -43,6 +43,12 @@ import hcm.ssj.core.stream.Stream;
  */
 public class MvgNorm extends Transformer
 {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
 	public enum Norm
 	{
 		AVG_VAR,

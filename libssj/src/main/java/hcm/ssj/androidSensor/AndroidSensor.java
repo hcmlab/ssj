@@ -136,5 +136,11 @@ public class AndroidSensor extends hcm.ssj.core.Sensor
      {
          listeners.clear();
      }
+
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
 }
 

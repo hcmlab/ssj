@@ -33,6 +33,7 @@ import java.io.InputStreamReader;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.option.OptionList;
 
 /**
  * Infrared sensor for google glass.<br>
@@ -110,5 +111,11 @@ public class InfraredSensor extends hcm.ssj.core.Sensor
         }
         return ERROR;
     }
+
+	@Override
+	public OptionList getOptions()
+	{
+		return null;
+	}
 }
 

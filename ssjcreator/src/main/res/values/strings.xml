@@ -40,9 +40,9 @@
     <string name="str_eventhandlers">Event Handlers</string>
     <!--file menu-->
     <string name="str_configMenu">Menu</string>
-    <string name="str_save">Save</string>
-    <string name="str_load_pipeline">Load</string>
-    <string name="str_delete_pipeline">Delete</string>
+    <string name="str_save">Save Pipeline</string>
+    <string name="str_load_pipeline">Load Pipeline</string>
+    <string name="str_delete_pipeline">Delete Pipeline</string>
     <string name="str_load_strategy">Load Feedback Strategy</string>
     <string name="str_clear">Clear Canvas</string>
     <!--dialogs-->
@@ -128,4 +128,9 @@
     <string name="train_session_list_title">Data Sources</string>
     <string name="button_session_list_add">Add Source ...</string>
     <string name="train_anno_garbage">Fill up empty spaces in anno</string>
+    <string name="str_model_conn">Model</string>
+    <string name="str_modelhandler_conn">Model Handler</string>
+    <string name="str_models">Models</string>
+    <string name="str_options_pipe">Pipeline Options</string>
+    <string name="str_canvas">Pipeline</string>
 </resources>

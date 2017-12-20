@@ -40,7 +40,13 @@ import hcm.ssj.core.stream.Stream;
  * Created by Johnny on 05.03.2015.
  */
 public class BluetoothPressureMatChannel extends SensorChannel {
-    public class Options extends OptionList {
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	public class Options extends OptionList {
         public final Option<Integer> channel_id = new Option<>("channel_id", 0, Integer.class, "the channel index as defined by the order in which the streams were sent");
         public final Option<Integer> bytes = new Option<>("bytes", 0, Integer.class, "");
         public final Option<Integer> dim = new Option<>("dim", 0, Integer.class, "");

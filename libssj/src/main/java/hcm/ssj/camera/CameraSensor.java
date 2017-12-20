@@ -49,7 +49,13 @@ import hcm.ssj.core.option.OptionList;
 @SuppressWarnings("deprecation")
 public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewCallback
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the camera
      */
     public class Options extends OptionList

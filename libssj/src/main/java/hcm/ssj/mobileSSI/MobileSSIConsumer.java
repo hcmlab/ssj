@@ -44,7 +44,13 @@ import static java.lang.System.loadLibrary;
  */
 public class MobileSSIConsumer extends Consumer
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      *
      */
     public class Options extends OptionList

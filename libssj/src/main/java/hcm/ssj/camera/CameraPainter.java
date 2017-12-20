@@ -55,7 +55,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class CameraPainter extends Consumer implements EventListener
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the camera painter
      */
     public class Options extends OptionList
@@ -261,7 +267,7 @@ public class CameraPainter extends Consumer implements EventListener
                                           null);
                     }
 
-                    if (options.showBestMatch.get())
+                    if (options.showBestMatch.get() && bestMatch != null)
                     {
                         // Draw label of the best match.
                         canvas.rotate(-1 * options.orientation.get(), canvasWidth / 2, canvasHeight / 2);

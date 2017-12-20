@@ -41,7 +41,13 @@ import hcm.ssj.core.stream.Stream;
  */
 public class Derivative extends Transformer
 {
-    /**
+	@Override
+	public OptionList getOptions()
+	{
+		return options;
+	}
+
+	/**
      * All options for the transformer
      */
     public class Options extends OptionList

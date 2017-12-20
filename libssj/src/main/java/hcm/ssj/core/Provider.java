@@ -34,7 +34,7 @@ import hcm.ssj.core.stream.Stream;
  */
 public abstract class Provider extends Component {
 
-    protected int _bufferID;
+    protected int _bufferID = -1;
     protected void setBufferID(int bufferID)
     {
         _bufferID = bufferID;
@@ -54,4 +54,11 @@ public abstract class Provider extends Component {
     }
 
     public abstract String[] getOutputDescription();
+
+    @Override
+    public void clear()
+    {
+        _bufferID = -1;
+        super.clear();
+    }
 }

@@ -160,7 +160,7 @@ public class StrategyLoader
 		for (ThresholdClassEventSender thresholdClassEventSender : thresholdClassEventSenders)
 		{
 			pipelineBuilder.add(thresholdClassEventSender);
-			pipelineBuilder.addEventProvider(feedbackCollection, thresholdClassEventSender);
+			pipelineBuilder.addEventConnection(feedbackCollection, thresholdClassEventSender);
 			addedComponents.add(thresholdClassEventSender);
 		}
 
