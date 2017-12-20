@@ -63,10 +63,10 @@ public class AnnotationTest
 	{
 		Annotation anno = new Annotation();
 		anno.load("/sdcard/SSJ/mouse.annotation");
-		anno.save("/sdcard/SSJ/mouse2.annotation");
+		anno.save("/sdcard/SSJ", "mouse2.annotation");
 
 		anno.convertToFrames(1.0, "xx", 0, 0.5);
-		anno.save("/sdcard/SSJ/mouse_cont.annotation");
+		anno.save("/sdcard/SSJ", "mouse_cont.annotation");
 
 		return;
 

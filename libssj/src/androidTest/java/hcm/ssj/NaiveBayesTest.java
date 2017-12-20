@@ -124,7 +124,7 @@ public class NaiveBayesTest
 		model.setup(anno.getClassArray(), trainStream.bytes, trainStream.dim, trainStream.sr, trainStream.type);
 
 		//train
-		model.train(trainStream, anno, "session1");
+		model.train(trainStream, anno);
 
 		//eval
 		Stream testStream = Stream.create(1, 1, 1, Cons.Type.FLOAT);

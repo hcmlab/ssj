@@ -44,6 +44,7 @@ import org.junit.runners.Suite;
 		SignalTest.class,
 		SvmTest.class,
 		SSITest.class,
-		UtilTest.class})
+		UtilTest.class,
+		NaiveBayesTest.class})
 public class StandardTestSuite
 {}
