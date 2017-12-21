@@ -148,13 +148,16 @@ public class StreamView extends View
 			paths.add(new Path());
 		}
 
+		float xStep = width / (float) stream.num;
+		float[][] dataColumns = getDataColumns(data);
+
 		for (int col = 0; col < stream.dim; col++)
 		{
-			int x = 0;
-			paths.get(col).moveTo(x, centerY - ((data[col] / max) * centerY));
-			for (int i = col; i < data.length; i += stream.dim)
+			paths.get(col).moveTo(0, centerY - ((dataColumns[col][0] / max) * centerY));
+			for (int row = 0; row < stream.num; row++)
 			{
-				paths.get(col).lineTo(x++, centerY - ((data[i] / max) * centerY));
+				paths.get(col).lineTo(xStep * row,
+									  centerY - ((dataColumns[col][row] / max) * centerY));
 			}
 		}
 
@@ -172,5 +175,18 @@ public class StreamView extends View
 			}
 		}
 		return max;
+	}
+
+	private float[][] getDataColumns(float[] data)
+	{
+		float[][] dataCols = new float[stream.dim][stream.num];
+		for (int col = 0; col < stream.dim; col++)
+		{
+			for (int row = 0; row < stream.num; row++)
+			{
+				dataCols[col][row] = data[row * stream.dim + col];
+			}
+		}
+		return dataCols;
 	}
 }
