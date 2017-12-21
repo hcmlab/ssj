@@ -65,7 +65,7 @@ public class WaveformView extends View
 	private float scalingFactor = 1;
 
 	private short[] samples;
-	private Bitmap cachedWaveformBitmap;
+	private Bitmap waveformBitmap;
 
 	public WaveformView(Context context)
 	{
@@ -128,7 +128,7 @@ public class WaveformView extends View
 	}
 
 	@Override
-	protected void onSizeChanged(int w, int h, int oldWidth, int oldHeight)
+	protected void onSizeChanged(int w, int h, int oldW, int oldH)
 	{
 		width = getMeasuredWidth();
 		height = getMeasuredHeight();
@@ -141,9 +141,9 @@ public class WaveformView extends View
 	{
 		super.onDraw(canvas);
 
-		if (cachedWaveformBitmap != null)
+		if (waveformBitmap != null)
 		{
-			canvas.drawBitmap(cachedWaveformBitmap, null, drawRect, null);
+			canvas.drawBitmap(waveformBitmap, null, drawRect, null);
 		}
 	}
 
@@ -188,7 +188,8 @@ public class WaveformView extends View
 
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 				LinearLayout.LayoutParams.MATCH_PARENT, LAYOUT_HEIGHT);
-		layoutParams.setMargins(LAYOUT_MARGIN_LEFT, LAYOUT_MARGIN_TOP, LAYOUT_MARGIN_RIGHT, LAYOUT_MARGIN_BOTTOM);
+		layoutParams.setMargins(LAYOUT_MARGIN_LEFT, LAYOUT_MARGIN_TOP,
+								LAYOUT_MARGIN_RIGHT, LAYOUT_MARGIN_BOTTOM);
 		setLayoutParams(layoutParams);
 	}
 
@@ -202,8 +203,8 @@ public class WaveformView extends View
 			return;
 		}
 		Canvas canvas;
-		cachedWaveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-		canvas = new Canvas(cachedWaveformBitmap);
+		waveformBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+		canvas = new Canvas(waveformBitmap);
 
 		Path waveformPath = drawWaveform(width, height, samples);
 		canvas.drawPath(waveformPath, fillPaint);

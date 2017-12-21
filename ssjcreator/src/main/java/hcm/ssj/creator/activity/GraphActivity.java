@@ -40,10 +40,13 @@ import java.io.File;
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
+import hcm.ssj.core.stream.Stream;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.util.PlaybackThreadList;
 import hcm.ssj.creator.view.StreamLayout;
+import hcm.ssj.creator.view.StreamView;
 import hcm.ssj.creator.view.WaveformView;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.file.FileUtils;
 
 /**
@@ -155,6 +158,12 @@ public class GraphActivity extends AppCompatActivity
 									};
 									playbackThreads.setPlaybackListener(playbackListener);
 								}
+							}
+							else if (type.matches(FileCons.FILE_EXTENSION_STREAM))
+							{
+								Stream streamData = Stream.load(file.getPath());
+								StreamView streamView = new StreamView(GraphActivity.this, streamData);
+								streamLayout.addView(streamView);
 							}
 						}
 						catch (Exception e)
