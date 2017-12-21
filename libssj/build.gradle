@@ -28,7 +28,7 @@
 apply plugin: 'com.android.library'
 apply from: '../version.gradle'
 
-//this will include the mobile SSI classes in the library
+//this will include the mobile MobileSSIConsumer class in the library (requires extra libraries)
 def buildSSIXmlPipe = false
 
 ext {

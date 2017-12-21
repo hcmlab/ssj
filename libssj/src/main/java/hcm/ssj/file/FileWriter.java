@@ -50,6 +50,7 @@ import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.signal.Merge;
 
 import static hcm.ssj.file.FileCons.FILE_EXTENSION_STREAM;
 
@@ -72,6 +73,7 @@ public class FileWriter extends Consumer implements IFileWriter
     {
         public final Option<String> separator = new Option<>("separator", FileCons.DELIMITER_DIMENSION, String.class, "");
         public final Option<Cons.FileType> type = new Option<>("type", Cons.FileType.ASCII, Cons.FileType.class, "file type (ASCII or BINARY)");
+        public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge multiple input streams");
 
         /**
          *
@@ -95,6 +97,9 @@ public class FileWriter extends Consumer implements IFileWriter
     private StringBuilder stringBuilder;
     private File file;
 
+    private Merge merge = null;
+    private Stream stream_merged;
+
     public FileWriter()
     {
         _name = this.getClass().getSimpleName();
@@ -106,14 +111,20 @@ public class FileWriter extends Consumer implements IFileWriter
     @Override
     public final void enter(Stream[] stream_in) throws SSJFatalException
     {
-        if (stream_in.length > 1 || stream_in.length < 1)
-        {
-            throw new SSJFatalException("stream count not supported");
-        }
         if (stream_in[0].type == Cons.Type.EMPTY || stream_in[0].type == Cons.Type.UNDEF)
         {
             throw new SSJFatalException("stream type not supported");
         }
+
+        Stream input = stream_in[0];
+        if(options.merge.get() && stream_in.length > 1)
+        {
+            merge = new Merge();
+            stream_merged = Stream.create(stream_in[0].num, merge.getSampleDimension(stream_in), stream_in[0].sr, stream_in[0].type);
+            merge.enter(stream_in, stream_merged);
+            input = stream_merged;
+        }
+
         //create file
         if (options.filePath.get() == null)
         {
@@ -124,14 +135,14 @@ public class FileWriter extends Consumer implements IFileWriter
 
         if (options.fileName.get() == null)
         {
-            String defaultName = TextUtils.join("_", stream_in[0].desc) + "." + FILE_EXTENSION_STREAM;
+            String defaultName = TextUtils.join("_", input.desc) + "." + FILE_EXTENSION_STREAM;
             Log.w("file name not set, setting to " + defaultName);
             options.fileName.set(defaultName);
         }
         file = new File(fileDirectory, options.fileName.get());
 
         fileType = options.type.get();
-        start(stream_in[0]);
+        start(input);
     }
 
     /**
@@ -175,6 +186,13 @@ public class FileWriter extends Consumer implements IFileWriter
     @Override
     protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
     {
+        Stream input = stream_in[0];
+
+        if(options.merge.get() && stream_in.length > 1) {
+            merge.transform(stream_in, stream_merged);
+            input = stream_merged;
+        }
+        
         if (fileType == Cons.FileType.ASCII)
         {
             stringBuilder.delete(0, stringBuilder.length());
@@ -182,131 +200,131 @@ public class FileWriter extends Consumer implements IFileWriter
 
         if(fileType == Cons.FileType.ASCII)
         {
-            switch (stream_in[0].type)
+            switch (input.type)
             {
                 case BOOL:
                 {
-                    boolean[] in = stream_in[0].ptrBool();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++) {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++) {
+                    boolean[] in = input.ptrBool();
+                    for (int i = 0, j = 0; i < input.num; i++) {
+                        for (int k = 0; k < input.dim; k++, j++) {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case BYTE:
                 {
-                    byte[] in = stream_in[0].ptrB();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    byte[] in = input.ptrB();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case CHAR:
                 {
-                    char[] in = stream_in[0].ptrC();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    char[] in = input.ptrC();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case SHORT:
                 {
-                    short[] in = stream_in[0].ptrS();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    short[] in = input.ptrS();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case INT:
                 {
-                    int[] in = stream_in[0].ptrI();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    int[] in = input.ptrI();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case LONG:
                 {
-                    long[] in = stream_in[0].ptrL();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    long[] in = input.ptrL();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case FLOAT:
                 {
-                    float[] in = stream_in[0].ptrF();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    float[] in = input.ptrF();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
                 case DOUBLE:
                 {
-                    double[] in = stream_in[0].ptrD();
-                    for (int i = 0, j = 0; i < stream_in[0].num; i++)
+                    double[] in = input.ptrD();
+                    for (int i = 0, j = 0; i < input.num; i++)
                     {
-                        for (int k = 0; k < stream_in[0].dim; k++, j++)
+                        for (int k = 0; k < input.dim; k++, j++)
                         {
                             stringBuilder.append(in[j]);
                             stringBuilder.append(options.separator.get());
                         }
                         stringBuilder.append(FileCons.DELIMITER_LINE);
                     }
-                    sampleCount += stream_in[0].num;
+                    sampleCount += input.num;
                     write(stringBuilder.toString(), fileOutputStream);
                     break;
                 }
@@ -317,8 +335,8 @@ public class FileWriter extends Consumer implements IFileWriter
         }
         else if(fileType == Cons.FileType.BINARY)
         {
-            sampleCount += stream_in[0].num;
-            Util.arraycopy(stream_in[0].ptr(), 0, buffer, 0, stream_in[0].tot);
+            sampleCount += input.num;
+            Util.arraycopy(input.ptr(), 0, buffer, 0, input.tot);
             write(buffer, byteStream);
         }
     }
@@ -329,20 +347,19 @@ public class FileWriter extends Consumer implements IFileWriter
     @Override
     public final void flush(Stream stream_in[]) throws SSJFatalException
     {
-        end(stream_in[0]);
-    }
+        Stream input = stream_in[0];
 
-    /**
-     * @param stream Stream
-     */
-    private void end(Stream stream)
-    {
+        if(options.merge.get() && stream_in.length > 1) {
+            merge.flush(stream_in, stream_merged);
+            input = stream_merged;
+        }
+
         if(fileType == Cons.FileType.BINARY)
             byteStream = (BufferedOutputStream)closeStream(byteStream);
 
         fileOutputStream = (FileOutputStream)closeStream(fileOutputStream);
 
-        writeHeader(stream);
+        writeHeader(input);
         fileOutputStreamHeader = (FileOutputStream)closeStream(fileOutputStreamHeader);
     }
 

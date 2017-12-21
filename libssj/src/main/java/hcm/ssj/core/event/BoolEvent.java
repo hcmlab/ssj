@@ -27,6 +27,8 @@
 
 package hcm.ssj.core.event;
 
+import java.util.Arrays;
+
 import hcm.ssj.core.Cons;
 
 /**
@@ -52,6 +54,10 @@ public class BoolEvent extends Event {
 
     public boolean[] ptrBool() {
         return data;
+    }
+
+    public String ptrStr() {
+        return Arrays.toString(data);
     }
 
     public void setData(Object data) {

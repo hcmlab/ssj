@@ -37,7 +37,7 @@
     </sensor>
   </sensorList>
   <transformerList>
-    <transformer class="hcm.ssj.praat.Intensity" id="127327310" frameSize="1.0" delta="0.0" eventTrigger="false">
+    <transformer class="hcm.ssj.audio.Intensity" id="127327310" frameSize="1.0" delta="0.0" eventTrigger="false">
       <options>
         <option name="minPitch" value="50.0" />
         <option name="subtractMeanPressure" value="true" />

@@ -89,7 +89,7 @@ public class CameraPainter extends Consumer implements EventListener
     private SurfaceView surfaceViewInner = null;
     private SurfaceHolder surfaceHolder;
 
-    private String bestMatch;
+    private String event_msg;
     private int textSize = 35;
 
     private Paint interiorPaint;
@@ -267,12 +267,12 @@ public class CameraPainter extends Consumer implements EventListener
                                           null);
                     }
 
-                    if (options.showBestMatch.get() && bestMatch != null)
+                    if (options.showBestMatch.get() && event_msg != null)
                     {
                         // Draw label of the best match.
                         canvas.rotate(-1 * options.orientation.get(), canvasWidth / 2, canvasHeight / 2);
-                        canvas.drawText(bestMatch, 25, 50, exteriorPaint);
-                        canvas.drawText(bestMatch, 25, 50, interiorPaint);
+                        canvas.drawText(event_msg, 25, 50, exteriorPaint);
+                        canvas.drawText(event_msg, 25, 50, interiorPaint);
                     }
                 }
             }
@@ -327,9 +327,6 @@ public class CameraPainter extends Consumer implements EventListener
     @Override
     public void notify(Event event)
     {
-        if(event.type == Cons.Type.STRING)
-            bestMatch = event.ptrStr();
-        else
-            Log.w("unsupported event format (" + event.type.toString() + "). Expecting STRING events.");
+        event_msg = event.name + "@" + event.sender + ":" + event.ptrStr();
     }
 }

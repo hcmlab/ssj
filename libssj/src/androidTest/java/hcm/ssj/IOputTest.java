@@ -37,6 +37,7 @@ import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.audio.AudioChannel;
+import hcm.ssj.audio.Intensity;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
@@ -53,7 +54,6 @@ import hcm.ssj.ioput.BluetoothWriter;
 import hcm.ssj.ioput.SocketChannel;
 import hcm.ssj.ioput.SocketEventWriter;
 import hcm.ssj.ioput.SocketReader;
-import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
 import hcm.ssj.test.Logger;
 
