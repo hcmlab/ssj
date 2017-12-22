@@ -40,7 +40,7 @@ public class Cons
     public final static long SLEEP_ON_COMPONENT_IDLE = 5000; //in ms
     public final static long WAIT_BL_CONNECT = 1000; //in ms
     public static final long WAIT_BL_DISCONNECT = 1000; //in ms
-    public final static long WAIT_THREAD_TERMINATION = 60000; //in ms
+    public final static long WAIT_THREAD_TERMINATION = 5000; //in ms
     public final static int MAX_EVENT_SIZE = 4096; //in bytes
     public final static int MAX_NUM_EVENTS_PER_CHANNEL = 128; //in bytes
 

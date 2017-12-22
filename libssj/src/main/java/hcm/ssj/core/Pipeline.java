@@ -84,7 +84,7 @@ public class Pipeline
         /** repeated log entries with a duration delta smaller than the timeout value are ignored. Default: 1.0 */
         public final Option<Double> logtimeout = new Option<>("logtimeout", 1.0, Double.class, "ignore repeated entries < timeout");
         /** Shut down pipeline if runtime error is encountered */
-        public final Option<Boolean> terminateOnError = new Option<>("terminateOnError", true, Boolean.class, "Shut down pipeline if runtime error is encountered");
+        public final Option<Boolean> terminateOnError = new Option<>("terminateOnError", false, Boolean.class, "Shut down pipeline if runtime error is encountered");
 
         private Options()
         {
@@ -726,9 +726,14 @@ public class Pipeline
             }
 
             Log.i("waiting for components to terminate");
-            threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MILLISECONDS);
+            if(!threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MILLISECONDS))
+                threadPool.shutdownNow();
 
             Log.i("shut down completed");
+        }
+        catch (InterruptedException e)
+        {
+            threadPool.shutdownNow();
         }
         catch (Exception e)
         {

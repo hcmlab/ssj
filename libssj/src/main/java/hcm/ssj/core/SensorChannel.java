@@ -111,8 +111,6 @@ public abstract class SensorChannel extends Provider {
                     _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
                     dog.checkIn();
                 }
-                wakeLock.release();
-
                 _timer.sync();
             } catch(SSJFatalException e) {
                 _frame.error(this.getComponentName(), "exception in loop", e);

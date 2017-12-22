@@ -146,8 +146,6 @@ public abstract class Consumer extends Component {
                     consume(_stream_in, ev);
                 }
 
-                if(_doWakeLock) wakeLock.release();
-
                 //maintain update rate
                 if(ok && _triggerChannel == null)
                     _timer.sync();
@@ -159,7 +157,7 @@ public abstract class Consumer extends Component {
             } catch(Exception e) {
                 _frame.error(_name, "exception in loop", e);
             } finally {
-                if(_doWakeLock) wakeLock.release();
+                if(_doWakeLock && wakeLock.isHeld()) wakeLock.release();
             }
         }
 

@@ -119,8 +119,6 @@ public abstract class Transformer extends Provider {
                     _frame.pushData(_bufferID, _stream_out.ptr(), _stream_out.tot);
                 }
 
-                wakeLock.release();
-
                 if(ok) {
                     //maintain update rate
                     _timer.sync();
