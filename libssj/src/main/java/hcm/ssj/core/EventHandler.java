@@ -93,13 +93,14 @@ public abstract class EventHandler extends Component implements EventListener {
             try {
                 if(_doWakeLock) wakeLock.acquire();
                 process();
-                if(_doWakeLock) wakeLock.release();
             } catch(SSJFatalException e) {
                 _frame.error(_name, "exception in loop", e);
                 _safeToKill = true;
                 return;
             } catch(Exception e) {
                 _frame.error(_name, "exception in loop", e);
+            } finally {
+                if(_doWakeLock) wakeLock.release();
             }
         }
 

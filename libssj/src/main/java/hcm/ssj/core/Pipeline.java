@@ -726,7 +726,7 @@ public class Pipeline
             }
 
             Log.i("waiting for components to terminate");
-            threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MICROSECONDS);
+            threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MILLISECONDS);
 
             Log.i("shut down completed");
         }

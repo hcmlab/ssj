@@ -120,6 +120,8 @@ public abstract class SensorChannel extends Provider {
                 return;
             } catch(Exception e) {
                 _frame.error(this.getComponentName(), "exception in loop", e);
+            } finally {
+                wakeLock.release();
             }
         }
 

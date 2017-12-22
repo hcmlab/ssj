@@ -158,6 +158,8 @@ public abstract class Consumer extends Component {
                 return;
             } catch(Exception e) {
                 _frame.error(_name, "exception in loop", e);
+            } finally {
+                if(_doWakeLock) wakeLock.release();
             }
         }
 
