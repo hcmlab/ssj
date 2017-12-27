@@ -1,5 +1,5 @@
 /*
- * DoubleEvent.java
+ * AudioUtil.java
  * Copyright (c) 2017
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
@@ -25,45 +25,38 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.core.event;
-
-import java.util.Arrays;
-
-import hcm.ssj.core.Cons;
+package hcm.ssj.audio;
 
 /**
- * Created by Johnny on 19.03.2015.
+ * Created by Ionut Damian on 21.12.2017.
  */
-public class DoubleEvent extends Event {
-
-    public double[] data;
-
-    public DoubleEvent() {
-        type = Cons.Type.DOUBLE;
-        data = null;
-    }
-
-    public DoubleEvent(double[] data) {
-        type = Cons.Type.DOUBLE;
-        this.data = data;
-    }
-
-    public double[] ptr() {
-        return data;
-    }
-
-    public double[] ptrD() {
-        return data;
-    }
-
-    public String ptrStr() {
-        return Arrays.toString(data);
-    }
-
-    public void setData(Object data) {
-        this.data = (double[])data;
-    }
-    public void setData(double[] data) {
-        this.data = data;
-    }
+public class AudioUtil
+{
+	/**
+	 * Modified Bessel function I0. Abramowicz & Stegun, p. 378.
+	 *
+	 * Based on code from the PRAAT Toolbox by Paul Boersma and David Weenink.
+	 * http://www.fon.hum.uva.nl/praat/
+	 */
+	public static double bessel_i0_f(double x)
+	{
+		if (x < 0.0) return bessel_i0_f(-x);
+		if (x < 3.75)
+		{
+            /* Formula 9.8.1. Accuracy 1.6e-7. */
+			double t = x / 3.75;
+			t *= t;
+			return 1.0 + t * (3.5156229 + t * (3.0899424 + t * (1.2067492
+					+ t * (0.2659732 + t * (0.0360768 + t * 0.0045813)))));
+		}
+        /*
+            otherwise: x >= 3.75
+        */
+        /* Formula 9.8.2. Accuracy of the polynomial factor 1.9e-7. */
+		double t = 3.75 / x;   /* <= 1.0 */
+		return Math.exp(x) / Math.sqrt(x) * (0.39894228 + t * (0.01328592
+				+ t * (0.00225319 + t * (-0.00157565 + t * (0.00916281
+				+ t * (-0.02057706 + t * (0.02635537 + t * (-0.01647633
+				+ t * 0.00392377))))))));
+	}
 }

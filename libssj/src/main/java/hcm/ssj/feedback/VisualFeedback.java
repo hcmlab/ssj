@@ -114,10 +114,13 @@ public class VisualFeedback extends Feedback
 			iconList.add(feedbackDrawable);
 		}
 
-		Drawable qualityDrawable = Drawable.createFromPath(options.qualityIcon.get().value);
-		if (qualityDrawable != null)
+		if(options.qualityIcon.get() != null)
 		{
-			iconList.add(qualityDrawable);
+			Drawable qualityDrawable = Drawable.createFromPath(options.qualityIcon.get().value);
+			if (qualityDrawable != null)
+			{
+				iconList.add(qualityDrawable);
+			}
 		}
 	}
 
@@ -129,7 +132,8 @@ public class VisualFeedback extends Feedback
 			timeout = System.currentTimeMillis() + options.duration.get();
 		}
 		updateIcons();
-		updateBrightness(options.brightness.get());
+		if(options.brightness.get() > 0)
+			updateBrightness(options.brightness.get());
 	}
 
 	@Override
@@ -153,7 +157,8 @@ public class VisualFeedback extends Feedback
 		{
 			Log.i("clearing icons");
 			clearIcons();
-			updateBrightness(defaultBrightness);
+			if(options.brightness.get() > 0)
+				updateBrightness(defaultBrightness);
 			timeout = 0;
 		}
 	}
@@ -318,9 +323,9 @@ public class VisualFeedback extends Feedback
 		public final Option<FilePath> feedbackIcon = new Option<>("feedbackIcon", null, FilePath.class, "feedback icon file");
 		public final Option<FilePath> qualityIcon = new Option<>("qualityIcon", null, FilePath.class, "quality icon file");
 
-		public final Option<Float> brightness = new Option<>("brightness", 1f, Float.class, "screen brightness");
-		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear");
-		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "fade duration");
+		public final Option<Float> brightness = new Option<>("brightness", -1f, Float.class, "screen brightness (-1 = no change)");
+		public final Option<Integer> duration = new Option<>("duration", 0, Integer.class, "duration until icons disappear (ms)");
+		public final Option<Integer> fade = new Option<>("fade", 0, Integer.class, "fade duration (ms)");
 		public final Option<Integer> position = new Option<>("position", 0, Integer.class, "position of the icons");
 		public final Option<TableLayout> layout = new Option<>("layout", null, TableLayout.class, "TableLayout in which to render visual feedback");
 

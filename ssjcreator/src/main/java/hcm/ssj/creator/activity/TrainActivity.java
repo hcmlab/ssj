@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import hcm.ssj.core.Annotation;
+import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.creator.R;
@@ -378,21 +379,20 @@ public class TrainActivity extends AppCompatActivity
 				return;
 			}
 
+			String emptyClass = null;
+			CheckBox checkBox = (CheckBox) findViewById(R.id.train_anno_garbage);
+			if (checkBox.isChecked())
+			{
+				emptyClass = Cons.GARBAGE_CLASS;
+			}
+
+			session.anno.convertToFrames(1.0 / session.stream.sr, emptyClass, 0, 0.5f);
+
 			//update known classes
 			for (int j = 0; j < session.anno.getClasses().size(); j++)
 			{
 				classes.put(session.anno.getClasses().keyAt(j), session.anno.getClasses().valueAt(j));
 			}
-
-			String emptyClass = null;
-
-			CheckBox checkBox = (CheckBox) findViewById(R.id.train_anno_garbage);
-			if (checkBox.isChecked())
-			{
-				emptyClass = "GARBAGE";
-			}
-
-			session.anno.convertToFrames(1.0 / session.stream.sr, emptyClass, 0, 0.5f);
 		}
 
 		String str_model = ((Spinner) findViewById(R.id.model_selector)).getSelectedItem().toString();

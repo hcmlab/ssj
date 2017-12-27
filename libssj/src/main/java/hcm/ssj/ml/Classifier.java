@@ -36,7 +36,6 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
-import hcm.ssj.core.event.StringEvent;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
@@ -63,7 +62,7 @@ public class Classifier extends Consumer implements IModelHandler
         public final Option<Boolean> bestMatchOnly = new Option<>("bestMatchOnly", true, Boolean.class, "print or send class with highest result only");
         public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
-        public final Option<String> event = new Option<>("event", "Result", String.class, "event name");
+        public final Option<String> event = new Option<>("event", "Result", String.class, "event name (ignored if bestMatchOnly is true)");
 
         private Options()
         {
@@ -167,25 +166,26 @@ public class Classifier extends Consumer implements IModelHandler
         {
             // Get array index of element with largest probability.
             int bestLabelIdx = Util.maxIndex(probs);
-            String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
-                                             model.getClassNames()[bestLabelIdx],
-                                             probs[bestLabelIdx] * 100f);
 
             if (_evchannel_out != null)
             {
-                Event ev = new StringEvent(bestMatch);
+                Event ev = Event.create(Cons.Type.FLOAT);
                 ev.sender = options.sender.get();
-                ev.name = options.event.get();
+                ev.name = model.getClassNames()[bestLabelIdx];
                 ev.time = (int) (1000 * stream_in[0].time + 0.5);
                 double duration = stream_in[0].num / stream_in[0].sr;
                 ev.dur = (int) (1000 * duration + 0.5);
                 ev.state = Event.State.COMPLETED;
+                ev.setData(new float[]{probs[bestLabelIdx]});
 
                 _evchannel_out.pushEvent(ev);
             }
 
             if (options.log.get())
             {
+                String bestMatch = String.format(Locale.GERMANY, "BEST MATCH: %s (%.2f%% likely)",
+                                                 model.getClassNames()[bestLabelIdx],
+                                                 probs[bestLabelIdx] * 100f);
                 Log.i(bestMatch);
             }
         }

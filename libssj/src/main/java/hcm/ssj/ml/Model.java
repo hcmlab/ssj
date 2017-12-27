@@ -350,8 +350,8 @@ public abstract class Model extends Component
         builder.append("<item name=\"userLocal\"/>").append(FileCons.DELIMITER_LINE);
         builder.append("</users>").append(FileCons.DELIMITER_LINE);
 
-        modelFileName = name + "." + _name;
-        modelOptionFileName = name + "." + _name;
+        String modelFileName = name + "." + _name;
+//        String modelOptionFileName = name + "." + _name;
 
         builder.append("<model create=\"");
         builder.append(_name);

@@ -148,11 +148,12 @@ public class WatchDog extends Thread {
                     } else syncIterCnt--;
                 }
 
-                wakeLock.release();
                 _timer.sync();
 
             } catch(Exception e) {
                 _frame.error(this.getClass().getSimpleName(), "exception in loop", e);
+            } finally {
+                wakeLock.release();
             }
         }
 

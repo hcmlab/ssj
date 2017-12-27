@@ -50,7 +50,6 @@ import java.util.HashMap;
 import hcm.ssj.file.FileCons;
 import hcm.ssj.file.SimpleXmlParser;
 
-import static hcm.ssj.core.Cons.GARBAGE_CLASS;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
@@ -270,6 +269,9 @@ public class Annotation
 		original.sort();
 		entries.clear();
 
+		if(add_empty)
+			classes.put(Cons.GARBAGE_CLASS_ID, emptyClassName);
+
 		int iter = 0;
 		int last_iter = iter;
 		int clone_end = original.getEntries().size();
@@ -318,7 +320,7 @@ public class Annotation
 					// find dominant class
 					double max_percent = percent_garbage;
 					double percent_sum = percent_garbage;
-					String max_class = GARBAGE_CLASS;
+					String max_class = null;
 
 					for (int j = 0; j < original.classes.size(); j++)
 					{
@@ -332,9 +334,9 @@ public class Annotation
 					}
 
 					// add label
-					if (percent_sum > empty_percent)
+					if (percent_sum > empty_percent && max_class != null)
 					{
-						new_entry.classlabel = (max_class != null) ? max_class : GARBAGE_CLASS;
+						new_entry.classlabel = max_class;
 						addEntry(new_entry);
 					}
 					else if (add_empty)
@@ -476,9 +478,9 @@ public class Annotation
 		for(int i = 0; i < classes.size(); ++i)
 		{
 			builder.append("<item name=\"");
-			builder.append(classes.get(i));
+			builder.append(classes.valueAt(i));
 			builder.append("\" id=\"");
-			builder.append(i);
+			builder.append(classes.keyAt(i));
 			builder.append("\"/>").append(FileCons.DELIMITER_LINE);
 		}
 		builder.append("</scheme>").append(FileCons.DELIMITER_LINE);

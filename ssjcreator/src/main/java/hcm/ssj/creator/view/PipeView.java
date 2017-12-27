@@ -408,8 +408,8 @@ public class PipeView extends ViewGroup
 			count = changeElementPositions(alPoints, componentViewsSensor, count);
 			count = changeElementPositions(alPoints, componentViewsTransformer, count);
 			count = changeElementPositions(alPoints, componentViewsConsumer, count);
-			count = changeElementPositions(alPoints, componentViewsModel, count);
-			changeElementPositions(alPoints, componentViewsEventHandler, count);
+			count = changeElementPositions(alPoints, componentViewsEventHandler, count);
+			changeElementPositions(alPoints, componentViewsModel, count);
 		}
 	}
 
