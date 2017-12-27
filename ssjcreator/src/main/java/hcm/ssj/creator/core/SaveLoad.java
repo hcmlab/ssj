@@ -27,6 +27,7 @@
 
 package hcm.ssj.creator.core;
 
+import android.util.SparseArray;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -74,7 +75,7 @@ public abstract class SaveLoad
 {
 	private final static String ROOT = "ssjSaveFile";
 	private final static String VERSION = "version";
-	private final static String VERSION_NUMBER = "5";
+	private final static String VERSION_NUMBER = "6";
 	private final static String FRAMEWORK = "framework";
 	private final static String SENSOR_CHANNEL_LIST = "sensorChannelList";
 	private final static String SENSOR_LIST = "sensorList";
@@ -404,7 +405,8 @@ public abstract class SaveLoad
 						case ANNOTATION_CLASS:
 						{
 							String annoClass = parser.getAttributeValue(null, NAME);
-							PipelineBuilder.getInstance().getAnnotation().appendClass(annoClass);
+							String annoClassId = parser.getAttributeValue(null, ID);
+							PipelineBuilder.getInstance().getAnnotation().addClass(Integer.parseInt(annoClassId), annoClass);
 							break;
 						}
 					}
@@ -674,11 +676,12 @@ public abstract class SaveLoad
 		serializer.attribute(null, FILE_NAME, anno.getFileName());
 		serializer.attribute(null, FILE_PATH, anno.getFilePath());
 
-		String[] anno_classes = anno.getClassArray();
-		for (String anno_class : anno_classes)
+		SparseArray<String> anno_classes = anno.getClasses();
+		for (int i = 0; i < anno_classes.size(); i++)
 		{
 			serializer.startTag(null, ANNOTATION_CLASS);
-			serializer.attribute(null, NAME, anno_class);
+			serializer.attribute(null, ID, String.valueOf(anno_classes.keyAt(i)));
+			serializer.attribute(null, NAME, anno_classes.valueAt(i));
 			serializer.endTag(null, ANNOTATION_CLASS);
 		}
 		serializer.endTag(null, ANNOTATION);
@@ -695,21 +698,23 @@ public abstract class SaveLoad
 
 		String text = new String(buffer, 0, len);
 
-		//from v0.2 to v3
-		if(from_version == 0.2)
+		if(from_version <= 0.2)
 		{
 			text = text.replace("Provider", "Channel");
 			text = text.replace("SimpleFile", "File");
 			text = text.replace("Classifier", "ClassifierT");
 			text = text.replace("option name=\"timeoutThread\"", "option name=\"waitThreadKill\"");
-			text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
 		}
-
-		if(from_version == 3)
+		if(from_version <= 3)
 		{
 			text = text.replaceAll("eventTrigger=\"(true|false)\"", "");
-			text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
 		}
+		if(from_version <= 5)
+		{
+			text = text.replaceAll("praat.Intensity", "audio.Intensity");
+		}
+
+		text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
 
 		java.io.FileWriter writer = new java.io.FileWriter(file);
 		writer.write(text);

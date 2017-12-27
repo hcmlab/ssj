@@ -297,8 +297,6 @@ public class TabHandler
 
 	public void preStart()
 	{
-		console.clear();
-
 		AnnotationTab annotationTab = getAnnotation();
 		if (annotationTab != null)
 		{

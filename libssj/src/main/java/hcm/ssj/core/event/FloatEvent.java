@@ -27,6 +27,8 @@
 
 package hcm.ssj.core.event;
 
+import java.util.Arrays;
+
 import hcm.ssj.core.Cons;
 
 /**
@@ -52,6 +54,10 @@ public class FloatEvent extends Event {
 
     public float[] ptrF() {
         return data;
+    }
+
+    public String ptrStr() {
+        return Arrays.toString(data);
     }
 
     public void setData(Object data) {

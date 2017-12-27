@@ -25,7 +25,7 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.praat;
+package hcm.ssj.audio;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Log;
@@ -34,11 +34,15 @@ import hcm.ssj.core.Transformer;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.praat.helper.NUM;
 
+/**
+ * Computes audio intensity.
+ * Based on code from the PRAAT Toolbox by Paul Boersma and David Weenink.
+ * http://www.fon.hum.uva.nl/praat/
+ */
 public class Intensity extends Transformer {
 
-	@Override
+    @Override
 	public OptionList getOptions()
 	{
 		return options;
@@ -49,6 +53,7 @@ public class Intensity extends Transformer {
         public final Option<Double> minPitch = new Option<>("minPitch", 50., Double.class, "");
         public final Option<Double> timeStep = new Option<>("timeStep", 0., Double.class, "");
         public final Option<Boolean> subtractMeanPressure = new Option<>("subtractMeanPressure", true, Boolean.class, "");
+        public final Option<Boolean> mean = new Option<>("mean", false, Boolean.class, "output mean intensity over entire window");
 
         /**
          *
@@ -59,15 +64,15 @@ public class Intensity extends Transformer {
     }
     public final Options options = new Options();
 
-    double myDuration, windowDuration, halfWindowDuration;
-    int halfWindowSamples, numberOfFrames;
+    private double myDuration, windowDuration, halfWindowDuration, outStep;
+    private int halfWindowSamples, numberOfFrames;
 
     double[] amplitude = null;
     double[] window = null;
 
     public Intensity()
     {
-        _name = "IntensityPraat";
+        _name = "Intensity";
     }
 
     @Override
@@ -104,7 +109,7 @@ public class Intensity extends Transformer {
         for (int i = - halfWindowSamples; i <= halfWindowSamples; i ++) {
             x = i * audio.step / halfWindowDuration;
             root = 1 - x * x;
-            window [i + halfWindowSamples] = root <= 0.0 ? 0.0 : NUM.bessel_i0_f((2 * NUM.pi * NUM.pi + 0.5) * Math.sqrt(root));
+            window [i + halfWindowSamples] = root <= 0.0 ? 0.0 : AudioUtil.bessel_i0_f((2 * Math.PI * Math.PI + 0.5) * Math.sqrt(root));
         }
 
     }
@@ -117,9 +122,11 @@ public class Intensity extends Transformer {
         float[] data = in.ptrF();
         float[] outf = out.ptrF();
 
+        double intensitySum = 0;
+
         for (int iframe = 0; iframe < numberOfFrames; iframe++)
         {
-            double midTime = in.time + iframe * out.step;
+            double midTime = in.time + iframe * outStep;
             int midSample = (int) (Math.round((midTime - in.time) / in.step + 1.0));
             int leftSample = midSample - halfWindowSamples, rightSample = midSample + halfWindowSamples;
             double sumxw = 0.0, sumw = 0.0, intensity;
@@ -154,8 +161,15 @@ public class Intensity extends Transformer {
             intensity = sumxw / sumw;
             if (intensity != 0.0) intensity /= 4e-10;
             intensity = intensity < 1e-30 ? -300 : 10 * Math.log10(intensity);
-            outf[iframe] = (float)intensity;
+
+            if(!options.mean.get())
+                outf[iframe] = (float) intensity;
+            else
+                intensitySum += intensity;
         }
+
+        if(options.mean.get())
+            outf[0] = (float)(intensitySum / numberOfFrames);
     }
 
     @Override
@@ -182,12 +196,14 @@ public class Intensity extends Transformer {
         numberOfFrames = computeNumberOfFrames(myDuration, windowDuration, options.timeStep.get());
         if (numberOfFrames < 1)  Log.e("The duration of the sound in an intensity analysis should be at least 6.4 divided by the minimum pitch (" +  options.minPitch.get() + " Hz), " +
                                                                            "i.e. at least " + 6.4 / options.minPitch.get() + " s, instead of " + myDuration + " s.");
+
+        outStep = frame / numberOfFrames;
     }
 
     @Override
     public int getSampleNumber(int sampleNumber_in)
     {
-        return numberOfFrames;
+        return (options.mean.get()) ? 1 : numberOfFrames;
     }
 
     @Override

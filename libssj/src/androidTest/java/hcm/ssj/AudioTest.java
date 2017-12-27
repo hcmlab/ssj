@@ -39,13 +39,13 @@ import java.io.File;
 
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.AudioWriter;
+import hcm.ssj.audio.Intensity;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
 import hcm.ssj.event.ThresholdEventSender;
-import hcm.ssj.praat.Intensity;
 import hcm.ssj.signal.Avg;
 import hcm.ssj.test.EventLogger;
 

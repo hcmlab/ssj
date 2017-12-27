@@ -38,6 +38,7 @@ import java.io.File;
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
+import hcm.ssj.audio.Intensity;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
@@ -46,7 +47,6 @@ import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.event.ThresholdEventSender;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
-import hcm.ssj.praat.Intensity;
 import hcm.ssj.test.EventLogger;
 
 import static android.support.test.InstrumentationRegistry.getContext;
