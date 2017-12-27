@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ component_buttons.xml
+  ~ Copyright (c) 2017
+  ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
+  ~ Vitalijs Krumins, Antonio Grieco
+  ~ ******************************************************
+  ~ This file is part of the Social Signal Interpretation for Java (SSJ) framework
+  ~ developed at the Lab for Human Centered Multimedia of the University of Augsburg.
+  ~
+  ~ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a
+  ~ one-to-one port of SSI to Java, it is an approximation. Nor does SSJ pretend
+  ~ to offer SSI's comprehensive functionality and performance (this is java after all).
+  ~ Nevertheless, SSJ borrows a lot of programming patterns from SSI.
+  ~
+  ~ This library is free software; you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ This library is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, see <http://www.gnu.org/licenses/>.
+  -->
+
+<android.support.design.widget.CoordinatorLayout
+              xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:clipChildren="false"
+              android:clipToPadding="false">
+
+    <LinearLayout
+        android:id="@+id/sensor_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="140dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_sensors"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_sensors"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorSensor"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/sensor_channel_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="190dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_sensor_channels"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_providers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorProvider"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/transformers_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="240dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_transformers"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_transformers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorTransformer"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/consumer_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="290dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_consumers"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_consumers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorConsumer"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/event_handler_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="340dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_eventhandlers"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_eventhandlers"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorEventHandler"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/model_layout"
+        android:visibility="gone"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:padding="5dp"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="390dp"
+        android:layout_gravity="bottom|end"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textColor="@android:color/white"
+            android:background="@drawable/label_background"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:layout_marginEnd="6dp"
+            android:text="@string/str_models"/>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/action_models"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            app:backgroundTint="@color/colorModel"
+            app:fabSize="mini" />
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>
