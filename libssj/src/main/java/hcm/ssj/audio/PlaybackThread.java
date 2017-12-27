@@ -58,6 +58,9 @@ public class PlaybackThread
 		loadMedia();
 	}
 
+	/**
+	 * Plays the loaded audio file and starts updating marker's position.
+	 */
 	public void play()
 	{
 		if (mediaPlayer != null && !mediaPlayer.isPlaying())
@@ -67,6 +70,9 @@ public class PlaybackThread
 		}
 	}
 
+	/**
+	 * Pauses the playback of the loaded audio file.
+	 */
 	public void pause()
 	{
 		if (mediaPlayer != null && mediaPlayer.isPlaying())
@@ -75,6 +81,10 @@ public class PlaybackThread
 		}
 	}
 
+	/**
+	 * Stops and resets the playback of the loaded audio file and repositions the marker's
+	 * position to the origin.
+	 */
 	public void reset()
 	{
 		if (mediaPlayer != null)
@@ -85,21 +95,37 @@ public class PlaybackThread
 		stopUpdatingMarkerPosition();
 	}
 
+	/**
+	 * Sets the listener for the current thread. Only one such thread is allowed to have
+	 * a {@link hcm.ssj.audio.PlaybackListener}.
+	 * @param listener {@link hcm.ssj.audio.PlaybackListener}.
+	 */
 	public void setPlaybackListener(PlaybackListener listener)
 	{
 		playbackListener = listener;
 	}
 
+	/**
+	 * Removes the listener of the current thread.
+	 */
 	public void removePlaybackListener()
 	{
 		playbackListener = null;
 	}
 
+	/**
+	 * Returns true if the current thread is currently playing audio.
+	 * @return True if audio is being played back, false otherwise.
+	 */
 	public boolean isPlaying()
 	{
 		return mediaPlayer != null && mediaPlayer.isPlaying();
 	}
 
+	/**
+	 * Skips the playback of the current thread to the selected time.
+	 * @param progress Time in milliseconds to skip forward or backward to.
+	 */
 	public void seekTo(int progress)
 	{
 		if (mediaPlayer != null)
@@ -108,6 +134,10 @@ public class PlaybackThread
 		}
 	}
 
+	/**
+	 * Returns the length of the loaded audio file in milliseconds.
+	 * @return Length of audio file in milliseconds.
+	 */
 	public int getAudioLength()
 	{
 		if (mediaPlayer != null)
@@ -117,6 +147,9 @@ public class PlaybackThread
 		return 0;
 	}
 
+	/**
+	 * Loads audio file and sets up OnCompletionListener.
+	 */
 	private void loadMedia()
 	{
 		if (context != null && audioFile != null)
@@ -136,6 +169,9 @@ public class PlaybackThread
 		}
 	}
 
+	/**
+	 * Starts updating playback marker's progress at a specified time interval.
+	 */
 	private void startUpdatingMarkerPosition()
 	{
 		if (executor == null)
@@ -161,6 +197,9 @@ public class PlaybackThread
 		);
 	}
 
+	/**
+	 * Stops updating playback marker's progress.
+	 */
 	private void stopUpdatingMarkerPosition()
 	{
 		if (executor != null)
@@ -175,6 +214,9 @@ public class PlaybackThread
 		}
 	}
 
+	/**
+	 * Updates playback marker's progress.
+	 */
 	private void updateMarkerProgress()
 	{
 		if (mediaPlayer != null && mediaPlayer.isPlaying())

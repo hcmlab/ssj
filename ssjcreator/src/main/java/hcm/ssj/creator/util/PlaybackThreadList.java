@@ -32,15 +32,26 @@ import java.util.ArrayList;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
 
+/**
+ * Convenience class for playback thread management. Only one thread is allowed to have a
+ * {@link hcm.ssj.audio.PlaybackListener}, as playback marker's position is updated by a single
+ * thread (the one with the longest audio duration, meaning that the marker is reset only when
+ * the longest audio file is finished playing).
+ */
 public class PlaybackThreadList
 {
 	private ArrayList<PlaybackThread> playbackThreads = new ArrayList<>();
+
+	private int leadThreadIndex = 0;
 
 	public void add(PlaybackThread thread)
 	{
 		playbackThreads.add(thread);
 	}
 
+	/**
+	 * Starts playing all threads.
+	 */
 	public void play()
 	{
 		for (PlaybackThread thread : playbackThreads)
@@ -49,6 +60,9 @@ public class PlaybackThreadList
 		}
 	}
 
+	/**
+	 * Pauses playback of all threads.
+	 */
 	public void pause()
 	{
 		for (PlaybackThread thread : playbackThreads)
@@ -57,6 +71,9 @@ public class PlaybackThreadList
 		}
 	}
 
+	/**
+	 * Stops playback of all threads.
+	 */
 	public void reset()
 	{
 		for (PlaybackThread thread : playbackThreads)
@@ -65,19 +82,34 @@ public class PlaybackThreadList
 		}
 	}
 
-	public void removePlaybackListeners()
+	/**
+	 * Removes playback listener of the leading thread. This method should be called whenever a new
+	 * audio file is selected for visualization which has audio length longer than any
+	 * previously selected audio files.
+	 */
+	public void removePlaybackListener()
 	{
-		for (PlaybackThread thread : playbackThreads)
-		{
-			thread.removePlaybackListener();
-		}
+		playbackThreads.get(leadThreadIndex).removePlaybackListener();
 	}
 
+	/**
+	 * Sets {@link hcm.ssj.audio.PlaybackListener} on the newly created thread, and updates the
+	 * index of the leading playback thread. This method should be called whenever a new
+	 * audio file is selected for visualization which has audio length longer than any previously
+	 * selected audio files, meaning this thread is now the leading thread, and thus is responsible
+	 * for playback marker progress update.
+	 * @param listener Listener for the lead playback thread.
+	 */
 	public void setPlaybackListener(PlaybackListener listener)
 	{
-		playbackThreads.get(playbackThreads.size() - 1).setPlaybackListener(listener);
+		leadThreadIndex = playbackThreads.size() - 1;
+		playbackThreads.get(leadThreadIndex).setPlaybackListener(listener);
 	}
 
+	/**
+	 * Return true if at least one thread in the collection is currently running.
+	 * @return True if at least one thread is currently running, false otherwise.
+	 */
 	public boolean isPlaying()
 	{
 		for (PlaybackThread thread : playbackThreads)

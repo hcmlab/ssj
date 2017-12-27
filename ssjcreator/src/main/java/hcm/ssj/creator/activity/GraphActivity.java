@@ -141,7 +141,7 @@ public class GraphActivity extends AppCompatActivity
 								if (audioLength > maxAudioLength)
 								{
 									maxAudioLength = audioLength;
-									playbackThreads.removePlaybackListeners();
+									playbackThreads.removePlaybackListener();
 									PlaybackListener playbackListener = new PlaybackListener() {
 										@Override
 										public void onProgress(int progress)
