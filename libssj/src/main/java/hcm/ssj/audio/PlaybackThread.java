@@ -138,20 +138,8 @@ public class PlaybackThread
 		if (mediaPlayer != null)
 		{
 			mediaPlayer.seekTo(progress);
+			play();
 		}
-	}
-
-	/**
-	 * Returns the length of the loaded audio file in milliseconds.
-	 * @return Length of audio file in milliseconds.
-	 */
-	public int getAudioLength()
-	{
-		if (mediaPlayer != null)
-		{
-			return mediaPlayer.getDuration();
-		}
-		return 0;
 	}
 
 	/**

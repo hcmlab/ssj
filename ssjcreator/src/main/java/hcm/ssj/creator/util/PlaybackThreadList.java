@@ -92,6 +92,7 @@ public class PlaybackThreadList
 
 	public void seekTo(int progress)
 	{
+		resetFinishedPlaying();
 		for (PlaybackThread thread : playbackThreads)
 		{
 			thread.seekTo(progress);
