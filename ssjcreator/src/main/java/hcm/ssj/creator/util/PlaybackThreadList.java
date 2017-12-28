@@ -82,6 +82,9 @@ public class PlaybackThreadList
 		}
 	}
 
+	/**
+	 * Prepares playback threads to be played.
+	 */
 	public void resetFinishedPlaying()
 	{
 		for (PlaybackThread thread : playbackThreads)
@@ -90,6 +93,10 @@ public class PlaybackThreadList
 		}
 	}
 
+	/**
+	 * Skips playback of all threads to the given time.
+	 * @param progress Time in milliseconds to skip to.
+	 */
 	public void seekTo(int progress)
 	{
 		resetFinishedPlaying();
