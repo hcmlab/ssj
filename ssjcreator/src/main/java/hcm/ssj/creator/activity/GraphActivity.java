@@ -154,6 +154,7 @@ public class GraphActivity extends AppCompatActivity
 										{
 											playButton.setText(R.string.play);
 											streamLayout.resetMarker();
+											playbackThreads.resetFinishedPlaying();
 										}
 									};
 									playbackThreads.setPlaybackListener(playbackListener);
@@ -162,7 +163,8 @@ public class GraphActivity extends AppCompatActivity
 							else if (type.matches(FileCons.FILE_EXTENSION_STREAM))
 							{
 								Stream streamData = Stream.load(file.getPath());
-								StreamView streamView = new StreamView(GraphActivity.this, streamData);
+								StreamView streamView = new StreamView(GraphActivity.this,
+																	   streamData);
 								streamLayout.addView(streamView);
 							}
 						}
