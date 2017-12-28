@@ -30,6 +30,8 @@ package hcm.ssj.creator.activity;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
@@ -40,6 +42,7 @@ import java.io.File;
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.util.PlaybackThreadList;
@@ -65,6 +68,7 @@ public class GraphActivity extends AppCompatActivity
 	private Button resetButton;
 
 	private int maxAudioLength = Integer.MIN_VALUE;
+	private int screenWidth;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
@@ -72,7 +76,22 @@ public class GraphActivity extends AppCompatActivity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.graph_layout);
 
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+		screenWidth = displayMetrics.widthPixels;
+
 		streamLayout = (StreamLayout) findViewById(R.id.stream_layout);
+		streamLayout.setOnTouchListener(new View.OnTouchListener()
+		{
+			@Override
+			public boolean onTouch(View v, MotionEvent event)
+			{
+				v.performClick();
+				float percentage = event.getX() / screenWidth;
+				playbackThreads.seekTo((int) (percentage * maxAudioLength));
+				return true;
+			}
+		});
 
 		initializeUI();
 	}

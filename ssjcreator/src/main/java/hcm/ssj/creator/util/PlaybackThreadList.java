@@ -90,6 +90,14 @@ public class PlaybackThreadList
 		}
 	}
 
+	public void seekTo(int progress)
+	{
+		for (PlaybackThread thread : playbackThreads)
+		{
+			thread.seekTo(progress);
+		}
+	}
+
 	/**
 	 * Removes playback listener of the leading thread. This method should be called whenever a new
 	 * audio file is selected for visualization which has audio length longer than any

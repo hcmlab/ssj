@@ -118,6 +118,13 @@ public class StreamLayout extends LinearLayout
 	}
 
 	@Override
+	public boolean performClick()
+	{
+		super.performClick();
+		return true;
+	}
+
+	@Override
 	public void onViewAdded(View view)
 	{
 		int currentLength;
