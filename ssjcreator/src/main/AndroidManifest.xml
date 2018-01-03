@@ -59,6 +59,7 @@
             android:configChanges="orientation|screenSize">
         </activity>
         <activity
+            android:hardwareAccelerated="false"
             android:theme="@style/AppThemeDefault"
             android:name=".activity.GraphActivity"
             android:configChanges="orientation|screenSize">

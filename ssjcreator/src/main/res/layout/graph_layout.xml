@@ -27,24 +27,65 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:custom="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:paddingBottom="@dimen/activity_bottom_margin"
               android:paddingLeft="@dimen/activity_horizontal_margin"
               android:paddingRight="@dimen/activity_horizontal_margin"
               android:paddingTop="@dimen/activity_bottom_margin"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+              android:layout_height="match_parent">
 
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/graph"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="500dp">
+
+        <hcm.ssj.creator.view.StreamLayout
+            android:id="@+id/stream_layout"
+            custom:markerColor="@color/colorMarker"
+            android:orientation="vertical"
+            android:paddingBottom="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        </hcm.ssj.creator.view.StreamLayout>
+
+    </ScrollView>
+
+    <LinearLayout
+        style="?android:attr/buttonBarStyle"
+        android:orientation="horizontal"
+        android:layout_weight="1"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:gravity="center|bottom">
 
-    <Button
-        android:id="@+id/load_stream_file"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/load_button_top_padding"
-        android:text="@string/select_file"/>
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/load_stream_file"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/load_button_top_padding"
+            android:text="@string/select_file" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:visibility="gone"
+            android:id="@+id/play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/load_button_top_padding"
+            android:text="@string/play" />
+
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:visibility="gone"
+            android:id="@+id/reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/load_button_top_padding"
+            android:text="@string/reset" />
+
+    </LinearLayout>
+
 </LinearLayout>

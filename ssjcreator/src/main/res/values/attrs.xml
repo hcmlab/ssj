@@ -42,4 +42,18 @@
         <attr name="pointerRadius" format="dimension"/>
         <attr name="showText3" format="boolean"/>
     </declare-styleable>
+
+    <declare-styleable name="WaveformView">
+        <attr name="waveformStrokeThickness" format="float" />
+        <attr name="waveformColor" format="color" />
+        <attr name="waveformFillColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="StreamLayout">
+        <attr name="timeCodeColor" format="color" />
+        <attr name="axisColor" format="color" />
+        <attr name="markerColor" format="color" />
+    </declare-styleable>
+
 </resources>
+
