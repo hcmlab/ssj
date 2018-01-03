@@ -52,22 +52,34 @@
             android:name=".activity.OptionsActivity"
             android:theme="@style/AppThemeDefault"
             android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
             android:name=".activity.FeedbackCollectionActivity"
             android:theme="@style/AppThemeDefault"
             android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
             android:hardwareAccelerated="false"
             android:theme="@style/AppThemeDefault"
             android:name=".activity.GraphActivity"
             android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
         </activity>
         <activity
             android:theme="@style/AppThemeDefault"
             android:name=".activity.TrainActivity"
             android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
         </activity>
     </application>
 
