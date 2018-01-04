@@ -111,7 +111,7 @@ public class Pipeline
     private long timeOffset = 0;
     private ClockSync clockSync;
 
-    ThreadPool threadPool;
+    ThreadPool threadPool = null;
     ExceptionHandler exceptionHandler = null;
 
     private HashSet<Component> components = new HashSet<>();
@@ -128,9 +128,6 @@ public class Pipeline
         //configure logger
         Log.getInstance().setFramework(this);
         resetCreateTime();
-
-        int coreThreads = Runtime.getRuntime().availableProcessors();
-        threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
         Log.i(SSJApplication.getAppContext().getString(R.string.name_long) + " v" + getVersion());
     }
@@ -166,6 +163,9 @@ public class Pipeline
             Log.i("starting pipeline" + '\n' +
                   "\tSSJ v" + getVersion() + '\n' +
                   "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
+
+            int coreThreads = Runtime.getRuntime().availableProcessors();
+            threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
             Log.i("preparing buffers");
             for (TimeBuffer b : buffers)
@@ -725,6 +725,8 @@ public class Pipeline
                 }
             }
 
+            threadPool.shutdown();
+
             Log.i("waiting for components to terminate");
             if(!threadPool.awaitTermination(Cons.WAIT_THREAD_TERMINATION, TimeUnit.MILLISECONDS))
                 threadPool.shutdownNow();
@@ -798,7 +800,8 @@ public class Pipeline
         Log.getInstance().clear();
         startTime = 0;
 
-        threadPool.purge();
+        if(threadPool != null)
+            threadPool.purge();
 
         SSI.clear();
     }
