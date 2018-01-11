@@ -98,19 +98,25 @@ public class SSJDescriptor
         {
             ApplicationInfo applicationInfo = SSJApplication.getAppContext().getPackageManager().getApplicationInfo(SSJApplication.getAppContext().getPackageName(), 0);
 
-            //get source directory
-            String dir = applicationInfo.sourceDir.substring(0, applicationInfo.sourceDir.lastIndexOf(File.separator));
-
-            //iterate through all .apk and .dex in the source directory
-            File[] files = new File(dir).listFiles();
-            for(File slice : files)
+            if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP)
             {
-                if(!slice.isFile())
-                    continue;
+                scanDex(new DexFile(applicationInfo.sourceDir));
+            }
+            else
+            {
+                //get source directory
+                String dir = applicationInfo.sourceDir.substring(0, applicationInfo.sourceDir.lastIndexOf(File.separator));
+                //iterate through all .apk and .dex in the source directory
+                File[] files = new File(dir).listFiles();
+                for (File slice : files)
+                {
+                    if (!slice.isFile())
+                        continue;
 
-                String extension = slice.getName().substring(slice.getName().lastIndexOf("."));
-                if(extension.equalsIgnoreCase(".apk") || extension.equalsIgnoreCase(".dex"))
-                    scanDex(new DexFile(slice));
+                    String extension = slice.getName().substring(slice.getName().lastIndexOf("."));
+                    if (extension.equalsIgnoreCase(".apk") || extension.equalsIgnoreCase(".dex"))
+                        scanDex(new DexFile(slice));
+                }
             }
 
         } catch (IOException | PackageManager.NameNotFoundException ex)
