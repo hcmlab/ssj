@@ -32,7 +32,9 @@ import android.content.res.AssetManager;
 import android.os.Environment;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -58,32 +60,53 @@ public abstract class DemoHandler
      */
     public static void copyFiles(Context context)
     {
-        AssetManager assetManager = context.getAssets();
+        //in v0.7, the location of the pipelines changed
+        copyFiles(null,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR,
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.PIPELINES,
+                  new FilenameFilter() {
+                      @Override
+                      public boolean accept(File dir, String name)
+                      {
+                          if(name.endsWith(".xml") || name.endsWith(".layout"))
+                              return true;
+                          else
+                              return false;
+                      }
+                  });
 
+        AssetManager assetManager = context.getAssets();
         copyFiles(assetManager,
                   Util.DEMO,
-                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR);
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR, null);
         copyFiles(assetManager,
                   Util.DEMO + File.separator + Util.RES,
-                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.RES);
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.RES, null);
         copyFiles(assetManager,
                   Util.DEMO + File.separator + Util.PIPELINES,
-                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.PIPELINES);
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.PIPELINES, null);
         copyFiles(assetManager,
                   Util.DEMO + File.separator + Util.STRATEGIES,
-                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.STRATEGIES);
+                  Environment.getExternalStorageDirectory() + File.separator + Util.SSJ + File.separator + Util.CREATOR + File.separator + Util.STRATEGIES, null);
     }
 
-    public static void copyFiles(AssetManager assetManager, String src_dir, String dst_dir)
+    public static void copyFiles(AssetManager assetManager, String src_dir, String dst_dir, FilenameFilter filter)
     {
         String[] filenames;
         try
         {
-            filenames = assetManager.list(src_dir);
+            if(assetManager != null)
+            {
+                filenames = assetManager.list(src_dir);
+            }
+            else
+            {
+                filenames = new File(src_dir).list(filter);
+            }
         }
         catch (IOException e)
         {
-            Log.e("error accessing asset folder: " + src_dir, e);
+            Log.e("error accessing folder: " + src_dir, e);
             return;
         }
 
@@ -91,7 +114,16 @@ public abstract class DemoHandler
         {
             try
             {
-                InputStream in = assetManager.open(src_dir + File.separator + file);
+                InputStream in = null;
+                if(assetManager != null)
+                {
+                    in = assetManager.open(src_dir + File.separator + file);
+                }
+                else
+                {
+                    in = new FileInputStream(new File(src_dir, file));
+                }
+
                 File dir = new File(dst_dir);
                 if(!dir.exists())
                     dir.mkdirs();
