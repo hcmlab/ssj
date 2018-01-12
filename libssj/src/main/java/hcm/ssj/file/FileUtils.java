@@ -109,7 +109,7 @@ public class FileUtils
 	 * Returns the extension of a given file.
 	 * @param file File to identify.
 	 * @return Extension of the file without the preceding dot.
-	 * Example: example-file.stream -> "stream"
+	 * Example: example-file.stream: "stream"
 	 */
 	public static String getFileType(File file)
 	{

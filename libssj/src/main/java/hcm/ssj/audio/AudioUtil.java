@@ -33,7 +33,7 @@ package hcm.ssj.audio;
 public class AudioUtil
 {
 	/**
-	 * Modified Bessel function I0. Abramowicz & Stegun, p. 378.
+	 * Modified Bessel function I0. Abramowicz and Stegun, p. 378.
 	 *
 	 * Based on code from the PRAAT Toolbox by Paul Boersma and David Weenink.
 	 * http://www.fon.hum.uva.nl/praat/
