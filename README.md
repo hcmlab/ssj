@@ -11,9 +11,10 @@ SSJ is an extensible android framework for social signal processing in an out of
 * Support for most standard android sensors e.g. Camera, Microphone, Acceleration, GPS
 * Support for external sensors via bluetooth e.g. Microsoft Band 2, Myo, Angel Sensor, Empatica
 * Advanced signal processing functionality, including machine learning approaches (Neural Networks, SVM, NaiveBayes)
+* On device model training capabilities (batch and online learning)
 * I/O functionality: local storage, sockets, bluetooth
 * Energy efficient processing thanks to advanced sleep state management and support for discrete data propagation
-* Basic GUI elements: graphs (using [GraphView](https://github.com/hcmlab/GraphView) library), camera painter
+* Live data visualization (using <a href="https://github.com/hcmlab/GraphView">GraphView</a> library)
 * SSJ Creator: Android App for building, editing and running SSJ pipelines without writing a single line of code
 
 
