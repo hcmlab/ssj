@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ activity_main_drawer.xml
-  ~ Copyright (c) 2017
+  ~ Copyright (c) 2018
   ~ Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
   ~ Vitalijs Krumins, Antonio Grieco
   ~ ******************************************************
@@ -32,10 +32,10 @@
             android:id="@+id/action_pipeline"
             android:icon="@drawable/ic_file"
             android:title="@string/str_canvas" />
-        <item
-            android:id="@+id/action_graph"
-            android:icon="@drawable/ic_show_chart_black_24dp"
-            android:title="@string/visualize_data" />
+        <!--<item-->
+            <!--android:id="@+id/action_graph"-->
+            <!--android:icon="@drawable/ic_show_chart_black_24dp"-->
+            <!--android:title="@string/visualize_data" />-->
         <item
             android:id="@+id/action_train_model"
             android:icon="@drawable/ic_folder"

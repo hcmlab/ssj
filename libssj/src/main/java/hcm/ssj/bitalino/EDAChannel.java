@@ -1,6 +1,6 @@
 /*
  * EDAChannel.java
- * Copyright (c) 2017
+ * Copyright (c) 2018
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************

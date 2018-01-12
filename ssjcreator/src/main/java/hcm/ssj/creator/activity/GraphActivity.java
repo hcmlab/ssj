@@ -1,6 +1,6 @@
 /*
  * GraphActivity.java
- * Copyright (c) 2017
+ * Copyright (c) 2018
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -42,7 +42,6 @@ import java.io.File;
 import hcm.ssj.audio.AudioDecoder;
 import hcm.ssj.audio.PlaybackListener;
 import hcm.ssj.audio.PlaybackThread;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.stream.Stream;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.util.PlaybackThreadList;

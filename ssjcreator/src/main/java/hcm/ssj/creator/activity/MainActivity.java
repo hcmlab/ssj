@@ -1,6 +1,6 @@
 /*
  * MainActivity.java
- * Copyright (c) 2017
+ * Copyright (c) 2018
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -612,44 +612,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	{
 		int itemId = item.getItemId();
 
-		if (itemId == R.id.action_pipeline)
-		{
-			//todo
-			//Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-			//startActivity(intent);
-		}
-		else if (itemId == R.id.action_graph)
-		{
-			Intent intent = new Intent(getApplicationContext(), GraphActivity.class);
-			startActivity(intent);
-		}
-//		else if (itemId == R.id.action_framework)
+//		if (itemId == R.id.action_graph)
 //		{
-//			Intent intent = new Intent(getApplicationContext(), OptionsActivity.class);
+//			Intent intent = new Intent(getApplicationContext(), GraphActivity.class);
 //			startActivity(intent);
 //		}
-//		else if (itemId == R.id.action_save)
-//		{
-//			showFileDialog(R.string.str_save, FileDialog.Type.SAVE, R.string.str_saveError);
-//		}
-//		else if (itemId == R.id.action_load_pipeline)
-//		{
-//			showFileDialog(R.string.str_load_pipeline, FileDialog.Type.LOAD_PIPELINE, R.string.str_loadError);
-//		}
-//		else if (itemId == R.id.action_delete_pipeline)
-//		{
-//			showFileDialog(R.string.str_delete_pipeline, FileDialog.Type.DELETE_PIPELINE, R.string.str_deleteError);
-//		}
-//		else if (itemId == R.id.action_load_strategy)
-//		{
-//			showFileDialog(R.string.str_load_strategy, FileDialog.Type.LOAD_STRATEGY, R.string.str_loadError);
-//		}
-//		else if (itemId == R.id.action_clear)
-//		{
-//			PipelineBuilder.getInstance().clear();
-//			actualizeContent(Util.AppAction.CLEAR, null);
-//		}
-		else if (itemId == R.id.action_train_model)
+//		else
+		if (itemId == R.id.action_train_model)
 		{
 			Intent intent = new Intent(getApplicationContext(), TrainActivity.class);
 			startActivity(intent);
