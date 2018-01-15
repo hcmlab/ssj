@@ -110,6 +110,9 @@ public abstract class DemoHandler
             return;
         }
 
+        if(filenames == null || filenames.length == 0)
+            return;
+
         for (String file : filenames)
         {
             try
