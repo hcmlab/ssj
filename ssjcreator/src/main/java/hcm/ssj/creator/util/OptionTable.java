@@ -131,6 +131,7 @@ public class OptionTable
 		//name
 		TextView textViewName = new TextView(activity);
 		textViewName.setText(option.getName());
+		textViewName.setTextColor(activity.getResources().getColor(R.color.colorOptionNameText));
 		textViewName.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
 		linearLayoutDescription.addView(textViewName);
 
@@ -139,7 +140,8 @@ public class OptionTable
 		if (!helpText.isEmpty())
 		{
 			TextView textViewHelp = new TextView(activity);
-			textViewHelp.setText(helpText);
+			textViewHelp.setText(" / " + helpText);
+			textViewHelp.setTextColor(activity.getResources().getColor(R.color.colorOptionHelpText));
 			textViewHelp.setLayoutParams(new LinearLayout.LayoutParams(100, LinearLayout.LayoutParams.WRAP_CONTENT, 1f));
 			textViewHelp.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
 			linearLayoutDescription.addView(textViewHelp);

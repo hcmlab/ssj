@@ -75,7 +75,7 @@ public abstract class SaveLoad
 {
 	private final static String ROOT = "ssjSaveFile";
 	private final static String VERSION = "version";
-	private final static String VERSION_NUMBER = "6";
+	private final static String VERSION_NUMBER = "7";
 	private final static String FRAMEWORK = "framework";
 	private final static String SENSOR_CHANNEL_LIST = "sensorChannelList";
 	private final static String SENSOR_LIST = "sensorList";
@@ -712,6 +712,11 @@ public abstract class SaveLoad
 		if(from_version <= 5)
 		{
 			text = text.replaceAll("praat.Intensity", "audio.Intensity");
+		}
+		if(from_version <= 7)
+		{
+			text = text.replaceAll("option name=\"thresin\"", "option name=\"threshold_in\"");
+			text = text.replaceAll("option name=\"thresout\"", "option name=\"threshold_out\"");
 		}
 
 		text = text.replaceFirst(ROOT + " version=\".+\"", ROOT + " version=\"" + VERSION_NUMBER + "\"");
