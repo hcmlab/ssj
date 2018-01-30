@@ -456,7 +456,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	protected void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		startTutorial();
+
+		//  check if the activity has started before on this app version...
+		String name = "LAST_VERSION";
+		String ssjVersion = Pipeline.getVersion();
+
+		SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+		firstStart = !getPrefs.getString(name, "").equalsIgnoreCase(ssjVersion);
+
+		//save current version in preferences so the next time this won't run again
+		SharedPreferences.Editor e = getPrefs.edit();
+		e.putString(name, ssjVersion);
+		e.apply();
+
+		if(firstStart)
+			startTutorial();
+
 		setContentView(R.layout.activity_main);
 
 		loadAnimations();
@@ -520,34 +535,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 	private void startTutorial()
 	{
-		//declare a new thread to do a preference check
-		Thread t = new Thread(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				SharedPreferences getPrefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-
-				//  check if the activity has started before on this app version...
-				String name = "LAST_VERSION";
-				String ssjVersion = Pipeline.getVersion();
-				firstStart = !getPrefs.getString(name, "").equalsIgnoreCase(ssjVersion);
-
-				if (firstStart)
-				{
-					//launch app intro
-					Intent i = new Intent(MainActivity.this, TutorialActivity.class);
-					startActivity(i);
-
-					//save current version in preferences so the next time this won't run again
-					SharedPreferences.Editor e = getPrefs.edit();
-					e.putString(name, ssjVersion);
-					e.apply();
-				}
-			}
-		});
-		//start the thread
-		t.start();
+		//launch app intro
+		Intent i = new Intent(MainActivity.this, TutorialActivity.class);
+		startActivity(i);
 	}
 
 	/**
