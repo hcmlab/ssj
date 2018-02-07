@@ -32,9 +32,6 @@
       <option name="bufferSize" value="2.0" />
       <option name="countdown" value="2" />
       <option name="loglevel" value="VERBOSE" />
-      <option name="netSync" value="false" />
-      <option name="netSyncListen" value="false" />
-      <option name="netSyncPort" value="55100" />
       <option name="timeoutThread" value="5.0" />
     </options>
   </framework>

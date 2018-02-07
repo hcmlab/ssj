@@ -50,8 +50,9 @@ public class NetsyncTest {
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
 
-        frame.options.startSyncPort.set(55100);
-        frame.options.master.set("127.0.0.1");
+        frame.options.sync.set(Pipeline.SyncType.CONTINUOUS);
+        frame.options.syncPort.set(55100);
+        frame.options.syncHost.set("192.168.0.180");
 
         Microphone mic = new Microphone();
         AudioChannel audio = new AudioChannel();
@@ -108,8 +109,9 @@ public class NetsyncTest {
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
 
-        frame.options.startSyncPort.set(55100);
-        frame.options.master.set(null); //this is the master
+        frame.options.sync.set(Pipeline.SyncType.CONTINUOUS);
+        frame.options.syncPort.set(55100);
+        frame.options.syncHost.set(null); //this is the syncHost
 
 //        BluetoothReader blr = new BluetoothReader();
 //        blr.options.connectionType = BluetoothConnection.Type.SERVER;
@@ -147,7 +149,7 @@ public class NetsyncTest {
             long start = System.currentTimeMillis();
             while(true)
             {
-                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
+                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_NORMAL)
                     break;
 
                 Thread.sleep(1);

@@ -30,14 +30,11 @@
   <framework>
     <options>
       <option name="bufferSize" value="60.0" />
-      <option name="clockSyncInterval" value="1.0" />
-      <option name="clockSyncPort" value="0" />
       <option name="countdown" value="2" />
       <option name="log" value="false" />
       <option name="loglevel" value="VERBOSE" />
       <option name="logpath" value="/storage/emulated/0/SSJ/[time]" />
       <option name="logtimeout" value="1.0" />
-      <option name="startSyncPort" value="0" />
       <option name="terminateOnError" value="false" />
       <option name="waitSensorConnect" value="30.0" />
       <option name="waitThreadKill" value="30.0" />

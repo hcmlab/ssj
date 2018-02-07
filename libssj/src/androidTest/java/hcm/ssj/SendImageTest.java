@@ -123,7 +123,7 @@ public class SendImageTest
 		frame.options.bufferSize.set(10.0f);
 
 		String trainerName = "inception.trainer";
-		String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/master/models";
+		String trainerURL = "https://raw.githubusercontent.com/hcmlab/ssj/syncHost/models";
 
 		BluetoothReader bluetoothReader = new BluetoothReader();
 		bluetoothReader.options.connectionType.set(BluetoothConnection.Type.SERVER);

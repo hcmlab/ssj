@@ -67,14 +67,14 @@ public class Pipeline
         public final Option<Float> waitThreadKill = new Option<>("waitThreadKill", 30f, Float.class, "How long to wait for threads to finish on pipeline shutdown");
         /** How long to wait for a sensor to connect. Default: 30.0 */
         public final Option<Float> waitSensorConnect = new Option<>("waitSensorConnect", 30.f, Float.class, "How long to wait for a sensor to connect");
-        /** enter IP address of master pipeline (leave empty if this is the master). Default: null */
-        public final Option<String> master = new Option<>("master", null, String.class, "enter IP address of master pipeline (leave empty if this is the master)");
-        /** set port for synchronizing pipeline start over network (0 = disabled). Default: 0 */
-        public final Option<Integer> startSyncPort = new Option<>("startSyncPort", 0, Integer.class, "set port for synchronizing pipeline start over network (0 = disabled)"); //55100
-        /** set port for synchronizing pipeline clock over network (0 = disabled). Default: 0 */
-        public final Option<Integer> clockSyncPort = new Option<>("clockSyncPort", 0, Integer.class, "set port for synchronizing pipeline clock over network (0 = disabled)"); //55101
-        /** define time between clock sync attempts. Default: 1.0 */
-        public final Option<Float> clockSyncInterval = new Option<>("clockSyncInterval", 1.0f, Float.class, "define time between clock sync attempts");
+        /** Cross-device synchronization (requires network). Default: NONE */
+        public final Option<SyncType> sync = new Option<>("sync", SyncType.NONE, SyncType.class, "Cross-device synchronization (requires network).");
+        /** enter IP address of host pipeline for synchronization (leave empty if this is the host). Default: null */
+        public final Option<String> syncHost = new Option<>("syncHost", null, String.class, "enter IP address of host pipeline for synchronization (leave empty if this is the host)");
+        /** set port for synchronizing pipeline over network. Default: 55100 */
+        public final Option<Integer> syncPort = new Option<>("syncPort", 0, Integer.class, "port for synchronizing pipeline over network");
+        /** define time between clock sync attempts (requires CONTINUOUS sync). Default: 1.0 */
+        public final Option<Float> syncInterval = new Option<>("syncInterval", 10.0f, Float.class, "define time between clock sync attempts (requires CONTINUOUS sync)");
         /** write system log to file. Default: false */
         public final Option<Boolean> log = new Option<>("log", false, Boolean.class, "write system log to file");
         /** location of log file. Default: /sdcard/SSJ/[time] */
@@ -100,6 +100,13 @@ public class Pipeline
         STOPPING
     }
 
+    public enum SyncType
+    {
+        NONE,
+        START_STOP,
+        CONTINUOUS
+    }
+
     public final Options options = new Options();
 
     protected String name = "SSJ_Framework";
@@ -109,7 +116,8 @@ public class Pipeline
     private long startTimeSystem = 0; //real clock
     private long createTime = 0; //real clock
     private long timeOffset = 0;
-    private ClockSync clockSync;
+
+    private NetworkSync sync = null;
 
     ThreadPool threadPool = null;
     ExceptionHandler exceptionHandler = null;
@@ -167,6 +175,12 @@ public class Pipeline
             int coreThreads = Runtime.getRuntime().availableProcessors();
             threadPool = new ThreadPool(coreThreads, Integer.MAX_VALUE, 60L, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 
+            //sync with other pipelines
+            if (options.sync.get() != SyncType.NONE) {
+                boolean isMaster = (options.syncHost.get() == null) || (options.syncHost.get().isEmpty());
+                sync = new NetworkSync(options.sync.get(), isMaster, InetAddress.getByName(options.syncHost.get()), options.syncPort.get(), (int)(options.syncInterval.get() * 1000));
+            }
+
             Log.i("preparing buffers");
             for (TimeBuffer b : buffers)
                 b.reset();
@@ -184,12 +198,17 @@ public class Pipeline
                 Thread.sleep(1000);
             }
 
-            if (options.startSyncPort.get() != 0)
+            if (options.sync.get() != SyncType.NONE)
             {
-                if (options.master.get() == null)
-                    ClockSync.sendStartSignal(options.startSyncPort.get());
+                if (options.syncHost.get() == null)
+                    NetworkSync.sendStartSignal(options.syncPort.get());
                 else
-                    ClockSync.listenForStartSignal(options.startSyncPort.get());
+                {
+                    Log.i("waiting for start signal from host pipeline ...");
+                    sync.waitForStartSignal();
+                    if(state != State.STARTING) //cancel startup if something happened while waiting for sync
+                        return;
+                }
             }
 
             startTimeSystem = System.currentTimeMillis();
@@ -197,10 +216,21 @@ public class Pipeline
             state = State.RUNNING;
             Log.i("pipeline started");
 
-            //start clock sync
-            if (options.clockSyncPort.get() != 0) {
-                clockSync = new ClockSync(options.master.get() == null, InetAddress.getByName(options.master.get()), options.clockSyncPort.get(), (int)(options.clockSyncInterval.get() * 1000));
-                threadPool.execute(clockSync);
+            if (options.sync.get() != SyncType.NONE)
+            {
+                if (options.syncHost.get() != null)
+                {
+                    Runnable stopper = new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            sync.waitForStopSignal();
+                            Log.i("received stop signal from host pipeline");
+                            stop();
+                        }
+                    };
+                    threadPool.execute(stopper);
+                }
             }
         }
         catch (Exception e)
@@ -700,6 +730,14 @@ public class Pipeline
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
         try
         {
+            if(sync != null)
+            {
+                if (options.syncHost.get() == null)
+                    NetworkSync.sendStopSignal(options.syncPort.get());
+
+                sync.release();
+            }
+
             Log.i("closing buffer");
             for (TimeBuffer b : buffers)
                 b.close();
@@ -932,6 +970,7 @@ public class Pipeline
 
     void adjustTime(long offset)
     {
+        Log.d("adjusting clock by " + offset + " ms");
         timeOffset += offset;
     }
 
