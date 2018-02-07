@@ -53,6 +53,7 @@ class Console implements ITab
     private TextView textViewConsole = null;
     private String strLogMsg = "";
     private boolean handleLogMessages = false;
+
     private Thread threadLog = new Thread()
     {
         private final int sleepTime = 100;
@@ -78,10 +79,9 @@ class Console implements ITab
 
                     //Check if scrollView is at the very bottom.
                     boolean scrollDown = false;
-                    if(view instanceof ScrollView)
+                    if(view instanceof ConsoleScrollView)
                     {
-                        scrollDown = !view.canScrollVertically(1);
-                        scrollDown = scrollDown && (strLogMsg != textViewConsole.getText().toString());
+                        scrollDown = !view.canScrollVertically(1) && ((ConsoleScrollView)view).isBottom;
                     }
 
                     handlerLog.post(runnableLog);
@@ -99,11 +99,12 @@ class Console implements ITab
             }
         }
     };
+
     private Log.LogListener logListener = new Log.LogListener()
     {
         private String[] tags = {"0", "1", "V", "D", "I", "W", "E", "A"};
-        private final int max = 100000;
-        private final int interim = 100000 / 2;
+        private final int max = 10000;
+        private final int interim = max / 2;
 
         /**
          * @param msg String
@@ -120,6 +121,39 @@ class Console implements ITab
         }
     };
 
+    private class ConsoleScrollView extends ScrollView
+    {
+        public boolean isBottom = false;
+
+        public ConsoleScrollView(Context context)
+        {
+            super(context);
+        }
+
+        @Override
+        protected void onScrollChanged(int l, int t, int oldl, int oldt)
+        {
+            // Grab the last child placed in the ScrollView, we need it to determinate the bottom position.
+            View view = getChildAt(0);
+
+            // Calculate the scrolldiff
+            int diff = (view.getBottom()-(getHeight()+getScrollY()));
+
+            // if diff is zero, then the bottom has been reached
+            if( diff <= 0 )
+            {
+                // notify that we have reached the bottom
+                isBottom = true;
+            }
+            else
+            {
+                isBottom = false;
+            }
+
+            super.onScrollChanged(l, t, oldl, oldt);
+        }
+    }
+
     /**
      * @param context Context
      */
@@ -127,7 +161,7 @@ class Console implements ITab
     {
         //view
         textViewConsole = new TextView(context);
-        ScrollView scrollView = new ScrollView(context);
+        ConsoleScrollView scrollView = new ConsoleScrollView(context);
         scrollView.setFillViewport(true);
         scrollView.addView(textViewConsole);
         view = scrollView;
