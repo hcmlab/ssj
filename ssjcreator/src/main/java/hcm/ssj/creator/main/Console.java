@@ -30,6 +30,7 @@ package hcm.ssj.creator.main;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -76,19 +77,11 @@ class Console implements ITab
             {
                 try
                 {
-
-                    //Check if scrollView is at the very bottom.
-                    boolean scrollDown = false;
-                    if(view instanceof ConsoleScrollView)
-                    {
-                        scrollDown = !view.canScrollVertically(1) && ((ConsoleScrollView)view).isBottom;
-                    }
-
                     handlerLog.post(runnableLog);
                     Thread.sleep(sleepTime);
 
                     // Scroll to the bottom if it was on bottom before posting the new message
-                    if(view instanceof ScrollView && scrollDown)
+                    if(view instanceof ConsoleScrollView && ((ConsoleScrollView)view).lockScroll)
                     {
                         ((ScrollView) view).fullScroll(ScrollView.FOCUS_DOWN);
                     }
@@ -124,10 +117,28 @@ class Console implements ITab
     private class ConsoleScrollView extends ScrollView
     {
         public boolean isBottom = false;
+        public boolean lockScroll = false;
 
         public ConsoleScrollView(Context context)
         {
             super(context);
+        }
+
+
+        @Override
+        public boolean onTouchEvent(MotionEvent ev) {
+            boolean ret = super.onTouchEvent(ev);
+
+            if(ev.getActionMasked() == MotionEvent.ACTION_MOVE && isBottom)
+            {
+                lockScroll = true;
+            }
+            else if(ev.getActionMasked() == MotionEvent.ACTION_MOVE && !isBottom)
+            {
+                lockScroll = false;
+            }
+
+            return ret;
         }
 
         @Override
