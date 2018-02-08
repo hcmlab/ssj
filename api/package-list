@@ -14,9 +14,10 @@ hcm.ssj.empatica
 hcm.ssj.estimote
 hcm.ssj.event
 hcm.ssj.feedback
-hcm.ssj.feedback.actions
-hcm.ssj.feedback.classes
-hcm.ssj.feedback.conditions
+hcm.ssj.feedback.feedbackmanager.actions
+hcm.ssj.feedback.feedbackmanager.classes
+hcm.ssj.feedback.feedbackmanager.conditions
+hcm.ssj.ffmpeg
 hcm.ssj.file
 hcm.ssj.glass
 hcm.ssj.gps
@@ -26,8 +27,6 @@ hcm.ssj.ml
 hcm.ssj.mobileSSI
 hcm.ssj.msband
 hcm.ssj.myo
-hcm.ssj.praat
-hcm.ssj.praat.helper
 hcm.ssj.pressureMat
 hcm.ssj.signal
 hcm.ssj.test
