@@ -38,10 +38,13 @@ SSJ has been inspired by the SSI (http://openssi.net) framework. SSJ is not a on
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1242843.svg)](https://doi.org/10.5281/zenodo.1242843)
 
-If you use SSJ for a research project, please reference the following paper:
+If you use SSJ for a research project, please reference the following papers:
 <ul>
-  <li>Ionut Damian, Tobias Baur, Elisabeth André, <i>Measuring the Impact of Multimodal Behavioural Feedback Loops on Social Interactions</i>, In Proceedings of International Conference on Multimodal Interaction (ICMI), ACM, 2016<br/>
-  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/">paper</a> | <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian/Damian-BehaviouralFeedbackLoops-2016-bib.txt">BibTex</a> | <a href="http://dl.acm.org/citation.cfm?id=2993174">dl.acm.org</a>
+  <li>Ionut Damian, Michael Dietz, Elisabeth André, <i>The SSJ Framework: Augmenting Social Interactions Using Mobile Signal Processing and Live Feedback</i>, Frontiers in ICT, 2018<br/>
+  <a href="https://www.frontiersin.org/articles/10.3389/fict.2018.00013/full">paper</a> | <a href="https://www.frontiersin.org/articles/10.3389/fict.2018.00013/bibTex">BibTex</a>
+  </li>
+  <li>Ionut Damian, Michael Dietz, Frank Gaibler, Elisabeth André, <i>Social Signal Processing for Dummies</i>, In Proceedings of International Conference on Multimodal Interaction (ICMI), ACM, 2016<br/>
+  <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian2/">paper</a> | <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian2/Damian-SocialSignalProcessing-2016-bib.txt">BibTex</a> | <a href="https://dl.acm.org/citation.cfm?doid=2993148.2998527">dl.acm.org</a>
   </li>
 </ul>
 
