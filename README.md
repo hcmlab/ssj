@@ -28,7 +28,7 @@ implementation 'com.github.hcmlab:libssj:0.7.2'
 * SSJ Creator can be downloaded from the <a href="https://play.google.com/store/apps/details?id=hcm.ssj.creator">play store</a>
 
 ### Documentation
-* White-paper: <a href="http://dl.acm.org/citation.cfm?id=2998527">dl.acm.org</a> | <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/publications/2016-ICMI-Damian2/">uni-augsburg.de</a>
+* White-paper: <a href="https://www.frontiersin.org/articles/10.3389/fict.2018.00013/full">frontiersin.org</a>
 * Api (Javadoc): http://hcmlab.github.io/ssj/api
 
 ### About
