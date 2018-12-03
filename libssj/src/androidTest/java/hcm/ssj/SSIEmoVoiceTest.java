@@ -58,28 +58,30 @@ public class SSIEmoVoiceTest
 	@Test
 	public void testEmoVoice() throws Exception
 	{
-		//resources
+		// Copy model resources
 		File dir = getContext().getFilesDir();
 		String modelName = "emovoice.trainer";
 		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
 		TestHelper.copyAssetToFile("emovoice.model", new File(dir, "emovoice.model"));
 
-		//setup
+		// Setup framework
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
 
-		//sensor
+		// Sensor
 		Microphone microphone = new Microphone();
 		AudioChannel audioChannel = new AudioChannel();
 		audioChannel.options.sampleRate.set(8000);
 		audioChannel.options.scale.set(true);
 		frame.addSensor(microphone, audioChannel);
 
+		// Feature transformer
 		SSITransformer emovoiceFeatures = new SSITransformer();
 		emovoiceFeatures.options.name.set(SSI.TransformerName.EmoVoiceFeat);
 		emovoiceFeatures.options.ssioptions.set(new String[]{"maj->1", "min->0"});
 		frame.addTransformer(emovoiceFeatures, audioChannel, 1.35);
 
+		// Classifier
 		NaiveBayes naiveBayes = new NaiveBayes();
 		naiveBayes.options.file.setValue(dir.getAbsolutePath() + File.separator + modelName);
 		frame.addModel(naiveBayes);
@@ -88,26 +90,24 @@ public class SSIEmoVoiceTest
 		classifier.setModel(naiveBayes);
 		frame.addTransformer(classifier, emovoiceFeatures, 1.35, 0);
 
-		//logger
+		// Logger
 		Logger log = new Logger();
 		//frame.addConsumer(log, emovoiceFeatures, 1, 0);
 		frame.addConsumer(log, classifier, 1.35, 0);
 
-		//start framework
+		// Start framework
 		frame.start();
-		//run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+
+		// Run test
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+
 		frame.stop();
 		frame.release();
 	}
