@@ -101,7 +101,12 @@ public class SSI
 		Relative("ssisignal"),
 		Spectrogram("ssisignal"),
 		Statistics("ssisignal"),
-		Sum("ssisignal");
+		Sum("ssisignal"),
+
+		EmoVoiceFeat("ssiemovoice"),
+		EmoVoiceMFCC("ssiemovoice"),
+		EmoVoicePitch("ssiemovoice"),
+		EmoVoiceVAD("ssiemovoice");
 
 		public String lib;
 		TransformerName(String lib)
