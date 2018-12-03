@@ -190,7 +190,7 @@ public abstract class Model extends Component
         if(modelOptionFileName != null && !modelOptionFileName.isEmpty())
             loadOption(FileUtils.getFile(dirPath, modelOptionFileName + "." + FileCons.FILE_EXTENSION_OPTION));
 
-        Log.d("model loaded");
+        Log.d("model loaded (file: " + modelFileName + ")");
     }
 
     public void validateInput(Stream input[]) throws IOException
@@ -287,6 +287,16 @@ public abstract class Model extends Component
 
                 modelFileName = parser.getAttributeValue(null, "path");
                 modelOptionFileName =  parser.getAttributeValue(null, "option");
+
+                if (modelFileName != null && modelFileName.endsWith("." + FileCons.FILE_EXTENSION_MODEL))
+                {
+                    modelFileName = modelFileName.replaceFirst("(.*)\\." + FileCons.FILE_EXTENSION_MODEL + "$", "$1");
+                }
+
+                if (modelOptionFileName != null && modelOptionFileName.endsWith("." + FileCons.FILE_EXTENSION_OPTION))
+                {
+                    modelOptionFileName = modelOptionFileName.replaceFirst("(.*)\\." + FileCons.FILE_EXTENSION_OPTION + "$", "$1");
+                }
             }
 
             if (parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("trainer"))

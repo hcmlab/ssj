@@ -27,31 +27,28 @@
 
 package hcm.ssj;
 
-import android.os.Environment;
 import android.support.test.filters.SmallTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorChannel;
-import hcm.ssj.androidSensor.SensorType;
+import java.io.File;
+
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.core.Provider;
+import hcm.ssj.ml.ClassifierT;
+import hcm.ssj.ml.NaiveBayes;
 import hcm.ssj.mobileSSI.SSI;
 import hcm.ssj.mobileSSI.SSITransformer;
-import hcm.ssj.signal.AvgVar;
-import hcm.ssj.signal.Median;
-import hcm.ssj.signal.Merge;
-import hcm.ssj.signal.MinMax;
-import hcm.ssj.signal.Progress;
 import hcm.ssj.test.Logger;
 
+import static android.support.test.InstrumentationRegistry.getContext;
+
 /**
- * Tests ssi emovoice component
+ * Tests ssi emovoice component. Uses emovoice features and a simple naive bayes model to predict
+ * positive or negative speech.
  * Created by Michael Dietz on 03.12.2018.
  */
 @RunWith(AndroidJUnit4.class)
@@ -61,6 +58,12 @@ public class SSIEmoVoiceTest
     @Test
     public void testEmoVoice() throws Exception
     {
+		//resources
+		File dir = getContext().getFilesDir();
+		String modelName = "emovoice.trainer";
+		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
+		TestHelper.copyAssetToFile("emovoice.model", new File(dir, "emovoice.model"));
+
         //setup
         Pipeline frame = Pipeline.getInstance();
         frame.options.bufferSize.set(10.0f);
@@ -72,14 +75,23 @@ public class SSIEmoVoiceTest
         audioChannel.options.scale.set(true);
         frame.addSensor(microphone, audioChannel);
 
-        SSITransformer ssiTransformer = new SSITransformer();
-        ssiTransformer.options.name.set(SSI.TransformerName.EmoVoiceFeat);
-        //ssiTransformer.options.ssioptions.set(new String[]{"maj->1", "min->1"});
-        frame.addTransformer(ssiTransformer, audioChannel, 1);
+        SSITransformer emovoiceFeatures = new SSITransformer();
+        emovoiceFeatures.options.name.set(SSI.TransformerName.EmoVoiceFeat);
+		emovoiceFeatures.options.ssioptions.set(new String[]{"maj->1", "min->0"});
+        frame.addTransformer(emovoiceFeatures, audioChannel, 1.35);
+
+		NaiveBayes naiveBayes = new NaiveBayes();
+		naiveBayes.options.file.setValue(dir.getAbsolutePath() + File.separator + modelName);
+		frame.addModel(naiveBayes);
+
+		ClassifierT classifier = new ClassifierT();
+		classifier.setModel(naiveBayes);
+		frame.addTransformer(classifier, emovoiceFeatures, 1.35, 0);
 
         //logger
         Logger log = new Logger();
-        frame.addConsumer(log, ssiTransformer, 1, 0);
+        //frame.addConsumer(log, emovoiceFeatures, 1, 0);
+        frame.addConsumer(log, classifier, 1.35, 0);
 
         //start framework
         frame.start();
