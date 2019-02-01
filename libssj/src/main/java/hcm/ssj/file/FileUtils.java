@@ -27,9 +27,14 @@
 
 package hcm.ssj.file;
 
+import android.content.Context;
+import android.content.res.AssetManager;
+import android.os.Environment;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -101,6 +106,42 @@ public class FileUtils
 		while ((read = in.read(buffer)) != -1)
 		{
 			out.write(buffer, 0, read);
+		}
+	}
+
+	/**
+	 * Copies an asset to a target location
+	 *
+	 * @param context
+	 * @param srcPath
+	 * @param targetPath
+	 */
+	public static void copyAsset(Context context, String srcPath, String targetPath)
+	{
+		try
+		{
+			InputStream in = context.getAssets().open(srcPath);
+
+			File targetFile = new File(targetPath);
+
+			if(!targetFile.exists())
+			{
+				new File(targetFile.getParent()).mkdirs();
+			}
+
+			OutputStream out = new FileOutputStream(targetFile);
+
+			// Copy files
+			copyFile(in, out);
+
+			// Close streams
+			in.close();
+			out.flush();
+			out.close();
+		}
+		catch (IOException e)
+		{
+			Log.e("Failed to copy asset " + srcPath, e);
 		}
 	}
 

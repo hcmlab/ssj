@@ -48,6 +48,7 @@ import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.PipelineBuilder;
 import hcm.ssj.creator.util.Util;
 import hcm.ssj.creator.view.PipeListener;
+import hcm.ssj.face.LandmarkPainter;
 import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
@@ -97,6 +98,7 @@ public class TabHandler
 		checkAnnotationTabs();
 		checkSignalPainterTabs();
 		checkCameraPainterTabs();
+		checkLandmarkPainterTabs();
 		checkFeedbackCollectionTabs();
 		checkVisualFeedbackTabs();
 
@@ -168,6 +170,28 @@ public class TabHandler
 			}
 			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, cameraPainter.getComponentName(), android.R.drawable.ic_menu_camera);
 			additionalTabs.put(cameraPainter, tabSpec);
+		}
+	}
+
+	private void checkLandmarkPainterTabs()
+	{
+		List<Component> landmarkPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, LandmarkPainter.class);
+		removeObsoleteComponentsOfClass(additionalTabs, landmarkPainters, LandmarkPainter.class);
+		for (Component landmarkPainter : landmarkPainters)
+		{
+			if (additionalTabs.containsKey(landmarkPainter))
+			{
+				continue;
+			}
+
+			SurfaceView surfaceView = ((LandmarkPainter) landmarkPainter).options.surfaceView.get();
+			if (surfaceView == null)
+			{
+				surfaceView = new SurfaceView(activity);
+				((LandmarkPainter) landmarkPainter).options.surfaceView.set(surfaceView);
+			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, landmarkPainter.getComponentName(), android.R.drawable.ic_menu_camera);
+			additionalTabs.put(landmarkPainter, tabSpec);
 		}
 	}
 

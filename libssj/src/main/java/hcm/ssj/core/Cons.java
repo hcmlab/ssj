@@ -159,4 +159,20 @@ public class Cons
 			this.val = val;
 		}
 	}
+
+	public enum ImageRotation
+    {
+        ZERO(0),
+        PLUS_90(90),
+        PLUS_180(180),
+        MINUS_90(-90),
+        MINUS_180(-180);
+
+        public final int rotation;
+
+        ImageRotation(int rotation)
+        {
+            this.rotation = rotation;
+        }
+    }
 }

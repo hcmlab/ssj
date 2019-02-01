@@ -72,7 +72,7 @@ public class CameraWriter extends Mp4Writer
         public final Option<String> mimeType = new Option<>("mimeType", "video/avc", String.class, "H.264 Advanced Video Coding");
         public final Option<Integer> iFrameInterval = new Option<>("iFrameInterval", 15, Integer.class, "Interval between complete frames");
         public final Option<Integer> bitRate = new Option<>("bitRate", 100000, Integer.class, "Mbps");
-        public final Option<Integer> orientation = new Option<>("imageFormat", 270, Integer.class, "0, 90, 180, 270 (portrait: 90 back, 270 front)");
+        public final Option<Integer> orientation = new Option<>("orientation", 270, Integer.class, "0, 90, 180, 270 (portrait: 90 back, 270 front)");
         public final Option<Integer> colorFormat = new Option<>("colorFormat", 0, Integer.class, "MediaCodecInfo.CodecCapabilities");
         public final Option<ColorSwitch> colorSwitch = new Option<>("colorSwitch", ColorSwitch.DEFAULT, ColorSwitch.class, "");
 
