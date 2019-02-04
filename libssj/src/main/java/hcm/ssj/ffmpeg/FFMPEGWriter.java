@@ -28,6 +28,7 @@
 package hcm.ssj.ffmpeg;
 
 import android.graphics.ImageFormat;
+import android.text.TextUtils;
 
 import org.bytedeco.javacpp.avcodec;
 import org.bytedeco.javacpp.avutil;
@@ -42,11 +43,14 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
+import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.file.FileCons;
 import hcm.ssj.file.IFileWriter;
 
 /**
@@ -116,7 +120,32 @@ public class FFMPEGWriter extends Consumer implements IFileWriter
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
 
-		String address = (options.url.get() != null) ? options.url.get() : options.filePath.get().value + File.pathSeparator + options.fileName.get();
+		// Set output address (path/url)
+		String address = options.url.get();
+
+		if (address == null)
+		{
+			if (options.filePath.get() == null)
+			{
+				Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
+				options.filePath.set(new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE));
+			}
+
+			if (options.fileName.get() == null)
+			{
+				String defaultName = TextUtils.join("_", stream_in[0].desc) + "." + options.format.get();
+				Log.w("file name not set, setting to " + defaultName);
+				options.fileName.set(defaultName);
+			}
+
+			// Parse wildcards
+			final String parsedPath = options.filePath.parseWildcards();
+
+			// Create dir
+			Util.createDirectory(parsedPath);
+
+			address = parsedPath + File.separator + options.fileName.get();
+		}
 
 		writer = new FFmpegFrameRecorder(address, width, height, 0);
 		writer.setFormat(options.format.get());
