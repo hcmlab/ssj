@@ -47,41 +47,43 @@ import hcm.ssj.test.Logger;
 @SmallTest
 public class GlassTest
 {
-    @Test
-    public void testInfrared() throws Exception
-    {
-        //setup
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
-        //sensor
-        InfraredSensor sensor = new InfraredSensor();
+	@Test
+	public void testInfrared() throws Exception
+	{
+		// Setup
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
 
-        //channel
-        InfraredChannel sensorChannel = new InfraredChannel();
-        frame.addSensor(sensor,sensorChannel);
-        //transformer
-        BlinkDetection transformer = new BlinkDetection();
-        frame.addTransformer(transformer, sensorChannel, 1, 0);
-        //logger
-        Logger log = new Logger();
-        frame.addConsumer(log, sensorChannel, 1, 0);
-        //start framework
-        frame.start();
+		// Sensor
+		InfraredSensor sensor = new InfraredSensor();
 
-        //run for two minutes
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+		// Channel
+		InfraredChannel sensorChannel = new InfraredChannel();
+		frame.addSensor(sensor, sensorChannel);
 
-        frame.stop();
-        frame.release();
-    }
+		// Transformer
+		BlinkDetection transformer = new BlinkDetection();
+		frame.addTransformer(transformer, sensorChannel, 1, 0);
+
+		// Logger
+		Logger log = new Logger();
+		frame.addConsumer(log, sensorChannel, 1, 0);
+
+		// Start framework
+		frame.start();
+
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		// Stop framework
+		frame.stop();
+		frame.release();
+	}
 }

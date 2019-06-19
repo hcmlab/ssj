@@ -55,91 +55,87 @@ import static android.support.test.InstrumentationRegistry.getContext;
 @SmallTest
 public class SvmTest
 {
-    @Test
-    public void testSVM() throws Exception
-    {
-        //resources
-        File dir = getContext().getFilesDir();
-        String modelName = "search_model.trainer";
-        TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
-        TestHelper.copyAssetToFile(modelName + ".SVM.model", new File(dir, modelName + ".SVM.model"));
-        TestHelper.copyAssetToFile(modelName + ".SVM.option", new File(dir, modelName + ".SVM.option"));
-        String outputFileName = getClass().getSimpleName() + ".test";
-        File outputFile = new File(dir, outputFileName);
+	@Test
+	public void testSVM() throws Exception
+	{
+		// Resources
+		File dir = getContext().getFilesDir();
+		String modelName = "search_model.trainer";
+		TestHelper.copyAssetToFile(modelName, new File(dir, modelName));
+		TestHelper.copyAssetToFile(modelName + ".SVM.model", new File(dir, modelName + ".SVM.model"));
+		TestHelper.copyAssetToFile(modelName + ".SVM.option", new File(dir, modelName + ".SVM.option"));
+		String outputFileName = getClass().getSimpleName() + ".test";
+		File outputFile = new File(dir, outputFileName);
 
-        // Setup
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
+		// Setup
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
 
-        // Sensor
-        AndroidSensor accSensor = new AndroidSensor();
-        AndroidSensor gyrSensor = new AndroidSensor();
+		// Sensor
+		AndroidSensor accSensor = new AndroidSensor();
+		AndroidSensor gyrSensor = new AndroidSensor();
 
-        // Channel
-        AndroidSensorChannel accChannel = new AndroidSensorChannel();
-        accChannel.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-        accChannel.options.sampleRate.set(40);
-        frame.addSensor(accSensor, accChannel);
+		// Channel
+		AndroidSensorChannel accChannel = new AndroidSensorChannel();
+		accChannel.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
+		accChannel.options.sampleRate.set(40);
+		frame.addSensor(accSensor, accChannel);
 
-        AndroidSensorChannel gyrChannel = new AndroidSensorChannel();
-        gyrChannel.options.sensorType.set(SensorType.GYROSCOPE);
-        gyrChannel.options.sampleRate.set(40);
-        frame.addSensor(gyrSensor, gyrChannel);
+		AndroidSensorChannel gyrChannel = new AndroidSensorChannel();
+		gyrChannel.options.sensorType.set(SensorType.GYROSCOPE);
+		gyrChannel.options.sampleRate.set(40);
+		frame.addSensor(gyrSensor, gyrChannel);
 
-        // Transformer
-        AccelerationFeatures accFeatures = new AccelerationFeatures();
-        frame.addTransformer(accFeatures, accChannel, 2, 2);
+		// Transformer
+		AccelerationFeatures accFeatures = new AccelerationFeatures();
+		frame.addTransformer(accFeatures, accChannel, 2, 2);
 
-        AccelerationFeatures gyrFeatures = new AccelerationFeatures();
-        frame.addTransformer(gyrFeatures, gyrChannel, 2, 2);
+		AccelerationFeatures gyrFeatures = new AccelerationFeatures();
+		frame.addTransformer(gyrFeatures, gyrChannel, 2, 2);
 
-        // SVM
-        SVM svm = new SVM();
-        svm.options.file.setValue(dir.getAbsolutePath() + File.separator + modelName);
-        frame.addModel(svm);
+		// SVM
+		SVM svm = new SVM();
+		svm.options.file.setValue(dir.getAbsolutePath() + File.separator + modelName);
+		frame.addModel(svm);
 
-        ClassifierT classifier = new ClassifierT();
-        classifier.setModel(svm);
-        frame.addTransformer(classifier, new Provider[] {accFeatures, gyrFeatures}, 2, 0);
+		ClassifierT classifier = new ClassifierT();
+		classifier.setModel(svm);
+		frame.addTransformer(classifier, new Provider[]{accFeatures, gyrFeatures}, 2, 0);
 
-        // Consumer
-        Logger log = new Logger();
-        frame.addConsumer(log, classifier, 2, 0);
+		// Consumer
+		Logger log = new Logger();
+		frame.addConsumer(log, classifier, 2, 0);
 
-        FileWriter svmWriter = new FileWriter();
-        svmWriter.options.filePath.setValue(dir.getAbsolutePath());
-        svmWriter.options.fileName.set(outputFileName);
-        frame.addConsumer(svmWriter, classifier, 2, 0);
+		FileWriter svmWriter = new FileWriter();
+		svmWriter.options.filePath.setValue(dir.getAbsolutePath());
+		svmWriter.options.fileName.set(outputFileName);
+		frame.addConsumer(svmWriter, classifier, 2, 0);
 
-        // Start framework
-        frame.start();
+		// Start framework
+		frame.start();
 
-        // Run test
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-        // Stop framework
-        frame.stop();
-        frame.clear();
+		// Stop framework
+		frame.stop();
+		frame.clear();
 
-        //get data file
-        File data = new File(dir, outputFileName + "~");
+		// Get data file
+		File data = new File(dir, outputFileName + "~");
 
-        //verify
-        Assert.assertTrue(outputFile.length() > 100);
-        Assert.assertTrue(data.length() > 100);
+		// Verify
+		Assert.assertTrue(outputFile.length() > 100);
+		Assert.assertTrue(data.length() > 100);
 
-        if(outputFile.exists()) outputFile.delete();
-        if(data.exists()) data.delete();
-    }
+		if (outputFile.exists()) outputFile.delete();
+		if (data.exists()) data.delete();
+	}
 }

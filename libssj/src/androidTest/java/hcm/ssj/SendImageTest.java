@@ -92,25 +92,19 @@ public class SendImageTest
 		bluetoothWriter.options.connectionName.set("stream");
 		frame.addConsumer(bluetoothWriter, cameraChannel, frameSize, delta);
 
+		frame.start();
+
+		// Wait duration
 		try
 		{
-			frame.start();
-
-			long start = System.currentTimeMillis();
-			while(true)
-			{
-				if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
-					break;
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 
 		Log.i("test finished");
 	}
@@ -131,7 +125,7 @@ public class SendImageTest
 
 		BluetoothChannel bluetoothChannel = new BluetoothChannel();
 		bluetoothChannel.options.channel_id.set(0);
-		bluetoothChannel.options.dim.set((int)(width * height * 1.5));
+		bluetoothChannel.options.dim.set((int) (width * height * 1.5));
 		bluetoothChannel.options.bytes.set(1);
 		bluetoothChannel.options.type.set(Cons.Type.IMAGE);
 		bluetoothChannel.options.sr.set(1.0);
@@ -172,25 +166,19 @@ public class SendImageTest
 		Logger logger = new Logger();
 		frame.addConsumer(logger, bluetoothChannel);
 
+		frame.start();
+
+		// Wait duration
 		try
 		{
-			frame.start();
-
-			long start = System.currentTimeMillis();
-			while(true)
-			{
-				if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
-					break;
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 
 		Log.i("test finished");
 	}

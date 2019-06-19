@@ -51,79 +51,81 @@ import static java.lang.System.loadLibrary;
 @SmallTest
 public class SSIXmlPipeTest
 {
-    public native void startSSI(String path, AssetManager am, boolean extractFiles);
-    public native void stopSSI();
+	public native void startSSI(String path, AssetManager am, boolean extractFiles);
 
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testSensors() throws Exception
-    {
-        loadLibrary("ssiframe");
-        loadLibrary("ssievent");
-        loadLibrary("ssiioput");
-        loadLibrary("ssiandroidsensors");
-        loadLibrary("ssimodel");
-        loadLibrary("ssisignal");
-        loadLibrary("ssissjSensor");
-        loadLibrary("android_xmlpipe");
+	public native void stopSSI();
 
-        //test for every sensor type
-        SensorType acc = SensorType.GYROSCOPE;
-        SensorType mag = SensorType.ACCELEROMETER;
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testSensors() throws Exception
+	{
+		loadLibrary("ssiframe");
+		loadLibrary("ssievent");
+		loadLibrary("ssiioput");
+		loadLibrary("ssiandroidsensors");
+		loadLibrary("ssimodel");
+		loadLibrary("ssisignal");
+		loadLibrary("ssissjSensor");
+		loadLibrary("android_xmlpipe");
 
-        //setup
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
-        //sensor
-        AndroidSensor sensor = new AndroidSensor();
-        AndroidSensor s2 = new AndroidSensor();
+		// Test for every sensor type
+		SensorType acc = SensorType.GYROSCOPE;
+		SensorType mag = SensorType.ACCELEROMETER;
 
-        //channel
-        AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
-        sensorChannel.options.sensorType.set(acc);
-        AndroidSensorChannel sensorPmag = new AndroidSensorChannel();
-        sensorPmag.options.sensorType.set(mag);
+		// Setup
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
 
-        frame.addSensor(sensor,sensorChannel);
-        frame.addSensor(s2,sensorPmag);
+		// Sensor
+		AndroidSensor sensor = new AndroidSensor();
+		AndroidSensor s2 = new AndroidSensor();
 
-        //logger
-        Logger log = new Logger();
-        frame.addConsumer(log, sensorChannel, 1, 0);
-        frame.addConsumer(log, sensorPmag, 1, 0);
+		// Channel
+		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
+		sensorChannel.options.sensorType.set(acc);
+		AndroidSensorChannel sensorPmag = new AndroidSensorChannel();
+		sensorPmag.options.sensorType.set(mag);
 
-        MobileSSIConsumer mobileSSI2 =new MobileSSIConsumer();
-        MobileSSIConsumer mobileSSI = new MobileSSIConsumer();
+		frame.addSensor(sensor, sensorChannel);
+		frame.addSensor(s2, sensorPmag);
 
-        mobileSSI.setId(1);
-        mobileSSI2.setId(2);
+		// Logger
+		Logger log = new Logger();
+		frame.addConsumer(log, sensorChannel, 1, 0);
+		frame.addConsumer(log, sensorPmag, 1, 0);
 
-        frame.addConsumer(mobileSSI, sensorChannel, 1, 0);
-        frame.addConsumer(mobileSSI2, sensorPmag, 1, 0);
-        //start framework
+		MobileSSIConsumer mobileSSI2 = new MobileSSIConsumer();
+		MobileSSIConsumer mobileSSI = new MobileSSIConsumer();
 
-        startSSI("/sdcard/android_xmlpipe", null, false);
-        Thread.sleep(3100);
-        frame.start();
+		mobileSSI.setId(1);
+		mobileSSI2.setId(2);
 
-        mobileSSI.setSensor(sensorChannel, null, mobileSSI.getId());
-        mobileSSI2.setSensor(sensorPmag, null, mobileSSI2.getId());
-        //run test
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        stopSSI();
-        frame.stop();
-        frame.release();
-    }
+		frame.addConsumer(mobileSSI, sensorChannel, 1, 0);
+		frame.addConsumer(mobileSSI2, sensorPmag, 1, 0);
+
+		// Start framework
+		startSSI("/sdcard/android_xmlpipe", null, false);
+		Thread.sleep(3100);
+		frame.start();
+
+		mobileSSI.setSensor(sensorChannel, null, mobileSSI.getId());
+		mobileSSI2.setSensor(sensorPmag, null, mobileSSI2.getId());
+
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		// Stop framework
+		stopSSI();
+		frame.stop();
+		frame.release();
+	}
 }

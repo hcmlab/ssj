@@ -191,7 +191,7 @@ public class ImageResizer extends Transformer
 
 		((ImageStream) stream_out).width = cropSize;
 		((ImageStream) stream_out).height = cropSize;
-		((ImageStream) stream_out).format = 0x29; //ImageFormat.FLEX_RGB_888;
+		((ImageStream) stream_out).format = Cons.ImageFormat.FLEX_RGB_888.val; // Android ImageFormat.FLEX_RGB_888;
 	}
 
 

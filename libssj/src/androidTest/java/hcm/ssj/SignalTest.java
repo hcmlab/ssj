@@ -89,24 +89,20 @@ public class SignalTest
 		Logger log = new Logger();
 		frame.addConsumer(log, fft, 1, 0);
 
-		// start framework
+		// Start framework
 		frame.start();
 
-		// Run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
-		// stop framework
+		// Stop framework
 		frame.stop();
 		frame.clear();
 
@@ -153,7 +149,7 @@ public class SignalTest
 			e.printStackTrace();
 		}
 
-		// stop framework
+		// Stop framework
 		frame.stop();
 		frame.clear();
 	}
@@ -161,36 +157,40 @@ public class SignalTest
 	@Test
 	public void testFunctionals() throws Exception
 	{
-		//setup
+		// Setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
-		//sensor
+
+		// Sensor
 		AndroidSensor sensor = new AndroidSensor();
 
-		//channel
+		// Channel
 		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
 		sensorChannel.options.sensorType.set(SensorType.ACCELEROMETER);
-		frame.addSensor(sensor,sensorChannel);
-		//transformer
+		frame.addSensor(sensor, sensorChannel);
+
+		// Transformer
 		Functionals transformer = new Functionals();
 		frame.addTransformer(transformer, sensorChannel, 1, 0);
-		//logger
+
+		// Logger
 		Logger log = new Logger();
 		frame.addConsumer(log, transformer, 1, 0);
-		//start framework
+
+		// Start framework
 		frame.start();
-		//run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
-		} catch (Exception e)
+			Thread.sleep(TestHelper.DUR_TEST_SHORT);
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+
+		// Stop framework
 		frame.stop();
 		frame.release();
 	}
@@ -239,14 +239,12 @@ public class SignalTest
 		// start framework
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
-		} catch (Exception e)
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
@@ -268,7 +266,7 @@ public class SignalTest
 		//channel
 		AndroidSensorChannel sensorChannel = new AndroidSensorChannel();
 		sensorChannel.options.sensorType.set(SensorType.LIGHT);
-		frame.addSensor(sensor,sensorChannel);
+		frame.addSensor(sensor, sensorChannel);
 		//transformer
 		PSD transformer = new PSD();
 		transformer.options.entropy.set(false);
@@ -287,7 +285,8 @@ public class SignalTest
 			{
 				Thread.sleep(1);
 			}
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

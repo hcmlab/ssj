@@ -60,10 +60,11 @@ public class MSBandTest
 	@Test
 	public void testChannels() throws Exception
 	{
-		//setup
+		// Setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
-		//sensor
+
+		// Sensor
 		MSBand sensor = new MSBand();
 
 		frame.addConsumer(new Logger(), frame.addSensor(sensor, new DistanceChannel()), 1, 0);
@@ -79,23 +80,20 @@ public class MSBandTest
 		frame.addConsumer(new Logger(), frame.addSensor(sensor, new PedometerChannel()), 1, 0);
 		frame.addConsumer(new Logger(), frame.addSensor(sensor, new SkinTempChannel()), 1, 0);
 
-		//start framework
+		// Start framework
 		frame.start();
 
-		//run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
+		// Stop framework
 		frame.stop();
 		frame.clear();
 	}

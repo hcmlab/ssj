@@ -46,147 +46,173 @@ import hcm.ssj.core.Util;
 @SmallTest
 public class UtilTest
 {
-    @Test
-    public void test() throws Exception
-    {
-        int[] x = new int[]{0, 2, 9, -20};
-        byte[] y = new byte[1024];
-        int[] z = new int[1024];
+	@Test
+	public void test() throws Exception
+	{
+		int[] x = new int[]{0, 2, 9, -20};
+		byte[] y = new byte[1024];
+		int[] z = new int[1024];
 
-        Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-        Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
+		Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+		Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
 
-        for(int i = 0; i < x.length; i++)
-            if(x[i] !=  z[i])
-                throw new RuntimeException();
-    }
+		for (int i = 0; i < x.length; i++)
+		{
+			if (x[i] != z[i])
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
 
-    @Test
-    public void test2() throws Exception
-    {
-        long[] x = new long[]{0, 2, 9, -20};
-        byte[] y = new byte[1024];
-        long[] z = new long[1024];
+	@Test
+	public void test2() throws Exception
+	{
+		long[] x = new long[]{0, 2, 9, -20};
+		byte[] y = new byte[1024];
+		long[] z = new long[1024];
 
-        Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-        Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
+		Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+		Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
 
-        for(int i = 0; i < x.length; i++)
-            if(x[i] !=  z[i])
-                throw new RuntimeException();
-    }
+		for (int i = 0; i < x.length; i++)
+		{
+			if (x[i] != z[i])
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
 
-    @Test
-    public void test3() throws Exception
-    {
-        short[] x = new short[]{0, 2, 9, -20};
-        byte[] y = new byte[1024];
-        short[] z = new short[1024];
+	@Test
+	public void test3() throws Exception
+	{
+		short[] x = new short[]{0, 2, 9, -20};
+		byte[] y = new byte[1024];
+		short[] z = new short[1024];
 
-        Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-        Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
+		Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+		Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
 
-        for(int i = 0; i < x.length; i++)
-            if(x[i] !=  z[i])
-                throw new RuntimeException();
-    }
+		for (int i = 0; i < x.length; i++)
+		{
+			if (x[i] != z[i])
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
 
-    @Test
-    public void test4() throws Exception
-    {
-        int ITER = 20;
-        long start, delta, ff = 0, fb = 0, bf = 0;
-        for (int i = 0; i < ITER; i++)
-        {
-            float[] x = new float[48000];
-            for(int j = 0; j< x.length; ++j)
-                x[j] = (float)Math.random();
-            byte[] y = new byte[48000 * 4];
-            float[] z = new float[48000];
+	@Test
+	public void test4() throws Exception
+	{
+		int ITER = 20;
+		long start, delta, ff = 0, fb = 0, bf = 0;
+		for (int i = 0; i < ITER; i++)
+		{
+			float[] x = new float[48000];
+			for (int j = 0; j < x.length; ++j)
+			{
+				x[j] = (float) Math.random();
+			}
+			byte[] y = new byte[48000 * 4];
+			float[] z = new float[48000];
 
-            start = System.nanoTime();
-            Util.arraycopy(x, 0, z, 0, x.length * Util.sizeOf(z[0]));
-            delta = System.nanoTime() - start;
-            Log.i("float-float copy: " + delta + "ns");
-            ff += delta;
+			start = System.nanoTime();
+			Util.arraycopy(x, 0, z, 0, x.length * Util.sizeOf(z[0]));
+			delta = System.nanoTime() - start;
+			Log.i("float-float copy: " + delta + "ns");
+			ff += delta;
 
-            start = System.nanoTime();
-            Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-            delta = System.nanoTime() - start;
-            Log.i("float-byte copy: " + delta + "ns");
-            fb += delta;
+			start = System.nanoTime();
+			Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+			delta = System.nanoTime() - start;
+			Log.i("float-byte copy: " + delta + "ns");
+			fb += delta;
 
-            Arrays.fill(x, (float)0);
+			Arrays.fill(x, (float) 0);
 
-            start = System.nanoTime();
-            Util.arraycopy(y, 0, x, 0, x.length * Util.sizeOf(x[0]));
-            delta = System.nanoTime() - start;
-            Log.i("byte-float copy: " + delta + "ns");
-            bf += delta;
+			start = System.nanoTime();
+			Util.arraycopy(y, 0, x, 0, x.length * Util.sizeOf(x[0]));
+			delta = System.nanoTime() - start;
+			Log.i("byte-float copy: " + delta + "ns");
+			bf += delta;
 
-            Thread.sleep(1000);
-        }
-        Log.i("avg float-float copy: " + ff / ITER + "ns");
-        Log.i("avg float-byte copy: " + fb / ITER + "ns");
-        Log.i("avg byte-float copy: " + bf / ITER + "ns");
+			Thread.sleep(1000);
+		}
+		Log.i("avg float-float copy: " + ff / ITER + "ns");
+		Log.i("avg float-byte copy: " + fb / ITER + "ns");
+		Log.i("avg byte-float copy: " + bf / ITER + "ns");
 
-    }
+	}
 
-    @Test
-    public void test5() throws Exception
-    {
-        double[] x = new double[]{0.7985, 2, 9, -20.556999};
-        byte[] y = new byte[1024];
-        double[] z = new double[1024];
+	@Test
+	public void test5() throws Exception
+	{
+		double[] x = new double[]{0.7985, 2, 9, -20.556999};
+		byte[] y = new byte[1024];
+		double[] z = new double[1024];
 
-        Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-        Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
+		Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+		Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
 
-        for(int i = 0; i < x.length; i++)
-            if(x[i] !=  z[i])
-                throw new RuntimeException();
-    }
+		for (int i = 0; i < x.length; i++)
+		{
+			if (x[i] != z[i])
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
 
-    @Test
-    public void test6() throws Exception
-    {
-        char[] x = new char[]{0, 2, 9};
-        byte[] y = new byte[1024];
-        char[] z = new char[1024];
+	@Test
+	public void test6() throws Exception
+	{
+		char[] x = new char[]{0, 2, 9};
+		byte[] y = new byte[1024];
+		char[] z = new char[1024];
 
-        Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-        Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
+		Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+		Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
 
-        for(int i = 0; i < x.length; i++)
-            if(x[i] !=  z[i])
-                throw new RuntimeException();
-    }
+		for (int i = 0; i < x.length; i++)
+		{
+			if (x[i] != z[i])
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
 
-    @Test
-    public void test7() throws Exception
-    {
-        boolean[] x = new boolean[]{true, false, true, true};
-        byte[] y = new byte[1024];
-        boolean[] z = new boolean[1024];
+	@Test
+	public void test7() throws Exception
+	{
+		boolean[] x = new boolean[]{true, false, true, true};
+		byte[] y = new byte[1024];
+		boolean[] z = new boolean[1024];
 
-        Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
-        Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
+		Util.arraycopy(x, 0, y, 0, x.length * Util.sizeOf(x[0]));
+		Util.arraycopy(y, 0, z, 0, x.length * Util.sizeOf(z[0]));
 
-        for(int i = 0; i < x.length; i++)
-            if(x[i] !=  z[i])
-                throw new RuntimeException();
-    }
+		for (int i = 0; i < x.length; i++)
+		{
+			if (x[i] != z[i])
+			{
+				throw new RuntimeException();
+			}
+		}
+	}
 
-    @Test
-    public void testXmlToStr() throws Exception
-    {
-        String str = "<ssj><test attr=\"val\">text</test><test attr=\"val2\">text2</test></ssj>";
-        Log.i("input: " + str);
+	@Test
+	public void testXmlToStr() throws Exception
+	{
+		String str = "<ssj><test attr=\"val\">text</test><test attr=\"val2\">text2</test></ssj>";
+		Log.i("input: " + str);
 
-        XmlPullParser xml = Xml.newPullParser();
-        xml.setInput(new StringReader(str));
-        xml.next();
+		XmlPullParser xml = Xml.newPullParser();
+		xml.setInput(new StringReader(str));
+		xml.next();
 
-        Log.i("output: " + Util.xmlToString(xml));
-    }
+		Log.i("output: " + Util.xmlToString(xml));
+	}
 }

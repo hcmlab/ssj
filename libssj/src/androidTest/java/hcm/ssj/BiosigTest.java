@@ -48,12 +48,13 @@ import hcm.ssj.test.Logger;
 public class BiosigTest
 {
 	@Test
-	public void testArousal() throws Exception {
+	public void testArousal() throws Exception
+	{
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		GSRChannel data = new GSRChannel();
-		frame.addSensor(empatica,data);
+		frame.addSensor(empatica, data);
 
 		GSRArousalEstimation arousal = new GSRArousalEstimation();
 		frame.addTransformer(arousal, data, 0.25, 0);
@@ -61,22 +62,19 @@ public class BiosigTest
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, arousal, 0.25, 0);
 
-		try {
-			frame.start();
+		frame.start();
 
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (System.currentTimeMillis() > start + 5 * 60 * 1000) {
-					break;
-				}
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
-		} catch (Exception e) {
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 		Log.i("arousal test finished");
 	}
 }

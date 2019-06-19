@@ -41,9 +41,11 @@ import hcm.ssj.camera.ImageNormalizer;
 import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
 import hcm.ssj.ml.TensorFlow;
+import hcm.ssj.test.EventLogger;
 
 /**
  * Tests setting up, loading, and evaluating object classification
@@ -114,23 +116,28 @@ public class InceptionTest
 		Classifier classifier = new Classifier();
 		classifier.setModel(tensorFlow);
 		classifier.options.merge.set(false);
+		classifier.options.bestMatchOnly.set(true);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);
+
+		// Log events
+		EventChannel channel = classifier.getEventChannelOut();
+		EventLogger log = new EventLogger();
+		frame.registerEventListener(log, channel);
 
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
-		} catch (Exception e)
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
+		// Stop pipeline
 		frame.stop();
 		frame.release();
 	}

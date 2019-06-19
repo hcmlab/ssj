@@ -76,7 +76,7 @@ public class EstimoteBeaconTest
 		frame.addTransformer(filter, channel, 0.2, 0);
 
 		Merge merge = new Merge();
-		frame.addTransformer(merge, new Provider[] {channel, filter}, 0.2, 0);
+		frame.addTransformer(merge, new Provider[]{channel, filter}, 0.2, 0);
 
 		// Consumer
 		Logger log = new Logger();
@@ -85,14 +85,10 @@ public class EstimoteBeaconTest
 		// Start framework
 		frame.start();
 
-		// Run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{

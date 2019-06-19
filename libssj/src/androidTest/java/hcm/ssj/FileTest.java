@@ -60,188 +60,190 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 @SmallTest
 public class FileTest
 {
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testInternalStorage() throws Exception
-    {
-        testWriteRead(true);
-    }
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testInternalStorage() throws Exception
+	{
+		testWriteRead(true);
+	}
 
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testExternalStorage() throws Exception
-    {
-        testWriteRead(false);
-    }
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testExternalStorage() throws Exception
+	{
+		testWriteRead(false);
+	}
 
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testXmlParserTag() throws Exception
-    {
-        String xmlString = "<?xml version=\"1.0\" ?>\n"
-                + "<foo>My name is Molly!</foo>";
-        SimpleXmlParser xmlParser = new SimpleXmlParser();
-        SimpleXmlParser.XmlValues xmlValues = xmlParser.parse(new ByteArrayInputStream(xmlString.getBytes(Charset.forName("UTF-8"))),
-                new String[]{"foo"},
-                null
-        );
-        ArrayList<String> foundTag = xmlValues.foundTag;
-        ArrayList<String[]> foundAttributes = xmlValues.foundAttributes;
-        if (!foundAttributes.isEmpty())
-        {
-            throw new RuntimeException("attributes should be empty");
-        }
-        if (foundTag.size() != 1
-                || !foundTag.get(0).equals("My name is Molly!"))
-        {
-            throw new RuntimeException("tag not found");
-        }
-    }
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testXmlParserTag() throws Exception
+	{
+		String xmlString = "<?xml version=\"1.0\" ?>\n"
+				+ "<foo>My name is Molly!</foo>";
+		SimpleXmlParser xmlParser = new SimpleXmlParser();
+		SimpleXmlParser.XmlValues xmlValues = xmlParser.parse(new ByteArrayInputStream(xmlString.getBytes(Charset.forName("UTF-8"))),
+															  new String[]{"foo"},
+															  null
+		);
+		ArrayList<String> foundTag = xmlValues.foundTag;
+		ArrayList<String[]> foundAttributes = xmlValues.foundAttributes;
+		if (!foundAttributes.isEmpty())
+		{
+			throw new RuntimeException("attributes should be empty");
+		}
+		if (foundTag.size() != 1
+				|| !foundTag.get(0).equals("My name is Molly!"))
+		{
+			throw new RuntimeException("tag not found");
+		}
+	}
 
-    /**
-     * @throws Exception
-     */
-    @Test
-    public void testXmlParserAttribute() throws Exception
-    {
-        String xmlString = "<?xml version=\"1.0\" ?>"
-                + "<options>"
-                + "  <foo>My name is Molly!</foo>"
-                + "  <item name=\"log\" type=\"BOOL\" num=\"1\" value=\"true\" help=\"user log normal distribution\" />"
-                + "  <item name=\"prior\" type=\"BOOL\" num=\"1\" value=\"false\" help=\"use prior probability\" />"
-                + "</options>";
-        SimpleXmlParser xmlParser = new SimpleXmlParser();
-        SimpleXmlParser.XmlValues xmlValues = xmlParser.parse(new ByteArrayInputStream(xmlString.getBytes(Charset.forName("UTF-8"))),
-                new String[]{"options", "item"},
-                new String[]{"name", "value"}
-        );
-        ArrayList<String> foundTag = xmlValues.foundTag;
-        ArrayList<String[]> foundAttributes = xmlValues.foundAttributes;
-        if (!foundTag.isEmpty())
-        {
-            throw new RuntimeException("tag should be empty");
-        }
-        if (foundAttributes.size() != 2
-                || !foundAttributes.get(0)[0].equals("log")
-                || !foundAttributes.get(0)[1].equals("true")
-                || !foundAttributes.get(1)[0].equals("prior")
-                || !foundAttributes.get(1)[1].equals("false"))
-        {
-            throw new RuntimeException("attribute not found");
-        }
-    }
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testXmlParserAttribute() throws Exception
+	{
+		String xmlString = "<?xml version=\"1.0\" ?>"
+				+ "<options>"
+				+ "  <foo>My name is Molly!</foo>"
+				+ "  <item name=\"log\" type=\"BOOL\" num=\"1\" value=\"true\" help=\"user log normal distribution\" />"
+				+ "  <item name=\"prior\" type=\"BOOL\" num=\"1\" value=\"false\" help=\"use prior probability\" />"
+				+ "</options>";
+		SimpleXmlParser xmlParser = new SimpleXmlParser();
+		SimpleXmlParser.XmlValues xmlValues = xmlParser.parse(new ByteArrayInputStream(xmlString.getBytes(Charset.forName("UTF-8"))),
+															  new String[]{"options", "item"},
+															  new String[]{"name", "value"}
+		);
+		ArrayList<String> foundTag = xmlValues.foundTag;
+		ArrayList<String[]> foundAttributes = xmlValues.foundAttributes;
+		if (!foundTag.isEmpty())
+		{
+			throw new RuntimeException("tag should be empty");
+		}
+		if (foundAttributes.size() != 2
+				|| !foundAttributes.get(0)[0].equals("log")
+				|| !foundAttributes.get(0)[1].equals("true")
+				|| !foundAttributes.get(1)[0].equals("prior")
+				|| !foundAttributes.get(1)[1].equals("false"))
+		{
+			throw new RuntimeException("attribute not found");
+		}
+	}
 
-    /**
-     * @param internalStorage boolean
-     * @throws Exception
-     */
-    private void testWriteRead(boolean internalStorage) throws Exception
-    {
-        File dir = internalStorage ? getInstrumentation().getContext().getFilesDir()
-                : Environment.getExternalStorageDirectory();
-        String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
-        File fileHeader = new File(dir, fileName);
-        //write
-        buildPipeline(fileHeader, true);
-        //read
-        buildPipeline(fileHeader, false);
-        //cleanup
-        if (fileHeader.exists())
-        {
-            if (!fileHeader.delete())
-            {
-                throw new RuntimeException("Header file could not be deleted");
-            }
-            File fileReal = new File(dir, fileName + FileCons.FILE_EXTENSION_STREAM);
-            if (fileReal.exists())
-            {
-                if (!fileReal.delete())
-                {
-                    throw new RuntimeException("Real file could not be deleted");
-                }
-            }
-        }
-    }
+	/**
+	 * @param internalStorage boolean
+	 * @throws Exception
+	 */
+	private void testWriteRead(boolean internalStorage) throws Exception
+	{
+		File dir = internalStorage ? getInstrumentation().getContext().getFilesDir()
+				: Environment.getExternalStorageDirectory();
+		String fileName = getClass().getSimpleName() + "." + getClass().getSimpleName();
+		File fileHeader = new File(dir, fileName);
+		//write
+		buildPipeline(fileHeader, true);
+		//read
+		buildPipeline(fileHeader, false);
+		//cleanup
+		if (fileHeader.exists())
+		{
+			if (!fileHeader.delete())
+			{
+				throw new RuntimeException("Header file could not be deleted");
+			}
+			File fileReal = new File(dir, fileName + FileCons.FILE_EXTENSION_STREAM);
+			if (fileReal.exists())
+			{
+				if (!fileReal.delete())
+				{
+					throw new RuntimeException("Real file could not be deleted");
+				}
+			}
+		}
+	}
 
-    /**
-     * @param file  File
-     * @param write boolean
-     * @throws Exception
-     */
-    private void buildPipeline(File file, boolean write) throws Exception
-    {
-        //setup
-        Pipeline framework = Pipeline.getInstance();
-        framework.options.bufferSize.set(10.0f);
-        if (write)
-        {
-            write(framework, file);
-        } else
-        {
-            read(framework, file);
-        }
-        //start framework
-        framework.start();
-        //run for two minutes
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        framework.stop();
-        framework.release();
-    }
+	/**
+	 * @param file  File
+	 * @param write boolean
+	 * @throws Exception
+	 */
+	private void buildPipeline(File file, boolean write) throws Exception
+	{
+		//setup
+		Pipeline framework = Pipeline.getInstance();
+		framework.options.bufferSize.set(10.0f);
+		if (write)
+		{
+			write(framework, file);
+		}
+		else
+		{
+			read(framework, file);
+		}
+		//start framework
+		framework.start();
+		//run for two minutes
+		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		try
+		{
+			while (System.currentTimeMillis() < end)
+			{
+				Thread.sleep(1);
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		framework.stop();
+		framework.release();
+	}
 
-    /**
-     * @param frame TheFramework
-     * @param file  File
-     * @throws Exception
-     */
-    private void write(Pipeline frame, File file) throws Exception
-    {
-        //sensor
-        AndroidSensor sensorConnection = new AndroidSensor();
+	/**
+	 * @param frame TheFramework
+	 * @param file  File
+	 * @throws Exception
+	 */
+	private void write(Pipeline frame, File file) throws Exception
+	{
+		//sensor
+		AndroidSensor sensorConnection = new AndroidSensor();
 
-        //channel
-        AndroidSensorChannel sensorConnectionChannel = new AndroidSensorChannel();
-        sensorConnectionChannel.options.sensorType.set(SensorType.ACCELEROMETER);
-        frame.addSensor(sensorConnection,sensorConnectionChannel);
-        //consumer
-        FileWriter fileWriter = new FileWriter();
-        fileWriter.options.filePath.setValue(file.getParent());
-        fileWriter.options.fileName.set(file.getName());
-        frame.addConsumer(fileWriter, sensorConnectionChannel, 0.25, 0);
-    }
+		//channel
+		AndroidSensorChannel sensorConnectionChannel = new AndroidSensorChannel();
+		sensorConnectionChannel.options.sensorType.set(SensorType.ACCELEROMETER);
+		frame.addSensor(sensorConnection, sensorConnectionChannel);
+		//consumer
+		FileWriter fileWriter = new FileWriter();
+		fileWriter.options.filePath.setValue(file.getParent());
+		fileWriter.options.fileName.set(file.getName());
+		frame.addConsumer(fileWriter, sensorConnectionChannel, 0.25, 0);
+	}
 
-    /**
-     * @param frame TheFramework
-     * @param file  File
-     * @throws Exception
-     */
-    private void read(Pipeline frame, File file) throws Exception
-    {
-        //sensor
-        FileReader fileReader = new FileReader();
-        fileReader.options.file.setValue(file.getParent() + File.separator + file.getName());
-        fileReader.options.loop.set(true);
+	/**
+	 * @param frame TheFramework
+	 * @param file  File
+	 * @throws Exception
+	 */
+	private void read(Pipeline frame, File file) throws Exception
+	{
+		//sensor
+		FileReader fileReader = new FileReader();
+		fileReader.options.file.setValue(file.getParent() + File.separator + file.getName());
+		fileReader.options.loop.set(true);
 
-        //channel
-        FileReaderChannel fileReaderChannel = new FileReaderChannel();
-        frame.addSensor(fileReader, fileReaderChannel);
-        //logger
-        Logger log = new Logger();
-        frame.addConsumer(log, fileReaderChannel, 0.25, 0);
-    }
+		//channel
+		FileReaderChannel fileReaderChannel = new FileReaderChannel();
+		frame.addSensor(fileReader, fileReaderChannel);
+		//logger
+		Logger log = new Logger();
+		frame.addConsumer(log, fileReaderChannel, 0.25, 0);
+	}
 }

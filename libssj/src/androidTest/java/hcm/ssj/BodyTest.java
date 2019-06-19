@@ -54,7 +54,7 @@ public class BodyTest
 	@Test
 	public void testWriting() throws Exception
 	{
-		//resources
+		// Resources
 		File dir = getContext().getFilesDir();
 		String fileName = getClass().getSimpleName() + ".test";
 		File file = new File(dir, fileName);
@@ -95,14 +95,10 @@ public class BodyTest
 		// Start framework
 		frame.start();
 
-		// Run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{
@@ -113,19 +109,19 @@ public class BodyTest
 		frame.stop();
 		frame.clear();
 
-		//get data files
+		// Get data files
 		File data = new File(dir, fileName + "~");
 		File data2 = new File(dir, fileName + "~");
 
-		//verify
+		// Verify
 		Assert.assertTrue(file.length() > 100);
 		Assert.assertTrue(file2.length() > 100);
 		Assert.assertTrue(data.length() > 100);
 		Assert.assertTrue(data2.length() > 100);
 
-		if(file.exists()) file.delete();
-		if(file2.exists()) file2.delete();
-		if(data.exists()) data.delete();
-		if(data2.exists()) data2.delete();
+		if (file.exists()) file.delete();
+		if (file2.exists()) file2.delete();
+		if (data.exists()) data.delete();
+		if (data2.exists()) data2.delete();
 	}
 }

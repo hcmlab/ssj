@@ -97,14 +97,12 @@ public class NV21ToRGBDecoderTest
 		// Start pipeline
 		frame.start();
 
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
-		} catch (Exception e)
+			Thread.sleep(TestHelper.DUR_TEST_SHORT);
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}

@@ -55,126 +55,120 @@ import static android.support.test.InstrumentationRegistry.getContext;
 @SmallTest
 public class AudioTest
 {
-    @Test
-    public void testWriter() throws Exception
-    {
-        //resources
-        File dir = getContext().getFilesDir();
-        String fileName = getClass().getSimpleName() + ".test";
-        File file = new File(dir, fileName);
+	@Test
+	public void testWriter() throws Exception
+	{
+		// Resources
+		File dir = getContext().getFilesDir();
+		String fileName = getClass().getSimpleName() + ".test";
+		File file = new File(dir, fileName);
 
-        //setup
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
+		// Setup
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
 
-        //sensor
-        Microphone microphone = new Microphone();
-        AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(8000);
-        audio.options.scale.set(true);
-        frame.addSensor(microphone, audio);
+		// Sensor
+		Microphone microphone = new Microphone();
+		AudioChannel audio = new AudioChannel();
+		audio.options.sampleRate.set(8000);
+		audio.options.scale.set(true);
+		frame.addSensor(microphone, audio);
 
-        //consumer
-        AudioWriter audioWriter = new AudioWriter();
-        audioWriter.options.filePath.setValue(dir.getPath());
-        audioWriter.options.fileName.set(fileName);
-        frame.addConsumer(audioWriter, audio, 1, 0);
+		// Consumer
+		AudioWriter audioWriter = new AudioWriter();
+		audioWriter.options.filePath.setValue(dir.getPath());
+		audioWriter.options.fileName.set(fileName);
+		frame.addConsumer(audioWriter, audio, 1, 0);
 
-        //start framework
-        frame.start();
+		// Start framework
+		frame.start();
 
-        //run test
-        long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
-        try
-        {
-            while (System.currentTimeMillis() < end)
-            {
-                Thread.sleep(1);
-            }
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        frame.stop();
-        frame.release();
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-        //verify test
-        Assert.assertTrue(file.exists());
-        Assert.assertTrue(file.length() > 1000); //1Kb
+		// Stop framework
+		frame.stop();
+		frame.release();
 
-        //cleanup
-        if (file.exists())
-        {
-            if (!file.delete())
-            {
-                throw new RuntimeException("File could not be deleted");
-            }
-        }
+		// Verify test
+		Assert.assertTrue(file.exists());
+		Assert.assertTrue(file.length() > 1000); //1Kb
 
-    }
+		// Cleanup
+		if (file.exists())
+		{
+			if (!file.delete())
+			{
+				throw new RuntimeException("File could not be deleted");
+			}
+		}
 
-    @Test
-    public void testSpeechrate() throws Exception
-    {
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
-        frame.options.log.set(true);
+	}
 
-        Microphone mic = new Microphone();
-        AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(8000);
-        audio.options.scale.set(true);
-        audio.options.chunk.set(0.1);
-        frame.addSensor(mic, audio);
+	@Test
+	public void testSpeechrate() throws Exception
+	{
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
+		frame.options.log.set(true);
 
-        Pitch pitch = new Pitch();
-        pitch.options.detector.set(Pitch.YIN);
-        pitch.options.computeVoicedProb.set(true);
-        frame.addTransformer(pitch, audio, 0.1, 0);
+		Microphone mic = new Microphone();
+		AudioChannel audio = new AudioChannel();
+		audio.options.sampleRate.set(8000);
+		audio.options.scale.set(true);
+		audio.options.chunk.set(0.1);
+		frame.addSensor(mic, audio);
 
-        Avg pitch_env = new Avg();
-        frame.addTransformer(pitch_env, pitch, 0.1, 0);
+		Pitch pitch = new Pitch();
+		pitch.options.detector.set(Pitch.YIN);
+		pitch.options.computeVoicedProb.set(true);
+		frame.addTransformer(pitch, audio, 0.1, 0);
 
-        Intensity energy = new Intensity();
-        frame.addTransformer(energy, audio, 1.0, 0);
+		Avg pitch_env = new Avg();
+		frame.addTransformer(pitch_env, pitch, 0.1, 0);
 
-        //VAD
-        ThresholdEventSender vad = new ThresholdEventSender();
-        vad.options.thresin.set(new float[]{50.0f}); //SPL
-        vad.options.mindur.set(1.0);
-        vad.options.maxdur.set(9.0);
-        vad.options.hangin.set(3);
-        vad.options.hangout.set(5);
-        Provider[] vad_in = {energy};
-        frame.addConsumer(vad, vad_in, 1.0, 0);
-        EventChannel vad_channel = vad.getEventChannelOut();
+		Intensity energy = new Intensity();
+		frame.addTransformer(energy, audio, 1.0, 0);
 
-        hcm.ssj.audio.SpeechRate sr = new hcm.ssj.audio.SpeechRate();
-        sr.options.thresholdVoicedProb.set(0.3f);
-        Provider[] sr_in = {energy, pitch_env};
-        frame.addConsumer(sr, sr_in, vad_channel);
-        EventChannel sr_channel = frame.registerEventProvider(sr);
+		//VAD
+		ThresholdEventSender vad = new ThresholdEventSender();
+		vad.options.thresin.set(new float[]{50.0f}); //SPL
+		vad.options.mindur.set(1.0);
+		vad.options.maxdur.set(9.0);
+		vad.options.hangin.set(3);
+		vad.options.hangout.set(5);
+		Provider[] vad_in = {energy};
+		frame.addConsumer(vad, vad_in, 1.0, 0);
+		EventChannel vad_channel = vad.getEventChannelOut();
 
-        EventLogger log = new EventLogger();
-        frame.registerEventListener(log, sr_channel);
+		hcm.ssj.audio.SpeechRate sr = new hcm.ssj.audio.SpeechRate();
+		sr.options.thresholdVoicedProb.set(0.3f);
+		Provider[] sr_in = {energy, pitch_env};
+		frame.addConsumer(sr, sr_in, vad_channel);
+		EventChannel sr_channel = frame.registerEventProvider(sr);
 
-        try
-        {
-            frame.start();
+		EventLogger log = new EventLogger();
+		frame.registerEventListener(log, sr_channel);
 
-            long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
-            while (true)
-            {
-                if (System.currentTimeMillis() > end)
-                    break;
+		frame.start();
 
-                Thread.sleep(1);
-            }
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-            frame.stop();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
+		frame.stop();
+	}
 }

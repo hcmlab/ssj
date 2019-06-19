@@ -103,7 +103,6 @@ public class FeedbackCollectionTest
 		pipeline.registerInFeedbackCollection(androidTactileFeedback6, feedbackCollection, 1, FeedbackCollection.LevelBehaviour.Progress);
 
 		feedbackList = feedbackCollection.getFeedbackList();
-
 	}
 
 	@Test

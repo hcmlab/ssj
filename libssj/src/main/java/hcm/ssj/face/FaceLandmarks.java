@@ -52,6 +52,8 @@ import hcm.ssj.file.FileCons;
 
 /**
  * Created by Michael Dietz on 29.01.2019.
+ *
+ * Based on https://github.com/tzutalin/dlib-android-app
  */
 public class FaceLandmarks extends Transformer
 {

@@ -57,7 +57,7 @@ public class GPSTest
 
 		// Channel
 		GPSChannel sensorChannel = new GPSChannel();
-		frame.addSensor(sensor,sensorChannel);
+		frame.addSensor(sensor, sensorChannel);
 
 		// Logger
 		Logger log = new Logger();
@@ -66,14 +66,10 @@ public class GPSTest
 		// start framework
 		frame.start();
 
-		// Run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{

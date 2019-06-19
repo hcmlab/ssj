@@ -52,46 +52,50 @@ import static android.support.test.InstrumentationRegistry.getInstrumentation;
 @SmallTest
 public class AndroidSensorTest
 {
-    @Test
-    public void testSensors() throws Exception
-    {
-        //test for every sensor type
-        for (SensorType type : SensorType.values())
-        {
-            SensorManager mSensorManager = (SensorManager) getInstrumentation().getContext().getSystemService(Context.SENSOR_SERVICE);
-            if (mSensorManager.getDefaultSensor(type.getType()) != null)
-            {
-                //setup
-                Pipeline frame = Pipeline.getInstance();
-                frame.options.bufferSize.set(10.0f);
-                //sensor
-                AndroidSensor sensor = new AndroidSensor();
-                AndroidSensorChannel channel = new AndroidSensorChannel();
-                channel.options.sensorType.set(type);
-                frame.addSensor(sensor, channel);
-                //logger
-                Logger log = new Logger();
-                frame.addConsumer(log, channel, 1, 0);
-                //start framework
-                frame.start();
-                //run test
-                long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
-                try
-                {
-                    while (System.currentTimeMillis() < end)
-                    {
-                        Thread.sleep(1);
-                    }
-                } catch (Exception e)
-                {
-                    e.printStackTrace();
-                }
-                frame.stop();
-                frame.release();
-            } else
-            {
-                Log.i(type.getName() + " not present on device");
-            }
-        }
-    }
+	@Test
+	public void testSensors() throws Exception
+	{
+		// Test for every sensor type
+		for (SensorType type : SensorType.values())
+		{
+			SensorManager mSensorManager = (SensorManager) getInstrumentation().getContext().getSystemService(Context.SENSOR_SERVICE);
+			if (mSensorManager.getDefaultSensor(type.getType()) != null)
+			{
+				// Setup
+				Pipeline frame = Pipeline.getInstance();
+				frame.options.bufferSize.set(10.0f);
+
+				// Sensor
+				AndroidSensor sensor = new AndroidSensor();
+				AndroidSensorChannel channel = new AndroidSensorChannel();
+				channel.options.sensorType.set(type);
+				frame.addSensor(sensor, channel);
+
+				// Logger
+				Logger log = new Logger();
+				frame.addConsumer(log, channel, 1, 0);
+
+				// Start framework
+				frame.start();
+
+				// Wait duration
+				try
+				{
+					Thread.sleep(TestHelper.DUR_TEST_SHORT);
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+
+				// Stop framework
+				frame.stop();
+				frame.release();
+			}
+			else
+			{
+				Log.i(type.getName() + " not present on device");
+			}
+		}
+	}
 }

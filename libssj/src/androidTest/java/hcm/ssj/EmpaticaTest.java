@@ -50,165 +50,153 @@ import hcm.ssj.test.Logger;
 @SmallTest
 public class EmpaticaTest
 {
+	// Insert your API key here:
 	String APIKEY = "";
 
 	@Test
-	public void testAcc() throws Exception {
+	public void testAcc() throws Exception
+	{
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		empatica.options.apiKey.set(APIKEY);
 		AccelerationChannel acc = new AccelerationChannel();
-		frame.addSensor(empatica,acc);
-
+		frame.addSensor(empatica, acc);
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, acc, 0.1, 0);
 
-		try {
-			frame.start();
+		frame.start();
 
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (System.currentTimeMillis() > start + 10 * 1000) {
-					break;
-				}
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
-		} catch (Exception e) {
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 		Log.i("ACC test finished");
 	}
 
 	@Test
-	public void testGsr() throws Exception {
+	public void testGsr() throws Exception
+	{
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		empatica.options.apiKey.set(APIKEY);
 		GSRChannel data = new GSRChannel();
-		frame.addSensor(empatica,data);
-
+		frame.addSensor(empatica, data);
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.25, 0);
 
-		try {
-			frame.start();
+		frame.start();
 
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (System.currentTimeMillis() > start + 10 * 1000) {
-					break;
-				}
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
-		} catch (Exception e) {
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_SHORT);
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 		Log.i("GSR test finished");
 	}
 
 	@Test
-	public void testIBI() throws Exception {
+	public void testIBI() throws Exception
+	{
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		empatica.options.apiKey.set(APIKEY);
 		IBIChannel data = new IBIChannel();
-		frame.addSensor(empatica,data);
+		frame.addSensor(empatica, data);
 
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.1, 0);
 
-		try {
-			frame.start();
+		frame.start();
 
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (System.currentTimeMillis() > start + 10 * 1000) {
-					break;
-				}
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
-		} catch (Exception e) {
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_SHORT);
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 		Log.i("IBI test finished");
 	}
 
 	@Test
-	public void testTemp() throws Exception {
+	public void testTemp() throws Exception
+	{
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		empatica.options.apiKey.set(APIKEY);
 		TemperatureChannel data = new TemperatureChannel();
-		frame.addSensor(empatica,data);
+		frame.addSensor(empatica, data);
 
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.25, 0);
 
-		try {
-			frame.start();
+		frame.start();
 
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (System.currentTimeMillis() > start + 10 * 1000) {
-					break;
-				}
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
-		} catch (Exception e) {
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_SHORT);
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 		Log.i("Temp test finished");
 	}
 
 	@Test
-	public void testBVP() throws Exception {
+	public void testBVP() throws Exception
+	{
 		Pipeline frame = Pipeline.getInstance();
 
 		Empatica empatica = new Empatica();
 		empatica.options.apiKey.set(APIKEY);
 		BVPChannel data = new BVPChannel();
-		frame.addSensor(empatica,data);
-
+		frame.addSensor(empatica, data);
 
 		Logger dummy = new Logger();
 		frame.addConsumer(dummy, data, 0.1, 0);
 
-		try {
-			frame.start();
+		frame.start();
 
-			long start = System.currentTimeMillis();
-			while (true) {
-				if (System.currentTimeMillis() > start + 10 * 1000) {
-					break;
-				}
-
-				Thread.sleep(1);
-			}
-
-			frame.stop();
-		} catch (Exception e) {
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_SHORT);
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
+
+		frame.stop();
 		Log.i("BVP test finished");
 	}
 }

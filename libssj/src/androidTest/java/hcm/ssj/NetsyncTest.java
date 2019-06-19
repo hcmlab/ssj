@@ -42,126 +42,122 @@ import hcm.ssj.test.Logger;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class NetsyncTest {
+public class NetsyncTest
+{
 
-    @Test
-    public void testListen() throws Exception
-    {
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
+	@Test
+	public void testListen() throws Exception
+	{
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
 
-        frame.options.sync.set(Pipeline.SyncType.CONTINUOUS);
-        frame.options.syncPort.set(55100);
-        frame.options.syncHost.set("192.168.0.180");
+		frame.options.sync.set(Pipeline.SyncType.CONTINUOUS);
+		frame.options.syncPort.set(55100);
+		frame.options.syncHost.set("192.168.0.180");
 
-        Microphone mic = new Microphone();
-        AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(true);
-        frame.addSensor(mic,audio);
+		Microphone mic = new Microphone();
+		AudioChannel audio = new AudioChannel();
+		audio.options.sampleRate.set(16000);
+		audio.options.scale.set(true);
+		frame.addSensor(mic, audio);
 
-        Logger dummy = new Logger();
-        dummy.options.reduceNum.set(true);
-        frame.addConsumer(dummy, audio, 0.1, 0);
+		Logger dummy = new Logger();
+		dummy.options.reduceNum.set(true);
+		frame.addConsumer(dummy, audio, 0.1, 0);
 
-//        BluetoothWriter blw = new BluetoothWriter();
-//        blw.options.connectionType = BluetoothConnection.Type.CLIENT;
-//        blw.options.serverAddr = "60:8F:5C:F2:D0:9D";
-//        blw.options.connectionName = "stream";
-//        frame.addConsumer(blw, audio, 0.1, 0);
+		/*
+		BluetoothWriter blw = new BluetoothWriter();
+        blw.options.connectionType = BluetoothConnection.Type.CLIENT;
+        blw.options.serverAddr = "60:8F:5C:F2:D0:9D";
+        blw.options.connectionName = "stream";
+        frame.addConsumer(blw, audio, 0.1, 0);
 
-//        FloatsEventSender fes = new FloatsEventSender();
-//        frame.addConsumer(fes, audio, 1.0, 0);
-//        EventChannel ch = frame.registerEventChannel(fes);
-//
-//        BluetoothEventWriter blew = new BluetoothEventWriter();
-//        blew.options.connectionType = BluetoothConnection.Type.CLIENT;
-//        blew.options.serverAddr = "60:8F:5C:F2:D0:9D";
-//        blew.options.connectionName = "event";
-//        frame.registerEventListener(blew);
-//        frame.registerEventListener(blew, ch);
+        FloatsEventSender fes = new FloatsEventSender();
+        frame.addConsumer(fes, audio, 1.0, 0);
+        EventChannel ch = frame.registerEventChannel(fes);
 
-        try {
-            frame.start();
+        BluetoothEventWriter blew = new BluetoothEventWriter();
+        blew.options.connectionType = BluetoothConnection.Type.CLIENT;
+        blew.options.serverAddr = "60:8F:5C:F2:D0:9D";
+        blew.options.connectionName = "event";
+        frame.registerEventListener(blew);
+        frame.registerEventListener(blew, ch);
+        */
 
-            long start = System.currentTimeMillis();
-            while(true)
-            {
-                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_LONG)
-                    break;
+		frame.start();
 
-                Thread.sleep(1);
-            }
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_LONG);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-            frame.stop();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+		frame.stop();
 
-        Log.i("test finished");
-    }
+		Log.i("test finished");
+	}
 
-    @Test
-    public void testMaster() throws Exception
-    {
-        Pipeline frame = Pipeline.getInstance();
-        frame.options.bufferSize.set(10.0f);
+	@Test
+	public void testMaster() throws Exception
+	{
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
 
-        frame.options.sync.set(Pipeline.SyncType.CONTINUOUS);
-        frame.options.syncPort.set(55100);
-        frame.options.syncHost.set(null); //this is the syncHost
+		frame.options.sync.set(Pipeline.SyncType.CONTINUOUS);
+		frame.options.syncPort.set(55100);
+		frame.options.syncHost.set(null); //this is the syncHost
 
-//        BluetoothReader blr = new BluetoothReader();
-//        blr.options.connectionType = BluetoothConnection.Type.SERVER;
-//        blr.options.connectionName = "stream";
-//        BluetoothChannel data = new BluetoothChannel();
-//        data.options.dim = 1;
-//        data.options.type = Cons.Type.FLOAT;
-//        data.options.sr = 16000;
+		/*
+		BluetoothReader blr = new BluetoothReader();
+        blr.options.connectionType = BluetoothConnection.Type.SERVER;
+        blr.options.connectionName = "stream";
+        BluetoothChannel data = new BluetoothChannel();
+        data.options.dim = 1;
+        data.options.type = Cons.Type.FLOAT;
+        data.options.sr = 16000;
 
-//        frame.addSensor(blr,data);
+        frame.addSensor(blr,data);
+        */
 
-        Microphone mic = new Microphone();
-        AudioChannel audio = new AudioChannel();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(true);
-        frame.addSensor(mic,audio);
+		Microphone mic = new Microphone();
+		AudioChannel audio = new AudioChannel();
+		audio.options.sampleRate.set(16000);
+		audio.options.scale.set(true);
+		frame.addSensor(mic, audio);
 
-        Logger dummy = new Logger();
-        dummy.options.reduceNum.set(true);
-        frame.addConsumer(dummy, audio, 0.1, 0);
+		Logger dummy = new Logger();
+		dummy.options.reduceNum.set(true);
+		frame.addConsumer(dummy, audio, 0.1, 0);
 
-//        BluetoothEventReader bler = new BluetoothEventReader();
-//        bler.options.connectionType = BluetoothConnection.Type.SERVER;
-//        bler.options.connectionName = "event";
-//        frame.registerEventListener(bler);
-//        EventChannel ch = frame.registerEventChannel(bler);
-//
-//        EventLogger evlog = new EventLogger();
-//        frame.registerEventListener(evlog);
-//        frame.registerEventListener(evlog, ch);
+		/*
+		BluetoothEventReader bler = new BluetoothEventReader();
+        bler.options.connectionType = BluetoothConnection.Type.SERVER;
+        bler.options.connectionName = "event";
+        frame.registerEventListener(bler);
+        EventChannel ch = frame.registerEventChannel(bler);
 
-        try {
-            frame.start();
+        EventLogger evlog = new EventLogger();
+        frame.registerEventListener(evlog);
+        frame.registerEventListener(evlog, ch);
+        */
 
-            long start = System.currentTimeMillis();
-            while(true)
-            {
-                if(System.currentTimeMillis() > start + TestHelper.DUR_TEST_NORMAL)
-                    break;
+		frame.start();
 
-                Thread.sleep(1);
-            }
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 
-            frame.stop();
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-
-        Log.i("test finished");
-    }
+		frame.stop();
+		Log.i("test finished");
+	}
 }

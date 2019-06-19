@@ -45,35 +45,33 @@ public class AngelSensorTest
 	@Test
 	public void testSensors() throws Exception
 	{
-		//setup
+		// Setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
-		//sensor
-		AngelSensor sensor = new AngelSensor();
 
-		//channel
+		// Sensor
+		AngelSensor sensor = new AngelSensor();
 		BVPAngelChannel sensorChannel = new BVPAngelChannel();
-		frame.addSensor(sensor,sensorChannel);
-		//logger
+		frame.addSensor(sensor, sensorChannel);
+
+		// Logger
 		Logger log = new Logger();
 		frame.addConsumer(log, sensorChannel, 1, 0);
 
-		//start framework
+		// Start framework
 		frame.start();
-		//run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
+		// Stop framework
 		frame.stop();
 		frame.clear();
 	}

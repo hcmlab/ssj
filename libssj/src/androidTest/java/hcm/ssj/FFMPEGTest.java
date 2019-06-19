@@ -78,14 +78,10 @@ public class FFMPEGTest
 		// Start framework
 		frame.start();
 
-		// Run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_SHORT;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{

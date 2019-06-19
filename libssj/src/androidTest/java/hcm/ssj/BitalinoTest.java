@@ -49,10 +49,11 @@ public class BitalinoTest
 	@Test
 	public void testChannels() throws Exception
 	{
-		//setup
+		// Setup
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
-		//sensor
+
+		// Sensor
 		Bitalino sensor = new Bitalino();
 		sensor.options.sr.set(10);
 		sensor.options.name.set("BITalino-17-44");
@@ -60,25 +61,24 @@ public class BitalinoTest
 		LUXChannel lux = new LUXChannel();
 		frame.addSensor(sensor, lux);
 
-		frame.addConsumer(new Logger(), lux, 0.1, 0);
+		// Logger
+		Logger logger = new Logger();
+		frame.addConsumer(logger, lux, 0.1, 0);
 
-		//start framework
+		// Start framework
 		frame.start();
 
-		//run test
-		long end = System.currentTimeMillis() + TestHelper.DUR_TEST_NORMAL;
+		// Wait duration
 		try
 		{
-			while (System.currentTimeMillis() < end)
-			{
-				Thread.sleep(1);
-			}
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 
+		// Stop framework
 		frame.stop();
 		frame.clear();
 	}

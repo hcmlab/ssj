@@ -108,11 +108,11 @@ public class NaiveBayesTest
 		// Fill stream
 		for (int i = 0; i < trainStream.num / 2; i++)
 		{
-			trainStream.ptrF()[i] = 0.0f + (float)(Math.random() / 10f);
+			trainStream.ptrF()[i] = 0.0f + (float) (Math.random() / 10f);
 		}
 		for (int i = trainStream.num / 2; i < trainStream.num; i++)
 		{
-			trainStream.ptrF()[i] = 0.9f + (float)(Math.random() / 10f);
+			trainStream.ptrF()[i] = 0.9f + (float) (Math.random() / 10f);
 		}
 
 		Annotation anno = new Annotation();
@@ -131,12 +131,12 @@ public class NaiveBayesTest
 
 		testStream.ptrF()[0] = 0;
 		float[] probs = model.forward(testStream);
-		Log.d("test for input "+testStream.ptrF()[0]+":    " + Arrays.toString(probs));
-		Assert.assertArrayEquals("unexpected result!", new float[]{1.0f,0.0f}, probs, 1E-5f);
+		Log.d("test for input " + testStream.ptrF()[0] + ":    " + Arrays.toString(probs));
+		Assert.assertArrayEquals("unexpected result!", new float[]{1.0f, 0.0f}, probs, 1E-5f);
 
 		testStream.ptrF()[0] = 1;
 		probs = model.forward(testStream);
-		Log.d("test for input "+testStream.ptrF()[0]+":    " + Arrays.toString(probs));
-		Assert.assertArrayEquals("unexpected result!", new float[]{0.0f,1.0f}, probs, 1E-5f);
+		Log.d("test for input " + testStream.ptrF()[0] + ":    " + Arrays.toString(probs));
+		Assert.assertArrayEquals("unexpected result!", new float[]{0.0f, 1.0f}, probs, 1E-5f);
 	}
 }

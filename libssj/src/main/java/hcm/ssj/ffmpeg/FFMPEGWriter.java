@@ -72,7 +72,7 @@ public class FFMPEGWriter extends Consumer implements IFileWriter
 	{
 		public final Option<String> url = new Option<>("url", null, String.class, "streaming address, e.g. udp://<ip:port>. If set, path is ignored.");
 		public final Option<Boolean> stream = new Option<>("stream", false, Boolean.class, "Set this flag for very fast decoding in streaming applications (forces h264 codec)");
-		public final Option<String> format = new Option<>("format", "mp4", String.class, "Default output format, set to 'mpegts' in streaming applications");
+		public final Option<String> format = new Option<>("format", "mp4", String.class, "Default output format (e.g. mp4, h264, ...), set to 'mpegts' in streaming applications");
 		public final Option<Integer> bitRate = new Option<>("bitRate", 500, Integer.class, "Bitrate in kB/s");
 
 		/**
@@ -133,7 +133,7 @@ public class FFMPEGWriter extends Consumer implements IFileWriter
 
 			if (options.fileName.get() == null)
 			{
-				String defaultName = TextUtils.join("_", stream_in[0].desc) + "." + options.format.get();
+				String defaultName = TextUtils.join("_", stream_in[0].desc) + ".mp4";
 				Log.w("file name not set, setting to " + defaultName);
 				options.fileName.set(defaultName);
 			}
