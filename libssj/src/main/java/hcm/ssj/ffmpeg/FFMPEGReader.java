@@ -27,7 +27,7 @@
 
 package hcm.ssj.ffmpeg;
 
-import org.bytedeco.javacpp.avutil;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameGrabber;

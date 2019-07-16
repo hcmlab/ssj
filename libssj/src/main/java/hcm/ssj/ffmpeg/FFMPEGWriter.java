@@ -30,8 +30,8 @@ package hcm.ssj.ffmpeg;
 import android.graphics.ImageFormat;
 import android.text.TextUtils;
 
-import org.bytedeco.javacpp.avcodec;
-import org.bytedeco.javacpp.avutil;
+import org.bytedeco.ffmpeg.global.avcodec;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.FrameRecorder;
@@ -173,7 +173,7 @@ public class FFMPEGWriter extends Consumer implements IFileWriter
 		{
 			case ImageFormat.NV21:
 				imageFrame = new Frame(width, height, Frame.DEPTH_UBYTE, 2);
-				pixelFormat = avutil.AV_PIX_FMT_NONE; // AV_PIX_FMT_NV21
+				pixelFormat = avutil.AV_PIX_FMT_NV21 ; // was AV_PIX_FMT_NONE for javacv 1.3.3
 				bufferSize *= 1.5;
 				break;
 			case ImageFormat.FLEX_RGB_888:

@@ -70,7 +70,7 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
-            abiFilters "armeabi-v7a", "x86"/*, "arm64-v8a", "x86_64"*/
+            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
 
         versionName getVerName()
@@ -162,7 +162,7 @@ tasks.whenTaskAdded { theTask ->
 dependencies {
     androidTestImplementation 'com.android.support:support-annotations:26.1.0'
     androidTestImplementation 'com.android.support.test:runner:0.5'
-    androidTestImplementation 'com.android.support.test:rules:0.5'
+    androidTestImplementation 'com.android.support.test:rules:1.0.2'
 
     api fileTree(dir: 'libs', include: ['*.jar'])
 }
