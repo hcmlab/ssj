@@ -29,7 +29,7 @@ apply plugin: 'com.android.application'
 apply from: '../version.gradle'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 28
     buildToolsVersion '28.0.3'
 
     lintOptions {
@@ -41,12 +41,12 @@ android {
     defaultConfig {
         applicationId "hcm.ssj.creator"
         minSdkVersion 19
-        targetSdkVersion 26
+        targetSdkVersion 28
         versionName getVerName()
         versionCode getVerCode()
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         ndk {
-            abiFilters "armeabi-v7a", "x86"/*, "arm64-v8a", "x86_64"*/
+            abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
     }
     buildTypes {
@@ -63,12 +63,12 @@ repositories {
 }
 
 dependencies {
-    androidTestImplementation 'com.android.support:support-annotations:26.1.0'
-    androidTestImplementation 'com.android.support.test:runner:0.5'
-    androidTestImplementation 'com.android.support.test:rules:0.5'
+    androidTestImplementation 'androidx.annotation:annotation:1.1.0'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test:rules:1.2.0'
 
-    implementation 'com.android.support:appcompat-v7:26.1.0'
-    implementation 'com.android.support:design:26.1.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.material:material:1.0.0'
     implementation project(path: ':libssj')
     implementation 'com.github.paolorotolo:appintro:4.0.0'
     implementation 'com.obsez.android.lib.filechooser:filechooser:1.1.5'

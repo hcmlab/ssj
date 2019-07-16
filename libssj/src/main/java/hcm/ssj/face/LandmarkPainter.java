@@ -249,7 +249,7 @@ public class LandmarkPainter extends Consumer
 					Rect dest = new Rect(bitmapLeft, bitmapTop, bitmapLeft + bitmapWidth, bitmapTop + bitmapHeight);
 
 					// Rotate canvas coordinate system around the center of the image.
-					canvas.save(Canvas.MATRIX_SAVE_FLAG);
+					canvas.save(); // canvas.save(Canvas.MATRIX_SAVE_FLAG);
 					canvas.rotate(options.imageRotation.get().rotation, canvasWidth >> 1, canvasHeight >> 1);
 
 					// Draw bitmap into rect

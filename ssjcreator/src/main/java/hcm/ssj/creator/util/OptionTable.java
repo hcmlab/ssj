@@ -28,7 +28,7 @@
 package hcm.ssj.creator.util;
 
 import android.app.Activity;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;

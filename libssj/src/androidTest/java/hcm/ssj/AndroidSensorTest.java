@@ -29,8 +29,8 @@ package hcm.ssj;
 
 import android.content.Context;
 import android.hardware.SensorManager;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +42,7 @@ import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
 /**
  * Tests all classes in the android sensor package.<br>

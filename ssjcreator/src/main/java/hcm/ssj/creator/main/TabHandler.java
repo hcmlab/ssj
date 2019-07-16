@@ -28,7 +28,7 @@
 package hcm.ssj.creator.main;
 
 import android.app.Activity;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.TabHost;

@@ -29,8 +29,8 @@ package hcm.ssj;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import com.thalmic.myo.AbstractDeviceListener;
 import com.thalmic.myo.Hub;
@@ -47,7 +47,7 @@ import hcm.ssj.myo.EMGChannel;
 import hcm.ssj.myo.Vibrate2Command;
 import hcm.ssj.test.Logger;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
 /**
  * Created by Michael Dietz on 02.04.2015.

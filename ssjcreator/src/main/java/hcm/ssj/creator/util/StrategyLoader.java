@@ -27,7 +27,7 @@
 
 package hcm.ssj.creator.util;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;

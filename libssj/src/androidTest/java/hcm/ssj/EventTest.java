@@ -27,8 +27,8 @@
 
 package hcm.ssj;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
 import hcm.ssj.test.EventLogger;
 
-import static android.support.test.InstrumentationRegistry.getContext;
+import static androidx.test.InstrumentationRegistry.getContext;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

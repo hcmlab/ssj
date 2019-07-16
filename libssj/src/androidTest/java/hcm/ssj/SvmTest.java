@@ -27,8 +27,8 @@
 
 package hcm.ssj;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.Assert;
 
@@ -48,7 +48,7 @@ import hcm.ssj.ml.ClassifierT;
 import hcm.ssj.ml.SVM;
 import hcm.ssj.test.Logger;
 
-import static android.support.test.InstrumentationRegistry.getContext;
+import static androidx.test.InstrumentationRegistry.getContext;
 
 
 @RunWith(AndroidJUnit4.class)

@@ -27,8 +27,8 @@
 
 package hcm.ssj;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,8 +49,8 @@ import hcm.ssj.signal.PSD;
 import hcm.ssj.signal.Spectrogram;
 import hcm.ssj.test.Logger;
 
-import static android.support.test.InstrumentationRegistry.getContext;
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.InstrumentationRegistry.getContext;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest

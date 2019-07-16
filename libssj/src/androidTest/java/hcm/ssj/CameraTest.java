@@ -27,8 +27,8 @@
 
 package hcm.ssj;
 
-import android.support.test.filters.SmallTest;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import android.view.SurfaceView;
 
 import junit.framework.Assert;
@@ -45,7 +45,7 @@ import hcm.ssj.camera.CameraWriter;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.InstrumentationRegistry.getInstrumentation;
 
 /**
  * Tests all camera sensor, channel and consumer.<br>
