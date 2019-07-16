@@ -13,6 +13,7 @@ hcm.ssj.core.stream
 hcm.ssj.empatica
 hcm.ssj.estimote
 hcm.ssj.event
+hcm.ssj.face
 hcm.ssj.feedback
 hcm.ssj.feedback.feedbackmanager.actions
 hcm.ssj.feedback.feedbackmanager.classes
