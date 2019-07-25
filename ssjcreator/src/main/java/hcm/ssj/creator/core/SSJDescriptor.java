@@ -42,6 +42,7 @@ import java.util.HashSet;
 
 import dalvik.system.DexFile;
 import dalvik.system.PathClassLoader;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJApplication;
 
 /**
@@ -50,150 +51,177 @@ import hcm.ssj.core.SSJApplication;
  */
 public class SSJDescriptor
 {
-    private static SSJDescriptor instance = null;
-    //
-    public ArrayList<Class> sensors = new ArrayList<>();
-    public ArrayList<Class> sensorChannels = new ArrayList<>();
-    public ArrayList<Class> transformers = new ArrayList<>();
-    public ArrayList<Class> consumers = new ArrayList<>();
-    public ArrayList<Class> eventHandlers = new ArrayList<>();
-    public ArrayList<Class> models = new ArrayList<>();
-    private HashSet<String> hsClassNames = new HashSet<>();
+	private static SSJDescriptor instance = null;
+	//
+	public ArrayList<Class> sensors = new ArrayList<>();
+	public ArrayList<Class> sensorChannels = new ArrayList<>();
+	public ArrayList<Class> transformers = new ArrayList<>();
+	public ArrayList<Class> consumers = new ArrayList<>();
+	public ArrayList<Class> eventHandlers = new ArrayList<>();
+	public ArrayList<Class> models = new ArrayList<>();
+	private HashSet<String> hsClassNames = new HashSet<>();
 
-    /**
-     *
-     */
-    private SSJDescriptor()
-    {
-        scan();
-    }
+	/**
+	 *
+	 */
+	private SSJDescriptor()
+	{
+		scan();
+	}
 
-    /**
-     * @return Builder
-     */
-    public static synchronized SSJDescriptor getInstance()
-    {
-        if (instance == null)
-        {
-            instance = new SSJDescriptor();
-        }
-        return instance;
-    }
+	/**
+	 * @return Builder
+	 */
+	public static synchronized SSJDescriptor getInstance()
+	{
+		if (instance == null)
+		{
+			instance = new SSJDescriptor();
+		}
+		return instance;
+	}
 
-    private static SharedPreferences getMultiDexPreferences(Context context) {
-        return context.getSharedPreferences("multidex.version", Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ?
-                Context.MODE_PRIVATE :
-                Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
-    }
+	private static SharedPreferences getMultiDexPreferences(Context context)
+	{
+		return context.getSharedPreferences("multidex.version", Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB ?
+				Context.MODE_PRIVATE :
+				Context.MODE_PRIVATE | Context.MODE_MULTI_PROCESS);
+	}
 
 
-    /**
-     * Parse classes.dex to find all implemented SSJ components.<br>
-     * Based on code from stackoverflow (<a href="http://stackoverflow.com/a/31087947">one</a>
-     * and <a href="http://stackoverflow.com/a/36491692">two</a>).
-     */
-    private void scan()
-    {
-        try
-        {
-            ApplicationInfo applicationInfo = SSJApplication.getAppContext().getPackageManager().getApplicationInfo(SSJApplication.getAppContext().getPackageName(), 0);
+	/**
+	 * Parse classes.dex to find all implemented SSJ components.<br>
+	 * Based on code from stackoverflow (<a href="http://stackoverflow.com/a/31087947">one</a>
+	 * and <a href="http://stackoverflow.com/a/36491692">two</a>).
+	 */
+	private void scan()
+	{
+		try
+		{
+			ApplicationInfo applicationInfo = SSJApplication.getAppContext().getPackageManager().getApplicationInfo(SSJApplication.getAppContext().getPackageName(), 0);
 
-            if(android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP)
-            {
-                scanDex(new DexFile(applicationInfo.sourceDir));
-            }
-            else
-            {
-                //get source directory
-                String dir = applicationInfo.sourceDir.substring(0, applicationInfo.sourceDir.lastIndexOf(File.separator));
-                //iterate through all .apk and .dex in the source directory
-                File[] files = new File(dir).listFiles();
-                for (File slice : files)
-                {
-                    if (!slice.isFile())
-                        continue;
+			if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.LOLLIPOP)
+			{
+				scanDex(new DexFile(applicationInfo.sourceDir));
+			}
+			else
+			{
+				//get source directory
+				String dir = applicationInfo.sourceDir.substring(0, applicationInfo.sourceDir.lastIndexOf(File.separator));
+				//iterate through all .apk and .dex in the source directory
+				File[] files = new File(dir).listFiles();
+				for (File slice : files)
+				{
+					if (!slice.isFile())
+					{
+						continue;
+					}
 
-                    String extension = slice.getName().substring(slice.getName().lastIndexOf("."));
-                    if (extension.equalsIgnoreCase(".apk") || extension.equalsIgnoreCase(".dex"))
-                        scanDex(new DexFile(slice));
-                }
-            }
+					Log.i("Scanning slice: " + slice.getAbsolutePath());
 
-        } catch (IOException | PackageManager.NameNotFoundException ex)
-        {
-            ex.printStackTrace();
-        }
+					// Exclude splitted apk since classes are only in base_config
+					if (!slice.getName().startsWith("split_config"))
+					{
+						try
+						{
+							String extension = slice.getName().substring(slice.getName().lastIndexOf("."));
+							if (extension.equalsIgnoreCase(".apk") || extension.equalsIgnoreCase(".dex"))
+							{
+								scanDex(new DexFile(slice));
+							}
+						}
+						catch (Exception e)
+						{
+							Log.e("Failed to scan file: " + slice.getAbsolutePath(), e);
+						}
+					}
+				}
+			}
 
-        //add classes
-        PathClassLoader classLoader = (PathClassLoader) Thread.currentThread().getContextClassLoader();
-        for (String className : hsClassNames)
-        {
-            try
-            {
-                Class<?> aClass = classLoader.loadClass(className);
-                //only add valid classes
-                if (!Modifier.isAbstract(aClass.getModifiers()) && !Modifier.isInterface(aClass.getModifiers()) && !Modifier.isPrivate(aClass.getModifiers()))
-                {
-                    Class<?> parent = aClass.getSuperclass();
-                    while (parent != null)
-                    {
-                        if (parent.getSimpleName().compareToIgnoreCase("Sensor") == 0)
-                        {
-                            sensors.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("SensorChannel") == 0)
-                        {
-                            sensorChannels.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("Transformer") == 0)
-                        {
-                            transformers.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("Consumer") == 0)
-                        {
-                            consumers.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("EventHandler") == 0)
-                        {
-                            eventHandlers.add(aClass);
-                        } else if (parent.getSimpleName().compareToIgnoreCase("Model") == 0)
-                        {
-                            models.add(aClass);
-                        }
-                        parent = parent.getSuperclass();
-                    }
-                }
-            } catch (ClassNotFoundException cnfe)
-            {
-                cnfe.printStackTrace();
-            }
-        }
-    }
+		}
+		catch (IOException | PackageManager.NameNotFoundException ex)
+		{
+			Log.e("Error while scanning dex files", ex);
+		}
 
-    /**
-     * @param dexFile DexFile
-     */
-    private void scanDex(DexFile dexFile)
-    {
-        Enumeration<String> classNames = dexFile.entries();
-        while (classNames.hasMoreElements())
-        {
-            String className = classNames.nextElement();
-            if (className.startsWith("hcm.ssj.") && !className.contains("$"))
-            {
-                hsClassNames.add(className);
-            }
-        }
-    }
+		//add classes
+		PathClassLoader classLoader = (PathClassLoader) Thread.currentThread().getContextClassLoader();
+		for (String className : hsClassNames)
+		{
+			try
+			{
+				Class<?> aClass = classLoader.loadClass(className);
 
-    /**
-     * @param clazz Class
-     * @return Object
-     */
-    public static Object instantiate(Class clazz)
-    {
-        try
-        {
-            return clazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-    }
+				//only add valid classes
+				if (!Modifier.isAbstract(aClass.getModifiers()) && !Modifier.isInterface(aClass.getModifiers()) && !Modifier.isPrivate(aClass.getModifiers()))
+				{
+					Class<?> parent = aClass.getSuperclass();
+					while (parent != null)
+					{
+						if (parent.getSimpleName().compareToIgnoreCase("Sensor") == 0)
+						{
+							sensors.add(aClass);
+						}
+						else if (parent.getSimpleName().compareToIgnoreCase("SensorChannel") == 0)
+						{
+							sensorChannels.add(aClass);
+						}
+						else if (parent.getSimpleName().compareToIgnoreCase("Transformer") == 0)
+						{
+							transformers.add(aClass);
+						}
+						else if (parent.getSimpleName().compareToIgnoreCase("Consumer") == 0)
+						{
+							consumers.add(aClass);
+						}
+						else if (parent.getSimpleName().compareToIgnoreCase("EventHandler") == 0)
+						{
+							eventHandlers.add(aClass);
+						}
+						else if (parent.getSimpleName().compareToIgnoreCase("Model") == 0)
+						{
+							models.add(aClass);
+						}
+						parent = parent.getSuperclass();
+					}
+				}
+			}
+			catch (ClassNotFoundException cnfe)
+			{
+				Log.e("Class not found", cnfe);
+			}
+		}
+	}
+
+	/**
+	 * @param dexFile DexFile
+	 */
+	private void scanDex(DexFile dexFile)
+	{
+		Enumeration<String> classNames = dexFile.entries();
+		while (classNames.hasMoreElements())
+		{
+			String className = classNames.nextElement();
+			if (className.startsWith("hcm.ssj.") && !className.contains("$"))
+			{
+				hsClassNames.add(className);
+			}
+		}
+	}
+
+	/**
+	 * @param clazz Class
+	 * @return Object
+	 */
+	public static Object instantiate(Class clazz)
+	{
+		try
+		{
+			return clazz.newInstance();
+		}
+		catch (IllegalAccessException | InstantiationException ex)
+		{
+			throw new RuntimeException(ex);
+		}
+	}
 }
