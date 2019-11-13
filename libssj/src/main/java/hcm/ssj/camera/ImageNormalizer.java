@@ -52,8 +52,8 @@ public class ImageNormalizer extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Integer> imageMean = new Option<>("imageMean", 0, Integer.class, "image mean");
-		public final Option<Float> imageStd = new Option<>("imageStd", 0f, Float.class, "image standard deviation");
+		public final Option<Float> imageMean = new Option<>("imageMean", 127.5f, Float.class, "image mean");
+		public final Option<Float> imageStd = new Option<>("imageStd", 1f, Float.class, "image standard deviation");
 
 		private Options()
 		{
@@ -130,7 +130,7 @@ public class ImageNormalizer extends Transformer
 	 */
 	private void normalizeImageValues(int[] rgb, float[] out)
 	{
-		int imageMean = options.imageMean.get();
+		float imageMean = options.imageMean.get();
 		float imageStd = options.imageStd.get();
 
 		for (int i = 0; i < rgb.length; ++i)

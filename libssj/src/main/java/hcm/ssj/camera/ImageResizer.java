@@ -47,6 +47,8 @@ import hcm.ssj.core.stream.Stream;
 
 public class ImageResizer extends Transformer
 {
+	public static final int IMAGE_CHANNELS = 3;
+
 	@Override
 	public OptionList getOptions()
 	{
@@ -151,14 +153,18 @@ public class ImageResizer extends Transformer
 			CameraUtil.saveBitmap(bitmap);
 		}
 
-		bitmapToByteArray(bitmap, stream_out.ptrB());
+		//bitmapToByteArray(bitmap, stream_out.ptrB());
+		CameraUtil.convertBitmapToByteArray(bitmap, intValues, stream_out.ptrB());
 	}
 
 
 	@Override
 	public int getSampleDimension(Stream[] stream_in)
 	{
-		return stream_in[0].dim;
+		// return stream_in[0].dim;
+		int size = options.size.get();
+
+		return size * size * IMAGE_CHANNELS;
 	}
 
 
@@ -198,6 +204,8 @@ public class ImageResizer extends Transformer
 	/**
 	 * Converts bitmap to corresponding byte array and writes it
 	 * to the output buffer.
+	 *
+	 * @deprecated Use CameraUtil.convertBitmapToByteArray() instead
 	 *
 	 * @param bitmap Bitmap to convert to byte array.
 	 * @param out Output buffer.

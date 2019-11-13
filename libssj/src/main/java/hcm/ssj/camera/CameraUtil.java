@@ -477,6 +477,27 @@ public class CameraUtil
         return rgb;
     }
 
+    /**
+     * Converts bitmap to corresponding byte array and writes it
+     * to the output buffer.
+     *
+     * @param bitmap Bitmap to convert to byte array.
+     * @param intOutput Integer output buffer
+     * @param byteOutput Byte output buffer.
+     */
+    public static void convertBitmapToByteArray(Bitmap bitmap, int[] intOutput, byte[] byteOutput)
+    {
+        bitmap.getPixels(intOutput, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+
+        for (int i = 0; i < bitmap.getWidth() * bitmap.getHeight(); ++i)
+        {
+            final int pixel = intOutput[i];
+            byteOutput[i * 3] = (byte)((pixel >> 16) & 0xFF);
+            byteOutput[i * 3 + 1] = (byte)((pixel >> 8) & 0xFF);
+            byteOutput[i * 3 + 2] = (byte)(pixel & 0xFF);
+        }
+    }
+
 	public static void convertRGBToARGBInt(int[] argb, byte[] rgb, int width, int height)
     {
         int cnt_out = 0;

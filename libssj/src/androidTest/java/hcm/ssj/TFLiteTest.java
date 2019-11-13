@@ -1,6 +1,6 @@
 /*
- * InceptionTest.java
- * Copyright (c) 2017
+ * TFLiteTest.java
+ * Copyright (c) 2019
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -27,14 +27,13 @@
 
 package hcm.ssj;
 
-import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
 
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
 import hcm.ssj.camera.ImageNormalizer;
@@ -44,24 +43,23 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.ml.Classifier;
+import hcm.ssj.ml.TFLite;
 import hcm.ssj.ml.TensorFlow;
 import hcm.ssj.test.EventLogger;
 
 /**
  * Tests setting up, loading, and evaluating object classification
- * with the Inception model.
- *
- * @author Vitaly
+ * with the MobileNet model.
  */
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class InceptionTest
+public class TFLiteTest
 {
 	@Test
-	public void loadInceptionModel() throws Exception
+	public void loadMobilenetModel() throws Exception
 	{
-		String trainerName = "inception.trainer";
+		String trainerName = "mobilenet.trainer";
 		String trainerURL = "https://hcm-lab.de/downloads/ssj/model";
 
 		// Option parameters for camera sensor
@@ -70,7 +68,7 @@ public class InceptionTest
 		int height = 480;
 
 		final float IMAGE_MEAN = 127.5f;
-		final float IMAGE_STD = 1;
+		final float IMAGE_STD = 127.5f;
 		final int CROP_SIZE = 224;
 		final boolean MAINTAIN_ASPECT = true;
 
@@ -80,7 +78,7 @@ public class InceptionTest
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
-		cameraSensor.options.cameraType.set(Cons.CameraType.BACK_CAMERA);
+		cameraSensor.options.cameraType.set(Cons.CameraType.FRONT_CAMERA);
 		cameraSensor.options.width.set(width);
 		cameraSensor.options.height.set(height);
 		cameraSensor.options.previewFpsRangeMin.set(15);
@@ -99,7 +97,7 @@ public class InceptionTest
 		ImageResizer resizer = new ImageResizer();
 		resizer.options.maintainAspect.set(MAINTAIN_ASPECT);
 		resizer.options.size.set(CROP_SIZE);
-		resizer.options.rotation.set(90);
+		resizer.options.rotation.set(270);
 		frame.addTransformer(resizer, decoder, 1, 0);
 
 		// Add image pixel value normalizer to the pipeline
@@ -108,13 +106,13 @@ public class InceptionTest
 		imageNormalizer.options.imageStd.set(IMAGE_STD);
 		frame.addTransformer(imageNormalizer, resizer, 1, 0);
 
-		TensorFlow tensorFlow = new TensorFlow();
-		tensorFlow.options.file.setValue(trainerURL + File.separator + trainerName);
-		frame.addModel(tensorFlow);
+		TFLite tfLite = new TFLite();
+		tfLite.options.file.setValue(trainerURL + File.separator + trainerName);
+		frame.addModel(tfLite);
 
 		// Add classifier transformer to the pipeline
 		Classifier classifier = new Classifier();
-		classifier.setModel(tensorFlow);
+		classifier.setModel(tfLite);
 		classifier.options.merge.set(false);
 		classifier.options.bestMatchOnly.set(true);
 		frame.addConsumer(classifier, imageNormalizer, 1, 0);

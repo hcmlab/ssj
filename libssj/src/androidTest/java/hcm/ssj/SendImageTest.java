@@ -149,7 +149,7 @@ public class SendImageTest
 
 		// Add image pixel value normalizer to the pipeline
 		ImageNormalizer imageNormalizer = new ImageNormalizer();
-		imageNormalizer.options.imageMean.set(117);
+		imageNormalizer.options.imageMean.set(127.5f);
 		imageNormalizer.options.imageStd.set(1f);
 		frame.addTransformer(imageNormalizer, resizer, frameSize, delta);
 

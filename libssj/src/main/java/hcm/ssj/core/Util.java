@@ -75,6 +75,10 @@ public class Util
                 return 4;
             case DOUBLE:
                 return 8;
+            case IMAGE:
+                return 1;
+            case BYTE:
+                return 1;
             case BOOL:
                 return 1;
         }

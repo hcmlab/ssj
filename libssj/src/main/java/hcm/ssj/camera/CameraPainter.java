@@ -207,8 +207,12 @@ public class CameraPainter extends Consumer implements EventListener
         surfaceViewInner = null;
         iaRgbData = null;
         surfaceHolder = null;
-        bitmap.recycle();
-        bitmap = null;
+
+        if (bitmap != null)
+        {
+            bitmap.recycle();
+            bitmap = null;
+        }
     }
 
     /**
