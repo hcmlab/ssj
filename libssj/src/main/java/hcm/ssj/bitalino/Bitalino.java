@@ -53,7 +53,7 @@ public class Bitalino extends Sensor
 {
 	public class Options extends OptionList
 	{
-		public final Option<String> name = new Option<>("name", null, String.class, "device name");
+		public final Option<String> name = new Option<>("name", null, String.class, "device name, e.g. BITalino-47-08");
 		public final Option<String> address = new Option<>("address", null, String.class, "mac address of device, only used if name is left empty");
 		public final Option<Communication> connectionType = new Option<>("connectionType", Communication.BTH, Communication.class, "type of connection");
 		public final Option<Integer> sr = new Option<>("sr", 10, Integer.class, "sample rate, supported values: 1, 10, 100, 1000");

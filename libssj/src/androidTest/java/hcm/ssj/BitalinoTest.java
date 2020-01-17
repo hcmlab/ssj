@@ -35,17 +35,19 @@ import org.junit.runner.RunWith;
 
 import hcm.ssj.bitalino.Bitalino;
 import hcm.ssj.bitalino.LUXChannel;
+import hcm.ssj.bitalino.PulseChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.test.Logger;
 
 /**
- * Tests all channels of the MS Band.<br>
+ * Tests all channels of the BITalino sensor.<br>
  * Created by Ionut Damian
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class BitalinoTest
 {
+	/*
 	@Test
 	public void testChannels() throws Exception
 	{
@@ -82,6 +84,45 @@ public class BitalinoTest
 		frame.stop();
 		frame.clear();
 	}
+	*/
 
+	@Test
+	public void testPulseChannel() throws Exception
+	{
+		// Setup
+		Pipeline pipeline = Pipeline.getInstance();
+
+		// Sensor
+		Bitalino sensor = new Bitalino();
+		sensor.options.sr.set(10);
+		sensor.options.address.set("20:18:05:28:47:08");
+
+		PulseChannel channel = new PulseChannel();
+		channel.options.channel.set(0);
+
+		// Logger
+		Logger logger = new Logger();
+
+
+		pipeline.addSensor(sensor, channel);
+		pipeline.addConsumer(logger, channel);
+
+		// Start framework
+		pipeline.start();
+
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		// Stop framework
+		pipeline.stop();
+		pipeline.clear();
+	}
 
 }

@@ -1,6 +1,6 @@
 /*
- * BitalinoListener.java
- * Copyright (c) 2018
+ * LimitedSizeQueue.java
+ * Copyright (c) 2020
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -25,72 +25,43 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.bitalino;
+package hcm.ssj.core;
 
-import info.plux.pluxapi.bitalino.BITalinoFrame;
-import info.plux.pluxapi.bitalino.bth.OnBITalinoDataAvailable;
+import java.util.ArrayList;
 
 /**
- * Created by Michael Dietz on 06.07.2016.
+ * Custom implementation of a LIFO queue with fixed size.
+ *
+ * @see <a href="https://stackoverflow.com/questions/1963806/is-there-a-fixed-sized-queue-which-removes-excessive-elements">source</a>.
+ * <p>
+ * Created by Michael Dietz on 09.01.2020.
  */
-public class BitalinoListener implements OnBITalinoDataAvailable
+public class LimitedSizeQueue<K> extends ArrayList<K>
 {
-	private final int TIMEOUT = 10000; //in ms
+	private int maxSize;
 
-	BITalinoFrame lastDataFrame = null;
-	private long lastDataTimestamp = 0;
-
-	private int[] analog = new int[6];
-	private int[] digital = new int[4];
-
-	public BitalinoListener()
+	public LimitedSizeQueue(int size)
 	{
-		reset();
+		this.maxSize = size;
 	}
 
-	public void reset()
+	public boolean add(K k)
 	{
-		lastDataFrame = null;
-		lastDataTimestamp = 0;
-	}
-
-	public int getAnalogData(int pos)
-	{
-		return analog[pos];
-	}
-
-	public int getDigitalData(int pos)
-	{
-		return digital[pos];
-	}
-
-	synchronized void dataReceived()
-	{
-		lastDataTimestamp = System.currentTimeMillis();
-	}
-
-	public boolean isConnected()
-	{
-		return System.currentTimeMillis() - lastDataTimestamp < TIMEOUT;
-	}
-
-	public boolean hasReceivedData()
-	{
-		return lastDataTimestamp != 0;
-	}
-
-	@Override
-	public void onBITalinoDataAvailable(BITalinoFrame biTalinoFrame)
-	{
-		synchronized (this)
+		boolean r = super.add(k);
+		if (size() > maxSize)
 		{
-			dataReceived();
-
-			for (int i = 0; i < analog.length; i++)
-				analog[i] = biTalinoFrame.getAnalog(i);
-
-			for (int i = 0; i < digital.length; i++)
-				digital[i] = biTalinoFrame.getDigital(i);
+			removeRange(0, size() - maxSize);
 		}
+		return r;
+	}
+
+	public K getYoungest()
+	{
+		return get(size() - 1);
+	}
+
+	public K getOldest()
+	{
+		return get(0);
 	}
 }

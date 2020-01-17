@@ -28,9 +28,7 @@
 package hcm.ssj.face;
 
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.os.SystemClock;
 
 import org.tensorflow.lite.Interpreter;
 import org.tensorflow.lite.gpu.GpuDelegate;
@@ -74,7 +72,6 @@ public class FaceCrop extends Transformer
 		public final Option<Integer> paddingHorizontal = new Option<>("paddingHorizontal", 0, Integer.class, "increase horizontal face crop by custom number of pixels on each side");
 		public final Option<Integer> paddingVertical = new Option<>("paddingVertical", 0, Integer.class, "increase vertical face crop by custom number of pixels on each side");
 
-
 		private Options()
 		{
 			addOptions();
@@ -112,8 +109,6 @@ public class FaceCrop extends Transformer
 
 	private int rotatedWidth = -1;
 	private int rotatedHeight = -1;
-
-	private ImageStream tmpInputStream;
 
 	private List<Detection> detectionList;
 	private Detection currentDetection;
