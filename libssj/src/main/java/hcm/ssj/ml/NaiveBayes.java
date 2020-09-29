@@ -308,10 +308,10 @@ public class NaiveBayes extends Model
 	}
 
 	@Override
-	protected void init(String[] classes, int n_features)
+	void init(int input_dim, int output_dim, String[] outputNames)
 	{
-		classCount = classes.length;
-		featureCount = n_features;
+		classCount = outputNames.length;
+		featureCount = input_dim;
 
 		// Initialize model variables
 		mean = new double[classCount][];
@@ -332,9 +332,9 @@ public class NaiveBayes extends Model
 		// Store class indices for reverse lookup used in online learning
 		classNameIndices = new HashMap<>();
 
-		for (int i = 0; i < classes.length; i++)
+		for (int i = 0; i < outputNames.length; i++)
 		{
-			classNameIndices.put(classes[i], i);
+			classNameIndices.put(outputNames[i], i);
 		}
 	}
 
@@ -368,12 +368,12 @@ public class NaiveBayes extends Model
 		{
 			int classNum = Integer.valueOf(token[0]);
 
-			if (classNum != n_classes)
+			if (classNum != output_dim)
 			{
-				Log.w("Model definition (n_classes) mismatch between trainer and model file: " + classNum + " != " + n_classes);
+				Log.w("Model definition (n_classes) mismatch between trainer and model file: " + classNum + " != " + output_dim);
 			}
 
-			classCount = n_classes;
+			classCount = output_dim;
 		}
 		else
 		{
@@ -404,12 +404,12 @@ public class NaiveBayes extends Model
 
 			// Get class name
 			String name = token[0];
-			if (!name.equalsIgnoreCase(class_names[classIndex]))
+			if (!name.equalsIgnoreCase(output_names[classIndex]))
 			{
-				Log.w("Model definition (name of class " + classIndex + ") mismatch between trainer and model file:" + name + " != " + class_names[classIndex]);
+				Log.w("Model definition (name of class " + classIndex + ") mismatch between trainer and model file:" + name + " != " + output_names[classIndex]);
 
 				// Overwrite class name
-				class_names[classIndex] = name;
+				output_names[classIndex] = name;
 			}
 			// Get class distribution
 			classDistribution[classIndex] = Double.valueOf(token[1]);
@@ -527,7 +527,7 @@ public class NaiveBayes extends Model
 			for (int classIndex = 0; classIndex < classCount; classIndex++)
 			{
 				// Write class name and distribution
-				writer.write(class_names[classIndex] + "\t" + classDistribution[classIndex] / classDistributionSum + "\n");
+				writer.write(output_names[classIndex] + "\t" + classDistribution[classIndex] / classDistributionSum + "\n");
 
 				// Write feature values
 				for (int featureIndex = 0; featureIndex < featureCount; featureIndex++)

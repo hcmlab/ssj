@@ -1,6 +1,6 @@
 /*
- * build.gradle
- * Copyright (c) 2018
+ * PipelineStateListener.java
+ * Copyright (c) 2020
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -25,23 +25,12 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package hcm.ssj.core;
 
-buildscript {
-    repositories {
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-        google()
-    }
+/**
+ * Created by Michael Dietz on 25.09.2020.
+ */
+public interface PipelineStateListener
+{
+	void stateUpdated(Pipeline.State state);
 }

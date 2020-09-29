@@ -175,4 +175,10 @@ public class Cons
             this.rotation = rotation;
         }
     }
+
+    public enum ClassifierMode
+    {
+        CLASSIFICATION,
+        REGRESSION
+    }
 }

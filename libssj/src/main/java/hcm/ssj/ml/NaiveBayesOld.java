@@ -82,9 +82,9 @@ public class NaiveBayesOld extends Model
     }
 
     @Override
-    protected void init(String[] classes, int n_features)
+    void init(int input_dim, int output_dim, String[] outputNames)
     {
-        probs = new float[n_classes];
+        probs = new float[output_dim];
         _isSetup = true;
     }
 
@@ -115,7 +115,7 @@ public class NaiveBayesOld extends Model
         boolean prior = usePriorProbability;
         if (userLogNormalDistribution)
         {
-            for (int nclass = 0; nclass < n_classes; nclass++)
+            for (int nclass = 0; nclass < output_dim; nclass++)
             {
                 double prob = prior ? naiveBayesLog(class_probs[nclass]) : 0;
                 double[] ptr = getValuesAsDouble(stream);
@@ -143,7 +143,7 @@ public class NaiveBayesOld extends Model
 
         } else
         {
-            for (int nclass = 0; nclass < n_classes; nclass++)
+            for (int nclass = 0; nclass < output_dim; nclass++)
             {
                 double norm_const = Math.sqrt(2.0 * Math.PI);
                 double prob = prior ? class_probs[nclass] : 0;
@@ -167,13 +167,13 @@ public class NaiveBayesOld extends Model
         if (sum == 0)
         {
             Log.w("sum == 0");
-            for (int j = 0; j < n_classes; j++)
+            for (int j = 0; j < output_dim; j++)
             {
-                probs[j] = 1.0f / n_classes;
+                probs[j] = 1.0f / output_dim;
             }
         } else
         {
-            for (int j = 0; j < n_classes; j++)
+            for (int j = 0; j < output_dim; j++)
             {
                 probs[j] /= sum;
             }
@@ -247,8 +247,8 @@ public class NaiveBayesOld extends Model
         if (token.length > 0)
         {
             int classNum = Integer.valueOf(token[0]);
-            if(classNum != n_classes)
-                Log.w("model definition (n_classes) mismatch between trainer and model file: " + classNum +" != "+ n_classes);
+            if(classNum != output_dim)
+                Log.w("model definition (n_classes) mismatch between trainer and model file: " + classNum +" != "+ output_dim);
         }
         else
         {
@@ -263,10 +263,10 @@ public class NaiveBayesOld extends Model
             Log.w("can't read feature dimension from classifier file " + file.getName() + "'!");
             return;
         }
-        class_probs = new double[n_classes];
-        means = new double[n_classes][];
-        std_dev = new double[n_classes][];
-        for (int nclass = 0; nclass < n_classes; nclass++)
+        class_probs = new double[output_dim];
+        means = new double[output_dim][];
+        std_dev = new double[output_dim][];
+        for (int nclass = 0; nclass < output_dim; nclass++)
         {
             means[nclass] = new double[n_features];
             std_dev[nclass] = new double[n_features];
@@ -277,7 +277,7 @@ public class NaiveBayesOld extends Model
             }
             class_probs[nclass] = 0;
         }
-        for (int nclass = 0; nclass < n_classes; nclass++)
+        for (int nclass = 0; nclass < output_dim; nclass++)
         {
             do
             {
@@ -286,10 +286,10 @@ public class NaiveBayesOld extends Model
             token = line.split("\t");
 
             String name = token[0];
-            if(!name.equalsIgnoreCase(class_names[nclass]))
+            if(!name.equalsIgnoreCase(output_names[nclass]))
             {
-                Log.w("model definition (name of class " + nclass + ") mismatch between trainer and model file:" + name + " != " + class_names[nclass]);
-                class_names[nclass] = name;
+                Log.w("model definition (name of class " + nclass + ") mismatch between trainer and model file:" + name + " != " + output_names[nclass]);
+                output_names[nclass] = name;
             }
 
             class_probs[nclass] = Double.valueOf(token[1]);

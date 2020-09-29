@@ -164,8 +164,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
 
-    implementation 'org.tensorflow:tensorflow-lite:2.0.0'
-    implementation 'org.tensorflow:tensorflow-lite-gpu:2.0.0'
+    //api 'org.tensorflow:tensorflow-lite:2.3.0'
+    //api 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
 
     api fileTree(dir: 'libs', include: ['*.jar'])
 }

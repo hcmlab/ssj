@@ -100,7 +100,7 @@ public class NaiveBayesTest
 	{
 		// Init new model
 		NaiveBayes model = new NaiveBayes();
-		model.setNumClasses(2);
+		model.setOutputDim(2);
 		model.setClassNames(new String[]{"a", "b"});
 
 		Stream trainStream = Stream.create(100, 1, 1, Cons.Type.FLOAT);

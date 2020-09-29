@@ -60,6 +60,7 @@ public class Classifier extends Consumer implements IModelHandler
     {
         public final Option<Boolean> merge = new Option<>("merge", true, Boolean.class, "merge input streams");
         public final Option<Boolean> bestMatchOnly = new Option<>("bestMatchOnly", true, Boolean.class, "print or send class with highest result only");
+        public final Option<Boolean> addClassNames = new Option<>("addClassNames", false, Boolean.class, "add class name to prediction result");
         public final Option<Boolean> log = new Option<>("log", true, Boolean.class, "print results in log");
         public final Option<String> sender = new Option<>("sender", "Classifier", String.class, "event sender name, written in every event");
         public final Option<String> event = new Option<>("event", "Result", String.class, "event name (ignored if bestMatchOnly is true)");
@@ -193,14 +194,39 @@ public class Classifier extends Consumer implements IModelHandler
         {
             if (_evchannel_out != null)
             {
-                Event ev = Event.create(Cons.Type.FLOAT);
+                Event ev;
+
+                if (options.addClassNames.get())
+                {
+                    String[] class_names = model.getClassNames();
+                    StringBuilder stringBuilder = new StringBuilder();
+                    for (int i = 0; i < probs.length; i++)
+                    {
+                        stringBuilder.append(class_names[i]);
+                        stringBuilder.append(": ");
+                        stringBuilder.append(String.format(Locale.ENGLISH, "%.3f", probs[i]));
+
+                        if (i < probs.length - 1)
+                        {
+                            stringBuilder.append(", ");
+                        }
+                    }
+
+                    ev = Event.create(Cons.Type.STRING);
+                    ev.setData(stringBuilder.toString());
+                }
+                else
+                {
+                    ev = Event.create(Cons.Type.FLOAT);
+                    ev.setData(probs);
+                }
+
                 ev.sender = options.sender.get();
                 ev.name = options.event.get();
                 ev.time = (int) (1000 * stream_in[0].time + 0.5);
                 double duration = stream_in[0].num / stream_in[0].sr;
                 ev.dur = (int) (1000 * duration + 0.5);
                 ev.state = Event.State.COMPLETED;
-                ev.setData(probs);
 
                 _evchannel_out.pushEvent(ev);
             }

@@ -124,6 +124,7 @@ public class Pipeline
 
     private HashSet<Component> components = new HashSet<>();
     private ArrayList<TimeBuffer> buffers = new ArrayList<>();
+    private List<PipelineStateListener> stateListeners = new ArrayList<>();
 
     private FileDownloader downloader;
 
@@ -131,7 +132,7 @@ public class Pipeline
 
     private Pipeline()
     {
-        state = State.INACTIVE;
+        setState(State.INACTIVE);
 
         //configure logger
         Log.getInstance().setFramework(this);
@@ -160,12 +161,43 @@ public class Pipeline
     }
 
     /**
+     * Sets the pipeline state and notifies state listeners
+     * @param newState target state
+     */
+    private void setState(final State newState)
+    {
+        this.state = newState;
+
+        for (final PipelineStateListener stateListener : stateListeners)
+        {
+            new Thread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    stateListener.stateUpdated(newState);
+                }
+            }).start();
+        }
+    }
+
+    /**
+     * Adds a new pipeline state listener
+     * @param listener listener
+     */
+    public void registerStateListener(PipelineStateListener listener)
+    {
+        stateListeners.add(listener);
+    }
+
+    /**
      * Starts the SSJ pipeline.
      * Automatically resets buffers and component states.
      */
     public void start()
     {
-        state = State.STARTING;
+        setState(State.STARTING);
+
         try
         {
             Log.i("starting pipeline" + '\n' +
@@ -213,7 +245,8 @@ public class Pipeline
 
             startTimeSystem = System.currentTimeMillis();
             startTime = SystemClock.elapsedRealtime();
-            state = State.RUNNING;
+
+            setState(State.RUNNING);
             Log.i("pipeline started");
 
             if (options.sync.get() != SyncType.NONE)
@@ -724,7 +757,7 @@ public class Pipeline
         if (state == State.STOPPING || state == State.INACTIVE)
             return;
 
-        state = State.STOPPING;
+        setState(State.STOPPING);
 
         Log.i("stopping pipeline" + '\n' +
               "\tlocal time: " + Util.getTimestamp(System.currentTimeMillis()));
@@ -785,13 +818,13 @@ public class Pipeline
             }
             else
             {
-                state = State.INACTIVE;
+                setState(State.INACTIVE);
                 throw new RuntimeException(e);
             }
         } finally
         {
             writeLogFile();
-            state = State.INACTIVE;
+            setState(State.INACTIVE);
         }
     }
 
@@ -828,13 +861,14 @@ public class Pipeline
             return;
         }
 
-        state = State.INACTIVE;
+        setState(State.INACTIVE);
 
         for (Component c : components)
             c.clear();
 
         components.clear();
         buffers.clear();
+        stateListeners.clear();
         Log.getInstance().clear();
         startTime = 0;
 

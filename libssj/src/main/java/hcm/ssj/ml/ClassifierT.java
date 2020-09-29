@@ -178,7 +178,7 @@ public class ClassifierT extends Transformer implements IModelHandler
             return 0;
         }
 
-        return model.getNumClasses();
+        return model.getOutputDim();
     }
 
     /**

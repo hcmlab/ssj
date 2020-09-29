@@ -52,6 +52,7 @@ import hcm.ssj.face.LandmarkPainter;
 import hcm.ssj.feedback.FeedbackCollection;
 import hcm.ssj.feedback.VisualFeedback;
 import hcm.ssj.file.IFileWriter;
+import hcm.ssj.graphic.GridPainter;
 import hcm.ssj.graphic.SignalPainter;
 import hcm.ssj.ml.Trainer;
 
@@ -99,6 +100,7 @@ public class TabHandler
 		checkSignalPainterTabs();
 		checkCameraPainterTabs();
 		checkLandmarkPainterTabs();
+		checkGridPainterTabs();
 		checkFeedbackCollectionTabs();
 		checkVisualFeedbackTabs();
 
@@ -192,6 +194,28 @@ public class TabHandler
 			}
 			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, landmarkPainter.getComponentName(), android.R.drawable.ic_menu_camera);
 			additionalTabs.put(landmarkPainter, tabSpec);
+		}
+	}
+
+	private void checkGridPainterTabs()
+	{
+		List<Component> gridPainters = PipelineBuilder.getInstance().getComponentsOfClass(PipelineBuilder.Type.Consumer, GridPainter.class);
+		removeObsoleteComponentsOfClass(additionalTabs, gridPainters, GridPainter.class);
+		for (Component gridPainter : gridPainters)
+		{
+			if (additionalTabs.containsKey(gridPainter))
+			{
+				continue;
+			}
+
+			SurfaceView surfaceView = ((GridPainter) gridPainter).options.surfaceView.get();
+			if (surfaceView == null)
+			{
+				surfaceView = new SurfaceView(activity);
+				((GridPainter) gridPainter).options.surfaceView.set(surfaceView);
+			}
+			TabHost.TabSpec tabSpec = getNewTabSpec(surfaceView, gridPainter.getComponentName(), android.R.drawable.ic_menu_view);
+			additionalTabs.put(gridPainter, tabSpec);
 		}
 	}
 

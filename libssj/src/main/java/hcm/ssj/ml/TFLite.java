@@ -41,7 +41,6 @@ import java.nio.ByteOrder;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.stream.Stream;
-import hcm.ssj.file.FileCons;
 
 /**
  * Created by Michael Dietz on 28.10.2019.
@@ -69,8 +68,8 @@ public class TFLite extends Model
 	// Optional GPU delegate for accleration.
 	private GpuDelegate gpuDelegate;
 
-	// ByteBuffer to hold image data, to be feed into Tensorflow Lite as inputs.
-	private ByteBuffer imgData = null;
+	// ByteBuffer to hold input data (e.g., images), to be feed into Tensorflow Lite as inputs.
+	private ByteBuffer inputData = null;
 
 	public TFLite()
 	{
@@ -84,11 +83,11 @@ public class TFLite extends Model
 	}
 
 	@Override
-	void init(String[] classes, int n_features)
+	void init(int input_dim, int output_dim, String[] outputNames)
 	{
-		// width * height * channels * bytes per pixel (e.g., 4 for float)
-		imgData = ByteBuffer.allocateDirect(input_bytes * input_dim);
-		imgData.order(ByteOrder.nativeOrder());
+		// For images width * height * channels * bytes per pixel (e.g., 4 for float)
+		inputData = ByteBuffer.allocateDirect(input_bytes * input_dim);
+		inputData.order(ByteOrder.nativeOrder());
 	}
 
 	@Override
@@ -113,19 +112,19 @@ public class TFLite extends Model
 	 */
 	private float[] makePrediction(float[] floatValues)
 	{
-		float[][] prediction = new float[1][n_classes];
+		float[][] prediction = new float[1][output_dim];
 
 		// Fill byte buffer
-		imgData.rewind();
+		inputData.rewind();
 		for (int i = 0; i < floatValues.length; i++)
 		{
-			imgData.putFloat(floatValues[i]);
+			inputData.putFloat(floatValues[i]);
 		}
 
 		// Run inference
 		try
 		{
-			modelInterpreter.run(imgData, prediction);
+			modelInterpreter.run(inputData, prediction);
 		}
 		catch (Exception e)
 		{

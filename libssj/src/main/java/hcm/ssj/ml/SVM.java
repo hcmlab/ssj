@@ -85,7 +85,7 @@ public class SVM extends Model
     }
 
     @Override
-    protected void init(String[] classes, int n_features)
+    void init(int input_dim, int output_dim, String[] outputNames)
     {
         n_features = input_dim;
 
@@ -97,8 +97,8 @@ public class SVM extends Model
         for(int i = 0; i < usInstance.length; i++)
             usInstance[i] = new svm_node();
 
-        prob_estimates = new double[n_classes];
-        probs = new float[n_classes];
+        prob_estimates = new double[output_dim];
+        probs = new float[output_dim];
     }
 
     @Override
@@ -140,12 +140,12 @@ public class SVM extends Model
 
         //normalization
         float sum = 0;
-        for (int i = 0; i < n_classes; i++) {
+        for (int i = 0; i < output_dim; i++) {
             probs[model.label[i]] = (float) prob_estimates[i];
             sum += probs[model.label[i]];
         }
 
-        for (int j = 0; j < n_classes; j++) {
+        for (int j = 0; j < output_dim; j++) {
             probs[j]/=sum;
         }
 
@@ -186,8 +186,8 @@ public class SVM extends Model
             String token[] = line.split("\t");
             if (token.length > 0) {
                 int classNum = Integer.valueOf(token[0]);
-                if(classNum != n_classes)
-                    Log.w("model definition (n_classes) mismatch between trainer and model file: " + classNum +" != "+ n_classes);
+                if(classNum != output_dim)
+                    Log.w("model definition (n_classes) mismatch between trainer and model file: " + classNum +" != "+ output_dim);
             } else {
                 throw new IOException("can't read number of classes from classifier file " + file.getName() + "!");
             }
@@ -206,10 +206,10 @@ public class SVM extends Model
             String[] names = line.split(" ");
             for(int i = 0; i < names.length; i++)
             {
-                if (!names[i].equalsIgnoreCase(class_names[i]))
+                if (!names[i].equalsIgnoreCase(output_names[i]))
                 {
-                    Log.w("model definition (name of class " + i + ") mismatch between trainer and model file:" + names[i] + " != " + class_names[i]);
-                    class_names[i] = names[i];
+                    Log.w("model definition (name of class " + i + ") mismatch between trainer and model file:" + names[i] + " != " + output_names[i]);
+                    output_names[i] = names[i];
                 }
             }
 

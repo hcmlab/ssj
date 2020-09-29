@@ -91,8 +91,10 @@ public class TensorFlow extends Model
 	}
 
 	@Override
-	void init(String[] classes, int n_features)
-	{}
+	void init(int input_dim, int output_dim, String[] outputNames)
+	{
+
+	}
 
 	@Override
 	protected float[] forward(Stream stream)
