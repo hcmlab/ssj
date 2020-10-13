@@ -11,6 +11,15 @@ if (project.hasProperty("android")) { // Android libraries
     task javadoc(type: Javadoc) {
         source = android.sourceSets.main.java.srcDirs
         classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+        classpath += fileTree(dir: 'libs', include: ['*.jar'])
+
+        android.libraryVariants.all { variant ->
+            if (variant.name == "release") {
+                owner.source += fileTree(dir: "build/generated/source/buildConfig/${variant.name}")
+                owner.classpath += variant.javaCompileProvider.get().classpath
+            }
+        }
+        failOnError false
     }
 } else { // Java libraries
     task sourcesJar(type: Jar, dependsOn: classes) {

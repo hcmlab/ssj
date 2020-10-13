@@ -31,8 +31,7 @@ import java.util.ArrayList;
 
 /**
  * Custom implementation of a LIFO queue with fixed size.
- *
- * @see <a href="https://stackoverflow.com/questions/1963806/is-there-a-fixed-sized-queue-which-removes-excessive-elements">source</a>.
+ * Taken from <a href="https://stackoverflow.com/questions/1963806/is-there-a-fixed-sized-queue-which-removes-excessive-elements">here</a>.
  *
  * Created by Michael Dietz on 09.01.2020.
  */
