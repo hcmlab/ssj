@@ -65,7 +65,9 @@ public class Cons
         BOOL,
         STRING,
 		IMAGE,
-        EMPTY //only used for events
+        // Only used for events
+        EMPTY,
+        MAP
     }
 
     public enum FileType

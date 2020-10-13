@@ -768,68 +768,186 @@ public class Util
 
     public static void eventToXML(StringBuilder builder, Event ev)
     {
+        eventToXML(builder, ev, false, null);
+    }
+
+    public static void eventToXML(StringBuilder builder, Event ev, boolean sendAsMap, String[] mapKeys)
+    {
         builder.append("<event sender=\"").append(ev.sender).append("\"");
         builder.append(" event=\"").append(ev.name).append("\"");
         builder.append(" from=\"").append(ev.time).append("\"");
         builder.append(" dur=\"").append(ev.dur).append("\"");
         builder.append(" prob=\"1.00000\"");
-        builder.append(" type=\"").append(ev.type).append("\"");
+        builder.append(" type=\"");
+
+        if (sendAsMap && ev.type != Cons.Type.STRING)
+        {
+            builder.append("map");
+        }
+        else
+        {
+            builder.append(ev.type);
+        }
+
+        builder.append("\"");
         builder.append(" state=\"").append(ev.state).append("\"");
         builder.append(" glue=\"0\">");
 
-        switch(ev.type)
+        switch (ev.type)
         {
-            case BYTE: {
+            case BYTE:
+            {
                 byte[] data = ev.ptrB();
-                for (int i = 0; i < data.length; i++) {
+                for (int i = 0; i < data.length; i++)
+                {
+                    if (sendAsMap)
+                    {
+                        addTupleBefore(builder, mapKeys, i);
+                    }
+
                     builder.append(data[i]);
-                    if (i < data.length - 1)
-                        builder.append(" ");
+
+                    if (sendAsMap)
+                    {
+                        builder.append("\"></tuple>");
+                    }
+                    else
+                    {
+                        if (i < data.length - 1)
+                        {
+                            builder.append(" ");
+                        }
+                    }
                 }
                 break;
             }
-            case SHORT: {
+            case SHORT:
+            {
                 short[] data = ev.ptrShort();
-                for(int i = 0; i < data.length; i++) {
+                for (int i = 0; i < data.length; i++)
+                {
+                    if (sendAsMap)
+                    {
+                        addTupleBefore(builder, mapKeys, i);
+                    }
+
                     builder.append(data[i]);
-                    if(i < data.length -1)
-                        builder.append(" ");
+
+                    if (sendAsMap)
+                    {
+                        builder.append("\"></tuple>");
+                    }
+                    else
+                    {
+                        if (i < data.length - 1)
+                        {
+                            builder.append(" ");
+                        }
+                    }
                 }
                 break;
             }
-            case INT: {
+            case INT:
+            {
                 int[] data = ev.ptrI();
-                for(int i = 0; i < data.length; i++) {
+                for (int i = 0; i < data.length; i++)
+                {
+                    if (sendAsMap)
+                    {
+                        addTupleBefore(builder, mapKeys, i);
+                    }
+
                     builder.append(data[i]);
-                    if(i < data.length -1)
-                        builder.append(" ");
+
+                    if (sendAsMap)
+                    {
+                        builder.append("\"></tuple>");
+                    }
+                    else
+                    {
+                        if (i < data.length - 1)
+                        {
+                            builder.append(" ");
+                        }
+                    }
                 }
                 break;
             }
-            case LONG: {
+            case LONG:
+            {
                 long[] data = ev.ptrL();
-                for(int i = 0; i < data.length; i++) {
+                for (int i = 0; i < data.length; i++)
+                {
+                    if (sendAsMap)
+                    {
+                        addTupleBefore(builder, mapKeys, i);
+                    }
+
                     builder.append(data[i]);
-                    if(i < data.length -1)
-                        builder.append(" ");
+
+                    if (sendAsMap)
+                    {
+                        builder.append("\"></tuple>");
+                    }
+                    else
+                    {
+                        if (i < data.length - 1)
+                        {
+                            builder.append(" ");
+                        }
+                    }
                 }
                 break;
             }
-            case FLOAT: {
+            case FLOAT:
+            {
                 float[] data = ev.ptrF();
-                for(int i = 0; i < data.length; i++) {
+                for (int i = 0; i < data.length; i++)
+                {
+                    if (sendAsMap)
+                    {
+                        addTupleBefore(builder, mapKeys, i);
+                    }
+
                     builder.append(data[i]);
-                    if(i < data.length -1)
-                        builder.append(" ");
+
+                    if (sendAsMap)
+                    {
+                        builder.append("\"></tuple>");
+                    }
+                    else
+                    {
+                        if (i < data.length - 1)
+                        {
+                            builder.append(" ");
+                        }
+                    }
                 }
                 break;
             }
-            case DOUBLE: {
+            case DOUBLE:
+            {
                 double[] data = ev.ptrD();
-                for (int i = 0; i < data.length; i++) {
+                for (int i = 0; i < data.length; i++)
+                {
+                    if (sendAsMap)
+                    {
+                        addTupleBefore(builder, mapKeys, i);
+                    }
+
                     builder.append(data[i]);
-                    if (i < data.length - 1)
-                        builder.append(" ");
+
+                    if (sendAsMap)
+                    {
+                        builder.append("\"></tuple>");
+                    }
+                    else
+                    {
+                        if (i < data.length - 1)
+                        {
+                            builder.append(" ");
+                        }
+                    }
                 }
                 break;
             }
@@ -838,6 +956,22 @@ public class Util
                 break;
         }
         builder.append("</event>");
+    }
+
+    private static void addTupleBefore(StringBuilder builder, String[] mapKeys, int i)
+    {
+        builder.append("<tuple string=\"");
+
+        if (mapKeys != null && i < mapKeys.length)
+        {
+            builder.append(mapKeys[i].trim());
+        }
+        else
+        {
+            builder.append("value-").append(i);
+        }
+
+        builder.append("\" value=\"");
     }
 
     /**

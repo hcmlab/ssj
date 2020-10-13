@@ -28,6 +28,7 @@
 package hcm.ssj.test;
 
 import java.util.Arrays;
+import java.util.Map;
 
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.EventHandler;
@@ -118,6 +119,15 @@ public class EventLogger extends EventHandler
                     break;
                 case BOOL:
                     msg = Arrays.toString(ev.ptrBool());
+                    break;
+                case MAP:
+                    Map<String, String> map = ev.ptrMap();
+
+                    for (String key: map.keySet())
+                    {
+                        msg += key + "=" + map.get(key) + " ";
+                    }
+
                     break;
             }
 

@@ -58,6 +58,8 @@ public class SocketEventWriter extends EventHandler
         public final Option<Integer> port = new Option<>("port", 34300, Integer.class, "port");
         public final Option<Integer> type = new Option<>("type", SOCKET_TYPE_UDP, Integer.class, "connection type (0 = UDP, 1 = TCP)");
         public final Option<String> ip = new Option<>("ip", "127.0.0.1", String.class, "remote ip address");
+        public final Option<Boolean> sendAsMap = new Option<>("sendAsMap", false, Boolean.class, "send values as map event");
+        public final Option<String> mapKeys = new Option<>("mapKeys", "", String.class, "key for each dimension separated by comma");
 
         private Options()
         {
@@ -75,6 +77,7 @@ public class SocketEventWriter extends EventHandler
     StringBuilder _builder = new StringBuilder();
     byte[] _buffer;
     int _evID[];
+    String[] userMapKeys;
 
     private boolean _connected = false;
 
@@ -117,7 +120,12 @@ public class SocketEventWriter extends EventHandler
         _evID = new int[_evchannel_in.size()];
         Arrays.fill(_evID, 0);
 
-        Log.i("Streaming data to " + _addr.getHostName() +"@"+ options.port +"("+ protocol +")");
+        if (options.sendAsMap.get() && options.mapKeys.get() != null && !options.mapKeys.get().equalsIgnoreCase(""))
+        {
+            userMapKeys = options.mapKeys.get().split(",");
+        }
+
+        Log.i("Streaming data to " + _addr.getHostName() +"@"+ options.port.get() +"("+ protocol +")");
         _connected = true;
     }
 
@@ -148,7 +156,7 @@ public class SocketEventWriter extends EventHandler
             _evID[i] = ev.id + 1;
 
             //build event
-            Util.eventToXML(_builder, ev);
+            Util.eventToXML(_builder, ev, options.sendAsMap.get(), userMapKeys);
             _builder.append(FileCons.DELIMITER_LINE);
         }
 

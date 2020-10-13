@@ -45,8 +45,11 @@ import hcm.ssj.core.Provider;
 import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.event.ThresholdEventSender;
+import hcm.ssj.event.ValueEventSender;
 import hcm.ssj.file.FileReader;
 import hcm.ssj.file.FileReaderChannel;
+import hcm.ssj.ioput.SocketEventReader;
+import hcm.ssj.ioput.SocketEventWriter;
 import hcm.ssj.test.EventLogger;
 
 import static androidx.test.InstrumentationRegistry.getContext;
@@ -136,6 +139,58 @@ public class EventTest
 
 		EventLogger log = new EventLogger();
 		frame.registerEventListener(log, channel);
+
+		frame.start();
+
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		frame.stop();
+		frame.release();
+	}
+
+	@Test
+	public void testSocketEventWriter() throws Exception
+	{
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
+
+		AndroidSensor sensor = new AndroidSensor();
+		AndroidSensorChannel acc = new AndroidSensorChannel();
+		acc.options.sensorType.set(SensorType.ACCELEROMETER);
+		acc.options.sampleRate.set(1);
+		frame.addSensor(sensor, acc);
+
+		ValueEventSender evs = new ValueEventSender();
+		frame.addConsumer(evs, acc, 1.0, 0);
+		EventChannel channel = evs.getEventChannelOut();
+
+		SocketEventWriter sew = new SocketEventWriter();
+		//sew.options.ip.set("192.168.2.102"); // Receiver IP
+		sew.options.ip.set("192.168.0.237"); // Receiver IP
+		sew.options.port.set(343);
+		sew.options.sendAsMap.set(true);
+		sew.options.mapKeys.set("f_accX,f_accY,f_accZ");
+
+		frame.registerEventListener(sew, channel);
+
+		SocketEventReader ser = new SocketEventReader();
+		ser.options.ip.set("192.168.0.169"); // Phone IP
+		ser.options.port.set(6000);
+		ser.options.parseXmlToEvent.set(false);
+
+		frame.registerEventProvider(ser);
+
+		EventLogger el = new EventLogger();
+		frame.registerEventListener(el, ser.getEventChannelOut());
+
 
 		frame.start();
 

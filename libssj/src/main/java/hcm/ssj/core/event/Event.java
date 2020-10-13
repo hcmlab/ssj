@@ -28,6 +28,7 @@
 package hcm.ssj.core.event;
 
 import java.io.Serializable;
+import java.util.Map;
 
 import hcm.ssj.core.Cons;
 
@@ -74,6 +75,8 @@ public abstract class Event implements Serializable
                 return new BoolEvent();
             case EMPTY:
                 return new EmptyEvent();
+            case MAP:
+                return new MapEvent();
             default:
                 throw new UnsupportedOperationException("Event type not supported");
         }
@@ -97,6 +100,7 @@ public abstract class Event implements Serializable
     public void setData(double[] data) { throw new UnsupportedOperationException(); }
     public void setData(boolean[] data) { throw new UnsupportedOperationException(); }
     public void setData(String data) { throw new UnsupportedOperationException(); }
+    public void setData(Map<String, String> data) { throw new UnsupportedOperationException(); }
     
     public abstract Object ptr();
     public byte[] ptrB() { throw new UnsupportedOperationException(); }
@@ -108,4 +112,5 @@ public abstract class Event implements Serializable
     public double[] ptrD() { throw new UnsupportedOperationException(); }
     public boolean[] ptrBool() { throw new UnsupportedOperationException(); }
     public String ptrStr() { throw new UnsupportedOperationException(); }
+    public Map<String, String> ptrMap() { throw new UnsupportedOperationException(); }
 }

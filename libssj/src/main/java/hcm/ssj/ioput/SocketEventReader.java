@@ -39,6 +39,8 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.util.HashMap;
+import java.util.Map;
 
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventHandler;
@@ -101,7 +103,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (SocketException e)
             {
-                throw new SSJFatalException("unable to determine local IP address", e);
+                throw new SSJFatalException("Unable to determine local IP address", e);
             }
         }
 
@@ -134,7 +136,7 @@ public class SocketEventReader extends EventHandler
             }
         }
 
-        Log.i("socket ready ("+options.ip.get() + "@" + options.port.get() +")");
+        Log.i("Socket ready ("+options.ip.get() + "@" + options.port.get() +")");
         _connected = true;
     }
 
@@ -154,7 +156,7 @@ public class SocketEventReader extends EventHandler
         }
         catch (IOException e)
         {
-            Log.w("failed to receive packet", e);
+            Log.w("Failed to receive packet", e);
             return;
         }
 
@@ -180,18 +182,58 @@ public class SocketEventReader extends EventHandler
 
                 while (_parser.next() != XmlPullParser.END_DOCUMENT)
                 {
-                    if (_parser.getEventType() == XmlPullParser.START_TAG && _parser.getName().equalsIgnoreCase("event"))
+                    if (_parser.getEventType() == XmlPullParser.START_TAG && "event".equalsIgnoreCase(_parser.getName()))
                     {
-                        Event ev = Event.create(Cons.Type.STRING);
+                        String eventType = _parser.getAttributeValue(null, "type");
+
+                        Event ev;
+
+                        if ("map".equalsIgnoreCase(eventType))
+                        {
+                            ev = Event.create(Cons.Type.MAP);
+                        }
+                        else
+                        {
+                            ev = Event.create(Cons.Type.STRING);
+                        }
 
                         ev.name = _parser.getAttributeValue(null, "event");
                         ev.sender = _parser.getAttributeValue(null, "sender");
                         ev.time = Integer.valueOf(_parser.getAttributeValue(null, "from"));
                         ev.dur = Integer.valueOf(_parser.getAttributeValue(null, "dur"));
-                        ev.state = Event.State.valueOf(_parser.getAttributeValue(null, "state"));
+                        ev.state = Event.State.valueOf(_parser.getAttributeValue(null, "state").toUpperCase());
 
                         _parser.next();
-                        ev.setData(Util.xmlToString(_parser));
+
+                        if ("map".equalsIgnoreCase(eventType))
+                        {
+                            Map<String, String> map = new HashMap<>();
+
+                            String key = null;
+                            String value = null;
+
+                            while (!(_parser.getEventType() == XmlPullParser.END_TAG && "event".equalsIgnoreCase(_parser.getName())))
+                            {
+                                if (_parser.getEventType() == XmlPullParser.START_TAG && "tuple".equalsIgnoreCase(_parser.getName()))
+                                {
+                                    key = _parser.getAttributeValue(null, "string");
+                                    value = _parser.getAttributeValue(null, "value");
+
+                                    if (key != null && value != null)
+                                    {
+                                        map.put(key, value);
+                                    }
+                                }
+
+                                _parser.next();
+                            }
+
+                            ev.setData(map);
+                        }
+                        else
+                        {
+                            ev.setData(Util.xmlToString(_parser));
+                        }
 
                         _evchannel_out.pushEvent(ev);
                     }
@@ -203,7 +245,7 @@ public class SocketEventReader extends EventHandler
             }
             catch (IOException | XmlPullParserException e)
             {
-                Log.w("failed to receive packet", e);
+                Log.w("Failed to receive packet or parse xml", e);
                 return;
             }
         }
