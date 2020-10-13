@@ -48,6 +48,7 @@ import hcm.ssj.core.SSJException;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.Transformer;
 import hcm.ssj.core.Util;
+import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
@@ -71,6 +72,7 @@ public class FaceCrop extends Transformer
 		public final Option<Integer> rotation = new Option<>("rotation", 270, Integer.class, "rotation of the resulting image, use 270 for front camera and 90 for back camera");
 		public final Option<Integer> paddingHorizontal = new Option<>("paddingHorizontal", 0, Integer.class, "increase horizontal face crop by custom number of pixels on each side");
 		public final Option<Integer> paddingVertical = new Option<>("paddingVertical", 0, Integer.class, "increase vertical face crop by custom number of pixels on each side");
+		public final Option<Boolean> outputPositionEvents = new Option<>("outputPositionEvents", false, Boolean.class, "if true outputs face position as events");
 
 		private Options()
 		{
@@ -276,6 +278,20 @@ public class FaceCrop extends Transformer
 			}
 
 			faceBitmap = Bitmap.createBitmap(rotatedBitmap, faceX, faceY, faceWidth , faceHeight);
+
+			if (options.outputPositionEvents.get())
+			{
+				Event ev = Event.create(Cons.Type.FLOAT);
+				ev.name = "position";
+				ev.sender = "face";
+				ev.time = (int) (1000 * stream_in[0].time + 0.5);
+				ev.dur = (int) (1000 * (stream_in[0].num / stream_in[0].sr) + 0.5);
+				ev.state = Event.State.COMPLETED;
+
+				// Set center of face to (0, 0), scale to [-1, 1]
+				ev.setData(new float[] {(currentDetection.xMin + 0.5f * currentDetection.width) * 2 - 1f, 1f - (currentDetection.yMin + 0.5f * currentDetection.height) * 2});
+				_evchannel_out.pushEvent(ev);
+			}
 		}
 		else
 		{

@@ -191,6 +191,15 @@ public class Pipeline
     }
 
     /**
+     * Removes a pipeline state listener
+     * @param listener listener
+     */
+    public void unregisterStateListener(PipelineStateListener listener)
+    {
+        stateListeners.remove(listener);
+    }
+
+    /**
      * Starts the SSJ pipeline.
      * Automatically resets buffers and component states.
      */

@@ -67,7 +67,7 @@ public class CameraPainter extends Consumer implements EventListener
     public class Options extends OptionList
     {
         //values should be the same as in camera
-        public final Option<Integer> orientation = new Option<>("orientation", 90, Integer.class, "orientation of input picture");
+        public final Option<Integer> orientation = new Option<>("orientation", 90, Integer.class, "orientation of input picture (90 = back, 270 = front camera)");
         public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "scale picture to match surface size");
         public final Option<Boolean> showBestMatch = new Option<>("showBestMatch", false, Boolean.class, "show object label of the best match");
         public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, SurfaceView.class, "the view on which the painter is drawn");
