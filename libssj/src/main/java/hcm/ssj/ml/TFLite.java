@@ -30,6 +30,7 @@ package hcm.ssj.ml;
 import android.util.Xml;
 
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.gpu.CompatibilityList;
 import org.tensorflow.lite.gpu.GpuDelegate;
 import org.xmlpull.v1.XmlPullParser;
 
@@ -52,6 +53,7 @@ public class TFLite extends Model
 		public final Option<String> inputNode = new Option<>("input", "input", String.class, "name of the input node");
 		public final Option<String> outputNode = new Option<>("output", "output", String.class, "name of the output node");
 		public final Option<long[]> shape = new Option<>("shape", new long[] {1, 224, 224, 3}, long[].class, "shape of the input tensor");
+		public final Option<Boolean> useGPU = new Option<>("useGPU", true, Boolean.class, "if true tries to use GPU for better performance");
 
 		private Options()
 		{
@@ -70,6 +72,9 @@ public class TFLite extends Model
 
 	// ByteBuffer to hold input data (e.g., images), to be feed into Tensorflow Lite as inputs.
 	private ByteBuffer inputData = null;
+
+	// GPU Compatibility
+	private boolean gpuSupported;
 
 	public TFLite()
 	{
@@ -137,10 +142,29 @@ public class TFLite extends Model
 	@Override
 	void loadModel(File file)
 	{
+		// Check gpu compatibility
+		CompatibilityList compatList = new CompatibilityList();
+		gpuSupported = compatList.isDelegateSupportedOnThisDevice();
+
+		Log.i("GPU delegate supported: " + gpuSupported);
+
+		Interpreter.Options interpreterOptions = new Interpreter.Options();
+
 		// Initialize interpreter with GPU delegate
-		gpuDelegate = new GpuDelegate();
-		Interpreter.Options options = (new Interpreter.Options()).addDelegate(gpuDelegate);
-		modelInterpreter = new Interpreter(file, options);
+		if (gpuSupported && options.useGPU.get())
+		{
+			// If the device has a supported GPU, add the GPU delegate
+			gpuDelegate = new GpuDelegate(compatList.getBestOptionsForThisDevice());
+			interpreterOptions.addDelegate(gpuDelegate);
+		}
+		else
+		{
+			// If the GPU is not supported, enable XNNPACK acceleration
+			interpreterOptions.setUseXNNPACK(true);
+			interpreterOptions.setNumThreads(Runtime.getRuntime().availableProcessors());
+		}
+
+		modelInterpreter = new Interpreter(file, interpreterOptions);
 
 		isTrained = true;
 	}

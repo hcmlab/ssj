@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
 import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.gpu.CompatibilityList;
 import org.tensorflow.lite.gpu.GpuDelegate;
 
 import java.io.File;
@@ -73,6 +74,7 @@ public class FaceCrop extends Transformer
 		public final Option<Integer> paddingHorizontal = new Option<>("paddingHorizontal", 0, Integer.class, "increase horizontal face crop by custom number of pixels on each side");
 		public final Option<Integer> paddingVertical = new Option<>("paddingVertical", 0, Integer.class, "increase vertical face crop by custom number of pixels on each side");
 		public final Option<Boolean> outputPositionEvents = new Option<>("outputPositionEvents", false, Boolean.class, "if true outputs face position as events");
+		public final Option<Boolean> useGPU = new Option<>("useGPU", true, Boolean.class, "if true tries to use GPU for better performance");
 
 		private Options()
 		{
@@ -119,6 +121,9 @@ public class FaceCrop extends Transformer
 	private int height;
 	private File modelFile;
 
+	// GPU Compatibility
+	private boolean gpuSupported;
+
 	@Override
 	public OptionList getOptions()
 	{
@@ -156,9 +161,28 @@ public class FaceCrop extends Transformer
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
 
+		// Check gpu compatibility
+		CompatibilityList compatList = new CompatibilityList();
+		gpuSupported = compatList.isDelegateSupportedOnThisDevice();
+
+		Log.i("GPU delegate supported: " + gpuSupported);
+
+		Interpreter.Options interpreterOptions = new Interpreter.Options();
+
 		// Initialize interpreter with GPU delegate
-		gpuDelegate = new GpuDelegate();
-		Interpreter.Options interpreterOptions = (new Interpreter.Options()).addDelegate(gpuDelegate);
+		if (gpuSupported && options.useGPU.get())
+		{
+			// If the device has a supported GPU, add the GPU delegate
+			gpuDelegate = new GpuDelegate(compatList.getBestOptionsForThisDevice());
+			interpreterOptions.addDelegate(gpuDelegate);
+		}
+		else
+		{
+			// If the GPU is not supported, enable XNNPACK acceleration
+			interpreterOptions.setUseXNNPACK(true);
+			interpreterOptions.setNumThreads(Runtime.getRuntime().availableProcessors());
+		}
+
 		modelInterpreter = new Interpreter(modelFile, interpreterOptions);
 
 		// Initialize model input buffer: size = width * height * channels * bytes per pixel (e.g., 4 for float)
@@ -289,7 +313,15 @@ public class FaceCrop extends Transformer
 				ev.state = Event.State.COMPLETED;
 
 				// Set center of face to (0, 0), scale to [-1, 1]
-				ev.setData(new float[] {(currentDetection.xMin + 0.5f * currentDetection.width) * 2 - 1f, 1f - (currentDetection.yMin + 0.5f * currentDetection.height) * 2});
+				float[] facePosData = new float[2];
+				facePosData[0] = (currentDetection.xMin + 0.5f * currentDetection.width) * 2 - 1f;
+				facePosData[1] = 1f - (currentDetection.yMin + 0.5f * currentDetection.height) * 2;
+
+				// Clamp to [-1, 1]
+				facePosData[0] = Math.max(-1.0f, Math.min(1.0f, facePosData[0]));
+				facePosData[1] = Math.max(-1.0f, Math.min(1.0f, facePosData[1]));
+
+				ev.setData(facePosData);
 				_evchannel_out.pushEvent(ev);
 			}
 		}
