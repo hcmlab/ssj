@@ -37,6 +37,7 @@ import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -69,8 +70,8 @@ import hcm.ssj.ml.Model;
 public class PipeView extends ViewGroup
 {
 	//layout
-	private final static int LANDSCAPE_NUMBER_OF_BOXES = 10; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
-	private final static int PORTRAIT_NUMBER_OF_BOXES = LANDSCAPE_NUMBER_OF_BOXES * 2;
+	private final static int PORTRAIT_NUMBER_OF_BOXES = 20;
+	private final static int LANDSCAPE_NUMBER_OF_BOXES = 2 * PORTRAIT_NUMBER_OF_BOXES; //@todo adjust to different screen sizes (e.g. show all boxes on tablet)
 	private final int iGridWidthNumberOfBoxes = 50; //chosen box number
 	private final int iGridHeightNumberOfBoxes = 50; //chosen box number
 	//elements
@@ -119,7 +120,7 @@ public class PipeView extends ViewGroup
 
 	private void init(Context context)
 	{
-		Log.i("init pipeview");
+		Log.i("Init PipeView");
 		//children should not be clipped
 		setClipToPadding(false);
 		//create grid
@@ -134,6 +135,10 @@ public class PipeView extends ViewGroup
 		paintElementShadow = new Paint(Paint.ANTI_ALIAS_FLAG);
 		paintElementShadow.setStyle(Paint.Style.FILL);
 		paintElementShadow.setColor(Color.LTGRAY);
+
+		// TODO: Adjust box count to DPI
+		// DisplayMetrics metrics = getResources().getDisplayMetrics();
+		// Log.i("Metrics W: " + metrics.widthPixels + " H: " + metrics.heightPixels + " D: " + metrics.density + " DPI: " + metrics.densityDpi + " xDPI: " + metrics.xdpi + " yDPI: " + metrics.ydpi);
 	}
 
 	/**
@@ -764,6 +769,9 @@ public class PipeView extends ViewGroup
 	{
 		super.onDraw(canvas);
 		canvas.save();
+
+		calculateLayout();
+
 		int left = iGridPadWPix;
 		int right = iSizeWidth - iGridPadWPix;
 		int top = iGridPadHPix;
@@ -807,6 +815,17 @@ public class PipeView extends ViewGroup
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
 
+	@Override
+	public void onConfigurationChanged(Configuration newConfig)
+	{
+		super.onConfigurationChanged(newConfig);
+
+		if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE || newConfig.orientation == Configuration.ORIENTATION_PORTRAIT)
+		{
+			invalidate();
+		}
+	}
+
 	/**
 	 * @param changed boolean
 	 * @param l       int
@@ -817,26 +836,36 @@ public class PipeView extends ViewGroup
 	@Override
 	protected void onLayout(boolean changed, int l, int t, int r, int b)
 	{
-		//only change grid box size on orientation change
+		// Log.i("OnLayout l: " + l + " t: " + t + " r: " + r + " b: " + b + " " + System.currentTimeMillis());
+	}
+
+	private void calculateLayout()
+	{
 		int orientation = getResources().getConfiguration().orientation;
+
+		// Only change grid box size on orientation change
 		if (iOrientation != orientation)
 		{
 			iOrientation = orientation;
-			//reset scroll
+			// Reset scroll
 			ViewParent viewParent = getParent();
 			if (viewParent != null && viewParent instanceof TwoDScrollView)
 			{
 				((TwoDScrollView) viewParent).setScrollX(0);
 				((TwoDScrollView) viewParent).setScrollY(0);
 			}
-			//get displayed screen size
+			// Get displayed screen size
 			Rect rectSizeDisplayed = new Rect();
 			getGlobalVisibleRect(rectSizeDisplayed);
 			int width = rectSizeDisplayed.width();
 			int height = rectSizeDisplayed.height();
+
+			// Log.i("Width: " + width + " Height: " + height + " " + System.currentTimeMillis());
+
 			iGridBoxSize = width > height
-					? height / LANDSCAPE_NUMBER_OF_BOXES
+					? height / PORTRAIT_NUMBER_OF_BOXES
 					: width / PORTRAIT_NUMBER_OF_BOXES;
+
 			if (iGridBoxSize <= 0)
 			{
 				iGridBoxSize = 50;
