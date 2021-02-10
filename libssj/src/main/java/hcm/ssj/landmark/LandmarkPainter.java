@@ -1,6 +1,6 @@
 /*
  * LandmarkPainter.java
- * Copyright (c) 2019
+ * Copyright (c) 2021
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -25,13 +25,12 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.face;
+package hcm.ssj.landmark;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.SurfaceHolder;
@@ -61,9 +60,11 @@ public class LandmarkPainter extends Consumer
 	{
 		//values should be the same as in camera
 		public final Option<Cons.ImageRotation> imageRotation = new Option<>("imageRotation", Cons.ImageRotation.MINUS_90, Cons.ImageRotation.class, "rotation of input picture");
-		public final Option<Integer> landmarkSize = new Option<>("landmarkSize", 224, Integer.class, "image size (square) on which the landmarks were calculated");
 		public final Option<Boolean> scale = new Option<>("scale", false, Boolean.class, "scale image to match surface size");
+		public final Option<Boolean> useVisibility = new Option<>("useVisibility", false, Boolean.class, "use third dimension as landmark visibility");
+		public final Option<Float> visibilityThreshold = new Option<>("visibilityThreshold", 0.5f, Float.class, "threshold if a landmark should be shown based on visibility value");
 		public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, SurfaceView.class, "the view on which the painter is drawn");
+		public final Option<Float> landmarkRadius = new Option<>("landmarkRadius", 3.0f, Float.class, "radius of landmark circle");
 
 		private Options()
 		{
@@ -117,17 +118,17 @@ public class LandmarkPainter extends Consumer
 			return;
 		}
 
-		if (stream_in[0].type == Cons.Type.IMAGE && stream_in[1].type == Cons.Type.INT)
+		if (stream_in[0].type == Cons.Type.IMAGE && stream_in[1].type == Cons.Type.FLOAT)
 		{
 			imageStreamIndex = 0;
 		}
-		else if (stream_in[0].type == Cons.Type.INT && stream_in[1].type == Cons.Type.IMAGE)
+		else if (stream_in[0].type == Cons.Type.FLOAT && stream_in[1].type == Cons.Type.IMAGE)
 		{
 			imageStreamIndex = 1;
 		}
 		else
 		{
-			Log.e("Stream types not supported, must be IMAGE and INT");
+			Log.e("Stream types not supported, must be IMAGE and FLOAT");
 			return;
 		}
 
@@ -156,15 +157,25 @@ public class LandmarkPainter extends Consumer
 		inputBitmap = Bitmap.createBitmap(in.width, in.height, Bitmap.Config.ARGB_8888);
 
 		landmarkPaint = new Paint();
-		landmarkPaint.setColor(Color.GREEN);
-		landmarkPaint.setStrokeWidth(3);
-		landmarkPaint.setStyle(Paint.Style.STROKE);
+		landmarkPaint.setColor(Color.WHITE);
+		landmarkPaint.setStyle(Paint.Style.FILL);
+
+		// Fix visibility usage if configured wrong
+		if (options.useVisibility.get() && stream_in[1 - imageStreamIndex].dim % 3 != 0 && stream_in[1 - imageStreamIndex].dim % 2 == 0)
+		{
+			options.useVisibility.set(false);
+		}
+
+		if (!options.useVisibility.get() && stream_in[1 - imageStreamIndex].dim % 2 != 0 && stream_in[1 - imageStreamIndex].dim % 3 == 0)
+		{
+			options.useVisibility.set(true);
+		}
 	}
 
 	@Override
 	protected void consume(Stream[] stream_in, Event trigger) throws SSJFatalException
 	{
-		draw(stream_in[imageStreamIndex].ptrB(), stream_in[1 - imageStreamIndex].ptrI(), ((ImageStream) stream_in[imageStreamIndex]).format);
+		draw(stream_in[imageStreamIndex].ptrB(), stream_in[1 - imageStreamIndex].ptrF(), ((ImageStream) stream_in[imageStreamIndex]).format);
 	}
 
 	@Override
@@ -177,7 +188,7 @@ public class LandmarkPainter extends Consumer
 		inputBitmap = null;
 	}
 
-	private void draw(final byte[] imageData, final int[] landmarkData, int imageFormat)
+	private void draw(final byte[] imageData, final float[] landmarkData, int imageFormat)
 	{
 		Canvas canvas = null;
 
@@ -202,6 +213,9 @@ public class LandmarkPainter extends Consumer
 
 					int bitmapWidth = inputBitmap.getWidth();
 					int bitmapHeight = inputBitmap.getHeight();
+
+					int finalWidth = bitmapWidth;
+					int finalHeight = bitmapHeight;
 
 					//decode color format
 					decodeColor(imageData, bitmapWidth, bitmapHeight, imageFormat);
@@ -232,7 +246,10 @@ public class LandmarkPainter extends Consumer
 						bitmapHeight = (int) (bitmapHeight * scale);
 					}
 
-					// Restore width/height after scaling
+					finalWidth = bitmapWidth;
+					finalHeight = bitmapHeight;
+
+					// Restore width/height after scaling for rect placement
 					switch (options.imageRotation.get())
 					{
 						case PLUS_90:
@@ -257,18 +274,31 @@ public class LandmarkPainter extends Consumer
 					canvas.restore();
 
 					// Draw landmarks
-					if (landmarkData.length == FaceLandmarks.LANDMARK_DIMENSIONS)
+					if (landmarkData.length > 0)
 					{
-						int bitmapSize = Math.min(bitmapWidth, bitmapHeight);
+						float landmarkLeft = (canvas.getWidth() - finalWidth) / 2.0f;
+						float landmarkTop = (canvas.getHeight() - finalHeight) / 2.0f;
 
-						float landmarkScale = bitmapSize / (float) options.landmarkSize.get();
+						int landmarkDim = 2;
 
-						float landmarkLeft = (canvas.getWidth() - bitmapSize) / 2.0f;
-						float landmarkTop = (canvas.getHeight() - bitmapSize) / 2.0f;
-
-						for (int i = 0; i < landmarkData.length; i += 2)
+						if (options.useVisibility.get())
 						{
-							canvas.drawCircle(landmarkLeft + landmarkData[i] * landmarkScale, landmarkTop + landmarkData[i + 1] * landmarkScale, 2, landmarkPaint);
+							landmarkDim = 3;
+						}
+
+						for (int i = 0; i < landmarkData.length; i += landmarkDim)
+						{
+							boolean drawLandmark = true;
+
+							if (options.useVisibility.get())
+							{
+								drawLandmark = landmarkData[i + 2] >= options.visibilityThreshold.get();
+							}
+
+							if (drawLandmark)
+							{
+								canvas.drawCircle(landmarkLeft + landmarkData[i] * finalWidth, landmarkTop + landmarkData[i + 1] * finalHeight, options.landmarkRadius.get(), landmarkPaint);
+							}
 						}
 					}
 				}

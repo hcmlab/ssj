@@ -54,6 +54,9 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.ImageStream;
 import hcm.ssj.core.stream.Stream;
+import hcm.ssj.ml.TFLiteWrapper;
+import hcm.ssj.ssd.Detection;
+import hcm.ssj.ssd.SingleShotMultiBoxDetector;
 import hcm.ssj.file.FileCons;
 
 /**
@@ -82,16 +85,23 @@ public class FaceCrop extends Transformer
 		}
 	}
 
-	public final FaceCrop.Options options = new FaceCrop.Options();
+	public final Options options = new Options();
 
 	// Helper class to postprocess classifier results
 	private SingleShotMultiBoxDetector ssd;
 
+	private TFLiteWrapper tfLiteWrapper;
+
+	/*
 	// An instance of the driver class to run model inference with Tensorflow Lite.
 	private Interpreter modelInterpreter;
 
 	// Optional GPU delegate for accleration.
 	private GpuDelegate gpuDelegate;
+
+	// GPU Compatibility
+	private boolean gpuSupported;
+	*/
 
 	// ByteBuffer to hold image data, to be feed into Tensorflow Lite as inputs.
 	private ByteBuffer imgData = null;
@@ -120,9 +130,6 @@ public class FaceCrop extends Transformer
 	private int width;
 	private int height;
 	private File modelFile;
-
-	// GPU Compatibility
-	private boolean gpuSupported;
 
 	@Override
 	public OptionList getOptions()
@@ -161,6 +168,7 @@ public class FaceCrop extends Transformer
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
 
+		/*
 		// Check gpu compatibility
 		CompatibilityList compatList = new CompatibilityList();
 		gpuSupported = compatList.isDelegateSupportedOnThisDevice();
@@ -184,6 +192,11 @@ public class FaceCrop extends Transformer
 		}
 
 		modelInterpreter = new Interpreter(modelFile, interpreterOptions);
+
+		 */
+		tfLiteWrapper = new TFLiteWrapper(options.useGPU.get());
+		tfLiteWrapper.loadModel(modelFile);
+
 
 		// Initialize model input buffer: size = width * height * channels * bytes per pixel (e.g., 4 for float)
 		imgData = ByteBuffer.allocateDirect(MODEL_INPUT_SIZE * MODEL_INPUT_SIZE * MODEL_INPUT_CHANNELS * Util.sizeOf(Cons.Type.FLOAT));
@@ -225,38 +238,11 @@ public class FaceCrop extends Transformer
 		// Resize rotated original input to model input size
 		modelInputBitmap = Bitmap.createScaledBitmap(rotatedBitmap, MODEL_INPUT_SIZE, MODEL_INPUT_SIZE, true);
 
-		// Get rgb pixel values as int array
-		modelInputBitmap.getPixels(modelInputArray, 0, modelInputBitmap.getWidth(), 0, 0, modelInputBitmap.getWidth(), modelInputBitmap.getHeight());
-
-		// Normalize resized image
-		imgData.rewind();
-		for (int i = 0; i < modelInputArray.length; ++i)
-		{
-			final int val = modelInputArray[i];
-
-			float r = (val >> 16) & 0xFF;
-			float g = (val >> 8) & 0xFF;
-			float b = (val & 0xFF);
-
-			r = (r - 127.5f) / 127.5f;
-			g = (g - 127.5f) / 127.5f;
-			b = (b - 127.5f) / 127.5f;
-
-			// Fill byte buffer for model input
-			imgData.putFloat(r);
-			imgData.putFloat(g);
-			imgData.putFloat(b);
-		}
+		// Convert and normalize [-1, 1] bitmap to model input
+		tfLiteWrapper.convertBitmapToInputArray(modelInputBitmap, modelInputArray, imgData);
 
 		// Run inference
-		try
-		{
-			modelInterpreter.runForMultipleInputsOutputs(new Object[] { imgData }, outputs);
-		}
-		catch (Exception e)
-		{
-			Log.e("Error while running TFLite inference", e);
-		}
+		tfLiteWrapper.runMultiInputOutput(new Object[] { imgData }, outputs);
 
 		// Calculate detections from model results
 		detectionList = ssd.process(boxesResult, scoresResult);
@@ -347,14 +333,9 @@ public class FaceCrop extends Transformer
 	public synchronized void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException
 	{
 		// Clean up
-		if (modelInterpreter != null)
+		if (tfLiteWrapper != null)
 		{
-			modelInterpreter.close();
-		}
-
-		if (gpuDelegate != null)
-		{
-			gpuDelegate.close();
+			tfLiteWrapper.close();
 		}
 	}
 

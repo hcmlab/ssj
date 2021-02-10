@@ -255,9 +255,18 @@ public class CameraPainter extends Consumer implements EventListener
 
                     if (options.scale.get())
                     {
-                        int offset = (canvasHeight - canvasWidth) / 2;
+                        float widthScale = canvasWidth / (float) bitmapWidth;
+                        float heightScale = canvasHeight / (float) bitmapHeight;
 
-                        Rect dest = new Rect(-offset, offset, canvasWidth + offset, canvasHeight - offset);
+                        float scaleFactor = Math.min(widthScale, heightScale);
+
+                        int scaledWidth = (int) (scaleFactor * bitmapWidth);
+                        int scaledHeight = (int) (scaleFactor * bitmapHeight);
+
+                        int left = (int) ((canvasWidth - scaledWidth) / 2.0);
+                        int top = (int) ((canvasHeight - scaledHeight) / 2.0);
+
+                        Rect dest = new Rect(left, top, left + scaledWidth, top + scaledHeight);
 
                         // scale picture to surface size
                         canvas.drawBitmap(bitmap, null, dest, null);

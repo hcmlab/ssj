@@ -1,6 +1,6 @@
 /*
- * FacialLandmarkTest.java
- * Copyright (c) 2019
+ * LandmarkTest.java
+ * Copyright (c) 2021
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -27,69 +27,62 @@
 
 package hcm.ssj;
 
-import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
 import hcm.ssj.camera.CameraChannel;
 import hcm.ssj.camera.CameraSensor;
-import hcm.ssj.camera.ImageResizer;
 import hcm.ssj.camera.NV21ToRGBDecoder;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.landmark.FaceLandmarks;
+import hcm.ssj.landmark.PoseLandmarks;
 import hcm.ssj.test.Logger;
 
 /**
- * Created by Michael Dietz on 29.01.2019.
+ * Created by Michael Dietz on 04.02.2021.
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class FacialLandmarkTest
+public class PoseLandmarkTest
 {
 	@Test
-	public void testFacialLandmarks() throws Exception
+	public void testPoseLandmarks() throws Exception
 	{
+		// Get pipeline instance
 		Pipeline frame = Pipeline.getInstance();
 		frame.options.bufferSize.set(10.0f);
-
-		// Option parameters for camera sensor
-		double sampleRate = 1;
-		int width = 640;
-		int height = 480;
 
 		// Instantiate camera sensor and set options
 		CameraSensor cameraSensor = new CameraSensor();
 		cameraSensor.options.cameraType.set(Cons.CameraType.FRONT_CAMERA);
-		cameraSensor.options.width.set(width);
-		cameraSensor.options.height.set(height);
+		cameraSensor.options.width.set(640);
+		cameraSensor.options.height.set(480);
 		cameraSensor.options.previewFpsRangeMin.set(15);
 		cameraSensor.options.previewFpsRangeMax.set(15);
 
 		// Add sensor to the pipeline
 		CameraChannel cameraChannel = new CameraChannel();
-		cameraChannel.options.sampleRate.set(sampleRate);
+		cameraChannel.options.sampleRate.set(10.0);
 		frame.addSensor(cameraSensor, cameraChannel);
 
 		// Set up a NV21 decoder
 		NV21ToRGBDecoder decoder = new NV21ToRGBDecoder();
-		frame.addTransformer(decoder, cameraChannel, 1, 0);
+		frame.addTransformer(decoder, cameraChannel);
 
-		// Add landmark detector
-		FaceLandmarks landmarkTransformer = new FaceLandmarks();
-		landmarkTransformer.options.rotation.set(-90);
-		landmarkTransformer.options.useLegacyModel.set(true);
-		frame.addTransformer(landmarkTransformer, decoder, 1, 0);
+		// Add pose landmarks
+		PoseLandmarks poseLandmarks = new PoseLandmarks();
+		poseLandmarks.options.rotation.set(0);
+		frame.addTransformer(poseLandmarks, decoder);
 
-		// Add logger
-		Logger logger = new Logger();
-		frame.addConsumer(logger, landmarkTransformer, 1, 0);
+		Logger log = new Logger();
+		frame.addConsumer(log, poseLandmarks);
 
 		// Start pipeline
 		frame.start();
 
+		// Wait duration
 		try
 		{
 			Thread.sleep(TestHelper.DUR_TEST_NORMAL);
@@ -99,6 +92,7 @@ public class FacialLandmarkTest
 			e.printStackTrace();
 		}
 
+		// Stop pipeline
 		frame.stop();
 		frame.release();
 	}

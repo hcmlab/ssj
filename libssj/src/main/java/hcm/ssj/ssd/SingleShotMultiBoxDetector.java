@@ -1,6 +1,6 @@
 /*
  * SingleShotMultiBoxDetector.java
- * Copyright (c) 2019
+ * Copyright (c) 2021
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -25,12 +25,9 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-package hcm.ssj.face;
-
-import org.tensorflow.lite.Interpreter;
+package hcm.ssj.ssd;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -51,6 +48,16 @@ public class SingleShotMultiBoxDetector
 	public SingleShotMultiBoxDetector()
 	{
 		this(new AnchorOptions(), new CalculatorOptions());
+	}
+
+	public SingleShotMultiBoxDetector(AnchorOptions anchorOptions)
+	{
+		this(anchorOptions, new CalculatorOptions());
+	}
+
+	public SingleShotMultiBoxDetector(CalculatorOptions calculatorOptions)
+	{
+		this(new AnchorOptions(), calculatorOptions);
 	}
 
 	public SingleShotMultiBoxDetector(AnchorOptions anchorOptions, CalculatorOptions calculatorOptions)
@@ -396,112 +403,4 @@ public class SingleShotMultiBoxDetector
 
 		return picked;
 	}
-}
-
-class Keypoint
-{
-	public float x;
-	public float y;
-}
-
-class Detection
-{
-	public int id;
-	public float yMin;
-	public float xMin;
-	public float width;
-	public float height;
-	public float score;
-	public int classId;
-	public List<Keypoint> keypoints = new ArrayList<>();
-
-	public float getArea()
-	{
-		return width * height;
-	}
-
-	public float getOverlap(Detection other)
-	{
-		float overlap = 0;
-
-		// Get top left coordinate of overlapping area
-		float overlapX1 = Math.max(xMin, other.xMin);
-		float overlapY1 = Math.max(yMin, other.yMin);
-
-		// Get bottom right coordinate of overlapping area
-		float overlapX2 = Math.min(xMin + width, other.xMin + other.width);
-		float overlapY2 = Math.min(yMin + height, other.yMin + other.height);
-
-		float overlapWidth = Math.max(0, overlapX2 - overlapX1);
-		float overlapHeight = Math.max(0, overlapY2 - overlapY1);
-
-		float overlapArea = overlapWidth * overlapHeight;
-
-		if (overlapArea > 0)
-		{
-			// Overlap value is calculated by dividing the intersection through the total area
-			overlap = overlapArea / (getArea() + other.getArea() - overlapArea);
-		}
-
-		return overlap;
-	}
-}
-
-
-class Anchor
-{
-	public float xCenter;
-	public float yCenter;
-	public float width;
-	public float height;
-}
-
-enum FilterMethod
-{
-	HIGHEST_SCORE,
-	LARGEST_AREA,
-	NON_MAX_SUPPRESSION
-}
-
-class CalculatorOptions
-{
-	public int numClasses = 1;
-	public int numBoxes = 896;
-	public int numCoords = 16;
-	public int boxCoordOffset = 0;
-	public int keypointCoordOffset = 4;
-	public int numKeypoints = 6;
-	public int numValuesPerKeypoint = 2;
-	public boolean sigmoidScore = true;
-	public float scoreClippingThresh = 100;
-	public boolean reverseOutputOrder = true;
-	public float xScale = 128.0f;
-	public float yScale = 128.0f;
-	public float hScale = 128.0f;
-	public float wScale = 128.0f;
-	public double minScoreThresh = 0.75f;
-
-	public boolean applyExponentialOnBoxSize = false;
-	public boolean flipVertically = false;
-	public FilterMethod filterMethod = FilterMethod.HIGHEST_SCORE;
-	public float nmsThreshold = 0.3f;
-}
-
-class AnchorOptions
-{
-	public int numLayers = 4;
-	public float minScale = 0.1484375f;
-	public float maxScale = 0.75f;
-	public int inputSizeHeight = 128;
-	public int inputSizeWidth = 128;
-	public float anchorOffsetX = 0.5f;
-	public float anchorOffsetY = 0.5f;
-	public int[] strides = new int[] {8, 16, 16, 16};
-	public float[] aspectRatios = new float[] {1.0f};
-	public boolean fixedAnchorSize = true;
-
-	public boolean reduceBoxesInLowestLayer = false;
-	public float interpolatedScaleAspectRatio = 1.0f;
-	public int[] featureMapHeight = new int[] {};
-	public int[] featureMapWidth = new int[] {};
 }

@@ -180,7 +180,14 @@ public class Cons
 
     public enum ClassifierMode
     {
-        CLASSIFICATION,
-        REGRESSION
+        CLASSIFICATION(0),
+        REGRESSION(1);
+
+        public final int mode;
+
+        ClassifierMode(int mode)
+        {
+            this.mode = mode;
+        }
     }
 }

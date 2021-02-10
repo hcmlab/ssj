@@ -151,5 +151,6 @@ public class ImageLoaderChannel extends SensorChannel
 
 		((ImageStream)_stream_out).width = width;
 		((ImageStream)_stream_out).height = height;
+		((ImageStream) stream_out).format = Cons.ImageFormat.FLEX_RGB_888.val;
 	}
 }
