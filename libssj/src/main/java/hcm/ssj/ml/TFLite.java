@@ -50,8 +50,6 @@ public class TFLite extends Model
 {
 	public class Options extends Model.Options
 	{
-		public final Option<String> inputNode = new Option<>("input", "input", String.class, "name of the input node");
-		public final Option<String> outputNode = new Option<>("output", "output", String.class, "name of the output node");
 		public final Option<long[]> shape = new Option<>("shape", new long[] {1, 224, 224, 3}, long[].class, "shape of the input tensor");
 		public final Option<Boolean> useGPU = new Option<>("useGPU", true, Boolean.class, "if true tries to use GPU for better performance");
 
@@ -64,17 +62,10 @@ public class TFLite extends Model
 
 	public TFLite.Options options = new TFLite.Options();
 
-	// An instance of the driver class to run model inference with Tensorflow Lite.
-	private Interpreter modelInterpreter;
-
-	// Optional GPU delegate for accleration.
-	private GpuDelegate gpuDelegate;
+	private TFLiteWrapper tfLiteWrapper;
 
 	// ByteBuffer to hold input data (e.g., images), to be feed into Tensorflow Lite as inputs.
 	private ByteBuffer inputData = null;
-
-	// GPU Compatibility
-	private boolean gpuSupported;
 
 	public TFLite()
 	{
@@ -127,14 +118,7 @@ public class TFLite extends Model
 		}
 
 		// Run inference
-		try
-		{
-			modelInterpreter.run(inputData, prediction);
-		}
-		catch (Exception e)
-		{
-			Log.e("Error while running tflite inference", e);
-		}
+		tfLiteWrapper.run(inputData, prediction);
 
 		return prediction[0];
 	}
@@ -142,29 +126,8 @@ public class TFLite extends Model
 	@Override
 	void loadModel(File file)
 	{
-		// Check gpu compatibility
-		CompatibilityList compatList = new CompatibilityList();
-		gpuSupported = compatList.isDelegateSupportedOnThisDevice();
-
-		Log.i("GPU delegate supported: " + gpuSupported);
-
-		Interpreter.Options interpreterOptions = new Interpreter.Options();
-
-		// Initialize interpreter with GPU delegate
-		if (gpuSupported && options.useGPU.get())
-		{
-			// If the device has a supported GPU, add the GPU delegate
-			gpuDelegate = new GpuDelegate(compatList.getBestOptionsForThisDevice());
-			interpreterOptions.addDelegate(gpuDelegate);
-		}
-		else
-		{
-			// If the GPU is not supported, enable XNNPACK acceleration
-			interpreterOptions.setUseXNNPACK(true);
-			interpreterOptions.setNumThreads(Runtime.getRuntime().availableProcessors());
-		}
-
-		modelInterpreter = new Interpreter(file, interpreterOptions);
+		tfLiteWrapper = new TFLiteWrapper(options.useGPU.get());
+		tfLiteWrapper.loadModel(file);
 
 		isTrained = true;
 	}
@@ -217,14 +180,9 @@ public class TFLite extends Model
 		super.close();
 
 		// Clean up
-		if (modelInterpreter != null)
+		if (tfLiteWrapper != null)
 		{
-			modelInterpreter.close();
-		}
-
-		if (gpuDelegate != null)
-		{
-			gpuDelegate.close();
+			tfLiteWrapper.close();
 		}
 	}
 }
