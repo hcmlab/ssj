@@ -146,12 +146,6 @@ public class CPULoadChannel extends SensorChannel
     }
 
     @Override
-    public int getSampleBytes()
-    {
-        return Util.sizeOf(Cons.Type.FLOAT);
-    }
-
-    @Override
     public Cons.Type getSampleType()
     {
         return Cons.Type.FLOAT;

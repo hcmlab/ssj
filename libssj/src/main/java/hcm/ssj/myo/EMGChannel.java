@@ -103,12 +103,6 @@ public class EMGChannel extends SensorChannel
     }
 
     @Override
-    public int getSampleBytes()
-    {
-        return 4;
-    }
-
-    @Override
     public Cons.Type getSampleType()
     {
         return Cons.Type.INT;

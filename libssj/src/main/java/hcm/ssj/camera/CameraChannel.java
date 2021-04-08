@@ -139,15 +139,6 @@ public class CameraChannel extends SensorChannel
         return sampleDimension;
     }
 
-    /**
-     * @return int
-     */
-    @Override
-    public int getSampleBytes()
-    {
-        return 1;
-    }
-
     /*
      * @return Cons.Type
      */

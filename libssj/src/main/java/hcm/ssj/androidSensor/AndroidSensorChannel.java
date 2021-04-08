@@ -149,15 +149,6 @@ public class AndroidSensorChannel extends SensorChannel
         return sensorType.getDataSize();
     }
 
-    /**
-     * @return int
-     */
-    @Override
-    public int getSampleBytes()
-    {
-        return Util.sizeOf(Cons.Type.FLOAT);
-    }
-
     /*
      * @return Cons.Type
      */

@@ -110,15 +110,6 @@ public class FFMPEGReaderChannel extends SensorChannel
 		return sampleDimension;
 	}
 
-	/**
-	 * @return int
-	 */
-	@Override
-	public int getSampleBytes()
-	{
-		return 1;
-	}
-
 	@Override
 	protected Cons.Type getSampleType()
 	{
