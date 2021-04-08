@@ -27,6 +27,8 @@
 
 package hcm.ssj.core;
 
+import android.graphics.Color;
+
 /**
  * Created by Johnny on 05.03.2015.
  */
@@ -175,6 +177,23 @@ public class Cons
         ImageRotation(int rotation)
         {
             this.rotation = rotation;
+        }
+    }
+
+    public enum DrawColor
+    {
+        WHITE(Color.WHITE),
+        BLACK(Color.BLACK),
+        RED(Color.RED),
+        GREEN(Color.GREEN),
+        BLUE(Color.BLUE),
+        YELLOW(Color.YELLOW);
+
+        public final int color;
+
+        DrawColor(int color)
+        {
+            this.color = color;
         }
     }
 

@@ -65,6 +65,7 @@ public class LandmarkPainter extends Consumer
 		public final Option<Float> visibilityThreshold = new Option<>("visibilityThreshold", 0.5f, Float.class, "threshold if a landmark should be shown based on visibility value");
 		public final Option<SurfaceView> surfaceView = new Option<>("surfaceView", null, SurfaceView.class, "the view on which the painter is drawn");
 		public final Option<Float> landmarkRadius = new Option<>("landmarkRadius", 3.0f, Float.class, "radius of landmark circle");
+		public final Option<Cons.DrawColor> drawColor = new Option<>("drawColor", Cons.DrawColor.WHITE, Cons.DrawColor.class, "landmark color");
 
 		private Options()
 		{
@@ -157,7 +158,7 @@ public class LandmarkPainter extends Consumer
 		inputBitmap = Bitmap.createBitmap(in.width, in.height, Bitmap.Config.ARGB_8888);
 
 		landmarkPaint = new Paint();
-		landmarkPaint.setColor(Color.WHITE);
+		landmarkPaint.setColor(options.drawColor.get().color);
 		landmarkPaint.setStyle(Paint.Style.FILL);
 
 		// Fix visibility usage if configured wrong
