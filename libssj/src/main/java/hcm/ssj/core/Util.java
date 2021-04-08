@@ -621,8 +621,10 @@ public class Util
 
     /**
      * Get IP address from first non-localhost interface
+     *
      * @param useIPv4  true=return ipv4, false=return ipv6
-     * @return  address or empty string
+     * @return Address or empty string
+     * @throws SocketException Socket exception
      */
     public static String getIPAddress(boolean useIPv4) throws SocketException
     {
@@ -976,6 +978,9 @@ public class Util
 
     /**
      * Helper function to format fft values similar to SSI
+     *
+     * @param in Input array
+     * @param out Output array
      */
     public static void joinFFT(float[] in, float[] out)
     {

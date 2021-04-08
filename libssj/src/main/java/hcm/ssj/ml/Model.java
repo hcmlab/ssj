@@ -492,16 +492,22 @@ public abstract class Model extends Component
 
     /**
      * Load model from file
+     *
+     * @param file Model file
      */
     abstract void loadModel(File file);
 
     /**
      * Load model options from file
+     *
+     * @param file Option file
      */
     abstract void loadOption(File file);
 
     /**
      * Save model to file
+     *
+     * @param file Model file
      */
     void saveModel(File file)
     {

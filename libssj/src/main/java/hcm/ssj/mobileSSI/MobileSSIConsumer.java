@@ -100,7 +100,7 @@ public class MobileSSIConsumer extends Consumer
 
     /**
      * @param stream_in Stream[]
-	 * @param trigger
+	 * @param trigger event trigger
      */
     @Override
     protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException

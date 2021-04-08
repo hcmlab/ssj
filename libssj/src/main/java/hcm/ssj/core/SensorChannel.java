@@ -140,27 +140,41 @@ public abstract class SensorChannel extends Provider {
     }
 
     /**
-     * early initialization specific to implementation (called by framework on instantiation)
+     * Early initialization specific to implementation (called by framework on instantiation)
+     *
+     * @throws SSJException Exception
      */
     protected void init() throws SSJException {}
 
     /**
-     * initialization specific to sensor implementation (called by local thread after framework start and after sensor connects)
+     * Initialization specific to sensor implementation (called by local thread after framework start and after sensor connects)
+     *
+     * @param stream_out Output stream
+     * @throws SSJFatalException Exception
      */
     public void enter(Stream stream_out) throws SSJFatalException {}
 
     /**
-     * main processing method
+     * Main processing method
+     *
+     * @param stream_out Output stream
+     * @return True if processing was successful
+     * @throws SSJFatalException Exception
      */
     protected abstract boolean process(Stream stream_out) throws SSJFatalException;
 
     /**
-     * called once prior to termination
+     * Called once prior to termination
+     *
+     * @param stream_out Output stream
+     * @throws SSJFatalException Exception
      */
     public void flush(Stream stream_out) throws SSJFatalException {}
 
     /**
-     * general sensor initialization
+     * General sensor initialization
+     *
+     * @throws SSJException Exception
      */
     public void setup() throws SSJException {
         try

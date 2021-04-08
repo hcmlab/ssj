@@ -37,6 +37,9 @@ public class AudioUtil
 	 *
 	 * Based on code from the PRAAT Toolbox by Paul Boersma and David Weenink.
 	 * http://www.fon.hum.uva.nl/praat/
+	 *
+	 * @param x Input
+	 * @return Output
 	 */
 	public static double bessel_i0_f(double x)
 	{

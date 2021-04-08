@@ -81,14 +81,15 @@ public class RelativeVelocityFilter
 	/**
 	 * Applies filter to the value.
 	 *
-	 * @param timestamp  timestamp associated with the value (for instance,
+	 * @param timestamp  Timestamp associated with the value (for instance,
 	 *                   timestamp of the frame where you got value from)
-	 * @param valueScale value scale (for instance, if your value is a distance
+	 * @param valueScale Value scale (for instance, if your value is a distance
 	 *                   detected on a frame, it can look same on different
 	 *                   devices but have quite different absolute values due
 	 *                   to different resolution, you should come up with an
 	 *                   appropriate parameter for your particular use case)
-	 * @param value      value to filter
+	 * @param value      Value to filter
+	 * @return Filter result
 	 */
 	public float apply(long timestamp, float valueScale, float value)
 	{

@@ -93,7 +93,9 @@ public class FileReader extends Sensor
     }
 
     /**
+     * Initialize reader
      *
+     * @throws IOException IO Exception
      */
     protected final void readerInit() throws IOException
     {
@@ -141,7 +143,11 @@ public class FileReader extends Sensor
     }
 
     /**
+     * Get simple header
+     *
      * @return SimpleHeader
+     * @throws IOException IO Exception
+     * @throws XmlPullParserException XML Exception
      */
     protected SimpleHeader getSimpleHeader() throws IOException, XmlPullParserException
     {

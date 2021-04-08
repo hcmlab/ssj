@@ -189,7 +189,7 @@ public class CameraPainter extends Consumer implements EventListener
 
     /**
      * @param stream_in Stream[]
-	 * @param trigger
+	 * @param trigger Event trigger
      */
     @Override
     protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException

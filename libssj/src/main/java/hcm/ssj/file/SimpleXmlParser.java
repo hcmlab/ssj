@@ -52,8 +52,8 @@ public class SimpleXmlParser
      * @param searchPath       String[]
      * @param searchAttributes String[]
      * @return XmlValues
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException XML Exception
+     * @throws IOException IO Exception
      */
     public XmlValues parse(InputStream in, String[] searchPath, String[] searchAttributes) throws XmlPullParserException, IOException
     {

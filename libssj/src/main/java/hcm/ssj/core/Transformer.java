@@ -143,27 +143,48 @@ public abstract class Transformer extends Provider {
     }
 
     /**
-     * early initialization specific to implementation (called by framework on instantiation)
+     * Early initialization specific to implementation (called by framework on instantiation)
+     *
+     * @param frame frame size
+     * @param delta delta size
+     * @throws SSJException exception
      */
     public void init(double frame, double delta) throws SSJException {}
 
     /**
-     * initialization specific to sensor implementation (called by local thread after framework start)
+     * Initialization specific to sensor implementation (called by local thread after framework start)
+     *
+     * @param stream_in Input streams
+     * @param stream_out Output stream
+     * @throws SSJFatalException Exception
      */
     public void enter(Stream[] stream_in, Stream stream_out) throws SSJFatalException {}
 
     /**
-     * main processing method
+     * Main processing method
+     *
+     * @param stream_in Input streams
+     * @param stream_out Output stream
+     * @throws SSJFatalException Exception
      */
     public abstract void transform(Stream[] stream_in, Stream stream_out) throws SSJFatalException;
 
     /**
-     * called once prior to termination
+     * Called once prior to termination
+     *
+     * @param stream_in Input streams
+     * @param stream_out Output stream
+     * @throws SSJFatalException Exception
      */
     public void flush(Stream[] stream_in, Stream stream_out) throws SSJFatalException {}
 
     /**
-     * general transformer initialization
+     * General transformer initialization
+     *
+     * @param sources Providers
+     * @param frame Frame size
+     * @param delta Delta size
+     * @throws SSJException Exception
      */
     public final void setup(Provider[] sources, double frame, double delta) throws SSJException
     {

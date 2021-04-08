@@ -452,6 +452,8 @@ public class CameraUtil
      * Converts RGB bytes to RGB ints.
      *
      * @param rgbBytes RGB color bytes.
+     * @param width width
+     * @param height height
      * @return RGB color integers.
      */
     public static int[] decodeBytes(byte[] rgbBytes, int width, int height)

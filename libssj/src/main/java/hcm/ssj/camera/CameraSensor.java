@@ -191,6 +191,7 @@ public class CameraSensor extends hcm.ssj.core.Sensor implements Camera.PreviewC
      * Will select different parameters, if the ones in options aren't supported.
      *
      * @return Camera.Parameters
+     * @throws SSJException exception
      */
     protected final Camera.Parameters prePrepare() throws SSJException
     {

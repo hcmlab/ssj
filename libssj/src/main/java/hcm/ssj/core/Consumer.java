@@ -171,25 +171,37 @@ public abstract class Consumer extends Component {
     }
 
     /**
-     * initialization specific to sensor implementation (called by framework on instantiation)
+     * Initialization specific to sensor implementation (called by framework on instantiation)
+     *
+     * @param stream_in Input stream
+     * @throws SSJException Exception
      */
-    protected void init(Stream stream_in[]) throws SSJException {}
-
-	/**
-     * initialization specific to sensor implementation (called by local thread after framework start)
-     * @throws SSJFatalException causes immediate pipeline termination
-     */
-    public void enter(Stream stream_in[]) throws SSJFatalException {}
+    protected void init(Stream[] stream_in) throws SSJException {}
 
     /**
-     * main processing method
+     * Initialization specific to sensor implementation (called by local thread after framework start)
+     *
+     * @param stream_in Input stream
+     * @throws SSJFatalException Causes immediate pipeline termination
+     */
+    public void enter(Stream[] stream_in) throws SSJFatalException {}
+
+    /**
+     * Main processing method
+     *
+     * @param stream_in Input stream
+     * @param trigger Event trigger
+     * @throws SSJFatalException Exception
      */
     protected abstract void consume(Stream[] stream_in, Event trigger) throws SSJFatalException;
 
     /**
-     * called once prior to termination
+     * Called once prior to termination
+     *
+     * @param stream_in Input stream
+     * @throws SSJFatalException Exception
      */
-    public void flush(Stream stream_in[]) throws SSJFatalException {}
+    public void flush(Stream[] stream_in) throws SSJFatalException {}
 
     public void setEventTrigger(EventChannel channel)
     {
@@ -201,7 +213,12 @@ public abstract class Consumer extends Component {
     }
 
     /**
-     * initialization for continuous consumer
+     * Initialization for continuous consumer
+     *
+     * @param sources Providers
+     * @param frame Frame size
+     * @param delta Delta size
+     * @throws SSJException Exception
      */
     public void setup(Provider[] sources, double frame, double delta) throws SSJException
     {
@@ -251,7 +268,10 @@ public abstract class Consumer extends Component {
     }
 
     /**
-     * initialization for event consumer
+     * Initialization for event consumer
+     *
+     * @param sources Providers
+     * @throws SSJException Exception
      */
     public void setup(Provider[] sources) throws SSJException
     {

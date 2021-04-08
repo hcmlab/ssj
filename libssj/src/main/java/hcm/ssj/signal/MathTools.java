@@ -62,6 +62,9 @@ public class MathTools
 
 	/**
 	 * Calculates the sum of all values
+	 *
+	 * @param values Input values
+	 * @return Sum
 	 */
 	public float getSum(float[] values)
 	{
@@ -77,6 +80,9 @@ public class MathTools
 
 	/**
 	 * Calculates the mean of all values
+	 *
+	 * @param values Input values
+	 * @return Mean
 	 */
 	public float getMean(float[] values)
 	{
@@ -91,8 +97,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the minimum of all values
-	*/
+	 * Calculates the minimum of all values
+	 *
+	 * @param values Input values
+	 * @return Min
+	 */
 	public float getMin(float[] values)
 	{
 		float min = Float.MAX_VALUE;
@@ -114,8 +123,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the maximum of all values
-	*/
+	 * Calculates the maximum of all values
+	 *
+	 * @param values Input values
+	 * @return Max
+	 */
 	public float getMax(float[] values)
 	{
 		float max = -Float.MAX_VALUE;
@@ -137,8 +149,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the median of all values
-	*/
+	 * Calculates the median of all values
+	 *
+	 * @param values Input values
+	 * @return Median
+	 */
 	public float getMedian(float[] values)
 	{
 		float median = 0;
@@ -156,7 +171,7 @@ public class MathTools
 			if (n % 2 == 0)
 			{
 				// Even
-				median =  (valueCopies[n / 2 - 1] + valueCopies[n / 2]) / 2.0f;
+				median = (valueCopies[n / 2 - 1] + valueCopies[n / 2]) / 2.0f;
 			}
 			else
 			{
@@ -170,6 +185,9 @@ public class MathTools
 
 	/**
 	 * Calculates the variance of all values
+	 *
+	 * @param values Input values
+	 * @return Variance
 	 */
 	public float getVariance(float[] values)
 	{
@@ -191,8 +209,11 @@ public class MathTools
 	}
 
 	/**
-	* Calculates the standard deviation of all values
-	*/
+	 * Calculates the standard deviation of all values
+	 *
+	 * @param values Input values
+	 * @return Standard deviation
+	 */
 	public float getStdDeviation(float[] values)
 	{
 		float stdDeviation = 0;
@@ -206,8 +227,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the skew of all values
-	*/
+	 * Calculates the skew of all values
+	 *
+	 * @param values Input values
+	 * @return Skew
+	 */
 	public float getSkew(float[] values)
 	{
 		float skew = 0;
@@ -228,8 +252,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the kurtosis of all values
-	*/
+	 * Calculates the kurtosis of all values
+	 *
+	 * @param values Input values
+	 * @return Kurtosis
+	 */
 	public float getKurtosis(float[] values)
 	{
 		float kurtosis = 0;
@@ -250,16 +277,22 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the range of all values
-	*/
+	 * Calculates the range of all values
+	 *
+	 * @param values Input values
+	 * @return Range
+	 */
 	public float getRange(float[] values)
 	{
 		return getMax(values) - getMin(values);
 	}
 
 	/*
-	* Calculates the root mean square
-	*/
+	 * Calculates the root mean square
+	 *
+	 * @param values Input values
+	 * @return Root mean square
+	 */
 	public float getRMS(float[] values)
 	{
 		float rms = 0;
@@ -278,8 +311,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the mean absolute deviation of all values
-	*/
+	 * Calculates the mean absolute deviation of all values
+	 *
+	 * @param values Input values
+	 * @return Mean absolute deviation
+	 */
 	public float getMAD(float[] values)
 	{
 		float mad = 0;
@@ -299,8 +335,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the interquartile range
-	*/
+	 * Calculates the interquartile range
+	 *
+	 * @param values Input values
+	 * @return Interquartile range
+	 */
 	public float getIQR(float[] values)
 	{
 		float iqr = 0;
@@ -365,8 +404,11 @@ public class MathTools
 	}
 
 	/*
-	* Calculates the crest factor
-	*/
+	 * Calculates the crest factor
+	 *
+	 * @param values Input values
+	 * @return Crest factor
+	 */
 	public float getCrest(float[] values)
 	{
 		float absValue = 0;

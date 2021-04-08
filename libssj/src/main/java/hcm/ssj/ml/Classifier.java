@@ -145,7 +145,7 @@ public class Classifier extends Consumer implements IModelHandler
 
     /**
      * @param stream_in  Stream[]
-	 * @param trigger
+	 * @param trigger Event trigger
      */
     @Override
     public void consume(Stream[] stream_in, Event trigger) throws SSJFatalException

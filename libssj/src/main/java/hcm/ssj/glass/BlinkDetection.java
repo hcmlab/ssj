@@ -233,7 +233,7 @@ public class BlinkDetection extends Transformer
     /**
      * Simple fifo implementation.
      *
-     * @param <E>
+     * @param <E> queue type
      */
     private class LimitedQueue<E> extends LinkedList<E>
     {

@@ -75,6 +75,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
     /**
      * @param inputBuf  ByteBuffer
      * @param frameData byte[]
+     * @throws IOException IO Exception
      */
     protected abstract void fillBuffer(ByteBuffer inputBuf, byte[] frameData) throws IOException;
 
@@ -82,7 +83,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
 	 * @param stream_in Stream[]
 	 */
     @Override
-    public void flush(Stream stream_in[]) throws SSJFatalException
+    public void flush(Stream[] stream_in) throws SSJFatalException
     {
         releaseEncoder();
         aByShuffle = null;
@@ -92,6 +93,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
     /**
      * Checks for file consistency
      *
+     * @param in Input stream
      * @param options Options
      */
     protected final void initFiles(Stream in, Options options)
@@ -118,6 +120,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
      * @param mediaFormat MediaFormat
      * @param mimeType    String
      * @param filePath    String
+     * @throws IOException IO Exception
      */
     protected final void prepareEncoder(MediaFormat mediaFormat, String mimeType, String filePath) throws IOException
     {
@@ -169,6 +172,7 @@ public abstract class Mp4Writer extends Consumer implements IFileWriter
 
     /**
      * @param frameData byte[]
+     * @throws IOException IO Exception
      */
     protected final void encode(byte[] frameData) throws IOException
     {

@@ -51,9 +51,10 @@ import hcm.ssj.core.Pipeline;
 public class FileUtils
 {
 	/**
-	 * @param dirPath Option
-	 * @param fileName Option
+	 * @param dirPath Directory
+	 * @param fileName Filename
 	 * @return File
+	 * @throws IOException IO Exception
 	 */
 	public static File getFile(String dirPath, String fileName) throws IOException
 	{
@@ -80,7 +81,12 @@ public class FileUtils
 	}
 
 	/**
-	 * @throws IOException
+	 * Copy file from source to target
+	 *
+	 * @param filename File name
+	 * @param from Source directory
+	 * @param to Target directory
+	 * @throws IOException IO Exception
 	 */
 	public static void copyFile(String filename, String from, String to) throws IOException
 	{
@@ -95,9 +101,11 @@ public class FileUtils
 	}
 
 	/**
-	 * @param in  InputStream
-	 * @param out OutputStream
-	 * @throws IOException
+	 * Copy input stream to output stream
+	 *
+	 * @param in Input stream
+	 * @param out Output stream
+	 * @throws IOException IO Exception
 	 */
 	public static void copyFile(InputStream in, OutputStream out) throws IOException
 	{
@@ -112,9 +120,9 @@ public class FileUtils
 	/**
 	 * Copies an asset to a target location
 	 *
-	 * @param context
-	 * @param srcPath
-	 * @param targetPath
+	 * @param context Context
+	 * @param srcPath Source path
+	 * @param targetPath Target path
 	 */
 	public static void copyAsset(Context context, String srcPath, String targetPath)
 	{

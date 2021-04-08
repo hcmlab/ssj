@@ -110,12 +110,17 @@ public abstract class Sensor extends Component {
     }
 
     /**
-     * early initialization specific to implementation (called by framework on instantiation)
+     * Early initialization specific to implementation (called by framework on instantiation)
+     *
+     * @throws SSJException Exception
      */
     protected void init() throws SSJException {}
 
     /**
-     * initialization specific to sensor implementation (called by local thread after framework start)
+     * Initialization specific to sensor implementation (called by local thread after framework start)
+     *
+     * @return True if connection successful
+     * @throws SSJFatalException Exception
      */
     protected abstract boolean connect() throws SSJFatalException;
     protected boolean checkConnection() {return true;}
@@ -131,7 +136,9 @@ public abstract class Sensor extends Component {
     }
 
     /**
-     * called once per frame, can be overwritten
+     * Called once per frame, can be overwritten
+     *
+     * @throws SSJFatalException Exception
      */
     protected void update() throws SSJFatalException
     {
@@ -139,7 +146,9 @@ public abstract class Sensor extends Component {
     }
 
     /**
-     * called once before termination
+     * Called once before termination
+     *
+     * @throws SSJFatalException Exception
      */
     protected abstract void disconnect() throws SSJFatalException;
 

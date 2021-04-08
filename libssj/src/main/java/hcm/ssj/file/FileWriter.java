@@ -181,7 +181,7 @@ public class FileWriter extends Consumer implements IFileWriter
 
     /**
      * @param stream_in Stream[]
-	 * @param trigger
+	 * @param trigger Event trigger
      */
     @Override
     protected final void consume(Stream[] stream_in, Event trigger) throws SSJFatalException

@@ -114,12 +114,16 @@ public abstract class EventHandler extends Component implements EventListener {
     }
 
     /**
-     * initialization specific to sensor implementation
+     * Initialization specific to sensor implementation
+     *
+     * @throws SSJFatalException Exception
      */
     protected void enter() throws SSJFatalException {};
 
     /**
-     * thread processing method, alternative to notify(), called in loop
+     * Thread processing method, alternative to notify(), called in loop
+     *
+     * @throws SSJFatalException Exception
      */
     protected void process() throws SSJFatalException
     {
@@ -131,12 +135,16 @@ public abstract class EventHandler extends Component implements EventListener {
     }
 
     /**
-     * alternative to process(), called once per received event
+     * Alternative to process(), called once per received event
+     *
+     * @param event Event
      */
     public void notify(Event event) {}
 
     /**
-     * called once before termination
+     * Called once before termination
+     *
+     * @throws SSJFatalException Exception
      */
     protected void flush() throws SSJFatalException {};
 }

@@ -969,10 +969,12 @@ public class Pipeline
 
     /**
      * Downloads a file to the sd card
-     * @param fileName name of the file
-     * @param from remote path from which to download file
-     * @param to path to download to
-     * @param wait if true, function blocks until download is finished
+     *
+     * @param fileName Name of the file
+     * @param from Remote path from which to download file
+     * @param to Path to download to
+     * @param wait If true, function blocks until download is finished
+     * @throws IOException IO Exception
      */
     public void download(String fileName, String from, String to, boolean wait) throws IOException
     {

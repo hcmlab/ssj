@@ -61,6 +61,10 @@ public class Vibrate2Command extends Command {
 
     /**
      * Vibrate pattern, up to 6 times duration/strength
+     *
+     * @param myo myo
+     * @param duration duration
+     * @param strength strength
      */
     public void vibrate(Myo myo, int[] duration, byte[] strength) {
         byte[] vibrate2Command = createForVibrate2(duration, strength);
