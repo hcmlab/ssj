@@ -77,6 +77,7 @@ public class FaceCrop extends Transformer
 		public final Option<Integer> paddingHorizontal = new Option<>("paddingHorizontal", 0, Integer.class, "increase horizontal face crop by custom number of pixels on each side");
 		public final Option<Integer> paddingVertical = new Option<>("paddingVertical", 0, Integer.class, "increase vertical face crop by custom number of pixels on each side");
 		public final Option<Boolean> outputPositionEvents = new Option<>("outputPositionEvents", false, Boolean.class, "if true outputs face position as events");
+		public final Option<Boolean> squeeze = new Option<>("squeeze", true, Boolean.class, "if true squeezes face area to output size");
 		public final Option<Boolean> useGPU = new Option<>("useGPU", true, Boolean.class, "if true tries to use GPU for better performance");
 
 		private Options()
@@ -91,17 +92,6 @@ public class FaceCrop extends Transformer
 	private SingleShotMultiBoxDetector ssd;
 
 	private TFLiteWrapper tfLiteWrapper;
-
-	/*
-	// An instance of the driver class to run model inference with Tensorflow Lite.
-	private Interpreter modelInterpreter;
-
-	// Optional GPU delegate for accleration.
-	private GpuDelegate gpuDelegate;
-
-	// GPU Compatibility
-	private boolean gpuSupported;
-	*/
 
 	// ByteBuffer to hold image data, to be feed into Tensorflow Lite as inputs.
 	private ByteBuffer imgData = null;
@@ -168,35 +158,8 @@ public class FaceCrop extends Transformer
 		width = ((ImageStream) stream_in[0]).width;
 		height = ((ImageStream) stream_in[0]).height;
 
-		/*
-		// Check gpu compatibility
-		CompatibilityList compatList = new CompatibilityList();
-		gpuSupported = compatList.isDelegateSupportedOnThisDevice();
-
-		Log.i("GPU delegate supported: " + gpuSupported);
-
-		Interpreter.Options interpreterOptions = new Interpreter.Options();
-
-		// Initialize interpreter with GPU delegate
-		if (gpuSupported && options.useGPU.get())
-		{
-			// If the device has a supported GPU, add the GPU delegate
-			gpuDelegate = new GpuDelegate(compatList.getBestOptionsForThisDevice());
-			interpreterOptions.addDelegate(gpuDelegate);
-		}
-		else
-		{
-			// If the GPU is not supported, enable XNNPACK acceleration
-			interpreterOptions.setUseXNNPACK(true);
-			interpreterOptions.setNumThreads(Runtime.getRuntime().availableProcessors());
-		}
-
-		modelInterpreter = new Interpreter(modelFile, interpreterOptions);
-
-		 */
 		tfLiteWrapper = new TFLiteWrapper(options.useGPU.get());
 		tfLiteWrapper.loadModel(modelFile);
-
 
 		// Initialize model input buffer: size = width * height * channels * bytes per pixel (e.g., 4 for float)
 		imgData = ByteBuffer.allocateDirect(MODEL_INPUT_SIZE * MODEL_INPUT_SIZE * MODEL_INPUT_CHANNELS * Util.sizeOf(Cons.Type.FLOAT));
@@ -264,6 +227,34 @@ public class FaceCrop extends Transformer
 			int faceWidth = (int) Math.ceil(currentDetection.width * rotatedWidth) + options.paddingHorizontal.get() * 2;
 			int faceHeight = (int) Math.ceil(currentDetection.height * rotatedHeight) + options.paddingVertical.get() * 2;
 
+			if (!options.squeeze.get())
+			{
+				int centerX = faceX + faceWidth / 2;
+				int centerY = faceY + faceHeight / 2;
+
+				float widthRatio = options.outputWidth.get() / (float) faceWidth;
+				float heightRatio = options.outputHeight.get() / (float) faceHeight;
+				float scaleRatio = Math.min(widthRatio, heightRatio);
+
+				float scaledWidth = faceWidth * scaleRatio;
+				float scaledHeight = faceHeight * scaleRatio;
+
+				if (scaledWidth < options.outputWidth.get())
+				{
+					scaledWidth = options.outputWidth.get();
+				}
+
+				if (scaledHeight < options.outputWidth.get())
+				{
+					scaledHeight = options.outputHeight.get();
+				}
+
+				faceWidth = (int) (scaledWidth / scaleRatio);
+				faceHeight = (int) (scaledHeight / scaleRatio);
+				faceX = centerX - faceWidth / 2;
+				faceY = centerY - faceHeight / 2;
+			}
+
 			// Limit face coordinates to input size
 			if (faceX < 0)
 			{
@@ -279,15 +270,17 @@ public class FaceCrop extends Transformer
 
 			if (faceX + faceWidth > rotatedWidth)
 			{
-				faceWidth = rotatedWidth - faceX - 1;
+				faceX = rotatedWidth - faceWidth - 1;
+				// faceWidth = rotatedWidth - faceX - 1;
 			}
 
 			if (faceY + faceHeight > rotatedHeight)
 			{
-				faceHeight = rotatedHeight - faceY - 1;
+				faceY = rotatedHeight - faceHeight - 1;
+				// faceHeight = rotatedHeight - faceY - 1;
 			}
 
-			faceBitmap = Bitmap.createBitmap(rotatedBitmap, faceX, faceY, faceWidth , faceHeight);
+			faceBitmap = Bitmap.createBitmap(rotatedBitmap, faceX, faceY, faceWidth, faceHeight);
 
 			if (options.outputPositionEvents.get())
 			{
