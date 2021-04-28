@@ -1,6 +1,6 @@
 /*
- * build.gradle
- * Copyright (c) 2018
+ * PolarTest.java
+ * Copyright (c) 2021
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
  * Vitalijs Krumins, Antonio Grieco
  * *****************************************************
@@ -25,25 +25,61 @@
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package hcm.ssj;
 
-buildscript {
-    ext.kotlin_version = '1.4.32'
-    repositories {
-        jcenter()
-        google()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.3'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.4.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-allprojects {
-    repositories {
-        jcenter()
-        google()
-    }
+import androidx.test.filters.SmallTest;
+import androidx.test.runner.AndroidJUnit4;
+import hcm.ssj.core.Pipeline;
+import hcm.ssj.polar.ACCChannel;
+import hcm.ssj.polar.ECGChannel;
+import hcm.ssj.polar.HRChannel;
+import hcm.ssj.polar.Polar;
+import hcm.ssj.test.Logger;
+
+/**
+ * Created by Michael Dietz on 08.04.2021.
+ */
+@RunWith(AndroidJUnit4.class)
+@SmallTest
+public class PolarTest
+{
+	@Test
+	public void testConnection() throws Exception
+	{
+		// Setup
+		Pipeline frame = Pipeline.getInstance();
+		frame.options.bufferSize.set(10.0f);
+
+		Polar sensor = new Polar();
+		sensor.options.deviceIdentifier.set("D3:84:E5:34:76:3C"); // OH1: A0:9E:1A:5E:8A:A0
+
+		// PPGChannel channel = new PPGChannel();
+		//ACCChannel channel = new ACCChannel();
+		//HRChannel channel = new HRChannel();
+		ECGChannel channel = new ECGChannel();
+		frame.addSensor(sensor, channel);
+
+		Logger polarLogger = new Logger();
+		frame.addConsumer(polarLogger, channel);
+
+		// Start framework
+		frame.start();
+
+		// Wait duration
+		try
+		{
+			Thread.sleep(TestHelper.DUR_TEST_NORMAL * 5);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+		// Stop framework
+		frame.stop();
+		frame.clear();
+	}
 }

@@ -42,12 +42,20 @@ android {
         applicationId "hcm.ssj.creator"
         minSdkVersion 19
         targetSdkVersion 29
+        multiDexEnabled true
+
         versionName getVerName()
         versionCode getVerCode()
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
         ndk {
             abiFilters "armeabi-v7a", "x86", "arm64-v8a", "x86_64"
         }
+    }
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
     }
     buildTypes {
         release {
@@ -97,6 +105,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
 
+    implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'com.google.android.material:material:1.0.0'
     implementation project(path: ':libssj')

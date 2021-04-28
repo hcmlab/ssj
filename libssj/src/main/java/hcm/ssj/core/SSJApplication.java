@@ -30,6 +30,8 @@ package hcm.ssj.core;
 import android.app.Application;
 import android.content.Context;
 
+import androidx.multidex.MultiDex;
+
 /**
  * Created by Michael Dietz on 01.04.2015.
  */
@@ -41,6 +43,13 @@ public class SSJApplication extends Application
 	{
 		super.onCreate();
 		SSJApplication.context = getApplicationContext();
+	}
+
+	@Override
+	protected void attachBaseContext(Context base)
+	{
+		super.attachBaseContext(base);
+		MultiDex.install(this);
 	}
 
 	public static Context getAppContext()
