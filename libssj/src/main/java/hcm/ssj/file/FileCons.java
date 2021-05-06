@@ -55,6 +55,7 @@ public class FileCons
     public static final String SSJ_DATA = SSJ_EXTERNAL_STORAGE + File.separator + "Data";
     public static final String DOWNLOAD_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "download";
     public static final String MODELS_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "models";
+    public static final String CONFIGS_DIR = SSJ_EXTERNAL_STORAGE + File.separator + "configs";
     public static final String INTERNAL_LIB_DIR = SSJApplication.getAppContext().getApplicationInfo().nativeLibraryDir + File.separator; //getFilesDir().toString() + "/lib";
     public static final String REMOTE_LIB_PATH = "https://hcm-lab.de/downloads/ssj/lib/" + Build.CPU_ABI;
     public static final String REMOTE_MODEL_PATH = "https://hcm-lab.de/downloads/ssj/model";

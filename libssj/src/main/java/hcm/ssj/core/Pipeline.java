@@ -420,9 +420,23 @@ public class Pipeline
      * @param source the component which will provide data to the consumer
      * @throws SSJException thrown is an error occurred when setting up the component
      */
-    public void addConsumer(Consumer c, Provider source) throws SSJException {
+    public void addConsumer(Consumer c, Provider source) throws SSJException
+    {
         Provider[] sources = {source};
-        addConsumer(c, sources, source.getOutputStream().num / source.getOutputStream().sr, 0);
+        addConsumer(c, sources);
+    }
+
+    /**
+     * Adds a consumer to the pipeline.
+     * init method of consumer is called after setting up internal input buffer.
+     *
+     * @param c the Consumer to be added
+     * @param sources the components which will provide data to the consumer
+     * @throws SSJException thrown is an error occurred when setting up the component
+     */
+    public void addConsumer(Consumer c, Provider[] sources) throws SSJException
+    {
+        addConsumer(c, sources, sources[0].getOutputStream().num / sources[0].getOutputStream().sr, 0);
     }
 
     /**

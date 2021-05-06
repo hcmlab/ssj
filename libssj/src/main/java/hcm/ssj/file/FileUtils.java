@@ -38,6 +38,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Pipeline;
@@ -121,14 +123,14 @@ public class FileUtils
 	 * Copies an asset to a target location
 	 *
 	 * @param context Context
-	 * @param srcPath Source path
+	 * @param sourcePath Source path
 	 * @param targetPath Target path
 	 */
-	public static void copyAsset(Context context, String srcPath, String targetPath)
+	public static void copyAsset(Context context, String sourcePath, String targetPath)
 	{
 		try
 		{
-			InputStream in = context.getAssets().open(srcPath);
+			InputStream in = context.getAssets().open(sourcePath);
 
 			File targetFile = new File(targetPath);
 
@@ -149,10 +151,54 @@ public class FileUtils
 		}
 		catch (IOException e)
 		{
-			Log.e("Failed to copy asset " + srcPath, e);
+			Log.e("Failed to copy asset " + sourcePath, e);
 		}
 	}
 
+	/**
+	 * Copies all assets from source folder to target folder
+	 *
+	 * @param context Context
+	 * @param sourcePath Source path
+	 * @param targetPath Target path
+	 */
+	public static void copyAssets(Context context, String sourcePath, String targetPath)
+	{
+		List<String> assetList = new ArrayList<>();
+
+		listAssetFiles(context, sourcePath, assetList);
+
+		for (String file : assetList)
+		{
+			copyAsset(context, file, targetPath + File.separator + file);
+		}
+	}
+
+	public static void listAssetFiles(Context context, String path, List<String> assetList)
+	{
+		try
+		{
+			String[] list = context.getAssets().list(path);
+
+			if (list != null && list.length > 0)
+			{
+				// This is a folder
+				for (String file : list)
+				{
+					listAssetFiles(context, path + File.separator + file, assetList);
+				}
+			}
+			else
+			{
+				// This is a single file
+				assetList.add(path);
+			}
+		}
+		catch (IOException e)
+		{
+			Log.e("Error while listing assets in path " + path, e);
+		}
+	}
 
 	/**
 	 * Returns the extension of a given file.

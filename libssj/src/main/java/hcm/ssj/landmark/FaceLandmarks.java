@@ -628,6 +628,6 @@ public class FaceLandmarks extends Transformer
 
 		// TODO set description
 		stream_out.desc[0] = "Landmark X";
-		stream_out.desc[0] = "Landmark Y";
+		stream_out.desc[1] = "Landmark Y";
 	}
 }

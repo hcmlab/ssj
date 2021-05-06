@@ -29,6 +29,8 @@ package hcm.ssj.core;
 
 import android.graphics.Color;
 
+import hcm.ssj.audio.Microphone;
+
 /**
  * Created by Johnny on 05.03.2015.
  */
@@ -128,6 +130,21 @@ public class Cons
         ChannelFormat(int value)
         {
             val = value;
+        }
+    }
+
+    public enum AudioDataFormat
+    {
+        BYTE(Microphone.audioFormatSampleBytes(android.media.AudioFormat.ENCODING_PCM_8BIT)),
+        SHORT(Microphone.audioFormatSampleBytes(android.media.AudioFormat.ENCODING_PCM_16BIT)),
+        FLOAT_8(BYTE.byteCount),
+        FLOAT_16(SHORT.byteCount);
+
+        public final int byteCount;
+
+        AudioDataFormat(int i)
+        {
+            byteCount = i;
         }
     }
 
