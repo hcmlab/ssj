@@ -148,7 +148,19 @@ public class FFMPEGReader extends Sensor
 
 			try
 			{
-				String address = (options.url.get() != null) ? options.url.get() : options.file.get().value;
+				String address;
+				long frameTime;
+
+				if (options.url.get() != null)
+				{
+					address = options.url.get();
+					frameTime = 0;
+				}
+				else
+				{
+					address = options.file.get().value;
+					frameTime = (long) (1000 / options.fps.get());
+				}
 
 				reader = new FFmpegFrameGrabber(address);
 				reader.setImageWidth(options.width.get());
@@ -167,10 +179,15 @@ public class FFMPEGReader extends Sensor
 						{
 							buffer.get(frameBuffer);
 						}
+
+						if (frameTime > 0)
+						{
+							Thread.sleep(frameTime);
+						}
 					}
 				}
 			}
-			catch (FrameGrabber.Exception e)
+			catch (FrameGrabber.Exception | InterruptedException e)
 			{
 				Log.e("Error while grabbing frames", e);
 			}
