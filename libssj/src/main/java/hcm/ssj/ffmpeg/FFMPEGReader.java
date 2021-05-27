@@ -59,7 +59,7 @@ public class FFMPEGReader extends Sensor
 	public class Options extends OptionList
 	{
 		public final Option<FilePath> file = new Option<>("file", null, FilePath.class, "file path");
-		public final Option<String> url = new Option<>("url", "udp://127.0.0.1:5000", String.class, "streaming address, e.g. udp://<ip:port>. If set, file option is ignored");
+		public final Option<String> url = new Option<>("url", "", String.class, "streaming address, e.g. udp://127.0.0.1:5000. If set, file option is ignored");
 		public final Option<Integer> width = new Option<>("width", 640, Integer.class, "width in pixel");
 		public final Option<Integer> height = new Option<>("height", 480, Integer.class, "height in pixel");
 		public final Option<Double> fps = new Option<>("fps", 15., Double.class, "fps");
@@ -151,7 +151,7 @@ public class FFMPEGReader extends Sensor
 				String address;
 				long frameTime;
 
-				if (options.url.get() != null)
+				if (options.url.get() != null && !options.url.get().isEmpty())
 				{
 					address = options.url.get();
 					frameTime = 0;
