@@ -28,19 +28,18 @@
 package hcm.ssj.polar;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import polar.com.sdk.api.PolarBleApi;
-import polar.com.sdk.api.model.PolarAccelerometerData;
+import polar.com.sdk.api.model.PolarGyroData;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
  */
-public class ACCChannel extends SensorChannel
+public class PolarGYRChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
@@ -61,11 +60,11 @@ public class ACCChannel extends SensorChannel
 	int maxQueueSize;
 	int minQueueSize;
 
-	PolarAccelerometerData.PolarAccelerometerDataSample currentSample;
+	PolarGyroData.PolarGyroDataSample currentSample;
 
-	public ACCChannel()
+	public PolarGYRChannel()
 	{
-		_name = "Polar_ACC";
+		_name = "Polar_GYR";
 	}
 
 	@Override
@@ -78,7 +77,7 @@ public class ACCChannel extends SensorChannel
 	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Polar) _sensor).listener;
-		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.ACC);
+		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.GYRO);
 
 		samplingRatio = -1;
 
@@ -94,19 +93,19 @@ public class ACCChannel extends SensorChannel
 	{
 		float[] out = stream_out.ptrF();
 
-		if (_listener.sampleRateACC > 0)
+		if (_listener.sampleRateGYR > 0)
 		{
 			if (samplingRatio == -1)
 			{
 				// Get ratio between sensor sample rate and channel sample rate
-				samplingRatio = _listener.sampleRateACC / (float) options.sampleRate.get();
+				samplingRatio = _listener.sampleRateGYR / (float) options.sampleRate.get();
 
-				maxQueueSize = (int) (_listener.sampleRateACC * _frame.options.bufferSize.get());
+				maxQueueSize = (int) (_listener.sampleRateGYR * _frame.options.bufferSize.get());
 				minQueueSize = (int) (2 * samplingRatio);
 			}
 
 			// Get current sample values
-			currentSample = _listener.accQueue.peek();
+			currentSample = _listener.gyrQueue.peek();
 
 			// Check if queue is empty
 			if (currentSample != null)
@@ -121,16 +120,16 @@ public class ACCChannel extends SensorChannel
 				// Remove unused samples (due to sample rate) from queue
 				for (int i = (int) lastIndex; i < (int) currentIndex; i++)
 				{
-					_listener.accQueue.poll();
+					_listener.gyrQueue.poll();
 				}
 
 				// Reset counters
-				if (currentIndex >= _listener.sampleRateACC)
+				if (currentIndex >= _listener.sampleRateGYR)
 				{
 					currentIndex = 0;
 
 					// Discard old samples from queue if buffer gets too full
-					int currentQueueSize = _listener.accQueue.size();
+					int currentQueueSize = _listener.gyrQueue.size();
 
 					// Log.d("Queue size: " + currentQueueSize);
 
@@ -138,7 +137,7 @@ public class ACCChannel extends SensorChannel
 					{
 						for (int i = currentQueueSize; i > minQueueSize; i--)
 						{
-							_listener.accQueue.poll();
+							_listener.gyrQueue.poll();
 						}
 					}
 				}
@@ -172,8 +171,8 @@ public class ACCChannel extends SensorChannel
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = "ACC X";
-		stream_out.desc[1] = "ACC Y";
-		stream_out.desc[2] = "ACC Z";
+		stream_out.desc[0] = "GYR X";
+		stream_out.desc[1] = "GYR Y";
+		stream_out.desc[2] = "GYR Z";
 	}
 }

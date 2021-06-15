@@ -28,22 +28,23 @@
 package hcm.ssj.polar;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import polar.com.sdk.api.PolarBleApi;
-import polar.com.sdk.api.model.PolarMagnetometerData;
+import polar.com.sdk.api.model.PolarOhrData;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
  */
-public class MAGChannel extends SensorChannel
+public class PolarECGChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 130, Integer.class, "");
 
 		private Options() {
 			addOptions();
@@ -60,11 +61,11 @@ public class MAGChannel extends SensorChannel
 	int maxQueueSize;
 	int minQueueSize;
 
-	PolarMagnetometerData.PolarMagnetometerDataSample currentSample;
+	Integer currentSample;
 
-	public MAGChannel()
+	public PolarECGChannel()
 	{
-		_name = "Polar_MAG";
+		_name = "Polar_ECG";
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class MAGChannel extends SensorChannel
 	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Polar) _sensor).listener;
-		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.MAGNETOMETER);
+		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.ECG);
 
 		samplingRatio = -1;
 
@@ -93,43 +94,41 @@ public class MAGChannel extends SensorChannel
 	{
 		float[] out = stream_out.ptrF();
 
-		if (_listener.sampleRateMAG > 0)
+		if (_listener.sampleRateECG > 0)
 		{
 			if (samplingRatio == -1)
 			{
 				// Get ratio between sensor sample rate and channel sample rate
-				samplingRatio = _listener.sampleRateMAG / (float) options.sampleRate.get();
+				samplingRatio = _listener.sampleRateECG / (float) options.sampleRate.get();
 
-				maxQueueSize = (int) (_listener.sampleRateMAG * _frame.options.bufferSize.get());
+				maxQueueSize = (int) (_listener.sampleRateECG * _frame.options.bufferSize.get());
 				minQueueSize = (int) (2 * samplingRatio);
 			}
 
 			// Get current sample values
-			currentSample = _listener.magQueue.peek();
+			currentSample = _listener.ecgQueue.peek();
 
 			// Check if queue is empty
 			if (currentSample != null)
 			{
 				// Assign output values
-				out[0] = currentSample.x;
-				out[1] = currentSample.y;
-				out[2] = currentSample.z;
+				out[0] = currentSample;
 
 				currentIndex += samplingRatio;
 
 				// Remove unused samples (due to sample rate) from queue
 				for (int i = (int) lastIndex; i < (int) currentIndex; i++)
 				{
-					_listener.magQueue.poll();
+					_listener.ecgQueue.poll();
 				}
 
 				// Reset counters
-				if (currentIndex >= _listener.sampleRateMAG)
+				if (currentIndex >= _listener.sampleRateECG)
 				{
 					currentIndex = 0;
 
 					// Discard old samples from queue if buffer gets too full
-					int currentQueueSize = _listener.magQueue.size();
+					int currentQueueSize = _listener.ecgQueue.size();
 
 					// Log.d("Queue size: " + currentQueueSize);
 
@@ -137,7 +136,7 @@ public class MAGChannel extends SensorChannel
 					{
 						for (int i = currentQueueSize; i > minQueueSize; i--)
 						{
-							_listener.magQueue.poll();
+							_listener.ecgQueue.poll();
 						}
 					}
 				}
@@ -158,7 +157,7 @@ public class MAGChannel extends SensorChannel
 	@Override
 	protected int getSampleDimension()
 	{
-		return 3;
+		return 1;
 	}
 
 	@Override
@@ -171,8 +170,6 @@ public class MAGChannel extends SensorChannel
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = "MAG X";
-		stream_out.desc[1] = "MAG Y";
-		stream_out.desc[2] = "MAG Z";
+		stream_out.desc[0] = "ECG µV"; // in microvolts
 	}
 }

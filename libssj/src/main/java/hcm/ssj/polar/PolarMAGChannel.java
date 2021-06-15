@@ -34,33 +34,37 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import polar.com.sdk.api.PolarBleApi;
-import polar.com.sdk.api.model.PolarHrData;
-import polar.com.sdk.api.model.PolarOhrData;
+import polar.com.sdk.api.model.PolarMagnetometerData;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
  */
-public class HRChannel extends SensorChannel
+public class PolarMAGChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "");
 
-		private Options()
-		{
+		private Options() {
 			addOptions();
 		}
 	}
-
 	public final Options options = new Options();
 
 	PolarListener _listener;
 
-	PolarHrData currentSample;
+	float samplingRatio;
+	float lastIndex;
+	float currentIndex;
 
-	public HRChannel()
+	int maxQueueSize;
+	int minQueueSize;
+
+	PolarMagnetometerData.PolarMagnetometerDataSample currentSample;
+
+	public PolarMAGChannel()
 	{
-		_name = "Polar_HR";
+		_name = "Polar_MAG";
 	}
 
 	@Override
@@ -73,6 +77,15 @@ public class HRChannel extends SensorChannel
 	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Polar) _sensor).listener;
+		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.MAGNETOMETER);
+
+		samplingRatio = -1;
+
+		lastIndex = 0;
+		currentIndex = 0;
+
+		maxQueueSize = -1;
+		minQueueSize = -1;
 	}
 
 	@Override
@@ -80,27 +93,56 @@ public class HRChannel extends SensorChannel
 	{
 		float[] out = stream_out.ptrF();
 
-		if (_listener.hrReady)
+		if (_listener.sampleRateMAG > 0)
 		{
+			if (samplingRatio == -1)
+			{
+				// Get ratio between sensor sample rate and channel sample rate
+				samplingRatio = _listener.sampleRateMAG / (float) options.sampleRate.get();
+
+				maxQueueSize = (int) (_listener.sampleRateMAG * _frame.options.bufferSize.get());
+				minQueueSize = (int) (2 * samplingRatio);
+			}
+
 			// Get current sample values
-			currentSample = _listener.hrData;
+			currentSample = _listener.magQueue.peek();
 
 			// Check if queue is empty
 			if (currentSample != null)
 			{
 				// Assign output values
-				out[0] = currentSample.hr;
+				out[0] = currentSample.x;
+				out[1] = currentSample.y;
+				out[2] = currentSample.z;
 
-				if (currentSample.rrAvailable)
+				currentIndex += samplingRatio;
+
+				// Remove unused samples (due to sample rate) from queue
+				for (int i = (int) lastIndex; i < (int) currentIndex; i++)
 				{
-					out[1] = currentSample.rrs.get(0);
-					out[2] = currentSample.rrsMs.get(0);
+					_listener.magQueue.poll();
 				}
-				else
+
+				// Reset counters
+				if (currentIndex >= _listener.sampleRateMAG)
 				{
-					out[1] = 0;
-					out[2] = 0;
+					currentIndex = 0;
+
+					// Discard old samples from queue if buffer gets too full
+					int currentQueueSize = _listener.magQueue.size();
+
+					// Log.d("Queue size: " + currentQueueSize);
+
+					if (currentQueueSize > maxQueueSize)
+					{
+						for (int i = currentQueueSize; i > minQueueSize; i--)
+						{
+							_listener.magQueue.poll();
+						}
+					}
 				}
+
+				lastIndex = currentIndex;
 			}
 		}
 
@@ -129,8 +171,8 @@ public class HRChannel extends SensorChannel
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = "HR BPM";
-		stream_out.desc[1] = "RR"; // R is the peak of the QRS complex in the ECG wave and RR is the interval between successive Rs. In 1/1024 format.
-		stream_out.desc[2] = "RR ms"; // RRs in milliseconds.
+		stream_out.desc[0] = "MAG X";
+		stream_out.desc[1] = "MAG Y";
+		stream_out.desc[2] = "MAG Z";
 	}
 }

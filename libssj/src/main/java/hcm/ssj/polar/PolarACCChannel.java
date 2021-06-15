@@ -35,16 +35,16 @@ import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import polar.com.sdk.api.PolarBleApi;
-import polar.com.sdk.api.model.PolarOhrData;
+import polar.com.sdk.api.model.PolarAccelerometerData;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
  */
-public class PPGChannel extends SensorChannel
+public class PolarACCChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 135, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "");
 
 		private Options() {
 			addOptions();
@@ -61,11 +61,11 @@ public class PPGChannel extends SensorChannel
 	int maxQueueSize;
 	int minQueueSize;
 
-	PolarOhrData.PolarOhrSample currentSample;
+	PolarAccelerometerData.PolarAccelerometerDataSample currentSample;
 
-	public PPGChannel()
+	public PolarACCChannel()
 	{
-		_name = "Polar_PPG";
+		_name = "Polar_ACC";
 	}
 
 	@Override
@@ -78,7 +78,7 @@ public class PPGChannel extends SensorChannel
 	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Polar) _sensor).listener;
-		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.PPG);
+		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.ACC);
 
 		samplingRatio = -1;
 
@@ -94,44 +94,43 @@ public class PPGChannel extends SensorChannel
 	{
 		float[] out = stream_out.ptrF();
 
-		if (_listener.sampleRatePPG > 0)
+		if (_listener.sampleRateACC > 0)
 		{
 			if (samplingRatio == -1)
 			{
 				// Get ratio between sensor sample rate and channel sample rate
-				samplingRatio = _listener.sampleRatePPG / (float) options.sampleRate.get();
+				samplingRatio = _listener.sampleRateACC / (float) options.sampleRate.get();
 
-				maxQueueSize = (int) (_listener.sampleRatePPG * _frame.options.bufferSize.get());
+				maxQueueSize = (int) (_listener.sampleRateACC * _frame.options.bufferSize.get());
 				minQueueSize = (int) (2 * samplingRatio);
 			}
 
 			// Get current sample values
-			currentSample = _listener.ppgQueue.peek();
+			currentSample = _listener.accQueue.peek();
 
 			// Check if queue is empty
 			if (currentSample != null)
 			{
 				// Assign output values
-				for (int i = 0; i < 4; i++)
-				{
-					out[i] = currentSample.channelSamples.get(i);
-				}
+				out[0] = currentSample.x;
+				out[1] = currentSample.y;
+				out[2] = currentSample.z;
 
 				currentIndex += samplingRatio;
 
 				// Remove unused samples (due to sample rate) from queue
 				for (int i = (int) lastIndex; i < (int) currentIndex; i++)
 				{
-					_listener.ppgQueue.poll();
+					_listener.accQueue.poll();
 				}
 
 				// Reset counters
-				if (currentIndex >= _listener.sampleRatePPG)
+				if (currentIndex >= _listener.sampleRateACC)
 				{
 					currentIndex = 0;
 
 					// Discard old samples from queue if buffer gets too full
-					int currentQueueSize = _listener.ppgQueue.size();
+					int currentQueueSize = _listener.accQueue.size();
 
 					// Log.d("Queue size: " + currentQueueSize);
 
@@ -139,7 +138,7 @@ public class PPGChannel extends SensorChannel
 					{
 						for (int i = currentQueueSize; i > minQueueSize; i--)
 						{
-							_listener.ppgQueue.poll();
+							_listener.accQueue.poll();
 						}
 					}
 				}
@@ -160,7 +159,7 @@ public class PPGChannel extends SensorChannel
 	@Override
 	protected int getSampleDimension()
 	{
-		return 4;
+		return 3;
 	}
 
 	@Override
@@ -173,9 +172,8 @@ public class PPGChannel extends SensorChannel
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = "PPG LED 0";
-		stream_out.desc[1] = "PPG LED 1";
-		stream_out.desc[2] = "PPG LED 2";
-		stream_out.desc[3] = "Ambient light";
+		stream_out.desc[0] = "ACC X";
+		stream_out.desc[1] = "ACC Y";
+		stream_out.desc[2] = "ACC Z";
 	}
 }

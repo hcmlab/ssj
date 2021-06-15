@@ -33,9 +33,7 @@ import org.junit.runner.RunWith;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import hcm.ssj.core.Pipeline;
-import hcm.ssj.polar.ACCChannel;
-import hcm.ssj.polar.ECGChannel;
-import hcm.ssj.polar.HRChannel;
+import hcm.ssj.polar.PolarECGChannel;
 import hcm.ssj.polar.Polar;
 import hcm.ssj.test.Logger;
 
@@ -56,10 +54,10 @@ public class PolarTest
 		Polar sensor = new Polar();
 		sensor.options.deviceIdentifier.set("D3:84:E5:34:76:3C"); // OH1: A0:9E:1A:5E:8A:A0
 
-		// PPGChannel channel = new PPGChannel();
-		//ACCChannel channel = new ACCChannel();
-		//HRChannel channel = new HRChannel();
-		ECGChannel channel = new ECGChannel();
+		// PolarPPGChannel channel = new PolarPPGChannel();
+		//PolarACCChannel channel = new PolarACCChannel();
+		//PolarHRChannel channel = new PolarHRChannel();
+		PolarECGChannel channel = new PolarECGChannel();
 		frame.addSensor(sensor, channel);
 
 		Logger polarLogger = new Logger();

@@ -28,44 +28,39 @@
 package hcm.ssj.polar;
 
 import hcm.ssj.core.Cons;
-import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import polar.com.sdk.api.PolarBleApi;
+import polar.com.sdk.api.model.PolarHrData;
 import polar.com.sdk.api.model.PolarOhrData;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
  */
-public class ECGChannel extends SensorChannel
+public class PolarHRChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 130, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 1, Integer.class, "");
 
-		private Options() {
+		private Options()
+		{
 			addOptions();
 		}
 	}
+
 	public final Options options = new Options();
 
 	PolarListener _listener;
 
-	float samplingRatio;
-	float lastIndex;
-	float currentIndex;
+	PolarHrData currentSample;
 
-	int maxQueueSize;
-	int minQueueSize;
-
-	Integer currentSample;
-
-	public ECGChannel()
+	public PolarHRChannel()
 	{
-		_name = "Polar_ECG";
+		_name = "Polar_HR";
 	}
 
 	@Override
@@ -78,15 +73,6 @@ public class ECGChannel extends SensorChannel
 	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Polar) _sensor).listener;
-		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.ECG);
-
-		samplingRatio = -1;
-
-		lastIndex = 0;
-		currentIndex = 0;
-
-		maxQueueSize = -1;
-		minQueueSize = -1;
 	}
 
 	@Override
@@ -94,54 +80,27 @@ public class ECGChannel extends SensorChannel
 	{
 		float[] out = stream_out.ptrF();
 
-		if (_listener.sampleRateECG > 0)
+		if (_listener.hrReady)
 		{
-			if (samplingRatio == -1)
-			{
-				// Get ratio between sensor sample rate and channel sample rate
-				samplingRatio = _listener.sampleRateECG / (float) options.sampleRate.get();
-
-				maxQueueSize = (int) (_listener.sampleRateECG * _frame.options.bufferSize.get());
-				minQueueSize = (int) (2 * samplingRatio);
-			}
-
 			// Get current sample values
-			currentSample = _listener.ecgQueue.peek();
+			currentSample = _listener.hrData;
 
 			// Check if queue is empty
 			if (currentSample != null)
 			{
 				// Assign output values
-				out[0] = currentSample;
+				out[0] = currentSample.hr;
 
-				currentIndex += samplingRatio;
-
-				// Remove unused samples (due to sample rate) from queue
-				for (int i = (int) lastIndex; i < (int) currentIndex; i++)
+				if (currentSample.rrAvailable)
 				{
-					_listener.ecgQueue.poll();
+					out[1] = currentSample.rrs.get(0);
+					out[2] = currentSample.rrsMs.get(0);
 				}
-
-				// Reset counters
-				if (currentIndex >= _listener.sampleRateECG)
+				else
 				{
-					currentIndex = 0;
-
-					// Discard old samples from queue if buffer gets too full
-					int currentQueueSize = _listener.ecgQueue.size();
-
-					// Log.d("Queue size: " + currentQueueSize);
-
-					if (currentQueueSize > maxQueueSize)
-					{
-						for (int i = currentQueueSize; i > minQueueSize; i--)
-						{
-							_listener.ecgQueue.poll();
-						}
-					}
+					out[1] = 0;
+					out[2] = 0;
 				}
-
-				lastIndex = currentIndex;
 			}
 		}
 
@@ -157,7 +116,7 @@ public class ECGChannel extends SensorChannel
 	@Override
 	protected int getSampleDimension()
 	{
-		return 1;
+		return 3;
 	}
 
 	@Override
@@ -170,6 +129,8 @@ public class ECGChannel extends SensorChannel
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = "ECG µV"; // in microvolts
+		stream_out.desc[0] = "HR BPM";
+		stream_out.desc[1] = "RR"; // R is the peak of the QRS complex in the ECG wave and RR is the interval between successive Rs. In 1/1024 format.
+		stream_out.desc[2] = "RR ms"; // RRs in milliseconds.
 	}
 }

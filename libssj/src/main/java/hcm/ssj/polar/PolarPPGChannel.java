@@ -28,22 +28,23 @@
 package hcm.ssj.polar;
 
 import hcm.ssj.core.Cons;
+import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
 import hcm.ssj.core.SensorChannel;
 import hcm.ssj.core.option.Option;
 import hcm.ssj.core.option.OptionList;
 import hcm.ssj.core.stream.Stream;
 import polar.com.sdk.api.PolarBleApi;
-import polar.com.sdk.api.model.PolarGyroData;
+import polar.com.sdk.api.model.PolarOhrData;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
  */
-public class GYRChannel extends SensorChannel
+public class PolarPPGChannel extends SensorChannel
 {
 	public class Options extends OptionList
 	{
-		public final Option<Integer> sampleRate = new Option<>("sampleRate", 50, Integer.class, "");
+		public final Option<Integer> sampleRate = new Option<>("sampleRate", 135, Integer.class, "");
 
 		private Options() {
 			addOptions();
@@ -60,11 +61,11 @@ public class GYRChannel extends SensorChannel
 	int maxQueueSize;
 	int minQueueSize;
 
-	PolarGyroData.PolarGyroDataSample currentSample;
+	PolarOhrData.PolarOhrSample currentSample;
 
-	public GYRChannel()
+	public PolarPPGChannel()
 	{
-		_name = "Polar_GYR";
+		_name = "Polar_PPG";
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class GYRChannel extends SensorChannel
 	public void enter(Stream stream_out) throws SSJFatalException
 	{
 		_listener = ((Polar) _sensor).listener;
-		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.GYRO);
+		_listener.streamingFeatures.add(PolarBleApi.DeviceStreamingFeature.PPG);
 
 		samplingRatio = -1;
 
@@ -93,43 +94,44 @@ public class GYRChannel extends SensorChannel
 	{
 		float[] out = stream_out.ptrF();
 
-		if (_listener.sampleRateGYR > 0)
+		if (_listener.sampleRatePPG > 0)
 		{
 			if (samplingRatio == -1)
 			{
 				// Get ratio between sensor sample rate and channel sample rate
-				samplingRatio = _listener.sampleRateGYR / (float) options.sampleRate.get();
+				samplingRatio = _listener.sampleRatePPG / (float) options.sampleRate.get();
 
-				maxQueueSize = (int) (_listener.sampleRateGYR * _frame.options.bufferSize.get());
+				maxQueueSize = (int) (_listener.sampleRatePPG * _frame.options.bufferSize.get());
 				minQueueSize = (int) (2 * samplingRatio);
 			}
 
 			// Get current sample values
-			currentSample = _listener.gyrQueue.peek();
+			currentSample = _listener.ppgQueue.peek();
 
 			// Check if queue is empty
 			if (currentSample != null)
 			{
 				// Assign output values
-				out[0] = currentSample.x;
-				out[1] = currentSample.y;
-				out[2] = currentSample.z;
+				for (int i = 0; i < 4; i++)
+				{
+					out[i] = currentSample.channelSamples.get(i);
+				}
 
 				currentIndex += samplingRatio;
 
 				// Remove unused samples (due to sample rate) from queue
 				for (int i = (int) lastIndex; i < (int) currentIndex; i++)
 				{
-					_listener.gyrQueue.poll();
+					_listener.ppgQueue.poll();
 				}
 
 				// Reset counters
-				if (currentIndex >= _listener.sampleRateGYR)
+				if (currentIndex >= _listener.sampleRatePPG)
 				{
 					currentIndex = 0;
 
 					// Discard old samples from queue if buffer gets too full
-					int currentQueueSize = _listener.gyrQueue.size();
+					int currentQueueSize = _listener.ppgQueue.size();
 
 					// Log.d("Queue size: " + currentQueueSize);
 
@@ -137,7 +139,7 @@ public class GYRChannel extends SensorChannel
 					{
 						for (int i = currentQueueSize; i > minQueueSize; i--)
 						{
-							_listener.gyrQueue.poll();
+							_listener.ppgQueue.poll();
 						}
 					}
 				}
@@ -158,7 +160,7 @@ public class GYRChannel extends SensorChannel
 	@Override
 	protected int getSampleDimension()
 	{
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -171,8 +173,9 @@ public class GYRChannel extends SensorChannel
 	protected void describeOutput(Stream stream_out)
 	{
 		stream_out.desc = new String[stream_out.dim];
-		stream_out.desc[0] = "GYR X";
-		stream_out.desc[1] = "GYR Y";
-		stream_out.desc[2] = "GYR Z";
+		stream_out.desc[0] = "PPG LED 0";
+		stream_out.desc[1] = "PPG LED 1";
+		stream_out.desc[2] = "PPG LED 2";
+		stream_out.desc[3] = "Ambient light";
 	}
 }
