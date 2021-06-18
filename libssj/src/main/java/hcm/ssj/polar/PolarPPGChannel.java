@@ -145,10 +145,12 @@ public class PolarPPGChannel extends SensorChannel
 				}
 
 				lastIndex = currentIndex;
+
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override

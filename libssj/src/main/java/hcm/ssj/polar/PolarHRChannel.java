@@ -101,10 +101,12 @@ public class PolarHRChannel extends SensorChannel
 					out[1] = 0;
 					out[2] = 0;
 				}
+
+				return true;
 			}
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override

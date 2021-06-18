@@ -126,19 +126,19 @@ public class PolarListener extends PolarBleApiCallback
 
 	public void deviceConnected(@NonNull PolarDeviceInfo polarDeviceInfo)
 	{
-		Log.d("Connected to device: " + polarDeviceInfo.deviceId);
+		Log.d("Connected to device: " + polarDeviceInfo.deviceId + " (" + DEVICE_ID + ")");
 
 		connected = true;
 	}
 
 	public void deviceConnecting(@NonNull PolarDeviceInfo polarDeviceInfo)
 	{
-		Log.d("Connecting to device: " + polarDeviceInfo.deviceId);
+		Log.d("Connecting to device: " + polarDeviceInfo.deviceId + " (" + DEVICE_ID + ")");
 	}
 
 	public void deviceDisconnected(@NonNull PolarDeviceInfo polarDeviceInfo)
 	{
-		Log.d("Disconnected from device: " + polarDeviceInfo.deviceId);
+		Log.d("Disconnected from device: " + polarDeviceInfo.deviceId + " (" + DEVICE_ID + ")");
 
 		for (Disposable disposable : disposables)
 		{
@@ -152,7 +152,7 @@ public class PolarListener extends PolarBleApiCallback
 	{
 		for (PolarBleApi.DeviceStreamingFeature feature : features)
 		{
-			Log.d("Streaming feature " + feature.toString() + " is ready");
+			Log.d("Streaming feature " + feature.toString() + " is ready (" + DEVICE_ID + ")");
 
 			if (streamingFeatures.contains(feature))
 			{
@@ -187,12 +187,13 @@ public class PolarListener extends PolarBleApiCallback
 
 	public void disInformationReceived(@NonNull String identifier, @NonNull UUID uuid, @NonNull String value)
 	{
-		Log.d("UUID: " + uuid + " Value: " + value);
+		// Log.d("UUID: " + uuid + " Value: " + value);
+		Log.d("Device: " + DEVICE_ID + " Value: " + value);
 	}
 
 	public void batteryLevelReceived(@NonNull String identifier, int level)
 	{
-		Log.d("Battery level: " + level);
+		Log.d("Device: " + DEVICE_ID + " Battery level: " + level);
 	}
 
 	public void hrNotificationReceived(@NonNull String identifier, @NonNull PolarHrData data)
@@ -222,7 +223,7 @@ public class PolarListener extends PolarBleApiCallback
 								ppgQueue.addAll(polarOhrPPGData.samples);
 							}
 						},
-						throwable -> Log.e(throwable.getLocalizedMessage(), throwable),
+						throwable -> Log.e("Error with PPG stream: " + throwable),
 						() -> Log.d("complete")
 				);
 	}
@@ -245,8 +246,7 @@ public class PolarListener extends PolarBleApiCallback
 						polarEcgData -> {
 							ecgQueue.addAll(polarEcgData.samples);
 						},
-						throwable -> {
-						},
+						throwable -> Log.e("Error with ECG stream: " + throwable),
 						() -> Log.d("complete")
 				);
 	}
@@ -271,7 +271,7 @@ public class PolarListener extends PolarBleApiCallback
 						polarAccelerometerData -> {
 							accQueue.addAll(polarAccelerometerData.samples);
 						},
-						throwable -> Log.e(throwable.getLocalizedMessage(), throwable),
+						throwable -> Log.e("Error with ACC stream: " + throwable),
 						() -> Log.d("complete")
 				);
 	}
@@ -296,7 +296,7 @@ public class PolarListener extends PolarBleApiCallback
 						polarGyroData -> {
 							gyrQueue.addAll(polarGyroData.samples);
 						},
-						throwable -> Log.e(throwable.getLocalizedMessage(), throwable),
+						throwable -> Log.e("Error with GYR stream: " + throwable),
 						() -> Log.d("complete")
 				);
 	}
@@ -321,7 +321,7 @@ public class PolarListener extends PolarBleApiCallback
 						polarMagData -> {
 							magQueue.addAll(polarMagData.samples);
 						},
-						throwable -> Log.e(throwable.getLocalizedMessage(), throwable),
+						throwable -> Log.e("Error with MAG stream: " + throwable),
 						() -> Log.d("complete")
 				);
 	}

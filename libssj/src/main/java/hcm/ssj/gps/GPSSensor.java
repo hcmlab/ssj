@@ -27,6 +27,7 @@
 
 package hcm.ssj.gps;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.LocationManager;
 import android.os.Handler;
@@ -75,6 +76,7 @@ public class GPSSensor extends Sensor
 		_name = "GPS";
 	}
 
+	@SuppressLint("MissingPermission")
 	@Override
 	protected boolean connect() throws SSJFatalException
 	{
@@ -87,17 +89,13 @@ public class GPSSensor extends Sensor
 		if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER))
 		{
 			Handler handler = new Handler(Looper.getMainLooper());
-			handler.postDelayed(new Runnable()
-			{
-				public void run()
-				{
-					// Register listener
-					locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, options.minTime.get(), options.minDistance.get(), listener);
+			handler.postDelayed(() -> {
+				// Register listener
+				locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, options.minTime.get(), options.minDistance.get(), listener);
 
-					if (options.useNetwork.get())
-					{
-						locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, options.minTime.get(), options.minDistance.get(), listener);
-					}
+				if (options.useNetwork.get())
+				{
+					locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, options.minTime.get(), options.minDistance.get(), listener);
 				}
 			}, 1);
 
@@ -109,7 +107,7 @@ public class GPSSensor extends Sensor
 				{
 					Thread.sleep(Cons.SLEEP_IN_LOOP);
 				}
-				catch (InterruptedException e)
+				catch (InterruptedException ignored)
 				{
 				}
 			}
@@ -124,7 +122,7 @@ public class GPSSensor extends Sensor
 			}
 		}
 
-		if (options.ignoreData.get() && connected == false)
+		if (options.ignoreData.get() && !connected)
 		{
 			connected = true;
 		}
@@ -140,5 +138,23 @@ public class GPSSensor extends Sensor
 			// Remove listener
 			locationManager.removeUpdates(listener);
 		}
+	}
+
+	@Override
+	protected boolean checkConnection()
+	{
+		boolean connected = false;
+
+		if (listener != null)
+		{
+			connected = listener.receivedData;
+		}
+
+		if (options.ignoreData.get())
+		{
+			connected = true;
+		}
+
+		return connected;
 	}
 }

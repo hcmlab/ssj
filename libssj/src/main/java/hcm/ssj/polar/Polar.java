@@ -42,6 +42,11 @@ import polar.com.sdk.api.errors.PolarInvalidArgument;
 
 /**
  * Created by Michael Dietz on 08.04.2021.
+ *
+ * H10:
+ * HR, ACC, ECG
+ * OH1:
+ * HR, ACC, PPI, PPG
  */
 public class Polar extends Sensor
 {
@@ -129,5 +134,18 @@ public class Polar extends Sensor
 				throw new SSJFatalException(polarInvalidArgument);
 			}
 		}
+	}
+
+	@Override
+	protected boolean checkConnection()
+	{
+		boolean connected = false;
+
+		if (listener != null)
+		{
+			connected = listener.connected;
+		}
+
+		return connected;
 	}
 }
