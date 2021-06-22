@@ -27,6 +27,11 @@
   ~ with this library; if not, see <http://www.gnu.org/licenses/>.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" package="hcm.ssj" >
+    <!-- Required for Samsung Accessory SDK (communication with Galaxy Watch) -->
+    <uses-permission android:name="com.samsung.accessory.permission.ACCESSORY_FRAMEWORK" />
+    <uses-permission android:name="com.samsung.WATCH_APP_TYPE.Companion" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <!-- Required for Android 11 file access -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 
@@ -66,5 +71,22 @@
         <service android:name="com.empatica.empalink.EmpaLinkBLE"/>
         <service android:name="com.angel.sdk.BleController" android:enabled="true" />
         <service android:name="com.estimote.sdk.service.BeaconService" />
+
+        <!-- Declaration when using SAAgentV2. -->
+        <service android:name="com.samsung.android.sdk.accessory.SAService"/>
+        <!-- Receiver must be declared when using Accessory SDK -->
+        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver">
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.REGISTER_AGENT" />
+            </intent-filter>
+        </receiver>
+        <!-- Receiver must be declared when using SASocket -->
+        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver">
+            <intent-filter>
+                <action android:name="com.samsung.accessory.action.SERVICE_CONNECTION_REQUESTED" />
+            </intent-filter>
+        </receiver>
+        <!-- Location of Accessory service profile should be declared like below. -->
+        <meta-data  android:name="AccessoryServicesLocation" android:value="/res/xml/accessoryservices.xml" />
     </application>
 </manifest>
