@@ -70,6 +70,32 @@ import hcm.ssj.ssd.SingleShotMultiBoxDetector;
 
 /**
  * Created by Michael Dietz on 08.01.2021.
+ *
+ * Lip landmarks
+ *  61, 146, 91, 181, 84, 17, 314, 405, 321, 375, 291 // Outer lip lower half (61 left, 17 center, 291 right)
+ * 	61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291 // Outer lip upper half (61 left, 0 center 291 right)
+ * 	78, 95, 88, 178, 87, 14, 317, 402, 318, 324, 308 // Inner lip lower half (78 left, 14 center, 308 right)
+ * 	78, 191, 80, 81, 82, 13, 312, 311, 310, 415, 308 // Inner lip upper half (78 left, 13 center, 308 right)
+ *
+ * Left eye. (outer to inner)
+ *  33, 7, 163, 144, 145, 153, 154, 155, 133 // Left eye lower half (33 left, 145 center, 133 right)
+ *  33, 246, 161, 160, 159, 158, 157, 173, 133 // Left eye upper half (33 left, 159 center, 133 right)
+ *
+ * Left eyebrow. (outer to inner)
+ *  46, 53, 52, 65, 55 // Left eyebrow lower bounds (46 left, 55 right)
+ *  70, 63, 105, 66, 107 // left eyebrow upper bounds (70 left, 107 right)
+ *
+ * Right eye. (outer to inner)
+ *  263, 249, 390, 373, 374, 380, 381, 382, 362 // Right eye lower half (362 left, 374 center, 263 right)
+ * 	263, 466, 388, 387, 386, 385, 384, 398, 362 // Right eye upper half (362 left, 386 center, 263 right)
+ *
+ * Right eyebrow (outer to inner)
+ *  276, 283, 282, 295, 285 // Right eyebrow lower bounds (285 left, 276 right)
+ *  300, 293, 334, 296, 336 // Right eyebrow upper bounds (336 left, 300 right)
+ *
+ * Face oval (clockwise, 10 top center, 152 bottom center)
+ *  10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109
+ *
  */
 public class FaceLandmarks extends Transformer
 {
