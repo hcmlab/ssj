@@ -40,6 +40,8 @@ import hcm.ssj.core.stream.Stream;
  */
 public class LandmarkFeatures extends Transformer
 {
+	public static final float INVALID_VALUE = -1;
+
 	public class Options extends OptionList
 	{
 		public final Option<Boolean> mocs = new Option<>("mocs", true, Boolean.class, "calculates the mouth open/close score");
@@ -81,7 +83,7 @@ public class LandmarkFeatures extends Transformer
 			}
 			else
 			{
-				out[0] = 0;
+				out[0] = INVALID_VALUE;
 			}
 		}
 	}
