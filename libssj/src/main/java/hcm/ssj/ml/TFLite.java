@@ -38,6 +38,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import hcm.ssj.core.Log;
 import hcm.ssj.core.option.Option;
@@ -50,7 +53,7 @@ public class TFLite extends Model
 {
 	public class Options extends Model.Options
 	{
-		public final Option<long[]> shape = new Option<>("shape", new long[] {1, 224, 224, 3}, long[].class, "shape of the input tensor");
+		//public final Option<long[]> shape = new Option<>("shape", new long[] {1, 224, 224, 3}, long[].class, "shape of the input tensor");
 		public final Option<Boolean> useGPU = new Option<>("useGPU", true, Boolean.class, "if true tries to use GPU for better performance");
 
 		private Options()
@@ -66,6 +69,9 @@ public class TFLite extends Model
 
 	// ByteBuffer to hold input data (e.g., images), to be feed into Tensorflow Lite as inputs.
 	private ByteBuffer inputData = null;
+
+	// Map to hold output data
+	private Map<Integer, Object> outputs = null;
 
 	public TFLite()
 	{
@@ -84,6 +90,13 @@ public class TFLite extends Model
 		// For images width * height * channels * bytes per pixel (e.g., 4 for float)
 		inputData = ByteBuffer.allocateDirect(input_bytes * input_dim);
 		inputData.order(ByteOrder.nativeOrder());
+
+		outputs = new HashMap<>();
+
+		for (int i = 0; i < output_heads; i++)
+		{
+			outputs.put(i, FloatBuffer.allocate(output_dims[i]));
+		}
 	}
 
 	@Override
@@ -108,19 +121,35 @@ public class TFLite extends Model
 	 */
 	private float[] makePrediction(float[] floatValues)
 	{
-		float[][] prediction = new float[1][output_dim];
+		float[] prediction = new float[output_dim];
+
+		inputData.rewind();
+
+		for (Integer key : outputs.keySet())
+		{
+			((FloatBuffer) outputs.get(key)).rewind();
+		}
 
 		// Fill byte buffer
-		inputData.rewind();
 		for (int i = 0; i < floatValues.length; i++)
 		{
 			inputData.putFloat(floatValues[i]);
 		}
 
 		// Run inference
-		tfLiteWrapper.run(inputData, prediction);
+		tfLiteWrapper.runMultiInputOutput(new Object[] {inputData}, outputs);
 
-		return prediction[0];
+		int startPos = 0;
+		for (Integer key : outputs.keySet())
+		{
+			float[] outputArray = ((FloatBuffer) outputs.get(key)).array();
+
+			System.arraycopy(outputArray, 0, prediction, startPos, output_dims[key]);
+
+			startPos += output_dims[key];
+		}
+
+		return prediction;
 	}
 
 	@Override

@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 import hcm.ssj.core.Annotation;
 import hcm.ssj.core.Component;
@@ -76,6 +77,8 @@ public abstract class Model extends Component
 
     protected int output_dim = 0;
     protected String[] output_names = null;
+    protected int output_heads = 0;
+    protected int[] output_dims = null;
 
     public class Options extends OptionList
     {
@@ -137,6 +140,11 @@ public abstract class Model extends Component
 		}
     }
 
+    /**
+     * Called when model is added to the pipeline
+     *
+     * @throws SSJException When setup fails
+     */
     public void setup() throws SSJException
     {
         if (_isSetup)
@@ -179,6 +187,7 @@ public abstract class Model extends Component
 
         this.output_names = classNames;
         this.output_dim = classNames.length;
+        this.output_dims = new int[] { this.output_dim };
 
         init(input_dim, this.output_dim, classNames);
         _isSetup = true;
@@ -243,7 +252,8 @@ public abstract class Model extends Component
             return;
         }
 
-        ArrayList<String> classNamesList = new ArrayList<>();
+        List<String> outputNamesList = new ArrayList<>();
+        List<Integer> outputDimsList = new ArrayList<>();
 
         while (parser.next() != XmlPullParser.END_DOCUMENT)
         {
@@ -253,11 +263,12 @@ public abstract class Model extends Component
                 // <item> tag
                 parser.nextTag();
 
+                // Currently only one input stream supported
                 if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
                 {
-                    input_bytes = Integer.valueOf(parser.getAttributeValue(null, "byte"));
-                    input_dim = Integer.valueOf(parser.getAttributeValue(null, "dim"));
-                    input_sr = Float.valueOf(parser.getAttributeValue(null, "sr"));
+                    input_bytes = Integer.parseInt(parser.getAttributeValue(null, "byte"));
+                    input_dim = Integer.parseInt(parser.getAttributeValue(null, "dim"));
+                    input_sr = Float.parseFloat(parser.getAttributeValue(null, "sr"));
                     input_type = Cons.Type.valueOf(parser.getAttributeValue(null, "type"));
                 }
             }
@@ -265,6 +276,8 @@ public abstract class Model extends Component
             // <classes> tag
             if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("classes"))
             {
+                output_heads = 1;
+
                 // <item> tag
                 parser.nextTag();
 
@@ -272,7 +285,7 @@ public abstract class Model extends Component
                 {
                     if (parser.getEventType() == XmlPullParser.START_TAG)
                     {
-                        classNamesList.add(parser.getAttributeValue(null, "name"));
+                        outputNamesList.add(parser.getAttributeValue(null, "name"));
                     }
                     parser.nextTag();
                 }
@@ -284,9 +297,49 @@ public abstract class Model extends Component
                 // <item> tag
                 parser.nextTag();
 
-                if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
+                output_dim = 0;
+                output_heads = 0;
+
+                while (parser.getName().equalsIgnoreCase("item"))
                 {
-                    output_dim = Integer.parseInt(parser.getAttributeValue(null, "dim"));
+                    if (parser.getEventType() == XmlPullParser.START_TAG)
+                    {
+                        String name = parser.getAttributeValue(null, "name");
+                        String dimString = parser.getAttributeValue(null, "dim");
+                        int dim = 1;
+
+                        if (name == null)
+                        {
+                            name = "output" + output_heads;
+                        }
+
+                        if (dimString != null)
+                        {
+                            dim = Integer.parseInt(dimString);
+
+                            for (int i = 0; i < dim; i++)
+                            {
+                                outputNamesList.add(name + "_" + i);
+                            }
+                        }
+                        else
+                        {
+                            outputNamesList.add(name);
+                        }
+
+                        outputDimsList.add(dim);
+
+                        output_dim += dim;
+                        output_heads++;
+                    }
+                    parser.nextTag();
+                }
+
+                output_dims = new int[output_heads];
+
+                for (int i = 0; i < output_dims.length; i++)
+                {
+                    output_dims[i] = outputDimsList.get(i);
                 }
             }
 
@@ -297,7 +350,7 @@ public abstract class Model extends Component
                 parser.nextTag();
                 if (parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("item"))
                 {
-                    int stream_id = Integer.valueOf(parser.getAttributeValue(null, "stream"));
+                    int stream_id = Integer.parseInt(parser.getAttributeValue(null, "stream"));
 
                     if (stream_id != 0)
                     {
@@ -309,7 +362,7 @@ public abstract class Model extends Component
 
                     for (int i = 0; i < select.length; i++)
                     {
-                        select_dimensions[i] = Integer.valueOf(select[i]);
+                        select_dimensions[i] = Integer.parseInt(select[i]);
                     }
                 }
             }
@@ -347,13 +400,14 @@ public abstract class Model extends Component
             }
         }
 
-        if (classNamesList.size() > 0)
+        if (outputNamesList.size() > 0)
         {
-            output_names = classNamesList.toArray(new String[0]);
+            output_names = outputNamesList.toArray(new String[0]);
             
             if (output_dim == 0)
             {
                 output_dim = output_names.length;
+                output_dims = new int[] { output_dim };
             }
         }
         else
