@@ -45,6 +45,8 @@
     <!-- Required for GPS location -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
 
     <!-- Required for heart rate sensor -->
     <uses-permission android:name="android.permission.BODY_SENSORS"/>

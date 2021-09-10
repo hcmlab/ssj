@@ -27,6 +27,7 @@
   -->
 <manifest package="hcm.ssj.creator"
           xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
 
     <application
         android:allowBackup="true"
@@ -83,6 +84,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activity.MainActivity" />
         </activity>
+        <service
+            android:name="hcm.ssj.creator.activity.PipelineService"
+            android:foregroundServiceType="location"
+            android:largeHeap="true">
+        </service>
     </application>
 
 </manifest>

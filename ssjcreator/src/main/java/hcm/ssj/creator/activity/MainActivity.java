@@ -70,6 +70,7 @@ import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.Monitor;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.PipelineStateListener;
 import hcm.ssj.creator.R;
 import hcm.ssj.creator.core.BandComm;
 import hcm.ssj.creator.core.PipelineBuilder;
@@ -82,7 +83,7 @@ import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 import hcm.ssj.creator.util.Util;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, PipelineStateListener
 {
 	private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
 	private static boolean ready = true;
@@ -215,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 			{
 				ActivityCompat.requestPermissions(this, new String[]{
 						Manifest.permission.ACCESS_FINE_LOCATION,
+						Manifest.permission.ACCESS_BACKGROUND_LOCATION,
 						Manifest.permission.BODY_SENSORS,
 						Manifest.permission.CAMERA,
 						Manifest.permission.RECORD_AUDIO,
@@ -241,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	/**
 	 * Start or stop pipe
 	 */
-	private void handlePipe()
+	private void handlePipeOld()
 	{
 		if (ready)
 		{
@@ -311,6 +313,125 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		{
 			Monitor.notifyMonitor();
 		}
+	}
+
+	/**
+	 * Start or stop pipe
+	 */
+	private void handlePipe()
+	{
+		if (ready)
+		{
+			ready = false;
+			new Thread()
+			{
+				@Override
+				public void run()
+				{
+					// Change button text
+					changeImageButton(android.R.drawable.ic_popup_sync, false);
+
+					// Save framework options
+					Pipeline pipeline = Pipeline.getInstance();
+
+					// Remove old content
+					pipeline.clear();
+					pipeline.resetCreateTime();
+					pipeline.registerStateListener(MainActivity.this);
+
+					// Add components
+					try
+					{
+						PipelineBuilder.getInstance().buildPipe();
+					}
+					catch (Exception e)
+					{
+						Log.e(getString(R.string.err_buildPipe), e);
+						runOnUiThread(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								Toast.makeText(getApplicationContext(), R.string.err_buildPipe, Toast.LENGTH_LONG).show();
+							}
+						});
+						ready = true;
+						changeImageButton(android.R.drawable.ic_media_play, true);
+						return;
+					}
+					// Change button text
+					changeImageButton(android.R.drawable.ic_media_pause, true);
+
+					//Notify tabs
+					tabHandler.preStart();
+
+					// Start framework
+					startPipelineService();
+
+					// Run
+					Monitor.waitMonitor();
+
+					// Stop framework
+					try
+					{
+						stopPipelineService();
+						tabHandler.preStop();
+						pipeline.stop();
+					}
+					catch (Exception e)
+					{
+						e.printStackTrace();
+					}
+					ready = true;
+					//change button text
+					changeImageButton(android.R.drawable.ic_media_play, true);
+				}
+			}.start();
+		}
+		else
+		{
+			Monitor.notifyMonitor();
+		}
+	}
+
+	@Override
+	public void stateUpdated(Pipeline.State state)
+	{
+		if (!ready)
+		{
+			switch (state)
+			{
+				case STARTING:
+					break;
+				case RUNNING:
+					break;
+				case INACTIVE:
+				case STOPPING:
+					Monitor.notifyMonitor();
+					break;
+			}
+		}
+	}
+
+	private void startPipelineService()
+	{
+		Intent serviceIntent = new Intent(this, PipelineService.class);
+
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+		{
+			startForegroundService(serviceIntent);
+		}
+		else
+		{
+			startService(serviceIntent);
+		}
+	}
+
+	private void stopPipelineService()
+	{
+		Intent serviceIntent = new Intent(this, PipelineService.class);
+
+		stopService(serviceIntent);
 	}
 
 	/**
@@ -447,6 +568,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		if (framework.isRunning())
 		{
 			framework.stop();
+			stopPipelineService();
 		}
 		PipelineBuilder.getInstance().clear();
 		super.onDestroy();

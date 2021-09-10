@@ -39,12 +39,9 @@ import android.os.Build;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import androidx.annotation.RequiresApi;
 import hcm.ssj.core.Cons;
@@ -62,6 +59,8 @@ public class GATTConnection extends BluetoothGattCallback
 	public static Map<String, CharacteristicDetails> GATT_DETAILS = new HashMap<>();
 
 	static {
+		// See Bluetooth GATT Specification Supplement for more details
+		// https://gist.github.com/sam016/4abe921b5a9ee27f67b3686910293026
 		GATT_DETAILS.put("00002a19-0000-1000-8000-00805f9b34fb", new CharacteristicDetails("Battery Level", BluetoothGattCharacteristic.FORMAT_UINT8, 0, Cons.Type.INT));
 		GATT_DETAILS.put("00002a6f-0000-1000-8000-00805f9b34fb", new CharacteristicDetails("Humidity", BluetoothGattCharacteristic.FORMAT_UINT16, -2, Cons.Type.FLOAT));
 		GATT_DETAILS.put("00002a6e-0000-1000-8000-00805f9b34fb", new CharacteristicDetails("Temperature", BluetoothGattCharacteristic.FORMAT_SINT16, -2, Cons.Type.FLOAT));
@@ -88,8 +87,6 @@ public class GATTConnection extends BluetoothGattCallback
 		CONNECTED,
 		DISCONNECTED;
 	}
-
-	private final Lock lock = new ReentrantLock(true);
 
 	BluetoothAdapter bluetoothAdapter = null;
 	BluetoothGatt bluetoothGatt = null;

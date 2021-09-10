@@ -133,4 +133,5 @@
     <string name="str_models">Models</string>
     <string name="str_options_pipe">Pipeline Options</string>
     <string name="str_canvas">Pipeline</string>
+    <string name="str_notification_text">Pipeline running as service.</string>
 </resources>
