@@ -220,7 +220,7 @@ public class TimeBuffer {
             return STATUS_UNKNOWN_DATA;
         }
 
-        // check if requested data is still available
+        // Check if requested data is still available (checks if startSample is older than whole buffer size of samples before current position)
         if (startSample + _capacitySamples < _position / _bytesPerSample || startSample < 0) {
             return STATUS_DATA_NOT_IN_BUFFER_ANYMORE;
         }
@@ -295,5 +295,10 @@ public class TimeBuffer {
     public Provider getOwner()
     {
         return _owner;
+    }
+
+    public int getOffsetSamples()
+    {
+        return _offsetSamples;
     }
 }

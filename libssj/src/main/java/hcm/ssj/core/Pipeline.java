@@ -750,7 +750,9 @@ public class Pipeline
                 Log.w(buf.getOwner().getComponentName(), "data not in buffer yet");
                 return false;
             case TimeBuffer.STATUS_DATA_NOT_IN_BUFFER_ANYMORE:
-                Log.w(buf.getOwner().getComponentName(), "data range (" + startSample + "," + (startSample + numSamples) + ") not in buffer anymore");
+                long bufEnd = buf.getPositionAbs() / buf.getBytesPerSample();
+                long bufStart = bufEnd - buf.getCapacity() / buf.getBytesPerSample();
+                Log.w(buf.getOwner().getComponentName(), "requested data range (" + (startSample - buf.getOffsetSamples()) + "-" + (startSample + numSamples - buf.getOffsetSamples()) + ") not in buffer (" + bufStart + "-" + bufEnd + ") anymore. Consumer/Transformer is probably too slow");
                 return false;
             case TimeBuffer.STATUS_DURATION_TOO_SMALL:
                 Log.w(buf.getOwner().getComponentName(), "requested duration too small");
