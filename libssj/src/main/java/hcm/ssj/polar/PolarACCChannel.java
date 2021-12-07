@@ -177,5 +177,13 @@ public class PolarACCChannel extends SensorChannel
 		stream_out.desc[0] = "ACC X";
 		stream_out.desc[1] = "ACC Y";
 		stream_out.desc[2] = "ACC Z";
+
+		/*
+		Polar H10:
+		Accelerometer data with sample rates of 25Hz, 50Hz, 100Hz and 200Hz and range of 2G, 4G and 8G. Axis specific acceleration data in mG.
+
+		Polar OH1 / Verity Sense:
+		Accelerometer data with sample rate of 52Hz and range of 8G. Axis specific acceleration data in mG.
+		 */
 	}
 }

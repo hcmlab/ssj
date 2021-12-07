@@ -59,7 +59,6 @@ import static polar.com.sdk.api.model.PolarOhrData.OHR_DATA_TYPE.PPG3_AMBIENT1;
  */
 public class PolarListener extends PolarBleApiCallback
 {
-	public static final int PPG_SR_OFFSET = 5;
 	public static final int ACC_SR_OFFSET = 1;
 
 	final String DEVICE_ID;
@@ -211,7 +210,7 @@ public class PolarListener extends PolarBleApiCallback
 					Set<Integer> values = sensorSetting.settings.get(PolarSensorSetting.SettingType.SAMPLE_RATE);
 					if (values != null && !values.isEmpty())
 					{
-						sampleRatePPG = values.iterator().next() + PPG_SR_OFFSET;
+						sampleRatePPG = values.iterator().next();
 					}
 
 					return api.startOhrStreaming(DEVICE_ID, sensorSetting);

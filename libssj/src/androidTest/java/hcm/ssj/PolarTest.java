@@ -30,9 +30,12 @@ package hcm.ssj;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import hcm.ssj.core.Pipeline;
+import hcm.ssj.file.FileWriter;
 import hcm.ssj.polar.PolarACCChannel;
 import hcm.ssj.polar.PolarECGChannel;
 import hcm.ssj.polar.Polar;
@@ -57,15 +60,19 @@ public class PolarTest
 		Polar sensor = new Polar();
 		/*
 		 * H10: D3:84:E5:34:76:3C
-		 * OH1: A0:9E:1A:5E:8A:A0
+		 * OH1: A0:9E:1A:5E:8A:A0, A0:9E:1A:93:78:3D
 		 */
-		sensor.options.deviceIdentifier.set("D3:84:E5:34:76:3C");
+		sensor.options.deviceIdentifier.set("A0:9E:1A:93:78:3D");
 
 		PolarPPGChannel channel = new PolarPPGChannel();
 		// PolarACCChannel channel = new PolarACCChannel();
 		// PolarHRChannel channel = new PolarHRChannel();
 		//PolarECGChannel channel = new PolarECGChannel();
 		frame.addSensor(sensor, channel);
+
+		FileWriter fw = new FileWriter();
+		fw.options.fileName.set("ppg");
+		frame.addConsumer(fw, channel);
 
 		Logger polarLogger = new Logger();
 		frame.addConsumer(polarLogger, channel);
