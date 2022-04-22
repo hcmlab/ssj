@@ -211,6 +211,18 @@ public class PolarListener extends PolarBleApiCallback
 					if (values != null && !values.isEmpty())
 					{
 						sampleRatePPG = values.iterator().next();
+
+						/*
+						 * Fix for known issue:
+						 * https://github.com/polarofficial/polar-ble-sdk/blob/master/technical_documentation/KnownIssues.md
+						 *
+						 * Problem: PPG stream settings returns incorrect sampling rate when read with requestStreamSettings().
+						 * The returned value for sampling rate is 130Hz. The correct sampling rate is 135Hz.
+						 */
+						if (sampleRatePPG == 130)
+						{
+							sampleRatePPG = 135;
+						}
 					}
 
 					return api.startOhrStreaming(DEVICE_ID, sensorSetting);

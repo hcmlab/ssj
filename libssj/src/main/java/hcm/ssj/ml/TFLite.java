@@ -88,7 +88,7 @@ public class TFLite extends Model
 	void init(int input_dim, int output_dim, String[] outputNames)
 	{
 		// For images width * height * channels * bytes per pixel (e.g., 4 for float)
-		inputData = ByteBuffer.allocateDirect(input_bytes * input_dim);
+		inputData = ByteBuffer.allocateDirect(input_bytes * input_dim * input_num);
 		inputData.order(ByteOrder.nativeOrder());
 
 		outputs = new HashMap<>();

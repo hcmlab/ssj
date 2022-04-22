@@ -70,6 +70,7 @@ public abstract class Model extends Component
 
     protected int input_bytes = 0;
     protected int input_dim = 0;
+    protected int input_num = 1;
     protected double input_sr = 0;
     protected Cons.Type input_type = Cons.Type.UNDEF;
 
@@ -270,6 +271,13 @@ public abstract class Model extends Component
                     input_dim = Integer.parseInt(parser.getAttributeValue(null, "dim"));
                     input_sr = Float.parseFloat(parser.getAttributeValue(null, "sr"));
                     input_type = Cons.Type.valueOf(parser.getAttributeValue(null, "type"));
+
+                    String num = parser.getAttributeValue(null, "num");
+
+                    if (num != null)
+                    {
+                        input_num = Integer.parseInt(num);
+                    }
                 }
             }
 

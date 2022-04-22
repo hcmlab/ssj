@@ -144,7 +144,7 @@ public class AudioChannel extends SensorChannel
                         break;
                     case ENCODING_PCM_16BIT:
                     case ENCODING_DEFAULT:
-                        outf[j++] = (short) ((_data[i+1] & 0xFF) << 8 | (_data[i+0] & 0xFF)) / 32768.0f;
+                        outf[j++] = ((short) ((_data[i + 1] & 0xFF) << 8 | (_data[i] & 0xFF))) / 32768.0f;
                         i += 2;
                         break;
                     default:

@@ -46,6 +46,7 @@ import hcm.ssj.core.Cons;
 import hcm.ssj.core.Consumer;
 import hcm.ssj.core.Log;
 import hcm.ssj.core.SSJFatalException;
+import hcm.ssj.core.Util;
 import hcm.ssj.core.event.Event;
 import hcm.ssj.core.option.FolderPath;
 import hcm.ssj.core.option.Option;
@@ -303,14 +304,8 @@ public class WavWriter extends Consumer implements IFileWriter
             Log.w("file path not set, setting to default " + FileCons.SSJ_EXTERNAL_STORAGE);
             options.filePath.set(new FolderPath(FileCons.SSJ_EXTERNAL_STORAGE));
         }
-        File fileDirectory = new File(options.filePath.parseWildcards());
-        if (!fileDirectory.exists())
-        {
-            if (!fileDirectory.mkdirs())
-            {
-                throw new IOException(fileDirectory.getName() + " could not be created");
-            }
-        }
+        File fileDirectory = Util.createDirectory(options.filePath.parseWildcards());
+
         if (options.fileName.get() == null)
         {
             String defaultName = TextUtils.join("_", in.desc) + ".wav";
@@ -387,10 +382,12 @@ public class WavWriter extends Consumer implements IFileWriter
 
         outFile.flush();
         outFile.close();
+        /*
         if (!fileToConvert.delete())
         {
             throw new IOException("error deleting temp file");
         }
+        */
     }
 
     /**
