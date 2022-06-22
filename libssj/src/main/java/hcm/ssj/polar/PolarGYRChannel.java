@@ -100,8 +100,8 @@ public class PolarGYRChannel extends SensorChannel
 				// Get ratio between sensor sample rate and channel sample rate
 				samplingRatio = _listener.sampleRateGYR / (float) options.sampleRate.get();
 
-				maxQueueSize = (int) (_listener.sampleRateGYR * _frame.options.bufferSize.get());
-				minQueueSize = (int) (2 * samplingRatio);
+				maxQueueSize = (int) (_listener.sampleRateGYR * (_frame.options.bufferSize.get() + 120));
+				minQueueSize = (int) (_listener.sampleRateGYR * _frame.options.bufferSize.get());
 			}
 
 			// Get current sample values
