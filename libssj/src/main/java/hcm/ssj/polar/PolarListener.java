@@ -223,6 +223,8 @@ public class PolarListener extends PolarBleApiCallback
 						{
 							sampleRatePPG = 135;
 						}
+
+						Log.i("Registered PPG stream with " + sampleRatePPG + "Hz (" + DEVICE_ID + ")");
 					}
 
 					return api.startOhrStreaming(DEVICE_ID, sensorSetting);
@@ -250,6 +252,8 @@ public class PolarListener extends PolarBleApiCallback
 					if (values != null && !values.isEmpty())
 					{
 						sampleRateECG = values.iterator().next();
+
+						Log.i("Registered ECG stream with " + sampleRateECG + "Hz (" + DEVICE_ID + ")");
 					}
 
 					return api.startEcgStreaming(DEVICE_ID, sensorSetting);
@@ -273,6 +277,8 @@ public class PolarListener extends PolarBleApiCallback
 					if (values != null && !values.isEmpty())
 					{
 						sampleRateACC = values.iterator().next() + ACC_SR_OFFSET;
+
+						Log.i("Registered ACC stream with " + sampleRateACC + "Hz (" + DEVICE_ID + ")");
 					}
 
 					return api.startAccStreaming(DEVICE_ID, sensorSetting);
@@ -298,6 +304,8 @@ public class PolarListener extends PolarBleApiCallback
 					if (values != null && !values.isEmpty())
 					{
 						sampleRateGYR = values.iterator().next();
+
+						Log.i("Registered GYR stream with " + sampleRateGYR + "Hz (" + DEVICE_ID + ")");
 					}
 
 					return api.startGyroStreaming(DEVICE_ID, sensorSetting);
@@ -323,6 +331,8 @@ public class PolarListener extends PolarBleApiCallback
 					if (values != null && !values.isEmpty())
 					{
 						sampleRateMAG = values.iterator().next();
+
+						Log.i("Registered MAG stream with " + sampleRateMAG + "Hz (" + DEVICE_ID + ")");
 					}
 
 					return api.startMagnetometerStreaming(DEVICE_ID, sensorSetting);
