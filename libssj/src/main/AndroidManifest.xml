@@ -77,13 +77,13 @@
         <!-- Declaration when using SAAgentV2. -->
         <service android:name="com.samsung.android.sdk.accessory.SAService"/>
         <!-- Receiver must be declared when using Accessory SDK -->
-        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver">
+        <receiver android:name="com.samsung.android.sdk.accessory.RegisterUponInstallReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.samsung.accessory.action.REGISTER_AGENT" />
             </intent-filter>
         </receiver>
         <!-- Receiver must be declared when using SASocket -->
-        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver">
+        <receiver android:name="com.samsung.android.sdk.accessory.ServiceConnectionIndicationBroadcastReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="com.samsung.accessory.action.SERVICE_CONNECTION_REQUESTED" />
             </intent-filter>
