@@ -69,7 +69,8 @@ public class SocketEventReader extends EventHandler
     {
         public Option<String> ip = new Option<>("ip", null, String.class, "");
         public Option<Integer> port = new Option<>("port", 0, Integer.class, "");
-        public Option<Boolean> parseXmlToEvent = new Option<>("parseXmlToEvent", true, Boolean.class, "attempt to convert the message to an SSJ event format");
+        public Option<Boolean> parseXmlToEvent = new Option<>("parseXmlToEvent", true, Boolean.class, "Attempt to convert the message to an SSJ event format");
+        public Option<Boolean> overwriteEventTime = new Option<>("overwriteEventTime", false, Boolean.class, "Overwrite event time with internal receive time");
 
         /**
          *
@@ -199,9 +200,17 @@ public class SocketEventReader extends EventHandler
 
                         ev.name = _parser.getAttributeValue(null, "event");
                         ev.sender = _parser.getAttributeValue(null, "sender");
-                        ev.time = Integer.valueOf(_parser.getAttributeValue(null, "from"));
                         ev.dur = Integer.valueOf(_parser.getAttributeValue(null, "dur"));
                         ev.state = Event.State.valueOf(_parser.getAttributeValue(null, "state").toUpperCase());
+
+                        if (options.overwriteEventTime.get())
+                        {
+                            ev.time = _frame.getTimeMs();
+                        }
+                        else
+                        {
+                            ev.time = Integer.valueOf(_parser.getAttributeValue(null, "from"));
+                        }
 
                         _parser.next();
 
