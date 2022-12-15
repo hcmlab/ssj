@@ -32,14 +32,15 @@
     <uses-permission android:name="com.samsung.WATCH_APP_TYPE.Companion" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
-    <!-- Required for Android 11 file access -->
+    <!-- Required for file access since Android 11 -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <!--uses-feature android:name="android.hardware.type.watch" /-->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <!-- Required for GPS location -->

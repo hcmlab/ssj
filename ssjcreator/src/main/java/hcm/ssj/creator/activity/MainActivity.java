@@ -34,8 +34,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
@@ -50,6 +52,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -65,6 +69,7 @@ import com.microsoft.band.tiles.TileButtonEvent;
 import com.microsoft.band.tiles.TileEvent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import hcm.ssj.core.ExceptionHandler;
 import hcm.ssj.core.Log;
@@ -83,7 +88,7 @@ import hcm.ssj.creator.main.TabHandler;
 import hcm.ssj.creator.util.DemoHandler;
 import hcm.ssj.creator.util.Util;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, PipelineStateListener
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, PipelineStateListener, ActivityCompat.OnRequestPermissionsResultCallback
 {
 	private static final int REQUEST_DANGEROUS_PERMISSIONS = 108;
 	private static boolean ready = true;
@@ -142,14 +147,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		initActionButtonLayouts();
 		initFloatingActionButton();
 
-		//init tabs
+		// Init tabs
 		tabHandler = new TabHandler(MainActivity.this);
-		//handle permissions
+
+		// Handle permissions
 		checkPermissions();
-		//set exception handler
+
+		// Set exception handler
 		setExceptionHandler();
 
-		//register receiver for ms band events
+		// Register receiver for ms band events
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("com.microsoft.band.action.ACTION_TILE_BUTTON_PRESSED");
 		registerReceiver(msBandReceiver, filter);
@@ -196,13 +203,55 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	}
 
 	/**
-	 *
+	 * Request permissions through system dialog
 	 */
 	private void checkPermissions()
 	{
 		if (Build.VERSION.SDK_INT >= 23)
 		{
-			//dangerous permissions
+			String[] permissions = new String[]{
+					Manifest.permission.ACCESS_FINE_LOCATION,
+					Manifest.permission.BODY_SENSORS,
+					Manifest.permission.CAMERA,
+					Manifest.permission.RECORD_AUDIO
+			};
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
+			{
+				permissions = new String[]{
+						Manifest.permission.ACCESS_FINE_LOCATION,
+						Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+						Manifest.permission.BODY_SENSORS,
+						Manifest.permission.CAMERA,
+						Manifest.permission.RECORD_AUDIO
+				};
+			}
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+			{
+				permissions = new String[]{
+						Manifest.permission.ACCESS_FINE_LOCATION,
+						Manifest.permission.ACCESS_COARSE_LOCATION,
+						Manifest.permission.BODY_SENSORS,
+						Manifest.permission.CAMERA,
+						Manifest.permission.RECORD_AUDIO
+				};
+			}
+
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+			{
+				permissions = new String[]{
+						Manifest.permission.ACCESS_FINE_LOCATION,
+						Manifest.permission.ACCESS_COARSE_LOCATION,
+						Manifest.permission.BODY_SENSORS,
+						Manifest.permission.CAMERA,
+						Manifest.permission.RECORD_AUDIO,
+						Manifest.permission.BLUETOOTH_SCAN,
+						Manifest.permission.BLUETOOTH_CONNECT,
+				};
+			}
+
+			// Dangerous permissions
 			if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
 					!= PackageManager.PERMISSION_GRANTED
 					|| ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS)
@@ -214,13 +263,43 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 					|| ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
 					!= PackageManager.PERMISSION_GRANTED)
 			{
-				ActivityCompat.requestPermissions(this, new String[]{
-						Manifest.permission.ACCESS_FINE_LOCATION,
-						Manifest.permission.ACCESS_BACKGROUND_LOCATION,
-						Manifest.permission.BODY_SENSORS,
-						Manifest.permission.CAMERA,
-						Manifest.permission.RECORD_AUDIO,
-						Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_DANGEROUS_PERMISSIONS);
+				ActivityCompat.requestPermissions(this, permissions, REQUEST_DANGEROUS_PERMISSIONS);
+			}
+		}
+	}
+
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)
+	{
+		if (requestCode == REQUEST_DANGEROUS_PERMISSIONS)
+		{
+			List<String> permissionList = new ArrayList<>();
+
+			for (int i = 0; i < grantResults.length; i++)
+			{
+				if (grantResults[i] != PackageManager.PERMISSION_GRANTED
+						&& !permissions[i].equalsIgnoreCase("android.permission.FOREGROUND_SERVICE")
+						&& !permissions[i].equalsIgnoreCase("android.permission.MANAGE_EXTERNAL_STORAGE")
+						&& !permissions[i].equalsIgnoreCase("com.samsung.WATCH_APP_TYPE.Companion")
+						&& !permissions[i].equalsIgnoreCase("com.samsung.accessory.permission.ACCESSORY_FRAMEWORK"))
+				{
+					permissionList.add(permissions[i]);
+
+					Log.i("Missing permission: " + permissions[i]);
+				}
+			}
+
+			// Request all file access
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+			{
+				if (!Environment.isExternalStorageManager())
+				{
+					Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+					Uri uri = Uri.fromParts("package", getPackageName(), null);
+					intent.setData(uri);
+					startActivity(intent);
+				}
 			}
 		}
 	}
