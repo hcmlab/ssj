@@ -1,6 +1,10 @@
+/*
 apply plugin: 'com.github.dcendents.android-maven'
 
-group = publishedGroupId                               /*
+group = publishedGroupId
+
+*/
+/**
  * installv1.gradle
  * Copyright (c) 2018
  * Authors: Ionut Damian, Michael Dietz, Frank Gaibler, Daniel Langerenken, Simon Flutura,
@@ -27,6 +31,7 @@ group = publishedGroupId                               /*
  * with this library; if not, see <http://www.gnu.org/licenses/>.
  */                               // Maven Group ID for the artifact
 
+/*
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters
@@ -65,3 +70,4 @@ install {
         }
     }
 }
+*/

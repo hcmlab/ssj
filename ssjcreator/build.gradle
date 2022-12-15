@@ -29,19 +29,12 @@ apply plugin: 'com.android.application'
 apply from: '../version.gradle'
 
 android {
-    compileSdkVersion 29
-    buildToolsVersion '29.0.2'
+    compileSdkVersion 33
 
-    lintOptions {
-        abortOnError false
-    }
-    aaptOptions {
-        noCompress "demo"
-    }
     defaultConfig {
         applicationId "hcm.ssj.creator"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 33
         multiDexEnabled true
 
         versionName getVerName()
@@ -92,6 +85,13 @@ android {
             // This property is set to true by default.
             enableSplit = true
         }
+    }
+    namespace 'hcm.ssj.creator'
+    androidResources {
+        noCompress 'demo'
+    }
+    lint {
+        abortOnError false
     }
 }
 

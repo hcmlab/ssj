@@ -49,6 +49,8 @@ try {
 
     if (dirty != null) //otherwise lesser will always be dirty
         version = "$version-dirty"
+
+    // printf("DEBUG version: " + version)
 }
 catch(Exception e1) {
     printf("> Error getting versioning info from git: " + e1.getMessage())
