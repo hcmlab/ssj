@@ -30,6 +30,7 @@ package hcm.ssj.creator.activity;
 import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -150,8 +151,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		// Init tabs
 		tabHandler = new TabHandler(MainActivity.this);
 
+		// Display location popup
+		showLocationDialog();
+
 		// Handle permissions
-		checkPermissions();
+		// checkPermissions();
 
 		// Set exception handler
 		setExceptionHandler();
@@ -160,6 +164,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("com.microsoft.band.action.ACTION_TILE_BUTTON_PRESSED");
 		registerReceiver(msBandReceiver, filter);
+	}
+
+	private void showLocationDialog()
+	{
+		if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+				!= PackageManager.PERMISSION_GRANTED)
+		{
+			AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+			builder.setTitle(R.string.str_location_title)
+					.setMessage(R.string.str_location_message)
+					.setPositiveButton(R.string.str_location_button, new DialogInterface.OnClickListener()
+					{
+						@Override
+						public void onClick(DialogInterface dialog, int which)
+						{
+							checkPermissions();
+						}
+					})
+					.setOnDismissListener(new DialogInterface.OnDismissListener() {
+						@Override
+						public void onDismiss(DialogInterface dialog)
+						{
+							checkPermissions();
+						}
+					})
+					.show();
+		}
+		else if (ContextCompat.checkSelfPermission(this, Manifest.permission.BODY_SENSORS)
+				!= PackageManager.PERMISSION_GRANTED
+				|| ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+				!= PackageManager.PERMISSION_GRANTED
+				|| ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
+				!= PackageManager.PERMISSION_GRANTED
+				|| ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+				!= PackageManager.PERMISSION_GRANTED)
+		{
+			checkPermissions();
+		}
 	}
 
 	/**

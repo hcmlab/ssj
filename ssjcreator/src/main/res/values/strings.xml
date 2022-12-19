@@ -53,6 +53,9 @@
     <string name="str_saveError">Could not save file</string>
     <string name="str_loadError">Could not load file</string>
     <string name="str_deleteError">Could not delete file</string>
+    <string name="str_location_title">Information</string>
+    <string name="str_location_message">This app requires access to location data to enable its continuous recording in the background with the GPS sensor component. Without access this component can not provide location data to your pipelines.\n\nPlease enable it by setting the app\'s location permission (Apps -&gt; SSJ Creator -&gt; Permissions -&gt; Location) to \"Allow all the time\".</string>
+    <string name="str_location_button">I understand</string>
     <!--provider options-->
     <string name="str_frameSize">Frame size (s)</string>
     <string name="str_delta">Delta (s)</string>
