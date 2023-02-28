@@ -272,7 +272,7 @@ public abstract class Transformer extends Provider {
     }
 
     public abstract int getSampleDimension(Stream[] stream_in);
-    public abstract int getSampleBytes(Stream[] stream_in);
+    public int getSampleBytes(Stream[] stream_in) { return Util.sizeOf(getSampleType(stream_in)); }
     public abstract Cons.Type getSampleType(Stream[] stream_in);
     public abstract int getSampleNumber(int sampleNumber_in);
 
