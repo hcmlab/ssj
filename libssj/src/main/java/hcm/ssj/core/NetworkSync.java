@@ -83,11 +83,12 @@ class NetworkSync {
                 {
                     DatagramPacket packet = new DatagramPacket(data, data.length);
                     recvSocket.receive(packet);
-                    Log.d("received packet from " + packet.getAddress().toString());
 
                     //check data
                     byte[] msg = packet.getData();
                     String str = new String(msg, "ASCII");
+
+                    Log.d("received packet from " + packet.getAddress().toString() + ": " + str);
 
                     if (type == Pipeline.SyncType.CONTINUOUS && str.startsWith("SSI:SYNC:TIME")) //SSI format for compatibility
                     {
@@ -322,7 +323,7 @@ class NetworkSync {
             syncSocket.setReuseAddress(true);
             syncSocket.setBroadcast(true);
 
-            String msg = "SSI:STRT:RUN1"; //send in SSI format for compatibility
+            String msg = "SSI:STRT:RUN1\0"; //send in SSI format for compatibility
             byte[] data = msg.getBytes("ASCII");
             DatagramPacket packet = new DatagramPacket(data, data.length, Util.getBroadcastAddress(), port);
             syncSocket.send(packet);
@@ -343,7 +344,7 @@ class NetworkSync {
             syncSocket.setReuseAddress(true);
             syncSocket.setBroadcast(true);
 
-            String msg = "SSI:STOP:QUIT"; //send in SSI format for compatibility
+            String msg = "SSI:STOP:QUIT\0"; //send in SSI format for compatibility
             byte[] data = msg.getBytes("ASCII");
             DatagramPacket packet = new DatagramPacket(data, data.length, Util.getBroadcastAddress(), port);
             syncSocket.send(packet);
