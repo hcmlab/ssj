@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 		{
 			case R.id.id_imageButton:
 			{
-				handlePipe();
+				handlePipeOld();
 				break;
 			}
 		}
