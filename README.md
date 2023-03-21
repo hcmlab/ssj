@@ -21,14 +21,15 @@ SSJ is an extensible android framework for social signal processing in an out of
 ### Download
 To use libssj in your own application, download the [latest .aar file](../../releases/latest) from the [releases section](../../releases), place it under `app/libs/` and include the following line in your app's gradle file:
 ```
-implementation files('libs/libssj-0.7.7.aar')
+implementation files('libs/libssj-0.7.8.aar')
 ```
 <a href='https://play.google.com/store/apps/details?id=hcm.ssj.creator&utm_source=global_co&utm_medium=prtnr&utm_content=Mar2515&utm_campaign=PartBadge&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height="70" align="right"/></a>
-SSJ Creator can be downloaded from the <a href="https://play.google.com/store/apps/details?id=hcm.ssj.creator">Google Play Store</a>.
+The latest version of the SSJ Creator app can be downloaded from the [releases section](../../releases/latest) as well. Alternatively, an older version is available in the <a href="https://play.google.com/store/apps/details?id=hcm.ssj.creator">Google Play Store</a>.
 
 ### Documentation
 * White-paper: <a href="https://www.frontiersin.org/articles/10.3389/fict.2018.00013/full">frontiersin.org</a>
 * Api (Javadoc): http://hcmlab.github.io/ssj/api
+* Example pipeline: [Github wiki](https://github.com/hcmlab/ssj/wiki/How-to-use-BITalino-HeartBIT-with-SSJ)
 
 ### About
 The Social Signal Processing for Java/Android (SSJ) framework is being developed at the Lab for Human Centered Multimedia of the University of Augsburg. The authors of the framework are: <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/_formerstaff/damian/">Ionut Damian</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/dietz/">Michael Dietz</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/_formerstudents/gaibler/">Frank Gaibler</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/_formerstudents/langerenken/">Daniel Langerenken</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/flutura/">Simon Flutura</a>, <a href="https://www.informatik.uni-augsburg.de/lehrstuehle/hcm/staff/_formerstudents/krumins/">Vitalijs Krumins</a>, Antonio Grieco.
