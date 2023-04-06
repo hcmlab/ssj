@@ -71,6 +71,8 @@ public class FileDialog extends DialogFragment
     private EditText editText;
     private File[] xmlFiles = null;
 
+    private static String lastFileName = "";
+
     /**
      * @param savedInstanceState Bundle
      * @return Dialog
@@ -90,6 +92,7 @@ public class FileDialog extends DialogFragment
                             case SAVE:
                             {
                                 String fileName = editText.getText().toString().trim();
+                                lastFileName = fileName;
                                 File dir1 = new File(Environment.getExternalStorageDirectory(), Util.SSJ);
                                 File dir2 = new File(dir1.getPath(), Util.CREATOR);
                                 File dir3 = new File(dir2, Util.PIPELINES);
@@ -124,6 +127,8 @@ public class FileDialog extends DialogFragment
                                     {
                                         if (SaveLoad.load(xmlFiles[pos]))
                                         {
+                                            lastFileName = xmlFiles[pos].getName().replace(Util.SUFFIX, "");
+
                                             for (Listener listener : alListeners)
                                             {
                                                 listener.onPositiveEvent(new File[]{xmlFiles[pos]});
@@ -225,6 +230,7 @@ public class FileDialog extends DialogFragment
                 editText = new EditText(getContext());
                 editText.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_START);
                 editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                editText.setText(lastFileName);
                 builder.setView(editText);
                 break;
             }
