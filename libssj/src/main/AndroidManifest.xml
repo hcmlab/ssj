@@ -93,5 +93,17 @@
         </receiver>
         <!-- Location of Accessory service profile should be declared like below. -->
         <meta-data  android:name="AccessoryServicesLocation" android:value="/res/xml/accessoryservices.xml" />
+
+        <uses-native-library
+            android:name="libOpenCL.so"
+            android:required="false" />
+
+        <uses-native-library
+            android:name="libOpenCL-car.so"
+            android:required="false" />
+
+        <uses-native-library
+            android:name="libOpenCL-pixel.so"
+            android:required="false" />
     </application>
 </manifest>
