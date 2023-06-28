@@ -122,7 +122,7 @@ public class FaceLandmarks extends Transformer
 
 	public class Options extends OptionList
 	{
-		public final Option<Integer> rotation = new Option<>("rotation", 270, Integer.class, "rotation of the input image, use 270 for front camera and 90 for back camera");
+		public final Option<Integer> rotation = new Option<>("rotation", 0, Integer.class, "rotation of the input image, use 270 for front camera and 90 for back camera");
 		public final Option<Float> faceConfidenceThreshold = new Option<>("faceConfidenceThreshold", 0.5f, Float.class, "threshold for the face confidence score to determine whether a face is present");
 		public final Option<Boolean> useGPU = new Option<>("useGPU", true, Boolean.class, "if true tries to use GPU for better performance");
 		public final Option<Boolean> useLegacyModel = new Option<>("useLegacyModel", false, Boolean.class, "if true uses old landmark detection model");

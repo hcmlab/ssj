@@ -76,7 +76,7 @@
     <transformer class="hcm.ssj.camera.ImageResizer" id="215955256" delta="0.0">
       <options>
         <option name="cropImage" value="false" />
-        <option name="maintainAspect" value="true" />
+        <option name="maintainAspect" value="false" />
         <option name="rotation" value="-90" />
         <option name="savePreview" value="false" />
         <option name="size" value="224" />
